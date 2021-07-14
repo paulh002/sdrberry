@@ -1,0 +1,1158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{3d9e5359-8847-415e-a3d2-987b494ce9de}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{e701f4c2-80f4-458e-a88a-2778398d7fc4}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource files">
+      <UniqueIdentifier>{fb86acd2-d081-4d94-b5b8-6e7a775ea5c0}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="VisualGDB settings">
+      <UniqueIdentifier>{b6dc85f4-9179-4fd5-a1f6-32ed485bbfe8}</UniqueIdentifier>
+      <Extensions>vgdbsettings</Extensions>
+    </Filter>
+    <Filter Include="Source files\core">
+      <UniqueIdentifier>{f5cee168-b911-49ed-8b61-2c08e5a7c9e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\draw">
+      <UniqueIdentifier>{d75da362-3c41-442a-8dc9-e361eddd7751}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra">
+      <UniqueIdentifier>{f1a82f5d-4199-4913-a458-6bfe1d048d92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\layouts">
+      <UniqueIdentifier>{721719da-b91a-4d1a-93a6-46dbc7df9043}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\layouts\flex">
+      <UniqueIdentifier>{280ad54d-f4f0-4a04-ab9c-cfc411c6a3c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\layouts\grid">
+      <UniqueIdentifier>{920767bf-75db-4798-9c74-e06783b0fa8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\themes">
+      <UniqueIdentifier>{8b3d0e89-7888-4880-bda6-1b29e6b26346}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\themes\basic">
+      <UniqueIdentifier>{c5ea5d14-2b76-4b4d-9e65-84ca303fc233}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\themes\default">
+      <UniqueIdentifier>{5147b63a-c29f-47c5-8475-0896124d873e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\themes\mono">
+      <UniqueIdentifier>{5cd86b02-060d-45e3-a1b1-94acbc3e53bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets">
+      <UniqueIdentifier>{555b139a-8d33-4d36-812c-542be1ecbd84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\animimg">
+      <UniqueIdentifier>{e2871ecf-6ae1-4a1e-89ef-ec951275d4d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\calendar">
+      <UniqueIdentifier>{15d97c1f-e4ed-469a-882f-822667f43b30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\chart">
+      <UniqueIdentifier>{e97e322f-f285-4463-8b13-d5e4fa296b51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\colorwheel">
+      <UniqueIdentifier>{8dfdbda3-0434-4734-b9fb-3ab6e58f8c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\imgbtn">
+      <UniqueIdentifier>{426a7b82-449d-4fb8-a7f3-6e0056812eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\keyboard">
+      <UniqueIdentifier>{4ee57a87-320b-49dd-bafc-f004ac45a84d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\led">
+      <UniqueIdentifier>{74b61b09-7dca-4e51-9bfa-62cdcce4b9ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\list">
+      <UniqueIdentifier>{34a3dc37-c18e-4e2c-9270-4dfc80802cee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\meter">
+      <UniqueIdentifier>{75839cab-6c5c-4fe4-8584-2a50528d3350}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\msgbox">
+      <UniqueIdentifier>{4a35796f-3416-411d-a444-ce8956432738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\span">
+      <UniqueIdentifier>{037bcd25-6fba-448c-b5a6-aa4edbaae915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\spinbox">
+      <UniqueIdentifier>{e533e144-84e8-468c-aee3-54f69fd19bc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\spinner">
+      <UniqueIdentifier>{888836ae-b704-42db-b966-b0e2bde76e13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\tabview">
+      <UniqueIdentifier>{6375ceca-d20a-4826-a6e1-6deb3b89359e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\tileview">
+      <UniqueIdentifier>{186bb895-9714-41a0-ab6f-48b804828390}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\extra\widgets\win">
+      <UniqueIdentifier>{f29b3e49-6aca-48d3-b567-6a8296d2fd87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\font">
+      <UniqueIdentifier>{6cbb572f-424a-4fc2-9637-ef6fae1d94d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\gpu">
+      <UniqueIdentifier>{f5601576-4db7-4f21-aa2d-125c8e641322}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\hal">
+      <UniqueIdentifier>{975ac8de-8781-4635-9c11-6fbf5b20ac3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\misc">
+      <UniqueIdentifier>{2bf16aef-b171-4674-b64d-0315381fe94a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\widgets">
+      <UniqueIdentifier>{379fbf88-768c-44e8-9aae-1db75dee2b64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\core">
+      <UniqueIdentifier>{2f4bc830-c10c-44a8-a73f-2ed2ce6d6d23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\draw">
+      <UniqueIdentifier>{bd259a12-d007-4a31-9270-6d1292d73c03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra">
+      <UniqueIdentifier>{02ecf491-654b-44aa-bfb7-3b36a510887c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\layouts">
+      <UniqueIdentifier>{96d96a50-473a-4146-adcf-ff04437442e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\layouts\flex">
+      <UniqueIdentifier>{beff5d0b-067e-42fa-bf81-4816f2f851b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\layouts\grid">
+      <UniqueIdentifier>{eea38b6f-b135-4401-a635-24e30002bed4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\themes">
+      <UniqueIdentifier>{ac551157-9070-40fa-be9c-6ee3925922c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\themes\basic">
+      <UniqueIdentifier>{ba62072f-4fc3-4981-807b-ef75976cd9d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\themes\default">
+      <UniqueIdentifier>{dbab7927-b8bf-4b1b-aef5-e46bee49610f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\themes\mono">
+      <UniqueIdentifier>{47dd9499-550d-41fb-b196-ab4648d03ba8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets">
+      <UniqueIdentifier>{025f7b64-4863-4c8d-8947-b2aaebe593ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\animimg">
+      <UniqueIdentifier>{4ca50bdc-1512-4109-bd78-896f2a88c359}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\calendar">
+      <UniqueIdentifier>{01c763da-d191-40d4-a048-cb97d8407e7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\chart">
+      <UniqueIdentifier>{ee08281f-88e7-4a84-a7e7-6139896e8608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\colorwheel">
+      <UniqueIdentifier>{d1deab8f-cab8-4b3e-b85e-a0c603446dde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\imgbtn">
+      <UniqueIdentifier>{8cf0688a-5cf4-4254-8bcb-f87fa3929ff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\keyboard">
+      <UniqueIdentifier>{d11c9552-044f-475e-a9f3-5d0168ee8c4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\led">
+      <UniqueIdentifier>{aa622423-9d0a-46a7-9a21-3c57f4c75506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\list">
+      <UniqueIdentifier>{ad6d7455-63fb-4f62-af41-7901bb34a95e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\meter">
+      <UniqueIdentifier>{4e590972-3921-49c6-9b21-47a8ea0ee148}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\msgbox">
+      <UniqueIdentifier>{b6c169d5-b641-40f0-9e4d-b26e376abe95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\span">
+      <UniqueIdentifier>{94a116a7-2541-4821-95d7-bec46a78bfbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\spinbox">
+      <UniqueIdentifier>{169096ae-4171-4437-8e04-1e69e8055a0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\spinner">
+      <UniqueIdentifier>{ef42f2bd-0b3f-4af5-87fe-aaf4a2747945}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\tabview">
+      <UniqueIdentifier>{235ac385-e6b9-42b1-b693-d815da60bbad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\tileview">
+      <UniqueIdentifier>{c40d9bb5-6f7a-498d-aabd-74ca2d11f070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\extra\widgets\win">
+      <UniqueIdentifier>{12b3c345-bb47-4b83-a376-aa41c23bd532}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\font">
+      <UniqueIdentifier>{48e88283-b584-448b-894d-ed61de28dbd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\gpu">
+      <UniqueIdentifier>{10c24e89-6f40-493c-9e07-a90207617a4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\hal">
+      <UniqueIdentifier>{e5151784-b141-4139-9d49-8b4755e51f46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\misc">
+      <UniqueIdentifier>{692c9cfa-a2a6-491c-9f85-4e82f759aca1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\widgets">
+      <UniqueIdentifier>{82b0c33c-65e2-4acc-b2ba-c94e147ffa8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\blepp">
+      <UniqueIdentifier>{8eae5154-ffce-4b28-84e1-c3a186aee1c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\src">
+      <UniqueIdentifier>{60b9a4ca-1d4f-46d8-8e50-555cff1b3558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\blepp">
+      <UniqueIdentifier>{56838a94-a0da-47bc-92a5-b79573c8b7a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\lv_drivers">
+      <UniqueIdentifier>{15d40d89-d09d-4696-9c64-963a9bc14a9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\SoapySDR">
+      <UniqueIdentifier>{7720c0d3-17c6-46ba-a0c2-3db1cf34b62a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\lv_drivers">
+      <UniqueIdentifier>{689ad73d-e91b-4bbe-a2b6-b2173b36392d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\lvgl">
+      <UniqueIdentifier>{ca9f6e63-721c-417b-9843-6d432cee5de9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sdrberry.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_disp.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_event.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_group.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_indev.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_indev_scroll.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj_class.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj_draw.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj_pos.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj_scroll.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj_style.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj_style_gen.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_obj_tree.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_refr.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\core\lv_theme.c">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_arc.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_blend.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_img.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_label.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_line.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_mask.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_rect.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_triangle.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_img_buf.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_img_cache.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_img_decoder.c">
+      <Filter>Source files\draw</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\lv_extra.c">
+      <Filter>Source files\extra</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\layouts\flex\lv_flex.c">
+      <Filter>Source files\extra\layouts\flex</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\layouts\grid\lv_grid.c">
+      <Filter>Source files\extra\layouts\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\themes\basic\lv_theme_basic.c">
+      <Filter>Source files\extra\themes\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\themes\default\lv_theme_default.c">
+      <Filter>Source files\extra\themes\default</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\themes\mono\lv_theme_mono.c">
+      <Filter>Source files\extra\themes\mono</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\animimg\lv_animimg.c">
+      <Filter>Source files\extra\widgets\animimg</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\calendar\lv_calendar.c">
+      <Filter>Source files\extra\widgets\calendar</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\calendar\lv_calendar_header_arrow.c">
+      <Filter>Source files\extra\widgets\calendar</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\calendar\lv_calendar_header_dropdown.c">
+      <Filter>Source files\extra\widgets\calendar</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\chart\lv_chart.c">
+      <Filter>Source files\extra\widgets\chart</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\colorwheel\lv_colorwheel.c">
+      <Filter>Source files\extra\widgets\colorwheel</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\imgbtn\lv_imgbtn.c">
+      <Filter>Source files\extra\widgets\imgbtn</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\keyboard\lv_keyboard.c">
+      <Filter>Source files\extra\widgets\keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\led\lv_led.c">
+      <Filter>Source files\extra\widgets\led</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\list\lv_list.c">
+      <Filter>Source files\extra\widgets\list</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\meter\lv_meter.c">
+      <Filter>Source files\extra\widgets\meter</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\msgbox\lv_msgbox.c">
+      <Filter>Source files\extra\widgets\msgbox</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\span\lv_span.c">
+      <Filter>Source files\extra\widgets\span</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\spinbox\lv_spinbox.c">
+      <Filter>Source files\extra\widgets\spinbox</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\spinner\lv_spinner.c">
+      <Filter>Source files\extra\widgets\spinner</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\tabview\lv_tabview.c">
+      <Filter>Source files\extra\widgets\tabview</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\tileview\lv_tileview.c">
+      <Filter>Source files\extra\widgets\tileview</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\extra\widgets\win\lv_win.c">
+      <Filter>Source files\extra\widgets\win</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_dejavu_16_persian_hebrew.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_fmt_txt.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_loader.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_10.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_12.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_12_subpx.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_14.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_16.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_18.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_20.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_22.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_24.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_26.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_28.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_28_compressed.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_30.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_32.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_34.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_36.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_38.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_40.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_42.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_44.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_46.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_48.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_montserrat_8.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_simsun_16_cjk.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_unscii_16.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\font\lv_font_unscii_8.c">
+      <Filter>Source files\font</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\gpu\lv_gpu_nxp_pxp.c">
+      <Filter>Source files\gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\gpu\lv_gpu_nxp_pxp_osa.c">
+      <Filter>Source files\gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\gpu\lv_gpu_nxp_vglite.c">
+      <Filter>Source files\gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\gpu\lv_gpu_stm32_dma2d.c">
+      <Filter>Source files\gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\hal\lv_hal_disp.c">
+      <Filter>Source files\hal</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\hal\lv_hal_indev.c">
+      <Filter>Source files\hal</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\hal\lv_hal_tick.c">
+      <Filter>Source files\hal</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_anim.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_area.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_async.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_bidi.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_color.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_fs.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_gc.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_ll.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_log.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_math.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_mem.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_printf.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_style.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_style_gen.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_templ.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_timer.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_tlsf.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_txt.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_txt_ap.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\misc\lv_utils.c">
+      <Filter>Source files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_arc.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_bar.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_btn.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_btnmatrix.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_canvas.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_checkbox.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_dropdown.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_img.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_label.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_line.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_objx_templ.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_roller.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_slider.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_switch.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_table.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\widgets\lv_textarea.c">
+      <Filter>Source files\widgets</Filter>
+    </ClCompile>
+    <ClInclude Include="lvgl\src\core\lv_disp.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_event.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_group.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_indev.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_indev_scroll.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj_class.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj_draw.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj_pos.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj_scroll.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj_style.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj_style_gen.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_obj_tree.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_refr.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\core\lv_theme.h">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_arc.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_blend.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_img.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_label.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_line.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_mask.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_rect.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_draw_triangle.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_img_buf.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_img_cache.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\lv_img_decoder.h">
+      <Filter>Header files\draw</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\lv_extra.h">
+      <Filter>Header files\extra</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\layouts\lv_layouts.h">
+      <Filter>Header files\extra\layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\layouts\flex\lv_flex.h">
+      <Filter>Header files\extra\layouts\flex</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\layouts\grid\lv_grid.h">
+      <Filter>Header files\extra\layouts\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\themes\lv_themes.h">
+      <Filter>Header files\extra\themes</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\themes\basic\lv_theme_basic.h">
+      <Filter>Header files\extra\themes\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\themes\default\lv_theme_default.h">
+      <Filter>Header files\extra\themes\default</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\themes\mono\lv_theme_mono.h">
+      <Filter>Header files\extra\themes\mono</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\lv_widgets.h">
+      <Filter>Header files\extra\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\animimg\lv_animimg.h">
+      <Filter>Header files\extra\widgets\animimg</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\calendar\lv_calendar.h">
+      <Filter>Header files\extra\widgets\calendar</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\calendar\lv_calendar_header_arrow.h">
+      <Filter>Header files\extra\widgets\calendar</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\calendar\lv_calendar_header_dropdown.h">
+      <Filter>Header files\extra\widgets\calendar</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\chart\lv_chart.h">
+      <Filter>Header files\extra\widgets\chart</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\colorwheel\lv_colorwheel.h">
+      <Filter>Header files\extra\widgets\colorwheel</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\imgbtn\lv_imgbtn.h">
+      <Filter>Header files\extra\widgets\imgbtn</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\keyboard\lv_keyboard.h">
+      <Filter>Header files\extra\widgets\keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\led\lv_led.h">
+      <Filter>Header files\extra\widgets\led</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\list\lv_list.h">
+      <Filter>Header files\extra\widgets\list</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\meter\lv_meter.h">
+      <Filter>Header files\extra\widgets\meter</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\msgbox\lv_msgbox.h">
+      <Filter>Header files\extra\widgets\msgbox</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\span\lv_span.h">
+      <Filter>Header files\extra\widgets\span</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\spinbox\lv_spinbox.h">
+      <Filter>Header files\extra\widgets\spinbox</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\spinner\lv_spinner.h">
+      <Filter>Header files\extra\widgets\spinner</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\tabview\lv_tabview.h">
+      <Filter>Header files\extra\widgets\tabview</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\tileview\lv_tileview.h">
+      <Filter>Header files\extra\widgets\tileview</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\win\lv_win.h">
+      <Filter>Header files\extra\widgets\win</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\font\lv_font.h">
+      <Filter>Header files\font</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\font\lv_font_fmt_txt.h">
+      <Filter>Header files\font</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\font\lv_font_loader.h">
+      <Filter>Header files\font</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\font\lv_symbol_def.h">
+      <Filter>Header files\font</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\gpu\lv_gpu_nxp_pxp.h">
+      <Filter>Header files\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\gpu\lv_gpu_nxp_pxp_osa.h">
+      <Filter>Header files\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\gpu\lv_gpu_nxp_vglite.h">
+      <Filter>Header files\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\gpu\lv_gpu_stm32_dma2d.h">
+      <Filter>Header files\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\hal\lv_hal.h">
+      <Filter>Header files\hal</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\hal\lv_hal_disp.h">
+      <Filter>Header files\hal</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\hal\lv_hal_indev.h">
+      <Filter>Header files\hal</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\hal\lv_hal_tick.h">
+      <Filter>Header files\hal</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_anim.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_area.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_assert.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_async.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_bidi.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_color.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_fs.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_gc.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_ll.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_log.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_math.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_mem.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_printf.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_style.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_style_gen.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_templ.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_timer.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_tlsf.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_txt.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_txt_ap.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_types.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_utils.h">
+      <Filter>Header files\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_arc.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_bar.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_btn.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_btnmatrix.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_canvas.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_checkbox.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_dropdown.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_img.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_label.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_line.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_objx_templ.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_roller.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_slider.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_switch.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_table.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\widgets\lv_textarea.h">
+      <Filter>Header files\widgets</Filter>
+    </ClInclude>
+    <ClCompile Include="FreeSansOblique24.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeSansOblique32.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeSansOblique42.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_right_pane.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="ble_interface.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\logging.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\pretty_printers.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\bledevice.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\blestatemachine.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\lescan.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\uuid.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\att.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\att_pdu.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\AD_touch.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\drm.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\evdev.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\fbdev.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\FT5406EE8.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\GC9A01.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\ILI9341.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\keyboard.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\libinput.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\monitor.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\mouse.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\mousewheel.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\R61581.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\indev\XPT2046.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\UC1610.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\ST7565.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\SSD1963.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\display\SHARP_MIP.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="libblepp\float.cc">
+      <Filter>Source files\blepp</Filter>
+    </ClCompile>
+    <ClCompile Include="device.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="wstring.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sdrberry-Debug.vgdbsettings">
+      <Filter>VisualGDB settings</Filter>
+    </None>
+    <None Include="sdrberry-Release.vgdbsettings">
+      <Filter>VisualGDB settings</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="gui_right_pane.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ble_interface.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\bledevice.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\blestatemachine.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\AD_touch.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\att.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\att_pdu.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\drm.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\evdev.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\fbdev.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\float.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\FT5406EE8.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\gap.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\GC9A01.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\ILI9341.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\keyboard.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\lescan.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\logging.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\monitor.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\mouse.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\mousewheel.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\pretty_printers.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\R61581.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\SHARP_MIP.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\SSD1963.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\ST7565.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\display\UC1610.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\XPT2046.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\uuid.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="blepp\xtoa.h">
+      <Filter>Header files\blepp</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\indev\libinput_drv.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\lv_api_map.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_conf.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\lv_conf_internal.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\lv_conf_kconfig.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drv_conf.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\lvgl.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="devices.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Device.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Config.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Formats.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="wstring.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

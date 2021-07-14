@@ -1,0 +1,224 @@
+#include <unistd.h>
+#include <pthread.h>
+#include <time.h>
+#include <sys/time.h>
+#include <stdint.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "wstring.h"
+#include "lvgl/lvgl.h"
+#include "lv_drivers/display/fbdev.h"
+#include "lv_drivers/indev/evdev.h"
+#include "devices.h"
+#include "gui_right_pane.h"
+#include "ble_interface.h"
+
+
+
+
+LV_FONT_DECLARE(FreeSansOblique42);
+LV_FONT_DECLARE(FreeSansOblique32);
+
+// display buffer size - not sure if this size is really needed
+#define DISP_BUF_SIZE 384000		// 800x480
+
+const int screenWidth = 800;
+const int screenHeight = 480;
+const int bottomHeight = 40;
+const int topHeight = 45;
+const int tunerHeight = 70;
+const int nobuttons = 8;
+const int rightWidth = 200;
+const int bottombutton_width = (screenWidth / nobuttons) - 2;
+const int bottombutton_width1 = (screenWidth / nobuttons);
+
+lv_obj_t* scr;
+lv_obj_t* bg_top;
+lv_obj_t* bg_middle;
+lv_obj_t* bg_tuner1, *bg_tuner2;
+lv_obj_t* label_status;
+lv_obj_t* vfo1_frequency;
+lv_obj_t* vfo2_frequency;
+
+lv_obj_t* vfo1_button;
+lv_obj_t* vfo2_button;
+	
+static lv_style_t style_btn;
+
+int main(int argc, char *argv[])
+{
+	/*LittlevGL init*/
+	lv_init();
+
+	/*Linux frame buffer device init*/
+	fbdev_init();
+
+	// Touch pointer device init
+	evdev_init();
+	
+	/*A small buffer for LittlevGL to draw the screen's content*/
+	static lv_color_t buf[DISP_BUF_SIZE];
+
+	/*Initialize a descriptor for the buffer*/
+	static lv_disp_draw_buf_t disp_buf;
+	lv_disp_draw_buf_init(&disp_buf, buf, NULL, DISP_BUF_SIZE);
+
+	/*Initialize and register a display driver*/
+	static lv_disp_drv_t disp_drv;
+	lv_disp_drv_init(&disp_drv);
+	disp_drv.draw_buf   = &disp_buf;
+	disp_drv.flush_cb   = fbdev_flush;
+	disp_drv.hor_res    = screenWidth;
+	disp_drv.ver_res    = screenHeight;
+	lv_disp_drv_register(&disp_drv);
+	
+	// Initialize and register a pointer device driver
+	lv_indev_drv_t indev_drv;
+	lv_indev_drv_init(&indev_drv);
+	indev_drv.type = LV_INDEV_TYPE_POINTER;
+	indev_drv.read_cb = evdev_read;       // defined in lv_drivers/indev/evdev.h
+	lv_indev_drv_register(&indev_drv);
+	
+	lv_theme_t* th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
+	lv_disp_set_theme(NULL, th);
+	scr = lv_scr_act();
+	
+	static lv_style_t top_style;
+		
+	lv_style_init(&top_style);
+	lv_style_set_radius(&top_style, 0);
+	lv_style_set_bg_color(&top_style, lv_palette_main(LV_PALETTE_INDIGO));
+		
+	bg_top = lv_obj_create(scr);
+	lv_obj_add_style(bg_top, &top_style, 0);
+	lv_obj_set_size(bg_top, LV_HOR_RES, topHeight);
+
+	label_status = lv_label_create(bg_top);
+	lv_label_set_long_mode(label_status, LV_LABEL_LONG_SCROLL);
+	lv_obj_set_width(label_status, LV_HOR_RES - 20);
+	lv_label_set_text(label_status, "Label");
+	lv_obj_align(label_status, LV_ALIGN_CENTER, 20, 0);
+
+	static lv_style_t tuner_style;
+		
+	lv_style_init(&tuner_style);
+	lv_style_set_radius(&tuner_style, 0);
+	lv_style_set_bg_color(&tuner_style, lv_color_black());
+
+	bg_tuner1 = lv_obj_create(scr);
+	lv_obj_add_style(bg_tuner1, &tuner_style, 0);
+	lv_obj_set_pos(bg_tuner1, 0, topHeight);
+	lv_obj_set_size(bg_tuner1, LV_HOR_RES / 2 - 3, tunerHeight);
+	lv_obj_clear_flag(bg_tuner1, LV_OBJ_FLAG_SCROLLABLE);
+		
+	bg_tuner2 = lv_obj_create(scr);
+	lv_obj_add_style(bg_tuner2, &tuner_style, 0);
+	lv_obj_set_pos(bg_tuner2, LV_HOR_RES / 2 + 3, topHeight);
+	lv_obj_set_size(bg_tuner2, LV_HOR_RES / 2 - 3, tunerHeight);
+	lv_obj_clear_flag(bg_tuner2, LV_OBJ_FLAG_SCROLLABLE);
+	
+	setup_right_pane(scr);
+	
+	static lv_style_t background_style;
+		
+	lv_style_init(&background_style);
+	lv_style_set_radius(&background_style, 0);
+	lv_style_set_bg_color(&background_style, lv_palette_main(LV_PALETTE_RED));
+	
+	bg_middle = lv_obj_create(scr);
+	lv_obj_add_style(bg_middle, &background_style, 0);
+	lv_obj_set_pos(bg_middle, 0, topHeight + tunerHeight);
+	lv_obj_set_size(bg_middle, LV_HOR_RES - rightWidth -3, screenHeight - topHeight - tunerHeight);
+	
+	static lv_style_t text_style;
+	lv_style_init(&text_style);
+
+	/*Set a background color and a radius*/
+	lv_style_set_radius(&text_style,  5);
+	lv_style_set_bg_opa(&text_style,  LV_OPA_COVER);
+	lv_style_set_bg_color(&text_style, lv_color_black());
+	lv_style_set_text_align(&text_style, LV_ALIGN_CENTER);
+	lv_style_set_text_font(&text_style, &FreeSansOblique42);
+	
+	vfo1_frequency = lv_label_create(bg_tuner1);
+	//lv_label_set_long_mode(vfo1_frequency, LV_LABEL_LONG_CLIP);
+	lv_obj_add_style(vfo1_frequency, &text_style, 0);
+	lv_obj_set_width(vfo1_frequency, LV_HOR_RES - 20);
+	lv_label_set_text(vfo1_frequency, "3,500.00 Khz");
+	lv_obj_set_height(vfo1_frequency, 40);
+	
+	vfo2_frequency = lv_label_create(bg_tuner2);
+	//lv_label_set_long_mode(vfo2_frequency, LV_LABEL_LONG_CLIP);
+	lv_obj_add_style(vfo2_frequency, &text_style, 0);
+	lv_obj_set_width(vfo2_frequency, LV_HOR_RES - 20);
+	lv_label_set_text(vfo2_frequency, "7,200.00 Khz");
+	lv_obj_set_height(vfo2_frequency, 40);
+	
+	lv_style_init(&style_btn);
+
+	lv_style_set_radius(&style_btn, 10);
+	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
+	lv_style_set_bg_grad_color(&style_btn, lv_color_make(0x00, 0x00, 0x00));
+	lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
+	lv_style_set_bg_opa(&style_btn, 255);
+	lv_style_set_border_color(&style_btn, lv_color_make(0x9b, 0x36, 0x36));  // lv_color_make(0x2e, 0x44, 0xb2)
+	lv_style_set_border_width(&style_btn, 2);
+	lv_style_set_border_opa(&style_btn, 255);
+	lv_style_set_outline_color(&style_btn, lv_color_black());
+	lv_style_set_outline_opa(&style_btn, 255);
+	
+	vfo1_button = lv_btn_create(bg_middle);
+	lv_obj_add_style(vfo1_button, &style_btn,0); 
+	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
+	lv_obj_align(vfo1_button, LV_ALIGN_BOTTOM_LEFT, 0 * bottombutton_width1, 0);
+	//lv_btn_set_checkable(vfo1_button, true);
+	//lv_btn_toggle(vfo1_button);
+	lv_obj_set_size(vfo1_button, bottombutton_width, bottomHeight);
+	lv_obj_t* label = lv_label_create(vfo1_button);
+	lv_label_set_text(label, "Vfo 1");
+	lv_obj_center(label);
+	
+	vfo2_button = lv_btn_create(bg_middle);
+	lv_obj_add_style(vfo2_button, &style_btn, 0); 
+	//lv_obj_set_event_cb(vfo2_button, mode_button_vfo);
+	lv_obj_align(vfo2_button, LV_ALIGN_BOTTOM_LEFT, 1 * bottombutton_width1, 0);
+	//lv_btn_set_checkable(vfo2_button, true);
+	lv_obj_set_size(vfo2_button, bottombutton_width, bottomHeight);
+	label = lv_label_create(vfo2_button);
+	lv_label_set_text(label, "Vfo 2");
+	lv_obj_center(label);
+	
+	if (discover_devices() == EXIT_SUCCESS)
+	{
+		lv_label_set_text(label_status, device_name.c_str()); 
+	}
+	//setup_ble();
+	/*Handle LitlevGL tasks (tickless mode)*/
+	while (1) {
+		lv_task_handler();
+		usleep(5000);
+	}
+
+	return 0;
+}
+
+/*Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR`*/
+uint32_t custom_tick_get(void)
+{
+	static uint64_t start_ms = 0;
+	if (start_ms == 0) {
+		struct timeval tv_start;
+		gettimeofday(&tv_start, NULL);
+		start_ms = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
+	}
+
+	struct timeval tv_now;
+	gettimeofday(&tv_now, NULL);
+	uint64_t now_ms;
+	now_ms = (tv_now.tv_sec * 1000000 + tv_now.tv_usec) / 1000;
+
+	uint32_t time_ms = now_ms - start_ms;
+	return time_ms;
+}
+

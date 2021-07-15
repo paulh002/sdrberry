@@ -1018,6 +1018,18 @@
     <ClCompile Include="wstring.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="SoapySDRProbe.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="sdrstream.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="vfo.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_top_bar.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1152,6 +1164,33 @@
       <Filter>Header files\SoapySDR</Filter>
     </ClInclude>
     <ClInclude Include="wstring.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\ConverterPrimitives.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\ConverterRegistry.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Registry.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Time.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Types.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Version.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="sdrstream.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="vfo.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_top_bar.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

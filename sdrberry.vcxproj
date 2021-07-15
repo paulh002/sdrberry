@@ -53,7 +53,7 @@
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>cd ..;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -65,6 +65,7 @@
     <ClCompile Include="FreeSansOblique32.c" />
     <ClCompile Include="FreeSansOblique42.c" />
     <ClCompile Include="gui_right_pane.cpp" />
+    <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="libblepp\att.cc" />
     <ClCompile Include="libblepp\att_pdu.cc" />
     <ClCompile Include="libblepp\bledevice.cc" />
@@ -216,6 +217,9 @@
     <ClCompile Include="lvgl\src\widgets\lv_switch.c" />
     <ClCompile Include="lvgl\src\widgets\lv_table.c" />
     <ClCompile Include="lvgl\src\widgets\lv_textarea.c" />
+    <ClCompile Include="sdrstream.cpp" />
+    <ClCompile Include="SoapySDRProbe.cpp" />
+    <ClCompile Include="vfo.cpp" />
     <ClCompile Include="wstring.cpp" />
     <ClInclude Include="blepp\att.h" />
     <ClInclude Include="blepp\att_pdu.h" />
@@ -231,6 +235,7 @@
     <ClInclude Include="ble_interface.h" />
     <ClInclude Include="devices.h" />
     <ClInclude Include="gui_right_pane.h" />
+    <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="lvgl\src\lvgl.h" />
     <ClInclude Include="lvgl\src\lv_api_map.h" />
     <ClInclude Include="lvgl\src\lv_conf_internal.h" />
@@ -359,9 +364,17 @@
     <ClInclude Include="lv_drivers\indev\mousewheel.h" />
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
     <ClInclude Include="lv_drv_conf.h" />
+    <ClInclude Include="sdrstream.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
+    <ClInclude Include="SoapySDR\ConverterPrimitives.hpp" />
+    <ClInclude Include="SoapySDR\ConverterRegistry.hpp" />
     <ClInclude Include="SoapySDR\Device.hpp" />
     <ClInclude Include="SoapySDR\Formats.hpp" />
+    <ClInclude Include="SoapySDR\Registry.hpp" />
+    <ClInclude Include="SoapySDR\Time.hpp" />
+    <ClInclude Include="SoapySDR\Types.hpp" />
+    <ClInclude Include="SoapySDR\Version.hpp" />
+    <ClInclude Include="vfo.h" />
     <ClInclude Include="wstring.h" />
   </ItemGroup>
   <ItemGroup>

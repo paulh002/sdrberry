@@ -1,0 +1,51 @@
+sudo apt-get install -y ninja-build
+sudo apt-get install \
+    cmake g++ \
+    libpython-dev python-numpy swig
+git clone https://github.com/pothosware/SoapySDR.git
+cd SoapySDR
+git pull origin master
+mkdir build
+cd build
+cmake ..
+make -j4
+sudo make install
+sudo ldconfig #needed on debian systems
+SoapySDRUtil --info
+
+sudo apt-get install -y libiio-dev
+sudo apt-get install libiio-utils
+
+https://github.com/analogdevicesinc/libad9361-iio
+sudo ldconfig /usr/local/lib/SoapySDR/modules0.8/
+cmake ./CMakeLists.txt
+
+git clone https://github.com/pothosware/SoapyPlutoSDR
+cd SoapyPlutoSDR
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig
+
+check usb met: sudo lsusb
+SoapySDRUtil --probe="driver=plutosdr,hostname=192.168.100.1"
+
+// Install BLE
+wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.60.tar.xz
+tar xvf bluez-5.60.tar.xz
+sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev libdbus-1-dev libical-dev
+cd bluez-5.60
+./configure --enable-library
+make -j4
+sudo make install
+btmon -v
+
+// Install BOOST
+sudo apt-cache search libboost  // to check latest version
+sudo apt-get install libboost1.62-all-dev
+
+
+//Put in the Additional Linker inputs:
+/lib/arm-linux-gnueabihf/libpthread.so.0

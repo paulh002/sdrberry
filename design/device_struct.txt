@@ -1,0 +1,12 @@
+name
+firmware version
+hardware version
+gateware version
+protocol version
+gain
+tx [y/n]
+rx [y/n]
+frequency range rx
+frequency range tx
+bandwidth rx
+bandwidth tx

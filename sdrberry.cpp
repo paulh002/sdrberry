@@ -12,10 +12,9 @@
 #include "lv_drivers/indev/evdev.h"
 #include "devices.h"
 #include "gui_right_pane.h"
+#include "gui_top_bar.h"
 #include "ble_interface.h"
-
-
-
+#include "vfo.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
@@ -26,7 +25,7 @@ LV_FONT_DECLARE(FreeSansOblique32);
 const int screenWidth = 800;
 const int screenHeight = 480;
 const int bottomHeight = 40;
-const int topHeight = 45;
+const int topHeight = 55;
 const int tunerHeight = 70;
 const int nobuttons = 8;
 const int rightWidth = 200;
@@ -34,16 +33,16 @@ const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 
 lv_obj_t* scr;
-lv_obj_t* bg_top;
+
 lv_obj_t* bg_middle;
 lv_obj_t* bg_tuner1, *bg_tuner2;
-lv_obj_t* label_status;
+
 lv_obj_t* vfo1_frequency;
 lv_obj_t* vfo2_frequency;
 
 lv_obj_t* vfo1_button;
 lv_obj_t* vfo2_button;
-	
+
 static lv_style_t style_btn;
 
 int main(int argc, char *argv[])
@@ -84,21 +83,7 @@ int main(int argc, char *argv[])
 	lv_disp_set_theme(NULL, th);
 	scr = lv_scr_act();
 	
-	static lv_style_t top_style;
-		
-	lv_style_init(&top_style);
-	lv_style_set_radius(&top_style, 0);
-	lv_style_set_bg_color(&top_style, lv_palette_main(LV_PALETTE_INDIGO));
-		
-	bg_top = lv_obj_create(scr);
-	lv_obj_add_style(bg_top, &top_style, 0);
-	lv_obj_set_size(bg_top, LV_HOR_RES, topHeight);
-
-	label_status = lv_label_create(bg_top);
-	lv_label_set_long_mode(label_status, LV_LABEL_LONG_SCROLL);
-	lv_obj_set_width(label_status, LV_HOR_RES - 20);
-	lv_label_set_text(label_status, "Label");
-	lv_obj_align(label_status, LV_ALIGN_CENTER, 20, 0);
+	setup_top_bar(scr);
 
 	static lv_style_t tuner_style;
 		
@@ -190,8 +175,15 @@ int main(int argc, char *argv[])
 	lv_obj_center(label);
 	
 	if (discover_devices() == EXIT_SUCCESS)
+	{	
+		String s = String(soapy_devices[0].driver.c_str()) + " " + String(soapy_devices[0].channel_structure_rx[0].full_frequency_range[0] / 1e6) + " Mhz - " + 
+			String(soapy_devices[0].channel_structure_rx[0].full_frequency_range[1] / 1e6) + " Mhz";
+		lv_label_set_text(label_status, s.c_str()); 
+		set_vfo_capability(&soapy_devices[0]);
+	}
+	else
 	{
-		lv_label_set_text(label_status, device_name.c_str()); 
+		lv_label_set_text(label_status, "No SDR Device Foundn"); 
 	}
 	//setup_ble();
 	/*Handle LitlevGL tasks (tickless mode)*/

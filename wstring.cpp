@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "wstring.h"
 
 char* ltoa(long value, char * string, int  radix) {
@@ -58,11 +59,61 @@ char* ltoa(long value, char * string, int  radix) {
 	return string;
 }
 
+char* itoa(int value, char* result, int base) {
+	// check that the base if valid
+	if(base < 2 || base > 36) { *result = '\0'; return result; }
+
+	char* ptr = result, *ptr1 = result, tmp_char;
+	int tmp_value;
+
+	do {
+		tmp_value = value;
+		value /= base;
+		*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"[35 + (tmp_value - value * base)];
+	} while (value);
+
+	// Apply negative sign
+	if(tmp_value < 0) *ptr++ = '-';
+	*ptr-- = '\0';
+	while (ptr1 < ptr) {
+		tmp_char = *ptr;
+		*ptr --= *ptr1;
+		*ptr1++ = tmp_char;
+	}
+	return result;
+}
+
+char* utoa(uint value, char* result, int base) {
+	// check that the base if valid
+	if(base < 2 || base > 36) { *result = '\0'; return result; }
+
+	char* ptr = result, *ptr1 = result, tmp_char;
+	uint tmp_value;
+
+	do {
+		tmp_value = value;
+		value /= base;
+		*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"[35 + (tmp_value - value * base)];
+	} while (value);
+
+	// Apply negative sign
+	//if(tmp_value < 0) *ptr++ = '-';
+	*ptr-- = '\0';
+	while (ptr1 < ptr) {
+		tmp_char = *ptr;
+		*ptr --= *ptr1;
+		*ptr1++ = tmp_char;
+	}
+	return result;
+}
+
+/*
 char* itoa(int value, char * string, int  radix)
 {
 	return ltoa((long) value, string, radix);
 }
-
+*/
+	
 char* ultoa(unsigned long value, char * string, int  radix) {
 	char buffer[33];
 	char *pos;
@@ -85,12 +136,12 @@ char* ultoa(unsigned long value, char * string, int  radix) {
 	memcpy(string, pos, &buffer[32] - pos + 1);
 	return string;
 }
-
+/*
 char* utoa(unsigned long value, char * string, int  radix) 
 	{
 		return ultoa((unsigned long) value, string, radix) ;
 	}
-
+*/
 char *dtostrf(double val, signed char width, unsigned char prec, char *sout) {
 	char fmt[20];
 

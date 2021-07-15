@@ -4,12 +4,16 @@
 static lv_style_t style_btn;
 
 lv_obj_t*	bUsb, *bLsb, *bAM, *bFM, *bCW, *bFT8, *bg_right; 
+lv_obj_t* agc_slider, *agc_slider_label;
+lv_obj_t* gain_slider, *gain_slider_label;
 
 static const int nobuttons = 4;
 static const int bottombutton_width = (rightWidth / nobuttons) - 2;
 static const int bottombutton_width1 = (rightWidth / nobuttons);
 static int button_height , button_margin = 18;
 
+static void gain_slider_event_cb(lv_event_t * e);
+static void agc_slider_event_cb(lv_event_t * e);
 	
 void	setup_right_pane(lv_obj_t* scr )
 {
@@ -110,5 +114,66 @@ void	setup_right_pane(lv_obj_t* scr )
 	lv_label_set_text(label, "Mode");
 	lv_obj_align(label, LV_ALIGN_TOP_LEFT, 0, 0);
 	lv_obj_clear_flag(label, LV_OBJ_FLAG_SCROLLABLE);
+	
+	
+	gain_slider = lv_slider_create(bg_right);
+	lv_obj_set_width(gain_slider, rightWidth - 40); 
+	lv_obj_center(gain_slider);
+	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	gain_slider_label = lv_label_create(bg_right);
+	lv_label_set_text(gain_slider_label, "gain 0 db");
+	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	
+	agc_slider = lv_slider_create(bg_right);
+	lv_slider_set_range(agc_slider, 0, 3);
+	lv_obj_set_width(agc_slider, rightWidth - 40); 
+	lv_obj_align_to(agc_slider, gain_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	// lv_obj_center(agc_slider);
+	lv_obj_add_event_cb(agc_slider, agc_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	agc_slider_label = lv_label_create(bg_right);
+	lv_label_set_text(agc_slider_label, "agc offb");
+	lv_obj_align_to(agc_slider_label, agc_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
 
+static void gain_slider_event_cb(lv_event_t * e)
+{
+    lv_obj_t * slider = lv_event_get_target(e);
+    char buf[20];
+    lv_snprintf(buf, sizeof(buf), "gain %d db", lv_slider_get_value(slider));
+    lv_label_set_text(gain_slider_label, buf);
+    lv_obj_align_to(gain_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+}
+
+static void agc_slider_event_cb(lv_event_t * e)
+{
+	lv_obj_t * slider = lv_event_get_target(e);
+	char buf[20];
+	switch (lv_slider_get_value(slider))
+	{
+		case 0:
+			strcpy(buf, "agc off");
+			break;
+		case 1:
+			strcpy(buf, "agc fast");
+			break;
+		case 2:
+			strcpy(buf, "agc medium");
+			break;
+		case 3:
+			strcpy(buf, "agc slow");
+			break;		
+	}
+	lv_label_set_text(agc_slider_label, buf);
+	lv_obj_align_to(agc_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+}
+
+void set_gain_range(int min, int max)
+{
+	lv_slider_set_range(gain_slider, min, max);
+}
+
+void hide_agc_slider(void)
+{
+	lv_obj_add_flag(agc_slider, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(agc_slider_label, LV_OBJ_FLAG_HIDDEN);
+}

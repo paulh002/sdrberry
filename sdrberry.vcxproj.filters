@@ -1030,6 +1030,15 @@
     <ClCompile Include="gui_top_bar.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="FMDemodulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_vfo.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSink.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1191,6 +1200,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_top_bar.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMDemodulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_vfo.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSink.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

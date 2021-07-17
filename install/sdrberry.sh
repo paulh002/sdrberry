@@ -1,2 +1,1 @@
-cd /tmp/VisualGDB/h/OneDrive/source/sdrberry/VisualGDB/Debug
-sudo ./sdrberry
+sudo ./tmp/VisualGDB/h/OneDrive/source/sdrberry/VisualGDB/Debug/sdrberry

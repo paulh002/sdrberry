@@ -79,7 +79,7 @@ static int probeDevice(const std::string &argStr)
 		auto device = SoapySDR::Device::make(argStr);
 		soapy_devices[0].sdr = device;
 		std::cout << SoapySDRDeviceProbe(&soapy_devices[0]) << std::endl;
-		SoapySDR::Device::unmake(device);
+		// SoapySDR::Device::unmake(device);
 	}
 	catch (const std::exception &ex)
 	{

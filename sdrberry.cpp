@@ -15,6 +15,9 @@
 #include "gui_top_bar.h"
 #include "ble_interface.h"
 #include "vfo.h"
+#include "sdrstream.h"
+#include "gui_vfo.h"
+#include "AudioSink.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
@@ -33,17 +36,13 @@ const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 
 lv_obj_t* scr;
-
 lv_obj_t* bg_middle;
-lv_obj_t* bg_tuner1, *bg_tuner2;
-
-lv_obj_t* vfo1_frequency;
-lv_obj_t* vfo2_frequency;
-
 lv_obj_t* vfo1_button;
 lv_obj_t* vfo2_button;
 
 static lv_style_t style_btn;
+
+
 
 int main(int argc, char *argv[])
 {
@@ -84,25 +83,7 @@ int main(int argc, char *argv[])
 	scr = lv_scr_act();
 	
 	setup_top_bar(scr);
-
-	static lv_style_t tuner_style;
-		
-	lv_style_init(&tuner_style);
-	lv_style_set_radius(&tuner_style, 0);
-	lv_style_set_bg_color(&tuner_style, lv_color_black());
-
-	bg_tuner1 = lv_obj_create(scr);
-	lv_obj_add_style(bg_tuner1, &tuner_style, 0);
-	lv_obj_set_pos(bg_tuner1, 0, topHeight);
-	lv_obj_set_size(bg_tuner1, LV_HOR_RES / 2 - 3, tunerHeight);
-	lv_obj_clear_flag(bg_tuner1, LV_OBJ_FLAG_SCROLLABLE);
-		
-	bg_tuner2 = lv_obj_create(scr);
-	lv_obj_add_style(bg_tuner2, &tuner_style, 0);
-	lv_obj_set_pos(bg_tuner2, LV_HOR_RES / 2 + 3, topHeight);
-	lv_obj_set_size(bg_tuner2, LV_HOR_RES / 2 - 3, tunerHeight);
-	lv_obj_clear_flag(bg_tuner2, LV_OBJ_FLAG_SCROLLABLE);
-	
+	gui_vfo_inst.gui_vfo_init(scr);
 	setup_right_pane(scr);
 	
 	static lv_style_t background_style;
@@ -116,29 +97,7 @@ int main(int argc, char *argv[])
 	lv_obj_set_pos(bg_middle, 0, topHeight + tunerHeight);
 	lv_obj_set_size(bg_middle, LV_HOR_RES - rightWidth -3, screenHeight - topHeight - tunerHeight);
 	
-	static lv_style_t text_style;
-	lv_style_init(&text_style);
-
-	/*Set a background color and a radius*/
-	lv_style_set_radius(&text_style,  5);
-	lv_style_set_bg_opa(&text_style,  LV_OPA_COVER);
-	lv_style_set_bg_color(&text_style, lv_color_black());
-	lv_style_set_text_align(&text_style, LV_ALIGN_CENTER);
-	lv_style_set_text_font(&text_style, &FreeSansOblique42);
 	
-	vfo1_frequency = lv_label_create(bg_tuner1);
-	//lv_label_set_long_mode(vfo1_frequency, LV_LABEL_LONG_CLIP);
-	lv_obj_add_style(vfo1_frequency, &text_style, 0);
-	lv_obj_set_width(vfo1_frequency, LV_HOR_RES - 20);
-	lv_label_set_text(vfo1_frequency, "3,500.00 Khz");
-	lv_obj_set_height(vfo1_frequency, 40);
-	
-	vfo2_frequency = lv_label_create(bg_tuner2);
-	//lv_label_set_long_mode(vfo2_frequency, LV_LABEL_LONG_CLIP);
-	lv_obj_add_style(vfo2_frequency, &text_style, 0);
-	lv_obj_set_width(vfo2_frequency, LV_HOR_RES - 20);
-	lv_label_set_text(vfo2_frequency, "7,200.00 Khz");
-	lv_obj_set_height(vfo2_frequency, 40);
 	
 	lv_style_init(&style_btn);
 
@@ -174,12 +133,16 @@ int main(int argc, char *argv[])
 	lv_label_set_text(label, "Vfo 2");
 	lv_obj_center(label);
 	
+	audio_player.init();
+	vfo_init();
 	if (discover_devices() == EXIT_SUCCESS)
 	{	
 		String s = String(soapy_devices[0].driver.c_str()) + " " + String(soapy_devices[0].channel_structure_rx[0].full_frequency_range[0] / 1e6) + " Mhz - " + 
 			String(soapy_devices[0].channel_structure_rx[0].full_frequency_range[1] / 1e6) + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
 		set_vfo_capability(&soapy_devices[0]);
+		set_vfo(0, 11, 89800000);
+		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting);
 	}
 	else
 	{

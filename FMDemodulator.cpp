@@ -3,30 +3,28 @@
 #include <csignal>
 #include <complex>
 #include "FMDemodulator.h"
+#include <liquid.h>
 
-#define PI 3.14159265359
-#define INV2PI 0.15915494309
+using namespace std;
 
-const float coeff_1 = PI / 4, coeff_2 = 3 * coeff_1;  //For Atan2, Pi/4 and 3Pi/4
+complex<float> fm_buff[1024];
 
-//-----------------------------------------------
-// Fast arctan2: Jim Shima, 1999/04/23
-float arctan2(float y, float x)
+void FMDemodulator::init()
 {
-	float abs_y, angle, r;
-	abs_y = fabs(y) + 1e-10;       // kludge to prevent 0/0 condition
-	if(x >= 0)
-	{
-		r = (x - abs_y) / (x + abs_y);
-		angle = coeff_1 - coeff_1 * r;
+
+	
+
+	filter = iirfilt_crcf_create_prototype(ftype, btype,format,order,fc,f0,Ap,As);	
+	iirfilt_crcf_print(filter);
+	
+}
+
+
+
+void FMDemodulator::run(complex<float> *buf)
+{
+	for (int i = 0; i < n; i++) {
+		// run filter
+		iirfilt_crcf_execute(filter, buf[i], &fm_buff[i]);
 	}
-	else
-	{
-		r = (x + abs_y) / (abs_y - x);
-		angle = coeff_2 - coeff_1 * r;
-	}
-	if (y < 0)
-		return (-angle);     // negate if in quad III or IV
-		else
-		return(angle);
 }

@@ -15,6 +15,13 @@ AudioSink	audio_player;
 
 }
 
+AudioSink::~AudioSink()
+{
+	free(areas);
+	free(samples);
+	snd_pcm_close(handle);	
+}
+
 /*
  *   Transfer method - direct write only using mmap_write functions
  */
@@ -48,8 +55,11 @@ int AudioSink::direct_write_loop(snd_pcm_t *handle,
 	}
 }
 
-int AudioSink::init(void)
+int AudioSink::init(int isample_rate, int ichannels )
 {
+	channels = ichannels;
+	rate = isample_rate;
+	
 	snd_pcm_hw_params_alloca(&hwparams);
 	snd_pcm_sw_params_alloca(&swparams);
 	
@@ -72,7 +82,6 @@ int AudioSink::init(void)
 		printf("Setting of swparams failed: %s\n", snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
-	signed short *samples;
 		
 	samples = (signed short *)malloc((period_size * channels * snd_pcm_format_physical_width(format)) / 8) ;
 	if (samples == NULL) {
@@ -90,14 +99,15 @@ int AudioSink::init(void)
 		areas[chn].first = chn * snd_pcm_format_physical_width(format);
 		areas[chn].step = channels * snd_pcm_format_physical_width(format);
 	}
-	
-	direct_write_loop(handle, samples, areas);
-	free(areas);
-	free(samples);
-	snd_pcm_close(handle);	
 	return 0;
 }
 
+void AudioSink::test_tone()	
+{
+	if (handle == NULL)
+		return;
+	direct_write_loop(handle, samples, areas);
+}
 
 void AudioSink::generate_sine(const snd_pcm_channel_area_t *areas, 
 	snd_pcm_uframes_t offset,
@@ -455,5 +465,3 @@ int  AudioSink::write_and_poll_loop(snd_pcm_t *handle,
 		}
 	}
 }
-
-

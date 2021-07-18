@@ -230,6 +230,9 @@
     <Filter Include="Header files\lvgl">
       <UniqueIdentifier>{ca9f6e63-721c-417b-9843-6d432cee5de9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source files\edsp">
+      <UniqueIdentifier>{ac97521e-13d2-4e48-8128-6f3ee2d6a302}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdrberry.cpp">
@@ -1039,6 +1042,9 @@
     <ClCompile Include="AudioSink.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Fftcalc.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1209,6 +1215,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="AudioSink.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fftcalc.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="liquid.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="liquid.internal.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

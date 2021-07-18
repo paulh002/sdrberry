@@ -133,7 +133,9 @@ int main(int argc, char *argv[])
 	lv_label_set_text(label, "Vfo 2");
 	lv_obj_center(label);
 	
-	audio_player.init();
+	audio_player.init(44100,1);
+	//audio_player.test_tone();
+	
 	vfo_init();
 	if (discover_devices() == EXIT_SUCCESS)
 	{	
@@ -142,11 +144,11 @@ int main(int argc, char *argv[])
 		lv_label_set_text(label_status, s.c_str()); 
 		set_vfo_capability(&soapy_devices[0]);
 		set_vfo(0, 11, 89800000);
-		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting);
+		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting, 25e6 / 48);
 	}
 	else
 	{
-		lv_label_set_text(label_status, "No SDR Device Foundn"); 
+		lv_label_set_text(label_status, "No SDR Device Found"); 
 	}
 	//setup_ble();
 	/*Handle LitlevGL tasks (tickless mode)*/

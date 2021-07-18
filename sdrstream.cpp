@@ -65,12 +65,12 @@ void* rx_streaming_thread(void* psdr_dev)
 	}
 }
 
-void create_rx_streaming_thread(struct device_structure *sdr_dev, vfo_settings_struct	*vfo)
+void create_rx_streaming_thread(struct device_structure *sdr_dev, vfo_settings_struct	*vfo, double samplerate)
 {
 	sem_init(&rx_buffer_mutex1, 0, 1);
 	
 	
-	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, 25e6/48);
+	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, samplerate);
 	int i = RX_THREAD;
 	int rc = pthread_create(&threads[RX_THREAD], NULL, rx_streaming_thread, (void *)sdr_dev);
 	

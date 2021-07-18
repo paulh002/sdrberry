@@ -53,7 +53,7 @@
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -62,6 +62,7 @@
     <ClCompile Include="AudioSink.cpp" />
     <ClCompile Include="ble_interface.cpp" />
     <ClCompile Include="device.cpp" />
+    <ClCompile Include="Fftcalc.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -238,10 +239,13 @@
     <ClInclude Include="blepp\xtoa.h" />
     <ClInclude Include="ble_interface.h" />
     <ClInclude Include="devices.h" />
+    <ClInclude Include="Fftcalc.h" />
     <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="gui_right_pane.h" />
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_vfo.h" />
+    <ClInclude Include="liquid.h" />
+    <ClInclude Include="liquid.internal.h" />
     <ClInclude Include="lvgl\src\lvgl.h" />
     <ClInclude Include="lvgl\src\lv_api_map.h" />
     <ClInclude Include="lvgl\src\lv_conf_internal.h" />

@@ -7,17 +7,19 @@
 class AudioSink
 {
 public:
-	int			init(void);
+	int			init(int isample_rate, int ichannels);
 				AudioSink();
-
+				~AudioSink();
+	void		test_tone();
+	
+	// period_size is the minimum number of frames necessary to fill the buffer to playback (played in one interupt)
+	
 	
 private:	
-	snd_pcm_t			*handle;
+	snd_pcm_t			*handle = NULL;
 	snd_pcm_uframes_t	frames;
 	unsigned int		rate = 44100;
-	
 	snd_pcm_sframes_t	buffer_size;
-	snd_pcm_sframes_t	period_size;
 	snd_output_t		*output = NULL;
 	int					period_event = 0;
 	snd_pcm_format_t	format = SND_PCM_FORMAT_S16;
@@ -30,17 +32,18 @@ private:
 	snd_pcm_hw_params_t *hwparams;
 	snd_pcm_sw_params_t *swparams;
 	snd_pcm_channel_area_t *areas;
-
+	signed short		*samples;
+	snd_pcm_sframes_t	period_size;
 	
 	int		set_hwparams(snd_pcm_t *handle,	snd_pcm_hw_params_t *params,snd_pcm_access_t access);
 	int		set_swparams(snd_pcm_t *handle, snd_pcm_sw_params_t *swparams);
-	void	generate_sine(const snd_pcm_channel_area_t *areas, snd_pcm_uframes_t offset, int count, double *_phase);
-	int		xrun_recovery(snd_pcm_t *handle, int err);
 	int		write_loop(snd_pcm_t *handle, signed short *samples, snd_pcm_channel_area_t *areas);
 	int		wait_for_poll(snd_pcm_t *handle, struct pollfd *ufds, unsigned int count);
 	int		write_and_poll_loop(snd_pcm_t *handle, signed short *samples, snd_pcm_channel_area_t *areas);
 	int		direct_write_loop(snd_pcm_t *handle, signed short *samples, snd_pcm_channel_area_t *areas);	
-	
+	int		xrun_recovery(snd_pcm_t *handle, int err);
+	void	generate_sine(const snd_pcm_channel_area_t *areas, snd_pcm_uframes_t offset, int count, double *_phase);
 };
 
 extern AudioSink	audio_player;
+

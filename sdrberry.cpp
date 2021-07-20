@@ -17,10 +17,20 @@
 #include "vfo.h"
 #include "sdrstream.h"
 #include "gui_vfo.h"
-#include "AudioSink.h"
+//#include "AudioSink.h"
+//#include "FMDemodulator.h"
+
+#include <memory>
+#include "SoftFM.h"
+#include "FmDecode.h"
+#include "AudioOutput.h"
+#include "DataBuffer.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
+
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 // display buffer size - not sure if this size is really needed
 #define DISP_BUF_SIZE 384000		// 800x480
@@ -42,7 +52,9 @@ lv_obj_t* vfo2_button;
 
 static lv_style_t style_btn;
 
+using namespace std;
 
+atomic_bool stop_flag(false);
 
 int main(int argc, char *argv[])
 {
@@ -133,8 +145,22 @@ int main(int argc, char *argv[])
 	lv_label_set_text(label, "Vfo 2");
 	lv_obj_center(label);
 	
-	audio_player.init(44100,1);
-	//audio_player.test_tone();
+	double  ifrate  = 1.0e6;
+	int     pcmrate = 48000;
+	bool    stereo  = true;
+	
+	unique_ptr<AudioOutput> audio_output;
+	audio_output.reset(new AlsaAudioOutput("default", pcmrate, stereo));
+	if (!(*audio_output)) {
+		fprintf(stderr,
+			"ERROR: AudioOutput: %s\n",
+			audio_output->error().c_str());
+		exit(1);
+	}
+	
+	double freq = 89950000;
+	double tuner_freq = freq + 0.25 * ifrate;
+	double tuner_offset = freq - tuner_freq;
 	
 	vfo_init();
 	if (discover_devices() == EXIT_SUCCESS)
@@ -143,8 +169,14 @@ int main(int argc, char *argv[])
 			String(soapy_devices[0].channel_structure_rx[0].full_frequency_range[1] / 1e6) + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
 		set_vfo_capability(&soapy_devices[0]);
-		set_vfo(0, 11, 89800000);
-		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting, 25e6 / 48);
+		set_vfo(0, 11, freq);
+
+		DataBuffer<IQSample> source_buffer;
+		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting, ifrate, &source_buffer);
+		double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
+		create_fm_thread(ifrate, tuner_offset, pcmrate, true, bandwidth_pcm, 1, &source_buffer, audio_output.get());
+		
+
 	}
 	else
 	{

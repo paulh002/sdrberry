@@ -8,6 +8,8 @@
 #include <SoapySDR/Types.hpp>
 #include <SoapySDR/Formats.hpp>
 #include "wstring.h"
+#include "DataBuffer.h"
+#include "SoftFM.h"
 
 extern SoapySDR::Device *sdr;
 extern String device_name;	
@@ -41,6 +43,7 @@ struct channel_structure {
 	double	sample_range[2];
 	double	bandwidth_range[MAX_NUM_BANDWIDTHS][2];
 	int		bandwidth_range_count;
+	DataBuffer<IQSample> *source_buffer;
 };
 
 struct device_structure {

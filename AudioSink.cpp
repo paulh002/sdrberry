@@ -5,7 +5,7 @@
 #include "wstring.h"
 #include "AudioSink.h"
 #include <alsa/asoundlib.h>
-
+#include <unistd.h> 
 
 AudioSink	audio_player;
 
@@ -74,7 +74,7 @@ int AudioSink::init(int isample_rate, int ichannels )
 		return 0;
 	}
 	
-	if ((err = set_hwparams(handle, hwparams, SND_PCM_ACCESS_MMAP_INTERLEAVED)) < 0) {
+	if ((err = set_hwparams(handle, hwparams, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
 		printf("Setting of hwparams failed: %s\n", snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
@@ -82,7 +82,9 @@ int AudioSink::init(int isample_rate, int ichannels )
 		printf("Setting of swparams failed: %s\n", snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
-		
+	unsigned int aa = (period_size * channels * snd_pcm_format_physical_width(format)) / 8;
+	samples = (signed short *)malloc((period_size * channels * snd_pcm_format_physical_width(format)) / 8);
+	printf("audio buffer size %d period_size %d format %d channels %d\n", aa, period_size, snd_pcm_format_physical_width(format), channels);
 	samples = (signed short *)malloc((period_size * channels * snd_pcm_format_physical_width(format)) / 8) ;
 	if (samples == NULL) {
 		printf("No enough memory\n");
@@ -106,7 +108,14 @@ void AudioSink::test_tone()
 {
 	if (handle == NULL)
 		return;
-	direct_write_loop(handle, samples, areas);
+	//write_loop(handle, samples, areas);
+	double phase = 0;
+	while(1)
+	{	
+		
+		generate_sine(areas, 0, period_size, &phase);
+		write_period(handle, samples, areas);
+	}
 }
 
 void AudioSink::generate_sine(const snd_pcm_channel_area_t *areas, 
@@ -238,6 +247,8 @@ int  AudioSink::set_hwparams(snd_pcm_t *handle,
 		return err;
 	}
 	buffer_size = size;
+	printf("hardware buffer size %d \n", buffer_size);
+	
 	/* set the period time */
 	err = snd_pcm_hw_params_set_period_time_near(handle, params, &period_time, &dir);
 	if (err < 0) {
@@ -361,107 +372,59 @@ int AudioSink::write_loop(snd_pcm_t *handle,
 	}
 }
 
-/*
- *   Transfer method - write and wait for room in buffer using poll
- */
- 
-int AudioSink::wait_for_poll(snd_pcm_t *handle, struct pollfd *ufds, unsigned int count)
-{
-	unsigned short revents;
- 
-	while (1) {
-		poll(ufds, count, -1);
-		snd_pcm_poll_descriptors_revents(handle, ufds, count, &revents);
-		if (revents & POLLERR)
-			return -EIO;
-		if (revents & POLLOUT)
-			return 0;
-	}
-}
-
-int  AudioSink::write_and_poll_loop(snd_pcm_t *handle,
+int AudioSink::write_period(snd_pcm_t *handle,
 	signed short *samples,
 	snd_pcm_channel_area_t *areas)
 {
-	struct pollfd *ufds;
 	double phase = 0;
 	signed short *ptr;
-	int err, count, cptr, init;
+	int err, cptr;
  
-	count = snd_pcm_poll_descriptors_count(handle);
-	if (count <= 0) {
-		printf("Invalid poll descriptors count\n");
-		return count;
-	}
- 
-	ufds = (struct pollfd *)malloc(sizeof(struct pollfd) * count) ;
-	if (ufds == NULL) {
-		printf("No enough memory\n");
-		return -ENOMEM;
-	}
-	if ((err = snd_pcm_poll_descriptors(handle, ufds, count)) < 0) {
-		printf("Unable to obtain poll descriptors for playback: %s\n", snd_strerror(err));
-		return err;
-	}
- 
-	init = 1;
-	while (1) {
-		if (!init) {
-			err = wait_for_poll(handle, ufds, count);
-			if (err < 0) {
-				if (snd_pcm_state(handle) == SND_PCM_STATE_XRUN ||
-				    snd_pcm_state(handle) == SND_PCM_STATE_SUSPENDED) {
-					err = snd_pcm_state(handle) == SND_PCM_STATE_XRUN ? -EPIPE : -ESTRPIPE;
-					if (xrun_recovery(handle, err) < 0) {
-						printf("Write error: %s\n", snd_strerror(err));
-						exit(EXIT_FAILURE);
-					}
-					init = 1;
-				}
-				else {
-					printf("Wait for poll failed\n");
-					return err;
-				}
+	ptr = samples;
+	cptr = period_size;
+	while (cptr > 0) {
+		err = snd_pcm_writei(handle, ptr, cptr);
+		if (err == -EAGAIN)
+			continue;
+		if (err < 0) {
+			if (xrun_recovery(handle, err) < 0) {
+				printf("Write error: %s\n", snd_strerror(err));
+				exit(EXIT_FAILURE);
 			}
+			break;  /* skip one period */
 		}
- 
-		generate_sine(areas, 0, period_size, &phase);
-		ptr = samples;
-		cptr = period_size;
-		while (cptr > 0) {
-			err = snd_pcm_writei(handle, ptr, cptr);
-			if (err < 0) {
-				if (xrun_recovery(handle, err) < 0) {
-					printf("Write error: %s\n", snd_strerror(err));
-					exit(EXIT_FAILURE);
-				}
-				init = 1;
-				break;  /* skip one period */
-			}
-			if (snd_pcm_state(handle) == SND_PCM_STATE_RUNNING)
-				init = 0;
-			ptr += err * channels;
-			cptr -= err;
-			if (cptr == 0)
-				break;
-			/* it is possible, that the initial buffer cannot store */
-			/* all data from the last period, so wait awhile */
-			err = wait_for_poll(handle, ufds, count);
-			if (err < 0) {
-				if (snd_pcm_state(handle) == SND_PCM_STATE_XRUN ||
-				    snd_pcm_state(handle) == SND_PCM_STATE_SUSPENDED) {
-					err = snd_pcm_state(handle) == SND_PCM_STATE_XRUN ? -EPIPE : -ESTRPIPE;
-					if (xrun_recovery(handle, err) < 0) {
-						printf("Write error: %s\n", snd_strerror(err));
-						exit(EXIT_FAILURE);
-					}
-					init = 1;
-				}
-				else {
-					printf("Wait for poll failed\n");
-					return err;
-				}
-			}
-		}
+		ptr += err * channels;
+		cptr -= err;
 	}
+	return 0;
+}
+
+void* audio_play_thread(void* psdr_dev)
+{
+	int ii = 0;
+	double phase = 0.0;
+	while (1)
+	{
+		//sem_wait(&audio_mutex1);
+		if (ii == 0)
+		{				
+			audio_player.generate_sine(audio_player.areas, 0, audio_player.period_size, &phase);
+			audio_player.write_period(audio_player.handle, audio_player.samples, audio_player.areas);	
+				
+			ii = 1;
+		}
+		else
+		{
+			audio_player.generate_sine(audio_player.areas, 0, audio_player.period_size, &phase);
+			audio_player.write_period(audio_player.handle, audio_player.samples, audio_player.areas);	
+			ii = 0;
+		}
+		usleep(5000);
+	}
+}
+
+void AudioSink::create_audio_play_thread()
+{
+	sem_init(&audio_mutex1, 0, 0);
+	int rc = pthread_create(&audio_threads[0], NULL, audio_play_thread, NULL);
 }

@@ -58,11 +58,31 @@
       <AdditionalOptions />
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions />
+      <CLanguageStandard />
+      <CPPLanguageStandard />
+    </ClCompile>
+    <Link>
+      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LinkerScript />
+      <AdditionalOptions />
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="AudioSink.cpp" />
     <ClCompile Include="ble_interface.cpp" />
+    <ClCompile Include="DataBuffer.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="Fftcalc.cpp" />
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -225,6 +245,7 @@
     <ClCompile Include="SoapySDRProbe.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="wstring.cpp" />
+    <ClInclude Include="AudioOutput.h" />
     <ClInclude Include="AudioSink.h" />
     <ClInclude Include="blepp\att.h" />
     <ClInclude Include="blepp\att_pdu.h" />
@@ -238,8 +259,11 @@
     <ClInclude Include="blepp\uuid.h" />
     <ClInclude Include="blepp\xtoa.h" />
     <ClInclude Include="ble_interface.h" />
+    <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="devices.h" />
     <ClInclude Include="Fftcalc.h" />
+    <ClInclude Include="Filter.h" />
+    <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="gui_right_pane.h" />
     <ClInclude Include="gui_top_bar.h" />
@@ -384,6 +408,7 @@
     <ClInclude Include="SoapySDR\Time.hpp" />
     <ClInclude Include="SoapySDR\Types.hpp" />
     <ClInclude Include="SoapySDR\Version.hpp" />
+    <ClInclude Include="SoftFM.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="wstring.h" />
   </ItemGroup>

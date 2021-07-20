@@ -7,27 +7,26 @@
 
 class FMDemodulator
 {
-	int Samplerate;
-	int	FrequencyDeviation;
-	int FilterTimeConstant;
-	int	AudioSampleRate = 44100;
-	int	Stereo;
-
-	void	init();
+public:
+	void	init(float iInSampleRate, float iOutSampleRate);
 	void	run(std::complex<float> *buf);
+	~FMDemodulator();
 
 private:
-	freqdem fdem;
 	liquid_iirdes_filtertype ftype  = LIQUID_IIRDES_ELLIP;
 	liquid_iirdes_bandtype   btype  = LIQUID_IIRDES_LOWPASS;
 	liquid_iirdes_format     format = LIQUID_IIRDES_SOS;
-	iirfilt_crcf			 filter;
+	iirfilt_crcf			 filter, audio_filter;
+	msresamp_crcf 			 resampler;
+	freqdem					 fdem;
 	unsigned int order =   4;         // filter order
 	float        fc    =   0.384f;      // cutoff frequency
 	float        f0    =   0.0f;      // center frequency
 	float        Ap    =   1.0f;      // pass-band ripple
 	float        As    =  40.0f;      // stop-band attenuation
-	unsigned int n     =  1024;         // number of samples
-	dec_rate 
+	float			InSampleRate;
+	float			OutSampleRate;
 };
 
+extern FMDemodulator	fm_demod;
+void create_rx_fm_thread(float iInSampleRate, float iOutSampleRate);

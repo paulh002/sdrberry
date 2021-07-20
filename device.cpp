@@ -95,5 +95,6 @@ int discover_devices()
 {
 
 	findDevices("", soapy_devices);
-	return probeDevice("");
+	SoapySDR_setLogLevel(SOAPY_SDR_DEBUG);
+	return probeDevice("driver=plutosdr,hostname=192.168.100.1");
 }

@@ -53,7 +53,7 @@
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -69,15 +69,16 @@
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioOutput.cpp" />
-    <ClCompile Include="AudioSink.cpp" />
     <ClCompile Include="ble_interface.cpp" />
+    <ClCompile Include="configfile.cpp" />
+    <ClCompile Include="configoption.cpp" />
     <ClCompile Include="DataBuffer.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="Fftcalc.cpp" />
@@ -87,18 +88,10 @@
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
     <ClCompile Include="FreeSansOblique42.c" />
+    <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_right_pane.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
-    <ClCompile Include="libblepp\att.cc" />
-    <ClCompile Include="libblepp\att_pdu.cc" />
-    <ClCompile Include="libblepp\bledevice.cc" />
-    <ClCompile Include="libblepp\blestatemachine.cc" />
-    <ClCompile Include="libblepp\float.cc" />
-    <ClCompile Include="libblepp\lescan.cc" />
-    <ClCompile Include="libblepp\logging.cc" />
-    <ClCompile Include="libblepp\pretty_printers.cc" />
-    <ClCompile Include="libblepp\uuid.cc" />
     <ClCompile Include="lv_drivers\display\drm.c" />
     <ClCompile Include="lv_drivers\display\fbdev.c" />
     <ClCompile Include="lv_drivers\display\GC9A01.c" />
@@ -242,29 +235,23 @@
     <ClCompile Include="lvgl\src\widgets\lv_table.c" />
     <ClCompile Include="lvgl\src\widgets\lv_textarea.c" />
     <ClCompile Include="sdrstream.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SoapySDRProbe.cpp" />
+    <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="wstring.cpp" />
     <ClInclude Include="AudioOutput.h" />
-    <ClInclude Include="AudioSink.h" />
-    <ClInclude Include="blepp\att.h" />
-    <ClInclude Include="blepp\att_pdu.h" />
-    <ClInclude Include="blepp\bledevice.h" />
-    <ClInclude Include="blepp\blestatemachine.h" />
-    <ClInclude Include="blepp\float.h" />
-    <ClInclude Include="blepp\gap.h" />
-    <ClInclude Include="blepp\lescan.h" />
-    <ClInclude Include="blepp\logging.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
-    <ClInclude Include="blepp\uuid.h" />
-    <ClInclude Include="blepp\xtoa.h" />
     <ClInclude Include="ble_interface.h" />
+    <ClInclude Include="configfile.h" />
+    <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="devices.h" />
     <ClInclude Include="Fftcalc.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
+    <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_right_pane.h" />
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_vfo.h" />
@@ -399,6 +386,7 @@
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
     <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="sdrstream.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
     <ClInclude Include="SoapySDR\ConverterPrimitives.hpp" />
     <ClInclude Include="SoapySDR\ConverterRegistry.hpp" />
@@ -409,6 +397,7 @@
     <ClInclude Include="SoapySDR\Types.hpp" />
     <ClInclude Include="SoapySDR\Version.hpp" />
     <ClInclude Include="SoftFM.h" />
+    <ClInclude Include="strlib.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="wstring.h" />
   </ItemGroup>

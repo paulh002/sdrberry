@@ -209,14 +209,8 @@
     <Filter Include="Header files\widgets">
       <UniqueIdentifier>{82b0c33c-65e2-4acc-b2ba-c94e147ffa8e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source files\blepp">
-      <UniqueIdentifier>{8eae5154-ffce-4b28-84e1-c3a186aee1c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header files\src">
       <UniqueIdentifier>{60b9a4ca-1d4f-46d8-8e50-555cff1b3558}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header files\blepp">
-      <UniqueIdentifier>{56838a94-a0da-47bc-92a5-b79573c8b7a1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source files\lv_drivers">
       <UniqueIdentifier>{15d40d89-d09d-4696-9c64-963a9bc14a9b}</UniqueIdentifier>
@@ -232,6 +226,12 @@
     </Filter>
     <Filter Include="Source files\edsp">
       <UniqueIdentifier>{ac97521e-13d2-4e48-8128-6f3ee2d6a302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\config">
+      <UniqueIdentifier>{685998bd-c599-4e10-b551-6bde938b6c16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\config">
+      <UniqueIdentifier>{74d705ac-6871-4c65-b88a-523ed0063430}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -934,30 +934,6 @@
     <ClCompile Include="ble_interface.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="libblepp\logging.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
-    <ClCompile Include="libblepp\pretty_printers.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
-    <ClCompile Include="libblepp\bledevice.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
-    <ClCompile Include="libblepp\blestatemachine.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
-    <ClCompile Include="libblepp\lescan.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
-    <ClCompile Include="libblepp\uuid.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
-    <ClCompile Include="libblepp\att.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
-    <ClCompile Include="libblepp\att_pdu.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
     <ClCompile Include="lv_drivers\indev\AD_touch.c">
       <Filter>Source files\lv_drivers</Filter>
     </ClCompile>
@@ -1012,9 +988,6 @@
     <ClCompile Include="lv_drivers\display\SHARP_MIP.c">
       <Filter>Source files\lv_drivers</Filter>
     </ClCompile>
-    <ClCompile Include="libblepp\float.cc">
-      <Filter>Source files\blepp</Filter>
-    </ClCompile>
     <ClCompile Include="device.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1039,9 +1012,6 @@
     <ClCompile Include="gui_vfo.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="AudioSink.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="Fftcalc.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1057,6 +1027,21 @@
     <ClCompile Include="DataBuffer.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="strlib.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="configoption.cpp">
+      <Filter>Source files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="configfile.cpp">
+      <Filter>Source files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui_band.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1070,23 +1055,8 @@
     <ClInclude Include="gui_right_pane.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="ble_interface.h">
-      <Filter>Header files\blepp</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\bledevice.h">
-      <Filter>Header files\blepp</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\blestatemachine.h">
-      <Filter>Header files\blepp</Filter>
-    </ClInclude>
     <ClInclude Include="lv_drivers\indev\AD_touch.h">
       <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\att.h">
-      <Filter>Header files\blepp</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\att_pdu.h">
-      <Filter>Header files\blepp</Filter>
     </ClInclude>
     <ClInclude Include="lv_drivers\display\drm.h">
       <Filter>Header files\lv_drivers</Filter>
@@ -1097,14 +1067,8 @@
     <ClInclude Include="lv_drivers\display\fbdev.h">
       <Filter>Header files\lv_drivers</Filter>
     </ClInclude>
-    <ClInclude Include="blepp\float.h">
-      <Filter>Header files\blepp</Filter>
-    </ClInclude>
     <ClInclude Include="lv_drivers\indev\FT5406EE8.h">
       <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\gap.h">
-      <Filter>Header files\blepp</Filter>
     </ClInclude>
     <ClInclude Include="lv_drivers\display\GC9A01.h">
       <Filter>Header files\lv_drivers</Filter>
@@ -1114,12 +1078,6 @@
     </ClInclude>
     <ClInclude Include="lv_drivers\indev\keyboard.h">
       <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\lescan.h">
-      <Filter>Header files\blepp</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\logging.h">
-      <Filter>Header files\blepp</Filter>
     </ClInclude>
     <ClInclude Include="lv_drivers\display\monitor.h">
       <Filter>Header files\lv_drivers</Filter>
@@ -1150,12 +1108,6 @@
     </ClInclude>
     <ClInclude Include="lv_drivers\indev\XPT2046.h">
       <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\uuid.h">
-      <Filter>Header files\blepp</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\xtoa.h">
-      <Filter>Header files\blepp</Filter>
     </ClInclude>
     <ClInclude Include="lv_drivers\indev\libinput_drv.h">
       <Filter>Header files\lv_drivers</Filter>
@@ -1226,9 +1178,6 @@
     <ClInclude Include="gui_vfo.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioSink.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="Fftcalc.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -1251,6 +1200,24 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="DataBuffer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ble_interface.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="strlib.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="configoption.h">
+      <Filter>Header files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="configfile.h">
+      <Filter>Header files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui_band.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

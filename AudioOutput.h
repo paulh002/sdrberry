@@ -5,8 +5,10 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "SoftFM.h"
+
 
 
 /** Base class for writing audio data to file or playback. */
@@ -23,8 +25,9 @@ public:
      * Return true on success.
      * Return false if an error occurs.
      */
-    virtual bool write(const SampleVector& samples) = 0;
-
+    virtual bool    write(const SampleVector& samples) = 0;
+	void            set_volume(int vol) { volume = (double)vol / 100.0;	}
+	void            adjust_gain(SampleVector& samples);
     /** Return the last error, or return an empty string if there is no error. */
     std::string error()
     {
@@ -46,9 +49,11 @@ protected:
     /** Encode a list of samples as signed 16-bit little-endian integers. */
     static void samplesToInt16(const SampleVector& samples,
                                std::vector<std::uint8_t>& bytes);
+	
 
     std::string m_error;
     bool        m_zombie;
+	double      volume = 0.5;
 
 private:
     AudioOutput(const AudioOutput&);            // no copy constructor
@@ -137,5 +142,7 @@ private:
     struct _snd_pcm *    m_pcm;
     std::vector<std::uint8_t> m_bytebuf;
 };
+
+extern AudioOutput *audio_output;
 
 #endif

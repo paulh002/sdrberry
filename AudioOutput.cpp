@@ -59,6 +59,12 @@ void AudioOutput::samplesToInt16(const SampleVector& samples,
     }
 }
 
+void AudioOutput::adjust_gain(SampleVector& samples)
+{
+	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
+		samples[i] *= volume;
+	}
+}
 
 /* ****************  class RawAudioOutput  **************** */
 
@@ -319,7 +325,7 @@ bool AlsaAudioOutput::write(const SampleVector& samples)
         return false;
 
     // Convert samples to bytes.
-    samplesToInt16(samples, m_bytebuf);
+	samplesToInt16(samples, m_bytebuf);
 
     // Write data.
     unsigned int p = 0;

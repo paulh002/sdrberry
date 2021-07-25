@@ -16,9 +16,9 @@ private:
 	liquid_iirdes_filtertype ftype  = LIQUID_IIRDES_ELLIP;
 	liquid_iirdes_bandtype   btype  = LIQUID_IIRDES_LOWPASS;
 	liquid_iirdes_format     format = LIQUID_IIRDES_SOS;
-	iirfilt_crcf			 filter, audio_filter;
-	msresamp_crcf 			 resampler;
-	freqdem					 fdem;
+	iirfilt_crcf			 filter = NULL, audio_filter =NULL;
+	msresamp_crcf 			 resampler = NULL;
+	freqdem					 fdem = NULL;
 	unsigned int order =   4;         // filter order
 	float        fc    =   0.384f;      // cutoff frequency
 	float        f0    =   0.0f;      // center frequency

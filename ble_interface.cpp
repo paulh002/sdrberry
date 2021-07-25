@@ -3,6 +3,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
+#include <tinyb.hpp>
 
 #include <string.h>
 #include <stdio.h>
@@ -11,139 +12,165 @@
 #include <array>
 #include <iomanip>
 #include <vector>
-#include <boost/optional.hpp>
-
+#include "wstring.h"
+#include <iostream>
+#include <thread>
+#include <atomic>
+#include <csignal>
 #include <signal.h>
+#include "vfo.h"
 
 #include <stdexcept>
 
-#include <blepp/logging.h>
-#include <blepp/pretty_printers.h>
-#include <blepp/blestatemachine.h> //for UUID. FIXME mofo
-#include <blepp/lescan.h>
+using namespace tinyb;
 
-using namespace std;
-using namespace BLEPP;
+//std::condition_variable cv;
+//std::atomic<bool> running(true);
 
-// sudo apt - get install libboost - all - dev
+ble_class	Ble_instance;
 
-void catch_function(int)
+void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &data, void *userdata)
 {
-	cerr << "\nInterrupted!\n";
+	/* Read temperature data and display it */
+	unsigned char	*data_c;
+	unsigned int	size = data.size();
+	int				ii = 0;
+	char			buf[81];
+		
+	if (size > 0 && size < 80) {
+		data_c = data.data();
+		memset(buf, 0, 80*sizeof(char));
+		strncpy(buf,(char *)data_c,size);
+		ii = atol((char *)data_c);
+		step_vfo(0, (int)ii);
+	}
 }
 
-void setup_ble(void)
+
+int ble_class::setup_ble(String mac_address)
+{	char str[80];
+	
+	mac_address.toUpperCase();
+	m_mac_address = mac_address;
+	strcpy(str, mac_address.c_str());
+	
+	try {
+		manager = BluetoothManager::get_bluetooth_manager();
+	}
+	catch (const std::runtime_error& e) {
+		std::cerr << "Error while initializing libtinyb: " << e.what() << std::endl;
+		exit(1);
+	}
+	
+	/* Start the discovery of devices */
+    bool ret = manager->start_discovery();
+    std::cout << "Started = " << (ret ? "true" : "false") << std::endl;
+
+    std::string device_mac(str);
+	sensor_tag = manager->find<BluetoothDevice>(nullptr, &device_mac, nullptr, std::chrono::seconds(20));
+    if (sensor_tag == nullptr) {
+        std::cout << "Device not found" << std::endl;
+        return 1;
+    }
+    
+	sensor_tag->enable_connected_notifications([] (BluetoothDevice &d, bool connected, void *usedata)
+        { if (connected) 
+		        std::cout << "Connected " << d.get_name() << std::endl;  
+	        else
+		        std::cout << "Disconnected " << std::endl; 
+	        Ble_instance.m_connected = connected;
+        }, NULL);
+
+    if (sensor_tag != nullptr) {
+        /* Connect to the device and get the list of services exposed by it */
+        sensor_tag->connect();
+	    std::string service_uuid("30f43f3e-ea17-11eb-9a03-0242ac130003");
+        std::cout << "Waiting for service " << service_uuid << " to be discovered" << std::endl; 
+        encoder_service = sensor_tag->find(&service_uuid);
+    } else {
+       ret = manager->stop_discovery();
+       std::cerr << "SensorTag not found after 30 seconds, exiting" << std::endl;
+       return 1;
+    }
+
+	std::string service_uuid("30f43f3e-ea17-11eb-9a03-0242ac130003");
+	std::cout << "Waiting for service " << service_uuid << " to be discovered" << std::endl;
+	encoder_service = sensor_tag->find(&service_uuid);
+
+	/* Stop the discovery (the device was found or timeout was over) */
+	ret = manager->stop_discovery();
+	std::cout << "Stopped = " << (ret ? "true" : "false") << std::endl;
+	
+	value_uuid = std::string("427ffc34-ea17-11eb-9a03-0242ac130003");
+    encoder_value = encoder_service->find(&value_uuid);
+    encoder_value->enable_value_notifications(data_callback, nullptr);
+	return 0;
+	}
+
+ble_class::~ble_class()
 {
-	HCIScanner::ScanType type = HCIScanner::ScanType::Active;
-	HCIScanner::FilterDuplicates filter = HCIScanner::FilterDuplicates::Software;
-	int c;
-	string help = R"X(-[sHbdhp]:
-  -s  software filtering of duplicates (default)
-  -H  hardware filtering of duplicates 
-  -b  both hardware and software filtering
-  -d  show duplicates (no filtering)
-  -h  show this message
-  -p  passive scan
-)X";
-		/*
-	while ((c = getopt(argc, argv, "sHbdhp")) != -1)
-	{
-		if (c == 'p')
-			type = HCIScanner::ScanType::Passive;
-		else if (c == 's')
-			filter = HCIScanner::FilterDuplicates::Software;
-		else if (c == 'H')
-			filter = HCIScanner::FilterDuplicates::Hardware;
-		else if (c == 'b')
-			filter = HCIScanner::FilterDuplicates::Both;
-		else if (c == 'd')
-			filter = HCIScanner::FilterDuplicates::Off;
-		else if (c == 'h')
-		{
-			cout << "Usage: " << argv[0] << " " << help;
-			return 0;
-		}
-		else 
-		{
-			cerr << argv[0] << ":  unknown option " << c << endl;
-			return 1;
-		}
-	}
-*/
-		
-	filter = HCIScanner::FilterDuplicates::Software;
-		
-	log_level = LogLevels::Warning;
-	HCIScanner scanner(true, filter, type);
-	
-	//Catch the interrupt signal. If the scanner is not 
-	//cleaned up properly, then it doesn't reset the HCI state.
-	signal(SIGINT, catch_function);
-
-	//Something to print to demonstrate the timeout.
-	string throbber = "/|\\-";
-	
-	//hide cursor, to make the throbber look nicer.
-	cout << "[?25l" << flush;
-
-	int i = 0;
-	while (1) {
-		
-
-		//Check to see if there's anything to read from the HCI
-		//and wait if there's not.
-		struct timeval timeout;     
-		timeout.tv_sec = 0;     
-		timeout.tv_usec = 300000;
-
-		fd_set fds;
-		FD_ZERO(&fds);
-		FD_SET(scanner.get_fd(), &fds);
-		int err = select(scanner.get_fd() + 1, &fds, NULL, NULL, &timeout);
-		
-		//Interrupted, so quit and clean up properly.
-		if(err < 0 && errno == EINTR)	
-			break;
-		
-		if (FD_ISSET(scanner.get_fd(), &fds))
-		{
-			//Only read id there's something to read
-			vector<AdvertisingResponse> ads = scanner.get_advertisements();
-
-			for (const auto& ad : ads)
-			{
-				cout << "Found device: " << ad.address << " ";
-
-				if (ad.type == LeAdvertisingEventType::ADV_IND)
-					cout << "Connectable undirected" << endl;
-				else if (ad.type == LeAdvertisingEventType::ADV_DIRECT_IND)
-					cout << "Connectable directed" << endl;
-				else if (ad.type == LeAdvertisingEventType::ADV_SCAN_IND)
-					cout << "Scannable " << endl;
-				else if (ad.type == LeAdvertisingEventType::ADV_NONCONN_IND)
-					cout << "Non connectable" << endl;
-				else
-					cout << "Scan response" << endl;
-				for (const auto& uuid : ad.UUIDs)
-					cout << "  Service: " << to_str(uuid) << endl;
-				if (ad.local_name)
-					cout << "  Name: " << ad.local_name->name << endl;
-				if (ad.rssi == 127)
-					cout << "  RSSI: unavailable" << endl;
-				else if (ad.rssi <= 20)
-					cout << "  RSSI = " << (int) ad.rssi << " dBm" << endl;
-				else
-					cout << "  RSSI = " << to_hex((uint8_t)ad.rssi) << " unknown" << endl;
-			}
-		}
-		else
-			cout << throbber[i % 4] << "\b" << flush;
-		i++;
-	}
-
-	//show cursor
-	cout << "[?25h" << flush;	
-
-
+	if (sensor_tag != nullptr)
+		sensor_tag->disconnect();
 }
 	
+int ble_class::connect()
+{	
+	char str[80];
+	
+	if (m_connected || m_mac_address.length() == 0)
+		return 0;
+
+	bool ret = manager->start_discovery();
+	std::cout << "Started = " << (ret ? "true" : "false") << std::endl;
+	
+	strcpy(str, m_mac_address.c_str());
+	std::string device_mac(str);
+	sensor_tag = manager->find<BluetoothDevice>(nullptr, &device_mac, nullptr, std::chrono::seconds(20));
+	if (sensor_tag == nullptr) {
+		std::cout << "Device not found" << std::endl;
+		return 1;
+	}
+
+	std::cout << " enable_connected_notifications" << std::endl;
+	sensor_tag->enable_connected_notifications([](BluetoothDevice &d, bool connected, void *usedata)
+		{
+			if (connected) 
+				std::cout << "Connected " << d.get_name() << std::endl;  
+			else
+				std::cout << "Disconnected " << std::endl; 
+			Ble_instance.m_connected = connected;
+		},
+		NULL);
+
+	std::cout << " connect" << std::endl;
+	if (sensor_tag != nullptr) {
+		/* Connect to the device and get the list of services exposed by it */
+		sensor_tag->connect();
+		std::string service_uuid("30f43f3e-ea17-11eb-9a03-0242ac130003");
+		std::cout << "Waiting for service " << service_uuid << " to be discovered" << std::endl; 
+		encoder_service = sensor_tag->find(&service_uuid);
+	}
+	else {
+		ret = manager->stop_discovery();
+		std::cerr << "SensorTag not found after 30 seconds, exiting" << std::endl;
+		return 1;
+	}
+
+	std::cout << " encoder_service" << std::endl;
+	std::string service_uuid("30f43f3e-ea17-11eb-9a03-0242ac130003");
+	std::cout << "Waiting for service " << service_uuid << " to be discovered" << std::endl;
+	encoder_service = sensor_tag->find(&service_uuid);
+
+	/* Stop the discovery (the device was found or timeout was over) */
+	std::cout << " stop_discovery" << std::endl;
+	ret = manager->stop_discovery();
+	std::cout << "Stopped = " << (ret ? "true" : "false") << std::endl;
+	
+	std::cout << " encoder_service->find" << std::endl;
+	value_uuid = std::string("427ffc34-ea17-11eb-9a03-0242ac130003");
+	encoder_value = encoder_service->find(&value_uuid);
+	encoder_value->enable_value_notifications(data_callback, nullptr);
+	m_connected = true;
+	return 0;
+}
+

@@ -247,33 +247,29 @@ static std::string probeChannel(SoapySDR::Device *device, struct channel_structu
 	//gains
 	SoapySDR::Range r = device->getGainRange(dir, chan);
 	ss << "  Full gain range: " << toString(r) << " dB" << std::endl;
-	channel->full_gain_range[0] = r.minimum();
-	channel->full_gain_range[1] = r.maximum();
-	
+	channel->full_gain_range = r;
+		
 	std::vector<std::string> gainsList = device->listGains(dir, chan);
     for (size_t i = 0; i < gainsList.size(); i++)
     {
         const std::string name = gainsList[i];
 	    r = device->getGainRange(dir, chan, name);
 	    channel->sGains[i] = String(name.c_str());
-		channel->gain_range[i][0] = r.minimum();
-	    channel->gain_range[i][1] = r.maximum();
+		channel->gain_range[i] = r;
         ss << "    " << name << " gain range: " << toString(r) << " dB" << std::endl;
     }
 	
 	//frequencies
 	SoapySDR::RangeList rl = device->getFrequencyRange(dir, chan);
 	ss << "  Full freq range: " << toString(rl, 1e6) << " MHz" << std::endl;
-	channel->full_frequency_range[0] = rl.front().minimum();
-	channel->full_frequency_range[1] = rl.back().maximum();
+	channel->full_frequency_range = rl;
 	
     std::vector<std::string> freqsList = device->listFrequencies(dir, chan);
     for (size_t i = 0; i < freqsList.size(); i++)
     {
         const std::string name = freqsList[i];
 	    rl = device->getFrequencyRange(dir, chan, name);
-	    channel->frequency_range[i][0] = rl.front().minimum();
-	    channel->frequency_range[i][1] = rl.back().maximum();
+	    channel->frequency_range[i] = rl;
         ss << "    " << name << " freq range: " << toString(rl, 1e6) << " MHz" << std::endl;
     }
 
@@ -284,20 +280,17 @@ static std::string probeChannel(SoapySDR::Device *device, struct channel_structu
 	//rates
 	rl = device->getSampleRateRange(dir, chan);
     ss << "  Sample rates: " << toString(rl, 1e6) << " MSps" << std::endl;
-	channel->sample_range[0] = rl.front().minimum();
-	channel->sample_range[1] = rl.back().maximum();
-	
+	channel->sample_range = rl;
+
     //bandwidths
     const auto bws = device->getBandwidthRange(dir, chan);
     if (not bws.empty()) ss << "  Filter bandwidths: " << toString(bws, 1e6) << " MHz" << std::endl;
 	for (size_t i = 0; i < bws.size(); i++)
 	{
 		r = bws.at(i);
-		channel->bandwidth_range[i][0] = r.minimum();
-		channel->bandwidth_range[i][1] = r.maximum();
+		channel->bandwidth_range[i] = r;
 	}
-	channel->bandwidth_range_count = bws.size();
-		
+			
     //sensors
     std::string sensors = toString(device->listSensors(dir, chan));
     if (not sensors.empty()) ss << "  Sensors: " << sensors << std::endl;
@@ -353,8 +346,8 @@ std::string SoapySDRDeviceProbe(struct device_structure	*sdev)
 
     ss << "  Timestamps: " << (device->hasHardwareTime()?"YES":"NO") << std::endl;
 	sdev->bTimestamps = device->hasHardwareTime();
-	sdev->channels_rx = numRxChans;
-	sdev->channels_tx = numTxChans;
+	sdev->rx_channels = numRxChans;
+	sdev->tx_channels = numTxChans;
 	
     std::string clockSources = toString(device->listClockSources());
     if (not clockSources.empty()) ss << "  Clock sources: " << clockSources << std::endl;

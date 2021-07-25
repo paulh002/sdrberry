@@ -17,7 +17,7 @@
 #include "vfo.h"
 #include "sdrstream.h"
 #include "gui_vfo.h"
-//#include "AudioSink.h"
+#include "Settings.h"
 //#include "FMDemodulator.h"
 
 #include <memory>
@@ -26,6 +26,8 @@
 #include "AudioOutput.h"
 #include "DataBuffer.h"
 
+AudioOutput *audio_output;
+	
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
 
@@ -49,15 +51,20 @@ lv_obj_t* scr;
 lv_obj_t* bg_middle;
 lv_obj_t* vfo1_button;
 lv_obj_t* vfo2_button;
+lv_obj_t *tabview_mid;
 
 static lv_style_t style_btn;
 
 using namespace std;
 
 atomic_bool stop_flag(false);
+std::mutex gui_mutex;
 
 int main(int argc, char *argv[])
 {
+	
+	Settings_file.read_settings(String("sdrberry_settings.cfg"));
+	
 	/*LittlevGL init*/
 	lv_init();
 
@@ -104,6 +111,33 @@ int main(int argc, char *argv[])
 	lv_style_set_radius(&background_style, 0);
 	lv_style_set_bg_color(&background_style, lv_palette_main(LV_PALETTE_RED));
 	
+	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, 40);
+	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight);
+	lv_obj_set_size(tabview_mid, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
+	
+	lv_obj_t *tab1 = lv_tabview_add_tab(tabview_mid, "Waterfall");
+	lv_obj_t *tab2 = lv_tabview_add_tab(tabview_mid, "Band");
+	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, "RX");
+	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "TX");
+	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "Setup");
+	
+	lv_obj_t * label1 = lv_label_create(tab1);
+	lv_label_set_text(label1, "Waterfall");
+	
+	label1 = lv_label_create(tab2);
+	lv_label_set_text(label1, "Band");
+
+	label1 = lv_label_create(tab3);
+	lv_label_set_text(label1, "RX");
+
+	label1 = lv_label_create(tab4);
+	lv_label_set_text(label1, "TX");
+	
+	label1 = lv_label_create(tab5);
+	lv_label_set_text(label1, "Setup");
+	
+
+	/*
 	bg_middle = lv_obj_create(scr);
 	lv_obj_add_style(bg_middle, &background_style, 0);
 	lv_obj_set_pos(bg_middle, 0, topHeight + tunerHeight);
@@ -144,29 +178,44 @@ int main(int argc, char *argv[])
 	label = lv_label_create(vfo2_button);
 	lv_label_set_text(label, "Vfo 2");
 	lv_obj_center(label);
+	*/
+	
+	//setup_ble(String("7c:9e:bd:f8:64:92"));
+	if (Settings_file.get_mac_address() != String(""))
+		Ble_instance.setup_ble(Settings_file.get_mac_address());
 	
 	double  ifrate  = 1.0e6;
 	int     pcmrate = 48000;
 	bool    stereo  = true;
 	
-	unique_ptr<AudioOutput> audio_output;
-	audio_output.reset(new AlsaAudioOutput("default", pcmrate, stereo));
+	//unique_ptr<AudioOutput> audio_output;
+	//audio_output.reset(new AlsaAudioOutput("default", pcmrate, stereo));
+	String s = Settings_file.find_audio("device");
+	
+	audio_output = new AlsaAudioOutput((char *)s.c_str(), pcmrate, stereo);
 	if (!(*audio_output)) {
 		fprintf(stderr,
 			"ERROR: AudioOutput: %s\n",
 			audio_output->error().c_str());
 		exit(1);
 	}
+	audio_output->set_volume(50);
 	
 	double freq = 89950000;
 	double tuner_freq = freq + 0.25 * ifrate;
 	double tuner_offset = freq - tuner_freq;
 	
-	vfo_init();
-	if (discover_devices() == EXIT_SUCCESS)
+	vfo_init((unsigned long)freq);
+	
+	String default_radio = Settings_file.find_sdr("default");
+	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
+	if (discover_devices(Settings_file.find_probe((char *)default_radio.c_str())) == EXIT_SUCCESS)
 	{	
-		String s = String(soapy_devices[0].driver.c_str()) + " " + String(soapy_devices[0].channel_structure_rx[0].full_frequency_range[0] / 1e6) + " Mhz - " + 
-			String(soapy_devices[0].channel_structure_rx[0].full_frequency_range[1] / 1e6) + " Mhz";
+		soapy_devices[0].rx_channel = 0;
+		std::cout << "probe: " << Settings_file.find_probe((char *)default_radio.c_str()).c_str() << std::endl;
+		String start_freq = String(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum() / 1e6);
+		String stop_freq = String(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum() / 1e6);
+		String s = String(soapy_devices[0].driver.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
 		set_vfo_capability(&soapy_devices[0]);
 		set_vfo(0, 11, freq);
@@ -174,21 +223,26 @@ int main(int argc, char *argv[])
 		DataBuffer<IQSample> source_buffer;
 		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting, ifrate, &source_buffer);
 		double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
-		create_fm_thread(ifrate, tuner_offset, pcmrate, true, bandwidth_pcm, 1, &source_buffer, audio_output.get());
+		create_fm_thread(ifrate, tuner_offset, pcmrate, true, bandwidth_pcm, 1, &source_buffer, audio_output);
+		set_vol_slider(50);
 		
-
+		double gain = soapy_devices[0].sdr->getGain(SOAPY_SDR_RX, 0);
+		set_gain_slider((int)gain);
 	}
 	else
 	{
 		lv_label_set_text(label_status, "No SDR Device Found"); 
 	}
-	//setup_ble();
+	
 	/*Handle LitlevGL tasks (tickless mode)*/
 	while (1) {
+		//std::unique_lock<std::mutex> lock(gui_mutex);
 		lv_task_handler();
+		//std::unique_lock<std::mutex> unlock(gui_mutex);
+		Ble_instance.connect();
 		usleep(5000);
 	}
-
+	delete audio_output;
 	return 0;
 }
 

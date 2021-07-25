@@ -251,14 +251,15 @@ public:
 	DataBuffer<IQSample>        *source_buffer = NULL;
 	AudioOutput                 *audio_output;
 	FmDecoder                   *fm = NULL;
+	void                        set_volume(int vol);
 	
 private:
-		
+	    double              volume;
 	    double              bufsecs = -1;
 	    bool                inbuf_length_warning = false;
 	    bool                got_stereo = false;
 };
 
-void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool stereo, double bandwidth_pcm, unsigned int downsample, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool stereo, double bandwidth_pcm, unsigned int downsample, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_outputint);
 
 #endif

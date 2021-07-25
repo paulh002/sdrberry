@@ -64,14 +64,16 @@ void gui_vfo::set_vfo_gui(int vfo,unsigned long freq)
 	
 	if (freq > 10000000LU)
 	{
-		sprintf(str, "%3d.%03d,%02d Khz", freq / 1000000, (freq / 1000) % 1000, (freq / 10) % 100);
+		sprintf(str, "%3ld.%03ld,%02ld Khz", freq / 1000000, (freq / 1000) % 1000, (freq / 10) % 100);
 	}
 	else
 	{
-		sprintf(str, "%3d.%03d,%02d Khz", freq / 1000000, (freq / 1000) % 1000, (freq / 10) % 100);		
+		sprintf(str, "%3ld.%03ld,%02ld Khz", freq / 1000000, (freq / 1000) % 1000, (freq / 10) % 100);		
 	}
 	if (vfo)
 		lv_label_set_text(vfo2_frequency, str);
 	else
 		lv_label_set_text(vfo1_frequency, str);		
+	printf(str);
+	printf("\n");
 }

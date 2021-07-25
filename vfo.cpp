@@ -28,29 +28,20 @@ unsigned long freqswitch_high[] = { 1880000, 3800000, 5450000, 7200000, 10150000
 struct vfo_settings_struct	vfo_setting;
 
 
-void vfo_init()
+void vfo_init(unsigned long freq)
 {
 	memset(&vfo_setting, 0, sizeof(struct vfo_settings_struct));
+	vfo_setting.frq_step = 1000;
+	vfo_setting.vfo_freq1 = freq;
+	gui_vfo_inst.set_vfo_gui(0, freq);
 }
 
 /* this function reads the device capability and translates it to f license bandplans*/
 void set_vfo_capability(struct device_structure *sdr_dev)
 {
-	double	bandwidth[MAX_NUM_BANDWIDTHS];
-	
-	vfo_setting.gain_min = floor(sdr_dev->channel_structure_rx[0].gain_range[0][0]);
-	vfo_setting.gain_max = floor(sdr_dev->channel_structure_rx[0].gain_range[0][1]);
 	vfo_setting.sdr_dev = sdr_dev;
-	set_gain_range(vfo_setting.gain_min, vfo_setting.gain_max);	
 	
-	if (sdr_dev->channel_structure_rx[0].agc == false)
-		hide_agc_slider();
 	
-	for (int i = 0; i < sdr_dev->channel_structure_rx[0].bandwidth_range_count; i++)
-	{
-		bandwidth[i] = sdr_dev->channel_structure_rx[0].bandwidth_range[i][0];
-	}
-	set_bandwidth_dropdown(bandwidth, sdr_dev->channel_structure_rx[0].bandwidth_range_count);
 }
 
 void set_vfo(int vfo,int band, unsigned long freq)
@@ -66,5 +57,25 @@ void set_vfo(int vfo,int band, unsigned long freq)
 		vfo_setting.vfo_freq2 = freq;				
 	}
 	stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
+	gui_vfo_inst.set_vfo_gui(vfo, freq);
+}
+
+void step_vfo(int vfo, int icount)
+{
+	unsigned long freq;
+	if (vfo)
+	{
+		//vfo_setting.band[0] = band;
+		vfo_setting.vfo_freq2 += (vfo_setting.frq_step * icount);		
+		freq = vfo_setting.vfo_freq2;
+	}
+	else
+	{
+		//vfo_setting.band[1] = band;
+		vfo_setting.vfo_freq1 += (vfo_setting.frq_step * icount);	
+		freq = vfo_setting.vfo_freq1;
+	}
+	if (vfo_setting.sdr_dev != NULL)
+		stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
 	gui_vfo_inst.set_vfo_gui(vfo, freq);
 }

@@ -23,8 +23,10 @@ float			audio_resample_buff[CBUFFSIZE];
 
 FMDemodulator::~FMDemodulator()
 {
-	msresamp_crcf_destroy(resampler);
-	iirfilt_crcf_destroy(filter);
+	if (resampler !=NULL)
+		msresamp_crcf_destroy(resampler);
+	if (filter != NULL)
+		iirfilt_crcf_destroy(filter);
 }
 
 

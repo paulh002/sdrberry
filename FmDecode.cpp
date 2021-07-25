@@ -463,7 +463,10 @@ void FmDecoder_executer::init(double ifrate, double tuner_offset, int pcmrate, b
 	this->source_buffer = source_buffer;
 	this->audio_output = audio_output;
 }
-
+void FmDecoder_executer::set_volume(int vol)
+{
+	volume = ((double)vol) / 100.0;
+}
 
 FmDecoder_executer::~FmDecoder_executer()
 {
@@ -472,13 +475,6 @@ FmDecoder_executer::~FmDecoder_executer()
 }	
 	
 pthread_t fm_thread;
-
-void adjust_gain(SampleVector& samples, double gain)
-{
-	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
-		samples[i] *= gain;
-	}
-}
 
 void* rx_fm_thread(void* fm_ptr)
 {
@@ -500,7 +496,7 @@ void* rx_fm_thread(void* fm_ptr)
 		fm_ex->audio_level = 0.95 * fm_ex->audio_level + 0.05 * fm_ex->audio_rms;
 
 		// Set nominal audio volume.
-		adjust_gain(fm_ex->audiosamples, 0.5);	
+		fm_ex->audio_output->adjust_gain(fm_ex->audiosamples);	
 		
 		if (block > 0) 
 		    {

@@ -45,21 +45,16 @@ void* rx_streaming_thread(void* psdr_dev)
 		std::cout << e.what();
 		pthread_exit(NULL);
 	}
-	
-	
 	if (rx_stream == NULL)
 	{
 		fprintf(stderr, "Failed create receive stream\n");
 		pthread_exit(NULL);
 	}
 	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
-	//printf("capacity = %ld\n", (long)iqsamples.capacity());
 	while (1)
 	{
 		int flags; 
 		long long time_ns;
-		
-		iqsamples.reserve(default_block_length);
 		void *buffs[] = { ciqsamples };
 		
 		ret = sdr_dev->sdr->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
@@ -73,10 +68,7 @@ void* rx_streaming_thread(void* psdr_dev)
 		//copy(&ciqsamples[0], &ciqsamples[ret], back_inserter(iqsamples));
 		
 		iqsamples.insert(iqsamples.end(), &ciqsamples[0], &ciqsamples[ret]);
-		
-		
 		sdr_dev->channel_structure_rx[0].source_buffer->push(move(iqsamples));
-		iqsamples.resize(0);
 	}
 	sdr_dev->channel_structure_rx[0].source_buffer->push_end();
 	pthread_exit(NULL);

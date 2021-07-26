@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include "wstring.h"
 #include "lvgl/lvgl.h"
 #include "lv_drivers/display/fbdev.h"
@@ -28,7 +29,7 @@ unsigned long freqswitch_high[] = { 1880000, 3800000, 5450000, 7200000, 10150000
 struct vfo_settings_struct	vfo_setting;
 
 
-void vfo_init(unsigned long freq)
+void vfo_init(long long freq)
 {
 	memset(&vfo_setting, 0, sizeof(struct vfo_settings_struct));
 	vfo_setting.frq_step = 1000;
@@ -44,17 +45,19 @@ void set_vfo_capability(struct device_structure *sdr_dev)
 	
 }
 
-void set_vfo(int vfo,int band, unsigned long freq)
+void set_vfo(int vfo, int band, long long freq)
 {
 	if (vfo)
 	{
 		vfo_setting.band[0] = band;
-		vfo_setting.vfo_freq1 = freq;		
+		vfo_setting.vfo_freq1 = freq;
+		vfo_setting.active_vfo = 1;
 	}
 	else
 	{
 		vfo_setting.band[1] = band;
 		vfo_setting.vfo_freq2 = freq;				
+		vfo_setting.active_vfo = 0;
 	}
 	stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
 	gui_vfo_inst.set_vfo_gui(vfo, freq);
@@ -62,7 +65,7 @@ void set_vfo(int vfo,int band, unsigned long freq)
 
 void step_vfo(int vfo, int icount)
 {
-	unsigned long freq;
+	long long freq;
 	if (vfo)
 	{
 		//vfo_setting.band[0] = band;
@@ -78,4 +81,34 @@ void step_vfo(int vfo, int icount)
 	if (vfo_setting.sdr_dev != NULL)
 		stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
 	gui_vfo_inst.set_vfo_gui(vfo, freq);
+}
+
+long get_active_vfo()
+{
+	if (vfo_setting.active_vfo)
+		return vfo_setting.vfo_freq2;
+	else
+		return vfo_setting.vfo_freq1;		
+}
+
+std::string get_vfo_str(int vfo)
+{
+	char	str[20];
+	long	freq;
+	
+	if (vfo)
+		freq = vfo_setting.vfo_freq2;
+	else
+		freq = vfo_setting.vfo_freq1;
+	
+	if (freq > 10000000LU)
+	{
+		sprintf(str, "%3ld.%03ld,%02ld Khz", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
+	}
+	else
+	{
+		sprintf(str, "%3ld.%03ld,%02ld Khz", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
+	}
+	std::string s(str);
+	return s;
 }

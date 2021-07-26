@@ -18,6 +18,8 @@
 #include "sdrstream.h"
 #include "gui_vfo.h"
 #include "Settings.h"
+#include "Gui_band.h"
+#include "Keyboard.h"
 //#include "FMDemodulator.h"
 
 #include <memory>
@@ -117,23 +119,25 @@ int main(int argc, char *argv[])
 	
 	lv_obj_t *tab1 = lv_tabview_add_tab(tabview_mid, "Waterfall");
 	lv_obj_t *tab2 = lv_tabview_add_tab(tabview_mid, "Band");
-	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, "RX");
-	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "TX");
-	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "Setup");
+	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, "Freqency");
+	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "RX");
+	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "TX");
+	lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "Setup");
+	
+	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
+
+	
 	
 	lv_obj_t * label1 = lv_label_create(tab1);
 	lv_label_set_text(label1, "Waterfall");
 	
-	label1 = lv_label_create(tab2);
-	lv_label_set_text(label1, "Band");
-
-	label1 = lv_label_create(tab3);
+	label1 = lv_label_create(tab4);
 	lv_label_set_text(label1, "RX");
 
-	label1 = lv_label_create(tab4);
+	label1 = lv_label_create(tab5);
 	lv_label_set_text(label1, "TX");
 	
-	label1 = lv_label_create(tab5);
+	label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
 
@@ -180,9 +184,9 @@ int main(int argc, char *argv[])
 	lv_obj_center(label);
 	*/
 	
-	//setup_ble(String("7c:9e:bd:f8:64:92"));
-	if (Settings_file.get_mac_address() != String(""))
-		Ble_instance.setup_ble(Settings_file.get_mac_address());
+	
+	//if (Settings_file.get_mac_address() != String(""))
+	//	Ble_instance.setup_ble(Settings_file.get_mac_address());
 	
 	double  ifrate  = 1.0e6;
 	int     pcmrate = 48000;
@@ -206,6 +210,7 @@ int main(int argc, char *argv[])
 	double tuner_offset = freq - tuner_freq;
 	
 	vfo_init((unsigned long)freq);
+	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
 	String default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
@@ -219,7 +224,9 @@ int main(int argc, char *argv[])
 		lv_label_set_text(label_status, s.c_str()); 
 		set_vfo_capability(&soapy_devices[0]);
 		set_vfo(0, 11, freq);
-
+		vfo_setting.vfo_low = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum();
+		vfo_setting.vfo_high = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum();
+			
 		DataBuffer<IQSample> source_buffer;
 		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting, ifrate, &source_buffer);
 		double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
@@ -234,12 +241,14 @@ int main(int argc, char *argv[])
 		lv_label_set_text(label_status, "No SDR Device Found"); 
 	}
 	
+	gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
+	
 	/*Handle LitlevGL tasks (tickless mode)*/
 	while (1) {
 		//std::unique_lock<std::mutex> lock(gui_mutex);
 		lv_task_handler();
 		//std::unique_lock<std::mutex> unlock(gui_mutex);
-		Ble_instance.connect();
+		//Ble_instance.connect();
 		usleep(5000);
 	}
 	delete audio_output;

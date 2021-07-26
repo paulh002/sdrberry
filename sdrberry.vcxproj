@@ -92,6 +92,7 @@
     <ClCompile Include="gui_right_pane.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="lv_drivers\display\drm.c" />
     <ClCompile Include="lv_drivers\display\fbdev.c" />
     <ClCompile Include="lv_drivers\display\GC9A01.c" />
@@ -255,6 +256,7 @@
     <ClInclude Include="gui_right_pane.h" />
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_vfo.h" />
+    <ClInclude Include="Keyboard.h" />
     <ClInclude Include="liquid.h" />
     <ClInclude Include="liquid.internal.h" />
     <ClInclude Include="lvgl\src\lvgl.h" />

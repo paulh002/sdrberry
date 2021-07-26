@@ -20,6 +20,12 @@ public:
 	String find_radio(string key);
 	String find_probe(string key);
 	String find_sdr(string key);
+	
+	vector<int>				meters;
+	vector<string>			labels;
+	vector<long>			f_low;
+	vector<long>			f_high;
+	
 private:
 	
 	cfg::File				*config;
@@ -31,10 +37,7 @@ private:
 	map<string, string>		vfo2;
 	map<string, string>		audio;
 	
-	vector<int>				meters;
-	vector<string>			labels;
-	vector<long>			f_low;
-	vector<long>			f_high;
+
 	
 	
 };

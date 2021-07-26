@@ -45,6 +45,7 @@ const cfg::File::ConfigMap defaultOptions = {
 };
 
 
+
 void Settings::read_settings(String settings_file)
 {
 	config = new cfg::File();
@@ -97,19 +98,23 @@ void Settings::read_settings(String settings_file)
 	
 	for (auto& col : (*config)("meters"))
 	{
-		meters.push_back(col.toInt());
+		if (col.toInt() > 0)
+			meters.push_back(col.toInt());
 	}
 	for (auto& col : (*config)("labels"))
 	{
-		labels.push_back(col.toStringWithQuotes());
+		if (col.toString().length() > 0)
+			labels.push_back(col.toString());
 	}
 	for (auto& col : (*config)("f_low"))
 	{
-		f_low.push_back(col.toLong());
+		if (col.toLong() > 0L)
+			f_low.push_back(col.toLong());
 	}
 	for (auto& col : (*config)("f_high"))
 	{
-		f_high.push_back(col.toLong());
+		if (col.toLong() > 0L)
+			f_high.push_back(col.toLong());
 	}
 }
 
@@ -156,3 +161,4 @@ String Settings::find_probe(string key)
 	else 
 		return String("");
 }
+

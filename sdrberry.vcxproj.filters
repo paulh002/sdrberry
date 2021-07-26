@@ -1042,6 +1042,9 @@
     <ClCompile Include="Gui_band.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1218,6 +1221,9 @@
       <Filter>Header files\config</Filter>
     </ClInclude>
     <ClInclude Include="Gui_band.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

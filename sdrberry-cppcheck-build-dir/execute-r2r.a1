@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="1091924495">
+  <FileInfo check="CheckUnusedFunctions">
+    <functioncall functionName="apply"/>
+    <functioncall functionName="execute_r2r"/>
+    <functioncall functionName="in"/>
+    <functioncall functionName="out"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="plan"/>
+    <functioncall functionName="pln"/>
+  </FileInfo>
+</analyzerinfo>

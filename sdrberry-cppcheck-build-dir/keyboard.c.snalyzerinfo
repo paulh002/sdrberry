@@ -1,0 +1,4 @@
+keyboard_init
+keyboard_read global:[last_key,state] call:[keycode_to_ascii] noreturn:[keycode_to_ascii]
+keyboard_handler global:[last_key,state]
+keycode_to_ascii

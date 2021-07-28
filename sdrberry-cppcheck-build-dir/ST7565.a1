@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="712881910">
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="st7565_init" lineNumber="97"/>
+    <functiondecl functionName="st7565_flush" lineNumber="136"/>
+    <functiondecl functionName="st7565_fill" lineNumber="174"/>
+    <functiondecl functionName="st7565_map" lineNumber="205"/>
+    <functiondecl functionName="st7565_sync" lineNumber="249"/>
+    <functiondecl functionName="st7565_command" lineNumber="273"/>
+    <functiondecl functionName="st7565_data" lineNumber="283"/>
+    <functioncall functionName="act_x1"/>
+    <functioncall functionName="act_x2"/>
+    <functioncall functionName="act_y1"/>
+    <functioncall functionName="act_y2"/>
+    <functioncall functionName="c"/>
+    <functioncall functionName="color"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="lcd_fb"/>
+    <functioncall functionName="lv_color_to1"/>
+    <functioncall functionName="lv_flush_ready"/>
+    <functioncall functionName="memset"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="sizeof"/>
+    <functioncall functionName="st7565_command"/>
+    <functioncall functionName="st7565_data"/>
+    <functioncall functionName="st7565_sync"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="x1"/>
+    <functioncall functionName="x2"/>
+    <functioncall functionName="y1"/>
+    <functioncall functionName="y2"/>
+  </FileInfo>
+</analyzerinfo>

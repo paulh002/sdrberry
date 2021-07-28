@@ -1,0 +1,17 @@
+samples_mean_rms call:[size,sqrt] noreturn:[sqrt]
+AudioOutput
+set_volume
+error call:[clear,ret]
+operatorbool call:[empty,return] noreturn:[empty]
+AudioOutput
+adjust_gain call:[size]
+RawAudioOutput call:[c_str,open,strerror]
+RawAudioOutput call:[close] noreturn:[close]
+write call:[data,samplesToInt16,size,strerror,write]
+WavAudioOutput call:[c_str,fopen,strerror,write_header]
+WavAudioOutput call:[assert,fclose,fseek,ftell,write_header] noreturn:[fclose,write_header]
+write call:[data,fwrite,samplesToInt16,size,strerror]
+write_header call:[assert,encode_chunk_id,fwrite,set_value < uint16_t >,set_value < uint32_t >]
+AlsaAudioOutput call:[c_str,snd_pcm_nonblock,snd_pcm_open,snd_pcm_set_params,strerror]
+AlsaAudioOutput call:[snd_pcm_close] noreturn:[snd_pcm_close]
+write call:[data,samplesToInt16,size,snd_pcm_recover,snd_pcm_writei,strerror]

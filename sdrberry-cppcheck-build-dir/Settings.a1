@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3275446886">
+        <error id="noConstructor" severity="style" msg="The class &apos;Settings&apos; does not have a constructor although it has private member variables." verbose="The class &apos;Settings&apos; does not have a constructor although it has private member variables. Member variables of builtin types are left uninitialized when the class is instantiated. That may cause bugs or undefined behavior." cwe="398" file0="Settings.cpp">
+            <location file="Settings.h" line="13" column="1"/>
+            <symbol>Settings</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;String&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;String&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="70" column="2"/>
+            <symbol>String</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;String&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;String&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="73" column="2"/>
+            <symbol>String</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="227" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="229" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="231" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="233" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="235" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="237" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="239" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="241" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="243" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="wstring.h" line="245" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;Option&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;Option&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="configoption.h" line="23" column="9"/>
+            <symbol>Option</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;File&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;File&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="configfile.h" line="43" column="9"/>
+            <symbol>File</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;File&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;File&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Settings.cpp">
+            <location file="configfile.h" line="44" column="9"/>
+            <symbol>File</symbol>
+        </error>
+        <error id="useStlAlgorithm" severity="style" msg="Consider using std::transform algorithm instead of a raw loop." verbose="Consider using std::transform algorithm instead of a raw loop." cwe="398" file0="Settings.cpp">
+            <location file="strlib.h" line="105" column="16"/>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;i&apos; is assigned a value that is never used." verbose="Variable &apos;i&apos; is assigned a value that is never used." cwe="563" file0="Settings.cpp">
+            <location file="Settings.cpp" line="62" column="8"/>
+            <symbol>i</symbol>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="wstring.h:169:7" call-funcname="getBytes" call-argnr="3" file="wstring.h" line="171" col="13" call-argexpr="index" call-argvaluetype="0" call-argvalue="0" warning="true"/><function-call call-id="wstring.h:109:16" call-funcname="concat" call-argnr="1" file="wstring.h" line="123" col="43" my-id="wstring.h:123:11" my-argnr="1"/>
+<function-call call-id="wstring.h:118:16" call-funcname="concat" call-argnr="1" file="wstring.h" line="132" col="55" my-id="wstring.h:132:11" my-argnr="1"/>
+<function-call call-id="wstring.h:150:16" call-funcname="equals" call-argnr="1" file="wstring.h" line="152" col="60" my-id="wstring.h:152:16" my-argnr="1"/>
+<function-call call-id="wstring.h:150:16" call-funcname="equals" call-argnr="1" file="wstring.h" line="154" col="61" my-id="wstring.h:154:16" my-argnr="1"/>
+  </FileInfo>
+  <FileInfo check="Class">
+<class name="StringSumHelper" file="wstring.h" line="224" col="1" hash="9627094593744264323"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="read_settings" lineNumber="49"/>
+    <functiondecl functionName="find_sdr" lineNumber="121"/>
+    <functiondecl functionName="find_audio" lineNumber="132"/>
+    <functiondecl functionName="find_radio" lineNumber="143"/>
+    <functiondecl functionName="find_probe" lineNumber="154"/>
+    <functioncall functionName="DefaultFlags"/>
+    <functioncall functionName="End"/>
+    <functioncall functionName="File"/>
+    <functioncall functionName="None"/>
+    <functioncall functionName="Option"/>
+    <functioncall functionName="Single"/>
+    <functioncall functionName="Start"/>
+    <functioncall functionName="String"/>
+    <functioncall functionName="StringIfHelper"/>
+    <functioncall functionName="StringSumHelper"/>
+    <functioncall functionName="Verbose"/>
+    <functioncall functionName="begin"/>
+    <functioncall functionName="beginIndex"/>
+    <functioncall functionName="buf"/>
+    <functioncall functionName="bufsize"/>
+    <functioncall functionName="c"/>
+    <functioncall functionName="c_str"/>
+    <functioncall functionName="char"/>
+    <functioncall functionName="concat"/>
+    <functioncall functionName="const"/>
+    <functioncall functionName="cstr"/>
+    <functioncall functionName="data"/>
+    <functioncall functionName="decimal"/>
+    <functioncall functionName="defaultOptions"/>
+    <functioncall functionName="defaultValue"/>
+    <functioncall functionName="delim"/>
+    <functioncall functionName="double"/>
+    <functioncall functionName="elements"/>
+    <functioncall functionName="end"/>
+    <functioncall functionName="equals"/>
+    <functioncall functionName="fail"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="find"/>
+    <functioncall functionName="first"/>
+    <functioncall functionName="float"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="fromString"/>
+    <functioncall functionName="get"/>
+    <functioncall functionName="getBytes"/>
+    <functioncall functionName="getSection"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="index"/>
+    <functioncall functionName="insert"/>
+    <functioncall functionName="int"/>
+    <functioncall functionName="integer"/>
+    <functioncall functionName="isInRange"/>
+    <functioncall functionName="key"/>
+    <functioncall functionName="len"/>
+    <functioncall functionName="length"/>
+    <functioncall functionName="loadFromFile"/>
+    <functioncall functionName="long"/>
+    <functioncall functionName="makeOption &lt; const char * &gt;"/>
+    <functioncall functionName="makeOption &lt; int &gt;"/>
+    <functioncall functionName="maximum"/>
+    <functioncall functionName="minimum"/>
+    <functioncall functionName="num"/>
+    <functioncall functionName="operatorStringIfHelperType"/>
+    <functioncall functionName="operatorconststd::string&amp;"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="pair"/>
+    <functioncall functionName="precision"/>
+    <functioncall functionName="push"/>
+    <functioncall functionName="push_back"/>
+    <functioncall functionName="reserve"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="rhs"/>
+    <functioncall functionName="s"/>
+    <functioncall functionName="second"/>
+    <functioncall functionName="setDefaultOptions"/>
+    <functioncall functionName="setMin"/>
+    <functioncall functionName="setRange"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="split"/>
+    <functioncall functionName="static_cast"/>
+    <functioncall functionName="str"/>
+    <functioncall functionName="stream"/>
+    <functioncall functionName="string"/>
+    <functioncall functionName="strs"/>
+    <functioncall functionName="substring"/>
+    <functioncall functionName="to"/>
+    <functioncall functionName="toInt"/>
+    <functioncall functionName="toLong"/>
+    <functioncall functionName="toString"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="useSection"/>
+    <functioncall functionName="val"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="writeToFile"/>
+  </FileInfo>
+</analyzerinfo>

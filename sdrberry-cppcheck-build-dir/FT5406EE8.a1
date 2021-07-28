@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="447444888">
+        <error id="knownConditionTrueFalse" severity="style" msg="Condition &apos;t_num==0&apos; is always true" verbose="Condition &apos;t_num==0&apos; is always true" cwe="571" file0="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\indev\FT5406EE8.c" line="129" column="46" info="Condition &apos;t_num==0&apos; is always true"/>
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\indev\FT5406EE8.c" line="126" column="13" info="Assignment &apos;t_num=0&apos;, assigned value is 0"/>
+        </error>
+        <error id="knownConditionTrueFalse" severity="style" msg="Condition &apos;((temp_yH&gt;&gt;6)&amp;0xFF)!=2&apos; is always true" verbose="Condition &apos;((temp_yH&gt;&gt;6)&amp;0xFF)!=2&apos; is always true" cwe="571" file0="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\indev\FT5406EE8.c" line="159" column="32" info="Condition &apos;((temp_yH&gt;&gt;6)&amp;0xFF)!=2&apos; is always true"/>
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\indev\FT5406EE8.c" line="155" column="15" info="Assignment &apos;temp_yH=0&apos;, assigned value is 0"/>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c:54:13" call-funcname="ft5406ee8_read_finger1" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c" line="91" col="39" call-argexpr="&x" call-argvaluetype="7" call-argvalue="2"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c:54:13" call-funcname="ft5406ee8_read_finger1" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c" line="91" col="39" call-argexpr="x" call-argvaluetype="4" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c:54:13" call-funcname="ft5406ee8_read_finger1" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c" line="91" col="39" call-argexpr="&y" call-argvaluetype="7" call-argvalue="2"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c:54:13" call-funcname="ft5406ee8_read_finger1" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c" line="91" col="39" call-argexpr="y" call-argvaluetype="4" call-argvalue="0"/>  </FileInfo>
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.h:44:6" my-argnr="2" my-argname="data" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/FT5406EE8.c" line="106" col="5" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="ft5406ee8_init" lineNumber="71"/>
+    <functiondecl functionName="ft5406ee8_read" lineNumber="81"/>
+    <functiondecl functionName="ft5406ee8_get_touch_num" lineNumber="116"/>
+    <functiondecl functionName="ft5406ee8_read_finger1" lineNumber="142"/>
+    <functioncall functionName="LV_INDEV_STATE_PR"/>
+    <functioncall functionName="LV_INDEV_STATE_REL"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="ft5406ee8_get_touch_num"/>
+    <functioncall functionName="ft5406ee8_read_finger1"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="t_num"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="uint32_t"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="x"/>
+    <functioncall functionName="x_last"/>
+    <functioncall functionName="y"/>
+    <functioncall functionName="y_last"/>
+  </FileInfo>
+</analyzerinfo>

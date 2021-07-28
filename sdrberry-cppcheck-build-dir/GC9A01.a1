@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="1243127571">
+        <error id="unreadVariable" severity="style" msg="Variable &apos;len&apos; is assigned a value that is never used." verbose="Variable &apos;len&apos; is assigned a value that is never used." cwe="563" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="570" column="15"/>
+            <symbol>len</symbol>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c:55:13" call-funcname="GC9A01_set_addr_win" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="456" col="22" call-argexpr="x" call-argvaluetype="0" call-argvalue="0" warning="true">
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="453" col="9" info="Assuming that condition 'x<0' is not redundant"/>
+</function-call><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c:55:13" call-funcname="GC9A01_set_addr_win" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="456" col="22" call-argexpr="y" call-argvaluetype="0" call-argvalue="0" warning="true">
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="453" col="44" info="Assuming that condition 'y<0' is not redundant"/>
+</function-call><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c:55:13" call-funcname="GC9A01_set_addr_win" call-argnr="3" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="456" col="22" call-argexpr="x" call-argvaluetype="0" call-argvalue="0" warning="true">
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="453" col="9" info="Assuming that condition 'x<0' is not redundant"/>
+</function-call><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c:55:13" call-funcname="GC9A01_set_addr_win" call-argnr="4" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="456" col="22" call-argexpr="y" call-argvaluetype="0" call-argvalue="0" warning="true">
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="453" col="44" info="Assuming that condition 'y<0' is not redundant"/>
+</function-call><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.h:70:6" call-funcname="GC9A01_fillRect" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="467" col="17" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.h:70:6" call-funcname="GC9A01_fillRect" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="467" col="17" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c:55:13" call-funcname="GC9A01_set_addr_win" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="479" col="22" call-argexpr="x" call-argvaluetype="0" call-argvalue="0">
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="467" col="18" info="Calling function 'GC9A01_fillRect', 1st argument '0' value is 0"/>
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="473" col="28" info="Assuming condition is Assuming condition is false"/>
+</function-call><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c:55:13" call-funcname="GC9A01_set_addr_win" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="479" col="22" call-argexpr="y" call-argvaluetype="0" call-argvalue="0">
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="467" col="21" info="Calling function 'GC9A01_fillRect', 2nd argument '0' value is 0"/>
+  <path file="H:\OneDrive\source\sdrberry\lv_drivers\display\GC9A01.c" line="473" col="28" info="Assuming condition is Assuming condition is false"/>
+</function-call><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c:54:13" call-funcname="GC9A01_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="512" col="17" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/>  </FileInfo>
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.h:66:6" my-argnr="2" my-argname="area" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="569" col="23" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.h:66:6" my-argnr="2" my-argname="area" file="H:/OneDrive/source/sdrberry/lv_drivers/display/GC9A01.c" line="569" col="23" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="GC9A01_command" lineNumber="310"/>
+    <functiondecl functionName="GC9A01_data" lineNumber="320"/>
+    <functiondecl functionName="GC9A01_data_array" lineNumber="326"/>
+    <functiondecl functionName="GC9A01_databuf" lineNumber="337"/>
+    <functiondecl functionName="GC9A01_hard_reset" lineNumber="362"/>
+    <functiondecl functionName="GC9A01_run_cfg_script" lineNumber="376"/>
+    <functiondecl functionName="GC9A01_drawFastVLine" lineNumber="402"/>
+    <functiondecl functionName="GC9A01_drawFastHLine" lineNumber="421"/>
+    <functiondecl functionName="GC9A01_Color565" lineNumber="442"/>
+    <functiondecl functionName="GC9A01_invertDisplay" lineNumber="446"/>
+    <functiondecl functionName="GC9A01_drawPixel" lineNumber="451"/>
+    <functiondecl functionName="GC9A01_fillScreen" lineNumber="466"/>
+    <functiondecl functionName="GC9A01_fillRect" lineNumber="471"/>
+    <functiondecl functionName="GC9A01_setRotation" lineNumber="494"/>
+    <functiondecl functionName="GC9A01_init" lineNumber="530"/>
+    <functiondecl functionName="GC9A01_set_addr_win" lineNumber="545"/>
+    <functiondecl functionName="GC9A01_flush" lineNumber="565"/>
+    <functioncall functionName="GC9A01_CMD"/>
+    <functioncall functionName="GC9A01_DATA"/>
+    <functioncall functionName="GC9A01_DELAY"/>
+    <functioncall functionName="GC9A01_END"/>
+    <functioncall functionName="GC9A01_SPI_BAUD"/>
+    <functioncall functionName="GC9A01_SPI_BITS"/>
+    <functioncall functionName="GC9A01_SPI_MODE"/>
+    <functioncall functionName="GC9A01_START"/>
+    <functioncall functionName="GC9A01_XSTART"/>
+    <functioncall functionName="GC9A01_YSTART"/>
+    <functioncall functionName="GC9A01_command"/>
+    <functioncall functionName="GC9A01_data"/>
+    <functioncall functionName="GC9A01_fillRect"/>
+    <functioncall functionName="GC9A01_fillScreen"/>
+    <functioncall functionName="GC9A01_hard_reset"/>
+    <functioncall functionName="GC9A01_run_cfg_script"/>
+    <functioncall functionName="GC9A01_set_addr_win"/>
+    <functioncall functionName="LV_DRV_DISP_SPI_FREQ"/>
+    <functioncall functionName="LV_DRV_DISP_SPI_MODE"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="buf"/>
+    <functioncall functionName="byte_left"/>
+    <functioncall functionName="cmd"/>
+    <functioncall functionName="color"/>
+    <functioncall functionName="disp_drv"/>
+    <functioncall functionName="end_script"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="h"/>
+    <functioncall functionName="hi"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="len"/>
+    <functioncall functionName="lo"/>
+    <functioncall functionName="lv_disp_flush_ready"/>
+    <functioncall functionName="m"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="switch"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="w"/>
+    <functioncall functionName="while"/>
+    <functioncall functionName="x"/>
+    <functioncall functionName="x1"/>
+    <functioncall functionName="x2"/>
+    <functioncall functionName="y"/>
+    <functioncall functionName="y1"/>
+    <functioncall functionName="y2"/>
+  </FileInfo>
+</analyzerinfo>

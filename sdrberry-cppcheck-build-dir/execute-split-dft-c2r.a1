@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="4008062000">
+  <FileInfo check="CheckUnusedFunctions">
+    <functioncall functionName="apply"/>
+    <functioncall functionName="execute_split_dft_c2r"/>
+    <functioncall functionName="ii"/>
+    <functioncall functionName="out"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="plan"/>
+    <functioncall functionName="pln"/>
+    <functioncall functionName="prb"/>
+    <functioncall functionName="r0"/>
+    <functioncall functionName="ri"/>
+  </FileInfo>
+</analyzerinfo>

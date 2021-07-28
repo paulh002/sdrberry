@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3645423078">
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;ModuleVersion&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;ModuleVersion&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="SoapySDR\Modules.hpp" line="114" column="5"/>
+            <symbol>ModuleVersion</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;String&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;String&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="70" column="2"/>
+            <symbol>String</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;String&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;String&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="73" column="2"/>
+            <symbol>String</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="227" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="229" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="231" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="233" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="235" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="237" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="239" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="241" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="243" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;StringSumHelper&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="wstring.h" line="245" column="2"/>
+            <symbol>StringSumHelper</symbol>
+        </error>
+        <error id="passedByValue" severity="performance" msg="Function parameter &apos;indent&apos; should be passed by const reference." verbose="Parameter &apos;indent&apos; is passed by value. It could be passed as a const reference which is usually faster and recommended in C++." cwe="398" file0="SoapySDRProbe.cpp">
+            <location file="SoapySDRProbe.cpp" line="79" column="74"/>
+            <symbol>indent</symbol>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="wstring.h:169:7" call-funcname="getBytes" call-argnr="3" file="wstring.h" line="171" col="13" call-argexpr="index" call-argvaluetype="0" call-argvalue="0" warning="true"/><function-call call-id="wstring.h:109:16" call-funcname="concat" call-argnr="1" file="wstring.h" line="123" col="43" my-id="wstring.h:123:11" my-argnr="1"/>
+<function-call call-id="wstring.h:118:16" call-funcname="concat" call-argnr="1" file="wstring.h" line="132" col="55" my-id="wstring.h:132:11" my-argnr="1"/>
+<function-call call-id="wstring.h:150:16" call-funcname="equals" call-argnr="1" file="wstring.h" line="152" col="60" my-id="wstring.h:152:16" my-argnr="1"/>
+<function-call call-id="wstring.h:150:16" call-funcname="equals" call-argnr="1" file="wstring.h" line="154" col="61" my-id="wstring.h:154:16" my-argnr="1"/>
+  </FileInfo>
+  <FileInfo check="Class">
+<class name="StringSumHelper" file="wstring.h" line="224" col="1" hash="9627094593744264323"/>
+<class name="channel_structure" file="devices.h" line="31" col="1" hash="17989846382560299089"/>
+<class name="device_structure" file="devices.h" line="50" col="1" hash="5619706542376740724"/>
+<class name="DataBuffer < std :: complex < float > >" file="DataBuffer.h" line="20" col="2" hash="8569424178264238664"/>
+  </FileInfo>
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="SoapySDRProbe.cpp:132:13" my-argnr="1" my-argname="device" file="SoapySDRProbe.cpp" line="139" col="40" value="0"/>
+    <unsafe-usage my-id="SoapySDRProbe.cpp:161:13" my-argnr="1" my-argname="device" file="SoapySDRProbe.cpp" line="168" col="40" value="0"/>
+    <unsafe-usage my-id="SoapySDRProbe.cpp:190:20" my-argnr="1" my-argname="device" file="SoapySDRProbe.cpp" line="201" col="23" value="0"/>
+    <unsafe-usage my-id="SoapySDRProbe.cpp:190:20" my-argnr="2" my-argname="channel" file="SoapySDRProbe.cpp" line="211" col="2" value="0"/>
+    <unsafe-usage my-id="SoapySDRProbe.cpp:306:13" my-argnr="1" my-argname="sdev" file="SoapySDRProbe.cpp" line="308" col="29" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="SoapySDRProbe.cpp:132:13" my-argnr="1" my-argname="device" file="SoapySDRProbe.cpp" line="139" col="40" value="0"/>
+    <unsafe-usage my-id="SoapySDRProbe.cpp:161:13" my-argnr="1" my-argname="device" file="SoapySDRProbe.cpp" line="168" col="40" value="0"/>
+    <unsafe-usage my-id="SoapySDRProbe.cpp:190:20" my-argnr="1" my-argname="device" file="SoapySDRProbe.cpp" line="201" col="23" value="0"/>
+    <unsafe-usage my-id="SoapySDRProbe.cpp:306:13" my-argnr="1" my-argname="sdev" file="SoapySDRProbe.cpp" line="308" col="29" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="toString" lineNumber="34"/>
+    <functiondecl functionName="toString" lineNumber="43"/>
+    <functiondecl functionName="toString" lineNumber="61"/>
+    <functiondecl functionName="toString" lineNumber="79"/>
+    <functiondecl functionName="toString" lineNumber="120"/>
+    <functiondecl functionName="sensorReadings" lineNumber="132"/>
+    <functiondecl functionName="channelSensorReadings" lineNumber="161"/>
+    <functiondecl functionName="probeChannel" lineNumber="190"/>
+    <functiondecl functionName="SoapySDRDeviceProbe" lineNumber="306"/>
+    <functioncall functionName="ConverterRegistry"/>
+    <functioncall functionName="Kwargs"/>
+    <functioncall functionName="KwargsList"/>
+    <functioncall functionName="Range"/>
+    <functioncall functionName="SOAPY_SDR_FALSE"/>
+    <functioncall functionName="SOAPY_SDR_RX"/>
+    <functioncall functionName="SOAPY_SDR_TRUE"/>
+    <functioncall functionName="SOAPY_SDR_TX"/>
+    <functioncall functionName="STRING"/>
+    <functioncall functionName="SettingToString"/>
+    <functioncall functionName="String"/>
+    <functioncall functionName="StringIfHelper"/>
+    <functioncall functionName="StringSumHelper"/>
+    <functioncall functionName="StringToSetting"/>
+    <functioncall functionName="Type"/>
+    <functioncall functionName="at"/>
+    <functioncall functionName="back"/>
+    <functioncall functionName="beginIndex"/>
+    <functioncall functionName="bool"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="buf"/>
+    <functioncall functionName="bufsize"/>
+    <functioncall functionName="bws"/>
+    <functioncall functionName="c"/>
+    <functioncall functionName="c_str"/>
+    <functioncall functionName="catch"/>
+    <functioncall functionName="chan"/>
+    <functioncall functionName="channel"/>
+    <functioncall functionName="channelSensorReadings"/>
+    <functioncall functionName="char"/>
+    <functioncall functionName="concat"/>
+    <functioncall functionName="const"/>
+    <functioncall functionName="continue"/>
+    <functioncall functionName="correctionsList"/>
+    <functioncall functionName="cstr"/>
+    <functioncall functionName="description"/>
+    <functioncall functionName="device"/>
+    <functioncall functionName="dir"/>
+    <functioncall functionName="direction"/>
+    <functioncall functionName="double"/>
+    <functioncall functionName="empty"/>
+    <functioncall functionName="equals"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="find"/>
+    <functioncall functionName="float"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="front"/>
+    <functioncall functionName="fullScale"/>
+    <functioncall functionName="getBandwidthRange"/>
+    <functioncall functionName="getBytes"/>
+    <functioncall functionName="getChannelInfo"/>
+    <functioncall functionName="getDriverKey"/>
+    <functioncall functionName="getFrequencyArgsInfo"/>
+    <functioncall functionName="getFrequencyRange"/>
+    <functioncall functionName="getFullDuplex"/>
+    <functioncall functionName="getGainRange"/>
+    <functioncall functionName="getHardwareInfo"/>
+    <functioncall functionName="getHardwareKey"/>
+    <functioncall functionName="getNativeStreamFormat"/>
+    <functioncall functionName="getNumChannels"/>
+    <functioncall functionName="getSampleRateRange"/>
+    <functioncall functionName="getSensorInfo"/>
+    <functioncall functionName="getSettingInfo"/>
+    <functioncall functionName="getStreamArgsInfo"/>
+    <functioncall functionName="getStreamFormats"/>
+    <functioncall functionName="hasDCOffset"/>
+    <functioncall functionName="hasDCOffsetMode"/>
+    <functioncall functionName="hasGainMode"/>
+    <functioncall functionName="hasHardwareTime"/>
+    <functioncall functionName="hasIQBalance"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="ii"/>
+    <functioncall functionName="index"/>
+    <functioncall functionName="info"/>
+    <functioncall functionName="int"/>
+    <functioncall functionName="key"/>
+    <functioncall functionName="len"/>
+    <functioncall functionName="length"/>
+    <functioncall functionName="listAntennas"/>
+    <functioncall functionName="listClockSources"/>
+    <functioncall functionName="listFrequencies"/>
+    <functioncall functionName="listGPIOBanks"/>
+    <functioncall functionName="listGains"/>
+    <functioncall functionName="listRegisterInterfaces"/>
+    <functioncall functionName="listSensors"/>
+    <functioncall functionName="listTimeSources"/>
+    <functioncall functionName="listUARTs"/>
+    <functioncall functionName="lock"/>
+    <functioncall functionName="long"/>
+    <functioncall functionName="m_end_marked"/>
+    <functioncall functionName="m_mutex"/>
+    <functioncall functionName="m_qlen"/>
+    <functioncall functionName="maximum"/>
+    <functioncall functionName="min"/>
+    <functioncall functionName="minimum"/>
+    <functioncall functionName="move"/>
+    <functioncall functionName="n"/>
+    <functioncall functionName="name"/>
+    <functioncall functionName="notify_all"/>
+    <functioncall functionName="num"/>
+    <functioncall functionName="numRxChans"/>
+    <functioncall functionName="numTxChans"/>
+    <functioncall functionName="operatorStringIfHelperType"/>
+    <functioncall functionName="options"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="pop"/>
+    <functioncall functionName="pos"/>
+    <functioncall functionName="probeChannel"/>
+    <functioncall functionName="push"/>
+    <functioncall functionName="push_back"/>
+    <functioncall functionName="r"/>
+    <functioncall functionName="range"/>
+    <functioncall functionName="readSensor"/>
+    <functioncall functionName="readSetting"/>
+    <functioncall functionName="replace"/>
+    <functioncall functionName="ret"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="rhs"/>
+    <functioncall functionName="rl"/>
+    <functioncall functionName="s"/>
+    <functioncall functionName="samples"/>
+    <functioncall functionName="scale"/>
+    <functioncall functionName="sdr"/>
+    <functioncall functionName="sensorReadings"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="sqrt"/>
+    <functioncall functionName="step"/>
+    <functioncall functionName="stod"/>
+    <functioncall functionName="stoll"/>
+    <functioncall functionName="stoull"/>
+    <functioncall functionName="str"/>
+    <functioncall functionName="stream_formats"/>
+    <functioncall functionName="string"/>
+    <functioncall functionName="substring"/>
+    <functioncall functionName="swap"/>
+    <functioncall functionName="switch"/>
+    <functioncall functionName="toString"/>
+    <functioncall functionName="to_string"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="type"/>
+    <functioncall functionName="units"/>
+    <functioncall functionName="unlock"/>
+    <functioncall functionName="value"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="wait"/>
+    <functioncall functionName="while"/>
+    <functioncall functionName="writeSetting"/>
+  </FileInfo>
+</analyzerinfo>

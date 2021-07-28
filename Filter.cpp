@@ -297,6 +297,7 @@ void LowPassFilterRC::process(const SampleVector& samples_in,
     }
 
     m_y1 = y;
+	
 }
 
 

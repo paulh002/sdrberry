@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="1277989669">
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mouse.h:60:6" my-argnr="2" my-argname="data" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mouse.c" line="60" col="5" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mouse.h:65:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mouse.c" line="70" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mouse.h:65:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mouse.c" line="70" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="mouse_init" lineNumber="45"/>
+    <functiondecl functionName="mouse_read" lineNumber="55"/>
+    <functiondecl functionName="mouse_handler" lineNumber="68"/>
+    <functioncall functionName="LV_INDEV_STATE_PRESSED"/>
+    <functioncall functionName="LV_INDEV_STATE_RELEASED"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="indev_drv"/>
+    <functioncall functionName="last_x"/>
+    <functioncall functionName="last_y"/>
+    <functioncall functionName="switch"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="type"/>
+    <functioncall functionName="void"/>
+  </FileInfo>
+</analyzerinfo>

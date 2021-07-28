@@ -16,7 +16,26 @@ SoapySDRUtil --info
 sudo apt-get install -y libiio-dev
 sudo apt-get install libiio-utils
 
-https://github.com/analogdevicesinc/libad9361-iio
+sudo apt-get install libasound-dev 
+sudo ldconfig
+
+git clone https://github.com/intel-iot-devkit/tinyb
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig 
+
+https://wiki.analog.com/resources/tools-software/linux-software/libiio
+git clone https://github.com/analogdevicesinc/libad9361-iio
+cd libad9361-iio
+cmake ./CMakeLists.txt
+mkdir build
+make
+sudo make install
+sudo ldconfig #needed on debian systems
+
 sudo ldconfig /usr/local/lib/SoapySDR/modules0.8/
 cmake ./CMakeLists.txt
 
@@ -50,12 +69,25 @@ sudo apt-get install libboost1.62-all-dev
 //Put in the Additional Linker inputs:
 /lib/arm-linux-gnueabihf/libpthread.so.0
 
-// kfr
-sudo apt-get install libmpfr-dev libmpfr-doc libmpfr6 libmpfrc++-dev
-sudo apt install clang
-git clone https://github.com/kfrlib/kfr.git
-
+git clone git://github.com/jgaeddert/liquid-dsp.git
+sudo apt-get install automake autoconf
+./bootstrap.sh
+./configure
+make
+sudo make install
+sudo ldconfig
 
 //SoapySDR remote
 https://github.com/pothosware/SoapyRemote/wiki
+
+pluto
+sudo apt install libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
+
+libraries
+atomic;bluetooth;SoapySDR
+/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so
+
+// update firmware
+sudo rpi-update
+
 

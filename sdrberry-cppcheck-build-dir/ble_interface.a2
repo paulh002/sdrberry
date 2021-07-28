@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="833102706">
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;data_c&apos; can be reduced." verbose="The scope of the variable &apos;data_c&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/ble_interface.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\ble_interface.cpp" line="32" column="17"/>
+            <symbol>data_c</symbol>
+        </error>
+        <error id="localMutex" severity="warning" msg="The lock is ineffective because the mutex is locked at the same scope as the mutex itself." verbose="The lock is ineffective because the mutex is locked at the same scope as the mutex itself." cwe="667" file0="H:/OneDrive/source/sdrberry/archive/ble_interface.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\ble_interface.cpp" line="128" column="34"/>
+        </error>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="data_callback" lineNumber="29"/>
+    <functiondecl functionName="signal_handler" lineNumber="52"/>
+    <functiondecl functionName="setup_ble" lineNumber="59"/>
+    <functioncall functionName="NULL"/>
+    <functioncall functionName="c_str"/>
+    <functioncall functionName="catch"/>
+    <functioncall functionName="connect"/>
+    <functioncall functionName="connected"/>
+    <functioncall functionName="data"/>
+    <functioncall functionName="data_callback"/>
+    <functioncall functionName="device_mac"/>
+    <functioncall functionName="disconnect"/>
+    <functioncall functionName="enable_connected_notifications"/>
+    <functioncall functionName="enable_value_notifications"/>
+    <functioncall functionName="exit"/>
+    <functioncall functionName="find"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="get_bluetooth_manager"/>
+    <functioncall functionName="get_name"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="lock"/>
+    <functioncall functionName="m"/>
+    <functioncall functionName="notify_all"/>
+    <functioncall functionName="nullptr"/>
+    <functioncall functionName="seconds"/>
+    <functioncall functionName="service_uuid"/>
+    <functioncall functionName="signal"/>
+    <functioncall functionName="signal_handler"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="start_discovery"/>
+    <functioncall functionName="static_cast"/>
+    <functioncall functionName="stop_discovery"/>
+    <functioncall functionName="str"/>
+    <functioncall functionName="strcpy"/>
+    <functioncall functionName="string"/>
+    <functioncall functionName="toUpperCase"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="value_uuid"/>
+    <functioncall functionName="wait"/>
+    <functioncall functionName="what"/>
+  </FileInfo>
+</analyzerinfo>

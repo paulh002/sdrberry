@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3992738185">
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;Span&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;Span&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="H:/OneDrive/source/sdrberry/libblepp/lescan.cc">
+            <location file="H:\OneDrive\source\sdrberry\libblepp\lescan.cc" line="22" column="4"/>
+            <symbol>Span</symbol>
+        </error>
+        <error id="catchExceptionByValue" severity="style" msg="Exception should be caught by reference." verbose="The exception is caught by value. It could be caught as a (const) reference which is usually recommended in C++." cwe="398" file0="H:/OneDrive/source/sdrberry/libblepp/lescan.cc">
+            <location file="H:\OneDrive\source\sdrberry\libblepp\lescan.cc" line="694" column="4"/>
+        </error>
+        <error id="shadowVariable" severity="style" msg="Local variable &apos;length&apos; shadows outer variable" verbose="Local variable &apos;length&apos; shadows outer variable" cwe="398" file0="H:/OneDrive/source/sdrberry/libblepp/lescan.cc">
+            <location file="H:\OneDrive\source\sdrberry\libblepp\lescan.cc" line="608" column="10" info="Shadow variable"/>
+            <location file="H:\OneDrive\source\sdrberry\libblepp\lescan.cc" line="579" column="12" info="Shadowed declaration"/>
+            <symbol>length</symbol>
+        </error>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="pop_front" lineNumber="29"/>
+    <functiondecl functionName="begin" lineNumber="40"/>
+    <functiondecl functionName="end" lineNumber="44"/>
+    <functiondecl functionName="empty" lineNumber="56"/>
+    <functiondecl functionName="size" lineNumber="61"/>
+    <functiondecl functionName="data" lineNumber="66"/>
+    <functiondecl functionName="pop_front" lineNumber="71"/>
+    <functiondecl functionName="to_hex" lineNumber="97"/>
+    <functiondecl functionName="parse_event_packet" lineNumber="487"/>
+    <functiondecl functionName="parse_le_meta_event" lineNumber="515"/>
+    <functiondecl functionName="parse_le_meta_event_advertisement" lineNumber="531"/>
+    <functioncall functionName="Active"/>
+    <functioncall functionName="BR_EDR_unsupported"/>
+    <functioncall functionName="Both"/>
+    <functioncall functionName="Debug"/>
+    <functioncall functionName="ENTER"/>
+    <functioncall functionName="EVT_LE_META_EVENT"/>
+    <functioncall functionName="Error"/>
+    <functioncall functionName="FilterEntry"/>
+    <functioncall functionName="Flags"/>
+    <functioncall functionName="HCIError"/>
+    <functioncall functionName="HCIScanner"/>
+    <functioncall functionName="HCI_EVENT_PKT"/>
+    <functioncall functionName="HCI_FILTER"/>
+    <functioncall functionName="HCI_MAX_EVENT_SIZE"/>
+    <functioncall functionName="IOError"/>
+    <functioncall functionName="Info"/>
+    <functioncall functionName="Interrupted"/>
+    <functioncall functionName="LE_PUBLIC_ADDRESS"/>
+    <functioncall functionName="LE_general_discoverable"/>
+    <functioncall functionName="LE_limited_discoverable"/>
+    <functioncall functionName="LOG"/>
+    <functioncall functionName="LOGVAR"/>
+    <functioncall functionName="NULL"/>
+    <functioncall functionName="SOL_HCI"/>
+    <functioncall functionName="Span"/>
+    <functioncall functionName="Trace"/>
+    <functioncall functionName="UUID"/>
+    <functioncall functionName="UUIDs"/>
+    <functioncall functionName="Warning"/>
+    <functioncall functionName="a"/>
+    <functioncall functionName="address"/>
+    <functioncall functionName="address_type"/>
+    <functioncall functionName="adverts"/>
+    <functioncall functionName="att_get_uuid128"/>
+    <functioncall functionName="begin"/>
+    <functioncall functionName="begin_"/>
+    <functioncall functionName="buf"/>
+    <functioncall functionName="c_str"/>
+    <functioncall functionName="catch"/>
+    <functioncall functionName="chunk"/>
+    <functioncall functionName="clear"/>
+    <functioncall functionName="continue"/>
+    <functioncall functionName="data"/>
+    <functioncall functionName="default"/>
+    <functioncall functionName="dev_id"/>
+    <functioncall functionName="emplace_back"/>
+    <functioncall functionName="empty"/>
+    <functioncall functionName="end"/>
+    <functioncall functionName="end_"/>
+    <functioncall functionName="erase"/>
+    <functioncall functionName="errno"/>
+    <functioncall functionName="errno_val"/>
+    <functioncall functionName="event_type"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="filter_dup"/>
+    <functioncall functionName="filter_policy"/>
+    <functioncall functionName="flag_data"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="from"/>
+    <functioncall functionName="getsockopt"/>
+    <functioncall functionName="hci_devid"/>
+    <functioncall functionName="hci_fd"/>
+    <functioncall functionName="hci_filter_clear"/>
+    <functioncall functionName="hci_filter_set_event"/>
+    <functioncall functionName="hci_filter_set_ptype"/>
+    <functioncall functionName="hci_get_route"/>
+    <functioncall functionName="hci_le_set_scan_enable"/>
+    <functioncall functionName="hci_le_set_scan_parameters"/>
+    <functioncall functionName="hci_open_dev"/>
+    <functioncall functionName="htobs"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="insert"/>
+    <functioncall functionName="int"/>
+    <functioncall functionName="interval"/>
+    <functioncall functionName="len"/>
+    <functioncall functionName="length"/>
+    <functioncall functionName="mac_address"/>
+    <functioncall functionName="move"/>
+    <functioncall functionName="n"/>
+    <functioncall functionName="name"/>
+    <functioncall functionName="nf"/>
+    <functioncall functionName="num_reports"/>
+    <functioncall functionName="old_filter"/>
+    <functioncall functionName="olen"/>
+    <functioncall functionName="out_of_range"/>
+    <functioncall functionName="own_type"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="packet"/>
+    <functioncall functionName="parse_event_packet"/>
+    <functioncall functionName="parse_le_meta_event"/>
+    <functioncall functionName="parse_le_meta_event_advertisement"/>
+    <functioncall functionName="parse_packet"/>
+    <functioncall functionName="pop_front"/>
+    <functioncall functionName="push_back"/>
+    <functioncall functionName="read"/>
+    <functioncall functionName="read_with_retry"/>
+    <functioncall functionName="resize"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="rsp"/>
+    <functioncall functionName="rssi"/>
+    <functioncall functionName="running"/>
+    <functioncall functionName="runtime_error"/>
+    <functioncall functionName="s"/>
+    <functioncall functionName="scan_type"/>
+    <functioncall functionName="second"/>
+    <functioncall functionName="set"/>
+    <functioncall functionName="setfill"/>
+    <functioncall functionName="setsockopt"/>
+    <functioncall functionName="setw"/>
+    <functioncall functionName="simultaneous_LE_BR_controller"/>
+    <functioncall functionName="simultaneous_LE_BR_host"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="sizeof"/>
+    <functioncall functionName="software_filtering"/>
+    <functioncall functionName="st"/>
+    <functioncall functionName="start"/>
+    <functioncall functionName="start_scan"/>
+    <functioncall functionName="static_cast"/>
+    <functioncall functionName="stop"/>
+    <functioncall functionName="str"/>
+    <functioncall functionName="strerror"/>
+    <functioncall functionName="string"/>
+    <functioncall functionName="subevent_code"/>
+    <functioncall functionName="to_hex"/>
+    <functioncall functionName="to_str"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="type"/>
+    <functioncall functionName="u"/>
+    <functioncall functionName="uint8_t"/>
+    <functioncall functionName="uuid"/>
+    <functioncall functionName="while"/>
+    <functioncall functionName="why"/>
+    <functioncall functionName="window"/>
+  </FileInfo>
+</analyzerinfo>

@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="272009998">
+        <error id="uninitMemberVar" severity="warning" msg="Member variable &apos;AudioSink::handle&apos; is not initialized in the constructor." verbose="Member variable &apos;AudioSink::handle&apos; is not initialized in the constructor." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="13" column="13"/>
+            <symbol>AudioSink::handle</symbol>
+        </error>
+        <error id="uninitMemberVar" severity="warning" msg="Member variable &apos;AudioSink::device&apos; is not initialized in the constructor." verbose="Member variable &apos;AudioSink::device&apos; is not initialized in the constructor." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="13" column="13"/>
+            <symbol>AudioSink::device</symbol>
+        </error>
+        <error id="uninitMemberVar" severity="warning" msg="Member variable &apos;AudioSink::hwparams&apos; is not initialized in the constructor." verbose="Member variable &apos;AudioSink::hwparams&apos; is not initialized in the constructor." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="13" column="13"/>
+            <symbol>AudioSink::hwparams</symbol>
+        </error>
+        <error id="uninitMemberVar" severity="warning" msg="Member variable &apos;AudioSink::swparams&apos; is not initialized in the constructor." verbose="Member variable &apos;AudioSink::swparams&apos; is not initialized in the constructor." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="13" column="13"/>
+            <symbol>AudioSink::swparams</symbol>
+        </error>
+        <error id="uninitMemberVar" severity="warning" msg="Member variable &apos;AudioSink::areas&apos; is not initialized in the constructor." verbose="Member variable &apos;AudioSink::areas&apos; is not initialized in the constructor." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="13" column="13"/>
+            <symbol>AudioSink::areas</symbol>
+        </error>
+        <error id="uninitMemberVar" severity="warning" msg="Member variable &apos;AudioSink::samples&apos; is not initialized in the constructor." verbose="Member variable &apos;AudioSink::samples&apos; is not initialized in the constructor." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="13" column="13"/>
+            <symbol>AudioSink::samples</symbol>
+        </error>
+        <error id="unusedPrivateFunction" severity="style" msg="Unused private function: &apos;AudioSink::write_loop&apos;" verbose="Unused private function: &apos;AudioSink::write_loop&apos;" cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.h" line="41" column="7"/>
+            <symbol>AudioSink::write_loop</symbol>
+        </error>
+        <error id="unusedPrivateFunction" severity="style" msg="Unused private function: &apos;AudioSink::write_and_poll_loop&apos;" verbose="Unused private function: &apos;AudioSink::write_and_poll_loop&apos;" cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.h" line="43" column="7"/>
+            <symbol>AudioSink::write_and_poll_loop</symbol>
+        </error>
+        <error id="unusedPrivateFunction" severity="style" msg="Unused private function: &apos;AudioSink::async_direct_loop&apos;" verbose="Unused private function: &apos;AudioSink::async_direct_loop&apos;" cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.h" line="45" column="7"/>
+            <symbol>AudioSink::async_direct_loop</symbol>
+        </error>
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;ptr&apos; can be reduced." verbose="The scope of the variable &apos;ptr&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="34" column="16"/>
+            <symbol>ptr</symbol>
+        </error>
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;cptr&apos; can be reduced." verbose="The scope of the variable &apos;cptr&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="35" column="11"/>
+            <symbol>cptr</symbol>
+        </error>
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;ptr&apos; can be reduced." verbose="The scope of the variable &apos;ptr&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="336" column="16"/>
+            <symbol>ptr</symbol>
+        </error>
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;cptr&apos; can be reduced." verbose="The scope of the variable &apos;cptr&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="337" column="11"/>
+            <symbol>cptr</symbol>
+        </error>
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;ptr&apos; can be reduced." verbose="The scope of the variable &apos;ptr&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="384" column="16"/>
+            <symbol>ptr</symbol>
+        </error>
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;cptr&apos; can be reduced." verbose="The scope of the variable &apos;cptr&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp">
+            <location file="H:\OneDrive\source\sdrberry\archive\AudioSink.cpp" line="385" column="18"/>
+            <symbol>cptr</symbol>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="2" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="38" col="16" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="4" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="38" col="16" call-argexpr="&phase" call-argvaluetype="7" call-argvalue="8"/><function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="2" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="340" col="16" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="4" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="340" col="16" call-argexpr="&phase" call-argvaluetype="7" call-argvalue="8"/><function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="2" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="424" col="16" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="4" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="424" col="16" call-argexpr="&phase" call-argvaluetype="7" call-argvalue="8"/><function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="1" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="38" col="3" my-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:44:7" my-argnr="3"/>
+<function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="1" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="340" col="3" my-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:41:7" my-argnr="3"/>
+<function-call call-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" call-funcname="generate_sine" call-argnr="1" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="424" col="3" my-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:43:7" my-argnr="3"/>
+  </FileInfo>
+  <FileInfo check="Class">
+<class name="AudioSink" file="H:/OneDrive/source/sdrberry/archive/AudioSink.h" line="7" col="1" hash="10968699809833714288"/>
+<class name="async_private_data" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="465" col="1" hash="7753241070945000835"/>
+  </FileInfo>
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" my-argnr="4" my-argname="_phase" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="114" col="18" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/archive/AudioSink.h:14:8" my-argnr="4" my-argname="_phase" file="H:/OneDrive/source/sdrberry/archive/AudioSink.cpp" line="114" col="18" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="direct_write_loop" lineNumber="29"/>
+    <functiondecl functionName="init" lineNumber="58"/>
+    <functiondecl functionName="generate_sine" lineNumber="108"/>
+    <functiondecl functionName="set_hwparams" lineNumber="176"/>
+    <functiondecl functionName="set_swparams" lineNumber="259"/>
+    <functiondecl functionName="xrun_recovery" lineNumber="304"/>
+    <functiondecl functionName="write_loop" lineNumber="331"/>
+    <functiondecl functionName="wait_for_poll" lineNumber="364"/>
+    <functiondecl functionName="write_and_poll_loop" lineNumber="378"/>
+    <functiondecl functionName="async_direct_loop" lineNumber="471"/>
+    <functiondecl functionName="async_direct_callback" lineNumber="529"/>
+    <functioncall functionName="AudioSink"/>
+    <functioncall functionName="EAGAIN"/>
+    <functioncall functionName="EINVAL"/>
+    <functioncall functionName="EIO"/>
+    <functioncall functionName="ENOMEM"/>
+    <functioncall functionName="EPIPE"/>
+    <functioncall functionName="ESTRPIPE"/>
+    <functioncall functionName="EXIT_FAILURE"/>
+    <functioncall functionName="NULL"/>
+    <functioncall functionName="SND_PCM_ACCESS_MMAP_INTERLEAVED"/>
+    <functioncall functionName="SND_PCM_FORMAT_S16"/>
+    <functioncall functionName="SND_PCM_STREAM_PLAYBACK"/>
+    <functioncall functionName="access"/>
+    <functioncall functionName="addr"/>
+    <functioncall functionName="ahandler"/>
+    <functioncall functionName="areas"/>
+    <functioncall functionName="async_direct_callback"/>
+    <functioncall functionName="avail"/>
+    <functioncall functionName="big_endian"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="buffer_size"/>
+    <functioncall functionName="buffer_time"/>
+    <functioncall functionName="calloc"/>
+    <functioncall functionName="channels"/>
+    <functioncall functionName="chn"/>
+    <functioncall functionName="commitres"/>
+    <functioncall functionName="continue"/>
+    <functioncall functionName="count"/>
+    <functioncall functionName="cptr"/>
+    <functioncall functionName="data"/>
+    <functioncall functionName="dir"/>
+    <functioncall functionName="direct_write_loop"/>
+    <functioncall functionName="double"/>
+    <functioncall functionName="err"/>
+    <functioncall functionName="exit"/>
+    <functioncall functionName="first"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="format"/>
+    <functioncall functionName="frames"/>
+    <functioncall functionName="free"/>
+    <functioncall functionName="generate_sine"/>
+    <functioncall functionName="handle"/>
+    <functioncall functionName="hwparams"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="init"/>
+    <functioncall functionName="is_float"/>
+    <functioncall functionName="malloc"/>
+    <functioncall functionName="my_areas"/>
+    <functioncall functionName="offset"/>
+    <functioncall functionName="output"/>
+    <functioncall functionName="params"/>
+    <functioncall functionName="period_event"/>
+    <functioncall functionName="period_size"/>
+    <functioncall functionName="period_time"/>
+    <functioncall functionName="phase"/>
+    <functioncall functionName="poll"/>
+    <functioncall functionName="printf"/>
+    <functioncall functionName="ptr"/>
+    <functioncall functionName="rate"/>
+    <functioncall functionName="resample"/>
+    <functioncall functionName="revents"/>
+    <functioncall functionName="rrate"/>
+    <functioncall functionName="samples"/>
+    <functioncall functionName="set_hwparams"/>
+    <functioncall functionName="set_swparams"/>
+    <functioncall functionName="sin"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="sizeof"/>
+    <functioncall functionName="sleep"/>
+    <functioncall functionName="snd_async_add_pcm_handler"/>
+    <functioncall functionName="snd_async_handler_get_callback_private"/>
+    <functioncall functionName="snd_async_handler_get_pcm"/>
+    <functioncall functionName="snd_output_stdio_attach"/>
+    <functioncall functionName="snd_pcm_avail_update"/>
+    <functioncall functionName="snd_pcm_channel_area_t"/>
+    <functioncall functionName="snd_pcm_close"/>
+    <functioncall functionName="snd_pcm_format_big_endian"/>
+    <functioncall functionName="snd_pcm_format_physical_width"/>
+    <functioncall functionName="snd_pcm_format_unsigned"/>
+    <functioncall functionName="snd_pcm_format_width"/>
+    <functioncall functionName="snd_pcm_hw_params"/>
+    <functioncall functionName="snd_pcm_hw_params_alloca"/>
+    <functioncall functionName="snd_pcm_hw_params_any"/>
+    <functioncall functionName="snd_pcm_hw_params_get_buffer_size"/>
+    <functioncall functionName="snd_pcm_hw_params_get_period_size"/>
+    <functioncall functionName="snd_pcm_hw_params_set_access"/>
+    <functioncall functionName="snd_pcm_hw_params_set_buffer_time_near"/>
+    <functioncall functionName="snd_pcm_hw_params_set_channels"/>
+    <functioncall functionName="snd_pcm_hw_params_set_format"/>
+    <functioncall functionName="snd_pcm_hw_params_set_period_time_near"/>
+    <functioncall functionName="snd_pcm_hw_params_set_rate_near"/>
+    <functioncall functionName="snd_pcm_hw_params_set_rate_resample"/>
+    <functioncall functionName="snd_pcm_mmap_begin"/>
+    <functioncall functionName="snd_pcm_mmap_commit"/>
+    <functioncall functionName="snd_pcm_mmap_writei"/>
+    <functioncall functionName="snd_pcm_open"/>
+    <functioncall functionName="snd_pcm_poll_descriptors"/>
+    <functioncall functionName="snd_pcm_poll_descriptors_count"/>
+    <functioncall functionName="snd_pcm_poll_descriptors_revents"/>
+    <functioncall functionName="snd_pcm_prepare"/>
+    <functioncall functionName="snd_pcm_resume"/>
+    <functioncall functionName="snd_pcm_start"/>
+    <functioncall functionName="snd_pcm_state"/>
+    <functioncall functionName="snd_pcm_sw_params"/>
+    <functioncall functionName="snd_pcm_sw_params_alloca"/>
+    <functioncall functionName="snd_pcm_sw_params_current"/>
+    <functioncall functionName="snd_pcm_sw_params_set_avail_min"/>
+    <functioncall functionName="snd_pcm_sw_params_set_period_event"/>
+    <functioncall functionName="snd_pcm_sw_params_set_start_threshold"/>
+    <functioncall functionName="snd_pcm_uframes_t"/>
+    <functioncall functionName="snd_pcm_writei"/>
+    <functioncall functionName="snd_strerror"/>
+    <functioncall functionName="stdout"/>
+    <functioncall functionName="step"/>
+    <functioncall functionName="swparams"/>
+    <functioncall functionName="to_unsigned"/>
+    <functioncall functionName="ufds"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="wait_for_poll"/>
+    <functioncall functionName="while"/>
+    <functioncall functionName="xrun_recovery"/>
+  </FileInfo>
+</analyzerinfo>

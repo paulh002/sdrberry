@@ -24,15 +24,13 @@
 
 using namespace std;
 
-static const int default_block_length = 65536;
-
 pthread_t				threads[NUM_THREADS];
-IQSampleVector			iqsamples;
-SoapySDR::Stream		*rx_stream;
-complex<float>			ciqsamples[default_block_length];
-	
+
 void* rx_streaming_thread(void* psdr_dev)
 {
+	static const int		default_block_length = 65536;
+	SoapySDR::Stream		*rx_stream;
+	
 	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
 	int ret;
 	
@@ -51,11 +49,13 @@ void* rx_streaming_thread(void* psdr_dev)
 		pthread_exit(NULL);
 	}
 	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
-	while (1)
+	while (!stop_flag.load())
 	{
-		int flags; 
-		long long time_ns;
-		void *buffs[] = { ciqsamples };
+		int							flags; 
+		long long					time_ns;
+		vector<complex<float>>		buf(default_block_length);
+		
+		void *buffs[] = { buf.data() };
 		
 		ret = sdr_dev->sdr->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
 		if (ret < 0)
@@ -63,20 +63,16 @@ void* rx_streaming_thread(void* psdr_dev)
 			printf("cannot stream data \n");
 			pthread_exit(NULL);
 		}
-		//iqsamples.resize(ret);
-		//printf("received %d %d samples\n", ret, iqsamples.size());
-		//copy(&ciqsamples[0], &ciqsamples[ret], back_inserter(iqsamples));
-		
-		iqsamples.insert(iqsamples.end(), &ciqsamples[0], &ciqsamples[ret]);
-		sdr_dev->channel_structure_rx[0].source_buffer->push(move(iqsamples));
+		buf.resize(ret);
+		sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));
 	}
 	sdr_dev->channel_structure_rx[0].source_buffer->push_end();
+	sdr_dev->sdr->deactivateStream(rx_stream);
 	pthread_exit(NULL);
 }
 
 void create_rx_streaming_thread(struct device_structure *sdr_dev, vfo_settings_struct	*vfo, double samplerate, DataBuffer<IQSample> *source_buffer)
 {
-
 	sdr_dev->channel_structure_rx[0].source_buffer = source_buffer;
 	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, samplerate);
 	int i = RX_THREAD;
@@ -89,3 +85,14 @@ void stream_rx_set_frequency(struct device_structure *sdr_dev,unsigned long freq
 	if (sdr_dev->sdr != NULL)
 		sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, freq);		
 }
+
+
+/*
+ *int		size_of_samples_counter = 0;
+ *if (size_of_samples_counter > 100)
+{
+	size_of_samples_counter = 0;
+	printf("samples %d source buffer %d queu length %zu\n",  ret, sdr_dev->channel_structure_rx[0].source_buffer->size(),
+		sdr_dev->channel_structure_rx[0].source_buffer->get_qlen());
+}
+size_of_samples_counter++; */

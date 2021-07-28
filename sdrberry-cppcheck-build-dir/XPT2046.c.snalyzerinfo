@@ -1,0 +1,4 @@
+xpt2046_init
+xpt2046_read global:[avg_last] call:[xpt2046_avg,xpt2046_corr]
+xpt2046_corr
+xpt2046_avg global:[avg_buf_x,avg_buf_y,avg_last]

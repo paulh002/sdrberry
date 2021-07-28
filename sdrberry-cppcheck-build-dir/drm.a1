@@ -1,0 +1,206 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="979728640">
+        <error id="invalidPrintfArgType_sint" severity="warning" msg="%d in format string (no. 2) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." verbose="%d in format string (no. 2) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." cwe="686" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\drm.c" line="590" column="2"/>
+        </error>
+        <error id="invalidPrintfArgType_sint" severity="warning" msg="%d in format string (no. 3) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." verbose="%d in format string (no. 3) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." cwe="686" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\drm.c" line="590" column="2"/>
+        </error>
+        <error id="invalidPrintfArgType_sint" severity="warning" msg="%d in format string (no. 1) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." verbose="%d in format string (no. 1) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." cwe="686" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\drm.c" line="593" column="2"/>
+        </error>
+        <error id="invalidPrintfArgType_sint" severity="warning" msg="%d in format string (no. 2) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." verbose="%d in format string (no. 2) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." cwe="686" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\drm.c" line="593" column="2"/>
+        </error>
+        <error id="invalidPrintfArgType_sint" severity="warning" msg="%d in format string (no. 3) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." verbose="%d in format string (no. 3) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." cwe="686" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\drm.c" line="593" column="2"/>
+        </error>
+        <error id="invalidPrintfArgType_sint" severity="warning" msg="%d in format string (no. 4) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." verbose="%d in format string (no. 4) requires &apos;int&apos; but the argument type is &apos;unsigned int&apos;." cwe="686" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\drm.c" line="593" column="2"/>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:186:12" call-funcname="drm_add_plane_property" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="265" col="24" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:186:12" call-funcname="drm_add_plane_property" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="266" col="24" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:186:12" call-funcname="drm_add_plane_property" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="269" col="24" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:186:12" call-funcname="drm_add_plane_property" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="270" col="24" call-argexpr="0" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:72:17" call-funcname="get_plane_property_id" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="189" col="21" my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:186:12" my-argnr="1"/>
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:87:17" call-funcname="get_crtc_property_id" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="208" col="21" my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:205:12" my-argnr="1"/>
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:102:17" call-funcname="get_conn_property_id" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="227" col="21" my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:224:12" my-argnr="1"/>
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.h:47:6" call-funcname="drm_wait_vsync" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="728" col="3" my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.h:46:6" my-argnr="1"/>
+  </FileInfo>
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:243:12" my-argnr="1" my-argname="buf" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="263" col="34" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.h:46:6" my-argnr="2" my-argname="area" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="711" col="18" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c:243:12" my-argnr="1" my-argname="buf" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="263" col="34" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.h:46:6" my-argnr="2" my-argname="area" file="H:/OneDrive/source/sdrberry/lv_drivers/display/drm.c" line="711" col="18" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="get_plane_property_id" lineNumber="72"/>
+    <functiondecl functionName="get_crtc_property_id" lineNumber="87"/>
+    <functiondecl functionName="get_conn_property_id" lineNumber="102"/>
+    <functiondecl functionName="page_flip_handler" lineNumber="117"/>
+    <functiondecl functionName="drm_get_plane_props" lineNumber="123"/>
+    <functiondecl functionName="drm_get_crtc_props" lineNumber="144"/>
+    <functiondecl functionName="drm_get_conn_props" lineNumber="165"/>
+    <functiondecl functionName="drm_add_plane_property" lineNumber="186"/>
+    <functiondecl functionName="drm_add_crtc_property" lineNumber="205"/>
+    <functiondecl functionName="drm_add_conn_property" lineNumber="224"/>
+    <functiondecl functionName="drm_dmabuf_set_plane" lineNumber="243"/>
+    <functiondecl functionName="find_plane" lineNumber="284"/>
+    <functiondecl functionName="drm_find_connector" lineNumber="339"/>
+    <functiondecl functionName="drm_open" lineNumber="491"/>
+    <functiondecl functionName="drm_setup" lineNumber="524"/>
+    <functiondecl functionName="drm_allocate_dumb" lineNumber="604"/>
+    <functiondecl functionName="drm_setup_buffers" lineNumber="663"/>
+    <functiondecl functionName="drm_wait_vsync" lineNumber="683"/>
+    <functiondecl functionName="drm_flush" lineNumber="708"/>
+    <functiondecl functionName="drm_get_sizes" lineNumber="756"/>
+    <functiondecl functionName="drm_init" lineNumber="768"/>
+    <functiondecl functionName="drm_exit" lineNumber="790"/>
+    <functioncall functionName="DRM_CAP_DUMB_BUFFER"/>
+    <functioncall functionName="DRM_CLIENT_CAP_ATOMIC"/>
+    <functioncall functionName="DRM_EVENT_CONTEXT_VERSION"/>
+    <functioncall functionName="DRM_FORMAT_RGB565"/>
+    <functioncall functionName="DRM_IOCTL_MODE_CREATE_DUMB"/>
+    <functioncall functionName="DRM_IOCTL_MODE_MAP_DUMB"/>
+    <functioncall functionName="DRM_MODE_OBJECT_CONNECTOR"/>
+    <functioncall functionName="DRM_MODE_OBJECT_CRTC"/>
+    <functioncall functionName="DRM_MODE_OBJECT_PLANE"/>
+    <functioncall functionName="DRM_MODE_PAGE_FLIP_EVENT"/>
+    <functioncall functionName="FD_CLOEXEC"/>
+    <functioncall functionName="FD_ISSET"/>
+    <functioncall functionName="FD_SET"/>
+    <functioncall functionName="FD_ZERO"/>
+    <functioncall functionName="F_GETFD"/>
+    <functioncall functionName="F_SETFD"/>
+    <functioncall functionName="MAP_SHARED"/>
+    <functioncall functionName="NULL"/>
+    <functioncall functionName="O_RDWR"/>
+    <functioncall functionName="PROT_WRITE"/>
+    <functioncall functionName="blob_id"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="close"/>
+    <functioncall functionName="conn"/>
+    <functioncall functionName="conn_id"/>
+    <functioncall functionName="connector_id"/>
+    <functioncall functionName="continue"/>
+    <functioncall functionName="count_conn_props"/>
+    <functioncall functionName="count_connectors"/>
+    <functioncall functionName="count_crtc_props"/>
+    <functioncall functionName="count_crtcs"/>
+    <functioncall functionName="count_encoders"/>
+    <functioncall functionName="count_formats"/>
+    <functioncall functionName="count_modes"/>
+    <functioncall functionName="count_plane_props"/>
+    <functioncall functionName="count_planes"/>
+    <functioncall functionName="count_props"/>
+    <functioncall functionName="creq"/>
+    <functioncall functionName="crtc"/>
+    <functioncall functionName="crtc_id"/>
+    <functioncall functionName="crtc_idx"/>
+    <functioncall functionName="disp_drv"/>
+    <functioncall functionName="drmGetCap"/>
+    <functioncall functionName="drmHandleEvent"/>
+    <functioncall functionName="drmIoctl"/>
+    <functioncall functionName="drmModeAddFB2"/>
+    <functioncall functionName="drmModeAtomicAddProperty"/>
+    <functioncall functionName="drmModeAtomicAlloc"/>
+    <functioncall functionName="drmModeAtomicCommit"/>
+    <functioncall functionName="drmModeAtomicFree"/>
+    <functioncall functionName="drmModeCreatePropertyBlob"/>
+    <functioncall functionName="drmModeFreeConnector"/>
+    <functioncall functionName="drmModeFreeEncoder"/>
+    <functioncall functionName="drmModeFreeObjectProperties"/>
+    <functioncall functionName="drmModeFreePlane"/>
+    <functioncall functionName="drmModeFreePlaneResources"/>
+    <functioncall functionName="drmModeFreeResources"/>
+    <functioncall functionName="drmModeGetConnector"/>
+    <functioncall functionName="drmModeGetCrtc"/>
+    <functioncall functionName="drmModeGetEncoder"/>
+    <functioncall functionName="drmModeGetPlane"/>
+    <functioncall functionName="drmModeGetPlaneResources"/>
+    <functioncall functionName="drmModeGetProperty"/>
+    <functioncall functionName="drmModeGetResources"/>
+    <functioncall functionName="drmModeModeInfo"/>
+    <functioncall functionName="drmModeObjectGetProperties"/>
+    <functioncall functionName="drmSetClientCap"/>
+    <functioncall functionName="drm_add_conn_property"/>
+    <functioncall functionName="drm_add_crtc_property"/>
+    <functioncall functionName="drm_add_plane_property"/>
+    <functioncall functionName="drm_allocate_dumb"/>
+    <functioncall functionName="drm_dmabuf_set_plane"/>
+    <functioncall functionName="drm_event_ctx"/>
+    <functioncall functionName="drm_find_connector"/>
+    <functioncall functionName="drm_get_conn_props"/>
+    <functioncall functionName="drm_get_crtc_props"/>
+    <functioncall functionName="drm_get_plane_props"/>
+    <functioncall functionName="drm_open"/>
+    <functioncall functionName="drm_setup"/>
+    <functioncall functionName="drm_setup_buffers"/>
+    <functioncall functionName="drm_wait_vsync"/>
+    <functioncall functionName="enc"/>
+    <functioncall functionName="encoder_id"/>
+    <functioncall functionName="err"/>
+    <functioncall functionName="errno"/>
+    <functioncall functionName="fb_handle"/>
+    <functioncall functionName="fbuf"/>
+    <functioncall functionName="fcntl"/>
+    <functioncall functionName="fd"/>
+    <functioncall functionName="fds"/>
+    <functioncall functionName="find_plane"/>
+    <functioncall functionName="first"/>
+    <functioncall functionName="flags"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="fourcc"/>
+    <functioncall functionName="fprintf"/>
+    <functioncall functionName="free_res"/>
+    <functioncall functionName="get_conn_property_id"/>
+    <functioncall functionName="get_crtc_property_id"/>
+    <functioncall functionName="get_plane_property_id"/>
+    <functioncall functionName="handle"/>
+    <functioncall functionName="handles"/>
+    <functioncall functionName="has_dumb"/>
+    <functioncall functionName="hdisplay"/>
+    <functioncall functionName="height"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="j"/>
+    <functioncall functionName="lv_disp_flush_ready"/>
+    <functioncall functionName="map"/>
+    <functioncall functionName="memcpy"/>
+    <functioncall functionName="memset"/>
+    <functioncall functionName="mmHeight"/>
+    <functioncall functionName="mmWidth"/>
+    <functioncall functionName="mmap"/>
+    <functioncall functionName="mode"/>
+    <functioncall functionName="mreq"/>
+    <functioncall functionName="name"/>
+    <functioncall functionName="offset"/>
+    <functioncall functionName="offsets"/>
+    <functioncall functionName="open"/>
+    <functioncall functionName="page_flip_handler"/>
+    <functioncall functionName="path"/>
+    <functioncall functionName="pitch"/>
+    <functioncall functionName="pitches"/>
+    <functioncall functionName="plane"/>
+    <functioncall functionName="plane_id"/>
+    <functioncall functionName="planes"/>
+    <functioncall functionName="prop_id"/>
+    <functioncall functionName="props"/>
+    <functioncall functionName="req"/>
+    <functioncall functionName="res"/>
+    <functioncall functionName="ret"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="select"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="sizeof"/>
+    <functioncall functionName="stderr"/>
+    <functioncall functionName="strcmp"/>
+    <functioncall functionName="strerror"/>
+    <functioncall functionName="value"/>
+    <functioncall functionName="vdisplay"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="while"/>
+    <functioncall functionName="width"/>
+    <functioncall functionName="y1"/>
+    <functioncall functionName="y2"/>
+  </FileInfo>
+</analyzerinfo>

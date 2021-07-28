@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="2894296599">
+  <FileInfo check="CheckUnusedFunctions">
+    <functioncall functionName="PDUErrorResponse"/>
+    <functioncall functionName="att_op2str"/>
+    <functioncall functionName="data"/>
+    <functioncall functionName="end_handle"/>
+    <functioncall functionName="error_str"/>
+    <functioncall functionName="first"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="handle"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="length"/>
+    <functioncall functionName="num_elements"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="pdu"/>
+    <functioncall functionName="request_opcode"/>
+    <functioncall functionName="start_handle"/>
+    <functioncall functionName="to_hex"/>
+    <functioncall functionName="to_str"/>
+    <functioncall functionName="type"/>
+    <functioncall functionName="value"/>
+    <functioncall functionName="value_size"/>
+    <functioncall functionName="value_uint16"/>
+  </FileInfo>
+</analyzerinfo>

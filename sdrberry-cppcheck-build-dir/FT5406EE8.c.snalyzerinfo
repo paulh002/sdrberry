@@ -1,0 +1,4 @@
+ft5406ee8_init
+ft5406ee8_read call:[ft5406ee8_get_touch_num,ft5406ee8_read_finger1] noreturn:[ft5406ee8_read_finger1]
+ft5406ee8_get_touch_num
+ft5406ee8_read_finger1

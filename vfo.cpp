@@ -103,11 +103,11 @@ std::string get_vfo_str(int vfo)
 	
 	if (freq > 10000000LU)
 	{
-		sprintf(str, "%3ld.%03ld,%02ld Khz", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
+		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 	}
 	else
 	{
-		sprintf(str, "%3ld.%03ld,%02ld Khz", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
+		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 	}
 	std::string s(str);
 	return s;

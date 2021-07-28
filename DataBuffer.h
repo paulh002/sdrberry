@@ -20,7 +20,7 @@ template <class Element>
 	class DataBuffer
 	{
 	public:
-		/** Constructor. */
+		/** Constructor. initialize members */
 		DataBuffer()
 			: m_qlen(0)
 			, m_end_marked(false)
@@ -89,6 +89,16 @@ template <class Element>
 				m_cond.wait(lock);
 		}
 
+		int size()
+		{
+			return m_queue.size();
+		}
+		
+		size_t get_qlen()
+		{
+			return m_qlen;
+		}
+			
 	private:
 		size_t              m_qlen;
 		bool                m_end_marked;

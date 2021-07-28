@@ -1,0 +1,3 @@
+data_callback call:[data,size]
+signal_handler global:[cv] call:[notify_all] noreturn:[notify_all]
+setup_ble global:[cv] call:[c_str,connect,device_mac,disconnect,enable_connected_notifications,enable_value_notifications,exit,find,get_bluetooth_manager,get_name,lock,seconds,service_uuid,signal,start_discovery,stop_discovery,strcpy,string,toUpperCase,wait,what] noreturn:[disconnect,exit,find,get_bluetooth_manager]

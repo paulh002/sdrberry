@@ -1,0 +1,3 @@
+mouse_init
+mouse_read global:[last_x,last_y,left_button_down]
+mouse_handler global:[last_x,last_y,left_button_down]

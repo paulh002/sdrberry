@@ -1,0 +1,57 @@
+toString call:[precision,str] noreturn:[str]
+toString call:[return] noreturn:[return]
+fromString call:[fail,stream]
+split call:[push_back,reserve,size,split] noreturn:[push_back]
+join call:[begin,str] noreturn:[str]
+Option
+operator= call:[isInRange]
+to
+makeOption
+makeOption call:[setMin]
+makeOption call:[setRange]
+operator<< call:[push]
+get
+operator>> call:[get]
+File call:[setFlags] noreturn:[setFlags]
+File call:[loadFromFile,setFlags] noreturn:[loadFromFile]
+File call:[setDefaultOptions,setFlags] noreturn:[setDefaultOptions]
+File call:[loadFromFile,setDefaultOptions,setFlags] noreturn:[loadFromFile]
+File call:[writeToFile] noreturn:[writeToFile]
+loadFromFile call:[parseLines,readLinesFromFile] noreturn:[parseLines]
+loadFromString call:[getLinesFromString,parseLines] noreturn:[parseLines]
+writeToFile call:[buildString,empty,writeStringToFile]
+writeToString call:[back,buildArrayString,empty,pop_back] noreturn:[pop_back]
+buildString call:[writeToString]
+operatorbool
+getStatus
+setFlag
+setFlags
+operator()
+operator()
+optionExists call:[end,find,return] noreturn:[return]
+optionExists call:[optionExists] noreturn:[optionExists]
+setDefaultOptions call:[begin,end,insert] noreturn:[insert]
+useSection
+begin call:[begin] noreturn:[begin]
+end call:[end] noreturn:[end]
+getSection
+getSection
+sectionExists call:[end,find,return] noreturn:[return]
+sectionExists call:[sectionExists] noreturn:[sectionExists]
+eraseOption call:[end,erase,find]
+eraseOption call:[eraseOption] noreturn:[eraseOption]
+eraseSection call:[erase,return] noreturn:[return]
+eraseSection call:[eraseSection] noreturn:[eraseSection]
+clear call:[clear] noreturn:[clear]
+parseLines call:[clear,empty,isSection,parseOptionLine,parseSectionLine,stripComments,trimWhitespace] noreturn:[parseOptionLine,parseSectionLine]
+isSection call:[back,front,return,size] noreturn:[return]
+parseSectionLine call:[size,substr]
+parseOptionLine call:[assign,back,clear,empty,erase,find,getArrayOption,pop_back,push,setOption,startArray,substr,toStringWithQuotes,trimWhitespace] noreturn:[clear,erase,pop_back,setOption,startArray]
+setOption call:[setQuotes,trimQuotes] noreturn:[setQuotes]
+getArrayOption call:[size]
+startArray call:[push,push_back,size] noreturn:[push_back]
+areQuotes call:[return] noreturn:[return]
+trimQuotes call:[areQuotes,back,begin,erase,front,pop_back,size]
+isEndComment call:[find,return] noreturn:[return]
+getCommentType call:[compare,isEndComment,size]
+stripComments call:[clear,getCommentType] noreturn:[clear]

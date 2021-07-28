@@ -52,8 +52,8 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLibraryNames>atomic;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -68,7 +68,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -81,7 +81,6 @@
     <ClCompile Include="configoption.cpp" />
     <ClCompile Include="DataBuffer.cpp" />
     <ClCompile Include="device.cpp" />
-    <ClCompile Include="Fftcalc.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
@@ -92,6 +91,7 @@
     <ClCompile Include="gui_right_pane.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
+    <ClCompile Include="img_lvgl_logo.c" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="lv_drivers\display\drm.c" />
     <ClCompile Include="lv_drivers\display\fbdev.c" />
@@ -237,6 +237,7 @@
     <ClCompile Include="lvgl\src\widgets\lv_textarea.c" />
     <ClCompile Include="sdrstream.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="smeter_img.c" />
     <ClCompile Include="SoapySDRProbe.cpp" />
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
@@ -248,7 +249,6 @@
     <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="devices.h" />
-    <ClInclude Include="Fftcalc.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />

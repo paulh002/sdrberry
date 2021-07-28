@@ -1012,9 +1012,6 @@
     <ClCompile Include="gui_vfo.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="Fftcalc.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="AudioOutput.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1043,6 +1040,12 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="Keyboard.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="smeter_img.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="img_lvgl_logo.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1179,9 +1182,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_vfo.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fftcalc.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="liquid.h">

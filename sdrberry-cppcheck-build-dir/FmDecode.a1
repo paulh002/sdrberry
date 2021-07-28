@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="2247684412">
+        <error id="noConstructor" severity="style" msg="The class &apos;FmDecoder_executer&apos; does not have a constructor although it has private member variables." verbose="The class &apos;FmDecoder_executer&apos; does not have a constructor although it has private member variables. Member variables of builtin types are left uninitialized when the class is instantiated. That may cause bugs or undefined behavior." cwe="398" file0="FmDecode.cpp">
+            <location file="FmDecode.h" line="243" column="1"/>
+            <symbol>FmDecoder_executer</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;LowPassFilterRC&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;LowPassFilterRC&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="FmDecode.cpp">
+            <location file="Filter.h" line="104" column="5"/>
+            <symbol>LowPassFilterRC</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;LowPassFilterIir&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;LowPassFilterIir&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="FmDecode.cpp">
+            <location file="Filter.h" line="129" column="5"/>
+            <symbol>LowPassFilterIir</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;HighPassFilterIir&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;HighPassFilterIir&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="FmDecode.cpp">
+            <location file="Filter.h" line="151" column="5"/>
+            <symbol>HighPassFilterIir</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;RawAudioOutput&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;RawAudioOutput&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="FmDecode.cpp">
+            <location file="AudioOutput.h" line="74" column="5"/>
+            <symbol>RawAudioOutput</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;PhaseDiscriminator&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;PhaseDiscriminator&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="FmDecode.cpp">
+            <location file="FmDecode.h" line="23" column="5"/>
+            <symbol>PhaseDiscriminator</symbol>
+        </error>
+        <error id="missingOverride" severity="style" msg="The function &apos;write&apos; overrides a function in a base class but is not marked with a &apos;override&apos; specifier." verbose="The function &apos;write&apos; overrides a function in a base class but is not marked with a &apos;override&apos; specifier." file0="FmDecode.cpp">
+            <location file="AudioOutput.h" line="77" column="10" info="Function in derived class"/>
+            <location file="AudioOutput.h" line="28" column="21" info="Virtual function in base class"/>
+            <symbol>write</symbol>
+        </error>
+        <error id="missingOverride" severity="style" msg="The function &apos;write&apos; overrides a function in a base class but is not marked with a &apos;override&apos; specifier." verbose="The function &apos;write&apos; overrides a function in a base class but is not marked with a &apos;override&apos; specifier." file0="FmDecode.cpp">
+            <location file="AudioOutput.h" line="102" column="10" info="Function in derived class"/>
+            <location file="AudioOutput.h" line="28" column="21" info="Virtual function in base class"/>
+            <symbol>write</symbol>
+        </error>
+        <error id="missingOverride" severity="style" msg="The function &apos;write&apos; overrides a function in a base class but is not marked with a &apos;override&apos; specifier." verbose="The function &apos;write&apos; overrides a function in a base class but is not marked with a &apos;override&apos; specifier." file0="FmDecode.cpp">
+            <location file="AudioOutput.h" line="138" column="10" info="Function in derived class"/>
+            <location file="AudioOutput.h" line="28" column="21" info="Virtual function in base class"/>
+            <symbol>write</symbol>
+        </error>
+        <error id="cstyleCast" severity="style" msg="C-style pointer casting" verbose="C-style pointer casting detected. C++ offers four different kinds of casts as replacements: static_cast, const_cast, dynamic_cast and reinterpret_cast. A C-style cast could evaluate to any of those automatically, thus it is considered safer if the programmer explicitly states which kind of cast is expected. See also: https://www.securecoding.cert.org/confluence/display/cplusplus/EXP05-CPP.+Do+not+use+C-style+casts." cwe="398" file0="FmDecode.cpp">
+            <location file="FmDecode.cpp" line="481" column="35"/>
+        </error>
+        <error id="unusedVariable" severity="style" msg="Unused variable: audio_mean" verbose="Unused variable: audio_mean" cwe="563" file0="FmDecode.cpp">
+            <location file="FmDecode.cpp" line="501" column="10"/>
+            <symbol>audio_mean</symbol>
+        </error>
+        <error id="unusedVariable" severity="style" msg="Unused variable: audio_rms" verbose="Unused variable: audio_rms" cwe="563" file0="FmDecode.cpp">
+            <location file="FmDecode.cpp" line="501" column="22"/>
+            <symbol>audio_rms</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;rc&apos; is assigned a value that is never used." verbose="Variable &apos;rc&apos; is assigned a value that is never used." cwe="563" file0="FmDecode.cpp">
+            <location file="FmDecode.cpp" line="526" column="9"/>
+            <symbol>rc</symbol>
+        </error>
+  <FileInfo check="Class">
+<class name="PhaseDiscriminator" file="FmDecode.h" line="13" col="1" hash="1131517878575147282"/>
+<class name="PilotPhaseLock" file="FmDecode.h" line="39" col="1" hash="16248167584071980270"/>
+<class name="PilotPhaseLock::PpsEvent" file="FmDecode.h" line="47" col="5" hash="18172717149471110818"/>
+<class name="FmDecoder" file="FmDecode.h" line="107" col="1" hash="7183029722818169905"/>
+<class name="FmDecoder_executer" file="FmDecode.h" line="243" col="1" hash="9257426528183038375"/>
+<class name="DataBuffer < std :: complex < float > >" file="DataBuffer.h" line="20" col="2" hash="8569424178264238664"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="fast_atan" lineNumber="13"/>
+    <functiondecl functionName="rms_level_approx" lineNumber="39"/>
+    <functiondecl functionName="process" lineNumber="64"/>
+    <functiondecl functionName="process" lineNumber="148"/>
+    <functiondecl functionName="process" lineNumber="325"/>
+    <functiondecl functionName="demod_stereo" lineNumber="401"/>
+    <functiondecl functionName="mono_to_left_right" lineNumber="418"/>
+    <functiondecl functionName="stereo_to_left_right" lineNumber="433"/>
+    <functiondecl functionName="init" lineNumber="451"/>
+    <functiondecl functionName="set_volume" lineNumber="466"/>
+    <functiondecl functionName="rx_fm_thread" lineNumber="479"/>
+    <functiondecl functionName="create_fm_thread" lineNumber="522"/>
+    <functioncall functionName="FmDecoder"/>
+    <functioncall functionName="Fm_executer"/>
+    <functioncall functionName="NULL"/>
+    <functioncall functionName="PhaseDiscriminator"/>
+    <functioncall functionName="PilotPhaseLock"/>
+    <functioncall functionName="abs"/>
+    <functioncall functionName="adjust_gain"/>
+    <functioncall functionName="assert"/>
+    <functioncall functionName="atan2"/>
+    <functioncall functionName="audio"/>
+    <functioncall functionName="audio_mean"/>
+    <functioncall functionName="audio_output"/>
+    <functioncall functionName="audio_rms"/>
+    <functioncall functionName="audiosamples"/>
+    <functioncall functionName="bandwidth"/>
+    <functioncall functionName="bandwidth_pcm"/>
+    <functioncall functionName="baseband_mean"/>
+    <functioncall functionName="baseband_rms"/>
+    <functioncall functionName="block"/>
+    <functioncall functionName="clear"/>
+    <functioncall functionName="conj"/>
+    <functioncall functionName="continue"/>
+    <functioncall functionName="cos"/>
+    <functioncall functionName="d"/>
+    <functioncall functionName="default_bandwidth_if"/>
+    <functioncall functionName="default_bandwidth_pcm"/>
+    <functioncall functionName="default_deemphasis"/>
+    <functioncall functionName="default_freq_dev"/>
+    <functioncall functionName="demod_stereo"/>
+    <functioncall functionName="double"/>
+    <functioncall functionName="downsample"/>
+    <functioncall functionName="empty"/>
+    <functioncall functionName="ev"/>
+    <functioncall functionName="exp"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="fm"/>
+    <functioncall functionName="fm_ptr"/>
+    <functioncall functionName="fm_thread"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="freq_dev"/>
+    <functioncall functionName="front"/>
+    <functioncall functionName="get_pilot_level"/>
+    <functioncall functionName="get_pps_events"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="ifrate"/>
+    <functioncall functionName="imag"/>
+    <functioncall functionName="init"/>
+    <functioncall functionName="int"/>
+    <functioncall functionName="iqsamples"/>
+    <functioncall functionName="load"/>
+    <functioncall functionName="lock"/>
+    <functioncall functionName="locked"/>
+    <functioncall functionName="lrint"/>
+    <functioncall functionName="m"/>
+    <functioncall functionName="m_baseband_level"/>
+    <functioncall functionName="m_baseband_mean"/>
+    <functioncall functionName="m_buf_baseband"/>
+    <functioncall functionName="m_buf_iffiltered"/>
+    <functioncall functionName="m_buf_iftuned"/>
+    <functioncall functionName="m_buf_mono"/>
+    <functioncall functionName="m_buf_rawstereo"/>
+    <functioncall functionName="m_buf_stereo"/>
+    <functioncall functionName="m_dcblock_mono"/>
+    <functioncall functionName="m_dcblock_stereo"/>
+    <functioncall functionName="m_deemph_mono"/>
+    <functioncall functionName="m_deemph_stereo"/>
+    <functioncall functionName="m_downsample"/>
+    <functioncall functionName="m_end_marked"/>
+    <functioncall functionName="m_error"/>
+    <functioncall functionName="m_finetuner"/>
+    <functioncall functionName="m_freq"/>
+    <functioncall functionName="m_freq_dev"/>
+    <functioncall functionName="m_freq_scale_factor"/>
+    <functioncall functionName="m_if_level"/>
+    <functioncall functionName="m_iffilter"/>
+    <functioncall functionName="m_last_sample"/>
+    <functioncall functionName="m_maxfreq"/>
+    <functioncall functionName="m_minfreq"/>
+    <functioncall functionName="m_mutex"/>
+    <functioncall functionName="m_phase"/>
+    <functioncall functionName="m_phasedisc"/>
+    <functioncall functionName="m_phasor_a2"/>
+    <functioncall functionName="m_phasor_i1"/>
+    <functioncall functionName="m_phasor_q1"/>
+    <functioncall functionName="m_pilot_level"/>
+    <functioncall functionName="m_pilotpll"/>
+    <functioncall functionName="m_pps_cnt"/>
+    <functioncall functionName="m_qlen"/>
+    <functioncall functionName="m_resample_baseband"/>
+    <functioncall functionName="m_resample_mono"/>
+    <functioncall functionName="m_resample_stereo"/>
+    <functioncall functionName="m_sample_rate_baseband"/>
+    <functioncall functionName="m_sample_rate_if"/>
+    <functioncall functionName="m_stereo_detected"/>
+    <functioncall functionName="m_stereo_enabled"/>
+    <functioncall functionName="m_tuning_shift"/>
+    <functioncall functionName="m_tuning_table_size"/>
+    <functioncall functionName="m_zombie"/>
+    <functioncall functionName="max"/>
+    <functioncall functionName="min"/>
+    <functioncall functionName="minsignal"/>
+    <functioncall functionName="mono_to_left_right"/>
+    <functioncall functionName="move"/>
+    <functioncall functionName="n"/>
+    <functioncall functionName="notify_all"/>
+    <functioncall functionName="operatorbool"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="p2"/>
+    <functioncall functionName="pcmrate"/>
+    <functioncall functionName="phase_err"/>
+    <functioncall functionName="phasor_i"/>
+    <functioncall functionName="phasor_q"/>
+    <functioncall functionName="pop"/>
+    <functioncall functionName="printf"/>
+    <functioncall functionName="process"/>
+    <functioncall functionName="process_inplace"/>
+    <functioncall functionName="pthread_create"/>
+    <functioncall functionName="pthread_exit"/>
+    <functioncall functionName="pull"/>
+    <functioncall functionName="push"/>
+    <functioncall functionName="push_back"/>
+    <functioncall functionName="queued_samples"/>
+    <functioncall functionName="real"/>
+    <functioncall functionName="resize"/>
+    <functioncall functionName="ret"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="rms_level_approx"/>
+    <functioncall functionName="rx_fm_thread"/>
+    <functioncall functionName="s"/>
+    <functioncall functionName="s0"/>
+    <functioncall functionName="s1"/>
+    <functioncall functionName="sample_rate_if"/>
+    <functioncall functionName="sample_rate_pcm"/>
+    <functioncall functionName="samples"/>
+    <functioncall functionName="samples_in"/>
+    <functioncall functionName="samples_mean_rms"/>
+    <functioncall functionName="sin"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="source_buffer"/>
+    <functioncall functionName="sqrt"/>
+    <functioncall functionName="stereo"/>
+    <functioncall functionName="stereo_to_left_right"/>
+    <functioncall functionName="swap"/>
+    <functioncall functionName="tmp"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="tuner_offset"/>
+    <functioncall functionName="unlock"/>
+    <functioncall functionName="vol"/>
+    <functioncall functionName="wait"/>
+    <functioncall functionName="was_locked"/>
+    <functioncall functionName="while"/>
+    <functioncall functionName="write"/>
+    <functioncall functionName="x"/>
+    <functioncall functionName="y"/>
+  </FileInfo>
+</analyzerinfo>

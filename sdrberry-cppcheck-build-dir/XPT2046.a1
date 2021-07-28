@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3354271922">
+        <error id="knownConditionTrueFalse" severity="style" msg="Condition &apos;irq==0&apos; is always true" verbose="Condition &apos;irq==0&apos; is always true" cwe="571" file0="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\indev\XPT2046.c" line="71" column="12" info="Condition &apos;irq==0&apos; is always true"/>
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\indev\XPT2046.c" line="69" column="19" info="Assignment &apos;irq=0&apos;, assigned value is 0"/>
+        </error>
+        <error id="variableScope" severity="style" msg="The scope of the variable &apos;buf&apos; can be reduced." verbose="The scope of the variable &apos;buf&apos; can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for &apos;i&apos; can be reduced:\012void f(int x)\012{\012    int i = 0;\012    if (x) {\012        // it&apos;s safe to move &apos;int i = 0;&apos; here\012        for (int n = 0; n &lt; 10; ++n) {\012            // it is possible but not safe to move &apos;int i = 0;&apos; here\012            do_something(&amp;i);\012        }\012    }\012}\012When you see this message it is always safe to reduce the variable scope 1 level." cwe="398" file0="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\indev\XPT2046.c" line="64" column="13"/>
+            <symbol>buf</symbol>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:29:13" call-funcname="xpt2046_corr" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="90" col="21" call-argexpr="&x" call-argvaluetype="7" call-argvalue="2"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:29:13" call-funcname="xpt2046_corr" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="90" col="21" call-argexpr="&y" call-argvaluetype="7" call-argvalue="2"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:30:13" call-funcname="xpt2046_avg" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="91" col="20" call-argexpr="&x" call-argvaluetype="7" call-argvalue="2"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:30:13" call-funcname="xpt2046_avg" call-argnr="2" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="91" col="20" call-argexpr="&y" call-argvaluetype="7" call-argvalue="2"/>  </FileInfo>
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:29:13" my-argnr="1" my-argname="x" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="123" col="10" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:29:13" my-argnr="2" my-argname="y" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="126" col="10" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:30:13" my-argnr="1" my-argname="x" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="157" col="21" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:30:13" my-argnr="2" my-argname="y" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="158" col="21" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:29:13" my-argnr="1" my-argname="x" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="123" col="10" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:29:13" my-argnr="2" my-argname="y" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="126" col="10" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:30:13" my-argnr="1" my-argname="x" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="157" col="21" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c:30:13" my-argnr="2" my-argname="y" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/XPT2046.c" line="158" col="21" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="xpt2046_init" lineNumber="50"/>
+    <functiondecl functionName="xpt2046_read" lineNumber="60"/>
+    <functiondecl functionName="xpt2046_corr" lineNumber="114"/>
+    <functiondecl functionName="xpt2046_avg" lineNumber="147"/>
+    <functioncall functionName="LV_INDEV_STATE_PR"/>
+    <functioncall functionName="LV_INDEV_STATE_REL"/>
+    <functioncall functionName="avg_last"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="int32_t"/>
+    <functioncall functionName="last_x"/>
+    <functioncall functionName="last_y"/>
+    <functioncall functionName="uint32_t"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="x"/>
+    <functioncall functionName="xpt2046_avg"/>
+    <functioncall functionName="xpt2046_corr"/>
+    <functioncall functionName="y"/>
+  </FileInfo>
+</analyzerinfo>

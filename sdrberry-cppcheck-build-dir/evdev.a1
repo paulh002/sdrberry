@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="878607631">
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="evdev_init" lineNumber="55"/>
+    <functiondecl functionName="evdev_set_file" lineNumber="84"/>
+    <functiondecl functionName="evdev_read" lineNumber="118"/>
+    <functiondecl functionName="map" lineNumber="239"/>
+    <functiondecl functionName="evdev_init" lineNumber="55"/>
+    <functiondecl functionName="evdev_set_file" lineNumber="84"/>
+    <functiondecl functionName="evdev_read" lineNumber="118"/>
+    <functiondecl functionName="map" lineNumber="239"/>
+    <functioncall functionName="F_SETFL"/>
+    <functioncall functionName="LV_INDEV_STATE_PR"/>
+    <functioncall functionName="LV_INDEV_STATE_REL"/>
+    <functioncall functionName="LV_KEY_BACKSPACE"/>
+    <functioncall functionName="LV_KEY_DOWN"/>
+    <functioncall functionName="LV_KEY_ENTER"/>
+    <functioncall functionName="LV_KEY_NEXT"/>
+    <functioncall functionName="LV_KEY_PREV"/>
+    <functioncall functionName="LV_KEY_UP"/>
+    <functioncall functionName="O_NDELAY"/>
+    <functioncall functionName="O_NOCTTY"/>
+    <functioncall functionName="O_NONBLOCK"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="close"/>
+    <functioncall functionName="code"/>
+    <functioncall functionName="default"/>
+    <functioncall functionName="dev_name"/>
+    <functioncall functionName="evdev_button"/>
+    <functioncall functionName="evdev_fd"/>
+    <functioncall functionName="evdev_key_val"/>
+    <functioncall functionName="evdev_root_x"/>
+    <functioncall functionName="evdev_root_y"/>
+    <functioncall functionName="fcntl"/>
+    <functioncall functionName="hor_res"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="in"/>
+    <functioncall functionName="in_min"/>
+    <functioncall functionName="key"/>
+    <functioncall functionName="open"/>
+    <functioncall functionName="out_min"/>
+    <functioncall functionName="perror"/>
+    <functioncall functionName="read"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="sizeof"/>
+    <functioncall functionName="state"/>
+    <functioncall functionName="switch"/>
+    <functioncall functionName="value"/>
+    <functioncall functionName="ver_res"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="while"/>
+  </FileInfo>
+</analyzerinfo>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="1583438710">
+  <FileInfo check="CheckUnusedFunctions">
+    <functioncall functionName="FORGET_EVERYTHING"/>
+    <functioncall functionName="X"/>
+    <functioncall functionName="forget"/>
+    <functioncall functionName="forget_wisdom"/>
+    <functioncall functionName="plnr"/>
+    <functioncall functionName="the_planner"/>
+    <functioncall functionName="void"/>
+  </FileInfo>
+</analyzerinfo>

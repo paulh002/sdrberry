@@ -15,6 +15,7 @@ extern SoapySDR::Device *sdr;
 extern String device_name;	
 
 int discover_devices(String driver);
+void process_mem_usage(double& vm_usage, double& resident_set);
 
 #define MAX_NUM_DEVICES			10
 #define MAX_NUM_RANGES			20

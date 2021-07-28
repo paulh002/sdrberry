@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="1484416596">
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="haxx" lineNumber="44"/>
+    <functiondecl functionName="call" lineNumber="72"/>
+    <functiondecl functionName="call" lineNumber="78"/>
+    <functiondecl functionName="test_fd_ &lt; BLEDevice :: WriteError &gt;" lineNumber="52"/>
+    <functiondecl functionName="test_fd_ &lt; BLEDevice :: ReadError &gt;" lineNumber="52"/>
+    <functioncall functionName="ATT_DEFAULT_MTU"/>
+    <functioncall functionName="BLEDevice"/>
+    <functioncall functionName="Debug"/>
+    <functioncall functionName="Error"/>
+    <functioncall functionName="Info"/>
+    <functioncall functionName="LOG"/>
+    <functioncall functionName="PDUResponse"/>
+    <functioncall functionName="ReadError"/>
+    <functioncall functionName="WriteError"/>
+    <functioncall functionName="buf"/>
+    <functioncall functionName="const_cast"/>
+    <functioncall functionName="data"/>
+    <functioncall functionName="dec_mtu_req"/>
+    <functioncall functionName="dec_mtu_resp"/>
+    <functioncall functionName="enc_confirmation"/>
+    <functioncall functionName="enc_find_info_req"/>
+    <functioncall functionName="enc_mtu_req"/>
+    <functioncall functionName="enc_mtu_resp"/>
+    <functioncall functionName="enc_read_by_grp_req"/>
+    <functioncall functionName="enc_read_by_type_req"/>
+    <functioncall functionName="enc_read_req"/>
+    <functioncall functionName="enc_write_cmd"/>
+    <functioncall functionName="enc_write_req"/>
+    <functioncall functionName="end"/>
+    <functioncall functionName="errno"/>
+    <functioncall functionName="handle"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="len"/>
+    <functioncall functionName="length"/>
+    <functioncall functionName="line"/>
+    <functioncall functionName="logic_error"/>
+    <functioncall functionName="max"/>
+    <functioncall functionName="my_current_mtu"/>
+    <functioncall functionName="my_final_mtu"/>
+    <functioncall functionName="my_last_mtu"/>
+    <functioncall functionName="my_req_pdu"/>
+    <functioncall functionName="my_resp_pdu"/>
+    <functioncall functionName="pretty_print"/>
+    <functioncall functionName="read"/>
+    <functioncall functionName="receive"/>
+    <functioncall functionName="req_mtu"/>
+    <functioncall functionName="resize"/>
+    <functioncall functionName="resp_mtu"/>
+    <functioncall functionName="ret"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="send_write_command"/>
+    <functioncall functionName="send_write_request"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="sock"/>
+    <functioncall functionName="sock_"/>
+    <functioncall functionName="start"/>
+    <functioncall functionName="strerror"/>
+    <functioncall functionName="test_fd_ &lt; BLEDevice :: ReadError &gt;"/>
+    <functioncall functionName="test_fd_ &lt; BLEDevice :: WriteError &gt;"/>
+    <functioncall functionName="test_pdu"/>
+    <functioncall functionName="uint16_t"/>
+    <functioncall functionName="uint8_t"/>
+    <functioncall functionName="uuid"/>
+    <functioncall functionName="write"/>
+  </FileInfo>
+</analyzerinfo>

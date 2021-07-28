@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="557720577">
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.h:60:6" my-argnr="2" my-argname="data" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.c" line="55" col="5" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.h:66:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.c" line="66" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.h:66:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.c" line="66" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.h:60:6" my-argnr="2" my-argname="data" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.c" line="55" col="5" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.h:66:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.c" line="66" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.h:66:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/mousewheel.c" line="66" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="mousewheel_init" lineNumber="41"/>
+    <functiondecl functionName="mousewheel_read" lineNumber="51"/>
+    <functiondecl functionName="mousewheel_handler" lineNumber="64"/>
+    <functiondecl functionName="mousewheel_init" lineNumber="41"/>
+    <functiondecl functionName="mousewheel_read" lineNumber="51"/>
+    <functiondecl functionName="mousewheel_handler" lineNumber="64"/>
+    <functioncall functionName="LV_INDEV_STATE_PRESSED"/>
+    <functioncall functionName="LV_INDEV_STATE_RELEASED"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="default"/>
+    <functioncall functionName="enc_diff"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="indev_drv"/>
+    <functioncall functionName="state"/>
+    <functioncall functionName="switch"/>
+    <functioncall functionName="type"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="y"/>
+  </FileInfo>
+</analyzerinfo>

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3040403090">
+  <FileInfo check="Class">
+<class name="CSmeter" file="smeter.h" line="12" col="1" hash="5871956293598527304"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="hide" lineNumber="74"/>
+    <functiondecl functionName="Draw" lineNumber="79"/>
+    <functioncall functionName="CSmeter"/>
+    <functioncall functionName="Draw"/>
+    <functioncall functionName="LV_CANVAS_BUF_SIZE_TRUE_COLOR"/>
+    <functioncall functionName="LV_COLOR_BLACK"/>
+    <functioncall functionName="LV_COLOR_GREEN"/>
+    <functioncall functionName="LV_COLOR_RED"/>
+    <functioncall functionName="LV_COLOR_WHITE"/>
+    <functioncall functionName="LV_COLOR_YELLOW"/>
+    <functioncall functionName="LV_IMG_CF_TRUE_COLOR"/>
+    <functioncall functionName="LV_LABEL_ALIGN_LEFT"/>
+    <functioncall functionName="LV_OPA_COVER"/>
+    <functioncall functionName="NULL"/>
+    <functioncall functionName="align"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="free"/>
+    <functioncall functionName="height"/>
+    <functioncall functionName="hidden"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="lv_canvas_create"/>
+    <functioncall functionName="lv_canvas_draw_line"/>
+    <functioncall functionName="lv_canvas_draw_rect"/>
+    <functioncall functionName="lv_canvas_draw_text"/>
+    <functioncall functionName="lv_canvas_fill_bg"/>
+    <functioncall functionName="lv_canvas_set_buffer"/>
+    <functioncall functionName="lv_draw_label_dsc_init"/>
+    <functioncall functionName="lv_draw_line_dsc_init"/>
+    <functioncall functionName="lv_draw_rect_dsc_init"/>
+    <functioncall functionName="lv_obj_align"/>
+    <functioncall functionName="lv_obj_set_hidden"/>
+    <functioncall functionName="m_cbuf"/>
+    <functioncall functionName="m_height"/>
+    <functioncall functionName="m_label_dsc"/>
+    <functioncall functionName="m_line_dsc"/>
+    <functioncall functionName="m_rect_dsc"/>
+    <functioncall functionName="m_width"/>
+    <functioncall functionName="malloc"/>
+    <functioncall functionName="max_value"/>
+    <functioncall functionName="ofs_x"/>
+    <functioncall functionName="ofs_y"/>
+    <functioncall functionName="parent"/>
+    <functioncall functionName="point"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="s_canvas"/>
+    <functioncall functionName="sprintf"/>
+    <functioncall functionName="str"/>
+    <functioncall functionName="strcpy"/>
+    <functioncall functionName="width"/>
+    <functioncall functionName="x"/>
+  </FileInfo>
+</analyzerinfo>

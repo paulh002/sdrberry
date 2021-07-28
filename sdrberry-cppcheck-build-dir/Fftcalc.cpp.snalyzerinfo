@@ -1,0 +1,3 @@
+init global:[buffer_size] call:[double,fftw_malloc,fftw_plan_dft_1d,sizeof] noreturn:[fftw_plan_dft_1d]
+Fftcalc call:[fftw_destroy_plan,fftw_free] noreturn:[fftw_free]
+run_fft call:[fftw_execute] noreturn:[fftw_execute]

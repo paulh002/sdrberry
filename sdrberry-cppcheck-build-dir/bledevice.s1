@@ -1,0 +1,6 @@
+haxx
+haxx
+call call:[test_fd_ < BLEDevice :: WriteError >,write] noreturn:[test_fd_ < BLEDevice :: WriteError >]
+call call:[read,test_fd_ < BLEDevice :: WriteError >] noreturn:[test_fd_ < BLEDevice :: WriteError >]
+test_fd_ < BLEDevice :: WriteError > call:[LOG,WriteError,strerror] noreturn:[LOG,WriteError]
+test_fd_ < BLEDevice :: ReadError > call:[LOG,ReadError,strerror] noreturn:[LOG,ReadError]

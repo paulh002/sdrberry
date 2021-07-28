@@ -1,0 +1,17 @@
+GC9A01_command
+GC9A01_data
+GC9A01_data_array
+GC9A01_databuf
+GC9A01_hard_reset
+GC9A01_run_cfg_script global:[GC9A01_cfg_script] call:[GC9A01_command,GC9A01_data,while] noreturn:[while]
+GC9A01_drawFastVLine call:[GC9A01_data,GC9A01_set_addr_win] noreturn:[GC9A01_data]
+GC9A01_drawFastHLine call:[GC9A01_data,GC9A01_set_addr_win] noreturn:[GC9A01_data]
+GC9A01_Color565 call:[return]
+GC9A01_invertDisplay call:[GC9A01_command] noreturn:[GC9A01_command]
+GC9A01_drawPixel call:[GC9A01_data,GC9A01_set_addr_win] noreturn:[GC9A01_data]
+GC9A01_fillScreen call:[GC9A01_fillRect] noreturn:[GC9A01_fillRect]
+GC9A01_fillRect call:[GC9A01_data,GC9A01_set_addr_win] noreturn:[GC9A01_data]
+GC9A01_setRotation call:[GC9A01_command,GC9A01_data]
+GC9A01_init call:[GC9A01_fillScreen,GC9A01_hard_reset,GC9A01_run_cfg_script,LV_DRV_DISP_SPI_FREQ,LV_DRV_DISP_SPI_MODE]
+GC9A01_set_addr_win call:[GC9A01_command,GC9A01_data] noreturn:[GC9A01_command]
+GC9A01_flush call:[GC9A01_set_addr_win,lv_disp_flush_ready] noreturn:[lv_disp_flush_ready]

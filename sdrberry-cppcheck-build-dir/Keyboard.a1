@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3092132626">
+  <FileInfo check="Null pointer">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/keyboard.h:59:6" my-argnr="2" my-argname="data" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/keyboard.c" line="56" col="5" value="0"/>
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/keyboard.h:65:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/keyboard.c" line="67" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="Uninitialized variables">
+    <unsafe-usage my-id="H:/OneDrive/source/sdrberry/lv_drivers/indev/keyboard.h:65:6" my-argnr="1" my-argname="event" file="H:/OneDrive/source/sdrberry/lv_drivers/indev/keyboard.c" line="67" col="12" value="0"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="keyboard_init" lineNumber="42"/>
+    <functiondecl functionName="keyboard_read" lineNumber="53"/>
+    <functiondecl functionName="keyboard_handler" lineNumber="64"/>
+    <functiondecl functionName="keycode_to_ascii" lineNumber="90"/>
+    <functioncall functionName="LV_INDEV_STATE_PRESSED"/>
+    <functioncall functionName="LV_INDEV_STATE_RELEASED"/>
+    <functioncall functionName="break"/>
+    <functioncall functionName="default"/>
+    <functioncall functionName="indev_drv"/>
+    <functioncall functionName="keycode_to_ascii"/>
+    <functioncall functionName="last_key"/>
+    <functioncall functionName="sdl_key"/>
+    <functioncall functionName="state"/>
+    <functioncall functionName="switch"/>
+    <functioncall functionName="sym"/>
+    <functioncall functionName="type"/>
+    <functioncall functionName="void"/>
+  </FileInfo>
+</analyzerinfo>

@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="2470169586">
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;LowPassFilterRC&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;LowPassFilterRC&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Filter.cpp">
+            <location file="Filter.h" line="104" column="5"/>
+            <symbol>LowPassFilterRC</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;LowPassFilterIir&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;LowPassFilterIir&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Filter.cpp">
+            <location file="Filter.h" line="129" column="5"/>
+            <symbol>LowPassFilterIir</symbol>
+        </error>
+        <error id="noExplicitConstructor" severity="style" msg="Class &apos;HighPassFilterIir&apos; has a constructor with 1 argument that is not explicit." verbose="Class &apos;HighPassFilterIir&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided." cwe="398" file0="Filter.cpp">
+            <location file="Filter.h" line="151" column="5"/>
+            <symbol>HighPassFilterIir</symbol>
+        </error>
+  <FileInfo check="Class">
+<class name="FineTuner" file="Filter.h" line="9" col="1" hash="3808811302225568563"/>
+<class name="LowPassFilterFirIQ" file="Filter.h" line="34" col="1" hash="10465450474474162449"/>
+<class name="DownsampleFilter" file="Filter.h" line="62" col="1" hash="12233715016228635637"/>
+<class name="LowPassFilterRC" file="Filter.h" line="95" col="1" hash="5242491905295207446"/>
+<class name="LowPassFilterIir" file="Filter.h" line="119" col="1" hash="2816523903931669935"/>
+<class name="HighPassFilterIir" file="Filter.h" line="141" col="1" hash="13968467391969363496"/>
+  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="process" lineNumber="70"/>
+    <functiondecl functionName="process" lineNumber="101"/>
+    <functiondecl functionName="process" lineNumber="170"/>
+    <functiondecl functionName="process" lineNumber="276"/>
+    <functiondecl functionName="process_inplace" lineNumber="305"/>
+    <functiondecl functionName="process" lineNumber="367"/>
+    <functiondecl functionName="process" lineNumber="426"/>
+    <functiondecl functionName="process_inplace" lineNumber="444"/>
+    <functioncall functionName="DownsampleFilter"/>
+    <functioncall functionName="FineTuner"/>
+    <functioncall functionName="HighPassFilterIir"/>
+    <functioncall functionName="LowPassFilterFirIQ"/>
+    <functioncall functionName="LowPassFilterIir"/>
+    <functioncall functionName="LowPassFilterRC"/>
+    <functioncall functionName="a1"/>
+    <functioncall functionName="a2"/>
+    <functioncall functionName="a4"/>
+    <functioncall functionName="abs"/>
+    <functioncall functionName="assert"/>
+    <functioncall functionName="b2"/>
+    <functioncall functionName="begin"/>
+    <functioncall functionName="complex"/>
+    <functioncall functionName="copy"/>
+    <functioncall functionName="cos"/>
+    <functioncall functionName="cutoff"/>
+    <functioncall functionName="double"/>
+    <functioncall functionName="downsample"/>
+    <functioncall functionName="end"/>
+    <functioncall functionName="exp"/>
+    <functioncall functionName="filter_order"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="insert"/>
+    <functioncall functionName="int"/>
+    <functioncall functionName="int64_t"/>
+    <functioncall functionName="j"/>
+    <functioncall functionName="k1"/>
+    <functioncall functionName="lrint"/>
+    <functioncall functionName="m_coeff"/>
+    <functioncall functionName="m_downsample"/>
+    <functioncall functionName="m_downsample_int"/>
+    <functioncall functionName="m_index"/>
+    <functioncall functionName="m_pos_frac"/>
+    <functioncall functionName="m_pos_int"/>
+    <functioncall functionName="m_state"/>
+    <functioncall functionName="m_table"/>
+    <functioncall functionName="m_timeconst"/>
+    <functioncall functionName="m_y1"/>
+    <functioncall functionName="make_lanczos_coeff"/>
+    <functioncall functionName="n"/>
+    <functioncall functionName="n_out"/>
+    <functioncall functionName="order"/>
+    <functioncall functionName="p"/>
+    <functioncall functionName="p1s"/>
+    <functioncall functionName="p1z"/>
+    <functioncall functionName="p2s"/>
+    <functioncall functionName="p2z"/>
+    <functioncall functionName="pcos"/>
+    <functioncall functionName="pf"/>
+    <functioncall functionName="phi"/>
+    <functioncall functionName="pi"/>
+    <functioncall functionName="psin"/>
+    <functioncall functionName="pstep"/>
+    <functioncall functionName="push_back"/>
+    <functioncall functionName="real"/>
+    <functioncall functionName="resize"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="sin"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="sqrt"/>
+    <functioncall functionName="table_size"/>
+    <functioncall functionName="tblidx"/>
+    <functioncall functionName="timeconst"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="while"/>
+    <functioncall functionName="x"/>
+    <functioncall functionName="x1"/>
+    <functioncall functionName="x2"/>
+    <functioncall functionName="y"/>
+    <functioncall functionName="y1"/>
+    <functioncall functionName="y2"/>
+    <functioncall functionName="y3"/>
+    <functioncall functionName="y4"/>
+  </FileInfo>
+</analyzerinfo>

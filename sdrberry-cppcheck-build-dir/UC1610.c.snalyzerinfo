@@ -1,0 +1,4 @@
+uc1610_init global:[cmd_buf]
+uc1610_flush_cb global:[cmd_buf] call:[lv_disp_flush_ready] noreturn:[lv_disp_flush_ready]
+uc1610_set_px_cb
+uc1610_rounder_cb

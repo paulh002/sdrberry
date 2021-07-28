@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="2004476900">
+        <error id="useStlAlgorithm" severity="style" msg="Consider using std::transform algorithm instead of a raw loop." verbose="Consider using std::transform algorithm instead of a raw loop." cwe="398" file0="strlib.cpp">
+            <location file="strlib.h" line="105" column="16"/>
+        </error>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="trimWhitespace" lineNumber="12"/>
+    <functiondecl functionName="stripNewLines" lineNumber="20"/>
+    <functiondecl functionName="toLower" lineNumber="29"/>
+    <functiondecl functionName="toUpper" lineNumber="38"/>
+    <functiondecl functionName="mustEndWith" lineNumber="47"/>
+    <functiondecl functionName="replaceAll" lineNumber="60"/>
+    <functiondecl functionName="split" lineNumber="75"/>
+    <functiondecl functionName="getLinesFromString" lineNumber="96"/>
+    <functiondecl functionName="readLinesFromFile" lineNumber="111"/>
+    <functiondecl functionName="writeStringToFile" lineNumber="128"/>
+    <functiondecl functionName="strToBool" lineNumber="144"/>
+    <functioncall functionName="back"/>
+    <functioncall functionName="begin"/>
+    <functioncall functionName="c"/>
+    <functioncall functionName="close"/>
+    <functioncall functionName="compare"/>
+    <functioncall functionName="defaultValue"/>
+    <functioncall functionName="delim"/>
+    <functioncall functionName="elements"/>
+    <functioncall functionName="empty"/>
+    <functioncall functionName="end"/>
+    <functioncall functionName="endStr"/>
+    <functioncall functionName="erase"/>
+    <functioncall functionName="fail"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="file"/>
+    <functioncall functionName="filename"/>
+    <functioncall functionName="find"/>
+    <functioncall functionName="findStr"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="fromString"/>
+    <functioncall functionName="front"/>
+    <functioncall functionName="getline"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="in"/>
+    <functioncall functionName="is_open"/>
+    <functioncall functionName="isspace"/>
+    <functioncall functionName="length"/>
+    <functioncall functionName="line"/>
+    <functioncall functionName="newLineChar"/>
+    <functioncall functionName="outFile"/>
+    <functioncall functionName="pop_back"/>
+    <functioncall functionName="pos"/>
+    <functioncall functionName="precision"/>
+    <functioncall functionName="push_back"/>
+    <functioncall functionName="remove"/>
+    <functioncall functionName="replace"/>
+    <functioncall functionName="replaceAll"/>
+    <functioncall functionName="replaceStr"/>
+    <functioncall functionName="reserve"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="s"/>
+    <functioncall functionName="size"/>
+    <functioncall functionName="split"/>
+    <functioncall functionName="start"/>
+    <functioncall functionName="str"/>
+    <functioncall functionName="stream"/>
+    <functioncall functionName="stripNewLines"/>
+    <functioncall functionName="strs"/>
+    <functioncall functionName="substr"/>
+    <functioncall functionName="tmpStr"/>
+    <functioncall functionName="toLower"/>
+    <functioncall functionName="tolower"/>
+    <functioncall functionName="toupper"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="trunc"/>
+    <functioncall functionName="while"/>
+  </FileInfo>
+</analyzerinfo>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="4276350201">
+        <error id="preprocessorErrorDirective" severity="error" msg="failed to expand &apos;F77&apos;, Invalid ## usage when expanding &apos;WINDOWS_F77_FUNC&apos;." verbose="failed to expand &apos;F77&apos;, Invalid ## usage when expanding &apos;WINDOWS_F77_FUNC&apos;.">
+            <location file="H:\OneDrive\source\sdrberry\api\f77api.c" line="135" column="0"/>
+        </error>
+</analyzerinfo>

@@ -1,0 +1,55 @@
+StringIfHelper
+length
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operatorStringIfHelperType
+operator== call:[equals] noreturn:[equals]
+operator== call:[equals] noreturn:[equals]
+operator!= call:[equals] noreturn:[equals]
+operator!= call:[equals] noreturn:[equals]
+toCharArray call:[getBytes] noreturn:[getBytes]
+c_str
+begin
+end call:[length] noreturn:[length]
+begin call:[c_str] noreturn:[c_str]
+end call:[c_str,length] noreturn:[length]
+substring call:[substring] noreturn:[substring]
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+toString call:[precision,str] noreturn:[str]
+toString call:[return] noreturn:[return]
+fromString call:[fail,stream]
+split call:[push_back,reserve,size,split] noreturn:[push_back]
+join call:[begin,str] noreturn:[str]
+Option
+operator= call:[isInRange]
+to
+makeOption call:[setMin]
+operator<< call:[push]
+get
+operator>> call:[get]
+get_mac_address
+read_settings global:[defaultOptions] call:[File,String,c_str,getSection,insert,length,loadFromFile,push_back,setDefaultOptions,toInt,toLong,toString,useSection,writeToFile] noreturn:[insert,push_back,writeToFile]
+find_sdr call:[String,c_str,end,find] noreturn:[String]
+find_audio call:[String,c_str,end,find] noreturn:[String]
+find_radio call:[String,c_str,end,find] noreturn:[String]
+find_probe call:[String,c_str,end,find] noreturn:[String]
+makeOption < int > call:[setRange]
+makeOption < const char * >

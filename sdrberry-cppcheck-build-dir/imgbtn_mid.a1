@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="459197875">
+  <FileInfo check="CheckUnusedFunctions">
+    <functioncall functionName="LV_IMG_CF_TRUE_COLOR_ALPHA"/>
+    <functioncall functionName="imgbtn_mid_map"/>
+  </FileInfo>
+</analyzerinfo>

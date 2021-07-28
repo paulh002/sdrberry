@@ -1,0 +1,39 @@
+StringIfHelper
+length
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operator+= call:[concat,return] noreturn:[return]
+operatorStringIfHelperType
+operator== call:[equals] noreturn:[equals]
+operator== call:[equals] noreturn:[equals]
+operator!= call:[equals] noreturn:[equals]
+operator!= call:[equals] noreturn:[equals]
+toCharArray call:[getBytes] noreturn:[getBytes]
+c_str
+begin
+end call:[length] noreturn:[length]
+begin call:[c_str] noreturn:[c_str]
+end call:[c_str,length] noreturn:[length]
+substring call:[substring] noreturn:[substring]
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+StringSumHelper
+data_callback call:[atol,data,memset,size,sizeof,step_vfo,strncpy] noreturn:[step_vfo]
+setup_ble global:[Ble_instance] call:[c_str,connect,device_mac,enable_connected_notifications,enable_value_notifications,exit,find,get_bluetooth_manager,get_name,seconds,service_uuid,start_discovery,stop_discovery,strcpy,string,toUpperCase,what] noreturn:[exit,find,get_bluetooth_manager]
+ble_class call:[disconnect] noreturn:[disconnect]
+connect global:[Ble_instance] call:[c_str,connect,device_mac,enable_connected_notifications,enable_value_notifications,find,get_name,length,seconds,service_uuid,start_discovery,stop_discovery,strcpy,string] noreturn:[find]

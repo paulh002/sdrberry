@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3984080863">
+        <error id="unreadVariable" severity="style" msg="Variable &apos;act_w&apos; is assigned a value that is never used." verbose="Variable &apos;act_w&apos; is assigned a value that is never used." cwe="563" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\R61581.c" line="111" column="20"/>
+            <symbol>act_w</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;color_p&apos; is assigned a value that is never used." verbose="Variable &apos;color_p&apos; is assigned a value that is never used." cwe="563" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\R61581.c" line="114" column="17"/>
+            <symbol>color_p</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;color16&apos; is assigned a value that is never used." verbose="Variable &apos;color16&apos; is assigned a value that is never used." cwe="563" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\R61581.c" line="160" column="22"/>
+            <symbol>color16</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;act_w&apos; is assigned a value that is never used." verbose="Variable &apos;act_w&apos; is assigned a value that is never used." cwe="563" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\R61581.c" line="204" column="20"/>
+            <symbol>act_w</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;color_p&apos; is assigned a value that is never used." verbose="Variable &apos;color_p&apos; is assigned a value that is never used." cwe="563" file0="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c">
+            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\R61581.c" line="207" column="17"/>
+            <symbol>color_p</symbol>
+        </error>
+  <FileInfo check="ctu">
+<function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="269" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="273" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="274" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="278" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="290" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="291" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="292" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="294" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="328" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="364" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="365" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="370" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/><function-call call-id="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c:36:20" call-funcname="r61581_data" call-argnr="1" file="H:/OneDrive/source/sdrberry/lv_drivers/display/R61581.c" line="371" col="16" call-argexpr="0x00" call-argvaluetype="0" call-argvalue="0"/>  </FileInfo>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="r61581_init" lineNumber="55"/>
+    <functiondecl functionName="r61581_flush" lineNumber="75"/>
+    <functiondecl functionName="r61581_fill" lineNumber="129"/>
+    <functiondecl functionName="r61581_map" lineNumber="168"/>
+    <functiondecl functionName="r61581_io_init" lineNumber="227"/>
+    <functiondecl functionName="r61581_reset" lineNumber="236"/>
+    <functiondecl functionName="r61581_set_tft_spec" lineNumber="266"/>
+    <functiondecl functionName="r61581_cmd_mode" lineNumber="387"/>
+    <functiondecl functionName="r61581_data_mode" lineNumber="398"/>
+    <functiondecl functionName="r61581_cmd" lineNumber="410"/>
+    <functiondecl functionName="r61581_data" lineNumber="420"/>
+    <functioncall functionName="act_y1"/>
+    <functioncall functionName="color"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="lv_color_to16"/>
+    <functioncall functionName="lv_flush_ready"/>
+    <functioncall functionName="r61581_cmd"/>
+    <functioncall functionName="r61581_cmd_mode"/>
+    <functioncall functionName="r61581_data"/>
+    <functioncall functionName="r61581_data_mode"/>
+    <functioncall functionName="r61581_io_init"/>
+    <functioncall functionName="r61581_reset"/>
+    <functioncall functionName="r61581_set_tft_spec"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="void"/>
+    <functioncall functionName="x1"/>
+    <functioncall functionName="x2"/>
+    <functioncall functionName="y1"/>
+    <functioncall functionName="y2"/>
+  </FileInfo>
+</analyzerinfo>

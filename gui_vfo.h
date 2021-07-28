@@ -22,7 +22,9 @@ private:
 	lv_obj_t*	vfo2_frequency;
 	lv_obj_t*	bg_tuner1;
 	lv_obj_t*	bg_tuner2;
+	lv_obj_t*	bg_smeter;
 };
 
 extern gui_vfo	gui_vfo_inst;
 
+void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);

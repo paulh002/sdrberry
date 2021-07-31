@@ -24,12 +24,16 @@
 
 using namespace std;
 
-pthread_t				threads[NUM_THREADS];
-
 void* rx_streaming_thread(void* psdr_dev)
 {
-	static const int		default_block_length = 65536;
+	static const int		default_block_length {32768}; //32768
 	SoapySDR::Stream		*rx_stream;
+	
+	const auto startTime = std::chrono::high_resolution_clock::now();
+	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	auto timeLastSpin = std::chrono::high_resolution_clock::now();
+	auto timeLastStatus = std::chrono::high_resolution_clock::now();
+	unsigned long long totalSamples(0);
 	
 	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
 	int ret;
@@ -48,36 +52,77 @@ void* rx_streaming_thread(void* psdr_dev)
 		fprintf(stderr, "Failed create receive stream\n");
 		pthread_exit(NULL);
 	}
+	size_t mtu = sdr_dev->sdr->getStreamMTU(rx_stream);
 	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
 	while (!stop_flag.load())
 	{
-		int							flags; 
-		long long					time_ns;
-		vector<complex<float>>		buf(default_block_length);
+		unsigned int				overflows(0);
+		unsigned int				underflows(0); 
+		int							flags(0); 
+		long long					time_ns(0);
+		vector<complex<float>>		buf(mtu);
 		
 		void *buffs[] = { buf.data() };
-		
 		ret = sdr_dev->sdr->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
+		if (ret == SOAPY_SDR_TIMEOUT) continue;
+		if (ret == SOAPY_SDR_OVERFLOW)
+		{
+			overflows++;
+			continue;
+		}
+		if (ret == SOAPY_SDR_UNDERFLOW)
+		{
+			underflows++;
+			continue;
+		}
 		if (ret < 0)
 		{
-			printf("cannot stream data \n");
-			pthread_exit(NULL);
+			printf("Error readStream\n");
+			pthread_exit(NULL);			
 		}
-		buf.resize(ret);
-		sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));
+		if (ret > 0)
+		{
+			buf.resize(ret);
+			sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));	
+		}
+		
+		totalSamples += ret;
+		const auto now = std::chrono::high_resolution_clock::now();
+		if (timeLastStatus + std::chrono::seconds(1) < now)
+		{
+			timeLastStatus = now;
+			while (true)
+			{
+				size_t chanMask; int flags; long long timeNs;
+				ret = sdr_dev->sdr->readStreamStatus(rx_stream, chanMask, flags, timeNs, 0);
+				if (ret == SOAPY_SDR_OVERFLOW) overflows++;
+				else if (ret == SOAPY_SDR_UNDERFLOW) underflows++;
+				else if (ret == SOAPY_SDR_TIME_ERROR) {}
+				else break;
+			}
+		}
+		if (timeLastPrint + std::chrono::seconds(5) < now)
+		{
+			timeLastPrint = now;
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+			const auto sampleRate = double(totalSamples) / timePassed.count();
+			printf("\b%g Msps\t%g MBps", sampleRate, sampleRate*1*sizeof(complex<float>));
+			if (overflows != 0) printf("\tOverflows %u", overflows);
+			if (underflows != 0) printf("\tUnderflows %u", underflows);
+			printf("\n ");
+		}
+
+
 	}
 	sdr_dev->channel_structure_rx[0].source_buffer->push_end();
 	sdr_dev->sdr->deactivateStream(rx_stream);
+	sdr_dev->sdr->closeStream(rx_stream);
 	pthread_exit(NULL);
 }
 
-void create_rx_streaming_thread(struct device_structure *sdr_dev, vfo_settings_struct	*vfo, double samplerate, DataBuffer<IQSample> *source_buffer)
+int create_rx_streaming_thread(struct device_structure *sdr_dev)
 {
-	sdr_dev->channel_structure_rx[0].source_buffer = source_buffer;
-	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, samplerate);
-	int i = RX_THREAD;
-	int rc = pthread_create(&threads[RX_THREAD], NULL, rx_streaming_thread, (void *)sdr_dev);
-	
+	return pthread_create(&sdr_dev->channel_structure_rx[0].thread, NULL, rx_streaming_thread, (void *)sdr_dev);
 }
 
 void stream_rx_set_frequency(struct device_structure *sdr_dev,unsigned long freq)
@@ -86,13 +131,3 @@ void stream_rx_set_frequency(struct device_structure *sdr_dev,unsigned long freq
 		sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, freq);		
 }
 
-
-/*
- *int		size_of_samples_counter = 0;
- *if (size_of_samples_counter > 100)
-{
-	size_of_samples_counter = 0;
-	printf("samples %d source buffer %d queu length %zu\n",  ret, sdr_dev->channel_structure_rx[0].source_buffer->size(),
-		sdr_dev->channel_structure_rx[0].source_buffer->get_qlen());
-}
-size_of_samples_counter++; */

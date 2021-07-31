@@ -1,10 +1,16 @@
 
+#include <cstdio>
 #include <cassert>
 #include <cmath>
 #include <unistd.h>
 #include "FmDecode.h"
 #include "DataBuffer.h"
 #include "AudioOutput.h"
+
+#include <liquid.h>
+#include <complex>
+#include <vector>
+#include "Waterfall.h"
 
 using namespace std;
 
@@ -460,8 +466,8 @@ void FmDecoder_executer::init(double ifrate, double tuner_offset, int pcmrate, b
 		bandwidth_pcm,                     // bandwidth_pcm
 		downsample);
 	
-	this->source_buffer = source_buffer;
-	this->audio_output = audio_output;
+	m_source_buffer = source_buffer;
+	m_audio_output = audio_output;
 }
 void FmDecoder_executer::set_volume(int vol)
 {
@@ -478,42 +484,55 @@ pthread_t fm_thread;
 
 void* rx_fm_thread(void* fm_ptr)
 {
-	FmDecoder_executer      *fm_ex = (FmDecoder_executer *)fm_ptr;
-	FmDecoder               *fm = fm_ex->fm;
-	unsigned int            block = 0;
+	unsigned int            block = 0, fft_block = 0;
 	bool                    inbuf_length_warning = false;
 	
 	while (!stop_flag.load())
 	{
 		
-		if (!inbuf_length_warning && fm_ex->source_buffer->queued_samples() > 10 * 530000) {
-			printf("\nWARNING: Input buffer is growing (system too slow)\n");
+		if (!inbuf_length_warning && Fm_executer.m_source_buffer->queued_samples() > 10 * 530000) {
+			printf("\nWARNING: Input buffer is growing (system too slow) queued samples %u\n", Fm_executer.m_source_buffer->queued_samples());
 			inbuf_length_warning = true;
 		}
 		
-		IQSampleVector iqsamples = fm_ex->source_buffer->pull();
-		if (iqsamples.empty())
+		if (Fm_executer.m_source_buffer->queued_samples() == 0)
+		{
+			usleep(5000);
 			continue;
+		}
 		
-		fm->process(iqsamples, fm_ex->audiosamples);
+		IQSampleVector iqsamples = Fm_executer.m_source_buffer->pull();
+		if (iqsamples.empty())
+		{
+			usleep(5000);
+			continue;
+		}
+		
+		if (iqsamples.size() >= nfft_samples && fft_block == 5)
+		{
+			fft_block = 0;
+			Fft_calc.plan_fft((float *)iqsamples.data());
+			Fft_calc.process_samples();
+		}
+		fft_block++;
+		Fm_executer.fm->process(iqsamples, Fm_executer.m_audiosamples);
 
 		// Measure audio level.
-		double audio_mean, audio_rms;
-		samples_mean_rms(fm_ex->audiosamples, fm_ex->audio_mean, fm_ex->audio_rms);
-		fm_ex->audio_level = 0.95 * fm_ex->audio_level + 0.05 * fm_ex->audio_rms;
+		samples_mean_rms(Fm_executer.m_audiosamples, Fm_executer.m_audio_mean, Fm_executer.m_audio_rms);
+		Fm_executer.m_audio_level = 0.95 * Fm_executer.m_audio_level + 0.05 * Fm_executer.m_audio_rms;
 
 		// Set nominal audio volume.
-		fm_ex->audio_output->adjust_gain(fm_ex->audiosamples);	
+		Fm_executer.m_audio_output->adjust_gain(Fm_executer.m_audiosamples);	
 		
 		if (block > 0) 
 		    {
-			    fm_ex->audio_output->write(fm_ex->audiosamples);
+			    Fm_executer.m_audio_output->write(Fm_executer.m_audiosamples);
 			    //printf("write audiosamples %d \n", fm_ex->audiosamples.size());
             }
 		
 		block++;		
 		iqsamples.clear();
-		fm_ex->audiosamples.clear();
+		Fm_executer.m_audiosamples.clear();
 	}
     pthread_exit(NULL);
 }	

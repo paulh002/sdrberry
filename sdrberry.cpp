@@ -3,9 +3,12 @@
 #include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <liquid.h>
+#include <complex>
+#include <vector>
 #include "wstring.h"
 #include "lvgl/lvgl.h"
 #include "lv_drivers/display/fbdev.h"
@@ -20,16 +23,16 @@
 #include "Settings.h"
 #include "Gui_band.h"
 #include "Keyboard.h"
-//#include "FMDemodulator.h"
-
 #include <memory>
 #include "SoftFM.h"
 #include "FmDecode.h"
 #include "AudioOutput.h"
 #include "DataBuffer.h"
+#include "Waterfall.h"
 
 AudioOutput *audio_output;
-	
+DataBuffer<IQSample> source_buffer;
+
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
 
@@ -43,7 +46,7 @@ LV_FONT_DECLARE(FreeSansOblique32);
 const int screenWidth = 800;
 const int screenHeight = 480;
 const int bottomHeight = 40;
-const int topHeight = 55;
+const int topHeight = 35;
 const int tunerHeight = 70;
 const int nobuttons = 8;
 const int rightWidth = 200;
@@ -128,11 +131,13 @@ int main(int argc, char *argv[])
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 
 	
+	Waterfall	Wf;
+	Wf.init(tab1, 0, 0, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
-	lv_obj_t * label1 = lv_label_create(tab1);
-	lv_label_set_text(label1, "Waterfall");
+	//lv_obj_t * label1 = lv_label_create(tab1);
+	//lv_label_set_text(label1, "Waterfall");
 		
-	label1 = lv_label_create(tab4);
+	lv_obj_t * label1 = lv_label_create(tab4);
 	lv_label_set_text(label1, "RX");
 
 	label1 = lv_label_create(tab5);
@@ -141,57 +146,14 @@ int main(int argc, char *argv[])
 	label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
-
-	/*
-	bg_middle = lv_obj_create(scr);
-	lv_obj_add_style(bg_middle, &background_style, 0);
-	lv_obj_set_pos(bg_middle, 0, topHeight + tunerHeight);
-	lv_obj_set_size(bg_middle, LV_HOR_RES - rightWidth -3, screenHeight - topHeight - tunerHeight);
-	
-	
-	
-	lv_style_init(&style_btn);
-
-	lv_style_set_radius(&style_btn, 10);
-	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
-	lv_style_set_bg_grad_color(&style_btn, lv_color_make(0x00, 0x00, 0x00));
-	lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
-	lv_style_set_bg_opa(&style_btn, 255);
-	lv_style_set_border_color(&style_btn, lv_color_make(0x9b, 0x36, 0x36));  // lv_color_make(0x2e, 0x44, 0xb2)
-	lv_style_set_border_width(&style_btn, 2);
-	lv_style_set_border_opa(&style_btn, 255);
-	lv_style_set_outline_color(&style_btn, lv_color_black());
-	lv_style_set_outline_opa(&style_btn, 255);
-	
-	vfo1_button = lv_btn_create(bg_middle);
-	lv_obj_add_style(vfo1_button, &style_btn,0); 
-	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
-	lv_obj_align(vfo1_button, LV_ALIGN_BOTTOM_LEFT, 0 * bottombutton_width1, 0);
-	//lv_btn_set_checkable(vfo1_button, true);
-	//lv_btn_toggle(vfo1_button);
-	lv_obj_set_size(vfo1_button, bottombutton_width, bottomHeight);
-	lv_obj_t* label = lv_label_create(vfo1_button);
-	lv_label_set_text(label, "Vfo 1");
-	lv_obj_center(label);
-	
-	vfo2_button = lv_btn_create(bg_middle);
-	lv_obj_add_style(vfo2_button, &style_btn, 0); 
-	//lv_obj_set_event_cb(vfo2_button, mode_button_vfo);
-	lv_obj_align(vfo2_button, LV_ALIGN_BOTTOM_LEFT, 1 * bottombutton_width1, 0);
-	//lv_btn_set_checkable(vfo2_button, true);
-	lv_obj_set_size(vfo2_button, bottombutton_width, bottomHeight);
-	label = lv_label_create(vfo2_button);
-	lv_label_set_text(label, "Vfo 2");
-	lv_obj_center(label);
-	*/
-	
 	
 	//if (Settings_file.get_mac_address() != String(""))
 	//	Ble_instance.setup_ble(Settings_file.get_mac_address());
 	
-	double  ifrate  = 0.53e6;
-	int     pcmrate = 48000;
+	double  ifrate  = 0.53e6; //1.0e6;//
 	bool    stereo  = true;
+	int     pcmrate = 48000;	
+
 	
 	//unique_ptr<AudioOutput> audio_output;
 	//audio_output.reset(new AlsaAudioOutput("default", pcmrate, stereo));
@@ -228,8 +190,11 @@ int main(int argc, char *argv[])
 		vfo_setting.vfo_low = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum();
 		vfo_setting.vfo_high = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum();
 			
-		DataBuffer<IQSample> source_buffer;
-		create_rx_streaming_thread(&soapy_devices[0], &vfo_setting, ifrate, &source_buffer);
+		
+		printf("Queued samples %u\n", source_buffer.queued_samples());
+			
+		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer;
+		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
 		unsigned int downsample = max(1, int(ifrate / 215.0e3));
 		
@@ -239,8 +204,10 @@ int main(int argc, char *argv[])
 		create_fm_thread(ifrate, tuner_offset, pcmrate, true, bandwidth_pcm, downsample, &source_buffer, audio_output);
 		set_vol_slider(50);
 		
+		// STart streaming
+		create_rx_streaming_thread(&soapy_devices[0]);
 		double gain = soapy_devices[0].sdr->getGain(SOAPY_SDR_RX, 0);
-		set_gain_slider((int)gain);
+		set_gain_slider((int)gain);	
 	}
 	else
 	{
@@ -250,11 +217,18 @@ int main(int argc, char *argv[])
 	gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 	
 	/*Handle LitlevGL tasks (tickless mode)*/
+	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	while (1) {
-		//std::unique_lock<std::mutex> lock(gui_mutex);
 		lv_task_handler();
-		//std::unique_lock<std::mutex> unlock(gui_mutex);
 		//Ble_instance.connect();
+		
+		const auto now = std::chrono::high_resolution_clock::now();
+		if (timeLastStatus + std::chrono::milliseconds(200) < now)
+		{
+			timeLastStatus = now;
+			Fft_calc.upload_fft(Wf.data_set);
+			Wf.load_data();
+		}
 		usleep(5000);
 	}
 	delete audio_output;

@@ -12,7 +12,6 @@
 
 lv_obj_t* bg_top;
 lv_obj_t* label_status;
-lv_obj_t* bandwidth_dropdown;
 
 void	setup_top_bar(lv_obj_t* scr)
 {
@@ -32,20 +31,6 @@ void	setup_top_bar(lv_obj_t* scr)
 	lv_obj_set_width(label_status, LV_HOR_RES - 20);
 	lv_label_set_text(label_status, "Label");
 	lv_obj_align(label_status, LV_ALIGN_CENTER, 20, 0);
-	
-	bandwidth_dropdown = lv_dropdown_create(bg_top);
-	//lv_obj_align(bandwidth_dropdown, LV_ALIGN_TOP_RIGHT, 0, 0);
-	lv_obj_set_pos(bandwidth_dropdown, LV_HOR_RES - 200, -15);
+
 }
 
-void set_bandwidth_dropdown(double *bandwidth, int count)
-{
-	lv_dropdown_clear_options(bandwidth_dropdown);
-	for (int i = 0; i < count; i++)
-	{
-		char buf[10];
-		
-		sprintf(buf, "%.0f Khz", bandwidth[i] / 1000);
-		lv_dropdown_add_option(bandwidth_dropdown, buf, LV_DROPDOWN_POS_LAST);
-	}
-}

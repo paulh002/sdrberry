@@ -246,10 +246,10 @@ public:
 	void init(double ifrate, double tuner_offset, int pcmrate, bool stereo, double bandwidth_pcm, unsigned int downsample, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~FmDecoder_executer();
 	
-	SampleVector                audiosamples;
-	double                      audio_mean, audio_rms, audio_level;
-	DataBuffer<IQSample>        *source_buffer = NULL;
-	AudioOutput                 *audio_output;
+	SampleVector                m_audiosamples;
+	double                      m_audio_mean, m_audio_rms, m_audio_level;
+	DataBuffer<IQSample>        *m_source_buffer = NULL;
+	AudioOutput                 *m_audio_output;
 	FmDecoder                   *fm = NULL;
 	void                        set_volume(int vol);
 	

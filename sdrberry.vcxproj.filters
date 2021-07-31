@@ -1048,6 +1048,9 @@
     <ClCompile Include="img_lvgl_logo.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Waterfall.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1224,6 +1227,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Keyboard.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Waterfall.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,4 +12,3 @@ extern lv_obj_t* bg_top;
 extern lv_obj_t* label_status;
 
 void	setup_top_bar(lv_obj_t* scr);
-void	set_bandwidth_dropdown(double *bandwidth, int count);

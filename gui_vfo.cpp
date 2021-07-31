@@ -34,12 +34,13 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_obj_set_size(bg_tuner2, 2*(LV_HOR_RES / 6) - 3, tunerHeight);
 	lv_obj_clear_flag(bg_tuner2, LV_OBJ_FLAG_SCROLLABLE);
 	
-	//bg_smeter = lv_obj_create(scr);
-	//lv_obj_add_style(bg_smeter, &tuner_style, 0);
-	///lv_obj_set_pos(bg_smeter, 4*(LV_HOR_RES / 6) + 3, topHeight);
-	//lv_obj_set_size(bg_smeter, 2*(LV_HOR_RES / 6) - 3, tunerHeight);
-	//lv_obj_clear_flag(bg_smeter, LV_OBJ_FLAG_SCROLLABLE);
-	//set_smeter_img(scr, 4*(LV_HOR_RES / 6) + 3, topHeight, 2*(LV_HOR_RES / 6) - 3, tunerHeight);
+	/*bg_smeter = lv_obj_create(scr);
+	lv_obj_add_style(bg_smeter, &tuner_style, 0);
+	lv_obj_set_pos(bg_smeter, 4*(LV_HOR_RES / 6) + 3, topHeight);
+	lv_obj_set_size(bg_smeter, 2*(LV_HOR_RES / 6) - 3, tunerHeight);
+	lv_obj_clear_flag(bg_smeter, LV_OBJ_FLAG_SCROLLABLE);
+	*/
+	set_smeter_img(scr, 4*(LV_HOR_RES / 6) + 3, topHeight, 2*(LV_HOR_RES / 6) - 3, tunerHeight);
 		
 	lv_style_init(&text_style);
 
@@ -88,14 +89,82 @@ void gui_vfo::set_vfo_gui(int vfo, long long freq)
 }
 
 
+;
+static lv_obj_t					*meter;
+static lv_meter_indicator_t		*smeter_indic;
+	
+static void set_smeter_value(int32_t v)
+{
+	lv_meter_set_indicator_value(meter, (lv_meter_indicator_t *)smeter_indic, v);
+}
+
+static void smeter_event_cb(lv_event_t * e)
+{
+	lv_event_code_t			 code = lv_event_get_code(e);
+	lv_obj_draw_part_dsc_t	*dsc  = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	
+	switch (code)
+	{
+	case LV_EVENT_DRAW_PART_BEGIN:
+		if (dsc->value == 1)
+		{
+			strcpy(dsc->text, "S");			
+		}
+		
+		if (dsc->value > 10)
+		{
+			if (dsc->value == 11)
+				dsc->value = 20;
+			if (dsc->value == 12)
+				dsc->value = 30;
+			if (dsc->value == 13)
+				dsc->value = 40;
+			lv_snprintf(dsc->text, sizeof(dsc->text), "%d", dsc->value);			
+		}
+		break;
+	}
+}
+
+
+static lv_style_t meter_style;
 
 void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
-{
+{	
+	lv_style_init(&meter_style);
+	lv_style_set_radius(&meter_style, 0);
+	lv_style_set_bg_color(&meter_style, lv_color_black());
 	
-	LV_IMG_DECLARE(img_lvgl_logo_map);
-	lv_obj_t * img1; 
-	img1 = lv_img_create(box);
-	lv_img_set_src(img1, &img_lvgl_logo_map);
-	lv_obj_align(img1, LV_ALIGN_TOP_LEFT, x, y);
-	lv_obj_set_size(img1, w, h);
+	meter = lv_meter_create(box);
+	lv_obj_set_pos(meter, x, y);
+	lv_obj_set_size(meter, w, h);
+	lv_obj_add_style(meter, &meter_style, 0);
+	lv_obj_add_event_cb(meter, smeter_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+	
+	/*Remove the circle from the middle*/
+	//lv_obj_remove_style(meter, NULL, LV_PART_INDICATOR);
+	lv_obj_set_style_pad_hor(meter, 0, LV_PART_MAIN);
+	lv_obj_set_style_pad_ver(meter, 0, LV_PART_MAIN);
+	lv_obj_set_style_size(meter, w, LV_PART_MAIN);
+	
+	/*Add a scale first*/
+	lv_meter_scale_t * scale = lv_meter_add_scale(meter);
+	lv_meter_set_scale_range(meter, scale, 1, 12, 100, 220);
+	lv_meter_set_scale_ticks(meter, scale, 12, 1, 5, lv_palette_main(LV_PALETTE_LIGHT_GREEN));
+	lv_meter_set_scale_major_ticks(meter, scale, 1, 2, 10, lv_color_hex3(0xeee), 10);
+	
+	//lv_meter_set_scale_major_ticks(meter, scale, 1, 4, 10, lv_color_hex3(0xeee), 10);
+	
+	lv_meter_indicator_t * indic;
+	indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_GREEN), 0); 
+	lv_meter_set_indicator_start_value(meter, indic, 0);
+	lv_meter_set_indicator_end_value(meter, indic, 9);
+	
+	lv_meter_indicator_t * indic1;
+	indic1 = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_RED), 0); 
+	lv_meter_set_indicator_start_value(meter, indic1, 9);
+	lv_meter_set_indicator_end_value(meter, indic1, 12);
+	
+
+	smeter_indic = lv_meter_add_needle_line(meter, scale, 1, lv_color_white(), -10);
+
 }

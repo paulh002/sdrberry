@@ -15,8 +15,8 @@ Installation of libraries is necessary:
 - Liquid DSP
 - Alsa audio
 - SoapySDR
-- SoapyPlutoSDR
-- SoapyRadioBerry
+- SoapyPlutoSDR (support for Adalm Pluto SDR)
+- SoapyRadioBerry (support radioberry)
 - libiio
 - libad9361-iio
 - bluez-5.60

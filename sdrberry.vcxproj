@@ -237,6 +237,7 @@
     <ClCompile Include="lvgl\src\widgets\lv_textarea.c" />
     <ClCompile Include="sdrstream.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="Setup.cpp" />
     <ClCompile Include="smeter_img.c" />
     <ClCompile Include="SoapySDRProbe.cpp" />
     <ClCompile Include="strlib.cpp" />
@@ -390,6 +391,7 @@
     <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="Setup.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
     <ClInclude Include="SoapySDR\ConverterPrimitives.hpp" />
     <ClInclude Include="SoapySDR\ConverterRegistry.hpp" />

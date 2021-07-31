@@ -1051,6 +1051,9 @@
     <ClCompile Include="Waterfall.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Setup.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1230,6 +1233,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Waterfall.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Setup.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

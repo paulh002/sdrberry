@@ -22,3 +22,5 @@ Installation of libraries is necessary:
 - bluez-5.60
 - tinyb
 - libpthread.so.0
+
+https://www.youtube.com/watch?v=ds-n-7sHXl8&t=2s

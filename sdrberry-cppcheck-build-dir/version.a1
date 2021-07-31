@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<analyzerinfo checksum="3351075326">
-  <FileInfo check="CheckUnusedFunctions">
-    <functioncall functionName="FFTW_CC"/>
-    <functioncall functionName="cc"/>
-    <functioncall functionName="codelet_optim"/>
-    <functioncall functionName="version"/>
-  </FileInfo>
-</analyzerinfo>

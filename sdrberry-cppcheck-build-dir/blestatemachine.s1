@@ -1,4 +1,0 @@
-log_fd_ call:[LOG,strerror] noreturn:[LOG]
-lookup_service_by_UUID call:[UUID,add,begin,end,find_if,push_back,size] noreturn:[add,push_back]
-log_l2cap_options call:[LOGVAR,getsockopt,log_fd_,memset,sizeof]
-pretty_print_tree call:[from,lookup_service_by_UUID,to_hex,to_str]

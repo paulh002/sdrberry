@@ -1,8 +1,0 @@
-ad_touch_init global:[state,xRawTouch,yRawTouch] call:[TouchCalculateCalPoints] noreturn:[TouchCalculateCalPoints]
-ad_touch_read call:[TouchGetX,TouchGetY]
-ad_touch_handler global:[adcX,adcY,stat,state,temp_x,temp_y]
-TouchGetX global:[_trC,_trD] call:[TouchGetRawX,return] noreturn:[return]
-TouchGetRawX global:[adcX]
-TouchGetY global:[_trA,_trB] call:[TouchGetRawY,return] noreturn:[return]
-TouchGetRawY global:[adcY]
-TouchCalculateCalPoints global:[_trA,_trB,_trC,_trD,xRawTouch,yRawTouch]

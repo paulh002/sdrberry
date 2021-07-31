@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<analyzerinfo checksum="137253868">
-        <error id="unknownMacro" severity="error" msg="There is an unknown macro here somewhere. Configuration is required. If X is a macro then please configure it." verbose="There is an unknown macro here somewhere. Configuration is required. If X is a macro then please configure it." file0="H:/OneDrive/source/sdrberry/api/plan-dft.c">
-            <location file="H:\OneDrive\source\sdrberry\api\plan-dft.c" line="23" column="9"/>
-        </error>
-</analyzerinfo>

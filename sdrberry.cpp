@@ -228,6 +228,8 @@ int main(int argc, char *argv[])
 			timeLastStatus = now;
 			Fft_calc.upload_fft(Wf.data_set);
 			Wf.load_data();
+			double s = Fft_calc.get_signal_strength();
+			set_s_meter(s);
 		}
 		usleep(5000);
 	}

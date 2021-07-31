@@ -1,9 +1,0 @@
-DataBuffer
-push call:[empty,lock,move,notify_all,push,size,unlock] noreturn:[notify_all]
-push_end call:[lock,notify_all,unlock] noreturn:[notify_all]
-queued_samples call:[lock]
-pull call:[empty,front,lock,pop,size,swap,wait] noreturn:[pop,wait]
-pull_end_reached call:[lock]
-wait_buffer_fill call:[lock,wait] noreturn:[wait]
-size call:[size] noreturn:[size]
-get_qlen

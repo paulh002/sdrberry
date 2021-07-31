@@ -340,7 +340,7 @@ void FmDecoder::process(const IQSampleVector& samples_in,
     // Measure IF level.
     double if_rms = rms_level_approx(m_buf_iffiltered);
     m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
-
+		
     // Extract carrier frequency.
     m_phasedisc.process(m_buf_iffiltered, m_buf_baseband);
 
@@ -513,6 +513,7 @@ void* rx_fm_thread(void* fm_ptr)
 			fft_block = 0;
 			Fft_calc.plan_fft((float *)iqsamples.data());
 			Fft_calc.process_samples();
+			Fft_calc.set_signal_strength(Fm_executer.fm->get_if_level()); 
 		}
 		fft_block++;
 		Fm_executer.fm->process(iqsamples, Fm_executer.m_audiosamples);

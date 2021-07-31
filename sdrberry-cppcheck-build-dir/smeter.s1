@@ -1,4 +1,0 @@
-CSmeter call:[Draw,LV_CANVAS_BUF_SIZE_TRUE_COLOR,lv_canvas_create,lv_canvas_draw_line,lv_canvas_draw_text,lv_canvas_fill_bg,lv_canvas_set_buffer,lv_draw_label_dsc_init,lv_draw_line_dsc_init,lv_obj_align,malloc,sprintf,strcpy] noreturn:[Draw,lv_canvas_draw_text,sprintf,strcpy]
-CSmeter call:[free] noreturn:[free]
-hide call:[lv_obj_set_hidden] noreturn:[lv_obj_set_hidden]
-Draw call:[lv_canvas_draw_rect,lv_draw_rect_dsc_init] noreturn:[lv_canvas_draw_rect]

@@ -28,3 +28,4 @@ private:
 extern gui_vfo	gui_vfo_inst;
 
 void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
+void set_s_meter(double value);

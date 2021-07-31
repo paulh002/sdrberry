@@ -1,8 +1,0 @@
-ssd1963_init global:[cmd_mode] call:[ssd1963_cmd,ssd1963_data] noreturn:[ssd1963_data]
-ssd1963_flush call:[lv_disp_flush_ready,ssd1963_cmd,ssd1963_data,ssd1963_data_mode] noreturn:[lv_disp_flush_ready]
-ssd1963_io_init global:[cmd_mode]
-ssd1963_reset call:[ssd1963_cmd] noreturn:[ssd1963_cmd]
-ssd1963_cmd_mode global:[cmd_mode]
-ssd1963_data_mode global:[cmd_mode]
-ssd1963_cmd call:[ssd1963_cmd_mode] noreturn:[ssd1963_cmd_mode]
-ssd1963_data call:[ssd1963_data_mode] noreturn:[ssd1963_data_mode]

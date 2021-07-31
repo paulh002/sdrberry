@@ -22,15 +22,14 @@ const int nfft_samples	{4096};
 class Waterfall
 {
 public:
-	void init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
-	void load_data();
+	void	init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
+	void	load_data();
 	std::vector<lv_coord_t>			data_set;
 
 private:
 	lv_obj_t						*chart;
 	lv_chart_series_t				*ser;
 	lv_style_t						waterfall_style;
-	
 };
 
 class Fft_calculator
@@ -39,6 +38,8 @@ public:
 	void	process_samples();
 	void	plan_fft(float *f_in);
 	void	upload_fft(std::vector<lv_coord_t>&	data_set);
+	void	set_signal_strength(double strength);
+	double	get_signal_strength();
 	
 	Fft_calculator();
 	~Fft_calculator();
@@ -51,6 +52,7 @@ private:
 	liquid_float_complex		*p_in, *p_out;
 	std::mutex					m_mutex;
 	std::condition_variable		m_cond;
+	double						signal_strength {0};
 	
 };
 

@@ -1,5 +1,0 @@
-libinput_set_file global:[libinput_button,libinput_context,libinput_device] call:[libinput_device_ref,libinput_device_unref,libinput_path_add_device,libinput_path_remove_device,perror] noreturn:[libinput_path_remove_device]
-libinput_init global:[fds,interface,libinput_context,libinput_device,libinput_fd] call:[libinput_get_fd,libinput_path_create_context,libinput_set_file,perror]
-libinput_read global:[fds,libinput_button,libinput_context,most_recent_touch_point,nfds,timeout] call:[libinput_dispatch,libinput_event_destroy,libinput_event_get_touch_event,libinput_event_get_type,libinput_event_touch_get_x_transformed,libinput_event_touch_get_y_transformed,libinput_get_event,perror,poll] noreturn:[libinput_event_destroy]
-open_restricted call:[open]
-close_restricted call:[close] noreturn:[close]

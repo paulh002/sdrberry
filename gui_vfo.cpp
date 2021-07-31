@@ -106,6 +106,7 @@ static void smeter_event_cb(lv_event_t * e)
 	switch (code)
 	{
 	case LV_EVENT_DRAW_PART_BEGIN:
+		dsc->value = dsc->value / 10;
 		if (dsc->value == 1)
 		{
 			strcpy(dsc->text, "S");			
@@ -116,11 +117,9 @@ static void smeter_event_cb(lv_event_t * e)
 			if (dsc->value == 11)
 				dsc->value = 20;
 			if (dsc->value == 12)
-				dsc->value = 30;
-			if (dsc->value == 13)
-				dsc->value = 40;
-			lv_snprintf(dsc->text, sizeof(dsc->text), "%d", dsc->value);			
+				dsc->value = 30;				
 		}
+		lv_snprintf(dsc->text, sizeof(dsc->text), "%d", dsc->value);	
 		break;
 	}
 }
@@ -148,8 +147,8 @@ void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	
 	/*Add a scale first*/
 	lv_meter_scale_t * scale = lv_meter_add_scale(meter);
-	lv_meter_set_scale_range(meter, scale, 1, 12, 100, 220);
-	lv_meter_set_scale_ticks(meter, scale, 12, 1, 5, lv_palette_main(LV_PALETTE_LIGHT_GREEN));
+	lv_meter_set_scale_range(meter, scale, 10, 120, 100, 220);
+	lv_meter_set_scale_ticks(meter, scale, 12, 10, 5, lv_palette_main(LV_PALETTE_LIGHT_GREEN));
 	lv_meter_set_scale_major_ticks(meter, scale, 1, 2, 10, lv_color_hex3(0xeee), 10);
 	
 	//lv_meter_set_scale_major_ticks(meter, scale, 1, 4, 10, lv_color_hex3(0xeee), 10);
@@ -157,14 +156,23 @@ void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_meter_indicator_t * indic;
 	indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_GREEN), 0); 
 	lv_meter_set_indicator_start_value(meter, indic, 0);
-	lv_meter_set_indicator_end_value(meter, indic, 9);
+	lv_meter_set_indicator_end_value(meter, indic, 90);
 	
 	lv_meter_indicator_t * indic1;
 	indic1 = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_RED), 0); 
-	lv_meter_set_indicator_start_value(meter, indic1, 9);
-	lv_meter_set_indicator_end_value(meter, indic1, 12);
+	lv_meter_set_indicator_start_value(meter, indic1, 90);
+	lv_meter_set_indicator_end_value(meter, indic1, 120);
 	
 
 	smeter_indic = lv_meter_add_needle_line(meter, scale, 1, lv_color_white(), -10);
 
+}
+
+void set_s_meter(double value)
+{
+	//printf("value %f", value);
+	value = 30.0 + value;
+	value = value * 120.0 / 30.0;
+	//printf(" value s%f \n", value);
+	lv_meter_set_indicator_value(meter, smeter_indic, value);
 }

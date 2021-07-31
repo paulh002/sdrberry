@@ -1,3 +1,0 @@
-mousewheel_init
-mousewheel_read global:[enc_diff,state]
-mousewheel_handler global:[enc_diff,state]

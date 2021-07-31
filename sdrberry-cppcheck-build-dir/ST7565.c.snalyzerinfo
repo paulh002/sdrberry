@@ -1,7 +1,0 @@
-st7565_init global:[lcd_fb] call:[memset,sizeof,st7565_command] noreturn:[memset]
-st7565_flush global:[lcd_fb] call:[lv_color_to1,lv_flush_ready,st7565_sync] noreturn:[lv_flush_ready]
-st7565_fill global:[lcd_fb] call:[lv_color_to1,st7565_sync] noreturn:[st7565_sync]
-st7565_map global:[lcd_fb] call:[lv_color_to1,st7565_sync] noreturn:[st7565_sync]
-st7565_sync global:[lcd_fb,pagemap] call:[st7565_command,st7565_data] noreturn:[st7565_data]
-st7565_command
-st7565_data

@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<analyzerinfo checksum="771748665">
-        <error id="internalAstError" severity="error" msg="Syntax Error: AST broken, binary operator &apos;=&apos; doesn&apos;t have two operands." verbose="Syntax Error: AST broken, binary operator &apos;=&apos; doesn&apos;t have two operands." file0="H:/OneDrive/source/sdrberry/lv_drivers/display/SHARP_MIP.c">
-            <location file="H:\OneDrive\source\sdrberry\lv_drivers\display\SHARP_MIP.c" line="119" column="31"/>
-        </error>
-  <FileInfo check="CheckUnusedFunctions">
-    <functioncall functionName="void"/>
-  </FileInfo>
-</analyzerinfo>

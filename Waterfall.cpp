@@ -59,7 +59,6 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 }
 
 
-
 void Waterfall::load_data()
 {
 	int i = data_set.size();
@@ -80,4 +79,17 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 		data_set[i++] = (lv_coord_t)200 * log10((10.0 * sqrt(col.real() * col.real() + col.imag() * col.imag())));
 		//printf("%d \n", data_set[i++]);
 	}
+}
+
+void Fft_calculator::set_signal_strength(double strength)
+{
+	std::unique_lock<std::mutex> lock(m_mutex);
+	signal_strength =  20* log10(strength);
+	//printf(" signal_strength %f \n", signal_strength);
+}
+
+double Fft_calculator::get_signal_strength()
+{
+	std::unique_lock<std::mutex> lock(m_mutex);
+	return signal_strength ;
 }

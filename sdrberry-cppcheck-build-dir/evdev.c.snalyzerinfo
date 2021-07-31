@@ -1,4 +1,0 @@
-evdev_init global:[evdev_button,evdev_fd,evdev_key_val,evdev_root_x,evdev_root_y] call:[fcntl,open,perror]
-evdev_set_file global:[evdev_button,evdev_fd,evdev_key_val,evdev_root_x,evdev_root_y] call:[close,fcntl,open,perror] noreturn:[close]
-evdev_read global:[evdev_button,evdev_fd,evdev_key_val,evdev_root_x,evdev_root_y] call:[read,sizeof]
-map call:[return]

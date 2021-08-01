@@ -75,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AMDemodulator.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="ble_interface.cpp" />
     <ClCompile Include="configfile.cpp" />
@@ -244,6 +245,7 @@
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
     <ClCompile Include="wstring.cpp" />
+    <ClInclude Include="AMDemodulator.h" />
     <ClInclude Include="AudioOutput.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="ble_interface.h" />

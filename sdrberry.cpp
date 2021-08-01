@@ -29,6 +29,7 @@
 #include "AudioOutput.h"
 #include "DataBuffer.h"
 #include "Waterfall.h"
+#include "AMDemodulator.h"
 
 AudioOutput *audio_output;
 DataBuffer<IQSample> source_buffer;
@@ -52,6 +53,14 @@ const int nobuttons = 8;
 const int rightWidth = 200;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
+
+const int mode_broadband_fm = 0;
+const int mode_lsb = 1;
+const int mode_usb = 2;
+const int mode_am = 3;
+const int mode_dsb = 4;
+
+int mode = mode_lsb;
 
 lv_obj_t* scr;
 lv_obj_t* bg_middle;
@@ -191,19 +200,61 @@ int main(int argc, char *argv[])
 		vfo_setting.vfo_high = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum();
 			
 		
-		printf("Queued samples %u\n", source_buffer.queued_samples());
 			
 		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
-		double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
-		unsigned int downsample = max(1, int(ifrate / 215.0e3));
+		if (mode == mode_broadband_fm)
+		{
+			double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
+			unsigned int downsample = max(1, int(ifrate / 215.0e3));
 		
-		printf("baseband downsampling factor %u\n", downsample);
-		printf("audio sample rate: %u Hz\n", pcmrate);
-		printf("audio bandwidth:   %.3f kHz\n", bandwidth_pcm * 1.0e-3);
-		create_fm_thread(ifrate, tuner_offset, pcmrate, true, bandwidth_pcm, downsample, &source_buffer, audio_output);
-		set_vol_slider(50);
+			printf("baseband downsampling factor %u\n", downsample);
+			printf("audio sample rate: %u Hz\n", pcmrate);
+			printf("audio bandwidth:   %.3f kHz\n", bandwidth_pcm * 1.0e-3);
+			create_fm_thread(ifrate, tuner_offset, pcmrate, true, bandwidth_pcm, downsample, &source_buffer, audio_output);			
+		}
 		
+		demod_struct	demod;
+		demod.source_buffer = &source_buffer;
+		demod.audio_output = audio_output;
+		demod.pcmrate = pcmrate;
+		demod.ifrate = ifrate;
+		demod.tuner_offset = 0; // not used 
+		demod.downsample = 0; //not used
+		
+		printf("pcmrate %u\n", demod.pcmrate);
+		printf("ifrate %f\n", demod.ifrate);
+		
+		
+		if (mode != mode_broadband_fm)
+		{
+			switch (mode)
+			{
+			case mode_lsb:
+				demod.suppressed_carrier = 1;
+				demod.mode = LIQUID_AMPMODEM_USB;
+				printf("mode LIQUID_AMPMODEM_USB carrier %d\n", demod.suppressed_carrier);		
+				break;
+			case mode_usb:
+				demod.suppressed_carrier = 1;
+				demod.mode = LIQUID_AMPMODEM_LSB;
+				printf("mode LIQUID_AMPMODEM_LSB carrier %d\n", demod.suppressed_carrier);		
+				break;
+			case mode_am:
+				demod.suppressed_carrier = 0;
+				demod.mode = LIQUID_AMPMODEM_DSB;
+				printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", demod.suppressed_carrier);		
+				break;
+			case mode_dsb:
+				demod.suppressed_carrier = 1;
+				demod.mode = LIQUID_AMPMODEM_DSB;
+				printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", demod.suppressed_carrier);		
+				break;
+			}
+			create_am_thread(&demod);
+		}
+		
+		set_vol_slider(100);		
 		// STart streaming
 		create_rx_streaming_thread(&soapy_devices[0]);
 		double gain = soapy_devices[0].sdr->getGain(SOAPY_SDR_RX, 0);

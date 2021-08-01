@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <pthread.h>
+#include <mutex>
 #include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
@@ -20,7 +21,7 @@
 #include <iostream>
 
 #include "DataBuffer.h"
-#include "SoftFM.h"
+#include "sdrberry.h"
 
 using namespace std;
 
@@ -29,6 +30,7 @@ void* rx_streaming_thread(void* psdr_dev)
 	static const int		default_block_length {32768}; //32768
 	SoapySDR::Stream		*rx_stream;
 	
+	unique_lock<mutex> lock_stream(stream_finish); 
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastSpin = std::chrono::high_resolution_clock::now();

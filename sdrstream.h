@@ -7,7 +7,7 @@
 #include "vfo.h"
 
 #include "DataBuffer.h"
-#include "SoftFM.h"
+#include "sdrberry.h"
 
 #define NUM_THREADS	4
 #define RX_THREAD	0

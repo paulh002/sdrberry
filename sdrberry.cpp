@@ -24,12 +24,13 @@
 #include "Gui_band.h"
 #include "Keyboard.h"
 #include <memory>
-#include "SoftFM.h"
+#include "sdrberry.h"
 #include "FmDecode.h"
 #include "AudioOutput.h"
 #include "DataBuffer.h"
 #include "Waterfall.h"
 #include "AMDemodulator.h"
+#include "sdrberry.h"
 
 AudioOutput *audio_output;
 DataBuffer<IQSample> source_buffer;
@@ -54,13 +55,7 @@ const int rightWidth = 200;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 
-const int mode_broadband_fm = 0;
-const int mode_lsb = 1;
-const int mode_usb = 2;
-const int mode_am = 3;
-const int mode_dsb = 4;
-
-int mode = mode_lsb;
+int mode = mode_broadband_fm;
 
 lv_obj_t* scr;
 lv_obj_t* bg_middle;
@@ -74,6 +69,17 @@ using namespace std;
 
 atomic_bool stop_flag(false);
 std::mutex gui_mutex;
+
+double  ifrate  = 0.53e6;  //1.0e6;//
+bool    stereo  = true;
+int     pcmrate = 48000;
+double	freq = 89950000;
+double	tuner_freq = freq + 0.25 * ifrate;
+double	tuner_offset = freq - tuner_freq;
+
+mutex	am_finish;
+mutex	fm_finish;
+mutex	stream_finish;
 
 int main(int argc, char *argv[])
 {
@@ -155,17 +161,9 @@ int main(int argc, char *argv[])
 	label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
-	
 	//if (Settings_file.get_mac_address() != String(""))
 	//	Ble_instance.setup_ble(Settings_file.get_mac_address());
-	
-	double  ifrate  = 0.53e6; //1.0e6;//
-	bool    stereo  = true;
-	int     pcmrate = 48000;	
-
-	
-	//unique_ptr<AudioOutput> audio_output;
-	//audio_output.reset(new AlsaAudioOutput("default", pcmrate, stereo));
+		
 	String s = Settings_file.find_audio("device");
 	
 	audio_output = new AlsaAudioOutput((char *)s.c_str(), pcmrate, stereo);
@@ -176,10 +174,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	audio_output->set_volume(50);
-	
-	double freq = 89950000;
-	double tuner_freq = freq + 0.25 * ifrate;
-	double tuner_offset = freq - tuner_freq;
 	
 	vfo_init((unsigned long)freq);
 	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
@@ -200,60 +194,19 @@ int main(int argc, char *argv[])
 		vfo_setting.vfo_high = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum();
 			
 		
-			
 		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
-		if (mode == mode_broadband_fm)
+		switch (mode)
 		{
-			double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
-			unsigned int downsample = max(1, int(ifrate / 215.0e3));
+		case mode_broadband_fm:
+			 start_fm(ifrate, tuner_offset, pcmrate, true, &source_buffer, audio_output);
+			 break;
 		
-			printf("baseband downsampling factor %u\n", downsample);
-			printf("audio sample rate: %u Hz\n", pcmrate);
-			printf("audio bandwidth:   %.3f kHz\n", bandwidth_pcm * 1.0e-3);
-			create_fm_thread(ifrate, tuner_offset, pcmrate, true, bandwidth_pcm, downsample, &source_buffer, audio_output);			
+		case mode_usb:
+		case mode_lsb:
+			start_dsb(mode, ifrate, pcmrate, &source_buffer, audio_output);
+			break;
 		}
-		
-		demod_struct	demod;
-		demod.source_buffer = &source_buffer;
-		demod.audio_output = audio_output;
-		demod.pcmrate = pcmrate;
-		demod.ifrate = ifrate;
-		demod.tuner_offset = 0; // not used 
-		demod.downsample = 0; //not used
-		
-		printf("pcmrate %u\n", demod.pcmrate);
-		printf("ifrate %f\n", demod.ifrate);
-		
-		
-		if (mode != mode_broadband_fm)
-		{
-			switch (mode)
-			{
-			case mode_lsb:
-				demod.suppressed_carrier = 1;
-				demod.mode = LIQUID_AMPMODEM_USB;
-				printf("mode LIQUID_AMPMODEM_USB carrier %d\n", demod.suppressed_carrier);		
-				break;
-			case mode_usb:
-				demod.suppressed_carrier = 1;
-				demod.mode = LIQUID_AMPMODEM_LSB;
-				printf("mode LIQUID_AMPMODEM_LSB carrier %d\n", demod.suppressed_carrier);		
-				break;
-			case mode_am:
-				demod.suppressed_carrier = 0;
-				demod.mode = LIQUID_AMPMODEM_DSB;
-				printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", demod.suppressed_carrier);		
-				break;
-			case mode_dsb:
-				demod.suppressed_carrier = 1;
-				demod.mode = LIQUID_AMPMODEM_DSB;
-				printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", demod.suppressed_carrier);		
-				break;
-			}
-			create_am_thread(&demod);
-		}
-		
 		set_vol_slider(100);		
 		// STart streaming
 		create_rx_streaming_thread(&soapy_devices[0]);
@@ -274,7 +227,7 @@ int main(int argc, char *argv[])
 		//Ble_instance.connect();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastStatus + std::chrono::milliseconds(200) < now)
+		if (timeLastStatus + std::chrono::milliseconds(200) < now && !stop_flag.load())
 		{
 			timeLastStatus = now;
 			Fft_calc.upload_fft(Wf.data_set);
@@ -306,4 +259,37 @@ uint32_t custom_tick_get(void)
 	uint32_t time_ms = now_ms - start_ms;
 	return time_ms;
 }
+
+void select_mode(int s_mode)
+{
+	// Stop all threads
+	stop_flag = true;
+	
+	// wait for threads to finish
+	unique_lock<mutex> lock_am(am_finish); 
+	unique_lock<mutex> lock_fm(fm_finish); 
+	unique_lock<mutex> lock_stream(stream_finish); 
+	
+	lock_am.unlock();
+	lock_fm.unlock();
+	lock_stream.unlock();
+	stop_flag = false;
+	mode = s_mode;
+	
+	switch (mode)
+	{
+	case mode_broadband_fm:
+		start_fm(ifrate, tuner_offset, pcmrate, true, &source_buffer, audio_output);
+		break;
+		
+	case mode_am:
+	case mode_dsb:
+	case mode_usb:
+	case mode_lsb:
+		start_dsb(mode, ifrate, pcmrate, &source_buffer, audio_output);
+		break;
+	}
+	create_rx_streaming_thread(&soapy_devices[0]);
+}
+
 

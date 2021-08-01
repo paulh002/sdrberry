@@ -2,7 +2,7 @@
 #define SOFTFM_FILTER_H
 
 #include <vector>
-#include "SoftFM.h"
+#include "sdrberry.h"
 
 
 /** Fine tuner which shifts the frequency of an IQ signal by a fixed offset. */

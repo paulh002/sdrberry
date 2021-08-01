@@ -9,7 +9,7 @@
 #include <SoapySDR/Formats.hpp>
 #include "wstring.h"
 #include "DataBuffer.h"
-#include "SoftFM.h"
+#include "sdrberry.h"
 
 extern SoapySDR::Device *sdr;
 extern String device_name;	

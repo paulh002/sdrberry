@@ -10,6 +10,7 @@
 #include <liquid.h>
 #include <complex>
 #include <vector>
+#include <mutex>
 #include "Waterfall.h"
 
 using namespace std;
@@ -487,6 +488,7 @@ void* rx_fm_thread(void* fm_ptr)
 	unsigned int            block = 0, fft_block = 0;
 	bool                    inbuf_length_warning = false;
 	
+	unique_lock<mutex> lock_fm(fm_finish); 
 	while (!stop_flag.load())
 	{
 		
@@ -545,5 +547,19 @@ void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool ster
 	Fm_executer.init(ifrate, tuner_offset, pcmrate, stereo, bandwidth_pcm, downsample, source_buffer, audio_output);
 	int rc = pthread_create(&fm_thread, NULL, rx_fm_thread, (void *)&Fm_executer);
 	
+}
+
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
+void start_fm(double ifrate, double tuner_offset, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+{
+	double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
+	unsigned int downsample = max(1, int(ifrate / 215.0e3));
+		
+	printf("baseband downsampling factor %u\n", downsample);
+	printf("audio sample rate: %u Hz\n", pcmrate);
+	printf("audio bandwidth:   %.3f kHz\n", bandwidth_pcm * 1.0e-3);
+	create_fm_thread(ifrate, tuner_offset, pcmrate, stereo, bandwidth_pcm, downsample, source_buffer, audio_output);			
 }
 	/* end */

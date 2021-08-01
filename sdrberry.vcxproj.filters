@@ -1021,9 +1021,6 @@
     <ClCompile Include="FmDecode.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="DataBuffer.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="Settings.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1055,6 +1052,9 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="AMDemodulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartTx.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1208,7 +1208,7 @@
     <ClInclude Include="FmDecode.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="SoftFM.h">
+    <ClInclude Include="sdrberry.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="DataBuffer.h">
@@ -1242,6 +1242,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="AMDemodulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="StartTx.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

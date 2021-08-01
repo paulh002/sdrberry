@@ -64,3 +64,4 @@ private:
 
 
 int	create_am_thread(demod_struct *demod);
+void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);

@@ -1,6 +1,6 @@
 #include "lvgl/lvgl.h"
 #include "gui_right_pane.h"
-#include "SoftFM.h"
+#include "sdrberry.h"
 #include <alsa/asoundlib.h>
 #include "AudioOutput.h"
 #include "devices.h"
@@ -21,6 +21,8 @@ static int button_height , button_margin = 18;
 static void gain_slider_event_cb(lv_event_t * e);
 static void agc_slider_event_cb(lv_event_t * e);
 static void vol_slider_event_cb(lv_event_t * e);
+static void mode_button_event(lv_event_t * e);
+
 	
 void	setup_right_pane(lv_obj_t* scr )
 {
@@ -50,8 +52,9 @@ void	setup_right_pane(lv_obj_t* scr )
 	lv_style_set_outline_opa(&style_btn, 255);
 	
 	bUsb = lv_btn_create(bg_right);
+	lv_obj_set_user_data(bUsb, (void *)mode_usb);
 	lv_obj_add_style(bUsb, &style_btn, 0); 
-	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
+	lv_obj_add_event_cb(bUsb, mode_button_event, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(bUsb, LV_ALIGN_TOP_LEFT, 0 * bottombutton_width1, button_margin);
 	//lv_btn_set_checkable(vfo1_button, true);
 	//lv_btn_toggle(vfo1_button);
@@ -61,8 +64,9 @@ void	setup_right_pane(lv_obj_t* scr )
 	lv_obj_center(label);
 	
 	bLsb = lv_btn_create(bg_right);
+	lv_obj_set_user_data(bLsb, (void *)mode_lsb);
 	lv_obj_add_style(bLsb, &style_btn, 0); 
-	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
+	lv_obj_add_event_cb(bLsb, mode_button_event, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(bLsb, LV_ALIGN_TOP_LEFT, 1 * bottombutton_width1, button_margin);
 	//lv_btn_set_checkable(vfo1_button, true);
 	//lv_btn_toggle(vfo1_button);
@@ -74,8 +78,9 @@ void	setup_right_pane(lv_obj_t* scr )
 	button_height = bottomHeight + button_margin + 4;  //lv_obj_get_height(bLsb);
 	
 	bCW = lv_btn_create(bg_right);
+	lv_obj_set_user_data(bCW, (void *)mode_cw);
 	lv_obj_add_style(bCW, &style_btn, 0); 
-	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
+	lv_obj_add_event_cb(bCW, mode_button_event, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(bCW, LV_ALIGN_TOP_LEFT, 2 * bottombutton_width1, button_margin);
 	//lv_btn_set_checkable(vfo1_button, true);
 	//lv_btn_toggle(vfo1_button);
@@ -85,8 +90,9 @@ void	setup_right_pane(lv_obj_t* scr )
 	lv_obj_center(label);
 	
 	bFM = lv_btn_create(bg_right);
+	lv_obj_set_user_data(bFM, (void *)mode_broadband_fm);
 	lv_obj_add_style(bFM, &style_btn, 0); 
-	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
+	lv_obj_add_event_cb(bFM, mode_button_event, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(bFM, LV_ALIGN_TOP_LEFT, 0 * bottombutton_width1, button_height);
 	//lv_btn_set_checkable(vfo1_button, true);
 	//lv_btn_toggle(vfo1_button);
@@ -96,8 +102,9 @@ void	setup_right_pane(lv_obj_t* scr )
 	lv_obj_center(label);
 	
 	bAM = lv_btn_create(bg_right);
+	lv_obj_set_user_data(bAM, (void *)mode_am);
 	lv_obj_add_style(bAM, &style_btn, 0); 
-	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
+	lv_obj_add_event_cb(bAM, mode_button_event, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(bAM, LV_ALIGN_TOP_LEFT, 1 * bottombutton_width1, button_height);
 	//lv_btn_set_checkable(vfo1_button, true);
 	//lv_btn_toggle(vfo1_button);
@@ -107,8 +114,9 @@ void	setup_right_pane(lv_obj_t* scr )
 	lv_obj_center(label);
 	
 	bFT8 = lv_btn_create(bg_right);
+	lv_obj_set_user_data(bFT8, (void *)mode_ft8);
 	lv_obj_add_style(bFT8, &style_btn, 0); 
-	//lv_obj_set_event_cb(vfo1_button, mode_button_vfo);
+	lv_obj_add_event_cb(bFT8, mode_button_event, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(bFT8, LV_ALIGN_TOP_LEFT, 2 * bottombutton_width1, button_height);
 	//lv_btn_set_checkable(vfo1_button, true);
 	//lv_btn_toggle(vfo1_button);
@@ -226,4 +234,32 @@ void set_vol_slider(int volume)
 	lv_label_set_text(vol_slider_label, buf);
 	lv_obj_align_to(vol_slider_label, vol_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	audio_output->set_volume(volume);
+}
+
+void select_mode(int s_mode);
+
+static void mode_button_event(lv_event_t * e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t * btn = lv_event_get_target(e);
+	int bmode = (int)lv_obj_get_user_data(btn);
+		
+	if (code == LV_EVENT_CLICKED) {
+		LV_LOG_USER("Clicked");
+		
+		select_mode(bmode);
+		
+		switch (bmode)
+		{
+		case mode_broadband_fm:
+		case mode_lsb:
+		case mode_usb:
+		case mode_am:
+		case mode_dsb:
+		case mode_cw:
+		case mode_ft8:
+			break;
+		}
+	
+	}
 }

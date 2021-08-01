@@ -6,10 +6,13 @@
 #include <vector>
 #include <liquid.h>
 #include <algorithm>
+#include <mutex>
 #include "DataBuffer.h"
 #include "AudioOutput.h"
 #include "AMDemodulator.h"
 #include "Waterfall.h"
+#include "sdrberry.h"
+
 
 void* am_demod_thread(void* ptr);
 /** Compute RMS level over a small prefix of the specified sample vector. */
@@ -111,7 +114,7 @@ void	AMDemodulator::process(const IQSampleVector& samples_in, SampleVector& audi
 	mono_to_left_right(audio_mono, audio);
 }
 
-static pthread_t		am_thread;
+pthread_t		am_thread;
 
 int	create_am_thread(demod_struct *demod)
 {
@@ -128,6 +131,7 @@ void* am_demod_thread(void* ptr)
 	SampleVector            audiosamples;
 	AMDemodulator			ammod;
 	
+	unique_lock<mutex> lock(am_finish); 
 	ammod.init(demod_ptr);
 	while (!stop_flag.load())
 	{
@@ -174,5 +178,46 @@ void* am_demod_thread(void* ptr)
 	pthread_exit(NULL); 
 }
 
+static demod_struct	demod;
 
+void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+{	
+	demod.source_buffer = source_buffer;
+	demod.audio_output = audio_output;
+	demod.pcmrate = pcmrate;
+	demod.ifrate = ifrate;
+	demod.tuner_offset = 0;    // not used 
+	demod.downsample = 0;    //not used
+		
+	printf("pcmrate %u\n", demod.pcmrate);
+	printf("ifrate %f\n", demod.ifrate);
+				
+	switch (mode)
+	{
+	case mode_usb:
+		demod.suppressed_carrier = 1;
+		demod.mode = LIQUID_AMPMODEM_USB;
+		printf("mode LIQUID_AMPMODEM_USB carrier %d\n", demod.suppressed_carrier);		
+		break;
+	case mode_lsb:
+		demod.suppressed_carrier = 1;
+		demod.mode = LIQUID_AMPMODEM_LSB;
+		printf("mode LIQUID_AMPMODEM_LSB carrier %d\n", demod.suppressed_carrier);		
+		break;
+	case mode_am:
+		demod.suppressed_carrier = 0;
+		demod.mode = LIQUID_AMPMODEM_DSB;
+		printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", demod.suppressed_carrier);		
+		break;
+	case mode_dsb:
+		demod.suppressed_carrier = 1;
+		demod.mode = LIQUID_AMPMODEM_DSB;
+		printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", demod.suppressed_carrier);		
+		break;
+	default:
+		printf("Mode not correct\n");		
+		return;
+	}
+	create_am_thread(&demod);
+}
 	

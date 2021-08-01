@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "SoftFM.h"
+#include "sdrberry.h"
 #include "Filter.h"
 #include "DataBuffer.h"
 #include "AudioOutput.h"
@@ -260,6 +260,9 @@ private:
 	    bool                got_stereo = false;
 };
 
-void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool stereo, double bandwidth_pcm, unsigned int downsample, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_outputint);
+extern pthread_t fm_thread;
+
+void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+void start_fm(double ifrate, double tuner_offset, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 
 #endif

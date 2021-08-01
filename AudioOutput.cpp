@@ -31,7 +31,7 @@
 
 #include <alsa/asoundlib.h>
 
-#include "SoftFM.h"
+#include "sdrberry.h"
 #include "AudioOutput.h"
 
 using namespace std;

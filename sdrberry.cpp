@@ -161,8 +161,8 @@ int main(int argc, char *argv[])
 	label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
-	//if (Settings_file.get_mac_address() != String(""))
-	//	Ble_instance.setup_ble(Settings_file.get_mac_address());
+	if (Settings_file.get_mac_address() != String(""))
+		Ble_instance.setup_ble(Settings_file.get_mac_address());
 		
 	String s = Settings_file.find_audio("device");
 	

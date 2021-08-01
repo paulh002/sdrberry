@@ -1,0 +1,2 @@
+Simple ESP32 BLE server getting input from encoders.
+This need to be further developed

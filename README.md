@@ -1,13 +1,13 @@
 # sdrberry
-Raspberry pi SDR receiver using lvgl gui
+Raspberry pi SDR receiver/ fronted using lvgl gui
 !!! This is an ongoing project code only for information purpose only. 
 The main goal for this project is to learn about c++ programming, liquid dsp, and for most the use of the GUI toolkit LVGL v8
 Functionalit is in beta currently
 
 This source code is still in development.  
-Also it should support other SDR receivers like RadioBerry / Hermes light2
+Goal is to support Adalm pluto SDR and Radioberry SDR but it should also support other SDR receivers based on SoapySDR.
 Also the goal is to support optical encoder and support I2C / serial interface for bandpass filtering
-Currently it also supports basic BLE as controler input. I use a ESP32 as BLE server suppling optical encoder support
+Currently it also supports basic BLE as controler input. I use a ESP32 as BLE server with a service for an optical encoder.
 
 To install you need to configure rasberry pi OS in text only mode, (switch of the GUI)
 Compiled using VisualGDB
@@ -18,8 +18,10 @@ ToDo:
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
+- Radioberry support
 
 Done:
+- Adalm Pluto
 - FM broadband
 - SSB support
 - Basic BLE support

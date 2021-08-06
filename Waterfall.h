@@ -9,6 +9,7 @@
 #include <mutex>
 #include <condition_variable>
 #include "lvgl/lvgl.h"
+#include "sdrberry.h"
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -17,7 +18,7 @@ extern const int topHeight;
 extern const int tunerHeight;
 extern const int rightWidth;
 
-const int nfft_samples	{4096};
+const int nfft_samples	{1024};
 
 class Waterfall
 {
@@ -35,8 +36,8 @@ private:
 class Fft_calculator
 {
 public:	
-	void	process_samples();
-	void	plan_fft(float *f_in);
+	void	process_samples(IQSampleVector	input);
+	void	plan_fft(int size);
 	void	upload_fft(std::vector<lv_coord_t>&	data_set);
 	void	set_signal_strength(double strength);
 	double	get_signal_strength();
@@ -46,13 +47,13 @@ public:
 private:
 	const int					type = LIQUID_FFT_FORWARD; 
 	int							flags = 0;                     // FFT flags (typically ignored)
-	const unsigned int			nfft = nfft_samples;    // transform size
+	int							nfft = 0;    // transform size
 	std::vector<std::complex<float>> fft_output;
 	fftplan						plan;
-	liquid_float_complex		*p_in, *p_out;
 	std::mutex					m_mutex;
 	std::condition_variable		m_cond;
 	double						signal_strength {0};
+	IQSampleVector				m_input;
 	
 };
 

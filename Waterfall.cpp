@@ -8,13 +8,13 @@
 #include <mutex>
 #include <condition_variable>
 #include "Waterfall.h"
+#include "sdrberry.h"
 
 Fft_calculator	Fft_calc;
 
 Fft_calculator::Fft_calculator()
 {
-	p_in = nullptr;
-	p_out = nullptr;
+
 }
 
 Fft_calculator::~Fft_calculator()
@@ -22,18 +22,24 @@ Fft_calculator::~Fft_calculator()
 	fft_destroy_plan(plan);
 }
 
-void	Fft_calculator::process_samples()
+void	Fft_calculator::process_samples(IQSampleVector	input)
 {
-	std::unique_lock<std::mutex> lock(m_mutex); 
-	fft_execute(plan);
+	m_input.insert(m_input.end(), input.begin(), input.end());
+	if (m_input.size() >= nfft)
+	{
+		std::unique_lock<std::mutex> lock(m_mutex); 
+		plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
+		fft_execute(plan);
+		m_input.clear();
+	}
 }
 
-void	Fft_calculator::plan_fft(float *f_in)
+void	Fft_calculator::plan_fft(int size)
 {
+	nfft = size;
 	fft_output.reserve(nfft); 
-	p_out = (liquid_float_complex *)fft_output.data();
-	p_in = (liquid_float_complex *)f_in;
-	plan = fft_create_plan(nfft, p_in, p_out, type, flags);
+	m_input.reserve(nfft);
+	plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
 	fft_output.resize(nfft); 
 }
 

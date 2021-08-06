@@ -11,6 +11,7 @@ Currently it also supports basic BLE as controler input. I use a ESP32 as BLE se
 
 To install you need to configure rasberry pi OS in text only mode, (switch of the GUI)
 Compiled using VisualGDB
+copy the cfg file (in install directory) to the home dir of the application
 
 ToDo:
 - Transmitter part

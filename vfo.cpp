@@ -32,7 +32,7 @@ struct vfo_settings_struct	vfo_setting;
 void vfo_init(long long freq)
 {
 	memset(&vfo_setting, 0, sizeof(struct vfo_settings_struct));
-	vfo_setting.frq_step = 1000;
+	vfo_setting.frq_step = 10;
 	vfo_setting.vfo_freq1 = freq;
 	gui_vfo_inst.set_vfo_gui(0, freq);
 }
@@ -49,13 +49,13 @@ void set_vfo(int vfo, int band, long long freq)
 {
 	if (vfo)
 	{
-		vfo_setting.band[0] = band;
+		vfo_setting.band[1] = band;
 		vfo_setting.vfo_freq1 = freq;
 		vfo_setting.active_vfo = 1;
 	}
 	else
 	{
-		vfo_setting.band[1] = band;
+		vfo_setting.band[0] = band;
 		vfo_setting.vfo_freq2 = freq;				
 		vfo_setting.active_vfo = 0;
 	}

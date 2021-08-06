@@ -23,7 +23,11 @@ extern std::mutex	am_finish;
 extern std::mutex	fm_finish;
 extern std::mutex	stream_finish;
 
-
+//double	freq = 89950000;
+extern double	tuner_freq;
+extern double	tuner_offset;
+extern double   ifrate;
+	
 /** Compute mean and RMS over a sample vector. */
 inline void samples_mean_rms(const SampleVector& samples,
                              double& mean, double& rms)

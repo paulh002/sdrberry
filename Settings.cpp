@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include "wstring.h"
 #include "Settings.h"
@@ -94,6 +95,12 @@ void Settings::read_settings(String settings_file)
 		//cout << "Option name: " << option.first << endl;
 		audio.insert(pair<string, string>(option.first, option.second));
 	}
+	for (auto& option : config->getSection("samplerate"))
+	{
+		//cout << "Option name: " << option.first << endl;
+		samplerate.insert(pair<string, string>(option.first, option.second));
+	}
+	
 	config->useSection("bands");
 	
 	for (auto& col : (*config)("meters"))
@@ -162,3 +169,36 @@ String Settings::find_probe(string key)
 		return String("");
 }
 
+long long Settings::find_vfo1_freq(string key)
+{
+	if (vfo1.find(key) != vfo1.end())
+	{
+		auto s = vfo1.find(key);
+		return strtoll((const char *)s->second.c_str(),NULL,0);
+	}
+	else 
+		return 0LL;
+}
+
+String Settings::find_vfo1(string key)
+{
+	if (vfo1.find(key) != vfo1.end())
+	{
+		auto s = vfo1.find(key);
+		return String((char *)s->second.c_str());
+	}
+	else 
+		return String("");
+}
+
+double Settings::find_samplerate(string key)
+{
+	if (samplerate.find(key) != samplerate.end())
+	{
+		auto s = samplerate.find(key);
+		long l= atol((const char *)s->second.c_str());
+		return (double) l * 1000.0;
+	}
+	else 
+		return 0LL;
+}

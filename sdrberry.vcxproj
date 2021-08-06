@@ -33,9 +33,10 @@
     <GNUToolchainPrefix />
     <GNUCompilerType>GCC</GNUCompilerType>
     <RemoteBuildTool>Ninja</RemoteBuildTool>
+    <EnableAddressSanitizer>false</EnableAddressSanitizer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
-    <RemoteBuildHost>192.168.89.254</RemoteBuildHost>
+    <RemoteBuildHost>192.168.89.252</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -45,14 +46,17 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DEBUG=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
       <CPPLanguageStandard />
+      <EnableAddressSanitizer>false</EnableAddressSanitizer>
+      <DumpStackUsage>
+      </DumpStackUsage>
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>atomic;SoapySDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -60,14 +64,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;api;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
       <CPPLanguageStandard />
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
@@ -111,6 +115,8 @@
     <ClCompile Include="lv_drivers\indev\mouse.c" />
     <ClCompile Include="lv_drivers\indev\mousewheel.c" />
     <ClCompile Include="lv_drivers\indev\XPT2046.c" />
+    <ClCompile Include="MidiControle.cpp" />
+    <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
     <ClCompile Include="lvgl\src\core\lv_disp.c" />
     <ClCompile Include="lvgl\src\core\lv_event.c" />
@@ -391,6 +397,8 @@
     <ClInclude Include="lv_drivers\indev\mousewheel.h" />
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
     <ClInclude Include="lv_drv_conf.h" />
+    <ClInclude Include="MidiControle.h" />
+    <ClInclude Include="RtMidi.h" />
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Setup.h" />

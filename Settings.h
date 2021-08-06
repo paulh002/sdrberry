@@ -20,6 +20,9 @@ public:
 	String find_radio(string key);
 	String find_probe(string key);
 	String find_sdr(string key);
+	long long find_vfo1_freq(string key);
+	String	find_vfo1(string key);
+	double	find_samplerate(string key);
 	
 	vector<int>				meters;
 	vector<string>			labels;
@@ -36,10 +39,7 @@ private:
 	map<string, string>		vfo1;
 	map<string, string>		vfo2;
 	map<string, string>		audio;
-	
-
-	
-	
+	map<string, string>		samplerate;
 };
 
 

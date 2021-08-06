@@ -489,6 +489,7 @@ void* rx_fm_thread(void* fm_ptr)
 	bool                    inbuf_length_warning = false;
 	
 	unique_lock<mutex> lock_fm(fm_finish); 
+	Fft_calc.plan_fft(min(1024, (int)(ifrate / 100.0)));
 	while (!stop_flag.load())
 	{
 		
@@ -509,17 +510,15 @@ void* rx_fm_thread(void* fm_ptr)
 			usleep(5000);
 			continue;
 		}
-		
 		if (iqsamples.size() >= nfft_samples && fft_block == 5)
 		{
-			fft_block = 0;
-			Fft_calc.plan_fft((float *)iqsamples.data());
-			Fft_calc.process_samples();
+			fft_block = 0;			
+			Fft_calc.process_samples(iqsamples);
 			Fft_calc.set_signal_strength(Fm_executer.fm->get_if_level()); 
 		}
-		fft_block++;
+		fft_block++;			
+		
 		Fm_executer.fm->process(iqsamples, Fm_executer.m_audiosamples);
-
 		// Measure audio level.
 		samples_mean_rms(Fm_executer.m_audiosamples, Fm_executer.m_audio_mean, Fm_executer.m_audio_rms);
 		Fm_executer.m_audio_level = 0.95 * Fm_executer.m_audio_level + 0.05 * Fm_executer.m_audio_rms;

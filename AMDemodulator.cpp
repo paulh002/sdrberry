@@ -36,19 +36,31 @@ static IQSample::value_type rms_level_approx(const IQSampleVector& samples)
 void	AMDemodulator::init(demod_struct * ptr)
 {
 	float	As = 60.0f;      // resampling filter stop-band attenuation [dB]
-	float	mod_index  = 0.5f; 
+	float	mod_index  = 0.8f; 
 	float	r = (float)ptr->pcmrate / (float)ptr->ifrate; 
 	
 	// resampler and band filter
-	//float rate = (float)downsample / ifrate;
-	//m_q = resamp_crcf_create(rate, h_len, bw, slsl, npfb);
 	m_source_buffer = ptr->source_buffer;
-	m_q = msresamp_crcf_create(r, As);
-	msresamp_crcf_print(m_q);	
+	if (r < 0.5)
+	{
+		printf("resample rate %f \n", r);
+		m_bresample = true;
+		m_q = msresamp_crcf_create(r, As);
+		msresamp_crcf_print(m_q);			
+	}
 	m_demod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
 	
-	m_lowpass = iirfilt_crcf_create_lowpass(6, 0.25);
+	m_lowpass = iirfilt_crcf_create_lowpass(6, 0.0625);
 	m_init = true;
+}
+
+void AMDemodulator::adjust_gain(IQSampleVector& samples_in, float vol)
+{
+	for (auto& col : samples_in)
+	{
+		col.real(col.real() * vol);
+		col.imag(col.imag() * vol);
+	}
 }
 
 AMDemodulator::~AMDemodulator()
@@ -65,9 +77,9 @@ void	AMDemodulator::set_filter(long long frequency, int band_width)
 {
 }
 
-void	AMDemodulator::calc_if_level()
+void	AMDemodulator::calc_if_level(const IQSampleVector& samples_in)
 {
-	double if_rms = rms_level_approx(m_buf_iffiltered);
+	double if_rms = rms_level_approx(samples_in);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
 }
 
@@ -84,7 +96,7 @@ void AMDemodulator::mono_to_left_right(const SampleVector& samples_mono,
 	}
 }
 
-void	AMDemodulator::process(const IQSampleVector& samples_in, SampleVector& audio)
+void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
 {
 	unsigned int			num_written;
 	SampleVector			audio_tmp, audio_mono;
@@ -93,25 +105,32 @@ void	AMDemodulator::process(const IQSampleVector& samples_in, SampleVector& audi
 	
 	// Downsample to pcmrate (pcmrate will be 44100 or 48000)
 	m_buf_iffiltered.reserve(samples_in.size());
-	msresamp_crcf_execute(m_q, (complex<float> *)samples_in.data(), samples_in.size(), (complex<float> *)m_buf_iffiltered.data(), &num_written);
-	m_buf_iffiltered.resize(num_written);
-	calc_if_level();
+	if (m_bresample)
+	{
+		msresamp_crcf_execute(m_q, (complex<float> *)samples_in.data(), samples_in.size(), (complex<float> *)m_buf_iffiltered.data(), &num_written);
+		m_buf_iffiltered.resize(num_written);
+	}
+	else
+		m_buf_iffiltered.insert(m_buf_iffiltered.begin(), samples_in.begin(), samples_in.end());
 	
 	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
-	for(auto& col : m_buf_iffiltered)
+    for(auto& col : m_buf_iffiltered)
 	{
 		complex<float> v;
 		iirfilt_crcf_execute(m_lowpass, col, &v);
 		filter.insert(filter.end(), v);
 	}
-	
-	for (auto& col : filter)
+	calc_if_level(filter);
+	    
+	for (auto& col : filter)  
 	{
 		float z {0};
 		ampmodem_demodulate(get_am_demod(), (liquid_float_complex)col, &z);
 		audio_mono.insert(audio_mono.end(), z);
 	}
 	mono_to_left_right(audio_mono, audio);
+	m_buf_iffiltered.clear();
+	filter.clear();
 }
 
 pthread_t		am_thread;
@@ -133,6 +152,7 @@ void* am_demod_thread(void* ptr)
 	
 	unique_lock<mutex> lock(am_finish); 
 	ammod.init(demod_ptr);
+	Fft_calc.plan_fft(512); //
 	while (!stop_flag.load())
 	{
 		if (!inbuf_length_warning && ammod.m_source_buffer->queued_samples() > 10 * 530000) {
@@ -152,15 +172,9 @@ void* am_demod_thread(void* ptr)
 			usleep(5000);
 			continue;
 		}
-		
-		if (iqsamples.size() >= nfft_samples && fft_block == 5)
-		{
-			fft_block = 0;
-			Fft_calc.plan_fft((float *)iqsamples.data());
-			Fft_calc.process_samples();
-			Fft_calc.set_signal_strength(ammod.get_if_level()); 
-		}
-		fft_block++;
+		//ammod.adjust_gain(iqsamples, 1024.0);
+		Fft_calc.process_samples(iqsamples);
+		Fft_calc.set_signal_strength(ammod.get_if_level()); 
 		
 //process
 		ammod.process(iqsamples, audiosamples);

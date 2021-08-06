@@ -233,6 +233,12 @@
     <Filter Include="Source files\config">
       <UniqueIdentifier>{74d705ac-6871-4c65-b88a-523ed0063430}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header files\RtMidi">
+      <UniqueIdentifier>{d951d323-2251-4656-9099-5428645484b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Rtmidi">
+      <UniqueIdentifier>{923ae729-c448-4e88-9e2f-b097ddf98181}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdrberry.cpp">
@@ -1057,6 +1063,12 @@
     <ClCompile Include="StartTx.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="RtMidi.cpp">
+      <Filter>Source files\Rtmidi</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiControle.cpp">
+      <Filter>Source files\Rtmidi</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1246,6 +1258,12 @@
     </ClInclude>
     <ClInclude Include="StartTx.h">
       <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="RtMidi.h">
+      <Filter>Header files\RtMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="MidiControle.h">
+      <Filter>Header files\RtMidi</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

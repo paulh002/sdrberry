@@ -38,10 +38,11 @@ public:
 	{
 		return m_if_level;
 	}
-	void	calc_if_level();
+	void	calc_if_level(const IQSampleVector& samples_in);
 	void	process(const IQSampleVector& samples_in, SampleVector& audio);
 	~AMDemodulator();
 	void	mono_to_left_right(const SampleVector& samples_mono, SampleVector& audio);
+	void	adjust_gain(IQSampleVector& samples_in, float vol);
 	
 	ampmodem	get_am_demod()
 	{
@@ -54,6 +55,7 @@ public:
 
 private:	
 	bool						m_init = false;
+	bool						m_bresample = false;
 	ampmodem					m_demod {0};
 	msresamp_crcf 				m_q {0};
 	iirfilt_crcf				m_lowpass {0};

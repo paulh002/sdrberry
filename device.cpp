@@ -99,7 +99,7 @@ static int probeDevice(const std::string &argStr)
 int discover_devices(String driver)
 {	int i;
 	
-	findDevices();
+	//findDevices();
 	SoapySDR_setLogLevel(SOAPY_SDR_DEBUG);
 	
 	i =  probeDevice((char *)driver.c_str());

@@ -31,6 +31,8 @@
 #include "Waterfall.h"
 #include "AMDemodulator.h"
 #include "sdrberry.h"
+#include "MidiControle.h"
+
 
 AudioOutput *audio_output;
 DataBuffer<IQSample> source_buffer;
@@ -55,7 +57,7 @@ const int rightWidth = 200;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 
-int mode = mode_broadband_fm;
+
 
 lv_obj_t* scr;
 lv_obj_t* bg_middle;
@@ -70,16 +72,19 @@ using namespace std;
 atomic_bool stop_flag(false);
 std::mutex gui_mutex;
 
+int mode = mode_broadband_fm;
 double  ifrate  = 0.53e6;  //1.0e6;//
 bool    stereo  = true;
 int     pcmrate = 48000;
-double	freq = 89950000;
+double	freq = 89800000;
 double	tuner_freq = freq + 0.25 * ifrate;
 double	tuner_offset = freq - tuner_freq;
 
 mutex	am_finish;
 mutex	fm_finish;
 mutex	stream_finish;
+
+MidiControle	*midicontrole = nullptr;
 
 int main(int argc, char *argv[])
 {
@@ -175,11 +180,40 @@ int main(int argc, char *argv[])
 	}
 	audio_output->set_volume(50);
 	
+	String smode = Settings_file.find_vfo1("Mode");
+	smode.toUpperCase();
+	if (smode == "FM")
+		mode = mode_broadband_fm;
+	if (smode == "LSB")
+		mode = mode_lsb;
+	if (smode == "USB")
+		mode = mode_usb;
+	if (smode == "DSB")
+		mode = mode_dsb;
+	if (smode == "AM")
+		mode = mode_am;
+	if (smode == "CW")
+		mode = mode_cw;
+	
+		
+	freq = Settings_file.find_vfo1_freq("freq");
 	vfo_init((unsigned long)freq);
 	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
 	String default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
+	
+	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
+	printf("samperate %f \n", ifrate);
+		
+	midicontrole = new(MidiControle);
+	if (midicontrole)
+	{
+		int ports = midicontrole->check_midi_input();
+		if (ports > 1)
+			midicontrole->openport(1);
+	}
+	
 	if (discover_devices(Settings_file.find_probe((char *)default_radio.c_str())) == EXIT_SUCCESS)
 	{	
 		soapy_devices[0].rx_channel = 0;
@@ -202,6 +236,8 @@ int main(int argc, char *argv[])
 			 start_fm(ifrate, tuner_offset, pcmrate, true, &source_buffer, audio_output);
 			 break;
 		
+		case mode_am:
+		case mode_dsb:
 		case mode_usb:
 		case mode_lsb:
 			start_dsb(mode, ifrate, pcmrate, &source_buffer, audio_output);
@@ -210,8 +246,11 @@ int main(int argc, char *argv[])
 		set_vol_slider(100);		
 		// STart streaming
 		create_rx_streaming_thread(&soapy_devices[0]);
-		double gain = soapy_devices[0].sdr->getGain(SOAPY_SDR_RX, 0);
+		//double gain = soapy_devices[0].sdr->getGain(SOAPY_SDR_RX, 0);
+		double gain = 88.0;
+		soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, gain);
 		set_gain_slider((int)gain);	
+		set_vfo(0, 11, freq);
 	}
 	else
 	{
@@ -235,9 +274,15 @@ int main(int argc, char *argv[])
 			double s = Fft_calc.get_signal_strength();
 			set_s_meter(s);
 		}
+		
+		if (midicontrole)
+			midicontrole->read_midi_input();
+		
 		usleep(5000);
 	}
 	delete audio_output;
+	if (midicontrole)
+		delete midicontrole;
 	return 0;
 }
 

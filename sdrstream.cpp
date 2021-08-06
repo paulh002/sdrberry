@@ -39,7 +39,7 @@ void* rx_streaming_thread(void* psdr_dev)
 	
 	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
 	int ret;
-	
+
 	try 
 	{
 		rx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
@@ -55,6 +55,7 @@ void* rx_streaming_thread(void* psdr_dev)
 		pthread_exit(NULL);
 	}
 	size_t mtu = sdr_dev->sdr->getStreamMTU(rx_stream);
+	printf("mtu %d\n", mtu);
 	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
 	while (!stop_flag.load())
 	{
@@ -62,7 +63,7 @@ void* rx_streaming_thread(void* psdr_dev)
 		unsigned int				underflows(0); 
 		int							flags(0); 
 		long long					time_ns(0);
-		vector<complex<float>>		buf(mtu);
+		vector<complex<float>>		buf(default_block_length);
 		
 		void *buffs[] = { buf.data() };
 		ret = sdr_dev->sdr->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
@@ -84,6 +85,10 @@ void* rx_streaming_thread(void* psdr_dev)
 		}
 		if (ret > 0)
 		{
+			if (buf[0].imag() < 0.00000000001 &&  buf[0].imag() > -0.00000000001)
+				{
+				printf("samples %d %f %f \n", ret, buf[0].real() , buf[0].imag() );
+				}
 			buf.resize(ret);
 			sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));	
 		}
@@ -113,8 +118,6 @@ void* rx_streaming_thread(void* psdr_dev)
 			if (underflows != 0) printf("\tUnderflows %u", underflows);
 			printf("\n ");
 		}
-
-
 	}
 	sdr_dev->channel_structure_rx[0].source_buffer->push_end();
 	sdr_dev->sdr->deactivateStream(rx_stream);
@@ -129,7 +132,10 @@ int create_rx_streaming_thread(struct device_structure *sdr_dev)
 
 void stream_rx_set_frequency(struct device_structure *sdr_dev,unsigned long freq)
 {
+	tuner_freq = freq + 0.5 * ifrate;
+	tuner_offset = freq - tuner_freq; 
 	if (sdr_dev->sdr != NULL)
-		sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, freq);		
+	{
+		sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, tuner_freq);		
+	}
 }
-

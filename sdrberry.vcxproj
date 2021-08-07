@@ -27,7 +27,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <GNUConfigurationType>Debug</GNUConfigurationType>
-    <RemoteBuildHost>192.168.89.254</RemoteBuildHost>
+    <RemoteBuildHost>192.168.89.252</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />

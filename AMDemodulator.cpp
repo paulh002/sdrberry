@@ -68,7 +68,8 @@ AMDemodulator::~AMDemodulator()
 	if (m_init)
 	{
 		ampmodem_destroy(m_demod);
-		msresamp_crcf_destroy(m_q);
+		if (m_q)
+			msresamp_crcf_destroy(m_q);
 		iirfilt_crcf_destroy(m_lowpass);		
 	}
 }

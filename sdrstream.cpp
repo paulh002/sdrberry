@@ -85,10 +85,10 @@ void* rx_streaming_thread(void* psdr_dev)
 		}
 		if (ret > 0)
 		{
-			if (buf[0].imag() < 0.00000000001 &&  buf[0].imag() > -0.00000000001)
-				{
-				printf("samples %d %f %f \n", ret, buf[0].real() , buf[0].imag() );
-				}
+			//if (buf[0].imag() < 0.00000000001 &&  buf[0].imag() > -0.00000000001)
+			//	{
+			//	printf("samples %d %f %f \n", ret, buf[0].real() , buf[0].imag() );
+			//	}
 			buf.resize(ret);
 			sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));	
 		}

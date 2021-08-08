@@ -5,8 +5,7 @@
 
 struct vfo_settings_struct
 {
-	long long			vfo_freq1;
-	long long			vfo_freq2;
+	long long			vfo_freq[2];
 	long long			vfo_low;
 	long long			vfo_high;
 	int					mode[2];

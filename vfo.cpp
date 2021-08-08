@@ -33,7 +33,7 @@ void vfo_init(long long freq)
 {
 	memset(&vfo_setting, 0, sizeof(struct vfo_settings_struct));
 	vfo_setting.frq_step = 10;
-	vfo_setting.vfo_freq1 = freq;
+	vfo_setting.vfo_freq[0] = freq;
 	gui_vfo_inst.set_vfo_gui(0, freq);
 }
 
@@ -50,13 +50,13 @@ void set_vfo(int vfo, int band, long long freq)
 	if (vfo)
 	{
 		vfo_setting.band[1] = band;
-		vfo_setting.vfo_freq1 = freq;
+		vfo_setting.vfo_freq[1] = freq;
 		vfo_setting.active_vfo = 1;
 	}
 	else
 	{
 		vfo_setting.band[0] = band;
-		vfo_setting.vfo_freq2 = freq;				
+		vfo_setting.vfo_freq[0] = freq;				
 		vfo_setting.active_vfo = 0;
 	}
 	stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
@@ -69,15 +69,17 @@ void step_vfo(int vfo, int icount)
 	if (vfo)
 	{
 		//vfo_setting.band[0] = band;
-		vfo_setting.vfo_freq2 += (vfo_setting.frq_step * icount);		
-		freq = vfo_setting.vfo_freq2;
+		vfo_setting.vfo_freq[1] += (vfo_setting.frq_step * icount);		
+		freq = vfo_setting.vfo_freq[1];
 	}
 	else
 	{
 		//vfo_setting.band[1] = band;
-		vfo_setting.vfo_freq1 += (vfo_setting.frq_step * icount);	
-		freq = vfo_setting.vfo_freq1;
+		vfo_setting.vfo_freq[0] += (vfo_setting.frq_step * icount);	
+		freq = vfo_setting.vfo_freq[0];
 	}
+	if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
+		return;	
 	if (vfo_setting.sdr_dev != NULL)
 		stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
 	gui_vfo_inst.set_vfo_gui(vfo, freq);
@@ -85,10 +87,7 @@ void step_vfo(int vfo, int icount)
 
 long get_active_vfo()
 {
-	if (vfo_setting.active_vfo)
-		return vfo_setting.vfo_freq2;
-	else
-		return vfo_setting.vfo_freq1;		
+	return vfo_setting.vfo_freq[vfo_setting.active_vfo];
 }
 
 std::string get_vfo_str(int vfo)
@@ -96,11 +95,7 @@ std::string get_vfo_str(int vfo)
 	char	str[20];
 	long	freq;
 	
-	if (vfo)
-		freq = vfo_setting.vfo_freq2;
-	else
-		freq = vfo_setting.vfo_freq1;
-	
+	freq = vfo_setting.vfo_freq[vfo];
 	if (freq > 10000000LU)
 	{
 		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));

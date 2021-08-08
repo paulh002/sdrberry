@@ -18,7 +18,7 @@
 
 
 LV_FONT_DECLARE(FreeSansOblique42);
-LV_FONT_DECLARE(FreeSansOblique32);
+LV_FONT_DECLARE(FreeSans42);
 
 Keyboard	keyb;
 
@@ -38,17 +38,28 @@ static void remove_aplha(char *p, char *s)
 
 
 static void ta_event_cb(lv_event_t * e)
-{
+{	long long freq;
+	
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t * ta = (lv_obj_t *)lv_event_get_target(e);
 	lv_obj_t * kb = (lv_obj_t *)lv_event_get_user_data(e);
+	
 	if (code == LV_EVENT_READY) {
 		char	str[80];
 		char *ptr = (char *)lv_textarea_get_text(ta);
 		
 		memset(str, 0, 80*sizeof(char));
-		remove_aplha(ptr, str);
-		long long freq = atoll(str);
+		if (ptr[0] == '+' || ptr[0] == '-')
+		{
+			remove_aplha(ptr, str);
+			freq = atoll(str) * vfo_setting.frq_step;
+			freq = vfo_setting.vfo_freq[vfo_setting.active_vfo] + freq;
+		}
+		if (isdigit(ptr[0]))
+		{
+			remove_aplha(ptr, str);
+			freq = atoll(str);	
+		}
 		if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
 			return;
 		set_vfo(vfo_setting.active_vfo, vfo_setting.band[vfo_setting.active_vfo], freq);
@@ -57,7 +68,27 @@ static void ta_event_cb(lv_event_t * e)
 	}
 }
 
-
+static void kb_event_cb(lv_event_t * e)
+{
+	long long freq;
+	
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t * kb = (lv_obj_t *)lv_event_get_target(e);
+		
+	if (code == LV_EVENT_VALUE_CHANGED) {
+		uint16_t btn_id   = lv_btnmatrix_get_selected_btn(kb);
+		if (btn_id == 15) //'>'
+		{
+			step_vfo(vfo_setting.active_vfo, 1);
+		}
+		
+		if (btn_id == 16) //'<'
+		{
+			step_vfo(vfo_setting.active_vfo, -1);
+		}
+		return;
+	}
+}
 	
 void Keyboard::init_keyboard(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 {
@@ -68,7 +99,7 @@ void Keyboard::init_keyboard(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_style_set_bg_opa(&text_style, LV_OPA_COVER);
 	lv_style_set_bg_color(&text_style, lv_color_black());
 	lv_style_set_text_align(&text_style, LV_ALIGN_CENTER);
-	lv_style_set_text_font(&text_style, &FreeSansOblique42);
+	lv_style_set_text_font(&text_style, &FreeSans42);
 	
 	
 	
@@ -76,6 +107,7 @@ void Keyboard::init_keyboard(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_t *kb = lv_keyboard_create(o_tab);
 	lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_NUMBER);
 	lv_obj_set_size(kb, w - 40, h - 150);
+	lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL, NULL);
 	
 	/*Create a text area. The keyboard will write here*/
 	lv_obj_t * ta;

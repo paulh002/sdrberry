@@ -118,7 +118,7 @@ sudo apt upgrade
 
 
 // soundcard
-
+sudo apt-get remove pulseaudio
 sudo nano /usr/share/alsa/alsa.conf
 # then replace:
 #defaults.ctl.card 0
@@ -141,4 +141,9 @@ ctl.!default {
 }
 EOF
 
+
+// blinking add in file:
+/etc/default/keyboard
+BLANK_TIME=0
+POWERDOWN_TIME=0
 

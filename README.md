@@ -18,10 +18,10 @@ ToDo:
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
-- Radioberry support
 
 Done:
 - Adalm Pluto
+- Radioberry support
 - FM broadband
 - SSB support
 - Basic BLE support

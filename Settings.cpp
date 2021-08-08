@@ -202,3 +202,26 @@ double Settings::find_samplerate(string key)
 	else 
 		return 0LL;
 }
+
+
+int Settings::volume()
+{
+	if (radio.find("volume") != radio.end())
+	{
+		auto s = radio.find("volume");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+int Settings::gain()
+{
+	if (radio.find("gain") != radio.end())
+	{
+		auto s = radio.find("gain");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}

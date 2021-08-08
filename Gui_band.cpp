@@ -143,7 +143,7 @@ void band_button(lv_event_t * e)
 	{
 		int index  = getIndex(Settings_file.meters, i);		
 		long f_low = Settings_file.f_low.at(index);
-		set_vfo(0, index, f_low);
+		vfo.set_band(index, f_low);
 	}
 	
 }

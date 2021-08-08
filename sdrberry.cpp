@@ -77,8 +77,8 @@ double  ifrate  = 0.53e6;  //1.0e6;//
 bool    stereo  = true;
 int     pcmrate = 48000;
 double	freq = 89800000;
-double	tuner_freq = freq + 0.25 * ifrate;
-double	tuner_offset = freq - tuner_freq;
+//double	tuner_freq = freq + 0.25 * ifrate;
+//double	tuner_offset = freq - tuner_freq;
 
 mutex	am_finish;
 mutex	fm_finish;
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 	
 		
 	freq = Settings_file.find_vfo1_freq("freq");
-	vfo_init((unsigned long)freq);
+	vfo.vfo_init((long long)freq);
 	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
 	String default_radio = Settings_file.find_sdr("default");
@@ -222,10 +222,10 @@ int main(int argc, char *argv[])
 		String stop_freq = String(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum() / 1.0e6);
 		String s = String(soapy_devices[0].driver.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
-		set_vfo_capability(&soapy_devices[0]);
-		set_vfo(0, 11, freq);
-		vfo_setting.vfo_low = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum();
-		vfo_setting.vfo_high = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum();
+		vfo.set_vfo_capability(&soapy_devices[0]);
+		vfo.set_vfo(freq);
+		vfo.set_vfo_range(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum(),
+			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
 			
 		
 		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer;
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 		switch (mode)
 		{
 		case mode_broadband_fm:
-			 start_fm(ifrate, tuner_offset, pcmrate, true, &source_buffer, audio_output);
+			 start_fm(ifrate, pcmrate, true, &source_buffer, audio_output);
 			 break;
 		
 		case mode_am:
@@ -243,14 +243,12 @@ int main(int argc, char *argv[])
 			start_dsb(mode, ifrate, pcmrate, &source_buffer, audio_output);
 			break;
 		}
-		set_vol_slider(100);		
+		set_vol_slider(Settings_file.volume());		
 		// STart streaming
 		create_rx_streaming_thread(&soapy_devices[0]);
 		//double gain = soapy_devices[0].sdr->getGain(SOAPY_SDR_RX, 0);
-		double gain = 88.0;
-		soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, gain);
-		set_gain_slider((int)gain);	
-		set_vfo(0, 11, freq);
+		set_gain_slider(Settings_file.volume());	
+		vfo.set_vfo(freq);
 	}
 	else
 	{
@@ -324,7 +322,7 @@ void select_mode(int s_mode)
 	switch (mode)
 	{
 	case mode_broadband_fm:
-		start_fm(ifrate, tuner_offset, pcmrate, true, &source_buffer, audio_output);
+		start_fm(ifrate, pcmrate, true, &source_buffer, audio_output);
 		break;
 		
 	case mode_am:

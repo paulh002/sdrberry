@@ -12,7 +12,7 @@
 #include "AMDemodulator.h"
 #include "Waterfall.h"
 #include "sdrberry.h"
-
+#include "vfo.h"
 
 void* am_demod_thread(void* ptr);
 /** Compute RMS level over a small prefix of the specified sample vector. */
@@ -152,6 +152,7 @@ void* am_demod_thread(void* ptr)
 	AMDemodulator			ammod;
 	
 	unique_lock<mutex> lock(am_finish); 
+	vfo.set_tuner_offset(0);
 	ammod.init(demod_ptr);
 	Fft_calc.plan_fft(512); //
 	while (!stop_flag.load())
@@ -173,13 +174,11 @@ void* am_demod_thread(void* ptr)
 			usleep(5000);
 			continue;
 		}
-		//ammod.adjust_gain(iqsamples, 1024.0);
 		Fft_calc.process_samples(iqsamples);
 		Fft_calc.set_signal_strength(ammod.get_if_level()); 
 		
 //process
 		ammod.process(iqsamples, audiosamples);
-		//printf("audiosample %d\n", audiosamples.size());
 		// Measure audio level.
 		samples_mean_rms(audiosamples, ammod.m_audio_mean, ammod.m_audio_rms);
 		ammod.m_audio_level = 0.95 * ammod.m_audio_level + 0.05 * ammod.m_audio_rms;

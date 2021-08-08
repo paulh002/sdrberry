@@ -42,7 +42,7 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 		memset(buf, 0, 80*sizeof(char));
 		strncpy(buf,(char *)data_c,size);
 		ii = atol((char *)data_c);
-		step_vfo(0, (int)ii);
+		vfo.step_vfo(ii);
 	}
 }
 

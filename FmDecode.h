@@ -263,6 +263,6 @@ private:
 extern pthread_t fm_thread;
 
 void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-void start_fm(double ifrate, double tuner_offset, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 
 #endif

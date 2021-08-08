@@ -205,6 +205,7 @@ void set_gain_slider(int gain)
 	lv_snprintf(buf, sizeof(buf), "gain %d db", gain);
 	lv_label_set_text(gain_slider_label, buf);
 	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);		
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, (double)gain);
 }
 
 void hide_agc_slider(void)

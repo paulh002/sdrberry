@@ -52,17 +52,15 @@ static void ta_event_cb(lv_event_t * e)
 		if (ptr[0] == '+' || ptr[0] == '-')
 		{
 			remove_aplha(ptr, str);
-			freq = atoll(str) * vfo_setting.frq_step;
-			freq = vfo_setting.vfo_freq[vfo_setting.active_vfo] + freq;
+			vfo.step_vfo(atol(str));
 		}
 		if (isdigit(ptr[0]))
 		{
 			remove_aplha(ptr, str);
 			freq = atoll(str);	
 		}
-		if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
-			return;
-		set_vfo(vfo_setting.active_vfo, vfo_setting.band[vfo_setting.active_vfo], freq);
+		if (vfo.set_vfo(freq) != 0)
+			return ; // error
 		//sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 		lv_textarea_set_text(ta, "");
 	}
@@ -79,12 +77,12 @@ static void kb_event_cb(lv_event_t * e)
 		uint16_t btn_id   = lv_btnmatrix_get_selected_btn(kb);
 		if (btn_id == 15) //'>'
 		{
-			step_vfo(vfo_setting.active_vfo, 1);
+			vfo.step_vfo(1);
 		}
 		
 		if (btn_id == 16) //'<'
 		{
-			step_vfo(vfo_setting.active_vfo, -1);
+			vfo.step_vfo(-1);
 		}
 		return;
 	}
@@ -118,7 +116,7 @@ void Keyboard::init_keyboard(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_add_style(ta, &text_style, 0);
 	lv_textarea_set_one_line(ta, true);
 		
-	string s = get_vfo_str(vfo_setting.active_vfo);
+	string s = vfo.get_vfo_str();
 	lv_textarea_set_placeholder_text(ta, (char *)s.c_str());
 	lv_keyboard_set_textarea(kb, ta);
 	lv_obj_clear_flag(ta, LV_OBJ_FLAG_SCROLLABLE);

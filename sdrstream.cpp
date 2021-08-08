@@ -132,10 +132,8 @@ int create_rx_streaming_thread(struct device_structure *sdr_dev)
 
 void stream_rx_set_frequency(struct device_structure *sdr_dev,unsigned long freq)
 {
-	tuner_freq = freq + 0.5 * ifrate;
-	tuner_offset = freq - tuner_freq; 
 	if (sdr_dev->sdr != NULL)
 	{
-		sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, tuner_freq);		
+		sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, freq);		
 	}
 }

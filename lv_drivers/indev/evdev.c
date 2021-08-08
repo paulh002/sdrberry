@@ -54,10 +54,27 @@ int evdev_key_val;
  */
 void evdev_init(void)
 {
+	char str[2048];
+	int input_device = 0;
+	
+	// first check which device need to be opened.
+	memset(str, 0, 2048);
+	int fd = open(EVDEV_DEVICES, O_RDONLY);
+	if (read(fd, &str, 2047) > 0) 
+	{
+		char *ptr = strstr(str,"touchscreen/input/input1");
+		if (ptr)
+			input_device = 1;
+	}
+	fd = close(fd);
+	
 #if USE_BSD_EVDEV
     evdev_fd = open(EVDEV_NAME, O_RDWR | O_NOCTTY);
 #else
-    evdev_fd = open(EVDEV_NAME, O_RDWR | O_NOCTTY | O_NDELAY);
+	if (input_device == 0)    
+		evdev_fd = open(EVDEV_NAME, O_RDWR | O_NOCTTY | O_NDELAY);
+	else
+		evdev_fd = open(EVDEV_NAME1, O_RDWR | O_NOCTTY | O_NDELAY);
 #endif
     if(evdev_fd == -1) {
         perror("unable open evdev interface:");

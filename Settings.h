@@ -23,6 +23,8 @@ public:
 	long long find_vfo1_freq(string key);
 	String	find_vfo1(string key);
 	double	find_samplerate(string key);
+	int		volume();
+	int		gain();
 	
 	vector<int>				meters;
 	vector<string>			labels;

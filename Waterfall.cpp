@@ -71,7 +71,8 @@ void Waterfall::load_data()
 	if (i > 0)
 	{
 		lv_chart_set_point_count(chart, i);
-		lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());		
+		lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());	
+		lv_chart_refresh(chart);
 	}
 }
 
@@ -80,9 +81,19 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 	std::unique_lock<std::mutex> lock(m_mutex);
 	int i = 0;
 	data_set.resize(fft_output.size());
+	int start = fft_output.size() / 2;
+	
 	for (auto& col : fft_output)
 	{
-		data_set[i++] = (lv_coord_t)200 * log10((10.0 * sqrt(col.real() * col.real() + col.imag() * col.imag())));
+		if (i < start)
+		{
+			data_set[start +  i] = (lv_coord_t)200 * log10((10.0 * sqrt(col.real() * col.real() + col.imag() * col.imag())));
+		}
+		else
+		{
+			data_set[i - start] = (lv_coord_t)200 * log10((10.0 * sqrt(col.real() * col.real() + col.imag() * col.imag())));			
+		}
+		i++;
 		//printf("%d \n", data_set[i++]);
 	}
 }

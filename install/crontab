@@ -1,0 +1,1 @@
+@reboot sudo /home/pi/sdrstart.sh >sdrberry.log

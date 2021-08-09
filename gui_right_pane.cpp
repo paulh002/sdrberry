@@ -11,7 +11,7 @@ lv_obj_t*	bUsb, *bLsb, *bAM, *bFM, *bCW, *bFT8, *bg_right;
 lv_obj_t*	agc_slider, *agc_slider_label;
 lv_obj_t*	gain_slider, *gain_slider_label;
 lv_obj_t*	vol_slider, *vol_slider_label;
-
+lv_obj_t*	fil_slider, *fil_slider_label;
 
 static const int nobuttons = 4;
 static const int bottombutton_width = (rightWidth / nobuttons) - 2;
@@ -22,6 +22,7 @@ static void gain_slider_event_cb(lv_event_t * e);
 static void agc_slider_event_cb(lv_event_t * e);
 static void vol_slider_event_cb(lv_event_t * e);
 static void mode_button_event(lv_event_t * e);
+static void fil_slider_event_cb(lv_event_t * e);
 
 	
 void	setup_right_pane(lv_obj_t* scr )
@@ -158,6 +159,18 @@ void	setup_right_pane(lv_obj_t* scr )
 	vol_slider_label = lv_label_create(bg_right);
 	lv_label_set_text(vol_slider_label, "volume");
 	lv_obj_align_to(vol_slider_label, vol_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	
+	fil_slider = lv_slider_create(bg_right);
+	lv_slider_set_range(fil_slider, 0, 5);
+	lv_obj_set_width(fil_slider, rightWidth - 40); 
+	lv_obj_align_to(fil_slider, vol_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	// lv_obj_center(agc_slider);
+	lv_obj_add_event_cb(fil_slider, fil_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	fil_slider_label = lv_label_create(bg_right);
+	lv_label_set_text(fil_slider_label, "3.5 Khz");
+	lv_obj_align_to(fil_slider_label, fil_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_slider_set_value(fil_slider, 5, LV_ANIM_ON);
+
 }
 
 static void gain_slider_event_cb(lv_event_t * e)
@@ -168,6 +181,35 @@ static void gain_slider_event_cb(lv_event_t * e)
     lv_label_set_text(gain_slider_label, buf);
     lv_obj_align_to(gain_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, soapy_devices[0].rx_channel, lv_slider_get_value(slider));
+}
+
+static void fil_slider_event_cb(lv_event_t * e)
+{
+	lv_obj_t * slider = lv_event_get_target(e);
+	char buf[20];
+	switch (lv_slider_get_value(slider))
+	{
+	case 0:
+		strcpy(buf, "0.5 Khz");
+		break;
+	case 1:
+		strcpy(buf, "1.5 Khz");
+		break;
+	case 2:
+		strcpy(buf, "2 Khz");
+		break;
+	case 3:
+		strcpy(buf, "2.5 Khz");
+		break;
+	case 4:
+		strcpy(buf, "3 Khz");
+		break;		
+	case 5:
+		strcpy(buf, "3.5 Khz");
+		break;		
+	}
+	lv_label_set_text(fil_slider_label, buf);
+	lv_obj_align_to(fil_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
 
 static void agc_slider_event_cb(lv_event_t * e)

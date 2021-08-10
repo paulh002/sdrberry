@@ -270,6 +270,8 @@ static void vol_slider_event_cb(lv_event_t * e)
 
 void set_vol_slider(int volume)
 {
+	if (volume < 0)
+		volume = 0;
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);
 	
 	char buf[20];

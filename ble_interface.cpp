@@ -4,6 +4,7 @@
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
 #include <tinyb.hpp>
+#include "lvgl/lvgl.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -19,6 +20,9 @@
 #include <csignal>
 #include <signal.h>
 #include "vfo.h"
+#include <alsa/asoundlib.h>
+#include "AudioOutput.h"
+#include "gui_right_pane.h"
 
 #include <stdexcept>
 
@@ -39,10 +43,25 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 		
 	if (size > 0 && size < 80) {
 		data_c = data.data();
-		memset(buf, 0, 80*sizeof(char));
+		memset(buf, 0, 81*sizeof(char));		
 		strncpy(buf,(char *)data_c,size);
-		ii = atol((char *)data_c);
-		vfo.step_vfo(ii);
+		//printf("%s\n", buf);
+		char *ptr = strchr(buf, ';');
+		if (ptr != NULL)
+			*ptr = '\0';
+		ii = atoi(buf);
+		if (ii)
+			vfo.step_vfo(ii);
+
+		if (ptr != NULL)
+		{
+			ptr++;
+			ii = atoi(ptr);
+			if (ii)
+			{
+				set_vol_slider((int)(audio_output->get_volume() * 100.0) + ii);
+			}
+		}
 	}
 }
 

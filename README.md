@@ -40,6 +40,4 @@ Installation of libraries is necessary:
 - libpthread.so.0
 
 
-
-
-https://www.youtube.com/watch?v=ds-n-7sHXl8&t=2s
+https://www.youtube.com/watch?v=BMJiv3YGv-k

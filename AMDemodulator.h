@@ -60,7 +60,7 @@ private:
 	msresamp_crcf 				m_q {0};
 	iirfilt_crcf				m_lowpass {0};
 	double						m_if_level;
-	mutex						m_mutex;
+	mutex						m_mutex; // used to lock the process for changing filters
 	condition_variable			m_cond;
 };
 

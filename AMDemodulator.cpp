@@ -76,6 +76,33 @@ AMDemodulator::~AMDemodulator()
 
 void	AMDemodulator::set_filter(long long frequency, int band_width)
 {
+	double	factor 0.0625;
+	int		order = 6;
+	
+	unique_lock<mutex> lock(m_mutex); 
+	iirfilt_crcf_destroy(m_lowpass);
+	switch (band_width)
+	{
+	case 0:
+		break;
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		break;
+	case 6:
+		break;
+		
+	default:
+		break;
+	}
+	m_lowpass = iirfilt_crcf_create_lowpass(6, 0.0625);
+	iirfilt_crcf_print(m_lowpass);
 }
 
 void	AMDemodulator::calc_if_level(const IQSampleVector& samples_in)
@@ -105,6 +132,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	
 	
 	// Downsample to pcmrate (pcmrate will be 44100 or 48000)
+	unique_lock<mutex> lock(m_mutex); 
 	m_buf_iffiltered.reserve(samples_in.size());
 	if (m_bresample)
 	{

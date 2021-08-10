@@ -28,6 +28,7 @@ public:
     virtual bool    write(const SampleVector& samples) = 0;
 	void            set_volume(int vol) { volume = (double)vol / 100.0;	}
 	void            adjust_gain(SampleVector& samples);
+	double          get_volume()	{ return volume;	}
     /** Return the last error, or return an empty string if there is no error. */
     std::string error()
     {

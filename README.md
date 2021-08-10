@@ -39,6 +39,6 @@ Installation of libraries is necessary:
 - tinyb
 - libpthread.so.0
 
-![sdrberry](https://github.com/paulh002/sdrberry/blob/sdrberry/IMG_20210731_015334.jpgg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20210731_015334.jpg)
 
 https://www.youtube.com/watch?v=BMJiv3YGv-k

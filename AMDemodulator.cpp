@@ -76,7 +76,7 @@ AMDemodulator::~AMDemodulator()
 
 void	AMDemodulator::set_filter(long long frequency, int band_width)
 {
-	double	factor 0.0625;
+	double	factor {0.0625};
 	int		order = 6;
 	
 	unique_lock<mutex> lock(m_mutex); 

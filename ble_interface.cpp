@@ -46,21 +46,35 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 		memset(buf, 0, 81*sizeof(char));		
 		strncpy(buf,(char *)data_c,size);
 		//printf("%s\n", buf);
-		char *ptr = strchr(buf, ';');
-		if (ptr != NULL)
-			*ptr = '\0';
-		ii = atoi(buf);
-		if (ii)
-			vfo.step_vfo(ii);
-
-		if (ptr != NULL)
+		if(isdigit(buf[0]) || isdigit(buf[1]))
 		{
-			ptr++;
-			ii = atoi(ptr);
+			char *ptr = strchr(buf, ';');
+			if (ptr != NULL)
+				*ptr = '\0';
+			ii = atoi(buf);
 			if (ii)
-			{
+				vfo.step_vfo(ii);	
+			return;
+		}
+		char *ptr1 = strstr(buf, "VOL");
+		if (ptr1)
+		{
+			char *ptr = strchr(ptr1, ';');
+			if (ptr != NULL)
+				*ptr = '\0';
+			ii = atoi(ptr1+3);
+			if (ii)
 				set_vol_slider((int)(audio_output->get_volume() * 100.0) + ii);
-			}
+		}
+		ptr1 = strstr(buf, "GAIN");
+		if (ptr1)
+		{
+			char *ptr = strchr(ptr1, ';');
+			if (ptr != NULL)
+				*ptr = '\0';
+			ii = atoi(ptr1+4);
+			if (ii)
+				set_vol_slider((int)(audio_output->get_volume() * 100.0) + ii);
 		}
 	}
 }

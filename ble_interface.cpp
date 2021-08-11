@@ -74,7 +74,7 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 				*ptr = '\0';
 			ii = atoi(ptr1+4);
 			if (ii)
-				set_vol_slider((int)(audio_output->get_volume() * 100.0) + ii);
+				step_gain_slider(ii);
 		}
 	}
 }

@@ -244,10 +244,10 @@ int main(int argc, char *argv[])
 			break;
 		}
 		set_vol_slider(Settings_file.volume());		
+		set_gain_range();
+		set_gain_slider(Settings_file.gain());	
 		// STart streaming
 		create_rx_streaming_thread(&soapy_devices[0]);
-		//double gain = soapy_devices[0].sdr->getGain(SOAPY_SDR_RX, 0);
-		set_gain_slider(Settings_file.volume());	
 		vfo.set_vfo(freq);
 	}
 	else

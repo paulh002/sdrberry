@@ -134,6 +134,7 @@ void	setup_right_pane(lv_obj_t* scr )
 	
 	gain_slider = lv_slider_create(bg_right);
 	lv_obj_set_width(gain_slider, rightWidth - 40); 
+	lv_slider_set_range(gain_slider, 0, 100);
 	lv_obj_center(gain_slider);
 	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	gain_slider_label = lv_label_create(bg_right);
@@ -242,12 +243,41 @@ void set_gain_range(int min, int max)
 
 void set_gain_slider(int gain)
 {
-	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 	char buf[20];
+	
+	double max_gain = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	if (gain > max_gain)
+		gain = max_gain;
+	
 	lv_snprintf(buf, sizeof(buf), "gain %d db", gain);
 	lv_label_set_text(gain_slider_label, buf);
 	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);		
+	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, (double)gain);
+}
+
+void step_gain_slider(int step)
+{
+	char buf[20];
+	
+	int gain = lv_slider_get_value(gain_slider) + step;
+	double max_gain = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	if (gain > max_gain)
+		gain = max_gain;
+	if (gain < 0)
+		gain = 0;
+	lv_snprintf(buf, sizeof(buf), "gain %d db", gain);
+	lv_label_set_text(gain_slider_label, buf);
+	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);		
+	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, (double)gain);
+}
+
+void set_gain_range()
+{
+	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.minimum();
+	lv_slider_set_range(gain_slider, min_gain, max_gain);
 }
 
 void hide_agc_slider(void)

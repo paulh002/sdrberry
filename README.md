@@ -13,6 +13,9 @@ To install you need to configure rasberry pi OS in text only mode, (switch of th
 Compiled using VisualGDB
 copy the cfg file (in install directory) to the home dir of the application
 
+a compiled executable and soapyradioberry library is available in executable directory
+installation instruction in install_guide.txt
+
 ToDo:
 - Transmitter part
 - Support for Midi contoler

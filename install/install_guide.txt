@@ -75,8 +75,14 @@ make
 sudo make install
 sudo ldconfig 
 
+9) copy sdrberry and sdrberry_config.cfg
+copy files to home dir of user pi
 
-8) (Optional )Only for Adlam Pluto SDR install pluto drivers
+//Run sdrberry
+./sdrberry
+
+
+10) (Optional )Only for Adlam Pluto SDR install pluto drivers
 
 // check https://wiki.analog.com/resources/tools-software/linux-software/libiio
 sudo apt install libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev

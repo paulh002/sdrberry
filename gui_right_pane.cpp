@@ -162,7 +162,7 @@ void	setup_right_pane(lv_obj_t* scr )
 	lv_obj_align_to(vol_slider_label, vol_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	
 	fil_slider = lv_slider_create(bg_right);
-	lv_slider_set_range(fil_slider, 0, 5);
+	lv_slider_set_range(fil_slider, 0, 7);
 	lv_obj_set_width(fil_slider, rightWidth - 40); 
 	lv_obj_align_to(fil_slider, vol_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	// lv_obj_center(agc_slider);
@@ -188,29 +188,76 @@ static void fil_slider_event_cb(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
 	char buf[20];
+	
+	
 	switch (lv_slider_get_value(slider))
 	{
 	case 0:
 		strcpy(buf, "0.5 Khz");
 		break;
 	case 1:
-		strcpy(buf, "1.5 Khz");
+		strcpy(buf, "1 Khz");
 		break;
 	case 2:
-		strcpy(buf, "2 Khz");
+		strcpy(buf, "1.5 Khz");
 		break;
 	case 3:
-		strcpy(buf, "2.5 Khz");
+		strcpy(buf, "2 Khz");
 		break;
 	case 4:
+		strcpy(buf, "2.5 Khz");
+		break;
+	case 5:
 		strcpy(buf, "3 Khz");
 		break;		
-	case 5:
+	case 6:
 		strcpy(buf, "3.5 Khz");
 		break;		
+	case 7:
+		strcpy(buf, "4 Khz");
+		break;
 	}
 	lv_label_set_text(fil_slider_label, buf);
-	lv_obj_align_to(fil_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_align_to(fil_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);	
+	select_filter((int)lv_slider_get_value(slider));
+}
+
+void set_filter_slider(int filter)
+{
+	if (filter < 0 || filter > 6) 
+		filter = 0;
+	lv_slider_set_value(fil_slider, filter, LV_ANIM_ON);
+	char buf[20];
+	switch (lv_slider_get_value(fil_slider))
+	{
+	case 0:
+		strcpy(buf, "0.5 Khz");
+		break;
+	case 1:
+		strcpy(buf, "1 Khz");
+		break;
+	case 2:
+		strcpy(buf, "1.5 Khz");
+		break;
+	case 3:
+		strcpy(buf, "2 Khz");
+		break;
+	case 4:
+		strcpy(buf, "2.5 Khz");
+		break;
+	case 5:
+		strcpy(buf, "3 Khz");
+		break;		
+	case 6:
+		strcpy(buf, "3.5 Khz");
+		break;		
+	case 7:
+		strcpy(buf, "4 Khz");
+		break;
+	}
+	lv_label_set_text(fil_slider_label, buf);
+	lv_obj_align_to(fil_slider_label, fil_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	select_filter(filter);
 }
 
 static void agc_slider_event_cb(lv_event_t * e)
@@ -311,8 +358,6 @@ void set_vol_slider(int volume)
 	audio_output->set_volume(volume);
 }
 
-void select_mode(int s_mode);
-
 static void mode_button_event(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -335,6 +380,5 @@ static void mode_button_event(lv_event_t * e)
 		case mode_ft8:
 			break;
 		}
-	
 	}
 }

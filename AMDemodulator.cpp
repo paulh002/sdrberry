@@ -50,7 +50,7 @@ void	AMDemodulator::init(demod_struct * ptr)
 	}
 	m_demod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
 	
-	m_lowpass = iirfilt_crcf_create_lowpass(6, 0.0625);
+	m_lowpass = iirfilt_crcf_create_lowpass(m_order, 0.03125);
 	m_init = true;
 }
 
@@ -74,34 +74,48 @@ AMDemodulator::~AMDemodulator()
 	}
 }
 
-void	AMDemodulator::set_filter(long long frequency, int band_width)
+void	AMDemodulator::set_filter(double if_rate, int band_width)
 {
 	double	factor {0.0625};
-	int		order = 6;
 	
 	unique_lock<mutex> lock(m_mutex); 
 	iirfilt_crcf_destroy(m_lowpass);
 	switch (band_width)
 	{
 	case 0:
+		// 500hz
+		factor = 0.00520833333333333;
 		break;
 	case 1:
+		// 1Khz
+		factor = 0.010416667;
 		break;
 	case 2:
+		// 1.5 khz
+		factor = 0.015625;
 		break;
 	case 3:
+		// 2khz
+		factor = 0.0208333333333333;
 		break;
 	case 4:
+		// 2.5 khz
+		factor = 0.0260416666666667;
 		break;
 	case 5:
+		factor = 0.03125;
+		// 3 Khz
 		break;
 	case 6:
+		factor = 0.0364583333333333;
+		//  3.5Khz
 		break;
-		
-	default:
+	case 7:
+		factor = 0.0416666666666667;
+		//  4Khz
 		break;
 	}
-	m_lowpass = iirfilt_crcf_create_lowpass(6, 0.0625);
+	m_lowpass = iirfilt_crcf_create_lowpass(m_order, factor);
 	iirfilt_crcf_print(m_lowpass);
 }
 
@@ -178,6 +192,7 @@ void* am_demod_thread(void* ptr)
 	AudioOutput             *audio_output = demod_ptr->audio_output;
 	SampleVector            audiosamples;
 	AMDemodulator			ammod;
+	int						ifilter {-1};
 	
 	unique_lock<mutex> lock(am_finish); 
 	vfo.set_tuner_offset(0);
@@ -185,6 +200,12 @@ void* am_demod_thread(void* ptr)
 	Fft_calc.plan_fft(512); //
 	while (!stop_flag.load())
 	{
+		if (ifilter != filter)
+		{
+			ammod.set_filter(ifrate, filter);
+			ifilter = filter;
+		}
+			
 		if (!inbuf_length_warning && ammod.m_source_buffer->queued_samples() > 10 * 530000) {
 			printf("\nWARNING: Input buffer is growing (system too slow) queued samples %u\n", ammod.m_source_buffer->queued_samples());
 			inbuf_length_warning = true;
@@ -263,3 +284,4 @@ void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	create_am_thread(&demod);
 }
 	
+

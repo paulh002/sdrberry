@@ -54,7 +54,7 @@ private:
 	std::condition_variable		m_cond;
 	double						signal_strength {0};
 	IQSampleVector				m_input;
-	
+	std::vector<float>			v_window;
 };
 
 extern Fft_calculator	Fft_calc;

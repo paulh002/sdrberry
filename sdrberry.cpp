@@ -77,6 +77,7 @@ double  ifrate  = 0.53e6;  //1.0e6;//
 bool    stereo  = true;
 int     pcmrate = 48000;
 double	freq = 89800000;
+volatile int		filter	= 4;
 //double	tuner_freq = freq + 0.25 * ifrate;
 //double	tuner_offset = freq - tuner_freq;
 
@@ -303,11 +304,13 @@ uint32_t custom_tick_get(void)
 	return time_ms;
 }
 
+static int mode_running = 0;
+
 void select_mode(int s_mode)
 {
 	// Stop all threads
 	stop_flag = true;
-	
+	mode_running = 0;
 	// wait for threads to finish
 	unique_lock<mutex> lock_am(am_finish); 
 	unique_lock<mutex> lock_fm(fm_finish); 
@@ -323,6 +326,7 @@ void select_mode(int s_mode)
 	{
 	case mode_broadband_fm:
 		start_fm(ifrate, pcmrate, true, &source_buffer, audio_output);
+		mode_running = 1;
 		break;
 		
 	case mode_am:
@@ -330,9 +334,15 @@ void select_mode(int s_mode)
 	case mode_usb:
 	case mode_lsb:
 		start_dsb(mode, ifrate, pcmrate, &source_buffer, audio_output);
+		mode_running = 2;
 		break;
 	}
 	create_rx_streaming_thread(&soapy_devices[0]);
+}
+
+void select_filter(int ifilter)
+{
+	filter = ifilter;
 }
 
 

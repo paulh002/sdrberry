@@ -10,11 +10,13 @@
 #include "Waterfall.h"
 #include "sdrberry.h"
 
+using namespace std;
+
 Fft_calculator	Fft_calc;
 
 Fft_calculator::Fft_calculator()
 {
-
+	
 }
 
 Fft_calculator::~Fft_calculator()
@@ -28,6 +30,12 @@ void	Fft_calculator::process_samples(IQSampleVector	input)
 	if (m_input.size() >= nfft)
 	{
 		std::unique_lock<std::mutex> lock(m_mutex); 
+		// Apply hamming window
+		for (int i = 0; i < nfft; i++)
+		{
+			m_input[i].real(m_input[i].real() * v_window[i]);
+			m_input[i].imag(m_input[i].imag() * v_window[i]);
+		}
 		plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
 		fft_execute(plan);
 		m_input.clear();
@@ -41,6 +49,11 @@ void	Fft_calculator::plan_fft(int size)
 	m_input.reserve(nfft);
 	plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
 	fft_output.resize(nfft); 
+	v_window.clear();
+	for (int i = 0; i < nfft; i++)
+	{
+		v_window.insert(v_window.end(), liquid_windowf(LIQUID_WINDOW_HAMMING, i, nfft, 0)) ;		
+	}
 }
 
 
@@ -83,18 +96,19 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 	data_set.resize(fft_output.size());
 	int start = fft_output.size() / 2;
 	
-	for (auto& col : fft_output)
+
+	for (auto &col : fft_output)
 	{
 		if (i < start)
 		{
-			data_set[start +  i] = (lv_coord_t)200 * log10((10.0 * sqrt(col.real() * col.real() + col.imag() * col.imag())));
+			data_set[start +  i] = (lv_coord_t)100 * log10((col.real() * col.real() + col.imag() * col.imag()));
+
 		}
 		else
 		{
-			data_set[i - start] = (lv_coord_t)200 * log10((10.0 * sqrt(col.real() * col.real() + col.imag() * col.imag())));			
+			data_set[i - start] = (lv_coord_t)100 * log10((col.real() * col.real() + col.imag() * col.imag()));			
 		}
 		i++;
-		//printf("%d \n", data_set[i++]);
 	}
 }
 

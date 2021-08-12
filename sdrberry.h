@@ -12,6 +12,7 @@ const int mode_dsb = 4;
 const int mode_cw = 5;
 const int mode_ft8 = 6;
 extern int		  mode;
+extern volatile int		filter;
 
 typedef std::complex<float> IQSample;
 typedef std::vector<IQSample> IQSampleVector;
@@ -44,3 +45,5 @@ inline void samples_mean_rms(const SampleVector& samples,
     rms  = sqrt(vsumsq / n);
 }
 
+void select_filter(int ifilter);
+void select_mode(int s_mode);

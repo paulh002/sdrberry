@@ -33,7 +33,7 @@ class AMDemodulator
 {
 public:
 	void	init(demod_struct * ptr);
-	void	set_filter(long long frequency, int band_width);
+	void	set_filter(double if_rate, int band_width);
 	double	get_if_level()
 	{
 		return m_if_level;
@@ -62,6 +62,7 @@ private:
 	double						m_if_level;
 	mutex						m_mutex; // used to lock the process for changing filters
 	condition_variable			m_cond;
+	int							m_order {6};
 };
 
 

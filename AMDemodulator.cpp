@@ -17,22 +17,6 @@
 void* am_demod_thread(void* ptr);
 /** Compute RMS level over a small prefix of the specified sample vector. */
 
-static IQSample::value_type rms_level_approx(const IQSampleVector& samples)
-{
-	unsigned int n = samples.size();
-	n = (n + 63) / 64;
-
-	IQSample::value_type level = 0;
-	for (unsigned int i = 0; i < n; i++) {
-		const IQSample& s = samples[i];
-		IQSample::value_type re = s.real(), im = s.imag();
-		level += re * re + im * im;
-	}
-
-	return sqrt(level / n);
-}
-
-
 void	AMDemodulator::init(demod_struct * ptr)
 {
 	float	As = 60.0f;      // resampling filter stop-band attenuation [dB]
@@ -177,9 +161,13 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 }
 
 pthread_t		am_thread;
+static int bb = 0;
 
 int	create_am_thread(demod_struct *demod)
 {
+	if (bb > 0)
+		return 0;
+	bb++;
 	return pthread_create(&am_thread, NULL, am_demod_thread, (void *)demod);
 }
 
@@ -190,7 +178,7 @@ void* am_demod_thread(void* ptr)
 	bool                    inbuf_length_warning = false;
 	demod_struct			*demod_ptr = (demod_struct *)ptr;
 	AudioOutput             *audio_output = demod_ptr->audio_output;
-	SampleVector            audiosamples;
+	SampleVector            audiosamples, audioframes;
 	AMDemodulator			ammod;
 	int						ifilter {-1};
 	
@@ -217,7 +205,7 @@ void* am_demod_thread(void* ptr)
 			continue;
 		}
 		
-		IQSampleVector iqsamples = ammod.m_source_buffer->pull();
+		IQSampleVector iqsamples = ammod.m_source_buffer->pull();		
 		if (iqsamples.empty())
 		{
 			usleep(5000);
@@ -226,15 +214,23 @@ void* am_demod_thread(void* ptr)
 		Fft_calc.process_samples(iqsamples);
 		Fft_calc.set_signal_strength(ammod.get_if_level()); 
 		
-//process
-		ammod.process(iqsamples, audiosamples);
+		//process
+		ammod.process(iqsamples, audiosamples);		
 		// Measure audio level.
 		samples_mean_rms(audiosamples, ammod.m_audio_mean, ammod.m_audio_rms);
 		ammod.m_audio_level = 0.95 * ammod.m_audio_level + 0.05 * ammod.m_audio_rms;
 
 		// Set nominal audio volume.
-		audio_output->adjust_gain(audiosamples);	
-		audio_output->write(audiosamples);
+		
+		for (auto& col : audiosamples)
+		{
+			audioframes.insert(audioframes.end(), col);
+			if (audioframes.size() == (2 * audio_output->get_framesize()))
+			{
+				audio_output->write(audioframes);		
+				audio_output->adjust_gain(audiosamples);	
+			}
+		}
 		iqsamples.clear();
 		audiosamples.clear();
 	}
@@ -259,12 +255,12 @@ void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	{
 	case mode_usb:
 		demod.suppressed_carrier = 1;
-		demod.mode = LIQUID_AMPMODEM_USB;
+		demod.mode = LIQUID_AMPMODEM_LSB;
 		printf("mode LIQUID_AMPMODEM_USB carrier %d\n", demod.suppressed_carrier);		
 		break;
 	case mode_lsb:
 		demod.suppressed_carrier = 1;
-		demod.mode = LIQUID_AMPMODEM_LSB;
+		demod.mode = LIQUID_AMPMODEM_USB;
 		printf("mode LIQUID_AMPMODEM_LSB carrier %d\n", demod.suppressed_carrier);		
 		break;
 	case mode_am:

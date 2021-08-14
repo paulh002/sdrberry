@@ -57,7 +57,7 @@
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -73,13 +73,15 @@
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AMDemodulator.cpp" />
+    <ClCompile Include="AMmodulator.cpp" />
+    <ClCompile Include="AudioInput.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="ble_interface.cpp" />
     <ClCompile Include="configfile.cpp" />
@@ -251,8 +253,10 @@
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
-    <ClCompile Include="wstring.cpp" />
     <ClInclude Include="AMDemodulator.h" />
+    <ClInclude Include="AMmodulator.h" />
+    <ClInclude Include="Audiodefs.h" />
+    <ClInclude Include="AudioInput.h" />
     <ClInclude Include="AudioOutput.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="ble_interface.h" />

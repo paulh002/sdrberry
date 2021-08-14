@@ -1,8 +1,12 @@
 #pragma once
-
 #include <complex>
 #include <vector>
 #include <mutex>
+#include "RtAudio.h"
+#include "DataBuffer.h"
+#include "Audiodefs.h"
+#include "AudioOutput.h"
+#include "AudioInput.h"
 
 const int mode_broadband_fm = 0;
 const int mode_lsb = 1;
@@ -14,19 +18,14 @@ const int mode_ft8 = 6;
 extern int		  mode;
 extern volatile int		filter;
 
-typedef std::complex<float> IQSample;
-typedef std::vector<IQSample> IQSampleVector;
-
-typedef double Sample;
-typedef std::vector<Sample> SampleVector;
-
 extern std::mutex	am_finish;
+extern std::mutex	am_tx_finish;
 extern std::mutex	fm_finish;
 extern std::mutex	stream_finish;
 
 //double	freq = 89950000;
 extern double   ifrate;
-	
+
 /** Compute mean and RMS over a sample vector. */
 inline void samples_mean_rms(const SampleVector& samples,
                              double& mean, double& rms)
@@ -47,3 +46,4 @@ inline void samples_mean_rms(const SampleVector& samples,
 
 void select_filter(int ifilter);
 void select_mode(int s_mode);
+void select_mode_tx(int s_mode);

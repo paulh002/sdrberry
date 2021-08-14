@@ -13,15 +13,17 @@
 #include <array>
 #include <iomanip>
 #include <vector>
-#include "wstring.h"
 #include <iostream>
 #include <thread>
 #include <atomic>
 #include <csignal>
 #include <signal.h>
 #include "vfo.h"
-#include <alsa/asoundlib.h>
+#include "RtAudio.h"
+#include "Audiodefs.h"
+#include "DataBuffer.h"
 #include "AudioOutput.h"
+#include "AudioInput.h"
 #include "gui_right_pane.h"
 
 #include <stdexcept>
@@ -80,13 +82,12 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 }
 
 
-int ble_class::setup_ble(String mac_address)
+int ble_class::setup_ble(string mac_address)
 {	char str[80];
 	
-	mac_address.toUpperCase();
+	to_upper(mac_address);
 	m_mac_address = mac_address;
 	strcpy(str, mac_address.c_str());
-	
 	try {
 		manager = BluetoothManager::get_bluetooth_manager();
 	}

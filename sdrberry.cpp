@@ -9,7 +9,6 @@
 #include <liquid.h>
 #include <complex>
 #include <vector>
-#include "wstring.h"
 #include "lvgl/lvgl.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
@@ -26,16 +25,24 @@
 #include <memory>
 #include "sdrberry.h"
 #include "FmDecode.h"
-#include "AudioOutput.h"
+#include "RtAudio.h"
 #include "DataBuffer.h"
+#include "Audiodefs.h"
+#include "AudioOutput.h"
+#include "AudioInput.h"
 #include "Waterfall.h"
 #include "AMDemodulator.h"
+#include "AMmodulator.h"
 #include "sdrberry.h"
 #include "MidiControle.h"
 
 
 AudioOutput *audio_output;
-DataBuffer<IQSample> source_buffer;
+AudioInput *audio_input;
+DataBuffer<IQSample>	source_buffer_rx;
+DataBuffer<IQSample>	source_buffer_tx;
+DataBuffer<Sample>		audiooutput_buffer;
+DataBuffer<Sample>		audioinput_buffer;
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
@@ -82,6 +89,7 @@ volatile int		filter	= 4;
 //double	tuner_offset = freq - tuner_freq;
 
 mutex	am_finish;
+mutex	am_tx_finish;
 mutex	fm_finish;
 mutex	stream_finish;
 
@@ -90,7 +98,7 @@ MidiControle	*midicontrole = nullptr;
 int main(int argc, char *argv[])
 {
 	
-	Settings_file.read_settings(String("sdrberry_settings.cfg"));
+	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	
 	/*LittlevGL init*/
 	lv_init();
@@ -167,22 +175,30 @@ int main(int argc, char *argv[])
 	label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
-	if (Settings_file.get_mac_address() != String(""))
+	if (Settings_file.get_mac_address() != std::string(""))
 		Ble_instance.setup_ble(Settings_file.get_mac_address());
 		
-	String s = Settings_file.find_audio("device");
+	string s = Settings_file.find_audio("device");
 	
-	audio_output = new AlsaAudioOutput((char *)s.c_str(), pcmrate, stereo);
+	//(char *)s.c_str(), pcmrate, stereo
+	audio_output = new AudioOutput();
 	if (!(*audio_output)) {
-		fprintf(stderr,
-			"ERROR: AudioOutput: %s\n",
-			audio_output->error().c_str());
+		fprintf(stderr,"ERROR: AudioOutput\n");
 		exit(1);
 	}
+	audio_output->init(s, pcmrate);
+	audio_output->open(&audiooutput_buffer);
 	audio_output->set_volume(50);
+
+	//(char *)s.c_str(), pcmrate
+	audio_input = new AudioInput();
+	if (!(*audio_input)) {
+		fprintf(stderr,"ERROR: AudioInput\n");
+	}	
+	//audio_input->init(s, pcmrate);
 	
-	String smode = Settings_file.find_vfo1("Mode");
-	smode.toUpperCase();
+	std::string smode = Settings_file.find_vfo1("Mode");
+	to_upper(smode);
 	if (smode == "FM")
 		mode = mode_broadband_fm;
 	if (smode == "LSB")
@@ -201,7 +217,7 @@ int main(int argc, char *argv[])
 	vfo.vfo_init((long long)freq);
 	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
-	String default_radio = Settings_file.find_sdr("default");
+	std::string default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	
 	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
@@ -219,9 +235,9 @@ int main(int argc, char *argv[])
 	{	
 		soapy_devices[0].rx_channel = 0;
 		std::cout << "probe: " << Settings_file.find_probe((char *)default_radio.c_str()).c_str() << std::endl;
-		String start_freq = String(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum() / 1.0e6);
-		String stop_freq = String(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum() / 1.0e6);
-		String s = String(soapy_devices[0].driver.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
+		std::string start_freq = std::to_string(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum() / 1.0e6);
+		std::string stop_freq = std::to_string(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum() / 1.0e6);
+		std::string s = std::string(soapy_devices[0].driver.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
 		vfo.set_vfo_capability(&soapy_devices[0]);
 		vfo.set_vfo(freq);
@@ -229,21 +245,25 @@ int main(int argc, char *argv[])
 			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
 			
 		
-		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer;
+		soapy_devices[0].channel_structure_tx[0].source_buffer = &source_buffer_tx;
+		//select_mode_tx(mode_lsb);
+		
+		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		switch (mode)
 		{
 		case mode_broadband_fm:
-			 start_fm(ifrate, pcmrate, true, &source_buffer, audio_output);
+			 //start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
 			 break;
 		
 		case mode_am:
 		case mode_dsb:
 		case mode_usb:
 		case mode_lsb:
-			start_dsb(mode, ifrate, pcmrate, &source_buffer, audio_output);
+			start_dsb(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
 			break;
 		}
+
 		set_vol_slider(Settings_file.volume());		
 		set_gain_range();
 		set_gain_slider(Settings_file.gain());	
@@ -316,6 +336,8 @@ void select_mode(int s_mode)
 	unique_lock<mutex> lock_fm(fm_finish); 
 	unique_lock<mutex> lock_stream(stream_finish); 
 	
+	unique_lock<mutex> lock_am_tx(am_tx_finish); 
+	
 	lock_am.unlock();
 	lock_fm.unlock();
 	lock_stream.unlock();
@@ -325,7 +347,7 @@ void select_mode(int s_mode)
 	switch (mode)
 	{
 	case mode_broadband_fm:
-		start_fm(ifrate, pcmrate, true, &source_buffer, audio_output);
+		start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
 		mode_running = 1;
 		break;
 		
@@ -333,7 +355,7 @@ void select_mode(int s_mode)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		start_dsb(mode, ifrate, pcmrate, &source_buffer, audio_output);
+		start_dsb(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
 		mode_running = 2;
 		break;
 	}
@@ -345,4 +367,39 @@ void select_filter(int ifilter)
 	filter = ifilter;
 }
 
+void select_mode_tx(int s_mode)
+{
+	// Stop all threads
+	stop_flag = true;
+	mode_running = 0;
+	// wait for threads to finish
+	unique_lock<mutex> lock_am(am_finish); 
+	unique_lock<mutex> lock_fm(fm_finish); 
+	unique_lock<mutex> lock_stream(stream_finish); 
+	
+	unique_lock<mutex> lock_am_tx(am_tx_finish); 
+	
+	lock_am.unlock();
+	lock_fm.unlock();
+	lock_stream.unlock();
+	stop_flag = false;
+	mode = s_mode;
+	
+	switch (mode)
+	{
+	case mode_broadband_fm:
+		//start_fm_tx(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
+		mode_running = 1;
+		break;
+		
+	case mode_am:
+	case mode_dsb:
+	case mode_usb:
+	case mode_lsb:
+		//start_dsb_tx(mode, ifrate, pcmrate, &source_buffer_tx, audio_input);
+		mode_running = 2;
+		break;
+	}
+	//create_tx_streaming_thread(&soapy_devices[0]);
+}
 

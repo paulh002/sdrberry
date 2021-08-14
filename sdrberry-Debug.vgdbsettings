@@ -33,7 +33,7 @@
         <string>*.txt</string>
         <string>*.cmake</string>
       </FileMasks>
-      <TransferNewFilesOnly>false</TransferNewFilesOnly>
+      <TransferNewFilesOnly>true</TransferNewFilesOnly>
       <IncludeSubdirectories>true</IncludeSubdirectories>
       <SelectedDirectories />
       <DeleteDisappearedFiles>true</DeleteDisappearedFiles>
@@ -41,7 +41,7 @@
       <Extension>
         <Direction>Outgoing</Direction>
         <SkipMountPoints>false</SkipMountPoints>
-        <OverwriteTrigger>Always</OverwriteTrigger>
+        <OverwriteTrigger>LocalCache</OverwriteTrigger>
       </Extension>
     </MainSourceTransferCommand>
     <AllowChangingHostForMainCommands>false</AllowChangingHostForMainCommands>
@@ -62,7 +62,6 @@
     <ProjectFile>sdrberry.vcxproj</ProjectFile>
     <RemoteBuildEnvironment>
       <Records />
-      <EnvironmentSetupFiles />
     </RemoteBuildEnvironment>
     <ParallelJobCount>1</ParallelJobCount>
     <SuppressDirectoryChangeMessages>true</SuppressDirectoryChangeMessages>

@@ -12,6 +12,22 @@
 
 using namespace std;
 
+IQSample::value_type rms_level_approx(const IQSampleVector& samples)
+{
+	unsigned int n = samples.size();
+	n = (n + 63) / 64;
+
+	IQSample::value_type level = 0;
+	for (unsigned int i = 0; i < n; i++) {
+		const IQSample& s = samples[i];
+		IQSample::value_type re = s.real(), im = s.imag();
+		level += re * re + im * im;
+	}
+
+	return sqrt(level / n);
+}
+
+
 Fft_calculator	Fft_calc;
 
 Fft_calculator::Fft_calculator()
@@ -21,7 +37,8 @@ Fft_calculator::Fft_calculator()
 
 Fft_calculator::~Fft_calculator()
 {
-	fft_destroy_plan(plan);
+	if (plan)
+		fft_destroy_plan(plan);
 }
 
 void	Fft_calculator::process_samples(IQSampleVector	input)

@@ -1,27 +1,25 @@
 #pragma once
-
 #include <cstdio>
-
 #include <iostream>
 #include <iterator>
+#include <string>
 #include <map>
 #include "configfile.h"
-#include "wstring.h"
 
 using namespace std;
 
 class Settings
 {
 public:
-	void read_settings(String settings_file);
-	void init_settings(String settings_file);
-	String get_mac_address() {return mac_address; };
-	String find_audio(string key);
-	String find_radio(string key);
-	String find_probe(string key);
-	String find_sdr(string key);
+	void read_settings(string settings_file);
+	void init_settings(string settings_file);
+	string get_mac_address() {return mac_address; };
+	string find_audio(string key);
+	string find_radio(string key);
+	string find_probe(string key);
+	string find_sdr(string key);
 	long long find_vfo1_freq(string key);
-	String	find_vfo1(string key);
+	string	find_vfo1(string key);
 	double	find_samplerate(string key);
 	int		volume();
 	int		gain();
@@ -34,7 +32,7 @@ public:
 private:
 	
 	cfg::File				*config;
-	String					mac_address;
+	string					mac_address;
 	map<string, string>		sdr;
 	map<string, string>		radio;
 	map<string, string>		probes;

@@ -6,7 +6,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "wstring.h"
 #include "lvgl/lvgl.h"
 #include "gui_top_bar.h"
 

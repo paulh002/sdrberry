@@ -6,7 +6,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "wstring.h"
 #include "lvgl/lvgl.h"
 #include "vfo.h"
 #include "Gui_band.h"
@@ -16,6 +15,7 @@
 #include "devices.h"
 
 using namespace std;
+
 const lv_coord_t x_margin  = 10;
 const lv_coord_t y_margin  = 10;
 const int x_number_buttons = 5;

@@ -15,3 +15,4 @@
 
 int create_rx_streaming_thread(struct device_structure *sdr_dev);
 void stream_rx_set_frequency(struct device_structure *sdr_dev, unsigned long freq);
+int create_tx_streaming_thread(struct device_structure *sdr_dev);

@@ -57,7 +57,6 @@
     <ProjectFile>sdrberry.vcxproj</ProjectFile>
     <RemoteBuildEnvironment>
       <Records />
-      <EnvironmentSetupFiles />
     </RemoteBuildEnvironment>
     <ParallelJobCount>1</ParallelJobCount>
     <SuppressDirectoryChangeMessages>true</SuppressDirectoryChangeMessages>
@@ -139,7 +138,7 @@
     <SuppressArgumentVariablesCheck>false</SuppressArgumentVariablesCheck>
     <X11WindowMode>Disabled</X11WindowMode>
     <KeepConsoleAfterExit>false</KeepConsoleAfterExit>
-    <RunGDBUnderSudo>false</RunGDBUnderSudo>
+    <RunGDBUnderSudo>true</RunGDBUnderSudo>
     <DeploymentMode>Auto</DeploymentMode>
     <DeployWhenLaunchedWithoutDebugging>true</DeployWhenLaunchedWithoutDebugging>
     <StripDebugSymbolsDuringDeployment>false</StripDebugSymbolsDuringDeployment>

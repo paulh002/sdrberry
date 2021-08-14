@@ -6,7 +6,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "wstring.h"
 #include "gui_vfo.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
@@ -165,7 +164,7 @@ void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	
 
 	smeter_indic = lv_meter_add_needle_line(meter, scale, 1, lv_color_white(), -10);
-
+	lv_meter_set_indicator_value(meter, smeter_indic, 0);
 }
 
 void set_s_meter(double value)

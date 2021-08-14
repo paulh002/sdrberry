@@ -1,11 +1,8 @@
 // Copyright (c) 2015-2017 Josh Blum
 // Copyright (c) 2016-2016 Bastille Networks
 // SPDX-License-Identifier: BSL-1.0
-
 #include "devices.h"
-#include <sstream>
-#include <limits>
-#include <algorithm>
+
 
 template <typename Type>
 std::string toString(const std::vector<Type> &options)
@@ -18,17 +15,6 @@ std::string toString(const std::vector<Type> &options)
         ss << options[i];
     }
     return ss.str();
-}
-
-template <typename Type>
-void toString(const std::vector<Type> &options, String string[])
-{
-	if (options.empty()) return ;
-	for (size_t i = 0; i < options.size(); i++)
-	{
-		string[i] = String(options[i].c_str());
-	}
-	return ;
 }
 
 std::string toString(const SoapySDR::Range &range)
@@ -215,26 +201,26 @@ static std::string probeChannel(SoapySDR::Device *device, struct channel_structu
     ss << "  Supports AGC: " << (device->hasGainMode(dir, chan)?"YES":"NO") << std::endl;
 
 	//formats
-	toString(device->getStreamFormats(dir, chan), channel->stream_formats);
 	std::string formats = toString(device->getStreamFormats(dir, chan));
     if (not formats.empty()) ss << "  Stream formats: " << formats << std::endl;
-
+	channel->stream_formats = formats;
+	
     //native
     double fullScale = 0.0;
     std::string native = device->getNativeStreamFormat(dir, chan, fullScale);
     ss << "  Native format: " << native << " [full-scale=" << fullScale << "]" << std::endl;    
 	channel->fullScale = fullScale;
-	channel->Native_format = String(native.c_str());
+	channel->Native_format = string(native.c_str());
 	
     //stream args
     std::string streamArgs = toString(device->getStreamArgsInfo(dir, chan));
     if (not streamArgs.empty()) ss << "  Stream args:" << std::endl << streamArgs;
-	channel->streamArgs = String(streamArgs.c_str());
+	channel->streamArgs = string(streamArgs.c_str());
 	
     //antennas
     std::string antennas = toString(device->listAntennas(dir, chan));
     if (not antennas.empty()) ss << "  Antennas: " << antennas << std::endl;
-	channel->antennas = String(antennas.c_str());
+	channel->antennas = string(antennas.c_str());
 	
     //corrections
     std::vector<std::string> correctionsList;
@@ -254,7 +240,7 @@ static std::string probeChannel(SoapySDR::Device *device, struct channel_structu
     {
         const std::string name = gainsList[i];
 	    r = device->getGainRange(dir, chan, name);
-	    channel->sGains[i] = String(name.c_str());
+	    channel->sGains[i] = string(name.c_str());
 		channel->gain_range[i] = r;
         ss << "    " << name << " gain range: " << toString(r) << " dB" << std::endl;
     }
@@ -316,8 +302,8 @@ std::string SoapySDRDeviceProbe(struct device_structure	*sdev)
     ss << "-- Device identification" << std::endl;
     ss << "----------------------------------------------------" << std::endl;
 
-	sdev->driver = String(device->getDriverKey().c_str());
-	sdev->hardware = String(device->getHardwareKey().c_str());	
+	sdev->driver = string(device->getDriverKey().c_str());
+	sdev->hardware = string(device->getHardwareKey().c_str());	
 	
     ss << "  driver=" << device->getDriverKey() << std::endl;
     ss << "  hardware=" << device->getHardwareKey() << std::endl;
@@ -326,8 +312,8 @@ std::string SoapySDRDeviceProbe(struct device_structure	*sdev)
     {
 	    if (ii < MAX_NUM_RANGES)
 	    {
-		    sdev->information[ii] = String(it.first.c_str());
-		    sdev->information[ii] = String(it.first.c_str());   
+		    sdev->information[ii] = string(it.first.c_str());
+		    sdev->information[ii] = string(it.first.c_str());   
 	    }
 	    ss << "  " << it.first << "=" << it.second << std::endl;
     }

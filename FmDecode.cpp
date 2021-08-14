@@ -42,24 +42,6 @@ static inline Sample fast_atan(Sample x)
     return (y + p) * Sample(M_PI_2);
 }
 
-
-/** Compute RMS level over a small prefix of the specified sample vector. */
-static IQSample::value_type rms_level_approx(const IQSampleVector& samples)
-{
-    unsigned int n = samples.size();
-    n = (n + 63) / 64;
-
-    IQSample::value_type level = 0;
-    for (unsigned int i = 0; i < n; i++) {
-        const IQSample& s = samples[i];
-        IQSample::value_type re = s.real(), im = s.imag();
-        level += re * re + im * im;
-    }
-
-    return sqrt(level / n);
-}
-
-
 /* ****************  class PhaseDiscriminator  **************** */
 
 // Construct phase discriminator.

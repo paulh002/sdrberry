@@ -1,7 +1,6 @@
 #include <cstdio>	//stdandard output
 #include <cstdlib>
 #include "devices.h"
-#include "wstring.h"
 
 #include <string>	// std::string
 #include <vector>	// std::vector<...>
@@ -23,7 +22,7 @@ std::string SoapySDRDeviceProbe(struct device_structure	*sdev);
  **********************************************************************/
 static int findDevices()
 {
-	String	information[MAX_NUM_RANGES];
+	string	information[MAX_NUM_RANGES];
 	const auto results = SoapySDR::Device::enumerate("");
 
 	for (size_t i = 0; i < results.size(); i++)
@@ -32,8 +31,8 @@ static int findDevices()
 		int ii = 0;
 		for (const auto &it : results[i])
 		{
-			information[ii++] = String((char *)it.first.c_str());
-			information[ii++] = String((char *)it.second.c_str());
+			information[ii++] = std::string((char *)it.first.c_str());
+			information[ii++] = std::string((char *)it.second.c_str());
 			
 			std::cout << "  " << it.first << " = " << it.second << std::endl;
 		}
@@ -96,7 +95,7 @@ static int probeDevice(const std::string &argStr)
 }
 
 
-int discover_devices(String driver)
+int discover_devices(std::string driver)
 {	int i;
 	
 	//findDevices();

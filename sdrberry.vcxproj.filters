@@ -997,9 +997,6 @@
     <ClCompile Include="device.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="wstring.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="SoapySDRProbe.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1070,6 +1067,12 @@
       <Filter>Source files\Rtmidi</Filter>
     </ClCompile>
     <ClCompile Include="FreeSans42.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="AMmodulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioInput.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1267,6 +1270,15 @@
     </ClInclude>
     <ClInclude Include="MidiControle.h">
       <Filter>Header files\RtMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="AMmodulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioInput.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audiodefs.h">
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

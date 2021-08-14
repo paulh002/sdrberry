@@ -1,9 +1,4 @@
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include "wstring.h"
 #include "Settings.h"
-#include "configfile.h"
 
 using namespace std;
 Settings	Settings_file;
@@ -47,7 +42,7 @@ const cfg::File::ConfigMap defaultOptions = {
 
 
 
-void Settings::read_settings(String settings_file)
+void Settings::read_settings(string settings_file)
 {
 	config = new cfg::File();
 	
@@ -63,7 +58,7 @@ void Settings::read_settings(String settings_file)
 	int i = 0;
 
 	config->useSection("ESP32");
-	mac_address = String((char *)(*config)("mac address").toString().c_str());
+	mac_address = string((char *)(*config)("mac address").toString().c_str());
 	
 	for (auto& option : config->getSection("SDR Receivers"))
 	{
@@ -125,48 +120,48 @@ void Settings::read_settings(String settings_file)
 	}
 }
 
-String Settings::find_sdr(string key)
+string Settings::find_sdr(string key)
 {
 	if (sdr.find(key) != sdr.end())
 	{
 		auto s = sdr.find(key);
-		return String((char *)s->second.c_str());	
+		return string((char *)s->second.c_str());	
 	}
 	else 
-		return String("");
+		return string("");
 }
 
-String Settings::find_audio(string key)
+string Settings::find_audio(string key)
 {
 	if (audio.find(key) != audio.end())
 	{
 		auto s = audio.find(key);
-		return String((char *)s->second.c_str());	
+		return string((char *)s->second.c_str());	
 	}
 	else 
-		return String("");
+		return string("");
 }
 
-String Settings::find_radio(string key)
+string Settings::find_radio(string key)
 {
 	if (radio.find(key) != radio.end())
 	{
 		auto s = radio.find(key);
-		return String((char *)s->second.c_str());	
+		return string((char *)s->second.c_str());	
 	}
 	else 
-		return String("");
+		return string("");
 }
 
-String Settings::find_probe(string key)
+string Settings::find_probe(string key)
 {
 	if (probes.find(key) != probes.end())
 	{
 		auto s = probes.find(key);
-		return String((char *)s->second.c_str());
+		return string((char *)s->second.c_str());
 	}
 	else 
-		return String("");
+		return string("");
 }
 
 long long Settings::find_vfo1_freq(string key)
@@ -180,15 +175,15 @@ long long Settings::find_vfo1_freq(string key)
 		return 0LL;
 }
 
-String Settings::find_vfo1(string key)
+string Settings::find_vfo1(string key)
 {
 	if (vfo1.find(key) != vfo1.end())
 	{
 		auto s = vfo1.find(key);
-		return String((char *)s->second.c_str());
+		return string((char *)s->second.c_str());
 	}
 	else 
-		return String("");
+		return string("");
 }
 
 double Settings::find_samplerate(string key)

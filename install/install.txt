@@ -111,6 +111,7 @@ sudo apt install libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-al
 libraries
 atomic;bluetooth;SoapySDR
 /lib/arm-linux-gnueabihf/libpthread.so.0;/lib/arm-linux-gnueabihf/libasound.so;/lib/arm-linux-gnueabihf/libfftw3.so.3;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so
+/usr/local/lib/librtaudio.so
 
 // update firmware
 sudo rpi-update

@@ -7,14 +7,13 @@
 #include <SoapySDR/ConverterRegistry.hpp>
 #include <SoapySDR/Types.hpp>
 #include <SoapySDR/Formats.hpp>
-#include "wstring.h"
 #include "DataBuffer.h"
 #include "sdrberry.h"
 
 extern SoapySDR::Device *sdr;
-extern String device_name;	
+extern string device_name;	
 
-int discover_devices(String driver);
+int discover_devices(std::string driver);
 void process_mem_usage(double& vm_usage, double& resident_set);
 
 #define MAX_NUM_DEVICES			10
@@ -29,17 +28,17 @@ extern	int num_devices;
 
 // struct is initated in probeChannel function
 struct channel_structure {
-	String					information[20];
+	string					information[20];
 	bool					full_duplex;
 	bool					agc;
-	String					stream_formats[MAX_NUM_RANGES];
-	String					antennas;
-	String					sGains[MAX_NUM_GAINS];
+	string					stream_formats;
+	string					antennas;
+	string					sGains[MAX_NUM_GAINS];
 	SoapySDR::Range			gain_range[MAX_NUM_GAINS];
 	SoapySDR::Range			full_gain_range;
 	double					fullScale;
-	String					Native_format;
-	String					streamArgs;
+	string					Native_format;
+	string					streamArgs;
 	SoapySDR::RangeList		full_frequency_range;
 	SoapySDR::RangeList		frequency_range[MAX_NUM_FRQ_RANGES];
 	SoapySDR::RangeList		sample_range;
@@ -54,9 +53,9 @@ struct device_structure {
 	int		tx_channel;
 	int		rx_channels; // amount of channels
 	int		tx_channels;
-	String	driver;
-	String	hardware;
-	String	information[MAX_NUM_RANGES];
+	string	driver;
+	string	hardware;
+	string	information[MAX_NUM_RANGES];
 	bool	bTimestamps;
 	bool	tx;
 	bool	rx;

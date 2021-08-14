@@ -49,7 +49,7 @@ private:
 	int							flags = 0;                     // FFT flags (typically ignored)
 	int							nfft = 0;    // transform size
 	std::vector<std::complex<float>> fft_output;
-	fftplan						plan;
+	fftplan						plan {0};
 	std::mutex					m_mutex;
 	std::condition_variable		m_cond;
 	double						signal_strength {0};
@@ -58,3 +58,5 @@ private:
 };
 
 extern Fft_calculator	Fft_calc;
+
+IQSample::value_type rms_level_approx(const IQSampleVector& samples);

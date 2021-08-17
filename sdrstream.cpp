@@ -149,10 +149,6 @@ void* tx_streaming_thread(void* psdr_dev)
 	SoapySDR::Stream		*tx_stream;
 	
 	unique_lock<mutex> lock_stream(stream_finish); 
-	const auto startTime = std::chrono::high_resolution_clock::now();
-	auto timeLastPrint = std::chrono::high_resolution_clock::now();
-	auto timeLastSpin = std::chrono::high_resolution_clock::now();
-	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
 	
 	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
@@ -174,7 +170,7 @@ void* tx_streaming_thread(void* psdr_dev)
 	}
 
 	sdr_dev->sdr->activateStream(tx_stream, 0, 0, 0);
-	while (!stop_flag.load())
+	while (!stop_tx_flag.load())
 	{
 		unsigned int				overflows(0);
 		unsigned int				underflows(0); 
@@ -182,11 +178,18 @@ void* tx_streaming_thread(void* psdr_dev)
 		long long					time_ns(0);
 		
 		
-		IQSampleVector iqsamples = sdr_dev->channel_structure_tx[0].source_buffer->pull();		
-		//printf("samples %d %f %f \n", iqsamples.size()/2, iqsamples[0].real(), iqsamples[0].imag());
+		IQSampleVector iqsamples = sdr_dev->channel_structure_tx[0].source_buffer->pull();
+		if (!iqsamples.size()) 
+		{
+			continue;
+		}
+		//printf("samples %d %f %f \n", iqsamples.size() / 2, iqsamples[0].real(), iqsamples[0].imag());
 		void *buffs[] = { iqsamples.data() };
-		ret = sdr_dev->sdr->writeStream(tx_stream, buffs, iqsamples.size()/2, flags, time_ns, 1e5);
-		if (ret == SOAPY_SDR_TIMEOUT) continue;
+		ret = sdr_dev->sdr->writeStream(tx_stream, buffs, iqsamples.size() / 2, flags, time_ns, 1e5);
+		if (ret == SOAPY_SDR_TIMEOUT) 
+		{
+			continue;
+		}
 		if (ret == SOAPY_SDR_OVERFLOW)
 		{
 			overflows++;
@@ -200,35 +203,12 @@ void* tx_streaming_thread(void* psdr_dev)
 		if (ret < 0)
 		{
 			printf("Error writeStream\n");
+			sdr_dev->sdr->deactivateStream(tx_stream);
+			sdr_dev->sdr->closeStream(tx_stream);
+			iqsamples.clear();
 			pthread_exit(NULL);			
 		}
 		iqsamples.clear();
-		
-		totalSamples += ret;
-		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastStatus + std::chrono::seconds(1) < now)
-		{
-			timeLastStatus = now;
-			while (true)
-			{
-				size_t chanMask; int flags; long long timeNs;
-				ret = sdr_dev->sdr->readStreamStatus(tx_stream, chanMask, flags, timeNs, 0);
-				if (ret == SOAPY_SDR_OVERFLOW) overflows++;
-				else if (ret == SOAPY_SDR_UNDERFLOW) underflows++;
-				else if (ret == SOAPY_SDR_TIME_ERROR) {}
-				else break;
-			}
-		}
-		if (timeLastPrint + std::chrono::seconds(5) < now)
-		{
-			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			const auto sampleRate = double(totalSamples) / timePassed.count();
-			printf("\b%g Msps\t%g MBps", sampleRate, sampleRate * 1*sizeof(complex<float>));
-			if (overflows != 0) printf("\tOverflows %u", overflows);
-			if (underflows != 0) printf("\tUnderflows %u", underflows);
-			printf("\n ");
-		}
 	}
 	printf("Exit writeStream\n");
 	sdr_dev->sdr->deactivateStream(tx_stream);

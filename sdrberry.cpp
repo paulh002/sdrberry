@@ -77,6 +77,8 @@ static lv_style_t style_btn;
 using namespace std;
 
 atomic_bool stop_flag(false);
+atomic_bool stop_tx_flag(false);
+
 std::mutex gui_mutex;
 
 int mode = mode_broadband_fm;
@@ -195,8 +197,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr,"ERROR: AudioInput\n");
 	}	
 	audio_input->init(s, pcmrate);
-	audio_input->open(&audioinput_buffer);
-	audio_output->open(&audiooutput_buffer);
 	audio_output->set_volume(50);
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
@@ -314,24 +314,27 @@ static int mode_running = 0;
 void select_mode(int s_mode)
 {
 	// Stop all threads
-	stop_flag = true;
+	stop_tx_flag = true;
 	mode_running = 0;
 	// wait for threads to finish
+	printf("select_mode_rx stop all threads\n");
+	// stop transmit and close audio input
+	unique_lock<mutex> lock_stream(stream_finish); 
+	stop_flag = true;
+	unique_lock<mutex> lock_am_tx(am_tx_finish); 
 	unique_lock<mutex> lock_am(am_finish); 
 	unique_lock<mutex> lock_fm(fm_finish); 
-	unique_lock<mutex> lock_stream(stream_finish); 
-
-	// stop transmit and close audio input
-	unique_lock<mutex> lock_am_tx(am_tx_finish); 
 	audio_input->close();
-	
+	audio_output->open(&audiooutput_buffer);
 	lock_am.unlock();
 	lock_fm.unlock();
 	lock_stream.unlock();
 	lock_am_tx.unlock();
+	stop_tx_flag = false;
 	stop_flag = false;
 	mode = s_mode;
 	
+	printf("select_mode_rx start rx threads\n");
 	switch (mode)
 	{
 	case mode_broadband_fm:
@@ -358,7 +361,7 @@ void select_filter(int ifilter)
 void select_mode_tx(int s_mode)
 {
 	// Stop all threads
-	printf("select_mode_tx stop all threads");
+	printf("select_mode_tx stop all threads\n");
 	stop_flag = true;
 	mode_running = 0;
 	// wait for threads to finish
@@ -373,8 +376,9 @@ void select_mode_tx(int s_mode)
 	lock_am_tx.unlock();
 	stop_flag = false;
 	mode = s_mode;
-	
-	printf("select_mode_tx stop all threads");
+	audio_output->close();
+	audio_input->open(&audioinput_buffer);
+	printf("select_mode_tx start tx threads\n");
 	switch (mode)
 	{
 	case mode_broadband_fm:
@@ -390,7 +394,7 @@ void select_mode_tx(int s_mode)
 		mode_running = 2;
 		break;
 	}
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, 0, 3.0);
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, 0, 10.0);
 	create_tx_streaming_thread(&soapy_devices[0]);
 }
 

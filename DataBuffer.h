@@ -14,6 +14,7 @@
 using namespace std;
 
 extern atomic_bool stop_flag;
+extern atomic_bool stop_tx_flag;
 
 /** Buffer to move sample data between threads. */
 template <class Element>

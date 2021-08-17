@@ -18,7 +18,7 @@ static	modulator_struct	mod_data;
 
 void	AMmodulator::init(modulator_struct * ptr)
 {
-	float       mod_index          = 0.8f;      // modulation index (bandwidth)
+	float       mod_index          = 0.2f;      // modulation index (bandwidth)
     float		As = 60.0f;       // resampling filter stop-band attenuation [dB]
 	float		r = (float) ptr->ifrate / (float)ptr->pcmrate ; 
 	
@@ -103,7 +103,7 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 	
 	double if_rms = rms_level_approx(buf_mod);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
-	printf("if level %f if_rms %f \n", m_if_level, if_rms);
+	//printf("if level %f if_rms %f \n", m_if_level, if_rms);
 	
 	// Apply filter to reduce bandwidth
 	for(auto& col : buf_mod)

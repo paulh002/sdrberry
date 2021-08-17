@@ -24,6 +24,7 @@ void	AMDemodulator::init(demod_struct * ptr)
 	float	r = (float)ptr->pcmrate / (float)ptr->ifrate; 
 	
 	// resampler and band filter
+	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	m_source_buffer = ptr->source_buffer;
 	if (r < 0.5)
 	{
@@ -107,6 +108,7 @@ void	AMDemodulator::calc_if_level(const IQSampleVector& samples_in)
 {
 	double if_rms = rms_level_approx(samples_in);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
+	//printf("if_rms level %f if_rms %f\n", m_if_level, if_rms);
 }
 
 void AMDemodulator::mono_to_left_right(const SampleVector& samples_mono,
@@ -161,13 +163,9 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 }
 
 pthread_t		am_thread;
-static int bb = 0;
 
 int	create_am_thread(demod_struct *demod)
 {
-	if (bb > 0)
-		return 0;
-	bb++;
 	return pthread_create(&am_thread, NULL, am_demod_thread, (void *)demod);
 }
 
@@ -185,7 +183,7 @@ void* am_demod_thread(void* ptr)
 	unique_lock<mutex> lock(am_finish); 
 	vfo.set_tuner_offset(0);
 	ammod.init(demod_ptr);
-	Fft_calc.plan_fft(512); //
+	Fft_calc.plan_fft(nfft_samples);  //
 	while (!stop_flag.load())
 	{
 		if (ifilter != filter)
@@ -221,14 +219,13 @@ void* am_demod_thread(void* ptr)
 		ammod.m_audio_level = 0.95 * ammod.m_audio_level + 0.05 * ammod.m_audio_rms;
 
 		// Set nominal audio volume.
-		
+		audio_output->adjust_gain(audiosamples);
 		for (auto& col : audiosamples)
 		{
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
 				audio_output->write(audioframes);		
-				audio_output->adjust_gain(audiosamples);	
 			}
 		}
 		iqsamples.clear();
@@ -255,12 +252,12 @@ void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	{
 	case mode_usb:
 		demod.suppressed_carrier = 1;
-		demod.mode = LIQUID_AMPMODEM_LSB;
+		demod.mode = LIQUID_AMPMODEM_USB;
 		printf("mode LIQUID_AMPMODEM_USB carrier %d\n", demod.suppressed_carrier);		
 		break;
 	case mode_lsb:
 		demod.suppressed_carrier = 1;
-		demod.mode = LIQUID_AMPMODEM_USB;
+		demod.mode = LIQUID_AMPMODEM_LSB;
 		printf("mode LIQUID_AMPMODEM_LSB carrier %d\n", demod.suppressed_carrier);		
 		break;
 	case mode_am:

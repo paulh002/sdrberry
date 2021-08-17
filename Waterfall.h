@@ -18,7 +18,7 @@ extern const int topHeight;
 extern const int tunerHeight;
 extern const int rightWidth;
 
-const int nfft_samples	{1024};
+const int nfft_samples	{512};
 
 class Waterfall
 {
@@ -45,7 +45,7 @@ public:
 	Fft_calculator();
 	~Fft_calculator();
 private:
-	const int					type = LIQUID_FFT_BACKWARD; 
+	const int					type = LIQUID_FFT_FORWARD; 
 	int							flags = 0;                     // FFT flags (typically ignored)
 	int							nfft = 0;    // transform size
 	std::vector<std::complex<float>> fft_output;

@@ -13,14 +13,14 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	
 	//printf("frames %u \n", nBufferFrames);
 	// add to databuffer
-	/*SampleVector	buf;
+	SampleVector	buf;
 	for (int i = 0; i < nBufferFrames; i++)
 	{
 		Sample f = ((double *)inputBuffer)[i];
 		buf.push_back(f);
 		buf.push_back(f);
 	}
-	((DataBuffer<Sample> *)userData)->push(move(buf)); */
+	((DataBuffer<Sample> *)userData)->push(move(buf));
 	return 0;
 }
 
@@ -40,7 +40,7 @@ bool AudioInput::init(std::string device, int pcmrate)
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 256;  // 256 sample frames
+	bufferFrames = 1024;  // 256 sample frames
 	databuffer = nullptr;
 return true;
 }

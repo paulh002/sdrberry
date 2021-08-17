@@ -453,10 +453,7 @@ void FmDecoder_executer::init(double ifrate, double tuner_offset, int pcmrate, b
 	m_source_buffer = source_buffer;
 	m_audio_output = audio_output;
 }
-void FmDecoder_executer::set_volume(int vol)
-{
-	volume = ((double)vol) / 100.0;
-}
+
 
 FmDecoder_executer::~FmDecoder_executer()
 {
@@ -470,6 +467,7 @@ void* rx_fm_thread(void* fm_ptr)
 {
 	unsigned int            block = 0, fft_block = 0;
 	bool                    inbuf_length_warning = false;
+	SampleVector            audioframes;
 	
 	unique_lock<mutex> lock_fm(fm_finish); 
 	Fft_calc.plan_fft(min(1024, (int)(ifrate / 100.0)));
@@ -507,15 +505,15 @@ void* rx_fm_thread(void* fm_ptr)
 		Fm_executer.m_audio_level = 0.95 * Fm_executer.m_audio_level + 0.05 * Fm_executer.m_audio_rms;
 
 		// Set nominal audio volume.
-		Fm_executer.m_audio_output->adjust_gain(Fm_executer.m_audiosamples);	
-		
-		if (block > 0) 
-		    {
-			    Fm_executer.m_audio_output->write(Fm_executer.m_audiosamples);
-			    //printf("write audiosamples %d \n", fm_ex->audiosamples.size());
-            }
-		
-		block++;		
+		audio_output->adjust_gain(Fm_executer.m_audiosamples);	
+		for (auto& col : Fm_executer.m_audiosamples)
+		{
+			audioframes.insert(audioframes.end(), col);
+			if (audioframes.size() == (2 * audio_output->get_framesize()))
+			{
+				audio_output->write(audioframes);		
+			}	
+		}
 		iqsamples.clear();
 		Fm_executer.m_audiosamples.clear();
 	}

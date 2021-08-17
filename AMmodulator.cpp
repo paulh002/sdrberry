@@ -96,8 +96,6 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 	}
 	int i = 0;
 	// Modulate audio to USB, LSB or DSB
-	
-	
 	for (auto& col : samples)
 	{
 		ampmodem_modulate(m_mod, col, &buf_mod[i++]);
@@ -105,8 +103,8 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 	
 	double if_rms = rms_level_approx(buf_mod);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
-	//printf("if level %f if_rms %f \n", m_if_level, if_rms);
-	printf("level %f\n", if_rms);
+	printf("if level %f if_rms %f \n", m_if_level, if_rms);
+	
 	// Apply filter to reduce bandwidth
 	for(auto& col : buf_mod)
 	{
@@ -115,19 +113,19 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 		buf_filter.insert(buf_filter.end(), v);
 	}	
 	
-
-
 	// convert to output samplerate?
 	if (m_bresample)
 	{
 		buf_out.reserve(m_resample);
 		msresamp_crcf_execute(m_q, (complex<float> *)buf_filter.data(), buf_filter.size(), (complex<float> *)buf_out.data(), &num_written);
 		buf_out.resize(num_written);
-		//source_buffer->push(move(buf_out));
+		source_buffer->push(move(buf_out));
 	}
-	//else
-		//source_buffer->push(move(buf_filter));
-	
+	else
+	{
+		source_buffer->push(move(buf_filter));
+		//printf("level %f\n", if_rms);
+	}
 	buf_mod.clear();
 	buf_filter.clear();
 }
@@ -143,6 +141,7 @@ void* am_mod_thread(void* ptr)
 	int						ifilter {-1};
 	
 	unique_lock<mutex> lock(am_tx_finish); 
+	printf("start am_mod_thread\n");
 	ammod.init(mod_ptr);
 	while (!stop_flag.load())
 	{
@@ -150,15 +149,13 @@ void* am_mod_thread(void* ptr)
 		{
 			continue;
 		}
-		audio_output->write(audiosamples);
+		//audio_output->write(audiosamples);
 		//audio_input->adjust_gain(audiosamples);	
-		//ammod.process(audiosamples, mod_ptr->ifrate, mod_ptr->source_buffer);
+		ammod.process(audiosamples, mod_ptr->ifrate, mod_ptr->source_buffer);
 		//Fft_calc.set_signal_strength(ammod.get_if_level()); 
-		
-		// transmitdata
-		
 		audiosamples.clear();
 	}
+	printf("exit am_mod_thread\n");
 	pthread_exit(NULL); 
 }
 
@@ -186,12 +183,12 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *so
 	{
 	case mode_usb:
 		mod_data.suppressed_carrier = 1;
-		mod_data.mode = LIQUID_AMPMODEM_LSB;
+		mod_data.mode = LIQUID_AMPMODEM_USB;
 		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", mod_data.suppressed_carrier);		
 		break;
 	case mode_lsb:
 		mod_data.suppressed_carrier = 1;
-		mod_data.mode = LIQUID_AMPMODEM_USB;
+		mod_data.mode = LIQUID_AMPMODEM_LSB;
 		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", mod_data.suppressed_carrier);		
 		break;
 	case mode_am:

@@ -75,6 +75,15 @@ make
 sudo make install
 sudo ldconfig 
 
+8) Install RtAudio
+git https://github.com/thestk/rtaudio
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig 
+
 9) copy sdrberry and sdrberry_config.cfg
 copy files to home dir of user pi
 

@@ -187,15 +187,17 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	audio_output->init(s, pcmrate);
-	audio_output->open(&audiooutput_buffer);
-	audio_output->set_volume(50);
+
 
 	//(char *)s.c_str(), pcmrate
 	audio_input = new AudioInput();
 	if (!(*audio_input)) {
 		fprintf(stderr,"ERROR: AudioInput\n");
 	}	
-	//audio_input->init(s, pcmrate);
+	audio_input->init(s, pcmrate);
+	audio_input->open(&audioinput_buffer);
+	audio_output->open(&audiooutput_buffer);
+	audio_output->set_volume(50);
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
 	to_upper(smode);
@@ -246,30 +248,13 @@ int main(int argc, char *argv[])
 			
 		
 		soapy_devices[0].channel_structure_tx[0].source_buffer = &source_buffer_tx;
-		//select_mode_tx(mode_lsb);
-		
 		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
-		switch (mode)
-		{
-		case mode_broadband_fm:
-			 //start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
-			 break;
-		
-		case mode_am:
-		case mode_dsb:
-		case mode_usb:
-		case mode_lsb:
-			start_dsb(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
-			break;
-		}
-
 		set_vol_slider(Settings_file.volume());		
 		set_gain_range();
 		set_gain_slider(Settings_file.gain());	
-		// STart streaming
-		create_rx_streaming_thread(&soapy_devices[0]);
 		vfo.set_vfo(freq);
+		select_mode(mode); // start streaming
 	}
 	else
 	{
@@ -335,12 +320,15 @@ void select_mode(int s_mode)
 	unique_lock<mutex> lock_am(am_finish); 
 	unique_lock<mutex> lock_fm(fm_finish); 
 	unique_lock<mutex> lock_stream(stream_finish); 
-	
+
+	// stop transmit and close audio input
 	unique_lock<mutex> lock_am_tx(am_tx_finish); 
+	audio_input->close();
 	
 	lock_am.unlock();
 	lock_fm.unlock();
 	lock_stream.unlock();
+	lock_am_tx.unlock();
 	stop_flag = false;
 	mode = s_mode;
 	
@@ -370,36 +358,39 @@ void select_filter(int ifilter)
 void select_mode_tx(int s_mode)
 {
 	// Stop all threads
+	printf("select_mode_tx stop all threads");
 	stop_flag = true;
 	mode_running = 0;
 	// wait for threads to finish
 	unique_lock<mutex> lock_am(am_finish); 
 	unique_lock<mutex> lock_fm(fm_finish); 
 	unique_lock<mutex> lock_stream(stream_finish); 
-	
 	unique_lock<mutex> lock_am_tx(am_tx_finish); 
 	
 	lock_am.unlock();
 	lock_fm.unlock();
 	lock_stream.unlock();
+	lock_am_tx.unlock();
 	stop_flag = false;
 	mode = s_mode;
 	
+	printf("select_mode_tx stop all threads");
 	switch (mode)
 	{
 	case mode_broadband_fm:
 		//start_fm_tx(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
-		mode_running = 1;
+		//mode_running = 1;
 		break;
 		
 	case mode_am:
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		//start_dsb_tx(mode, ifrate, pcmrate, &source_buffer_tx, audio_input);
+		start_dsb_tx(mode, ifrate, pcmrate, &source_buffer_tx, audio_input);
 		mode_running = 2;
 		break;
 	}
-	//create_tx_streaming_thread(&soapy_devices[0]);
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, 0, 3.0);
+	create_tx_streaming_thread(&soapy_devices[0]);
 }
 

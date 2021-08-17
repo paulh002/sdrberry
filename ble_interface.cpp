@@ -25,7 +25,7 @@
 #include "AudioOutput.h"
 #include "AudioInput.h"
 #include "gui_right_pane.h"
-
+#include "sdrberry.h"
 #include <stdexcept>
 
 using namespace tinyb;
@@ -66,7 +66,7 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 				*ptr = '\0';
 			ii = atoi(ptr1+3);
 			if (ii)
-				set_vol_slider((int)(audio_output->get_volume() * 100.0) + ii);
+				step_vol_slider(ii);
 		}
 		ptr1 = strstr(buf, "GAIN");
 		if (ptr1)
@@ -77,6 +77,24 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 			ii = atoi(ptr1+4);
 			if (ii)
 				step_gain_slider(ii);
+		}
+		ptr1 = strstr(buf, "TX");
+		if (ptr1)
+		{
+			char *ptr = strchr(ptr1, ';');
+			if (ptr != NULL)
+				*ptr = '\0';
+			// start tx mode
+				select_mode_tx(mode);
+		}
+		ptr1 = strstr(buf, "RX");
+		if (ptr1)
+		{
+			char *ptr = strchr(ptr1, ';');
+			if (ptr != NULL)
+				*ptr = '\0';
+			// start rx mode
+				 select_mode(mode);
 		}
 	}
 }

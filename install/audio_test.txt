@@ -1,4 +1,4 @@
 aplay test-mic.wav
-arecord -f S16_LE -c2 -r 48000 -d 5 test-mic.wav
+arecord -f S16_LE -c1 -r 48000 -d 5 test-mic.wav
 
  cat /proc/asound/card1/stream0

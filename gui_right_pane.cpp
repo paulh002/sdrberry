@@ -308,11 +308,12 @@ void step_gain_slider(int step)
 	char buf[20];
 	
 	int gain = lv_slider_get_value(gain_slider) + step;
-	double max_gain = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.minimum();
 	if (gain > max_gain)
 		gain = max_gain;
-	if (gain < 0)
-		gain = 0;
+	if (gain < min_gain)
+		gain = min_gain;
 	lv_snprintf(buf, sizeof(buf), "gain %d db", gain);
 	lv_label_set_text(gain_slider_label, buf);
 	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);		
@@ -333,8 +334,6 @@ void hide_agc_slider(void)
 	lv_obj_add_flag(agc_slider_label, LV_OBJ_FLAG_HIDDEN);
 }
 
-
-
 static void vol_slider_event_cb(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
@@ -345,10 +344,17 @@ static void vol_slider_event_cb(lv_event_t * e)
 	audio_output->set_volume(lv_slider_get_value(slider));
 }
 
+void step_vol_slider(int step)
+{
+	set_vol_slider(lv_slider_get_value(vol_slider) + step);
+}
+
 void set_vol_slider(int volume)
 {
 	if (volume < 0)
 		volume = 0;
+	if (volume > 100)
+		volume = 100;
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);
 	
 	char buf[20];

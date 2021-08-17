@@ -12,6 +12,8 @@
 
 using namespace std;
 
+const int noise_floor {20};
+
 IQSample::value_type rms_level_approx(const IQSampleVector& samples)
 {
 	unsigned int n = samples.size();
@@ -85,7 +87,7 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_add_style(chart, &waterfall_style, 0); 
 	lv_obj_set_pos(chart, x, y); 
 	lv_obj_set_size(chart, w, h - 50);
-	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 1000);
+	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
 	
@@ -100,7 +102,7 @@ void Waterfall::load_data()
 	int i = data_set.size();
 	if (i > 0)
 	{
-		lv_chart_set_point_count(chart, i);
+		lv_chart_set_point_count(chart, i-10);
 		lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());	
 		lv_chart_refresh(chart);
 	}
@@ -109,24 +111,29 @@ void Waterfall::load_data()
 void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
-	int i = 0;
+	int i = 0, av = 0;
 	data_set.resize(fft_output.size());
 	int start = fft_output.size() / 2;
-	
-
+		
 	for (auto &col : fft_output)
 	{
 		if (i < start)
 		{
-			data_set[start +  i] = (lv_coord_t)100 * log10((col.real() * col.real() + col.imag() * col.imag()));
-
+			data_set[start +  i] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));
+			av += data_set[start +  i];
 		}
 		else
 		{
-			data_set[i - start] = (lv_coord_t)100 * log10((col.real() * col.real() + col.imag() * col.imag()));			
+			data_set[i - start] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));	
+			av += data_set[i - start];
 		}
 		i++;
+	
 	}
+	av = av / fft_output.size();
+	data_set[start - 1] = av;
+	data_set[start + 1] = av;
+	data_set[start] = av;
 }
 
 void Fft_calculator::set_signal_strength(double strength)

@@ -135,6 +135,14 @@ void stream_rx_set_frequency(struct device_structure *sdr_dev,unsigned long freq
 	}
 }
 
+void stream_tx_set_frequency(struct device_structure *sdr_dev, unsigned long freq)
+{
+	if (sdr_dev->sdr != NULL)
+	{
+		sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, freq);	
+	}
+}
+
 void* tx_streaming_thread(void* psdr_dev)
 {
 	static const int		default_block_length {32768}; //32768
@@ -175,8 +183,9 @@ void* tx_streaming_thread(void* psdr_dev)
 		
 		
 		IQSampleVector iqsamples = sdr_dev->channel_structure_tx[0].source_buffer->pull();		
+		//printf("samples %d %f %f \n", iqsamples.size()/2, iqsamples[0].real(), iqsamples[0].imag());
 		void *buffs[] = { iqsamples.data() };
-		ret = sdr_dev->sdr->writeStream(tx_stream, buffs, iqsamples.size(), flags, time_ns, 1e5);
+		ret = sdr_dev->sdr->writeStream(tx_stream, buffs, iqsamples.size()/2, flags, time_ns, 1e5);
 		if (ret == SOAPY_SDR_TIMEOUT) continue;
 		if (ret == SOAPY_SDR_OVERFLOW)
 		{
@@ -190,7 +199,7 @@ void* tx_streaming_thread(void* psdr_dev)
 		}
 		if (ret < 0)
 		{
-			printf("Error readStream\n");
+			printf("Error writeStream\n");
 			pthread_exit(NULL);			
 		}
 		iqsamples.clear();
@@ -221,6 +230,7 @@ void* tx_streaming_thread(void* psdr_dev)
 			printf("\n ");
 		}
 	}
+	printf("Exit writeStream\n");
 	sdr_dev->sdr->deactivateStream(tx_stream);
 	sdr_dev->sdr->closeStream(tx_stream);
 	pthread_exit(NULL);

@@ -41,7 +41,7 @@ bool AudioOutput::init(std::string device, int pcmrate)
 	parameters.nChannels = 2;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 256;   // 256 sample frames
+	bufferFrames = 1024;   // 256 sample frames
 	return true;
 }
 

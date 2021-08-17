@@ -53,6 +53,7 @@ int CVfo::set_vfo(long long freq)
 	//vfo_setting.band[1] = band;
 	vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
 	stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
+	stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	return 0;
 }
@@ -70,6 +71,7 @@ void CVfo::step_vfo(long icount)
 	if (vfo_setting.sdr_dev != NULL)
 	{
 		stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
+		stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
 	}
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 }

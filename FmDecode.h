@@ -251,10 +251,9 @@ public:
 	DataBuffer<IQSample>        *m_source_buffer = NULL;
 	AudioOutput                 *m_audio_output;
 	FmDecoder                   *fm = NULL;
-	void                        set_volume(int vol);
+	
 	
 private:
-	    double              volume;
 	    double              bufsecs = -1;
 	    bool                inbuf_length_warning = false;
 	    bool                got_stereo = false;

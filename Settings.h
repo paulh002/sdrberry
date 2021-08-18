@@ -23,7 +23,8 @@ public:
 	double	find_samplerate(string key);
 	int		volume();
 	int		gain();
-	
+	int		txgain();
+		
 	vector<int>				meters;
 	vector<string>			labels;
 	vector<long>			f_low;

@@ -152,9 +152,9 @@ int main(int argc, char *argv[])
 	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight);
 	lv_obj_set_size(tabview_mid, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
-	lv_obj_t *tab1 = lv_tabview_add_tab(tabview_mid, "Waterfall");
+	lv_obj_t *tab1 = lv_tabview_add_tab(tabview_mid, "Spectrum");
 	lv_obj_t *tab2 = lv_tabview_add_tab(tabview_mid, "Band");
-	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, "Freqency");
+	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, "Frequency");
 	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "RX");
 	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "TX");
 	lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "Setup");
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 		
 		if (midicontrole)
 			midicontrole->read_midi_input();
-		
+		set_time_label();
 		usleep(5000);
 	}
 	delete audio_output;
@@ -394,7 +394,7 @@ void select_mode_tx(int s_mode)
 		mode_running = 2;
 		break;
 	}
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, 0, 10.0);
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, 0, (double)Settings_file.txgain());
 	create_tx_streaming_thread(&soapy_devices[0]);
 }
 

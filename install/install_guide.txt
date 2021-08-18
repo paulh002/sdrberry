@@ -151,5 +151,11 @@ EOF
 // test audio with:
 speaker-test -c2 -t sine -f 500
 
+// switch off commandline cursor
+edit: sudo nano /boot/cmdline.txt 
+add vt.global_cursor_default=0
+
+
+
 //Run sdrberry
 ./sdrberry

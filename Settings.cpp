@@ -220,3 +220,14 @@ int Settings::gain()
 	else 
 		return 0;
 }
+
+int Settings::txgain()
+{
+	if (radio.find("txgain") != radio.end())
+	{
+		auto s = radio.find("txgain");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}

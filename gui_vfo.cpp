@@ -83,8 +83,6 @@ void gui_vfo::set_vfo_gui(int vfo, long long freq)
 		lv_label_set_text(vfo2_frequency, str);
 	else
 		lv_label_set_text(vfo1_frequency, str);		
-	printf(str);
-	printf("\n");
 }
 
 

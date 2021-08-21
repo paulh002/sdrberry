@@ -54,19 +54,20 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
 	button_height = 50;
 	button_height_margin = button_height + y_margin;
-
+	
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
 	lv_style_set_bg_grad_color(&style_btn, lv_color_make(0x00, 0x00, 0x00));
 	lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
 	lv_style_set_bg_opa(&style_btn, 255);
-	lv_style_set_border_color(&style_btn, lv_color_make(0x9b, 0x36, 0x36));   // lv_color_make(0x2e, 0x44, 0xb2)
+	lv_style_set_border_color(&style_btn, lv_color_make(0x9b, 0x36, 0x36));      // lv_color_make(0x2e, 0x44, 0xb2)
 	lv_style_set_border_width(&style_btn, 2);
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
 	
+
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 2;
 

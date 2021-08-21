@@ -18,7 +18,7 @@ static	modulator_struct	mod_data;
 
 void	AMmodulator::init(modulator_struct * ptr)
 {
-	float       mod_index          = 0.2f;      // modulation index (bandwidth)
+	float       mod_index          = 0.8f;      // modulation index (bandwidth)
     float		As = 60.0f;       // resampling filter stop-band attenuation [dB]
 	float		r = (float) ptr->ifrate / (float)ptr->pcmrate ; 
 	
@@ -176,9 +176,6 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *so
 	mod_data.tuner_offset = 0;      // not used 
 	mod_data.downsample = 0;      //not used
 		
-	printf("pcmrate tx %u\n", mod_data.pcmrate);
-	printf("ifrate tx %f\n", mod_data.ifrate);
-				
 	switch (mode)
 	{
 	case mode_usb:

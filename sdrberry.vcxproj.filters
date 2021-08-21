@@ -1075,6 +1075,9 @@
     <ClCompile Include="AudioInput.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_tx.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1278,6 +1281,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Audiodefs.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_tx.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

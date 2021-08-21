@@ -97,6 +97,7 @@
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_right_pane.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
+    <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
     <ClCompile Include="img_lvgl_logo.c" />
     <ClCompile Include="Keyboard.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_right_pane.h" />
     <ClInclude Include="gui_top_bar.h" />
+    <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="liquid.h" />

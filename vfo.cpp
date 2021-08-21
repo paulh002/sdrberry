@@ -31,12 +31,22 @@ CVfo::CVfo()
 {
 	memset(&vfo_setting, 0, sizeof(struct vfo_settings_struct));
 	vfo_setting.frq_step = 10;
+	vfo_setting.tx = false;
+	vfo_setting.tx = true;
+}
+
+void CVfo::vfo_rxtx(bool brx, bool btx)
+{
+	vfo_setting.tx = btx;
+	vfo_setting.rx = brx;
 }
 
 void CVfo::vfo_init(long long freq)
 {
 	vfo_setting.vfo_freq[0] = freq;
 	gui_vfo_inst.set_vfo_gui(0, freq);
+	vfo_setting.vfo_freq[1] = freq;
+	gui_vfo_inst.set_vfo_gui(1, freq);
 }
 
 /* this function reads the device capability and translates it to f license bandplans*/
@@ -52,12 +62,18 @@ int CVfo::set_vfo(long long freq)
 	
 	//vfo_setting.band[1] = band;
 	vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
-	stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
-	stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
+	if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
+	if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	return 0;
 }
 
+void CVfo::sync_rx_vfo()
+{
+	vfo_setting.vfo_freq[1] = vfo_setting.vfo_freq[0] ;
+	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1]);
+}
+	
 void CVfo::step_vfo(long icount)
 {
 	long long freq;
@@ -70,8 +86,8 @@ void CVfo::step_vfo(long icount)
 		return;	
 	if (vfo_setting.sdr_dev != NULL)
 	{
-		stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
-		stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
+		if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
+		if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
 	}
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 }

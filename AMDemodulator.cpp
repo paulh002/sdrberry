@@ -140,14 +140,29 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		m_buf_iffiltered.resize(num_written);
 	}
 	else
-		m_buf_iffiltered.insert(m_buf_iffiltered.begin(), samples_in.begin(), samples_in.end());
-	
+	{
+		try
+		{
+			m_buf_iffiltered.insert(m_buf_iffiltered.begin(), samples_in.begin(), samples_in.end());
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what()  << "m_buf_iffiltered.insert" << std::endl; 
+		}
+	}
 	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
     for(auto& col : m_buf_iffiltered)
 	{
 		complex<float> v;
 		iirfilt_crcf_execute(m_lowpass, col, &v);
-		filter.insert(filter.end(), v);
+		try
+		{
+			filter.insert(filter.end(), v);
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << "filter.insert" << std::endl; 
+		}
 	}
 	calc_if_level(filter);
 	    
@@ -155,7 +170,14 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	{
 		float z {0};
 		ampmodem_demodulate(get_am_demod(), (liquid_float_complex)col, &z);
-		audio_mono.insert(audio_mono.end(), z);
+		try
+		{
+			audio_mono.insert(audio_mono.end(), z);
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << "audio_mono.insert" << std::endl; 
+		}	
 	}
 	mono_to_left_right(audio_mono, audio);
 	m_buf_iffiltered.clear();
@@ -203,7 +225,7 @@ void* am_demod_thread(void* ptr)
 			continue;
 		}
 		
-		IQSampleVector iqsamples = ammod.m_source_buffer->pull();		
+		IQSampleVector iqsamples = ammod.m_source_buffer->pull();	
 		if (iqsamples.empty())
 		{
 			usleep(5000);
@@ -211,6 +233,7 @@ void* am_demod_thread(void* ptr)
 		}
 		Fft_calc.process_samples(iqsamples);
 		Fft_calc.set_signal_strength(ammod.get_if_level()); 
+
 		
 		//process
 		ammod.process(iqsamples, audiosamples);		

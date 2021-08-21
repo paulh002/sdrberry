@@ -15,6 +15,7 @@
 #include "devices.h"
 #include "gui_right_pane.h"
 #include "gui_top_bar.h"
+#include "gui_tx.h"
 #include "ble_interface.h"
 #include "vfo.h"
 #include "sdrstream.h"
@@ -72,8 +73,6 @@ lv_obj_t* vfo1_button;
 lv_obj_t* vfo2_button;
 lv_obj_t *tabview_mid;
 
-static lv_style_t style_btn;
-
 using namespace std;
 
 atomic_bool stop_flag(false);
@@ -102,6 +101,24 @@ int main(int argc, char *argv[])
 	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	
+	string s = Settings_file.find_audio("device");	
+	audio_output = new AudioOutput();
+	if (!(*audio_output)) {
+		fprintf(stderr, "ERROR: AudioOutput\n");
+		exit(1);
+	}
+	audio_output->init(s, pcmrate);
+
+
+	//(char *)s.c_str(), pcmrate
+	audio_input = new AudioInput();
+	if (!(*audio_input)) {
+		fprintf(stderr, "ERROR: AudioInput\n");
+	}	
+	audio_input->init(s, pcmrate);
+	audio_output->set_volume(50);
+	
+
 	/*LittlevGL init*/
 	lv_init();
 
@@ -171,33 +188,15 @@ int main(int argc, char *argv[])
 	lv_obj_t * label1 = lv_label_create(tab4);
 	lv_label_set_text(label1, "RX");
 
-	label1 = lv_label_create(tab5);
-	lv_label_set_text(label1, "TX");
-	
+	gui_tx_init(tab5, LV_HOR_RES - rightWidth - 3);
+		
 	label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
 	if (Settings_file.get_mac_address() != std::string(""))
 		Ble_instance.setup_ble(Settings_file.get_mac_address());
 		
-	string s = Settings_file.find_audio("device");
-	
-	//(char *)s.c_str(), pcmrate, stereo
-	audio_output = new AudioOutput();
-	if (!(*audio_output)) {
-		fprintf(stderr,"ERROR: AudioOutput\n");
-		exit(1);
-	}
-	audio_output->init(s, pcmrate);
 
-
-	//(char *)s.c_str(), pcmrate
-	audio_input = new AudioInput();
-	if (!(*audio_input)) {
-		fprintf(stderr,"ERROR: AudioInput\n");
-	}	
-	audio_input->init(s, pcmrate);
-	audio_output->set_volume(50);
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
 	to_upper(smode);
@@ -333,7 +332,8 @@ void select_mode(int s_mode)
 	stop_tx_flag = false;
 	stop_flag = false;
 	mode = s_mode;
-	
+	set_tx_state(false);
+	vfo.vfo_rxtx(true, false);
 	printf("select_mode_rx start rx threads\n");
 	switch (mode)
 	{
@@ -378,6 +378,8 @@ void select_mode_tx(int s_mode)
 	mode = s_mode;
 	audio_output->close();
 	audio_input->open(&audioinput_buffer);
+	set_tx_state(true); // set tx button
+	vfo.vfo_rxtx(false, true);
 	printf("select_mode_tx start tx threads\n");
 	switch (mode)
 	{

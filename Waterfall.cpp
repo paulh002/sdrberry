@@ -39,11 +39,10 @@ Fft_calculator::Fft_calculator()
 
 Fft_calculator::~Fft_calculator()
 {
-	if (plan)
-		fft_destroy_plan(plan);
+
 }
 
-void	Fft_calculator::process_samples(IQSampleVector	input)
+void	Fft_calculator::process_samples(const IQSampleVector&	input)
 {
 	m_input.insert(m_input.end(), input.begin(), input.end());
 	if (m_input.size() >= nfft)
@@ -57,6 +56,7 @@ void	Fft_calculator::process_samples(IQSampleVector	input)
 		}
 		plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
 		fft_execute(plan);
+		fft_destroy_plan(plan);
 		m_input.clear();
 	}
 }
@@ -66,7 +66,6 @@ void	Fft_calculator::plan_fft(int size)
 	nfft = size;
 	fft_output.reserve(nfft); 
 	m_input.reserve(nfft);
-	plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
 	fft_output.resize(nfft); 
 	v_window.clear();
 	for (int i = 0; i < nfft; i++)

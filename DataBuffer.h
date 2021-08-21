@@ -74,6 +74,18 @@ template <class Element>
 			}
 			return ret;
 		}
+		
+		void pull(vector<Element>& samples)
+		{
+			unique_lock<mutex> lock(m_mutex);
+			while (m_queue.empty() && !m_end_marked)
+				m_cond.wait(lock);
+			if (!m_queue.empty()) {
+				m_qlen -= m_queue.front().size();
+				swap(samples, m_queue.front());
+				m_queue.pop();
+			}
+		}
 
 		/** Return true if the end has been reached at the Pull side. */
 		bool pull_end_reached()

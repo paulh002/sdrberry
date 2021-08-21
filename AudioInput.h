@@ -18,6 +18,7 @@ public:
 	~AudioInput();
 	double	get_volume() {return m_volume;}
 	void	set_volume(double vol)	{m_volume = vol; }
+
 	
 	operator bool() const
 	{

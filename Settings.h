@@ -13,6 +13,7 @@ class Settings
 public:
 	void read_settings(string settings_file);
 	void init_settings(string settings_file);
+	void write_settings();
 	string get_mac_address() {return mac_address; };
 	string find_audio(string key);
 	string find_radio(string key);
@@ -24,6 +25,12 @@ public:
 	int		volume();
 	int		gain();
 	int		txgain();
+	int		micgain();
+	int		drive();
+	void	set_drive(int drive);
+	void	set_micgain(int gain);
+	void	set_txgain(int gain);
+	void	set_gain(int gain);
 		
 	vector<int>				meters;
 	vector<string>			labels;
@@ -33,6 +40,7 @@ public:
 private:
 	
 	cfg::File				*config;
+	string					file;
 	string					mac_address;
 	map<string, string>		sdr;
 	map<string, string>		radio;

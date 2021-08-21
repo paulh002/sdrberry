@@ -63,7 +63,16 @@ void* rx_streaming_thread(void* psdr_dev)
 		vector<complex<float>>		buf(default_block_length);
 		
 		void *buffs[] = { buf.data() };
-		ret = sdr_dev->sdr->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
+		try 
+		{
+			ret = sdr_dev->sdr->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what();
+			printf("Error readStream exception\n");
+			pthread_exit(NULL);
+		}
 		if (ret == SOAPY_SDR_TIMEOUT) continue;
 		if (ret == SOAPY_SDR_OVERFLOW)
 		{
@@ -83,7 +92,16 @@ void* rx_streaming_thread(void* psdr_dev)
 		if (ret > 0)
 		{
 			buf.resize(ret);
-			sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));	
+			try 
+			{
+				sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));	
+			}
+			catch (const std::exception& e)
+			{
+				std::cout << e.what();
+				printf("Error readStream push exception\n");
+				pthread_exit(NULL);
+			}
 		}
 		
 		totalSamples += ret;
@@ -136,6 +154,7 @@ void stream_tx_set_frequency(struct device_structure *sdr_dev, unsigned long fre
 	if (sdr_dev->sdr != NULL)
 	{
 		sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, freq);	
+		sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate); 
 	}
 }
 

@@ -16,6 +16,8 @@ struct vfo_settings_struct
 	unsigned long		current_freq_vfo2[MAX_NUM_BAND];
 	struct				device_structure *sdr_dev;
 	double				tuner_offset; 
+	bool				tx;
+	bool				rx;
 };
 
 class CVfo
@@ -33,6 +35,8 @@ public:
 	void set_active_vfo(int active_vfo);
 	void set_vfo_range(long long low, long long high);
 	void set_band(int band, long long freq);
+	void sync_rx_vfo();
+	void vfo_rxtx(bool brx, bool btx);
 
 private:
 	struct vfo_settings_struct	vfo_setting;	

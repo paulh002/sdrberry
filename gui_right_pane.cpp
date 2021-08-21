@@ -178,7 +178,7 @@ static void gain_slider_event_cb(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target(e);
     char buf[20];
-    lv_snprintf(buf, sizeof(buf), "gain %d db", lv_slider_get_value(slider));
+	sprintf(buf,"gain %d db", lv_slider_get_value(slider));
     lv_label_set_text(gain_slider_label, buf);
     lv_obj_align_to(gain_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, soapy_devices[0].rx_channel, lv_slider_get_value(slider));
@@ -296,7 +296,7 @@ void set_gain_slider(int gain)
 	if (gain > max_gain)
 		gain = max_gain;
 	
-	lv_snprintf(buf, sizeof(buf), "gain %d db", gain);
+	sprintf(buf, "gain %d db", gain);
 	lv_label_set_text(gain_slider_label, buf);
 	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);		
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
@@ -314,7 +314,7 @@ void step_gain_slider(int step)
 		gain = max_gain;
 	if (gain < min_gain)
 		gain = min_gain;
-	lv_snprintf(buf, sizeof(buf), "gain %d db", gain);
+	sprintf(buf, "gain %d db", gain);
 	lv_label_set_text(gain_slider_label, buf);
 	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);		
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
@@ -336,9 +336,10 @@ void hide_agc_slider(void)
 
 static void vol_slider_event_cb(lv_event_t * e)
 {
-	lv_obj_t * slider = lv_event_get_target(e);
 	char buf[20];
-	lv_snprintf(buf, sizeof(buf), "volume %d", lv_slider_get_value(slider));
+	
+	lv_obj_t * slider = lv_event_get_target(e);
+	sprintf(buf, "volume %d", lv_slider_get_value(slider));
 	lv_label_set_text(vol_slider_label, buf);
 	lv_obj_align_to(vol_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	audio_output->set_volume(lv_slider_get_value(slider));
@@ -358,7 +359,8 @@ void set_vol_slider(int volume)
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);
 	
 	char buf[20];
-	lv_snprintf(buf, sizeof(buf), "volume %d", volume);
+	
+	sprintf(buf, "volume %d", volume);
 	lv_label_set_text(vol_slider_label, buf);
 	lv_obj_align_to(vol_slider_label, vol_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	audio_output->set_volume(volume);

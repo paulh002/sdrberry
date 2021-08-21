@@ -40,19 +40,25 @@ const cfg::File::ConfigMap defaultOptions = {
 	}
 };
 
-
+void Settings::write_settings()
+{
+	for (auto& option : config->getSection("Radio"))
+	{
+		auto s = radio.find(option.first);
+		option.second.setString(s->second);
+	}
+	
+	config->writeToFile(file.c_str());
+}
 
 void Settings::read_settings(string settings_file)
 {
 	config = new cfg::File();
 	
-	
+	file = settings_file;
 	if (!config->loadFromFile((char *)settings_file.c_str()))
 	{
 		config->setDefaultOptions(defaultOptions);
-		
-		
-		
 		config->writeToFile(settings_file.c_str());
 	}
 	int i = 0;
@@ -221,6 +227,18 @@ int Settings::gain()
 		return 0;
 }
 
+void Settings::set_gain(int gain)
+{
+	if (radio.find("gain") != radio.end())
+	{
+		auto s = radio.find("gain");
+		s->second = to_string(gain);
+		return;
+	}
+	else 
+		return;
+}
+
 int Settings::txgain()
 {
 	if (radio.find("txgain") != radio.end())
@@ -230,4 +248,62 @@ int Settings::txgain()
 	}
 	else 
 		return 0;
+}
+
+void Settings::set_txgain(int gain)
+{
+	if (radio.find("txgain") != radio.end())
+	{
+		auto s = radio.find("txgain");
+		s->second = to_string(gain);
+		return;
+	}
+	else 
+		return;
+}
+
+int Settings::micgain()
+{
+	if (radio.find("mic_gain") != radio.end())
+	{
+		auto s = radio.find("mic_gain");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+void Settings::set_micgain(int gain)
+{
+	if (radio.find("mic_gain") != radio.end())
+	{
+		auto s = radio.find("mic_gain");
+		s->second = to_string(gain);
+		return;
+	}
+	else 
+		return;
+}
+
+int Settings::drive()
+{
+	if (radio.find("drive") != radio.end())
+	{
+		auto s = radio.find("drive");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+void Settings::set_drive(int drive)
+{
+	if (radio.find("drive") != radio.end())
+	{
+		auto s = radio.find("drive");
+		s->second = to_string(drive);
+		return;
+	}
+	else 
+		return;
 }

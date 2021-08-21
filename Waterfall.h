@@ -36,7 +36,7 @@ private:
 class Fft_calculator
 {
 public:	
-	void	process_samples(IQSampleVector	input);
+	void	process_samples(const IQSampleVector&	input);
 	void	plan_fft(int size);
 	void	upload_fft(std::vector<lv_coord_t>&	data_set);
 	void	set_signal_strength(double strength);

@@ -21,6 +21,7 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		((double *)buffer)[i++] = v;
 	}
 	samples.clear();
+	samples.resize(0);
 	return 0;
 }
 

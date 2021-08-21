@@ -1,39 +1,12 @@
 #include "ble_interface.h"
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-#include <tinyb.hpp>
-#include "lvgl/lvgl.h"
-
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <cerrno>
-#include <array>
-#include <iomanip>
-#include <vector>
-#include <iostream>
-#include <thread>
-#include <atomic>
-#include <csignal>
-#include <signal.h>
-#include "vfo.h"
-#include "RtAudio.h"
-#include "Audiodefs.h"
-#include "DataBuffer.h"
-#include "AudioOutput.h"
-#include "AudioInput.h"
-#include "gui_right_pane.h"
-#include "sdrberry.h"
-#include <stdexcept>
-
 using namespace tinyb;
 
 //std::condition_variable cv;
 //std::atomic<bool> running(true);
 
 ble_class	Ble_instance;
+extern mutex	gui_mutex;
 
 void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &data, void *userdata)
 {
@@ -55,7 +28,10 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 				*ptr = '\0';
 			ii = atoi(buf);
 			if (ii)
+			{
+				unique_lock<mutex> gui_lock(gui_mutex);
 				vfo.step_vfo(ii);	
+			}
 			return;
 		}
 		char *ptr1 = strstr(buf, "VOL");
@@ -66,7 +42,10 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 				*ptr = '\0';
 			ii = atoi(ptr1+3);
 			if (ii)
+			{
+				unique_lock<mutex> gui_lock(gui_mutex);
 				step_vol_slider(ii);
+			}
 		}
 		ptr1 = strstr(buf, "GAIN");
 		if (ptr1)
@@ -76,7 +55,10 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 				*ptr = '\0';
 			ii = atoi(ptr1+4);
 			if (ii)
+			{
+				unique_lock<mutex> gui_lock(gui_mutex);
 				step_gain_slider(ii);
+			}
 		}
 		ptr1 = strstr(buf, "TX");
 		if (ptr1)
@@ -85,7 +67,10 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 			if (ptr != NULL)
 				*ptr = '\0';
 			// start tx mode
+			{
+				unique_lock<mutex> gui_lock(gui_mutex);
 				select_mode_tx(mode);
+			}
 		}
 		ptr1 = strstr(buf, "RX");
 		if (ptr1)
@@ -94,18 +79,21 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 			if (ptr != NULL)
 				*ptr = '\0';
 			// start rx mode
-				 select_mode(mode);
+			{
+				unique_lock<mutex> gui_lock(gui_mutex);
+				select_mode(mode);
+			}
 		}
 	}
 }
 
 
-int ble_class::setup_ble(string mac_address)
+int ble_class::setup_ble()
 {	char str[80];
 	
-	to_upper(mac_address);
-	m_mac_address = mac_address;
-	strcpy(str, mac_address.c_str());
+	//to_upper(mac_address);
+	//m_mac_address = mac_address;
+	strcpy(str, m_mac_address.c_str());
 	try {
 		manager = BluetoothManager::get_bluetooth_manager();
 	}
@@ -156,6 +144,7 @@ int ble_class::setup_ble(string mac_address)
 	value_uuid = std::string("427ffc34-ea17-11eb-9a03-0242ac130003");
     encoder_value = encoder_service->find(&value_uuid);
     encoder_value->enable_value_notifications(data_callback, nullptr);
+	m_connected = true;
 	return 0;
 	}
 
@@ -194,7 +183,6 @@ int ble_class::connect()
 		},
 		NULL);
 
-	std::cout << " connect" << std::endl;
 	if (sensor_tag != nullptr) {
 		/* Connect to the device and get the list of services exposed by it */
 		sensor_tag->connect();
@@ -226,3 +214,24 @@ int ble_class::connect()
 	return 0;
 }
 
+pthread_t	ble_thread_handle {0};
+	
+void* ble_thread(void* psdr_dev)
+{
+	Ble_instance.setup_ble();
+	while (1)
+	{
+		if (!Ble_instance.is_connected())
+		{
+			Ble_instance.connect();
+		}
+		usleep(5000);
+	}
+}
+
+int create_ble_thread(string mac_address)
+{
+	Ble_instance.set_mac_address(mac_address);
+	if (ble_thread_handle == 0)
+		return pthread_create(&ble_thread_handle, NULL, ble_thread, NULL);
+}

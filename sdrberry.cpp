@@ -194,9 +194,10 @@ int main(int argc, char *argv[])
 	lv_label_set_text(label1, "Setup");
 	
 	if (Settings_file.get_mac_address() != std::string(""))
-		Ble_instance.setup_ble(Settings_file.get_mac_address());
-		
-
+		create_ble_thread(Settings_file.get_mac_address());
+	
+	//Ble_instance.setup_ble(Settings_file.get_mac_address());
+	
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
 	to_upper(smode);
@@ -265,7 +266,10 @@ int main(int argc, char *argv[])
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	while (1) {
+		unique_lock<mutex> gui_lock(gui_mutex); 
 		lv_task_handler();
+		gui_lock.unlock(); 
+		
 		//Ble_instance.connect();
 		
 		const auto now = std::chrono::high_resolution_clock::now();

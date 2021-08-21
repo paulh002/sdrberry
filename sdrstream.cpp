@@ -92,16 +92,7 @@ void* rx_streaming_thread(void* psdr_dev)
 		if (ret > 0)
 		{
 			buf.resize(ret);
-			try 
-			{
-				sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));	
-			}
-			catch (const std::exception& e)
-			{
-				std::cout << e.what();
-				printf("Error readStream push exception\n");
-				pthread_exit(NULL);
-			}
+			sdr_dev->channel_structure_rx[0].source_buffer->push(move(buf));
 		}
 		
 		totalSamples += ret;
@@ -164,6 +155,10 @@ void* tx_streaming_thread(void* psdr_dev)
 	SoapySDR::Stream		*tx_stream;
 	
 	unique_lock<mutex> lock_stream(stream_finish); 
+	const auto startTime = std::chrono::high_resolution_clock::now();
+	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	auto timeLastSpin = std::chrono::high_resolution_clock::now();
+	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
 	
 	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
@@ -222,6 +217,18 @@ void* tx_streaming_thread(void* psdr_dev)
 			sdr_dev->sdr->closeStream(tx_stream);
 			iqsamples.clear();
 			pthread_exit(NULL);			
+		}
+		totalSamples += ret;
+		const auto now = std::chrono::high_resolution_clock::now();
+		if (timeLastPrint + std::chrono::seconds(5) < now)
+		{
+			timeLastPrint = now;
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+			const auto sampleRate = double(totalSamples) / timePassed.count();
+			printf("tx \b%g Msps\t%g MBps", sampleRate, sampleRate * 1*sizeof(complex<float>));
+			if (overflows != 0) printf("\tOverflows %u", overflows);
+			if (underflows != 0) printf("\tUnderflows %u", underflows);
+			printf("\n ");
 		}
 		iqsamples.clear();
 	}

@@ -1,42 +1,4 @@
-#include <unistd.h>
-#include <pthread.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdint.h>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <liquid.h>
-#include <complex>
-#include <vector>
-#include "lvgl/lvgl.h"
-#include "lv_drivers/display/fbdev.h"
-#include "lv_drivers/indev/evdev.h"
-#include "devices.h"
-#include "gui_right_pane.h"
-#include "gui_top_bar.h"
-#include "gui_tx.h"
-#include "ble_interface.h"
-#include "vfo.h"
-#include "sdrstream.h"
-#include "gui_vfo.h"
-#include "Settings.h"
-#include "Gui_band.h"
-#include "Keyboard.h"
-#include <memory>
 #include "sdrberry.h"
-#include "FmDecode.h"
-#include "RtAudio.h"
-#include "DataBuffer.h"
-#include "Audiodefs.h"
-#include "AudioOutput.h"
-#include "AudioInput.h"
-#include "Waterfall.h"
-#include "AMDemodulator.h"
-#include "AMmodulator.h"
-#include "sdrberry.h"
-#include "MidiControle.h"
-
 
 AudioOutput *audio_output;
 AudioInput *audio_input;
@@ -77,6 +39,7 @@ using namespace std;
 
 atomic_bool stop_flag(false);
 atomic_bool stop_tx_flag(false);
+atomic_bool	stop_txmod_flag(false);
 
 std::mutex gui_mutex;
 
@@ -115,7 +78,7 @@ int main(int argc, char *argv[])
 	if (!(*audio_input)) {
 		fprintf(stderr, "ERROR: AudioInput\n");
 	}	
-	audio_input->init(s, pcmrate);
+	audio_input->init(s, pcmrate, false, &audioinput_buffer);
 	audio_output->set_volume(50);
 	
 
@@ -180,17 +143,11 @@ int main(int argc, char *argv[])
 
 	
 	Waterfall	Wf;
-	Wf.init(tab1, 0, 0, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
-	
-	//lv_obj_t * label1 = lv_label_create(tab1);
-	//lv_label_set_text(label1, "Waterfall");
-		
-	lv_obj_t * label1 = lv_label_create(tab4);
-	lv_label_set_text(label1, "RX");
-
+	Wf.init(tab1, 0, 0, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);	
+	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - rightWidth - 3);
 	gui_tx_init(tab5, LV_HOR_RES - rightWidth - 3);
 		
-	label1 = lv_label_create(tab6);
+	lv_obj_t *label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
 	if (Settings_file.get_mac_address() != std::string(""))
@@ -246,7 +203,11 @@ int main(int argc, char *argv[])
 		vfo.set_vfo_range(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum(),
 			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
 			
-		
+		for (auto& col : soapy_devices[0].channel_structure_rx[0].bandwidth_range)
+		{
+			int v = col.minimum();
+			Gui_rx.add_sample_rate(v);
+		}
 		soapy_devices[0].channel_structure_tx[0].source_buffer = &source_buffer_tx;
 		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
@@ -269,8 +230,6 @@ int main(int argc, char *argv[])
 		unique_lock<mutex> gui_lock(gui_mutex); 
 		lv_task_handler();
 		gui_lock.unlock(); 
-		
-		//Ble_instance.connect();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastStatus + std::chrono::milliseconds(200) < now && !stop_flag.load())
@@ -315,26 +274,33 @@ uint32_t custom_tick_get(void)
 static int mode_running = 0;
 
 void select_mode(int s_mode)
-{
-	// Stop all threads
-	stop_tx_flag = true;
-	mode_running = 0;
+{	
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
 	// stop transmit and close audio input
+	
+	printf("stop stream\n");
+	stop_tx_flag = true;
 	unique_lock<mutex> lock_stream(stream_finish); 
-	stop_flag = true;
+	printf("stop am_tx\n");
+	stop_txmod_flag = true;
 	unique_lock<mutex> lock_am_tx(am_tx_finish); 
+	printf("stop am_finish \n");
+	stop_flag = true;
 	unique_lock<mutex> lock_am(am_finish); 
+	printf("stop fm_finish \n");
 	unique_lock<mutex> lock_fm(fm_finish); 
-	audio_input->close();
-	audio_output->open(&audiooutput_buffer);
 	lock_am.unlock();
 	lock_fm.unlock();
 	lock_stream.unlock();
 	lock_am_tx.unlock();
+	audio_input->close(); 
+	audio_output->open(&audiooutput_buffer);
+	
+	mode_running = 0;
 	stop_tx_flag = false;
 	stop_flag = false;
+	stop_txmod_flag = false;
 	mode = s_mode;
 	set_tx_state(false);
 	vfo.vfo_rxtx(true, false);
@@ -344,6 +310,7 @@ void select_mode(int s_mode)
 	case mode_broadband_fm:
 		start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
 		mode_running = 1;
+		create_rx_streaming_thread(&soapy_devices[0]); 
 		break;
 		
 	case mode_am:
@@ -352,9 +319,9 @@ void select_mode(int s_mode)
 	case mode_lsb:
 		start_dsb(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
 		mode_running = 2;
+		create_rx_streaming_thread(&soapy_devices[0]);
 		break;
 	}
-	create_rx_streaming_thread(&soapy_devices[0]);
 }
 
 void select_filter(int ifilter)
@@ -381,7 +348,6 @@ void select_mode_tx(int s_mode)
 	stop_flag = false;
 	mode = s_mode;
 	audio_output->close();
-	audio_input->open(&audioinput_buffer);
 	set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
 	printf("select_mode_tx start tx threads\n");
@@ -398,9 +364,9 @@ void select_mode_tx(int s_mode)
 	case mode_lsb:
 		start_dsb_tx(mode, ifrate, pcmrate, &source_buffer_tx, audio_input);
 		mode_running = 2;
+		soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, 0, (double)Settings_file.txgain());
+		create_tx_streaming_thread(&soapy_devices[0]);
 		break;
 	}
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, 0, (double)Settings_file.txgain());
-	create_tx_streaming_thread(&soapy_devices[0]);
 }
 

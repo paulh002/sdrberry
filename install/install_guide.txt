@@ -39,7 +39,8 @@ SoapySDRUtil --probe
 4) Install liquid dsp
 sudo apt-get install -y fftw3-dev
 git clone git://github.com/jgaeddert/liquid-dsp.git
-sudo apt-get install automake autoconf
+sudo apt-get install -y automake autoconf
+cd liquid-dsp
 ./bootstrap.sh
 ./configure
 make -j4
@@ -50,7 +51,7 @@ sudo ldconfig
 wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.60.tar.xz
 tar xvf bluez-5.60.tar.xz
 sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev libdbus-1-dev libical-dev
-sudo apt-get install python-docutils
+sudo apt-get install -y python-docutils
 cd bluez-5.60
 ./configure --enable-library
 make -j4
@@ -59,15 +60,13 @@ sudo make install
 btmon -v
 
 6) Install some common drivers
-sudo apt-get install -y ninja-build
-sudo apt-get install -y libiio-dev
-sudo apt-get install -y libiio-utils
-sudo apt-get install -y libasound-dev 
-sudo apt-get install libboost1.62-all-dev
+sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
+sudo apt-get install -y libboost1.62-all-dev
 sudo ldconfig
 
 7) Install tinyb
 git clone https://github.com/intel-iot-devkit/tinyb
+cd tinyb
 mkdir build
 cd build
 cmake ..
@@ -76,11 +75,12 @@ sudo make install
 sudo ldconfig 
 
 8) Install RtAudio
-git https://github.com/thestk/rtaudio
+git clone https://github.com/thestk/rtaudio
+cd rtaudio
 mkdir build
 cd build
 cmake ..
-make
+make -j4
 sudo make install
 sudo ldconfig 
 
@@ -94,7 +94,7 @@ copy files to home dir of user pi
 10) (Optional )Only for Adlam Pluto SDR install pluto drivers
 
 // check https://wiki.analog.com/resources/tools-software/linux-software/libiio
-sudo apt install libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
+sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
 git clone https://github.com/analogdevicesinc/libad9361-iio
 sudo apt-get install doxygen
 sudo apt-get install -y libiio-dev

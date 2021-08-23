@@ -10,14 +10,16 @@
 class AudioInput : public RtAudio
 {
 public:
-	bool init(std::string device, int pcmrate);
-	bool open(DataBuffer<Sample>	*AudioBuffer);
+	bool init(std::string device, int pcmrate, bool stereo, DataBuffer<Sample>	*AudioBuffer);
+	bool open();
 	void adjust_gain(SampleVector& samples);
 	bool read(SampleVector& samples);
 	void close();
 	~AudioInput();
 	double	get_volume() {return m_volume;}
 	void	set_volume(double vol)	{m_volume = vol; }
+	void	ToneBuffer();
+	
 
 	
 	operator bool() const
@@ -32,8 +34,10 @@ private:
 	double						m_volume {0.5};
 	DataBuffer<Sample>			*databuffer;
 	string						m_error;
-	bool						m_zombie {false}
-	;
+	bool						m_zombie {false};
+	long						asteps {0};
+	bool						m_stereo;
+	double						Nexttone();
 };
 
 extern  AudioInput  *audio_input;

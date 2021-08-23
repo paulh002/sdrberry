@@ -1,4 +1,5 @@
 #include "AudioInput.h"
+bool g_stereo = false;
 
 int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
 {
@@ -13,13 +14,14 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	{
 		Sample f = ((double *)inputBuffer)[i];
 		buf.push_back(f);
-		buf.push_back(f);
+		if (g_stereo)
+			buf.push_back(f);
 	}
 	((DataBuffer<Sample> *)userData)->push(move(buf));
 	return 0;
 }
 
-bool AudioInput::init(std::string device, int pcmrate)
+bool AudioInput::init(std::string device, int pcmrate, bool stereo ,DataBuffer<Sample>	*AudioBuffer)
 {
 	if (this->getDeviceCount() < 1) {
 		std::cout << "\nNo audio devices found!\n";
@@ -32,19 +34,19 @@ bool AudioInput::init(std::string device, int pcmrate)
 		m_zombie = true;
 		return false;
 	}*/
+	g_stereo = m_stereo = stereo;
+	databuffer = AudioBuffer; 
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
 	bufferFrames = 1024;  // 256 sample frames
-	databuffer = nullptr;
 return true;
 }
 
-bool AudioInput::open(DataBuffer<Sample>	*AudioBuffer)
+bool AudioInput::open()
 {
-	databuffer = AudioBuffer;
 	try {
-		this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)AudioBuffer);
+		this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)databuffer);
 		this->startStream();
 	}
 	catch (RtAudioError& e) {
@@ -66,8 +68,6 @@ bool AudioInput::read(SampleVector& samples)
 {
 	if (databuffer == nullptr)
 		return false;
-	if (databuffer->queued_samples() == 0)
-		return false;
 	samples = databuffer->pull();
 	if (samples.empty())
 		return false;
@@ -83,4 +83,27 @@ void AudioInput::close()
 AudioInput::~AudioInput()
 {
 	close();
+}
+
+#define TWOPIOVERSAMPLERATE 0.0001308996938995747;  // 2 Pi / 48000
+const double cw_keyer_sidetone_frequency {1000.0};
+
+double AudioInput::Nexttone()
+{
+	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
+	if (++asteps == 48000) asteps = 0;
+	return sin(angle);
+}
+
+void AudioInput::ToneBuffer()
+{
+	SampleVector	buf;
+	for (int i = 0; i < bufferFrames; i++)
+	{
+		Sample f = (Sample) Nexttone();
+		buf.push_back(f);
+		if (m_stereo)
+			buf.push_back(f);
+	}
+	databuffer->push(move(buf));
 }

@@ -234,4 +234,5 @@ int create_ble_thread(string mac_address)
 	Ble_instance.set_mac_address(mac_address);
 	if (ble_thread_handle == 0)
 		return pthread_create(&ble_thread_handle, NULL, ble_thread, NULL);
+	return 0;
 }

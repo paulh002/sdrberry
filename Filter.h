@@ -1,8 +1,16 @@
 #ifndef SOFTFM_FILTER_H
 #define SOFTFM_FILTER_H
 
+#include <cassert>
+#include <cmath>
+#include <cstdint>
+#include <algorithm>
+#include <complex>
 #include <vector>
-#include "sdrberry.h"
+#include "Audiodefs.h"
+#include "DataBuffer.h"
+
+
 
 
 /** Fine tuner which shifts the frequency of an IQ signal by a fixed offset. */

@@ -271,11 +271,7 @@ static std::string probeChannel(SoapySDR::Device *device, struct channel_structu
     //bandwidths
     const auto bws = device->getBandwidthRange(dir, chan);
     if (not bws.empty()) ss << "  Filter bandwidths: " << toString(bws, 1e6) << " MHz" << std::endl;
-	for (size_t i = 0; i < bws.size(); i++)
-	{
-		r = bws.at(i);
-		channel->bandwidth_range[i] = r;
-	}
+	channel->bandwidth_range = bws;
 			
     //sensors
     std::string sensors = toString(device->listSensors(dir, chan));

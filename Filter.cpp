@@ -1,10 +1,3 @@
-
-#include <cassert>
-#include <cmath>
-#include <cstdint>
-#include <algorithm>
-#include <complex>
-
 #include "Filter.h"
 
 using namespace std;

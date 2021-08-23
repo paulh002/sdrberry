@@ -13,6 +13,7 @@
 
 struct	modulator_struct
 {
+	bool					tone;
 	double					ifrate;
 	double					tuner_offset;
 	liquid_ampmodem_type	mode;
@@ -28,6 +29,7 @@ class AMmodulator
 {
 public:
 	void	init(modulator_struct * ptr);
+	void	tone(bool tone);
 	void	set_filter(double if_rate, int band_width);
 	void	process(const SampleVector& samples, double if_rate, DataBuffer<IQSample> *source_buffer);
 	double get_if_level() const

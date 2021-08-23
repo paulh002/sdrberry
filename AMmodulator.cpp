@@ -18,13 +18,13 @@ static	modulator_struct	mod_data;
 
 void	AMmodulator::init(modulator_struct * ptr)
 {
-	float       mod_index          = 0.8f;      // modulation index (bandwidth)
+	float       mod_index          = 0.9f;      // modulation index (bandwidth)
     float		As = 60.0f;       // resampling filter stop-band attenuation [dB]
 	float		r = (float) ptr->ifrate / (float)ptr->pcmrate ; 
 	
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	m_mod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
-	set_filter(ptr->ifrate, 5);
+	set_filter(ptr->ifrate, 4);
 	
 	if (r > 1.0001)
 	{
@@ -35,9 +35,24 @@ void	AMmodulator::init(modulator_struct * ptr)
 	}
 }
 
+void	AMmodulator::tone(bool tone)
+{
+	unique_lock<mutex> lock(m_mutex); 
+	if (tone)
+	{
+		audio_input->close();
+		m_modulator.tone = tone;
+	}
+	else
+	{
+		m_modulator.tone = false;
+		m_modulator.audio_input->open();
+	}
+}
+	
 void	AMmodulator::set_filter(double if_rate, int band_width)
 {
-	double	factor {0.0625};
+	double	factor {0.03125};
 	
 	unique_lock<mutex> lock(m_mutex); 
 	if (m_lowpass)
@@ -84,23 +99,15 @@ void	AMmodulator::set_filter(double if_rate, int band_width)
 void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer<IQSample>	*source_buffer)
 {
 	IQSampleVector				buf_mod, buf_filter, buf_out;
-	unsigned int				num_written;
+	unsigned int				num_written, i = 0;
 	
 	unique_lock<mutex> lock(m_mutex); 
-	buf_mod.reserve(samples.size());
-	buf_mod.resize(samples.size());
-	for (auto& col : buf_mod)
-	{
-		col.real(0.0);
-		col.imag(0.0);
-	}
-	int i = 0;
 	// Modulate audio to USB, LSB or DSB
 	for (auto& col : samples)
-	{
-		ampmodem_modulate(m_mod, col, &buf_mod[i++]);
+	{	complex<float> f;
+		ampmodem_modulate(m_mod, col, &f);
+		buf_mod.push_back(f);
 	}
-	
 	double if_rms = rms_level_approx(buf_mod);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
 	//printf("if level %f if_rms %f \n", m_if_level, if_rms);
@@ -110,9 +117,9 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 	{
 		complex<float> v;
 		iirfilt_crcf_execute(m_lowpass, col, &v);
-		buf_filter.insert(buf_filter.end(), v);
+		buf_filter.push_back(v);
 	}	
-	
+	Fft_calc.process_samples(buf_filter);
 	// convert to output samplerate?
 	if (m_bresample)
 	{
@@ -124,7 +131,6 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 	else
 	{
 		source_buffer->push(move(buf_filter));
-		//printf("level %f\n", if_rms);
 	}
 	buf_mod.clear();
 	buf_filter.clear();
@@ -139,19 +145,33 @@ void* am_mod_thread(void* ptr)
 	SampleVector            audiosamples;
 	AMmodulator				ammod;
 	int						ifilter {-1};
+	int						start_stream = 0;
 	
-	unique_lock<mutex> lock(am_tx_finish); 
+	unique_lock<mutex> am_tx_lock(am_tx_finish); 
 	printf("start am_mod_thread\n");
 	ammod.init(mod_ptr);
-	while (!stop_flag.load())
+	while (!stop_txmod_flag.load())
 	{
+		if (mod_ptr->tone)
+		{
+			audio_input->ToneBuffer();
+			start_stream++;
+			if (start_stream > 3)
+			{
+				usleep(20900);
+				start_stream = 4;
+			}
+		}
 		if (audio_input->read(audiosamples) == false)
 		{
+			printf("wait for input\n");
+			usleep(22000); // wait 1024 audio sample time
 			continue;
 		}
 		//audio_output->write(audiosamples);
 		//audio_input->adjust_gain(audiosamples);	
 		ammod.process(audiosamples, mod_ptr->ifrate, mod_ptr->source_buffer);
+		
 		//Fft_calc.set_signal_strength(ammod.get_if_level()); 
 		audiosamples.clear();
 	}
@@ -175,6 +195,7 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *so
 	mod_data.ifrate = ifrate;
 	mod_data.tuner_offset = 0;      // not used 
 	mod_data.downsample = 0;      //not used
+	mod_data.tone = false;
 		
 	switch (mode)
 	{
@@ -202,5 +223,6 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *so
 		printf("Mode not correct\n");		
 		return;
 	}
+	audio_input->open();
 	create_am_tx_thread(&mod_data);
 }

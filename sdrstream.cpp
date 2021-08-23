@@ -193,10 +193,10 @@ void* tx_streaming_thread(void* psdr_dev)
 		{
 			continue;
 		}
-		//printf("samples %d %f %f \n", iqsamples.size() / 2, iqsamples[0].real(), iqsamples[0].imag());
+		//printf("samples %d %f %f \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		void *buffs[] = { iqsamples.data() };
-		ret = sdr_dev->sdr->writeStream(tx_stream, buffs, iqsamples.size() / 2, flags, time_ns, 1e5);
-		if (ret == SOAPY_SDR_TIMEOUT) 
+		ret = sdr_dev->sdr->writeStream(tx_stream, buffs, iqsamples.size(), flags, time_ns, 1e5);
+		if(ret == SOAPY_SDR_TIMEOUT) 
 		{
 			continue;
 		}

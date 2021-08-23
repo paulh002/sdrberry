@@ -1,13 +1,10 @@
 #ifndef SOFTFM_FMDECODE_H
 #define SOFTFM_FMDECODE_H
 
-#include <cstdint>
-#include <vector>
-
-#include "sdrberry.h"
+#include "Audiodefs.h"
 #include "Filter.h"
 #include "DataBuffer.h"
-#include "AudioOutput.h"
+
 
 /* Detect frequency by phase discrimination between successive samples. */
 class PhaseDiscriminator

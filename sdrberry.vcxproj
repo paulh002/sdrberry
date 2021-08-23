@@ -45,7 +45,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
@@ -55,7 +55,7 @@
       </DumpStackUsage>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
@@ -64,14 +64,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
       <CPPLanguageStandard />
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
@@ -96,6 +96,7 @@
     <ClCompile Include="FreeSansOblique42.c" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_right_pane.cpp" />
+    <ClCompile Include="gui_rx.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_right_pane.h" />
+    <ClInclude Include="gui_rx.h" />
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />

@@ -29,8 +29,8 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 			ii = atoi(buf);
 			if (ii)
 			{
-				unique_lock<mutex> gui_lock(gui_mutex);
-				vfo.step_vfo(ii);	
+				//unique_lock<mutex> lock_stream_write(stream_write);
+				vfo.step_vfo(ii, true);	
 			}
 			return;
 		}

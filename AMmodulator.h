@@ -13,7 +13,7 @@
 
 struct	modulator_struct
 {
-	bool					tone;
+	int						tone;
 	double					ifrate;
 	double					tuner_offset;
 	liquid_ampmodem_type	mode;
@@ -36,6 +36,9 @@ public:
 	{
 		return m_if_level;
 	}
+	void	am_exit();
+	void	createBandpass(int txfilter);
+	void	tune_offset(long offset);
 	
 private:
 	modulator_struct		m_modulator;
@@ -46,9 +49,15 @@ private:
 	bool					m_bresample {false};
 	long					m_resample;
 	msresamp_crcf 			m_q {0};
+	float					m_r;
 	DataBuffer<IQSample>    *m_source_buffer = NULL;	
 	double                  m_audio_mean, m_audio_rms, m_audio_level, m_if_level;
+	nco_crcf				m_upssb {nullptr}; 
+	nco_crcf				m_upnco {nullptr}; 
+	iirfilt_crcf			m_au_lp_q { nullptr };
+	iirfilt_crcf			m_tx_lp_q { nullptr };
+	long					m_offset {0};
 };
 
 
-void start_dsb_tx(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
+void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);

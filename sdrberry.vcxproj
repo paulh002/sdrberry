@@ -89,7 +89,6 @@
     <ClCompile Include="device.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
-    <ClCompile Include="FMDemodulator.cpp" />
     <ClCompile Include="FreeSans42.c" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -412,6 +411,7 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Setup.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
+    <ClInclude Include="SoapySDR\Constants.h" />
     <ClInclude Include="SoapySDR\ConverterPrimitives.hpp" />
     <ClInclude Include="SoapySDR\ConverterRegistry.hpp" />
     <ClInclude Include="SoapySDR\Device.hpp" />

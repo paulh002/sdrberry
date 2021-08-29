@@ -24,6 +24,8 @@
 
 using namespace std;
 
+mutex stream_write;
+
 void* rx_streaming_thread(void* psdr_dev)
 {
 	static const int		default_block_length {32768}; //32768
@@ -166,7 +168,7 @@ void* tx_streaming_thread(void* psdr_dev)
 
 	try 
 	{
-		tx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CF32);
+		tx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CS16);
 	}
 	catch (const std::exception& e)
 	{
@@ -179,23 +181,61 @@ void* tx_streaming_thread(void* psdr_dev)
 		pthread_exit(NULL);
 	}
 
-	sdr_dev->sdr->activateStream(tx_stream, 0, 0, 0);
+	sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
+	sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, 0.1);
+	sdr_dev->sdr->setAntenna(SOAPY_SDR_TX, 0, string("A"));
+	sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
+	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 89.0);
 	while (!stop_tx_flag.load())
 	{
 		unsigned int				overflows(0);
 		unsigned int				underflows(0); 
-		int							flags(0); 
+		int							flags(SOAPY_SDR_END_BURST); 
 		long long					time_ns(0);
+		int							samples_transmit;
+		vector<complex<int16_t>>	out_buf;
 		
-		
+		unique_lock<mutex> lock_stream_write(stream_write);
 		IQSampleVector iqsamples = sdr_dev->channel_structure_tx[0].source_buffer->pull();
-		if (!iqsamples.size()) 
+		if (iqsamples.empty())
 		{
-			continue;
+			// an empty vector is send when the stream is closed by suppying process
+			// source_buffer->push_end()
+			printf("Push End Exit writeStream\n");
+			sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
+			sdr_dev->sdr->deactivateStream(tx_stream);
+			sdr_dev->sdr->closeStream(tx_stream);
+			pthread_exit(NULL);
 		}
 		//printf("samples %d %f %f \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
-		void *buffs[] = { iqsamples.data() };
-		ret = sdr_dev->sdr->writeStream(tx_stream, buffs, iqsamples.size(), flags, time_ns, 1e5);
+		out_buf.clear();
+		for(auto& col : iqsamples)
+		{
+			complex<int16_t> w;
+			int16_t i[2];
+			i[0] = (int16_t)round(col.real() * 32767.999f);
+			i[1] = (int16_t)round(col.imag() * 32767.999f);
+			memcpy(&w, i, 2*sizeof(int16_t));
+			out_buf.push_back(w);
+		}
+		void *buffs[] = { out_buf.data() };
+		samples_transmit = out_buf.size();
+		
+		//samples_transmit = iqsamples.size();
+		//void *buffs[] = { iqsamples.data() };
+		do
+		{
+			ret = sdr_dev->sdr->writeStream(tx_stream, buffs, samples_transmit, flags, time_ns, 1e5);
+			//printf("send samples %d %d\n", ret, iqsamples.size());
+			if (ret > 0)
+			{
+				totalSamples += ret;
+				samples_transmit -= ret;
+				complex<int16_t> *f = out_buf.data();
+				buffs[0] = &f[out_buf.size() - samples_transmit];
+			}
+		} while ((ret > 0) && (samples_transmit > 0));
+		/*
 		if(ret == SOAPY_SDR_TIMEOUT) 
 		{
 			continue;
@@ -218,8 +258,20 @@ void* tx_streaming_thread(void* psdr_dev)
 			iqsamples.clear();
 			pthread_exit(NULL);			
 		}
-		totalSamples += ret;
 		const auto now = std::chrono::high_resolution_clock::now();
+		if (timeLastStatus + std::chrono::seconds(1) < now)
+		{
+			timeLastStatus = now;
+			while (true)
+			{
+				size_t chanMask; int flags; long long timeNs;
+				ret = sdr_dev->sdr->readStreamStatus(tx_stream, chanMask, flags, timeNs, 0);
+				if (ret == SOAPY_SDR_OVERFLOW) overflows++;
+				else if (ret == SOAPY_SDR_UNDERFLOW) underflows++;
+				else if (ret == SOAPY_SDR_TIME_ERROR) {}
+				else break;
+			}
+		}
 		if (timeLastPrint + std::chrono::seconds(5) < now)
 		{
 			timeLastPrint = now;
@@ -230,9 +282,11 @@ void* tx_streaming_thread(void* psdr_dev)
 			if (underflows != 0) printf("\tUnderflows %u", underflows);
 			printf("\n ");
 		}
-		iqsamples.clear();
+		*/
+		iqsamples.clear();		
 	}
 	printf("Exit writeStream\n");
+	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
 	sdr_dev->sdr->deactivateStream(tx_stream);
 	sdr_dev->sdr->closeStream(tx_stream);
 	pthread_exit(NULL);

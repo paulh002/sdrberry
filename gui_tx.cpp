@@ -10,6 +10,9 @@ static void drv_slider_event_cb(lv_event_t * e);
 
 const int micgain {100};
 
+int drv_min = 0;
+int drv_max = 15;
+
 
 /*
  * To do:
@@ -55,7 +58,7 @@ void gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
 	
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 6; i++)
 	{	char	str[80];
 		
 		tx_button[i] = lv_btn_create(o_tab);
@@ -81,6 +84,14 @@ void gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 			break;
 		case 3:
 			strcpy(str, "Split TX vfo");
+			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
+			break;
+		case 4:
+			strcpy(str, "Tune");
+			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
+			break;
+		case 5:
+			strcpy(str, "Two Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
 		}
@@ -164,6 +175,20 @@ static void tx_button_handler(lv_event_t * e)
 		else
 			select_mode(mode);
 	}
+	if (s == "Tune") 
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+			select_mode_tx(mode, 1);
+		else
+			select_mode(mode);
+	}
+	if (s == "Two Tone")
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+			select_mode_tx(mode, 2);
+		else
+			select_mode(mode);
+	}
 	if (s == "Sync RX vfo")
 	{
 		lv_obj_clear_state(tx_button[3], LV_STATE_CHECKED); 
@@ -202,12 +227,21 @@ void step_drv_slider(int step)
 	Settings_file.set_drive(lv_slider_get_value(drv_slider));
 }
 
+void set_drv_range()
+{
+	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.maximum();
+	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.minimum();
+	lv_slider_set_range(drv_slider, min_gain, max_gain);
+}
+
 void set_drv_slider(int drive)
 {
-	if (drive < 0)
-		drive = 0;
-	if (drive > 15)
-		drive = 15;
+	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.maximum();
+	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.minimum();
+	if (drive < min_gain)
+		drive = min_gain;
+	if (drive > max_gain)
+		drive = max_gain;
 	lv_slider_set_value(drv_slider, drive, LV_ANIM_ON);
 	char buf[20];
 	
@@ -232,4 +266,15 @@ void set_tx_state(bool state)
 		lv_obj_clear_state(tx_button[0], LV_STATE_CHECKED); 		
 		vfo.set_active_vfo(0);
 	}
+}
+
+
+static void drive_slider_event_cb(lv_event_t * e)
+{
+	lv_obj_t * slider = lv_event_get_target(e);
+	char buf[20];
+	sprintf(buf, "gain %d db", lv_slider_get_value(slider));
+	lv_label_set_text(drv_slider_label, buf);
+	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, lv_slider_get_value(slider));
 }

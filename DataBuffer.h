@@ -19,7 +19,7 @@ template <class Element>
 	{
 	public:
 		/** Constructor. initialize members */
-		DataBuffer()
+		DataBuffer(string name = "")
 			: m_qlen(0)
 			, m_end_marked(false)
 		{}
@@ -63,27 +63,19 @@ template <class Element>
 			vector<Element> ret;
 			unique_lock<mutex> lock(m_mutex);
 			while (m_queue.empty() && !m_end_marked)
-				m_cond.wait(lock);
+			{
+				m_cond.wait(lock); // conditional wait unlocks the mutex!
+			}
 			if (!m_queue.empty()) {
 				m_qlen -= m_queue.front().size();
 				swap(ret, m_queue.front());
 				m_queue.pop();
+				lock.unlock();
+				m_cond.notify_all();
 			}
 			return ret;
 		}
 		
-		void pull(vector<Element>& samples)
-		{
-			unique_lock<mutex> lock(m_mutex);
-			while (m_queue.empty() && !m_end_marked)
-				m_cond.wait(lock);
-			if (!m_queue.empty()) {
-				m_qlen -= m_queue.front().size();
-				swap(samples, m_queue.front());
-				m_queue.pop();
-			}
-		}
-
 		/** Return true if the end has been reached at the Pull side. */
 		bool pull_end_reached()
 		{
@@ -96,6 +88,14 @@ template <class Element>
 		{
 			unique_lock<mutex> lock(m_mutex);
 			while (m_qlen < minfill && !m_end_marked)
+				m_cond.wait(lock);
+		}
+		
+		/** Wait until the queue is reaching bottom or an end marker. */
+		void wait_queue_empty(size_t maxfill)
+		{
+			unique_lock<mutex> lock(m_mutex);
+			while (m_queue.size() > maxfill && !m_end_marked)
 				m_cond.wait(lock);
 		}
 

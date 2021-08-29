@@ -18,9 +18,11 @@ public:
 	~AudioInput();
 	double	get_volume() {return m_volume;}
 	void	set_volume(double vol)	{m_volume = vol; }
-	void	ToneBuffer();
-	
-
+	void	ToneBuffer(int tone);
+	DataBuffer<Sample>			*get_databuffer() {return databuffer;};
+	bool	get_stereo()		{return m_stereo;};
+	float	get_rms_level();
+	void	set_level(float f);
 	
 	operator bool() const
 	{
@@ -38,6 +40,8 @@ private:
 	long						asteps {0};
 	bool						m_stereo;
 	double						Nexttone();
+	double						NextTwotone();
+	float						m_level;
 };
 
 extern  AudioInput  *audio_input;

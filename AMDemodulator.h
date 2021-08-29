@@ -49,7 +49,6 @@ public:
 		return m_demod;
 	}
 	
-	IQSampleVector				m_buf_iffiltered; 
 	DataBuffer<IQSample>        *m_source_buffer = NULL;	
 	double                      m_audio_mean, m_audio_rms, m_audio_level;
 
@@ -63,6 +62,7 @@ private:
 	mutex						m_mutex; // used to lock the process for changing filters
 	condition_variable			m_cond;
 	int							m_order {6};
+	float						m_r;
 };
 
 

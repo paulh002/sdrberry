@@ -473,7 +473,8 @@ void* rx_fm_thread(void* fm_ptr)
 	SampleVector            audioframes;
 	
 	unique_lock<mutex> lock_fm(fm_finish); 
-	Fft_calc.plan_fft(min(1024, (int)(ifrate / 100.0)));
+	Fft_calc.plan_fft(nfft_samples); 
+	//Fft_calc.plan_fft(min(1024, (int)(ifrate / 100.0)));
 	while (!stop_flag.load())
 	{
 		
@@ -545,6 +546,7 @@ void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *sou
 	printf("audio sample rate: %u Hz\n", pcmrate);
 	printf("audio bandwidth:   %.3f kHz\n", bandwidth_pcm * 1.0e-3);
 	vfo.set_tuner_offset(0.25 * ifrate);
+	vfo.set_step(100, 10);
 	create_fm_thread(ifrate, 0.25 * ifrate, pcmrate, stereo, bandwidth_pcm, downsample, source_buffer, audio_output);			
 }
 	/* end */

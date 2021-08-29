@@ -20,17 +20,18 @@ void* am_demod_thread(void* ptr);
 void	AMDemodulator::init(demod_struct * ptr)
 {
 	float	As = 60.0f;      // resampling filter stop-band attenuation [dB]
-	float	mod_index  = 0.8f; 
-	float	r = (float)ptr->pcmrate / (float)ptr->ifrate; 
+	float	mod_index  = 0.03125f; 
+	
 	
 	// resampler and band filter
+	m_r = (float)ptr->pcmrate / (float)ptr->ifrate; 
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	m_source_buffer = ptr->source_buffer;
-	if (r < 0.5)
+	if (m_r < 0.5)
 	{
-		printf("resample rate %f \n", r);
+		printf("resample rate %f \n", m_r);
 		m_bresample = true;
-		m_q = msresamp_crcf_create(r, As);
+		m_q = msresamp_crcf_create(m_r, As);
 		msresamp_crcf_print(m_q);			
 	}
 	m_demod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
@@ -129,21 +130,23 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	unsigned int			num_written;
 	SampleVector			audio_tmp, audio_mono;
 	IQSampleVector			filter;
-	
+	IQSampleVector			buf_iffiltered; 
 	
 	// Downsample to pcmrate (pcmrate will be 44100 or 48000)
 	unique_lock<mutex> lock(m_mutex); 
-	m_buf_iffiltered.reserve(samples_in.size());
 	if (m_bresample)
 	{
-		msresamp_crcf_execute(m_q, (complex<float> *)samples_in.data(), samples_in.size(), (complex<float> *)m_buf_iffiltered.data(), &num_written);
-		m_buf_iffiltered.resize(num_written);
+		float nx = (float)samples_in.size() * m_r + 500;
+		buf_iffiltered.reserve((int)ceilf(nx));
+		buf_iffiltered.resize((int)ceilf(nx));
+		msresamp_crcf_execute(m_q, (complex<float> *)samples_in.data(), samples_in.size(), (complex<float> *)buf_iffiltered.data(), &num_written);	
+		buf_iffiltered.resize(num_written);
 	}
 	else
 	{
 		try
 		{
-			m_buf_iffiltered.insert(m_buf_iffiltered.begin(), samples_in.begin(), samples_in.end());
+			buf_iffiltered.insert(buf_iffiltered.begin(), samples_in.begin(), samples_in.end());
 		}
 		catch (const std::exception& e)
 		{
@@ -151,7 +154,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		}
 	}
 	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
-    for(auto& col : m_buf_iffiltered)
+    for(auto& col : buf_iffiltered)
 	{
 		complex<float> v;
 		iirfilt_crcf_execute(m_lowpass, col, &v);
@@ -180,7 +183,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		}	
 	}
 	mono_to_left_right(audio_mono, audio);
-	m_buf_iffiltered.clear();
+	buf_iffiltered.clear();
 	filter.clear();
 }
 
@@ -267,7 +270,8 @@ void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	demod.ifrate = ifrate;
 	demod.tuner_offset = 0;    // not used 
 	demod.downsample = 0;    //not used
-		
+	vfo.set_step(10, 0);
+	
 	printf("pcmrate %u\n", demod.pcmrate);
 	printf("ifrate %f\n", demod.ifrate);
 				

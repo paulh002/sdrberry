@@ -239,34 +239,11 @@ void Settings::set_gain(int gain)
 		return;
 }
 
-int Settings::txgain()
-{
-	if (radio.find("txgain") != radio.end())
-	{
-		auto s = radio.find("txgain");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-void Settings::set_txgain(int gain)
-{
-	if (radio.find("txgain") != radio.end())
-	{
-		auto s = radio.find("txgain");
-		s->second = to_string(gain);
-		return;
-	}
-	else 
-		return;
-}
-
 int Settings::micgain()
 {
-	if (radio.find("mic_gain") != radio.end())
+	if (radio.find("micgain") != radio.end())
 	{
-		auto s = radio.find("mic_gain");
+		auto s = radio.find("micgain");
 		return atoi((const char *)s->second.c_str());
 	}
 	else 
@@ -275,9 +252,9 @@ int Settings::micgain()
 
 void Settings::set_micgain(int gain)
 {
-	if (radio.find("mic_gain") != radio.end())
+	if (radio.find("micgain") != radio.end())
 	{
-		auto s = radio.find("mic_gain");
+		auto s = radio.find("micgain");
 		s->second = to_string(gain);
 		return;
 	}

@@ -57,6 +57,27 @@ private:
 	std::vector<float>			v_window;
 };
 
+template <typename _Real>
+	static inline
+	void rotshift(complex<_Real> * complexVector, const size_t count)
+	{
+		int center = (int) floor((float)count / 2);
+		if (count % 2 != 0) {
+			center++;
+		}
+		// odd: 012 34 changes to 34 012
+		std::rotate(complexVector, complexVector + center, complexVector + count);
+	}
+
+template <typename _Real>
+	static inline
+	void irotshift(complex<_Real> * complexVector, const size_t count)
+	{
+		int center = (int) floor((float)count / 2);
+		// odd: 01 234 changes to 234 01
+		std::rotate(complexVector, complexVector + center, complexVector + count);
+	}
+
 extern Fft_calculator	Fft_calc;
 
 IQSample::value_type rms_level_approx(const IQSampleVector& samples);

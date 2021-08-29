@@ -16,3 +16,4 @@ void step_mic_slider(int step);
 void set_drv_slider(int drive);
 void drv_mic_slider(int step);
 void set_tx_state(bool state);
+void set_drv_range();

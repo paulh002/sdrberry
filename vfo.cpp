@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <pthread.h>
+#include <mutex>
 #include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
@@ -25,6 +26,7 @@ unsigned long freqswitch_low[] = { 1800000, 3500000, 5350000, 7000000, 10100000,
 unsigned long freqswitch_high[] = { 1880000, 3800000, 5450000, 7200000, 10150000, 14350000, 18168000, 21450000, 29000000,
 52000000, 70500000, 107000000,146000000, 436000000, 1300000000, 2400000000};
 
+extern mutex	gui_mutex;
 CVfo	vfo;
 
 CVfo::CVfo()
@@ -41,12 +43,15 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 	vfo_setting.rx = brx;
 }
 
-void CVfo::vfo_init(long long freq)
+void CVfo::vfo_init(long long freq, long ifrate)
 {
 	vfo_setting.vfo_freq[0] = freq;
+	vfo_setting.vfo_freq_sdr[0] = freq - ifrate / 4;
 	gui_vfo_inst.set_vfo_gui(0, freq);
 	vfo_setting.vfo_freq[1] = freq;
+	vfo_setting.vfo_freq_sdr[1] = freq - ifrate / 4;
 	gui_vfo_inst.set_vfo_gui(1, freq);
+	vfo_setting.m_max_offset = ifrate / 2;
 }
 
 /* this function reads the device capability and translates it to f license bandplans*/
@@ -55,15 +60,54 @@ void CVfo::set_vfo_capability(struct device_structure *sdr_dev)
 	vfo_setting.sdr_dev = sdr_dev;
 }
 
-int CVfo::set_vfo(long long freq)
+long CVfo::get_vfo_offset()
 {
+	unique_lock<mutex> lock(m_vfo_mutex); 
+	return vfo_setting.m_offset[vfo_setting.active_vfo];
+}
+
+int CVfo::set_vfo(long long freq, bool lock)
+{
+	unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
+	
 	if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
 		return -1;
-	
 	//vfo_setting.band[1] = band;
 	vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
-	if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
-	if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
+	//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+	if (freq > vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo])
+	{
+		// frequency increase
+	   if((freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) > vfo_setting.m_max_offset)
+		{
+			// set a new center frequency
+			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] += vfo_setting.m_max_offset / 2;
+			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
+			if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+			if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);					
+			tune_flag = true;
+			//printf("set sdr frequency %lld %lld %lld\n", vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] + vfo_setting.m_offset[vfo_setting.active_vfo], freq);
+		}
+		else
+		{
+			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
+			tune_flag = true;
+			//printf("set offset %ld\n", vfo_setting.m_offset[vfo_setting.active_vfo]);
+		}
+	}
+	else
+	{
+		// frequency decrease		
+		vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] -= vfo_setting.m_max_offset /2;
+		vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
+		if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+		if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);					
+		tune_flag = true;
+		//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+	}
+	
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	return 0;
 }
@@ -74,10 +118,17 @@ void CVfo::sync_rx_vfo()
 	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1]);
 }
 	
-void CVfo::step_vfo(long icount)
+void CVfo::step_vfo(long icount, bool lock)
 {
 	long long freq;
 
+	if (m_delay)
+	{
+		m_delay_counter += abs(icount);
+		if (m_delay_counter < m_delay)
+			return;
+		m_delay_counter = 0;
+	}
 	//vfo_setting.band[0] = band;
 	vfo_setting.vfo_freq[vfo_setting.active_vfo] += (vfo_setting.frq_step * icount);		
 	freq = vfo_setting.vfo_freq[vfo_setting.active_vfo];
@@ -86,10 +137,8 @@ void CVfo::step_vfo(long icount)
 		return;	
 	if (vfo_setting.sdr_dev != NULL)
 	{
-		if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, freq);
-		if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, freq);		
+		set_vfo(freq, lock);	
 	}
-	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 }
 
 long CVfo::get_active_vfo()
@@ -123,7 +172,7 @@ void CVfo::set_tuner_offset(double offset)
 void CVfo::set_active_vfo(int active_vfo)
 {
 	vfo_setting.active_vfo = min(active_vfo,1);
-	set_vfo(vfo_setting.vfo_freq[vfo_setting.active_vfo]);
+	set_vfo(vfo_setting.vfo_freq[vfo_setting.active_vfo], false);
 }
 
 void CVfo::set_vfo_range(long long low, long long high)
@@ -135,5 +184,5 @@ void CVfo::set_vfo_range(long long low, long long high)
 void CVfo::set_band(int band, long long freq)
 {
 	vfo_setting.band[vfo_setting.active_vfo] = band;
-	set_vfo(freq);
+	set_vfo(freq, false);
 }

@@ -396,6 +396,8 @@
 #if USE_EVDEV || USE_BSD_EVDEV
 #  define EVDEV_DEVICES   "/proc/bus/input/devices"        /*You can use the "evtest" Linux tool to get the list of devices and test them*/
 #  define EVDEV_NAME1   "/dev/input/event1"
+#  define EVDEV_NAME2   "/dev/input/event2"
+#  define EVDEV_NAME3   "/dev/input/event3"
 #  define EVDEV_NAME   "/dev/input/event0"        /*You can use the "evtest" Linux tool to get the list of devices and test them*/
 #  define EVDEV_SWAP_AXES         0               /*Swap the x and y axes of the touchscreen*/
 

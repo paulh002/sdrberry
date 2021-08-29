@@ -42,6 +42,16 @@ Fft_calculator::~Fft_calculator()
 
 }
 
+/*
+ *	Output of fft is:
+ *	x[0] = DC component
+ *	x[1] to x[n/2] +ve frequencies
+ *  x[n/2] to x[n] -ve frequencies
+ *  
+ *	x[n/2] Nyquist frequency
+ *
+ **/
+
 void	Fft_calculator::process_samples(const IQSampleVector&	input)
 {
 	m_input.insert(m_input.end(), input.begin(), input.end());
@@ -56,6 +66,7 @@ void	Fft_calculator::process_samples(const IQSampleVector&	input)
 		}
 		plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
 		fft_execute(plan);
+		//std::rotate(fft_output.begin(), fft_output.begin() + nfft / 2, fft_output.end());
 		fft_destroy_plan(plan);
 		m_input.clear();
 	}
@@ -101,38 +112,28 @@ void Waterfall::load_data()
 	int i = data_set.size();
 	if (i > 0)
 	{
-		lv_chart_set_point_count(chart, i-10);
+		lv_chart_set_point_count(chart, i);
 		lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());	
 		lv_chart_refresh(chart);
 	}
 }
 
+
 void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
 	int i = 0, av = 0;
-	data_set.resize(fft_output.size());
+	data_set.resize(fft_output.size()/2);
 	int start = fft_output.size() / 2;
 		
 	for (auto &col : fft_output)
 	{
-		if (i < start)
-		{
-			data_set[start +  i] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));
-			av += data_set[start +  i];
-		}
-		else
-		{
-			data_set[i - start] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));	
-			av += data_set[i - start];
-		}
+		if (i == (fft_output.size() / 2))
+			break;
+		if (i > 0)
+			data_set[i-1] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));
 		i++;
-	
 	}
-	av = av / fft_output.size();
-	data_set[start - 1] = av;
-	data_set[start + 1] = av;
-	data_set[start] = av;
 }
 
 void Fft_calculator::set_signal_strength(double strength)

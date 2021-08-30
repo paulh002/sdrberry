@@ -99,6 +99,12 @@ template <class Element>
 				m_cond.wait(lock);
 		}
 
+		void restart_queue()
+		{
+			unique_lock<mutex> lock(m_mutex);
+			m_end_marked = false;
+		}
+		
 		int size()
 		{
 			return m_queue.size();

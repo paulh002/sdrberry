@@ -45,13 +45,15 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 
 void CVfo::vfo_init(long long freq, long ifrate)
 {
-	vfo_setting.vfo_freq[0] = freq;
-	vfo_setting.vfo_freq_sdr[0] = freq - ifrate / 4;
+	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
+	vfo_setting.vfo_freq_sdr[0] = freq - ifrate / 4;	// position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
+	vfo_setting.m_offset[0] = freq - vfo_setting.vfo_freq_sdr[0]; 					// 
 	gui_vfo_inst.set_vfo_gui(0, freq);
 	vfo_setting.vfo_freq[1] = freq;
 	vfo_setting.vfo_freq_sdr[1] = freq - ifrate / 4;
+	vfo_setting.m_offset[1] = freq - vfo_setting.vfo_freq_sdr[1];  					// 
 	gui_vfo_inst.set_vfo_gui(1, freq);
-	vfo_setting.m_max_offset = ifrate / 2;
+	vfo_setting.m_max_offset = ifrate / 2;				// Max offset is 1/2 samplefrequency (Nyquist limit)
 }
 
 /* this function reads the device capability and translates it to f license bandplans*/
@@ -65,6 +67,18 @@ long CVfo::get_vfo_offset()
 	unique_lock<mutex> lock(m_vfo_mutex); 
 	return vfo_setting.m_offset[vfo_setting.active_vfo];
 }
+/*
+ *
+ * The sdr radio wil start with the frequency selected in the center of the fft
+ * When the user changes the freqency the offset to the center is calculated and the mixer
+ * in the modulator will up or down mix the signal until 1/2 the sample frequency.
+ * If the frequency is changed higher or lower than half the sampling frequency the sdr oscilator is
+ * changed 1/4 of the sample frequency higer or lower
+ * 
+ * This is done to minimize the changing of the local oscilator of the sdr receiver (like Pluto)
+ * ToDo: for SDR receivers without local oscilator this behaviour is not necessary, but sill used
+ * to be checked if this is ok for receivers like radioberry
+ **/
 
 int CVfo::set_vfo(long long freq, bool lock)
 {
@@ -75,17 +89,27 @@ int CVfo::set_vfo(long long freq, bool lock)
 	//vfo_setting.band[1] = band;
 	vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
 	//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
-	if (freq > vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo])
+	if(abs(freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) > vfo_setting.m_max_offset)
+	{
+		vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;  						// initialize the frequency to user default
+		vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] = freq - ifrate / 4;  		// position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
+		vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]; 					// 
+		if(vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+		if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);					
+		tune_flag = true;	
+	}
+	else if (freq > vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo])
 	{
 		// frequency increase
 	   if((freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) > vfo_setting.m_max_offset)
 		{
+			// if ferquency increase is larger than 1/2 sample frequency calculate new center
 			// set a new center frequency
-			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] += vfo_setting.m_max_offset / 2;
-			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
+			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] += vfo_setting.m_max_offset / 2;										// increase sdr with 1/4 sample frequency
+			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];					// 
 			if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 			if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);					
-			tune_flag = true;
+			tune_flag = true;																										// inform modulator of offset change
 			//printf("set sdr frequency %lld %lld %lld\n", vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] + vfo_setting.m_offset[vfo_setting.active_vfo], freq);
 		}
 		else
@@ -97,14 +121,16 @@ int CVfo::set_vfo(long long freq, bool lock)
 	}
 	else
 	{
+		// if ferquency increase is lower than 1/2 sample frequency calculate new center
 		// frequency decrease		
-		vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] -= vfo_setting.m_max_offset /2;
-		vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
+		vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] -= vfo_setting.m_max_offset /2;										// decrease sdr with 1/4 sample frequency
+		vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];					// offset is freq - sdr frequency
 		if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 		if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);					
 		tune_flag = true;
 		//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 	}
+	printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
 	
 	if (lock)
 		unique_lock<mutex> gui_lock(gui_mutex);

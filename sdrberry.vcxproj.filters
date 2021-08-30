@@ -1208,9 +1208,6 @@
     <ClInclude Include="gui_top_bar.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="FMDemodulator.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="gui_vfo.h">
       <Filter>Header files</Filter>
     </ClInclude>

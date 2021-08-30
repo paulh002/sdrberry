@@ -236,29 +236,6 @@ private:
     LowPassFilterRC     m_deemph_stereo;
 };
 
-
-class FmDecoder_executer
-{
-public:
-	void init(double ifrate, double tuner_offset, int pcmrate, bool stereo, double bandwidth_pcm, unsigned int downsample, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-	~FmDecoder_executer();
-	
-	SampleVector                m_audiosamples;
-	double                      m_audio_mean, m_audio_rms, m_audio_level;
-	DataBuffer<IQSample>        *m_source_buffer = NULL;
-	AudioOutput                 *m_audio_output;
-	FmDecoder                   *fm = NULL;
-	
-	
-private:
-	    double              bufsecs = -1;
-	    bool                inbuf_length_warning = false;
-	    bool                got_stereo = false;
-};
-
-extern pthread_t fm_thread;
-
-void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 
 #endif

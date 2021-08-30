@@ -43,9 +43,12 @@ struct channel_structure {
 	SoapySDR::RangeList		frequency_range[MAX_NUM_FRQ_RANGES];
 	SoapySDR::RangeList		sample_range;
 	SoapySDR::RangeList		bandwidth_range;
-	DataBuffer<IQSample>	*source_buffer;
 	pthread_t				thread;
+	DataBuffer<IQSample>	*source_buffer_rx;
+	DataBuffer<IQSample16>	*source_buffer_tx;
 };
+
+
 
 struct device_structure {
 	int		device_no;

@@ -19,6 +19,13 @@
 
 using namespace std;
 
+/*
+ *
+ * FM Decoder adapted from SoftFM https://github.com/jorisvr/SoftFM
+ *
+ *
+ **/
+
 
 /** Fast approximation of atan function. */
 static inline Sample fast_atan(Sample x)
@@ -439,114 +446,117 @@ void FmDecoder::stereo_to_left_right(const SampleVector& samples_mono,
     }
 }
 
-FmDecoder_executer Fm_executer;
-	
-void FmDecoder_executer::init(double ifrate, double tuner_offset, int pcmrate, bool stereo, double bandwidth_pcm, unsigned int downsample, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-{
-	fm = new FmDecoder(ifrate,             // sample_rate_if
-		tuner_offset,                 // tuning_offset
-		pcmrate,                           // sample_rate_pcm
-		stereo,                            // stereo
-		FmDecoder::default_deemphasis,     // deemphasis,
-		FmDecoder::default_bandwidth_if,   // bandwidth_if
-		FmDecoder::default_freq_dev,       // freq_dev
-		bandwidth_pcm,                     // bandwidth_pcm
-		downsample);
-	
-	m_source_buffer = source_buffer;
-	m_audio_output = audio_output;
-}
-
-
-FmDecoder_executer::~FmDecoder_executer()
-{
-	if (fm != NULL)
-	    delete fm;
-}	
-	
 pthread_t fm_thread;
 
 void* rx_fm_thread(void* fm_ptr)
 {
 	unsigned int            block = 0, fft_block = 0;
 	bool                    inbuf_length_warning = false;
-	SampleVector            audioframes;
+	SampleVector            audioframes, audiosamples;
+	struct demod_struct	    *fm_demod = (struct demod_struct *)fm_ptr;
+	double                  audio_mean = 0.0, audio_rms = 0.0, audio_level = 0.0;
+	IQSampleVector			buf_mix;
+	nco_crcf				upnco {nullptr};
 	
 	unique_lock<mutex> lock_fm(fm_finish); 
+	unique_ptr<FmDecoder> pfm {
+		new FmDecoder(ifrate,                   // sample_rate_if
+			fm_demod->tuner_offset,             // tuning_offset
+			fm_demod->pcmrate,                  // sample_rate_pcm
+			fm_demod->stereo,                   // stereo
+			FmDecoder::default_deemphasis,      // deemphasis,
+			FmDecoder::default_bandwidth_if,    // bandwidth_if
+			FmDecoder::default_freq_dev,        // freq_dev
+			fm_demod->bandwidth_pcm,            // bandwidth_pcm
+			fm_demod->downsample)};
+	
+	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifrate);
+	upnco = nco_crcf_create(LIQUID_NCO);
+	nco_crcf_set_phase(upnco, 0.0f);
+	nco_crcf_set_frequency(upnco, rad_per_sample);
+	
 	Fft_calc.plan_fft(nfft_samples); 
-	//Fft_calc.plan_fft(min(1024, (int)(ifrate / 100.0)));
 	while (!stop_flag.load())
-	{
-		
-		if (!inbuf_length_warning && Fm_executer.m_source_buffer->queued_samples() > 10 * 530000) {
-			printf("\nWARNING: Input buffer is growing (system too slow) queued samples %u\n", Fm_executer.m_source_buffer->queued_samples());
-			inbuf_length_warning = true;
-		}
-		
-		if (Fm_executer.m_source_buffer->queued_samples() == 0)
+	{		
+		if (vfo.tune_flag == true)
 		{
-			usleep(5000);
-			continue;
+			vfo.tune_flag = false;
+			float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifrate);
+			upnco = nco_crcf_create(LIQUID_NCO);
+			nco_crcf_set_phase(upnco, 0.0f);
+			nco_crcf_set_frequency(upnco, rad_per_sample);
 		}
 		
-		IQSampleVector iqsamples = Fm_executer.m_source_buffer->pull();
+		IQSampleVector iqsamples = fm_demod->source_buffer->pull();
 		if (iqsamples.empty())
 		{
 			usleep(5000);
 			continue;
 		}
-		if (iqsamples.size() >= nfft_samples && fft_block == 5)
+		
+		buf_mix.clear();
+		for (auto& col : iqsamples)
+		{
+			complex<float> v;
+		
+			nco_crcf_step(upnco);
+			nco_crcf_mix_down(upnco, col, &v);
+			buf_mix.push_back(v);
+		}
+		
+		if (buf_mix.size() >= nfft_samples && fft_block == 5)
 		{
 			fft_block = 0;			
-			Fft_calc.process_samples(iqsamples);
-			Fft_calc.set_signal_strength(Fm_executer.fm->get_if_level()); 
+			Fft_calc.process_samples(buf_mix);
+			Fft_calc.set_signal_strength(pfm->get_if_level()); 
 		}
 		fft_block++;			
 		
-		Fm_executer.fm->process(iqsamples, Fm_executer.m_audiosamples);
+		pfm->process(buf_mix, audiosamples);
 		// Measure audio level.
-		samples_mean_rms(Fm_executer.m_audiosamples, Fm_executer.m_audio_mean, Fm_executer.m_audio_rms);
-		Fm_executer.m_audio_level = 0.95 * Fm_executer.m_audio_level + 0.05 * Fm_executer.m_audio_rms;
+		samples_mean_rms(audiosamples, audio_mean, audio_rms);
+		audio_level = 0.95 * audio_level + 0.05 * audio_rms;
 
 		// Set nominal audio volume.
-		audio_output->adjust_gain(Fm_executer.m_audiosamples);	
-		for (auto& col : Fm_executer.m_audiosamples)
+		audio_output->adjust_gain(audiosamples);	
+		for (auto& col : audiosamples)
 		{
-			audioframes.insert(audioframes.end(), col);
+			audioframes.push_back(col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
 				audio_output->write(audioframes);		
 			}	
 		}
 		iqsamples.clear();
-		Fm_executer.m_audiosamples.clear();
+		audiosamples.clear();
+		buf_mix.clear();
 	}
-    pthread_exit(NULL);
+	nco_crcf_destroy(upnco);
+	pthread_exit(NULL);
 }	
 
-
-void create_fm_thread(double ifrate, double tuner_offset, int pcmrate, bool stereo, double bandwidth_pcm, unsigned int downsample, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-{
-	
-	
-	Fm_executer.init(ifrate, tuner_offset, pcmrate, stereo, bandwidth_pcm, downsample, source_buffer, audio_output);
-	int rc = pthread_create(&fm_thread, NULL, rx_fm_thread, (void *)&Fm_executer);
-	
-}
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
+static demod_struct	fm_demod;
+
 void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {
-	double bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
-	unsigned int downsample = max(1, int(ifrate / 215.0e3));
-		
-	printf("baseband downsampling factor %u\n", downsample);
+	fm_demod.source_buffer = source_buffer;
+	fm_demod.audio_output = audio_output;
+	fm_demod.pcmrate = pcmrate;
+	fm_demod.ifrate = ifrate;
+	fm_demod.tuner_offset = 0.25 * ifrate;
+	fm_demod.downsample = max(1, int(ifrate / 215.0e3));
+	fm_demod.bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
+	fm_demod.stereo = stereo;
+	
+	printf("baseband downsampling factor %u\n", fm_demod.downsample);
 	printf("audio sample rate: %u Hz\n", pcmrate);
-	printf("audio bandwidth:   %.3f kHz\n", bandwidth_pcm * 1.0e-3);
+	printf("audio bandwidth:   %.3f kHz\n", fm_demod.bandwidth_pcm * 1.0e-3);
 	vfo.set_tuner_offset(0.25 * ifrate);
 	vfo.set_step(100, 10);
-	create_fm_thread(ifrate, 0.25 * ifrate, pcmrate, stereo, bandwidth_pcm, downsample, source_buffer, audio_output);			
+	int rc = pthread_create(&fm_thread, NULL, rx_fm_thread, (void *)&fm_demod);	
 }
 	/* end */

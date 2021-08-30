@@ -35,9 +35,23 @@ void	AMDemodulator::init(demod_struct * ptr)
 		msresamp_crcf_print(m_q);			
 	}
 	m_demod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
-	
+	tune_offset(vfo.get_vfo_offset());
 	m_lowpass = iirfilt_crcf_create_lowpass(m_order, 0.03125);
 	m_init = true;
+}
+
+void AMDemodulator::tune_offset(long offset)
+{
+		// get lock on modulator process
+	unique_lock<mutex> lock(m_mutex);
+	
+	if (m_upnco != nullptr)
+		nco_crcf_destroy(m_upnco);
+	m_offset = offset;
+	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifrate);
+	m_upnco = nco_crcf_create(LIQUID_NCO);
+	nco_crcf_set_phase(m_upnco, 0.0f);
+	nco_crcf_set_frequency(m_upnco, rad_per_sample);
 }
 
 void AMDemodulator::adjust_gain(IQSampleVector& samples_in, float vol)
@@ -49,15 +63,20 @@ void AMDemodulator::adjust_gain(IQSampleVector& samples_in, float vol)
 	}
 }
 
+void AMDemodulator::exit_demod()
+{
+	if (m_demod)
+		ampmodem_destroy(m_demod);
+	if (m_q)
+		msresamp_crcf_destroy(m_q);
+	iirfilt_crcf_destroy(m_lowpass);
+	if (m_upnco != nullptr)
+		nco_crcf_destroy(m_upnco);
+}
+
 AMDemodulator::~AMDemodulator()
 {
-	if (m_init)
-	{
-		ampmodem_destroy(m_demod);
-		if (m_q)
-			msresamp_crcf_destroy(m_q);
-		iirfilt_crcf_destroy(m_lowpass);		
-	}
+
 }
 
 void	AMDemodulator::set_filter(double if_rate, int band_width)
@@ -129,45 +148,52 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 {
 	unsigned int			num_written;
 	SampleVector			audio_tmp, audio_mono;
-	IQSampleVector			filter;
+	IQSampleVector			filter, buf_mix;
 	IQSampleVector			buf_iffiltered; 
 	
 	// Downsample to pcmrate (pcmrate will be 44100 or 48000)
 	unique_lock<mutex> lock(m_mutex); 
+	buf_mix.clear();
+	for (auto& col : samples_in)
+	{
+		complex<float> v;
+		
+		nco_crcf_step(m_upnco);
+		nco_crcf_mix_down(m_upnco, col, &v);
+		buf_mix.push_back(v);
+	}
+	
+	Fft_calc.process_samples(buf_mix);
+	Fft_calc.set_signal_strength(get_if_level()); 
+	
 	if (m_bresample)
 	{
-		float nx = (float)samples_in.size() * m_r + 500;
+		float nx = (float)buf_mix.size() * m_r + 500;
 		buf_iffiltered.reserve((int)ceilf(nx));
 		buf_iffiltered.resize((int)ceilf(nx));
-		msresamp_crcf_execute(m_q, (complex<float> *)samples_in.data(), samples_in.size(), (complex<float> *)buf_iffiltered.data(), &num_written);	
+		msresamp_crcf_execute(m_q, (complex<float> *)buf_mix.data(), buf_mix.size(), (complex<float> *)buf_iffiltered.data(), &num_written);	
 		buf_iffiltered.resize(num_written);
+		filter.clear();
+		for (auto& col : buf_iffiltered)
+		{
+			complex<float> v;
+			iirfilt_crcf_execute(m_lowpass, col, &v);
+			filter.insert(filter.end(), v);
+		}
 	}
 	else
 	{
-		try
+		filter.clear();
+		for (auto& col : buf_mix)
 		{
-			buf_iffiltered.insert(buf_iffiltered.begin(), samples_in.begin(), samples_in.end());
-		}
-		catch (const std::exception& e)
-		{
-			std::cout << e.what()  << "m_buf_iffiltered.insert" << std::endl; 
-		}
-	}
-	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
-    for(auto& col : buf_iffiltered)
-	{
-		complex<float> v;
-		iirfilt_crcf_execute(m_lowpass, col, &v);
-		try
-		{
+			complex<float> v;
+			iirfilt_crcf_execute(m_lowpass, col, &v);
 			filter.insert(filter.end(), v);
 		}
-		catch (const std::exception& e)
-		{
-			std::cout << e.what() << "filter.insert" << std::endl; 
-		}
 	}
-	calc_if_level(filter);
+		
+	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
+    calc_if_level(filter);
 	    
 	for (auto& col : filter)  
 	{
@@ -185,6 +211,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	mono_to_left_right(audio_mono, audio);
 	buf_iffiltered.clear();
 	filter.clear();
+	buf_mix.clear();
 }
 
 pthread_t		am_thread;
@@ -211,6 +238,12 @@ void* am_demod_thread(void* ptr)
 	Fft_calc.plan_fft(nfft_samples);  //
 	while (!stop_flag.load())
 	{
+		if (vfo.tune_flag == true)
+		{
+			vfo.tune_flag = false;
+			ammod.tune_offset(vfo.get_vfo_offset());
+		}
+		
 		if (ifilter != filter)
 		{
 			ammod.set_filter(ifrate, filter);
@@ -234,10 +267,6 @@ void* am_demod_thread(void* ptr)
 			usleep(5000);
 			continue;
 		}
-		Fft_calc.process_samples(iqsamples);
-		Fft_calc.set_signal_strength(ammod.get_if_level()); 
-
-		
 		//process
 		ammod.process(iqsamples, audiosamples);		
 		// Measure audio level.
@@ -257,6 +286,7 @@ void* am_demod_thread(void* ptr)
 		iqsamples.clear();
 		audiosamples.clear();
 	}
+	ammod.exit_demod();
 	pthread_exit(NULL); 
 }
 

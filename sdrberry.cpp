@@ -3,7 +3,7 @@
 AudioOutput *audio_output;
 AudioInput *audio_input;
 DataBuffer<IQSample>	source_buffer_rx;
-DataBuffer<IQSample>	source_buffer_tx;
+DataBuffer<IQSample16>	source_buffer_tx;
 DataBuffer<Sample>		audiooutput_buffer;
 DataBuffer<Sample>		audioinput_buffer;
 
@@ -46,7 +46,7 @@ std::mutex gui_mutex;
 int mode = mode_broadband_fm;
 double  ifrate  = 0.53e6;  //1.0e6;//
 bool    stereo  = true;
-int     pcmrate = 44100;
+int     pcmrate = 48000;
 double	freq = 89800000;
 volatile int		filter	= 4;
 //double	tuner_freq = freq + 0.25 * ifrate;
@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
 			int v = col.minimum();
 			Gui_rx.add_sample_rate(v);
 		}
-		soapy_devices[0].channel_structure_tx[0].source_buffer = &source_buffer_tx;
-		soapy_devices[0].channel_structure_rx[0].source_buffer = &source_buffer_rx;
+		soapy_devices[0].channel_structure_tx[0].source_buffer_tx = &source_buffer_tx;
+		soapy_devices[0].channel_structure_rx[0].source_buffer_rx = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		set_vol_slider(Settings_file.volume());		
 		set_gain_range();
@@ -280,9 +280,6 @@ void select_mode(int s_mode)
 	printf("select_mode_rx stop all threads\n");
 	// stop transmit and close audio input
 	
-	printf("stop stream\n");
-	stop_tx_flag = true;
-	unique_lock<mutex> lock_stream(stream_finish); 
 	printf("stop am_tx\n");
 	stop_txmod_flag = true;
 	unique_lock<mutex> lock_am_tx(am_tx_finish); 
@@ -293,7 +290,6 @@ void select_mode(int s_mode)
 	unique_lock<mutex> lock_fm(fm_finish); 
 	lock_am.unlock();
 	lock_fm.unlock();
-	lock_stream.unlock();
 	lock_am_tx.unlock();
 	audio_input->close(); 
 	audio_output->open(&audiooutput_buffer);

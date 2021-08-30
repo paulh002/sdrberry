@@ -171,9 +171,10 @@ void AMmodulator::tune_offset(long offset)
 }
 
 
-void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer<IQSample>	*source_buffer)
+void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer<IQSample16>	*source_buffer)
 {
 	IQSampleVector				buf_mod, buf_filter, buf_out;
+	IQSampleVector16			buf_out16;
 	unsigned int				num_written;
 	
 	unique_lock<mutex> lock(m_mutex); 
@@ -205,23 +206,43 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 		//printf("filter %d rate %f buffer size %d\n", buf_filter.size(), m_r, num_written);
 		msresamp_crcf_execute(m_q, (complex<float> *)buf_filter.data(), buf_filter.size(), (complex<float> *)buf_out.data(), &num_written);
 		buf_out.resize(num_written);	
+		
+		buf_out16.clear();
 		for (auto& col : buf_out)
 		{
 			complex<float> f;
+			int16_t i, q;
+			
 			nco_crcf_step(m_upnco);
 			nco_crcf_mix_up(m_upnco, col, &f);
-			col = f;
+			col = f; // still need a correcy buf_out
+			i = (int16_t)round(col.real() * 32767.999f);
+			q = (int16_t)round(col.imag() * 32767.999f);
+			IQSample16 s16 {i, q};
+			buf_out16.push_back(s16);
 		}
 		Fft_calc.process_samples(buf_out);
-		source_buffer->push(move(buf_out));
+		source_buffer->push(move(buf_out16));
 	}
 	else
 	{
+		buf_out16.clear();
+		for (auto& col : buf_mod)
+		{
+			int16_t i, q;
+			
+			i = (int16_t)round(col.real() * 32767.999f);
+			q = (int16_t)round(col.imag() * 32767.999f);
+			IQSample16 s16 {i, q};
+			buf_out16.push_back(s16);
+		}
 		Fft_calc.process_samples(buf_mod); 
-		source_buffer->push(move(buf_mod));
+		source_buffer->push(move(buf_out16));
 	}
-	if (source_buffer->size() > 5)
-		printf("queue length %d\n", source_buffer->size());
+	//if (source_buffer->size() > 5)
+	//	printf("queue length %d\n", source_buffer->size());
+	buf_mod.clear();
+	buf_out.clear();
 	buf_mod.clear();
 	buf_filter.clear();
 }
@@ -271,6 +292,7 @@ void* am_mod_thread(void* ptr)
 		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 		//printf("am mod time %lld\n", timePassed.count());
 	}
+	printf("am_mod_thread push_end()\n");
 	mod_ptr->source_buffer->push_end();
 	ammod.am_exit();
 	printf("exit am_mod_thread\n");
@@ -285,7 +307,7 @@ int	create_am_tx_thread(modulator_struct *mod_struct)
 }
 
 
-void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone ,DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone ,DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
 {	
 	mod_data.source_buffer = source_buffer;
 	mod_data.audio_input = audio_input;
@@ -294,7 +316,8 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone ,DataBuffer<IQS
 	mod_data.tuner_offset = 0;      // not used 
 	mod_data.downsample = 0;      //not used
 	mod_data.tone = tone;
-		
+	source_buffer->restart_queue();
+	
 	switch (mode)
 	{
 	case mode_usb:

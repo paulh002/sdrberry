@@ -26,6 +26,7 @@ struct	demod_struct
 	unsigned int			downsample;
 	DataBuffer<IQSample>	*source_buffer;
 	AudioOutput				*audio_output;
+	bool					stereo;
 };
 	
 
@@ -43,7 +44,9 @@ public:
 	~AMDemodulator();
 	void	mono_to_left_right(const SampleVector& samples_mono, SampleVector& audio);
 	void	adjust_gain(IQSampleVector& samples_in, float vol);
-	
+	void	tune_offset(long offset);
+	void	exit_demod();
+		
 	ampmodem	get_am_demod()
 	{
 		return m_demod;
@@ -63,6 +66,8 @@ private:
 	condition_variable			m_cond;
 	int							m_order {6};
 	float						m_r;
+	long						m_offset;
+	nco_crcf					m_upnco {nullptr};
 };
 
 

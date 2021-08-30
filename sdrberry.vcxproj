@@ -267,7 +267,6 @@
     <ClInclude Include="devices.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
-    <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_right_pane.h" />
     <ClInclude Include="gui_rx.h" />

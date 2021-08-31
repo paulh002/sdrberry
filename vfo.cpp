@@ -172,6 +172,7 @@ long CVfo::get_active_vfo()
 	return vfo_setting.vfo_freq[vfo_setting.active_vfo];
 }
 
+
 std::string CVfo::get_vfo_str()
 {
 	char	str[20];
@@ -189,6 +190,7 @@ std::string CVfo::get_vfo_str()
 	std::string s(str);
 	return s;
 }
+
 
 void CVfo::set_tuner_offset(double offset)
 {

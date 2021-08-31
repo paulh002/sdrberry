@@ -44,6 +44,11 @@ public:
 	void sync_rx_vfo();
 	void vfo_rxtx(bool brx, bool btx);
 	void set_step(int step, int delay) {vfo_setting.frq_step = step; m_delay = delay; };
+	long long get_sdr_frequency()
+	{
+		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
+	}
+	
 	long long get_tx_frequency()
 	{
 		return vfo_setting.vfo_freq[vfo_setting.active_vfo];

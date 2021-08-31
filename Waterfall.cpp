@@ -12,7 +12,9 @@
 
 using namespace std;
 
-const int noise_floor {20};
+const int	noise_floor {20};
+const int	hor_lines {8};
+const int	vert_lines {8};
 
 IQSample::value_type rms_level_approx(const IQSampleVector& samples)
 {
@@ -85,6 +87,29 @@ void	Fft_calculator::plan_fft(int size)
 	}
 }
 
+static void draw_event_cb(lv_event_t * e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t * obj = lv_event_get_target(e);
+	
+	if (code == LV_EVENT_DRAW_PART_BEGIN) 
+	{
+		lv_obj_draw_part_dsc_t * dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+		/*Set the markers' text*/
+			if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X) 
+			{	string	str[hor_lines];
+				int f = (int)((vfo.get_sdr_frequency() / 100ULL) % 1000ULL);
+				
+				int ii = (int)floor(ifrate / 2.0 / (float)hor_lines / 1000.0); 
+				for (int i = 0; i < hor_lines; i++)
+				{
+					str[i] = std::to_string(f);
+					f += ii;
+				}
+				lv_snprintf(dsc->text, sizeof(dsc->text), "%s", str[dsc->value].c_str());
+			}
+	}
+}
 
 
 void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
@@ -96,10 +121,15 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	chart = lv_chart_create(scr);
 	lv_obj_add_style(chart, &waterfall_style, 0); 
 	lv_obj_set_pos(chart, x, y); 
-	lv_obj_set_size(chart, w, h - 50);
+	lv_obj_set_size(chart, w, h - 70);
 	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
+	
+	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 6, 1, true, 80);
+	lv_chart_set_div_line_count(chart, hor_lines, vert_lines); 
+	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, hor_lines, 1, true, 50);
+    lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_ALL, NULL);
 	
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);

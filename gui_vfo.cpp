@@ -6,6 +6,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include "vfo.h"
 #include "gui_vfo.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
@@ -85,8 +87,6 @@ void gui_vfo::set_vfo_gui(int vfo, long long freq)
 		lv_label_set_text(vfo1_frequency, str);		
 }
 
-
-;
 static lv_obj_t					*meter;
 static lv_meter_indicator_t		*smeter_indic;
 	

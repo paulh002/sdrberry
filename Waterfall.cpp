@@ -14,7 +14,7 @@ using namespace std;
 
 const int	noise_floor {20};
 const int	hor_lines {8};
-const int	vert_lines {8};
+const int	vert_lines {9};
 
 IQSample::value_type rms_level_approx(const IQSampleVector& samples)
 {
@@ -33,6 +33,7 @@ IQSample::value_type rms_level_approx(const IQSampleVector& samples)
 
 
 Fft_calculator	Fft_calc;
+Waterfall		Wf;
 
 Fft_calculator::Fft_calculator()
 {
@@ -96,18 +97,25 @@ static void draw_event_cb(lv_event_t * e)
 	{
 		lv_obj_draw_part_dsc_t * dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
 		/*Set the markers' text*/
-			if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X) 
-			{	string	str[hor_lines];
-				int f = (int)((vfo.get_sdr_frequency() / 100ULL) % 1000ULL);
+		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X) 
+		{
+			string	str[vert_lines];
+			long long f = vfo.get_sdr_frequency();
 				
-				int ii = (int)floor(ifrate / 2.0 / (float)hor_lines / 1000.0); 
-				for (int i = 0; i < hor_lines; i++)
-				{
-					str[i] = std::to_string(f);
-					f += ii;
-				}
-				lv_snprintf(dsc->text, sizeof(dsc->text), "%s", str[dsc->value].c_str());
+			//int ii = (int)floor((ifrate / 2.0) / (float)hor_lines / (float)(nfft_samples / 2)); 
+			int ii = (int)floor((ifrate / 2.0) / (float)(vert_lines -1)); 
+				
+			for (int i = 0; i < vert_lines; i++)
+			{
+				str[i] = std::to_string((long)((f / 10ULL) % 1000ULL));
+				size_t pos = str[i].length();
+					
+				if (pos > 1)
+					str[i].insert((size_t)1, ".");
+				f += ii;
 			}
+			lv_snprintf(dsc->text, sizeof(dsc->text), "%s", str[dsc->value].c_str());
+		}
 	}
 }
 
@@ -128,14 +136,23 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	
 	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 6, 1, true, 80);
 	lv_chart_set_div_line_count(chart, hor_lines, vert_lines); 
-	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, hor_lines, 1, true, 50);
+	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 50);
     lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_ALL, NULL);
+	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE),  LV_DIR_BOTTOM);
 	
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
 }
 
+void Waterfall::set_pos(int32_t  offset)
+{
+	uint32_t pos;
+		
+	float div = ifrate / nfft_samples;
+	pos = (uint32_t)round(offset / div);
+	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
+}
 
 void Waterfall::load_data()
 {
@@ -160,8 +177,8 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 	{
 		if (i == (fft_output.size() / 2))
 			break;
-		if (i > 0)
-			data_set[i-1] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));
+		//if (i > 0)
+			data_set[i] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));
 		i++;
 	}
 }

@@ -81,10 +81,17 @@ void gui_vfo::set_vfo_gui(int vfo, long long freq)
 	{
 		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 	}
+	if (freq)
+		
+	
 	if (vfo)
+	{
 		lv_label_set_text(vfo2_frequency, str);
+	}
 	else
-		lv_label_set_text(vfo1_frequency, str);		
+	{
+		lv_label_set_text(vfo1_frequency, str);	
+	}
 }
 
 static lv_obj_t					*meter;

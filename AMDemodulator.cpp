@@ -162,8 +162,9 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		nco_crcf_mix_down(m_upnco, col, &v);
 		buf_mix.push_back(v);
 	}
-	
-	Fft_calc.process_samples(buf_mix);
+	// Take the FFT of the original baseband
+	// The baseband for demodulation will be downmixed my vfo.setting.m_offset
+	Fft_calc.process_samples(samples_in);
 	Fft_calc.set_signal_strength(get_if_level()); 
 	
 	if (m_bresample)

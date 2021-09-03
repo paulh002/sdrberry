@@ -141,8 +141,6 @@ int main(int argc, char *argv[])
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 
-	
-	Waterfall	Wf;
 	Wf.init(tab1, 0, 0, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);	
 	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - rightWidth - 3);
 	gui_tx_init(tab5, LV_HOR_RES - rightWidth - 3);
@@ -174,8 +172,6 @@ int main(int argc, char *argv[])
 		
 	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
 	printf("samperate %f \n", ifrate);
-	freq = Settings_file.find_vfo1_freq("freq");
-	vfo.vfo_init((long long)freq, (long)ifrate);
 	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
 	std::string default_radio = Settings_file.find_sdr("default");
@@ -190,6 +186,7 @@ int main(int argc, char *argv[])
 			midicontrole->openport(1);
 	}
 	
+	freq = Settings_file.find_vfo1_freq("freq");
 	if (discover_devices(Settings_file.find_probe((char *)default_radio.c_str())) == EXIT_SUCCESS)
 	{	
 		soapy_devices[0].rx_channel = 0;
@@ -199,11 +196,11 @@ int main(int argc, char *argv[])
 		std::string s = std::string(soapy_devices[0].driver.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
 		vfo.set_vfo_capability(&soapy_devices[0]);
-		vfo.set_vfo(freq,false);
 		vfo.set_vfo_range(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum(),
 			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
 			
-		for (auto& col : soapy_devices[0].channel_structure_rx[0].bandwidth_range)
+		vfo.vfo_init((long long)freq, (long)ifrate);
+			for (auto& col : soapy_devices[0].channel_structure_rx[0].bandwidth_range)
 		{
 			int v = col.minimum();
 			Gui_rx.add_sample_rate(v);
@@ -217,13 +214,13 @@ int main(int argc, char *argv[])
 		set_gain_slider(Settings_file.gain());	
 		vfo.set_vfo(freq, false);
 		select_mode(mode); // start streaming
+		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 	}
 	else
 	{
 		lv_label_set_text(label_status, "No SDR Device Found"); 
 	}
 	
-	gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 	
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();

@@ -97,7 +97,7 @@ const double cw_keyer_sidetone_frequency2 {1500.0};
 double AudioInput::Nexttone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
-	if (++asteps == 48000) asteps = 0;
+	if (++asteps >= 48000) asteps = 0;
 	return sin(angle);
 }
 
@@ -129,7 +129,7 @@ double AudioInput::NextTwotone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	double angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
-	if (++asteps == 48000) asteps = 0;
+	if (++asteps >= 48000) asteps = 0;
 	return (sin(angle) + sin(angle)) /2.0;
 }
 

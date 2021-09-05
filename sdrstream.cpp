@@ -185,7 +185,7 @@ void* tx_streaming_thread(void* psdr_dev)
 	sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, 0.1);
 	sdr_dev->sdr->setAntenna(SOAPY_SDR_TX, 0, string("A"));
 	sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
-	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 89.0);
+	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 15);
 	while (1)
 	{
 		unsigned int				overflows(0);

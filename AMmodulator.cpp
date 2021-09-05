@@ -274,6 +274,7 @@ void* am_mod_thread(void* ptr)
 		{
 			audio_input->ToneBuffer(mod_ptr->tone);
 			mod_ptr->source_buffer->wait_queue_empty(2);
+			//usleep(20000);
 		}
 		if (audio_input->read(audiosamples) == false)
 		{

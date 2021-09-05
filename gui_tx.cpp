@@ -219,6 +219,7 @@ static void drv_slider_event_cb(lv_event_t * e)
 	lv_label_set_text(drv_slider_label, buf);
 	lv_obj_align_to(drv_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	Settings_file.set_drive(lv_slider_get_value(slider));
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)lv_slider_get_value(slider));
 }
 
 void step_drv_slider(int step)
@@ -229,15 +230,15 @@ void step_drv_slider(int step)
 
 void set_drv_range()
 {
-	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.maximum();
-	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.minimum();
+	int max_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.maximum();
+	int min_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.minimum();
 	lv_slider_set_range(drv_slider, min_gain, max_gain);
 }
 
 void set_drv_slider(int drive)
 {
-	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.maximum();
-	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].full_gain_range.minimum();
+	int max_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.maximum();
+	int min_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.minimum();
 	if (drive < min_gain)
 		drive = min_gain;
 	if (drive > max_gain)

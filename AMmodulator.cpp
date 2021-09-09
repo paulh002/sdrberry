@@ -181,8 +181,10 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 	// Modulate audio to USB, LSB or DSB
 	buf_mod.clear(); 
 	for (auto& col : samples)
-	{	complex<float> f;	
+	{	complex<float> f ;	
+		
 		ampmodem_modulate(m_mod, col, &f);
+		//printf("%f;%f;%f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);
 	}
 	double if_rms = rms_level_approx(buf_mod);
@@ -195,6 +197,19 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 		iirfilt_crcf_execute(m_lowpass, col, &f);
 		buf_filter.push_back(f);
 	}
+	
+	
+	// mix up 3 khz
+	/*buf_filter.clear(); 
+	for (auto& col : buf_mod)
+	{
+		complex<float> f, cfilt;	
+		nco_crcf_step(m_upssb);
+		nco_crcf_mix_up(m_upssb, col, &f);
+		iirfilt_crcf_execute(m_tx_lp_q, f, &cfilt);
+		buf_filter.push_back(cfilt);
+	}*/
+	
 
 	// convert to output samplerate?
 	if (m_bresample)
@@ -274,7 +289,6 @@ void* am_mod_thread(void* ptr)
 		{
 			audio_input->ToneBuffer(mod_ptr->tone);
 			mod_ptr->source_buffer->wait_queue_empty(2);
-			//usleep(20000);
 		}
 		if (audio_input->read(audiosamples) == false)
 		{

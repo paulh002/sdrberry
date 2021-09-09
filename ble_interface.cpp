@@ -72,6 +72,18 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 				select_mode_tx(mode);
 			}
 		}
+		ptr1 = strstr(buf, "TUNE");
+		if (ptr1)
+		{
+			char *ptr = strchr(ptr1, ';');
+			if (ptr != NULL)
+				*ptr = '\0';
+			// start tx mode
+			{
+				unique_lock<mutex> gui_lock(gui_mutex);
+				select_mode_tx(mode, 1);
+			}
+		}
 		ptr1 = strstr(buf, "RX");
 		if (ptr1)
 		{

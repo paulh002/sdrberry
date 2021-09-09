@@ -148,3 +148,8 @@ EOF
 BLANK_TIME=0
 POWERDOWN_TIME=0
 
+// Prevent blinking with 5inch LCD TFT display
+# uncomment this if your display has a black border of unused pixels visible
+# and your display can output without overscan
+disable_overscan=1 
+

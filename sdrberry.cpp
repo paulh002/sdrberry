@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 		mode = mode_am;
 	if (smode == "CW")
 		mode = mode_cw;
-	
+	Gui_rx.set_gui_mode(mode);
 		
 	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
 	printf("samperate %f \n", ifrate);

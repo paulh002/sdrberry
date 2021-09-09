@@ -28,7 +28,7 @@ mutex stream_write;
 
 void* rx_streaming_thread(void* psdr_dev)
 {
-	static const int		default_block_length {32768}; //32768
+	int						default_block_length;
 	SoapySDR::Stream		*rx_stream;
 	
 	unique_lock<mutex> lock_stream(stream_finish); 
@@ -41,6 +41,18 @@ void* rx_streaming_thread(void* psdr_dev)
 	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
 	int ret;
 
+	
+	default_block_length = 1024;
+	if ((ifrate < 96001) && (ifrate > 48000))
+		default_block_length = 2048;
+	if ((ifrate < 192001) && (ifrate > 96000))
+		default_block_length = 4096;
+	if ((ifrate < 384001) && (ifrate > 192000))
+		default_block_length = 4096;
+	if (ifrate > 384000)
+		default_block_length = 32768;
+	
+	
 	try 
 	{
 		rx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
@@ -55,6 +67,7 @@ void* rx_streaming_thread(void* psdr_dev)
 		fprintf(stderr, "Failed create receive stream\n");
 		pthread_exit(NULL);
 	}
+	
 	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
 	while (!stop_flag.load())
 	{

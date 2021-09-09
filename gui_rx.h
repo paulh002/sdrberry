@@ -29,6 +29,7 @@ public:
 		return rx_button[i];
 	}
 	void	add_sample_rate(int samplerate);
+	void	set_gui_mode(int mode);
 	
 private:
 	int				mode;	

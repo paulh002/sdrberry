@@ -137,3 +137,37 @@ void gui_rx::add_sample_rate(int samplerate)
 	sprintf(str, "%d Khz", samplerate / 1000);
 	lv_dropdown_add_option(d_samplerate, str, LV_DROPDOWN_POS_LAST);
 }
+
+void	gui_rx::set_gui_mode(int mode)
+{
+	int i = 0;
+	switch (mode)
+	{
+	case mode_broadband_fm:
+		i = 4;
+		break;	
+	case mode_lsb:
+		i = 1;
+		break;
+	case mode_usb:
+		i = 0;
+		break;
+	case mode_dsb:
+		break;
+	case mode_am:
+		break;
+	case mode_cw:
+		i = 2;
+		break;
+	}
+	
+	lv_obj_t *obj = Gui_rx.get_button_obj(i);
+	lv_obj_add_state(obj, LV_STATE_CHECKED);
+	for (int i = 0; i < Gui_rx.getbuttons(); i++)
+	{
+		if ((obj != Gui_rx.get_button_obj(i)) && (lv_obj_has_flag(Gui_rx.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+		{
+			lv_obj_clear_state(Gui_rx.get_button_obj(i), LV_STATE_CHECKED);
+		}
+	}
+}

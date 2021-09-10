@@ -107,11 +107,11 @@ static void draw_event_cb(lv_event_t * e)
 				
 			for (int i = 0; i < vert_lines; i++)
 			{
-				str[i] = std::to_string((long)((f / 10ULL) % 1000ULL));
+				char	str1[20];
+				double l = (double)((f / 10ULL) % 1000ULL) / 100.0;
+				sprintf(str1, "%4.2f", l);
+				str[i] = string(str1);
 				size_t pos = str[i].length();
-					
-				if (pos > 1)
-					str[i].insert((size_t)1, ".");
 				f += ii;
 			}
 			lv_snprintf(dsc->text, sizeof(dsc->text), "%s", str[dsc->value].c_str());

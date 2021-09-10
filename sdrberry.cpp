@@ -208,13 +208,13 @@ int main(int argc, char *argv[])
 		soapy_devices[0].channel_structure_tx[0].source_buffer_tx = &source_buffer_tx;
 		soapy_devices[0].channel_structure_rx[0].source_buffer_rx = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 		set_vol_slider(Settings_file.volume());		
 		set_gain_range();
 		set_drv_range();
 		set_gain_slider(Settings_file.gain());	
 		vfo.set_vfo(freq, false);
 		select_mode(mode); // start streaming
-		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 	}
 	else
 	{

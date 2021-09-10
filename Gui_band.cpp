@@ -73,7 +73,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 
 	auto it_m = begin(Settings_file.labels);
 	auto it_f_low = begin(Settings_file.f_low);
-	
+	ibuttons = 0; // count number of buttons
 	for (auto it = begin(Settings_file.meters); it != end(Settings_file.meters); ++it) 
 	{		
 		band = *it;
@@ -89,7 +89,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 			lv_obj_add_style(button[i], &style_btn, 0); 
 			lv_obj_add_event_cb(button[i], band_button, LV_EVENT_CLICKED, NULL);
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
-			//lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);		
+			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);		
 			lv_obj_set_size(button[i], button_width, button_height);
 		
 			lv_obj_t* lv_label = lv_label_create(button[i]);
@@ -108,9 +108,10 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 				ibutton_y++;
 			}
 			i++;
+			ibuttons++;
 		}
-		
 	}
+	printf("ibutton : %d\n", ibuttons);
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
 }
 
@@ -130,7 +131,7 @@ int getIndex(vector<int> v, int s)
 
 void band_button(lv_event_t * e)
 {
-	
+	lv_event_code_t code = lv_event_get_code(e); 
 	lv_obj_t *obj = lv_event_get_target(e); 
 	lv_obj_t *label = lv_obj_get_child(obj, 0L);
 	char *ptr = lv_label_get_text(label);
@@ -138,13 +139,48 @@ void band_button(lv_event_t * e)
 	
 	int n = s.find("m");
 	s.erase(n);
-	int i = stoi(s);
-	
+	int i = stoi(s);	
 	if (ptr != NULL)
 	{
 		int index  = getIndex(Settings_file.meters, i);		
 		long f_low = Settings_file.f_low.at(index);
-		vfo.set_band(index, f_low);
+		int f_band = Settings_file.meters.at(index);
+		vfo.set_band(f_band, f_low);
 	}
 	
+	if (code == LV_EVENT_CLICKED) {
+	
+		for (int i = 0; i < gui_band_instance.getbuttons(); i++)
+		{
+			if ((obj != gui_band_instance.get_button_obj(i)) && (lv_obj_has_flag(gui_band_instance.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+			{
+				lv_obj_clear_state(gui_band_instance.get_button_obj(i), LV_STATE_CHECKED);
+			}
+		}
+	}
+}
+
+void Gui_band::set_gui(int band)
+{
+	for (int i = 0; i < gui_band_instance.getbuttons(); i++)
+	{
+		lv_obj_t *obj = gui_band_instance.get_button_obj(i);
+		lv_obj_t *label = lv_obj_get_child(obj, 0L);
+		char *ptr = lv_label_get_text(label);
+		string s(ptr);
+	
+		int n = s.find("m");
+		s.erase(n);
+		int ii = stoi(s);	
+		
+		if ((ii == band) && (lv_obj_has_flag(gui_band_instance.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+		{
+			lv_obj_add_state(gui_band_instance.get_button_obj(i), LV_STATE_CHECKED);		
+		}
+		
+		if ((ii != band) && (lv_obj_has_flag(gui_band_instance.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+		{
+			lv_obj_clear_state(gui_band_instance.get_button_obj(i), LV_STATE_CHECKED);
+		}
+	}
 }

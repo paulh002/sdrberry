@@ -62,6 +62,8 @@ private:
 	int		m_delay_counter = 0;
 	int		m_delay;
 	std::mutex	m_vfo_mutex;
+	
+	void get_band(int active_vfo);
 };
 
 extern CVfo	vfo;			

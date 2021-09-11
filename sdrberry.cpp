@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 		vfo.set_vfo_range(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum(),
 			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
 			
-		vfo.vfo_init((long long)freq, (long)ifrate);
+		vfo.vfo_init((long long)freq, (long)ifrate, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 			for (auto& col : soapy_devices[0].channel_structure_rx[0].bandwidth_range)
 		{
 			int v = col.minimum();

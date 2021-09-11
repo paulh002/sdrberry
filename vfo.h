@@ -2,7 +2,25 @@
 #include <string>
 #include <mutex>
 #include <atomic>
-
+#include <unistd.h>
+#include <pthread.h>
+#include <mutex>
+#include <time.h>
+#include <sys/time.h>
+#include <stdint.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include "lvgl/lvgl.h"
+#include "lv_drivers/display/fbdev.h"
+#include "lv_drivers/indev/evdev.h"
+#include "Settings.h"
+#include "gui_right_pane.h"
+#include "gui_top_bar.h"
+#include "sdrstream.h"
+#include "gui_vfo.h"
+#include "devices.h"
 
 #define	MAX_NUM_BAND	15
 
@@ -24,6 +42,10 @@ struct vfo_settings_struct
 	bool				rx;
 	long				m_max_offset;
 	long				m_offset[2];
+	vector<int>			meters;
+	vector<string>		labels;
+	vector<long>		f_low;
+	vector<long>		f_high;
 };
 
 class CVfo
@@ -31,7 +53,7 @@ class CVfo
 public:
 	CVfo();
 	
-	void vfo_init(long long freq, long ifrate);
+	void vfo_init(long long freq, long ifrate, SoapySDR::RangeList r);
 	void set_vfo_capability(struct device_structure *sdr_dev);
 	int	 set_vfo(long long freq, bool lock);
 	void step_vfo(long icount, bool lock);
@@ -44,6 +66,7 @@ public:
 	void sync_rx_vfo();
 	void vfo_rxtx(bool brx, bool btx);
 	void set_step(int step, int delay) {vfo_setting.frq_step = step; m_delay = delay; };
+	void check_band(int dir, long long& freq);
 	long long get_sdr_frequency()
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
@@ -56,6 +79,7 @@ public:
 	long	get_vfo_offset();
 	
 	std::atomic_bool tune_flag {false};
+	bool	limit_ham_band;
 	
 private:
 	struct vfo_settings_struct	vfo_setting;

@@ -38,12 +38,25 @@ string RemoveChar(string str, char c)
 	return result;
 }
 
+static void ham_event_handler(lv_event_t * e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t * obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED) 
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+			vfo.limit_ham_band = true;
+		else
+			vfo.limit_ham_band = false;
+	}
+}
 
 void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeList r)
 {
 	int		band;
 	string	label;
 	int		i = 0;
+	
 	
 	
 	//lv_coord_t w = lv_obj_get_width(o_tab);	
@@ -67,7 +80,15 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
 	
-
+	lv_obj_t * cb;
+	cb = lv_checkbox_create(o_tab);
+	lv_checkbox_set_text(cb, "limit vfo to bands");
+	lv_obj_add_event_cb(cb, ham_event_handler, LV_EVENT_ALL, NULL);
+	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, button_height_margin);
+	
+	if (vfo.limit_ham_band)
+		lv_obj_add_state(cb, LV_STATE_CHECKED);
+	
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 2;
 

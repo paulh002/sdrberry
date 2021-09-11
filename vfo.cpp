@@ -1,23 +1,5 @@
-#include <unistd.h>
-#include <pthread.h>
-#include <mutex>
-#include <time.h>
-#include <sys/time.h>
-#include <stdint.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include "lvgl/lvgl.h"
-#include "lv_drivers/display/fbdev.h"
-#include "lv_drivers/indev/evdev.h"
-#include "Settings.h"
-#include "devices.h"
 #include "vfo.h"
-#include "gui_right_pane.h"
-#include "gui_top_bar.h"
-#include "sdrstream.h"
-#include "gui_vfo.h"
+
 
 /*
 unsigned long bandswitch[] = { 160, 80, 60, 40, 30, 20, 17, 15, 10, 6, 4, 3, 2,  70, 23 , 13};
@@ -38,6 +20,7 @@ CVfo::CVfo()
 	vfo_setting.frq_step = 10;
 	vfo_setting.tx = false;
 	vfo_setting.tx = true;
+	limit_ham_band = true;
 }
 
 void CVfo::vfo_rxtx(bool brx, bool btx)
@@ -46,8 +29,29 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 	vfo_setting.rx = brx;
 }
 
-void CVfo::vfo_init(long long freq, long ifrate)
+void CVfo::vfo_init(long long freq, long ifrate, SoapySDR::RangeList r)
 {
+	string ham = Settings_file.find_radio("band");
+	if (ham != "all")
+		vfo.limit_ham_band = true;
+	else
+		vfo.limit_ham_band = false;
+	vfo_setting.vfo_low = r.front().minimum();
+	vfo_setting.vfo_high = r.front().maximum();
+	auto it_band = Settings_file.meters.begin();
+	auto it_high = Settings_file.f_high.begin();
+	for (auto col : Settings_file.f_low)
+	{
+		if ((col >= vfo_setting.vfo_low) && (col < vfo_setting.vfo_high))
+		{
+			vfo_setting.f_low.push_back(col);
+			vfo_setting.f_high.push_back(*it_high);
+			vfo_setting.meters.push_back(*it_band);
+		}
+		it_band++;
+		it_high++;
+	}
+	
 	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
 	vfo_setting.vfo_freq_sdr[0] = freq - ifrate / 4;	// position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 	vfo_setting.m_offset[0] = freq - vfo_setting.vfo_freq_sdr[0];  					// 
@@ -175,6 +179,8 @@ void CVfo::step_vfo(long icount, bool lock)
 		return;	
 	if (vfo_setting.sdr_dev != NULL)
 	{
+		if (vfo.limit_ham_band)
+			check_band(icount, freq);
 		set_vfo(freq, lock);	
 	}
 }
@@ -242,5 +248,54 @@ void CVfo::get_band(int active_vfo)
 			}
 		it_high++;
 		it_band++;
+	}
+}
+
+void CVfo::check_band(int dir, long long& freq)
+{
+		// this function let the active vfo jump to next or previous band	
+	int i = 0;
+	auto it_band = vfo_setting.meters.begin();
+	for (auto& col : vfo_setting.meters)
+	{
+		if (vfo_setting.band[vfo_setting.active_vfo] == col)
+		{
+			if ((freq > vfo_setting.f_high[i]) && (dir > 0))
+			{
+				i++;
+				if (i >= vfo_setting.meters.size())
+				{
+					i = 0;
+					freq = vfo_setting.f_low[i];
+					break;
+				}
+				else
+				{
+					freq = vfo_setting.f_low[i];
+					break;					
+				}
+			}
+			
+			if ((freq < vfo_setting.f_low[i]) && (dir < 0))
+			{
+				if (freq < vfo_setting.f_low[i]) 
+				{
+					i--;
+					if (i < 0)
+					{
+						i = vfo_setting.meters.size() - 1;
+						freq = vfo_setting.f_high[i];
+						break;
+					}
+					else
+					{
+						freq = vfo_setting.f_high[i];
+						break;					
+					}	
+				}
+			}
+			break;
+		}
+		i++;
 	}
 }

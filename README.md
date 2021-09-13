@@ -44,6 +44,4 @@ Installation of libraries is necessary:
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20210731_015334.jpg)
 
-[![Radioberry demo 1](https://img.youtube.com/vi/BMJiv3YGv-k/0.jpg)](https://youtu.be/BMJiv3YGv-k)
-
-[![Radioberry demo 2](https://img.youtube.com/vi/BMJiv3YGv-k/0.jpg)](https://youtu.be/PQ_Np5SfcxA)
+[![Radioberry demo](https://img.youtube.com/vi/BMJiv3YGv-k/0.jpg)](https://youtu.be/PQ_Np5SfcxA)

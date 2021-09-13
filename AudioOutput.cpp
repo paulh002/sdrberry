@@ -53,7 +53,7 @@ bool AudioOutput::open(DataBuffer<Sample>	*AudioBuffer)
 	try {
 		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &Audioout, (void *)AudioBuffer);
 		this->startStream();
-		printf("bufferFrames set: %d", bufferFrames);
+		printf("bufferFrames set: %d\n", bufferFrames);
 	}
 	catch (RtAudioError& e) {
 		e.printMessage();

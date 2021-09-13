@@ -26,6 +26,7 @@ void	AMmodulator::init(modulator_struct * ptr)
 	m_mod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
 	ampmodem_print(m_mod);
 	set_filter(ptr->ifrate, 5);
+	m_bresample = false;
 	if (m_r > 1.0001)
 	{
 		printf("resample rate %f \n", m_r);
@@ -231,8 +232,8 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 			nco_crcf_step(m_upnco);
 			nco_crcf_mix_up(m_upnco, col, &f);
 			col = f; // still need a correcy buf_out
-			i = (int16_t)round(col.real() * 32767.999f);
-			q = (int16_t)round(col.imag() * 32767.999f);
+			i = (int16_t)round(col.real() * 16384.0f);
+			q = (int16_t)round(col.imag() * 16384.0f);
 			IQSample16 s16 {i, q};
 			buf_out16.push_back(s16);
 		}
@@ -246,8 +247,8 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 		{
 			int16_t i, q;
 			
-			i = (int16_t)round(col.real() * 32767.999f);
-			q = (int16_t)round(col.imag() * 32767.999f);
+			i = (int16_t)round(col.real() * 16384.0f);  //32768.999f  16384
+			q = (int16_t)round(col.imag() * 16384.0f);
 			IQSample16 s16 {i, q};
 			buf_out16.push_back(s16);
 		}
@@ -255,7 +256,7 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 		source_buffer->push(move(buf_out16));
 	}
 	//if (source_buffer->size() > 5)
-	//	printf("queue length %d\n", source_buffer->size());
+		//printf("queue length %d\n", source_buffer->size());
 	buf_mod.clear();
 	buf_out.clear();
 	buf_mod.clear();
@@ -273,12 +274,10 @@ void* am_mod_thread(void* ptr)
 	int						ifilter {-1};
 	
 	unique_lock<mutex> am_tx_lock(am_tx_finish); 
-	printf("start am_mod_thread\n");
 	ammod.init(mod_ptr);
 	Fft_calc.plan_fft(nfft_samples * 10); 
 	while (!stop_txmod_flag.load())
 	{
-		const auto startTime = std::chrono::high_resolution_clock::now(); 
 		if (vfo.tune_flag == true)
 		{
 			vfo.tune_flag = false;
@@ -290,6 +289,7 @@ void* am_mod_thread(void* ptr)
 			audio_input->ToneBuffer(mod_ptr->tone);
 			mod_ptr->source_buffer->wait_queue_empty(2);
 		}
+	
 		if (audio_input->read(audiosamples) == false)
 		{
 			printf("wait for input\n");
@@ -303,11 +303,7 @@ void* am_mod_thread(void* ptr)
 		
 		//Fft_calc.set_signal_strength(ammod.get_if_level()); 
 		audiosamples.clear();
-		const auto now = std::chrono::high_resolution_clock::now();
-		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-		//printf("am mod time %lld\n", timePassed.count());
 	}
-	printf("am_mod_thread push_end()\n");
 	mod_ptr->source_buffer->push_end();
 	ammod.am_exit();
 	printf("exit am_mod_thread\n");
@@ -321,7 +317,7 @@ int	create_am_tx_thread(modulator_struct *mod_struct)
 	return pthread_create(&am_mod_pthread, NULL, am_mod_thread, (void *)mod_struct);
 }
 
-
+				
 void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone ,DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
 {	
 	mod_data.source_buffer = source_buffer;
@@ -361,6 +357,7 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone ,DataBuffer<IQS
 	}
 	if (mod_data.tone == 0)
 		audio_input->open();
+	
 	create_tx_streaming_thread(&soapy_devices[0]);
 	create_am_tx_thread(&mod_data);
 }

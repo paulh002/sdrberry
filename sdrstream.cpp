@@ -52,7 +52,7 @@ void* rx_streaming_thread(void* psdr_dev)
 	if (ifrate > 384000)
 		default_block_length = 32768;
 	
-	
+	printf("default block length is set to %d\n", default_block_length);
 	try 
 	{
 		rx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
@@ -166,7 +166,6 @@ void stream_tx_set_frequency(struct device_structure *sdr_dev, unsigned long fre
 
 void* tx_streaming_thread(void* psdr_dev)
 {
-	static const int		default_block_length {32768}; //32768
 	SoapySDR::Stream		*tx_stream;
 	
 	unique_lock<mutex> lock_stream(stream_finish); 
@@ -219,14 +218,13 @@ void* tx_streaming_thread(void* psdr_dev)
 			sdr_dev->sdr->closeStream(tx_stream);
 			pthread_exit(NULL);
 		}
-		//printf("samples %d %f %f \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
-	
+		//printf("samples %d %d %d \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		samples_transmit = iqsamples.size();
 		void *buffs[] = { iqsamples.data() };
 		do
 		{
 			ret = sdr_dev->sdr->writeStream(tx_stream, buffs, samples_transmit, flags, time_ns, 1e5);
-			//printf("send samples %d %d\n", ret, iqsamples.size());
+			//printf("send samples %d %d\n", ret, samples_transmit);
 			if (ret > 0)
 			{
 				totalSamples += ret;

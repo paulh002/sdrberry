@@ -333,6 +333,7 @@ void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 		return;
 	}
 	create_am_thread(&demod);
+	create_rx_streaming_thread(&soapy_devices[0]);
 }
 	
 

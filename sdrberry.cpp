@@ -58,6 +58,7 @@ mutex	fm_finish;
 mutex	stream_finish;
 
 MidiControle	*midicontrole = nullptr;
+auto			startTime = std::chrono::high_resolution_clock::now();
 
 int main(int argc, char *argv[])
 {
@@ -273,6 +274,7 @@ static int mode_running = 0;
 
 void select_mode(int s_mode)
 {	
+	startTime = std::chrono::high_resolution_clock::now(); 
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
 	// stop transmit and close audio input
@@ -313,7 +315,6 @@ void select_mode(int s_mode)
 	case mode_lsb:
 		start_dsb(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
 		mode_running = 2;
-		create_rx_streaming_thread(&soapy_devices[0]);
 		break;
 	}
 }
@@ -326,7 +327,12 @@ void select_filter(int ifilter)
 void select_mode_tx(int s_mode, int tone)
 {
 	// Stop all threads
-	printf("select_mode_tx stop all threads\n");
+	startTime = std::chrono::high_resolution_clock::now();
+	auto now = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> timePassed = now - startTime;
+	printf("select_mode_tx stop all threads time %4.2f\n", (double)timePassed.count() * 1000000.0);
+	
+	//printf("select_mode_tx stop all threads\n");
 	stop_flag = true;
 	mode_running = 0;
 	// wait for threads to finish
@@ -342,6 +348,8 @@ void select_mode_tx(int s_mode, int tone)
 	stop_flag = false;
 	mode = s_mode;
 	audio_output->close();
+	if (tone == 0)
+		audio_input->open();
 	set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
 	printf("select_mode_tx start tx threads\n");

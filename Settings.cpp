@@ -101,7 +101,11 @@ void Settings::read_settings(string settings_file)
 		//cout << "Option name: " << option.first << endl;
 		samplerate.insert(pair<string, string>(option.first, option.second));
 	}
-	
+	for (auto& option : config->getSection("samplerate_tx"))
+	{
+		//cout << "Option name: " << option.first << endl;
+		samplerate_tx.insert(pair<string, string>(option.first, option.second));
+	}
 	config->useSection("bands");
 	
 	for (auto& col : (*config)("meters"))
@@ -283,4 +287,16 @@ void Settings::set_drive(int drive)
 	}
 	else 
 		return;
+}
+
+double Settings::find_samplerate_tx(string key)
+{
+	if (samplerate_tx.find(key) != samplerate_tx.end())
+	{
+		auto s = samplerate_tx.find(key);
+		long l = atol((const char *)s->second.c_str());
+		return (double) l * 1000.0;
+	}
+	else 
+		return 0LL;
 }

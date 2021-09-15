@@ -22,6 +22,7 @@ public:
 	long long find_vfo1_freq(string key);
 	string	find_vfo1(string key);
 	double	find_samplerate(string key);
+	double	find_samplerate_tx(string key);
 	int		volume();
 	int		gain();
 	int		txgain();
@@ -49,6 +50,7 @@ private:
 	map<string, string>		vfo2;
 	map<string, string>		audio;
 	map<string, string>		samplerate;
+	map<string, string>		samplerate_tx;
 };
 
 

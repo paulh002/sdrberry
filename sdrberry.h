@@ -65,6 +65,7 @@ extern atomic_bool stop_txmod_flag;
 
 //double	freq = 89950000;
 extern double   ifrate;
+extern double   ifrate_tx;
 
 /** Compute mean and RMS over a sample vector. */
 inline void samples_mean_rms(const SampleVector& samples,

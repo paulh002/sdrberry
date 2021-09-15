@@ -45,6 +45,7 @@ std::mutex gui_mutex;
 
 int mode = mode_broadband_fm;
 double  ifrate  = 0.53e6;  //1.0e6;//
+double	ifrate_tx;
 bool    stereo  = true;
 int     pcmrate = 48000;
 double	freq = 89800000;
@@ -144,7 +145,7 @@ int main(int argc, char *argv[])
 
 	Wf.init(tab1, 0, 0, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);	
 	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - rightWidth - 3);
-	gui_tx_init(tab5, LV_HOR_RES - rightWidth - 3);
+	Gui_tx.gui_tx_init(tab5, LV_HOR_RES - rightWidth - 3);
 		
 	lv_obj_t *label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
@@ -172,6 +173,7 @@ int main(int argc, char *argv[])
 	Gui_rx.set_gui_mode(mode);
 		
 	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
+	ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr("default").c_str());
 	printf("samperate %f \n", ifrate);
 	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
 	
@@ -206,13 +208,21 @@ int main(int argc, char *argv[])
 			int v = col.minimum();
 			Gui_rx.add_sample_rate(v);
 		}
+		Gui_rx.set_sample_rate((int)ifrate);
+		for (auto& col : soapy_devices[0].channel_structure_tx[0].bandwidth_range)
+		{
+			int v = col.minimum();
+			Gui_tx.add_sample_rate(v);
+		}
+		Gui_tx.set_sample_rate((int)ifrate_tx);
 		soapy_devices[0].channel_structure_tx[0].source_buffer_tx = &source_buffer_tx;
 		soapy_devices[0].channel_structure_rx[0].source_buffer_rx = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 		set_vol_slider(Settings_file.volume());		
 		set_gain_range();
-		set_drv_range();
+		Gui_tx.set_drv_range();
+		Gui_tx.set_drv_slider(Settings_file.drive());
 		set_gain_slider(Settings_file.gain());	
 		vfo.set_vfo(freq, false);
 		select_mode(mode); // start streaming
@@ -298,7 +308,7 @@ void select_mode(int s_mode)
 	stop_flag = false;
 	stop_txmod_flag = false;
 	mode = s_mode;
-	set_tx_state(false);
+	Gui_tx.set_tx_state(false);
 	vfo.vfo_rxtx(true, false);
 	printf("select_mode_rx start rx threads\n");
 	switch (mode)
@@ -350,12 +360,12 @@ void select_mode_tx(int s_mode, int tone)
 	audio_output->close();
 	if (tone == 0)
 		audio_input->open();
-	set_tx_state(true); // set tx button
+	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
 	printf("select_mode_tx start tx threads\n");
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)Settings_file.drive());
-	set_drv_slider(Settings_file.drive());
-	set_mic_slider(Settings_file.micgain());
+	Gui_tx.set_drv_slider(Settings_file.drive());
+	Gui_tx.set_mic_slider(Settings_file.micgain());
 	switch (mode)
 	{
 	case mode_broadband_fm:

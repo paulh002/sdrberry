@@ -171,3 +171,14 @@ void	gui_rx::set_gui_mode(int mode)
 		}
 	}
 }
+
+void gui_rx::set_sample_rate(int rate)
+{
+	int i;
+	for (i = 0; i < sample_rates.size(); i++)
+	{
+		if (sample_rates[i] == rate)
+			break;
+	}
+	lv_dropdown_set_selected(d_samplerate, i);
+}

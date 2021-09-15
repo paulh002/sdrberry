@@ -43,13 +43,11 @@ void* rx_streaming_thread(void* psdr_dev)
 
 	
 	default_block_length = 1024;
-	if ((ifrate < 96001) && (ifrate > 48000))
+	if ((ifrate < 192001) && (ifrate > 48000))
 		default_block_length = 2048;
-	if ((ifrate < 192001) && (ifrate > 96000))
-		default_block_length = 4096;
 	if ((ifrate < 384001) && (ifrate > 192000))
-		default_block_length = 4096;
-	if (ifrate > 384000)
+		default_block_length = 2048;
+	if (ifrate > 384001)
 		default_block_length = 32768;
 	
 	printf("default block length is set to %d\n", default_block_length);

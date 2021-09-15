@@ -1,1 +1,0 @@
-@reboot /home/pi/sdrstart.sh >sdrlog.log

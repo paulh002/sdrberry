@@ -41,7 +41,6 @@ public:
 	void	tune_offset(long offset);
 	
 private:
-	modulator_struct		m_modulator;
 	mutex					m_mutex;  // used to lock the process for changing filters
 	ampmodem				m_mod {0};
 	iirfilt_crcf			m_lowpass {0};
@@ -57,6 +56,9 @@ private:
 	iirfilt_crcf			m_au_lp_q { nullptr };
 	iirfilt_crcf			m_tx_lp_q { nullptr };
 	long					m_offset {0};
+	bool					m_tone;
+	AudioInput				*m_audio_input;
+	double					m_ifrate;
 };
 
 

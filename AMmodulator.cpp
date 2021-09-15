@@ -21,11 +21,13 @@ void	AMmodulator::init(modulator_struct * ptr)
 	float       mod_index = 0.99f;   // modulation index (bandwidth)
     float		As = 60.0f;				// resampling filter stop-band attenuation [dB]
 	
+	m_audio_input = ptr->audio_input;
+	m_ifrate = ptr->ifrate;
 	m_r = (float) ptr->ifrate / (float)ptr->pcmrate ; 
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	m_mod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
 	ampmodem_print(m_mod);
-	set_filter(ptr->ifrate, 5);
+	set_filter(m_ifrate, 5);
 	m_bresample = false;
 	if (m_r > 1.0001)
 	{
@@ -40,7 +42,7 @@ void	AMmodulator::init(modulator_struct * ptr)
 	nco_crcf_set_frequency(m_upssb, rad_per_sample);
 	 
 	//printf("tune TX to %f\n", BASEQRG * 1e3 + offset);
-	rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ptr->ifrate);
+	rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)m_ifrate);
 	m_upnco = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(m_upnco, 0.0f);
 	nco_crcf_set_frequency(m_upnco, rad_per_sample);
@@ -98,13 +100,13 @@ void	AMmodulator::tone(bool tone)
 	unique_lock<mutex> lock(m_mutex); 
 	if (tone)
 	{
-		audio_input->close();
-		m_modulator.tone = tone;
+		m_audio_input->close();
+		m_tone = tone;
 	}
 	else
 	{
-		m_modulator.tone = false;
-		m_modulator.audio_input->open();
+		m_tone = false;
+		m_audio_input->open();
 	}
 }
 	
@@ -165,7 +167,7 @@ void AMmodulator::tune_offset(long offset)
 	
 	nco_crcf_destroy(m_upnco);
 	m_offset = offset;
-	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifrate);
+	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)m_ifrate);
 	m_upnco = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(m_upnco, 0.0f);
 	nco_crcf_set_frequency(m_upnco, rad_per_sample);
@@ -323,7 +325,7 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone ,DataBuffer<IQS
 	mod_data.source_buffer = source_buffer;
 	mod_data.audio_input = audio_input;
 	mod_data.pcmrate = pcmrate;
-	mod_data.ifrate = ifrate;
+	mod_data.ifrate = ifrate_tx;
 	mod_data.tuner_offset = 0;      // not used 
 	mod_data.downsample = 0;      //not used
 	mod_data.tone = tone;

@@ -26,11 +26,9 @@ int drv_max = 15;
  * 8x TX button
  */
 
-lv_obj_t*	mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label;
-static lv_style_t	style_btn;
-static lv_obj_t		*tx_button[10];
+gui_tx	Gui_tx;
 
-void gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
+void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 {
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 10;
@@ -58,7 +56,8 @@ void gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
 	
-	for (int i = 0; i < 6; i++)
+	ibuttons = number_of_buttons;
+	for (int i = 0; i < ibuttons; i++)
 	{	char	str[80];
 		
 		tx_button[i] = lv_btn_create(o_tab);
@@ -123,6 +122,11 @@ void gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	drv_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	set_drv_slider(Settings_file.drive());
+	
+	ibutton_y++;
+	drp_samplerate = lv_dropdown_create(o_tab);
+	lv_obj_align(drp_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
+	lv_dropdown_clear_options(drp_samplerate);
 }
 
 static void mic_slider_event_cb(lv_event_t * e)
@@ -131,20 +135,20 @@ static void mic_slider_event_cb(lv_event_t * e)
 	char buf[20];
 	
 	sprintf(buf, "gain %d db", lv_slider_get_value(slider));
-	lv_label_set_text(mic_slider_label, buf);
-	lv_obj_align_to(mic_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_label_set_text(Gui_tx.get_mic_label(), buf);
+	lv_obj_align_to(Gui_tx.get_mic_label(), slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	if (audio_input != nullptr)
 		audio_input->set_volume(lv_slider_get_value(slider));
 	Settings_file.set_micgain(lv_slider_get_value(slider));
 }
 
-void step_mic_slider(int step)
+void gui_tx::step_mic_slider(int step)
 {
 	set_mic_slider(lv_slider_get_value(mic_slider) + step);
 	Settings_file.set_micgain(lv_slider_get_value(mic_slider));
 }
 
-void set_mic_slider(int volume)
+void gui_tx::set_mic_slider(int volume)
 {
 	if (volume < 0)
 		volume = 0;
@@ -191,14 +195,14 @@ static void tx_button_handler(lv_event_t * e)
 	}
 	if (s == "Sync RX vfo")
 	{
-		lv_obj_clear_state(tx_button[3], LV_STATE_CHECKED); 
+		lv_obj_clear_state(Gui_tx.get_button_obj(3), LV_STATE_CHECKED); 
 		vfo.set_active_vfo(0);			
 		vfo.sync_rx_vfo();
 	}
 	if (s == "Split TX vfo")
 	{
-		if ((lv_obj_get_state(tx_button[3]) & LV_STATE_CHECKED) &&
-		 (lv_obj_get_state(tx_button[0]) & LV_STATE_CHECKED))
+		if ((lv_obj_get_state(Gui_tx.get_button_obj(3)) & LV_STATE_CHECKED) &&
+		 (lv_obj_get_state(Gui_tx.get_button_obj(0)) & LV_STATE_CHECKED))
 		{
 			// If Vfo split mode set active vfo 1
 			vfo.set_active_vfo(1);
@@ -216,26 +220,26 @@ static void drv_slider_event_cb(lv_event_t * e)
 	char buf[20];
 	
 	sprintf(buf, "drive %d", lv_slider_get_value(slider));
-	lv_label_set_text(drv_slider_label, buf);
-	lv_obj_align_to(drv_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_label_set_text(Gui_tx.get_drv_label(), buf);
+	lv_obj_align_to(Gui_tx.get_drv_label(), slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	Settings_file.set_drive(lv_slider_get_value(slider));
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)lv_slider_get_value(slider));
 }
 
-void step_drv_slider(int step)
+void gui_tx::step_drv_slider(int step)
 {
 	set_drv_slider(lv_slider_get_value(drv_slider) + step);
 	Settings_file.set_drive(lv_slider_get_value(drv_slider));
 }
 
-void set_drv_range()
+void gui_tx::set_drv_range()
 {
 	int max_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.maximum();
 	int min_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.minimum();
 	lv_slider_set_range(drv_slider, min_gain, max_gain);
 }
 
-void set_drv_slider(int drive)
+void gui_tx::set_drv_slider(int drive)
 {
 	int max_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.maximum();
 	int min_gain = (int)soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].full_gain_range.minimum();
@@ -251,7 +255,7 @@ void set_drv_slider(int drive)
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
 
-void set_tx_state(bool state)
+void gui_tx::set_tx_state(bool state)
 {
 	if (state)
 	{
@@ -270,12 +274,22 @@ void set_tx_state(bool state)
 }
 
 
-static void drive_slider_event_cb(lv_event_t * e)
+void gui_tx::add_sample_rate(int samplerate)
 {
-	lv_obj_t * slider = lv_event_get_target(e);
-	char buf[20];
-	sprintf(buf, "gain %d db", lv_slider_get_value(slider));
-	lv_label_set_text(drv_slider_label, buf);
-	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, lv_slider_get_value(slider));
+	char	str[30];
+	
+	sample_rates.push_back(samplerate);
+	sprintf(str, "%d Khz", samplerate / 1000);
+	lv_dropdown_add_option(drp_samplerate, str, LV_DROPDOWN_POS_LAST);
+}
+
+void gui_tx::set_sample_rate(int rate)
+{
+	int i;
+	for (i = 0; i < sample_rates.size(); i++)
+	{
+		if (sample_rates[i] == rate)
+			break;
+	}
+	lv_dropdown_set_selected(drp_samplerate, i);
 }

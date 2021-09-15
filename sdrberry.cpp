@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 		vfo.set_vfo_range(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum(),
 			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
 			
-		vfo.vfo_init((long long)freq, (long)ifrate, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
+		vfo.vfo_init((long long)freq, (long)ifrate, pcmrate, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 			for (auto& col : soapy_devices[0].channel_structure_rx[0].bandwidth_range)
 		{
 			int v = col.minimum();
@@ -310,6 +310,7 @@ void select_mode(int s_mode)
 	mode = s_mode;
 	Gui_tx.set_tx_state(false);
 	vfo.vfo_rxtx(true, false);
+	vfo.set_vfo(0,false);
 	printf("select_mode_rx start rx threads\n");
 	switch (mode)
 	{

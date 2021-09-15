@@ -46,6 +46,7 @@ struct vfo_settings_struct
 	vector<string>		labels;
 	vector<long>		f_low;
 	vector<long>		f_high;
+	long				pcmrate;
 };
 
 class CVfo
@@ -53,7 +54,7 @@ class CVfo
 public:
 	CVfo();
 	
-	void vfo_init(long long freq, long ifrate, SoapySDR::RangeList r);
+	void vfo_init(long long freq, long ifrate, long pcmrate, SoapySDR::RangeList r);
 	void set_vfo_capability(struct device_structure *sdr_dev);
 	int	 set_vfo(long long freq, bool lock);
 	void step_vfo(long icount, bool lock);
@@ -72,10 +73,7 @@ public:
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
 	}
 	
-	long long get_tx_frequency()
-	{
-		return vfo_setting.vfo_freq[vfo_setting.active_vfo];
-	}
+	long long get_tx_frequency();
 	long	get_vfo_offset();
 	
 	std::atomic_bool tune_flag {false};

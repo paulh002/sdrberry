@@ -223,7 +223,8 @@ static void drv_slider_event_cb(lv_event_t * e)
 	lv_label_set_text(Gui_tx.get_drv_label(), buf);
 	lv_obj_align_to(Gui_tx.get_drv_label(), slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	Settings_file.set_drive(lv_slider_get_value(slider));
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)lv_slider_get_value(slider));
+	soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].gain = (double)lv_slider_get_value(slider);
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, soapy_devices[0].channel_structure_rx[soapy_devices[0].tx_channel].gain);
 }
 
 void gui_tx::step_drv_slider(int step)

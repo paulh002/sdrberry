@@ -46,6 +46,7 @@ struct channel_structure {
 	pthread_t				thread;
 	DataBuffer<IQSample>	*source_buffer_rx;
 	DataBuffer<IQSample16>	*source_buffer_tx;
+	double					gain;
 };
 
 

@@ -151,8 +151,10 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	IQSampleVector			filter, buf_mix;
 	IQSampleVector			buf_iffiltered; 
 	
-	// Downsample to pcmrate (pcmrate will be 44100 or 48000)
+	
 	unique_lock<mutex> lock(m_mutex); 
+	
+	// mixer to mix vfo offset
 	buf_mix.clear();
 	for (auto& col : samples_in)
 	{
@@ -167,6 +169,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	Fft_calc.process_samples(samples_in);
 	Fft_calc.set_signal_strength(get_if_level()); 
 	
+	// Downsample to pcmrate (pcmrate will be 44100 or 48000)
 	if (m_bresample)
 	{
 		float nx = (float)buf_mix.size() * m_r + 500;
@@ -234,7 +237,7 @@ void* am_demod_thread(void* ptr)
 	int						ifilter {-1};
 	
 	unique_lock<mutex> lock(am_finish); 
-	vfo.set_tuner_offset(0);
+	//vfo.set_tuner_offset(0);
 	ammod.init(demod_ptr);
 	Fft_calc.plan_fft(nfft_samples);  //
 	while (!stop_flag.load())

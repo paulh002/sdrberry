@@ -193,6 +193,8 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 	double if_rms = rms_level_approx(buf_mod);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
 	
+	// Low pass filter 500 Hz - 4 Khz to be selected
+	// Maybe 4 Khz only is enough als add high pass for 300 Hz
 	buf_filter.clear(); 
 	for (auto& col : buf_mod)
 	{
@@ -222,6 +224,7 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 		buf_out.reserve(num_written);
 		buf_out.resize(num_written);
 		//printf("filter %d rate %f buffer size %d\n", buf_filter.size(), m_r, num_written);
+		// execute resampler
 		msresamp_crcf_execute(m_q, (complex<float> *)buf_filter.data(), buf_filter.size(), (complex<float> *)buf_out.data(), &num_written);
 		buf_out.resize(num_written);	
 		
@@ -243,7 +246,7 @@ void	AMmodulator::process(const SampleVector& samples, double ifrate, DataBuffer
 		source_buffer->push(move(buf_out16));
 	}
 	else
-	{
+	{	// No resampling ifrate = 48K, in this case no offset use
 		buf_out16.clear();
 		for (auto& col : buf_mod)
 		{

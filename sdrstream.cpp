@@ -159,6 +159,7 @@ void stream_tx_set_frequency(struct device_structure *sdr_dev, unsigned long fre
 	{
 		sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, freq);	
 		sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate); 
+		sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[0].gain);
 	}
 }
 
@@ -195,7 +196,7 @@ void* tx_streaming_thread(void* psdr_dev)
 	sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, 0.1);
 	sdr_dev->sdr->setAntenna(SOAPY_SDR_TX, 0, string("A"));
 	sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
-	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 15);
+	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[0].gain);
 	while (1)
 	{
 		unsigned int				overflows(0);

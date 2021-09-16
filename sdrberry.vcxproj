@@ -248,9 +248,7 @@
     <ClCompile Include="sdrstream.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Setup.cpp" />
-    <ClCompile Include="smeter_img.c" />
     <ClCompile Include="SoapySDRProbe.cpp" />
-    <ClCompile Include="StartTx.cpp" />
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />

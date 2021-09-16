@@ -1,4 +1,5 @@
 #!/bin/bash
+#if false; then
 sudo apt-get -y install git
 sudo apt-get install -y\
     cmake g++ \
@@ -89,6 +90,8 @@ cmake ..
 make
 sudo make install
 sudo ldconfig
+cd ~
+#fi
 git clone https://github.com/paulh002/SoapyRadioberry
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
@@ -115,6 +118,8 @@ sudo dtc -@ -I dts -O dtb -o radioberry.dtbo radioberry.dts
 sudo cp radioberry.dtbo /boot/overlays
 #add driver to config.txt
 sudo grep -Fxq "dtoverlay=radioberry" /boot/config.txt || sudo sed -i '$ a dtoverlay=radioberry' /boot/config.txt
+sudo cp ./libSoapyRadioberrySDR.so /usr/local/lib/SoapySDR/modules0.8/.
+sudo cp ./radioberry.rbf /lib/firmware/.
 cd ~
 
 sudo depmod	
@@ -133,4 +138,6 @@ wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/executable/sdrberry
 chmod +x sdrberry
 chmod +x sdrberry1.sh
+sudo sed 's/$/ vt.global_cursor_default=0/' /boot/cmdline.txt
+
 

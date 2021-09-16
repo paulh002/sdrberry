@@ -15,9 +15,9 @@ copy the cfg file (in install directory) to the home dir of the application
 
 a compiled executable and soapyradioberry library is available in executable directory
 installation instruction in install_guide.txt
+install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
 
 ToDo:
-- Transmitter part
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
@@ -28,7 +28,7 @@ Done:
 - FM broadband
 - SSB support
 - Basic BLE support
-
+- Transmitter part
 
 Installation of libraries is necessary:
 - Liquid DSP

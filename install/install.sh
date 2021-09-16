@@ -1,5 +1,4 @@
 #!/bin/bash
-if false; then
 sudo apt-get -y install git
 sudo apt-get install -y\
     cmake g++ \
@@ -90,7 +89,6 @@ cmake ..
 make
 sudo make install
 sudo ldconfig
-fi
 git clone https://github.com/paulh002/SoapyRadioberry
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
@@ -133,4 +131,6 @@ echo "Radioberry driver installed."
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry1.sh
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/executable/sdrberry
+chmod +x sdrberry
+chmod +x sdrberry1.sh
 

@@ -153,3 +153,4 @@ POWERDOWN_TIME=0
 # and your display can output without overscan
 disable_overscan=1 
 
+cat /proc/bus/input/devices

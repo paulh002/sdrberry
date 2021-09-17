@@ -106,6 +106,11 @@ void Settings::read_settings(string settings_file)
 		//cout << "Option name: " << option.first << endl;
 		samplerate_tx.insert(pair<string, string>(option.first, option.second));
 	}
+	for (auto& option : config->getSection("input"))
+	{
+		//cout << "Option name: " << option.first << endl;
+		input_dev.insert(pair<string, string>(option.first, option.second));
+	}
 	config->useSection("bands");
 	
 	for (auto& col : (*config)("meters"))
@@ -299,4 +304,15 @@ double Settings::find_samplerate_tx(string key)
 	}
 	else 
 		return 0LL;
+}
+
+string Settings::find_input(string key)
+{
+	if (input_dev.find(key) != input_dev.end())
+	{
+		auto s = input_dev.find(key);
+		return string((char *)s->second.c_str());	
+	}
+	else 
+		return string("");
 }

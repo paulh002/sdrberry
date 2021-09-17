@@ -58,44 +58,25 @@ void evdev_init(void)
 	int input_device = 0;
 	
 	// first check which device need to be opened.
-	memset(str, 0, 2048);
-	int fd = open(EVDEV_DEVICES, O_RDONLY);
-	if (read(fd, &str, 2047) > 0) 
+	do
 	{
-		char *ptr = strstr(str,"touchscreen/input/input1");
-		if (ptr)
-			input_device = 1;
-		ptr = strstr(str, "touchscreen/input/input2");
-		if (ptr)
-			input_device = 2;
-		ptr = strstr(str, "touchscreen/input/input3");
-		if (ptr)
-			input_device = 3;
-		ptr = strstr(str, "touchscreen/input/input4");
-		if (ptr)
-			input_device = 4;
-	}
-	fd = close(fd);
-	
-#if USE_BSD_EVDEV
-    evdev_fd = open(EVDEV_NAME, O_RDWR | O_NOCTTY);
-#else
-	switch (input_device)
-	{
-	case 0:
-		evdev_fd = open(EVDEV_NAME, O_RDWR | O_NOCTTY | O_NDELAY);
-		break;
-	case 1:
-		evdev_fd = open(EVDEV_NAME1, O_RDWR | O_NOCTTY | O_NDELAY);
-		break;
-	case 2:
-		evdev_fd = open(EVDEV_NAME2, O_RDWR | O_NOCTTY | O_NDELAY);
-		break;
-	case 3:
-		evdev_fd = open(EVDEV_NAME3, O_RDWR | O_NOCTTY | O_NDELAY);
-		break;			
-	}
-#endif
+		sprintf(str, "/dev/input/event%d", input_device);
+		evdev_fd = open(str, O_RDONLY | O_NONBLOCK);
+		if (evdev_fd > 0)
+		{
+			char name[256] = "Unknown";
+			ioctl(evdev_fd, EVIOCGNAME(sizeof(name)), name);
+			printf("Input device name: \"%s\"\n", name);
+			char *ptr = strstr(name, "raspberrypi-ts");
+			if (ptr == NULL)
+			{
+				close(evdev_fd);
+				input_device++;
+				evdev_fd = -1;
+			}
+		}
+	} while (input_device < 4 && evdev_fd == -1) ;	
+
     if(evdev_fd == -1) {
         perror("unable open evdev interface:");
         return;

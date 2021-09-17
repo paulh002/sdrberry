@@ -32,6 +32,7 @@ public:
 	void	set_micgain(int gain);
 	void	set_txgain(int gain);
 	void	set_gain(int gain);
+	string	find_input(string key);
 		
 	vector<int>				meters;
 	vector<string>			labels;
@@ -51,6 +52,7 @@ private:
 	map<string, string>		audio;
 	map<string, string>		samplerate;
 	map<string, string>		samplerate_tx;
+	map<string, string>		input_dev;
 };
 
 

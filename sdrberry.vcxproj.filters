@@ -1072,6 +1072,9 @@
     <ClCompile Include="configfile.cpp">
       <Filter>Source files\config</Filter>
     </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1282,6 +1285,9 @@
     </ClInclude>
     <ClInclude Include="SoapySDR\Constants.h">
       <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

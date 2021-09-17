@@ -1,4 +1,5 @@
 #include "sdrberry.h"
+#include "Mouse.h"
 
 AudioOutput *audio_output;
 AudioInput *audio_input;
@@ -58,6 +59,8 @@ mutex	am_tx_finish;
 mutex	fm_finish;
 mutex	stream_finish;
 
+Mouse	Mouse_dev;
+
 MidiControle	*midicontrole = nullptr;
 auto			startTime = std::chrono::high_resolution_clock::now();
 
@@ -65,6 +68,7 @@ int main(int argc, char *argv[])
 {
 	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
+	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
 	
 	string s = Settings_file.find_audio("device");	
 	audio_output = new AudioOutput();
@@ -239,7 +243,7 @@ int main(int argc, char *argv[])
 		unique_lock<mutex> gui_lock(gui_mutex); 
 		lv_task_handler();
 		gui_lock.unlock(); 
-		
+		Mouse_dev.step_vfo();
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastStatus + std::chrono::milliseconds(200) < now && !stop_flag.load())
 		{

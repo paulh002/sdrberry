@@ -120,6 +120,7 @@
     <ClCompile Include="lv_drivers\indev\mousewheel.c" />
     <ClCompile Include="lv_drivers\indev\XPT2046.c" />
     <ClCompile Include="MidiControle.cpp" />
+    <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
     <ClCompile Include="lvgl\src\core\lv_disp.c" />
@@ -403,6 +404,7 @@
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
     <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="MidiControle.h" />
+    <ClInclude Include="Mouse.h" />
     <ClInclude Include="RtMidi.h" />
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />

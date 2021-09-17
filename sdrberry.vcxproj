@@ -36,7 +36,7 @@
     <EnableAddressSanitizer>false</EnableAddressSanitizer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
-    <RemoteBuildHost>192.168.89.253</RemoteBuildHost>
+    <RemoteBuildHost>192.168.89.252</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />

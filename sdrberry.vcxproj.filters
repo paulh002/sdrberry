@@ -230,14 +230,14 @@
     <Filter Include="Header files\config">
       <UniqueIdentifier>{685998bd-c599-4e10-b551-6bde938b6c16}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source files\config">
-      <UniqueIdentifier>{74d705ac-6871-4c65-b88a-523ed0063430}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header files\RtMidi">
       <UniqueIdentifier>{d951d323-2251-4656-9099-5428645484b9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source files\Rtmidi">
       <UniqueIdentifier>{923ae729-c448-4e88-9e2f-b097ddf98181}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\config">
+      <UniqueIdentifier>{5acfd74a-f56e-4735-9dec-f3752ff1d4f1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1027,12 +1027,6 @@
     <ClCompile Include="strlib.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="configoption.cpp">
-      <Filter>Source files\config</Filter>
-    </ClCompile>
-    <ClCompile Include="configfile.cpp">
-      <Filter>Source files\config</Filter>
-    </ClCompile>
     <ClCompile Include="Gui_band.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1071,6 +1065,12 @@
     </ClCompile>
     <ClCompile Include="gui_rx.cpp">
       <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="configoption.cpp">
+      <Filter>Source files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="configfile.cpp">
+      <Filter>Source files\config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -31,12 +31,14 @@
 class ble_class
 {
 public:
+	ble_class() {};
 	~ble_class();
 	int		setup_ble();	
 	std::unique_ptr <BluetoothDevice>					sensor_tag;
 	int		connect();
 	void	set_mac_address(string mac) {to_upper(mac); m_mac_address = mac; }
 	bool	is_connected() {return m_connected;}
+	void	operator()();
 	
 private:
 	BluetoothManager									*manager = nullptr;

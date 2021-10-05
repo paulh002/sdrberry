@@ -1,5 +1,5 @@
 #include "vfo.h"
-
+#include "Catinterface.h"
 
 /*
 unsigned long bandswitch[] = { 160, 80, 60, 40, 30, 20, 17, 15, 10, 6, 4, 3, 2,  70, 23 , 13};
@@ -161,7 +161,8 @@ int CVfo::set_vfo(long long freq, bool lock)
 		unique_lock<mutex> gui_lock(gui_mutex);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	Wf.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
-	get_band(vfo_setting.active_vfo);
+	if (get_band(vfo_setting.active_vfo))
+		catinterface.SetBand(get_band_in_meters());
 	gui_band_instance.set_gui(vfo_setting.band[0]);
 	return 0;
 }
@@ -252,10 +253,10 @@ void CVfo::set_band(int band, long long freq)
 	set_vfo(freq, false);
 }
 
-
-void CVfo::get_band(int active_vfo)
+int CVfo::get_band(int active_vfo)
 {
-	long long freq = vfo_setting.vfo_freq[active_vfo];
+	long long	freq = vfo_setting.vfo_freq[active_vfo];
+	int			band = vfo_setting.band[active_vfo];
 	
 	auto it_high = Settings_file.f_high.begin();
 	auto it_band = Settings_file.meters.begin();
@@ -268,6 +269,11 @@ void CVfo::get_band(int active_vfo)
 		it_high++;
 		it_band++;
 	}
+	
+	if (band == vfo_setting.band[active_vfo])
+		return 0;
+	else
+		return 1;
 }
 
 void CVfo::check_band(int dir, long long& freq)

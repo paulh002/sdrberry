@@ -12,6 +12,7 @@
 #include <liquid.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <thread>
 #include "RtAudio.h"
 #include "DataBuffer.h"
 #include "Audiodefs.h"

@@ -65,6 +65,11 @@ void Settings::read_settings(string settings_file)
 
 	config->useSection("ESP32");
 	mac_address = string((char *)(*config)("mac address").toString().c_str());
+	for (auto& option : config->getSection("CATsdrb	"))
+	{
+		//cout << "Option name: " << option.first << endl;
+		cat.insert(pair<string, string>(option.first, option.second));
+	}
 	
 	for (auto& option : config->getSection("SDR Receivers"))
 	{
@@ -312,6 +317,17 @@ string Settings::find_input(string key)
 	{
 		auto s = input_dev.find(key);
 		return string((char *)s->second.c_str());	
+	}
+	else 
+		return string("");
+}
+
+string Settings::find_cat(string key)
+{
+	if (cat.find(key) != cat.end())
+	{
+		auto s = cat.find(key);
+		return string((char *)s->second.c_str());
 	}
 	else 
 		return string("");

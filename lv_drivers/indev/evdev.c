@@ -75,7 +75,7 @@ void evdev_init(void)
 				evdev_fd = -1;
 			}
 		}
-	} while (input_device < 4 && evdev_fd == -1) ;	
+	} while (input_device < 10 && evdev_fd == -1) ;	
 
     if(evdev_fd == -1) {
         perror("unable open evdev interface:");

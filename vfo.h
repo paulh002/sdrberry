@@ -72,7 +72,11 @@ public:
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
 	}
-	
+	int		get_band_in_meters()
+	{
+		return vfo_setting.band[vfo_setting.active_vfo];
+	}
+		
 	long long get_tx_frequency();
 	long	get_vfo_offset();
 	
@@ -85,7 +89,7 @@ private:
 	int		m_delay;
 	std::mutex	m_vfo_mutex;
 	
-	void get_band(int active_vfo);
+	int		get_band(int active_vfo);
 };
 
 extern CVfo	vfo;			

@@ -226,25 +226,15 @@ int ble_class::connect()
 	return 0;
 }
 
-pthread_t	ble_thread_handle {0};
-	
-void* ble_thread(void* psdr_dev)
+void ble_class::operator()()
 {
-	Ble_instance.setup_ble();
+	this->setup_ble();
 	while (1)
 	{
-		if (!Ble_instance.is_connected())
+		if (!this->is_connected())
 		{
-			Ble_instance.connect();
+			this->connect();
 		}
 		usleep(5000);
-	}
-}
-
-int create_ble_thread(string mac_address)
-{
-	Ble_instance.set_mac_address(mac_address);
-	if (ble_thread_handle == 0)
-		return pthread_create(&ble_thread_handle, NULL, ble_thread, NULL);
-	return 0;
-}
+	}	
+};

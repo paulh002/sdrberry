@@ -29,6 +29,7 @@ Done:
 - SSB support
 - Basic BLE support
 - Transmitter part
+- USB CAT interface support (config serial controler in cfg file example ESP32 as CAT controler)
 
 Installation of libraries is necessary:
 - Liquid DSP

@@ -27,7 +27,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <GNUConfigurationType>Debug</GNUConfigurationType>
-    <RemoteBuildHost>192.168.89.252</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.67</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -36,7 +36,7 @@
     <EnableAddressSanitizer>false</EnableAddressSanitizer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
-    <RemoteBuildHost>192.168.89.252</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.67</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -84,6 +84,7 @@
     <ClCompile Include="AudioInput.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="ble_interface.cpp" />
+    <ClCompile Include="Catinterface.cpp" />
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
     <ClCompile Include="device.cpp" />
@@ -93,6 +94,7 @@
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
     <ClCompile Include="FreeSansOblique42.c" />
+    <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_right_pane.cpp" />
     <ClCompile Include="gui_rx.cpp" />
@@ -253,6 +255,7 @@
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
+    <ClCompile Include="wiringSerial.c" />
     <ClInclude Include="AMDemodulator.h" />
     <ClInclude Include="AMmodulator.h" />
     <ClInclude Include="Audiodefs.h" />
@@ -260,12 +263,14 @@
     <ClInclude Include="AudioOutput.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="ble_interface.h" />
+    <ClInclude Include="Catinterface.h" />
     <ClInclude Include="configfile.h" />
     <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="devices.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
+    <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_right_pane.h" />
     <ClInclude Include="gui_rx.h" />
@@ -424,6 +429,7 @@
     <ClInclude Include="strlib.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="Waterfall.h" />
+    <ClInclude Include="wiringSerial.h" />
     <ClInclude Include="wstring.h" />
   </ItemGroup>
   <ItemGroup>

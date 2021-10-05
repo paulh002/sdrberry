@@ -1,5 +1,6 @@
 #include "sdrberry.h"
 #include "Mouse.h"
+#include "Catinterface.h"
 
 AudioOutput *audio_output;
 AudioInput *audio_input;
@@ -59,7 +60,8 @@ mutex	am_tx_finish;
 mutex	fm_finish;
 mutex	stream_finish;
 
-Mouse	Mouse_dev;
+Mouse			Mouse_dev;
+Catinterface	catinterface;
 
 MidiControle	*midicontrole = nullptr;
 auto			startTime = std::chrono::high_resolution_clock::now();
@@ -70,6 +72,17 @@ int main(int argc, char *argv[])
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
 	
+	//SerialControler	s_controler;
+	//if (1)
+	//{
+	//	std::thread thread_serial(std::ref(s_controler));
+	//	thread_serial.detach();
+	//}
+	
+	catinterface.begin();
+	std::thread thread_catinterface(std::ref(catinterface));
+	thread_catinterface.detach();
+
 	string s = Settings_file.find_audio("device");	
 	audio_output = new AudioOutput();
 	if (!(*audio_output)) {
@@ -154,11 +167,19 @@ int main(int argc, char *argv[])
 	lv_obj_t *label1 = lv_label_create(tab6);
 	lv_label_set_text(label1, "Setup");
 	
+	
 	if (Settings_file.get_mac_address() != std::string(""))
-		create_ble_thread(Settings_file.get_mac_address());
+	{
+		//create_ble_thread(Settings_file.get_mac_address());
+		
+		Ble_instance.set_mac_address(Settings_file.get_mac_address());
+		std::thread thread_ble(std::ref(Ble_instance));
+		thread_ble.detach();
+	}
 	
-	//Ble_instance.setup_ble(Settings_file.get_mac_address());
 	
+	//Ble_instance.set_mac_address(Settings_file.get_mac_address());
+	//Ble_instance.setup_ble();	
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
 	to_upper(smode);

@@ -1075,6 +1075,15 @@
     <ClCompile Include="Mouse.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Catinterface.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FT891_CAT.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="wiringSerial.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1287,6 +1296,15 @@
       <Filter>Header files\SoapySDR</Filter>
     </ClInclude>
     <ClInclude Include="Mouse.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Catinterface.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FT891_CAT.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="wiringSerial.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -111,8 +111,8 @@ struct	msg							// Keeps everything together
  *	Miscellaneous definitions:
  */
 
-#define	BUF_LEN			45			// Size of all buffers (Max FT-891 message is 41 bytes)
-#define BUF_COUNT		 8			// Number of transmit buffers
+#define	BUF_LEN			128			// Size of all buffers (Max FT-891 message is 41 bytes)
+#define BUF_COUNT		8			// Number of transmit buffers
 #define	CAT_READ_TIME 25UL			// Only check for incoming messages every 25mS
 
 
@@ -144,7 +144,7 @@ struct	msg							// Keeps everything together
 class Cat_communicator
 {
 public:
-	virtual void Read(char c, std::string &s) = 0;
+	virtual int  Read(char c, std::string &s) = 0;
 	virtual void Send(std::string s) = 0;
 	virtual bool available() = 0;
 	virtual void SendInformation(int info) = 0;
@@ -167,7 +167,7 @@ explicit FT891_CAT ();							// Constructor
 
 void	 begin ( bool debug = false , Cat_communicator* cat_communicator = nullptr, bool bmode = true);				// Initialize CAT control parameters
 
-bool	 CheckCAT(bool bwait = true); 							// See if anything to do
+int		 CheckCAT(bool bwait = true); 							// See if anything to do
 
 void	 SetFA  ( uint32_t freq );				// Set VFO-A frequency
 void	 SetFB  ( uint32_t freq );				// Set VFO-B frequency
@@ -175,7 +175,7 @@ void	 SetMDA ( uint8_t mode );				// Set VFO-A mode
 void	 SetMDB ( uint8_t mode );				// Set VFO-B mode
 void	 SetTX  ( uint8_t tx );					// Set transmit/receive status
 void	 SetST  ( uint8_t st );					// Set split mode
-void	SetBand	( uint16_t bnd );				// Set band in meters (for band filters)
+void	 SetBand	( uint16_t bnd );				// Set band in meters (for band filters)
 void 	 SetFT  ( int ft);
 void 	 SetAG	( uint8_t ag );
 void 	 SetRG  ( uint8_t rg);
@@ -200,7 +200,7 @@ private:
 
 void	 set_cat_communicator(Cat_communicator* cat_communicator) { this->catcommunicator_ = cat_communicator; };
 void	 Init ( bool debug );			// Common logic for multiple 'begin' functions
-bool	 GetMessage(bool bwait = true); // Get a message from the input stream
+int		 GetMessage(bool bwait = true); // Get a message from the input stream
 msg 	 FindMsg ();					// Find the message in "msgTable"
 bool	 ParseMsg ();					// Separate any data from the message
 bool	 ProcessCmd ();					// Process a command type message

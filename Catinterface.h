@@ -13,15 +13,15 @@ class Comm : public Cat_communicator
 public:
 	bool	begin();
 	void	Send(std::string s) override;
-	void	Read(char c, std::string& s) override;
+	int		Read(char c, std::string& s) override;
 	bool	available() override;
 	void	SendInformation(int info) override;
 	~Comm();
+	void	Close();
 
 private:
 	std::string					device;
 	int							speed;
-	bool						bserial {false};
 	int							serialport;
 };
 

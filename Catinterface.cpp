@@ -8,6 +8,12 @@ Comm::~Comm()
 		serialClose(serialport);
 }
 
+void Comm::Close()
+{
+	if (serialport > 0)
+		serialClose(serialport);
+	serialport = 0;
+}
 
 bool Comm::begin()
 {
@@ -18,10 +24,9 @@ bool Comm::begin()
 	serialport = serialOpen(device.c_str(), speed);
 	if (serialport < 0)
 	{
-		bserial = false;
+		serialport = 0;
 		return false;
 	}
-	bserial = true;
 	printf("Connect to ESP32 CAT interface\n");
 	return true;
 }
@@ -31,17 +36,21 @@ void Comm::Send(std::string s)
 	serialPuts(serialport, (const char *)s.c_str());
 }
 
-void Comm::Read(char c, std::string& s)
+int Comm::Read(char c, std::string& s)
 {
-	char chr;
+	int chr; int i = 0;
 	s.clear();
 	do
 	{
 		chr = serialGetchar(serialport);
+		if (chr < 0)
+			return -1;
 		if (chr == '\n' || chr == '\r')
 			continue;
-		s.push_back(chr);
-	} while (chr != c);
+		s.push_back((char)chr);
+		i++;
+	} while (chr != c && i < 80);
+	return s.length();
 }
 
 bool Comm::available()
@@ -130,7 +139,18 @@ void	Catinterface::checkCAT()
 {
 	if (!bcomm_port)
 		return;
-	if (cat_message.CheckCAT(false))
+	int ret = cat_message.CheckCAT(false);
+	if(ret < 0)
+	{
+		comm_port.Close();
+		usleep(1000000);
+		if (!comm_port.begin())
+		{
+			usleep(1000000);
+			return;
+		}
+	}
+	if (ret == 1)
 	{
 		// do something
 		int count = cat_message.GetFT();

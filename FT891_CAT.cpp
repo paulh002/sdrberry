@@ -192,23 +192,26 @@ void FT891_CAT::Init ( bool debug )
  *	determinations about the validity of the new data.
  */
 
-bool FT891_CAT::CheckCAT (bool bwait)
+int FT891_CAT::CheckCAT (bool bwait)
 {
-bool newCmd = false;							// True if command message processed
+	int newCmd = 0;							// True if command message processed
 
-	if(GetMessage(bwait))							// See if new message
+	int ret = GetMessage(bwait);
+	if (ret < 0)
+		return -1;
+	if(ret == 1)							// See if new message
 	{
 		newMessage = FindMsg ();				// If so, look it up in the table
 
 		if ( newMessage.ID == MSG_NONE )		// Not found?
-			return false;						// We're done
+			return 0;							// We're done
 
 		ParseMsg ();							// Separate any data in the message
 
 		if ( newMessage.Type == MSG_CMD )		// Command?
 		{
 			if ( ProcessCmd ())					// Yes, process it
-				newCmd = true;					// Indicate command received & processed
+				newCmd = 1;						// Indicate command received & processed
 		}
 
 		else									// It's a status request
@@ -229,22 +232,23 @@ bool newCmd = false;							// True if command message processed
  *	either upper or lower case.
  */
 
-bool FT891_CAT::GetMessage(bool bwait)
+int FT891_CAT::GetMessage(bool bwait)
 {
 	int	i;										// Loop counter
 	std::string s;
 	if (bwait)
 	{
-		if (!catcommunicator_->available())					// Anything in the input buffer?
-		return false; 							// If not, no message yet
+		if (!catcommunicator_->available())		// Anything in the input buffer?
+		return 0; 								// If not, no message yet
 	}
 
-	catcommunicator_->Read(TERM_CH, s);
+	if (catcommunicator_->Read(TERM_CH, s) < 0)
+		return -1;
 	
 	strcpy(rxBuff, s.c_str());
 	for ( i = 0; i < strlen ( rxBuff ); i++ )	// Translate incoming message
 		rxBuff[i] = toupper ( rxBuff[i] );		// to all upper case
-	return true;								// There is a new message
+	return 1;								// There is a new message
 }
 
 

@@ -324,3 +324,9 @@ void CVfo::check_band(int dir, long long& freq)
 		i++;
 	}
 }
+
+
+void CVfo::return_bands(vector<int> &bands)
+{
+	bands = vfo_setting.meters;
+}

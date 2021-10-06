@@ -52,6 +52,73 @@ bool Comm::available()
 		return false;
 }
 
+/* this methode is intened to send range details over volume, gain, bands etc*/
+
+void Comm::SendInformation(int info)
+{
+	switch (info)
+	{
+	case 0:
+		// Volume
+		{
+			char str[20];
+			int range = get_vol_range();
+			sprintf(str, "GT0%d", range);
+			Send((std::string) str);
+		}
+		break;
+	case 1:
+		// Gain
+		{
+			char str[20];
+			int  max_gain, min_gain;
+			
+			get_gain_range(max_gain, min_gain);
+			sprintf(str, "GT1%2d,%2d", max_gain, min_gain);
+			Send((std::string) str);
+		}
+		break;
+	case 2:
+		// Band
+		{
+			char			str[20];
+			vector<int>		bands;
+			string			s;
+			
+			strcpy(str, "GT2");
+			s = str;
+			vfo.return_bands(bands);
+			for (auto it : bands)
+			{
+				sprintf(str, ",%2d", it);
+				s.append(str);
+			}
+			s.push_back(';');
+			Send((std::string) s);
+		}
+		break;
+	case 3:
+		// Filter
+		{
+			char			str[20];
+			vector<string>	filters;
+			string			s;
+			
+			strcpy(str, "GT3");
+			s = str;
+			get_filter_range(filters);
+			for (auto it : filters)
+			{
+				s.push_back(',');
+				s.append(it);
+			}
+			s.push_back(';');
+			Send((std::string) s);
+		}
+		break;
+	}
+}
+
 void	Catinterface::begin()
 {
 	bcomm_port = comm_port.begin();

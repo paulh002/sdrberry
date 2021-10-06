@@ -38,7 +38,7 @@
  *  - The ESP32 is sending optical encoder messages to change frequencies
  *  - Must receive band information when sdr switches from band
  *  - Receives Volume, Gain , and other controles to get feedback on what is the range of the controles
- *  - 
+ *  - Command for getting ranges for Volume, Gain, Bands, Filters,  GT00 .. GTZZ  GT for GET 00 - ZZ for itemg
  *
  *
  */
@@ -123,7 +123,8 @@ struct	status {
 		{ "TX",  MSG_TX, MSG_BOTH },		// Set or request transmit/receive status
 		{ "FT",  MSG_FT, MSG_BOTH },		// Frequency Tune step frequency + or - X  (It is assumed tranceiver will respond with FA or FB command
 		{ "AG",  MSG_AG, MSG_BOTH },		// Set Volume
-		{ "RG",  MSG_RG, MSG_BOTH }			// Set rf gain 
+		{ "RG",  MSG_RG, MSG_BOTH },		// Set rf gain 
+		{ "GT",  MSG_GT, MSG_BOTH }			// Get command 0 = Max Volume, 1 Max Gain, 2 List bands, 3 List Filter 			
 	};
 
 
@@ -513,7 +514,16 @@ bool FT891_CAT::ProcessCmd ()
 			radioStatus.TX = dataBuff[0] - '0';
 			cmdProcessed = true;
 			break;
-
+		
+		case MSG_GT:									// Get information command
+			if(bVFOmode)
+			{
+				int tempFT = atoi(dataBuff);   					// Convert into temporary place
+				SendInformation(tempFT);
+			}
+			cmdProcessed = true;
+			break;
+		
 		case MSG_NONE:									// Command not found in the list
 			break;
 	}
@@ -626,7 +636,10 @@ void FT891_CAT::ProcessStatus ()
 		case MSG_ID:									// Request radio's ID (0650 for the FT-891)
 			strcpy ( tempBuff, "ID0650;" );				// Format message
 			break;
-
+		
+		case MSG_GT:									// Get information command
+			break;
+		
 		case MSG_NONE:									// Command not found in the list
 			break;
 	}
@@ -885,4 +898,10 @@ uint8_t FT891_CAT::GetRG()							// Get volume
 	if (!bVFOmode)
 		catcommunicator_->Send("RG;"); 				// Send AG command
 	return radioStatus.RG;						// Done!
+}
+
+void FT891_CAT::SendInformation(int info)
+{
+	catcommunicator_->SendInformation(info);  	// Send Information command	
+												// This command is implementation specific handled outside of F891_CAT
 }

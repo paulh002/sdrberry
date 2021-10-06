@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <vector>
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -17,4 +19,8 @@ void	set_filter_slider(int filter);
 void	set_gain_range();
 void	step_gain_slider(int step);
 void	step_vol_slider(int step);
+int		get_vol_range();
+void	get_gain_range(int &max_gain, int &min_gain);
+void	get_filter_range(std::vector<std::string> &filters);
+
 

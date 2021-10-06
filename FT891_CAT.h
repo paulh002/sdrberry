@@ -100,9 +100,10 @@ struct	msg							// Keeps everything together
 #define	MSG_ST			18			// (Data 0 - 2) Split mode off, on or on +5KHz up
 #define	MSG_SV			19			// Swap VFOs
 #define	MSG_TX			20			// Set or request transmit/receive status
-#define	MSG_FT			21			// Set or request transmit/receive status
+#define	MSG_FT			21			// Frequency Tuning delta frequency
 #define	MSG_AG			22			// Set or request volume
-#define	MSG_RG			23			// Set or request volume
+#define	MSG_RG			23			// Set or request rf gain
+#define	MSG_GT			24			// Get information command
 
 
 
@@ -146,6 +147,7 @@ public:
 	virtual void Read(char c, std::string &s) = 0;
 	virtual void Send(std::string s) = 0;
 	virtual bool available() = 0;
+	virtual void SendInformation(int info) = 0;
 };
 
 class FT891_CAT							// Class name
@@ -188,6 +190,8 @@ uint16_t GetBand();								// Get selected band in meters
 int		 GetFT  ();
 uint8_t	 GetAG	();
 uint8_t	 GetRG();
+	
+void	SendInformation(int info);	
 /*
  *	These can't be called from the outside world:
  */

@@ -79,7 +79,7 @@ public:
 		
 	long long get_tx_frequency();
 	long	get_vfo_offset();
-	
+	void	return_bands(vector<int> &bands);
 	std::atomic_bool tune_flag {false};
 	bool	limit_ham_band;
 	

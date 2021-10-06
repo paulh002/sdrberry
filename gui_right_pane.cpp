@@ -18,6 +18,7 @@ static const int bottombutton_width = (rightWidth / nobuttons) - 2;
 static const int bottombutton_width1 = (rightWidth / nobuttons);
 static int button_height , button_margin = 18;
 const int top_y {20};
+const int max_volume {100};
 
 static void gain_slider_event_cb(lv_event_t * e);
 static void agc_slider_event_cb(lv_event_t * e);
@@ -262,8 +263,8 @@ void set_vol_slider(int volume)
 {
 	if (volume < 0)
 		volume = 0;
-	if (volume > 100)
-		volume = 100;
+	if (volume > max_volume)
+		volume = max_volume;
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);
 	
 	char buf[20];
@@ -272,4 +273,29 @@ void set_vol_slider(int volume)
 	lv_label_set_text(vol_slider_label, buf);
 	lv_obj_align_to(vol_slider_label, agc_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	audio_output->set_volume(volume);
+}
+
+int get_vol_range()
+{
+	return max_volume;
+}
+
+void get_gain_range(int &max_gain, int &min_gain)
+{
+	max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.minimum();
+	return ;
+}
+
+
+void get_filter_range(vector<string> &filters)
+{
+	filters.push_back("0.5 Khz");
+	filters.push_back("1 Khz");
+	filters.push_back("1.5 Khz");
+	filters.push_back("2 Khz");
+	filters.push_back("2.5 Khz");
+	filters.push_back("3 Khz");
+	filters.push_back("3.5 Khz");
+	filters.push_back("4 Khz");
 }

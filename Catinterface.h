@@ -15,6 +15,7 @@ public:
 	void	Send(std::string s) override;
 	void	Read(char c, std::string& s) override;
 	bool	available() override;
+	void	SendInformation(int info) override;
 	~Comm();
 
 private:

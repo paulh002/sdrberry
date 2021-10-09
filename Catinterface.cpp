@@ -42,12 +42,16 @@ int Comm::Read(char c, std::string& s)
 	s.clear();
 	do
 	{
-		chr = serialGetchar(serialport);
-		if (chr < 0)
+		//chr = serialGetchar(serialport);
+		int ret = serialReadchar(serialport, &chr);
+		if (ret < 0)
 			return -1;
-		if (chr == '\n' || chr == '\r')
-			continue;
-		s.push_back((char)chr);
+		if (ret == 1)
+		{
+			if (chr == '\n' || chr == '\r')
+				continue;
+			s.push_back((char)chr);
+		}		
 		i++;
 	} while (chr != c && i < 80);
 	return s.length();

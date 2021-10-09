@@ -32,6 +32,7 @@ extern void  serialPuts      (const int fd, const char *s) ;
 extern void  serialPrintf    (const int fd, const char *message, ...) ;
 extern int   serialDataAvail (const int fd) ;
 extern int   serialGetchar   (const int fd) ;
+extern int   serialReadchar	 (const int fd, int *val);
 
 #ifdef __cplusplus
 }

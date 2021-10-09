@@ -43,6 +43,8 @@ void Mouse::init_mouse(string mouse_name)
 				m_fd = -1;
 			}
 		}
+		else
+			numMouseIndex++;	
 	} while (numMouseIndex < 4 && m_fd == -1);	
 }
 

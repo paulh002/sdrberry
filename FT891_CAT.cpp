@@ -437,7 +437,7 @@ bool FT891_CAT::ProcessCmd ()
 
 		case MSG_BS:
 			tempBND = atoi(dataBuff);					// Convert into temporary place
-			SetBand(tempBND);							// Update radioStatus.BND
+			radioStatus.BND = tempBND;  				// Update radioStatus.BND
 			cmdProcessed = true;
 			break;
 

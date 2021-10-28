@@ -1,16 +1,7 @@
 #include "vfo.h"
 #include "Catinterface.h"
+#include "BandFilter.h"
 
-/*
-unsigned long bandswitch[] = { 160, 80, 60, 40, 30, 20, 17, 15, 10, 6, 4, 3, 2,  70, 23 , 13};
-unsigned char bandlabda[][3] = { "m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "cm", "cm", "cm" };
-uint8_t bandconf[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-unsigned long freqswitch_low[] = { 1800000, 3500000, 5350000, 7000000, 10100000, 14000000, 18068000, 21000000, 28000000,
-50000000, 70000000, 83000000 ,144000000, 430000000, 1240000000, 2320000000};
-unsigned long freqswitch_high[] = { 1880000, 3800000, 5450000, 7200000, 10150000, 14350000, 18168000, 21450000, 29000000,
-52000000, 70500000, 107000000,146000000, 436000000, 1300000000, 2400000000};
-*/
-	
 extern mutex	gui_mutex;
 CVfo	vfo;
 
@@ -68,6 +59,7 @@ void CVfo::vfo_init(long long freq, long ifrate, long pcmrate, SoapySDR::RangeLi
 	gui_band_instance.set_gui(vfo_setting.band[0]);
 	stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 	stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
+	bpf.SetBand(vfo_setting.band[0], vfo_setting.rx);
 }
 
 /* this function reads the device capability and translates it to f license bandplans*/
@@ -162,7 +154,10 @@ int CVfo::set_vfo(long long freq, bool lock)
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	Wf.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo))
+	{ // Band Change?
 		catinterface.SetBand(get_band_in_meters());
+		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
+	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
 	return 0;
 }
@@ -329,4 +324,16 @@ void CVfo::check_band(int dir, long long& freq)
 void CVfo::return_bands(vector<int> &bands)
 {
 	bands = vfo_setting.meters;
+}
+
+int CVfo::getBandIndex(int band)
+{
+	int i = 0;
+	for (auto& col : vfo_setting.meters)
+	{
+		if (band == col)
+			return i;
+		i++;
+	}
+	return -1;
 }

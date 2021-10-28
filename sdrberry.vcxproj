@@ -27,7 +27,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <GNUConfigurationType>Debug</GNUConfigurationType>
-    <RemoteBuildHost>192.168.88.67</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.58</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -36,7 +36,7 @@
     <EnableAddressSanitizer>false</EnableAddressSanitizer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
-    <RemoteBuildHost>192.168.88.67</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.58</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -83,6 +83,7 @@
     <ClCompile Include="AMmodulator.cpp" />
     <ClCompile Include="AudioInput.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
+    <ClCompile Include="BandFilter.cpp" />
     <ClCompile Include="ble_interface.cpp" />
     <ClCompile Include="Catinterface.cpp" />
     <ClCompile Include="configfile.cpp" />
@@ -123,6 +124,7 @@
     <ClCompile Include="lv_drivers\indev\XPT2046.c" />
     <ClCompile Include="MidiControle.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="PCF8574.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
     <ClCompile Include="lvgl\src\core\lv_disp.c" />
@@ -255,12 +257,14 @@
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
+    <ClCompile Include="wiringPiI2C.c" />
     <ClCompile Include="wiringSerial.c" />
     <ClInclude Include="AMDemodulator.h" />
     <ClInclude Include="AMmodulator.h" />
     <ClInclude Include="Audiodefs.h" />
     <ClInclude Include="AudioInput.h" />
     <ClInclude Include="AudioOutput.h" />
+    <ClInclude Include="BandFilter.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="ble_interface.h" />
     <ClInclude Include="Catinterface.h" />
@@ -410,6 +414,7 @@
     <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="MidiControle.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="PCF8574.h" />
     <ClInclude Include="RtMidi.h" />
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />
@@ -429,6 +434,7 @@
     <ClInclude Include="strlib.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="Waterfall.h" />
+    <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />
     <ClInclude Include="wstring.h" />
   </ItemGroup>

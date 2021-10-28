@@ -1,6 +1,7 @@
 #include "sdrberry.h"
 #include "Mouse.h"
 #include "Catinterface.h"
+#include "BandFilter.h"
 
 AudioOutput *audio_output;
 AudioInput *audio_input;
@@ -62,6 +63,7 @@ mutex	stream_finish;
 
 Mouse			Mouse_dev;
 Catinterface	catinterface;
+BandFilter		bpf;
 
 MidiControle	*midicontrole = nullptr;
 auto			startTime = std::chrono::high_resolution_clock::now();
@@ -71,14 +73,7 @@ int main(int argc, char *argv[])
 	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
-	
-	//SerialControler	s_controler;
-	//if (1)
-	//{
-	//	std::thread thread_serial(std::ref(s_controler));
-	//	thread_serial.detach();
-	//}
-	
+
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
@@ -100,7 +95,8 @@ int main(int argc, char *argv[])
 	audio_input->init(s, pcmrate, false, &audioinput_buffer);
 	audio_output->set_volume(50);
 	
-
+	bpf.initFilter();
+		
 	/*LittlevGL init*/
 	lv_init();
 

@@ -138,7 +138,27 @@ void Settings::read_settings(string settings_file)
 		if (col.toLong() > 0L)
 			f_high.push_back(col.toLong());
 	}
+	
+	config->useSection("filter");
+	
+	for (auto& col : (*config)("address"))
+	{
+		if (col.toInt() > 0)
+			address.push_back(col.toInt());
+	}
+	for (auto& col : (*config)("command_rx"))
+	{
+		if (col.toInt() > 0)
+			command_rx.push_back(col.toInt());
+	}
+	for (auto& col : (*config)("command_tx"))
+	{
+		if (col.toInt() > 0)
+			command_tx.push_back(col.toInt());
+	}
+	
 }
+
 
 string Settings::find_sdr(string key)
 {

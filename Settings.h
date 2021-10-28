@@ -39,6 +39,9 @@ public:
 	vector<string>			labels;
 	vector<long>			f_low;
 	vector<long>			f_high;
+	vector<int>				address;
+	vector<int>				command_rx;
+	vector<int>				command_tx;
 	
 private:
 	

@@ -30,6 +30,7 @@ Done:
 - Basic BLE support
 - Transmitter part
 - USB CAT interface support (config serial controler in cfg file example ESP32 as CAT controler)
+- i2c filter support for PCF8574
 
 Installation of libraries is necessary:
 - Liquid DSP

@@ -68,6 +68,7 @@ public:
 	void vfo_rxtx(bool brx, bool btx);
 	void set_step(int step, int delay) {vfo_setting.frq_step = step; m_delay = delay; };
 	void check_band(int dir, long long& freq);
+	int	 getBandIndex(int band);
 	long long get_sdr_frequency()
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];

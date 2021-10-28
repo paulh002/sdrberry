@@ -1084,6 +1084,15 @@
     <ClCompile Include="wiringSerial.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="BandFilter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="PCF8574.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="wiringPiI2C.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1305,6 +1314,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="wiringSerial.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="BandFilter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="PCF8574.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="wiringPiI2C.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

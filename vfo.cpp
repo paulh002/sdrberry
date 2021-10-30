@@ -18,6 +18,7 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 {
 	vfo_setting.tx = btx;
 	vfo_setting.rx = brx;
+	bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 
 void CVfo::vfo_init(long long freq, long ifrate, long pcmrate, SoapySDR::RangeList r)

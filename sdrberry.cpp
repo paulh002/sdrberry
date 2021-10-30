@@ -243,7 +243,6 @@ int main(int argc, char *argv[])
 		set_vol_slider(Settings_file.volume());		
 		set_gain_range();
 		Gui_tx.set_drv_range();
-		Gui_tx.set_drv_slider(Settings_file.drive());
 		set_gain_slider(Settings_file.gain());	
 		vfo.set_vfo(freq, false);
 		select_mode(mode); // start streaming
@@ -385,9 +384,7 @@ void select_mode_tx(int s_mode, int tone)
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
 	printf("select_mode_tx start tx threads\n");
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)Settings_file.drive());
-	Gui_tx.set_drv_slider(Settings_file.drive());
-	Gui_tx.set_mic_slider(Settings_file.micgain());
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)Gui_tx.get_drv_pos());
 	switch (mode)
 	{
 	case mode_broadband_fm:

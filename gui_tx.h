@@ -37,6 +37,7 @@ public:
 	lv_obj_t* get_mic_label() {return mic_slider_label;}
 	lv_obj_t* get_drv_label() {return drv_slider_label;}
 	lv_obj_t* get_drv_slider() {return drv_slider;}
+	int		  get_drv_pos();
 	
 private:
 	lv_obj_t*		mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label, *drp_samplerate; 

@@ -21,6 +21,7 @@ ToDo:
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
+- i2c support for 16 bits 
 
 Done:
 - Adalm Pluto

@@ -13,6 +13,7 @@
 #include "Waterfall.h"
 #include "sdrberry.h"
 #include "vfo.h"
+#include "Agc_class.h"
 
 void* am_demod_thread(void* ptr);
 /** Compute RMS level over a small prefix of the specified sample vector. */
@@ -38,6 +39,10 @@ void	AMDemodulator::init(demod_struct * ptr)
 	tune_offset(vfo.get_vfo_offset());
 	m_lowpass = iirfilt_crcf_create_lowpass(m_order, 0.03125);
 	m_init = true;
+	// create agc object
+	agc.set_bandwidth(0.01f);
+	agc.set_enery_levels(0.1f, 1.0f);
+	agc.print();
 }
 
 void AMDemodulator::tune_offset(long offset)
@@ -144,16 +149,37 @@ void AMDemodulator::mono_to_left_right(const SampleVector& samples_mono,
 	}
 }
 
+static int agc_counter = 0;
+
 void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
 {
 	unsigned int			num_written;
 	SampleVector			audio_tmp, audio_mono;
 	IQSampleVector			filter, buf_mix;
 	IQSampleVector			buf_iffiltered; 
-	
+	float					bt = 0.1f;
 	
 	unique_lock<mutex> lock(m_mutex); 
 	
+	int agcv = grp.get_agc_slider();
+	if (agcv != m_iagc && agcv != 0)
+	{
+		m_iagc = agcv;
+		switch (agcv)
+		{
+		case 1:
+			bt = 0.1f; 
+			break;			
+		case 2:
+			bt = 0.01f; 
+			break;
+		case 3:
+			bt = 0.001f; 			
+			break;
+		}
+		agc.set_bandwidth(bt);
+		agc.print();
+	}
 	// mixer to mix vfo offset
 	buf_mix.clear();
 	for (auto& col : samples_in)
@@ -198,7 +224,19 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		
 	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
     calc_if_level(filter);
-	    
+	if (agcv)
+	{
+		agc.init(filter);	
+		agc.execute_vector(filter);	
+		
+		agc_counter++;
+		if(agc_counter > 100)
+		{
+			agc.print();
+			agc_counter	= 0;
+		}
+	}
+	
 	for (auto& col : filter)  
 	{
 		float z {0};

@@ -28,6 +28,9 @@ public:
 	int		txgain();
 	int		micgain();
 	int		drive();
+	int		agc_e1();
+	int		agc_e0();
+	int		agc();
 	void	set_drive(int drive);
 	void	set_micgain(int gain);
 	void	set_txgain(int gain);

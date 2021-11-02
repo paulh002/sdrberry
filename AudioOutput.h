@@ -18,7 +18,7 @@ public:
 	~AudioOutput();
 	double	get_volume() {return m_volume;}
 	void	set_volume(double vol)	{m_volume = vol;}
-	void	set_volume(int vol)	{m_volume = (double)vol / 50.0; }
+	void	set_volume(int vol)	{m_volume = (double)vol / 100.0; }
 	unsigned int get_framesize() {return bufferFrames;}
 	
 	operator bool() const

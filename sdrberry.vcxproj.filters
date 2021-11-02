@@ -1093,6 +1093,9 @@
     <ClCompile Include="wiringPiI2C.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Agc_class.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1323,6 +1326,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="wiringPiI2C.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Agc_class.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

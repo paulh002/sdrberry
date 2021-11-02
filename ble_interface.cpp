@@ -44,7 +44,7 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 			if (ii)
 			{
 				unique_lock<mutex> gui_lock(gui_mutex);
-				step_vol_slider(ii);
+				grp.step_vol_slider(ii);
 			}
 		}
 		ptr1 = strstr(buf, "GAIN");
@@ -57,7 +57,7 @@ void data_callback(BluetoothGattCharacteristic &c, std::vector<unsigned char> &d
 			if (ii)
 			{
 				unique_lock<mutex> gui_lock(gui_mutex);
-				step_gain_slider(ii);
+				grp.step_gain_slider(ii);
 			}
 		}
 		ptr1 = strstr(buf, "TX");

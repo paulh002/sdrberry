@@ -238,6 +238,38 @@ double Settings::find_samplerate(string key)
 		return 0LL;
 }
 
+int Settings::agc()
+{
+	if (radio.find("agc") != radio.end())
+	{
+		auto s = radio.find("agc");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+int Settings::agc_e0()
+{
+	if (radio.find("agc_e0") != radio.end())
+	{
+		auto s = radio.find("agc_e0");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+int Settings::agc_e1()
+{
+	if (radio.find("agc_e1") != radio.end())
+	{
+		auto s = radio.find("agc_e1");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
 
 int Settings::volume()
 {

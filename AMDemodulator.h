@@ -7,6 +7,7 @@
 #include <vector>
 #include "DataBuffer.h"
 #include "AudioOutput.h"
+#include "Agc_class.h"
 
 /*
 type = LIQUID_AMPMODEM_DSB;
@@ -68,6 +69,8 @@ private:
 	float						m_r;
 	long						m_offset;
 	nco_crcf					m_upnco {nullptr};
+	Agc_class					agc;
+	int							m_iagc = 0;
 };
 
 

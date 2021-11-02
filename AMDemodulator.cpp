@@ -224,7 +224,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		
 	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
     calc_if_level(filter);
-	if (agcv)
+/*	if (agcv)
 	{
 		agc.init(filter);	
 		agc.execute_vector(filter);	
@@ -236,7 +236,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 			agc_counter	= 0;
 		}
 	}
-	
+*/
 	for (auto& col : filter)  
 	{
 		float z {0};

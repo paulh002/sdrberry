@@ -934,9 +934,6 @@
     <ClCompile Include="FreeSansOblique42.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="gui_right_pane.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="ble_interface.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1096,6 +1093,12 @@
     <ClCompile Include="Agc_class.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_agc.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_bar.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1106,9 +1109,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gui_right_pane.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="lv_drivers\indev\AD_touch.h">
       <Filter>Header files\lv_drivers</Filter>
     </ClInclude>
@@ -1329,6 +1329,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Agc_class.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_agc.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_bar.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

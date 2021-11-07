@@ -65,7 +65,7 @@ void Settings::read_settings(string settings_file)
 
 	config->useSection("ESP32");
 	mac_address = string((char *)(*config)("mac address").toString().c_str());
-	for (auto& option : config->getSection("CATsdrb	"))
+	for (auto& option : config->getSection("CAT"))
 	{
 		//cout << "Option name: " << option.first << endl;
 		cat.insert(pair<string, string>(option.first, option.second));
@@ -116,6 +116,12 @@ void Settings::read_settings(string settings_file)
 		//cout << "Option name: " << option.first << endl;
 		input_dev.insert(pair<string, string>(option.first, option.second));
 	}
+	for (auto& option : config->getSection("Agc"))
+	{
+		//cout << "Option name: " << option.first << endl;
+		agc.insert(pair<string, string>(option.first, option.second));
+	}
+	
 	config->useSection("bands");
 	
 	for (auto& col : (*config)("meters"))
@@ -238,39 +244,6 @@ double Settings::find_samplerate(string key)
 		return 0LL;
 }
 
-int Settings::agc()
-{
-	if (radio.find("agc") != radio.end())
-	{
-		auto s = radio.find("agc");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-int Settings::agc_e0()
-{
-	if (radio.find("agc_e0") != radio.end())
-	{
-		auto s = radio.find("agc_e0");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-int Settings::agc_e1()
-{
-	if (radio.find("agc_e1") != radio.end())
-	{
-		auto s = radio.find("agc_e1");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
 int Settings::volume()
 {
 	if (radio.find("volume") != radio.end())
@@ -383,4 +356,50 @@ string Settings::find_cat(string key)
 	}
 	else 
 		return string("");
+}
+
+
+
+int Settings::agc_mode()
+{
+	if (agc.find("mode") != agc.end())
+	{
+		auto s = agc.find("mode");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+int Settings::agc_threshold()
+{
+	if (agc.find("threshold") != agc.end())
+	{
+		auto s = agc.find("threshold");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+int Settings::agc_slope()
+{
+	if (agc.find("slope") != agc.end())
+	{
+		auto s = agc.find("slope");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
+}
+
+int Settings::agc_delay()
+{
+	if (agc.find("delay") != agc.end())
+	{
+		auto s = agc.find("delay");
+		return atoi((const char *)s->second.c_str());
+	}
+	else 
+		return 0;
 }

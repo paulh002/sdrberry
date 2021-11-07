@@ -7,22 +7,25 @@ extern const int screenHeight;
 extern const int bottomHeight;
 extern const int topHeight;
 extern const int tunerHeight;
-extern const int rightWidth;
 
 class gui_vfo
 {
 public:
 	void gui_vfo_init(lv_obj_t* scr);
 	void set_vfo_gui(int vfo, long long freq);
+	void set_vfo_gui_labels(int activevfo);
 	
 private:
-	lv_style_t	text_style;
+	lv_style_t	text_style, label_style;
 	lv_style_t	tuner_style;
 	lv_obj_t*	vfo1_frequency;
 	lv_obj_t*	vfo2_frequency;
 	lv_obj_t*	bg_tuner1;
 	lv_obj_t*	bg_tuner2;
 	lv_obj_t*	bg_smeter;
+	lv_obj_t*	band_label, *band_label2;
+	lv_obj_t*	mode_label, *mode_label2;
+	lv_obj_t*	rxtx_label, *rxtx_label2;
 };
 
 extern gui_vfo	gui_vfo_inst;

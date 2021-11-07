@@ -11,7 +11,6 @@ extern const int screenHeight;
 extern const int bottomHeight;
 extern const int topHeight;
 extern const int tunerHeight;
-extern const int rightWidth;
 
 
 class gui_rx

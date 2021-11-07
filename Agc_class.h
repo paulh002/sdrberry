@@ -19,8 +19,10 @@ public:
 	int		init(std::vector<std::complex<float>> _x);
 	int		set_gain_limits(float max, float min);
 	int		set_enery_levels(float _e0, float _e1);
+	void	set_threshold(int t);
 	int		reset();
 	void	print();
+	void	set_slope(int s);
 		
 private: 
 	float				gain {1.0f};		// current gain value
@@ -34,5 +36,6 @@ private:
 	float				gain_unlimted {1.0f};
 	float				e0 {1e-6};
 	float				e1 {1.0f};
+	float				slope {1.0f};
 };
 

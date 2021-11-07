@@ -28,9 +28,10 @@ public:
 	int		txgain();
 	int		micgain();
 	int		drive();
-	int		agc_e1();
-	int		agc_e0();
-	int		agc();
+	int		agc_delay();
+	int		agc_slope();
+	int		agc_threshold();
+	int		agc_mode();
 	void	set_drive(int drive);
 	void	set_micgain(int gain);
 	void	set_txgain(int gain);
@@ -61,6 +62,7 @@ private:
 	map<string, string>		samplerate_tx;
 	map<string, string>		input_dev;
 	map<string, string>		cat;
+	map<string, string>		agc;
 };
 
 

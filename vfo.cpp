@@ -247,6 +247,7 @@ void CVfo::set_band(int band, long long freq)
 {
 	set_vfo(freq, false);
 	vfo_setting.band[vfo_setting.active_vfo] = band;
+	gui_vfo_inst.set_vfo_gui_labels(vfo_setting.active_vfo);
 }
 
 int CVfo::get_band(int active_vfo)

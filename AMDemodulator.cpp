@@ -41,7 +41,7 @@ void	AMDemodulator::init(demod_struct * ptr)
 	m_init = true;
 	// create agc object
 	agc.set_bandwidth(0.01f);
-	agc.set_enery_levels(0.1f, 1.0f);
+	//agc.set_enery_levels(0.1f, 1.0f);
 	agc.print();
 }
 
@@ -131,9 +131,15 @@ void	AMDemodulator::set_filter(double if_rate, int band_width)
 
 void	AMDemodulator::calc_if_level(const IQSampleVector& samples_in)
 {
-	double if_rms = rms_level_approx(samples_in);
-	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
-	//printf("if_rms level %f if_rms %f\n", m_if_level, if_rms);
+	float y2 = 0.0;
+	for (auto& con : samples_in)
+	{
+		y2 += std::real(con * std::conj(con));
+	}
+	// smooth energy estimate using single-pole low-pass filter
+	y2 = y2 / samples_in.size();
+	accuf = (1.0 - alpha)* accuf + alpha*y2;
+	m_if_level = accuf;
 }
 
 void AMDemodulator::mono_to_left_right(const SampleVector& samples_mono,
@@ -160,8 +166,10 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	float					bt = 0.1f;
 	
 	unique_lock<mutex> lock(m_mutex); 
+	agc.set_threshold(gagc.get_threshold());
+	agc.set_slope(gagc.get_slope());
 	
-	int agcv = grp.get_agc_slider();
+	int agcv = gagc.get_agc_mode();
 	if (agcv != m_iagc && agcv != 0)
 	{
 		m_iagc = agcv;
@@ -224,19 +232,18 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		
 	// apply audio filter set by user [2.2Khz, 2.4Khz, 2.6Khz, 3.0 Khz, ..]
     calc_if_level(filter);
-/*	if (agcv)
+	if (agcv)
 	{
-		agc.init(filter);	
+		//agc.init(filter);	
 		agc.execute_vector(filter);	
 		
 		agc_counter++;
 		if(agc_counter > 100)
 		{
-			agc.print();
+			//agc.print();
 			agc_counter	= 0;
 		}
 	}
-*/
 	for (auto& col : filter)  
 	{
 		float z {0};

@@ -106,7 +106,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	}
 	
 	mic_slider = lv_slider_create(o_tab);
-	lv_obj_set_width(mic_slider, rightWidth - 40); 
+	lv_obj_set_width(mic_slider, 40); 
 	lv_slider_set_range(mic_slider, 0, micgain);
 	lv_obj_center(mic_slider);
 	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
@@ -115,7 +115,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	set_mic_slider(Settings_file.micgain());
 	
 	drv_slider = lv_slider_create(o_tab);
-	lv_obj_set_width(drv_slider, rightWidth - 40); 
+	lv_obj_set_width(drv_slider, 40); 
 	lv_slider_set_range(drv_slider, 0, 15);
 	lv_obj_align_to(drv_slider, mic_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);

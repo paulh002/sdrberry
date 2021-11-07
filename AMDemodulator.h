@@ -47,7 +47,7 @@ public:
 	void	adjust_gain(IQSampleVector& samples_in, float vol);
 	void	tune_offset(long offset);
 	void	exit_demod();
-		
+	
 	ampmodem	get_am_demod()
 	{
 		return m_demod;
@@ -62,7 +62,7 @@ private:
 	ampmodem					m_demod {0};
 	msresamp_crcf 				m_q {0};
 	iirfilt_crcf				m_lowpass {0};
-	double						m_if_level;
+	double						m_if_level {0};
 	mutex						m_mutex; // used to lock the process for changing filters
 	condition_variable			m_cond;
 	int							m_order {6};
@@ -71,6 +71,8 @@ private:
 	nco_crcf					m_upnco {nullptr};
 	Agc_class					agc;
 	int							m_iagc = 0;
+	float						alpha {0.1};
+	float						accuf {0};
 };
 
 

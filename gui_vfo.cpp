@@ -52,6 +52,11 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_style_set_text_align(&text_style, LV_ALIGN_CENTER);
 	lv_style_set_text_font(&text_style, &FreeSansOblique42);
 	
+	lv_style_set_radius(&label_style, 5);
+	lv_style_set_bg_opa(&label_style, LV_OPA_COVER);
+	lv_style_set_bg_color(&label_style, lv_color_black());
+	lv_style_set_text_color(&label_style, lv_palette_main(LV_PALETTE_BLUE));
+	lv_style_set_text_align(&label_style, LV_ALIGN_CENTER);
 	
 	vfo1_frequency = lv_label_create(bg_tuner1);
 	//lv_label_set_long_mode(vfo1_frequency, LV_LABEL_LONG_CLIP);
@@ -60,12 +65,38 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_label_set_text(vfo1_frequency, "3,500.00");
 	lv_obj_set_height(vfo1_frequency, 40);
 	
+	band_label = lv_label_create(bg_tuner1);
+	lv_label_set_text(band_label, "80 m ");
+	lv_obj_align_to(band_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+	
+	mode_label = lv_label_create(bg_tuner1);
+	lv_label_set_text(mode_label, "LSB ");
+	lv_obj_align_to(mode_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 50, 10);
+	
+	rxtx_label = lv_label_create(bg_tuner1);
+	lv_label_set_text(rxtx_label, "RX");
+	lv_obj_align_to(rxtx_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 200, 10);
+	lv_obj_add_style(rxtx_label, &label_style, 0);
+	
 	vfo2_frequency = lv_label_create(bg_tuner2);
 	//lv_label_set_long_mode(vfo2_frequency, LV_LABEL_LONG_CLIP);
 	lv_obj_add_style(vfo2_frequency, &text_style, 0);
 	lv_obj_set_width(vfo2_frequency, LV_HOR_RES - 20);
 	lv_label_set_text(vfo2_frequency, "7,200.00");
 	lv_obj_set_height(vfo2_frequency, 40);
+	
+	band_label2 = lv_label_create(bg_tuner2);
+	lv_label_set_text(band_label2, "80 m ");
+	lv_obj_align_to(band_label2, vfo2_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+	
+	mode_label2 = lv_label_create(bg_tuner2);
+	lv_label_set_text(mode_label2, "LSB ");
+	lv_obj_align_to(mode_label2, vfo2_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 50, 10);
+	
+	rxtx_label2 = lv_label_create(bg_tuner2);
+	lv_label_set_text(rxtx_label2, "RX");
+	lv_obj_align_to(rxtx_label2, vfo2_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 200, 10);
+	lv_obj_add_style(rxtx_label2, &label_style, 0);
 }
 
 
@@ -116,12 +147,14 @@ static void smeter_event_cb(lv_event_t * e)
 			strcpy(dsc->text, "S");			
 		}
 		
-		if (dsc->value > 10)
+		if (dsc->value > 9)
 		{
-			if (dsc->value == 11)
+			if (dsc->value == 10)
 				dsc->value = 20;
+			if (dsc->value == 11)
+				dsc->value = 40;
 			if (dsc->value == 12)
-				dsc->value = 30;				
+				dsc->value = 60;				
 		}
 		lv_snprintf(dsc->text, sizeof(dsc->text), "%d", dsc->value);	
 		break;
@@ -175,8 +208,52 @@ void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 void set_s_meter(double value)
 {
 	//printf("value %f", value);
-	value = 30.0 + value;
-	value = value * 120.0 / 30.0;
+	//value = 30.0 + value;
+	value = value + 100.0;
 	//printf(" value s%f \n", value);
 	lv_meter_set_indicator_value(meter, smeter_indic, value);
+}
+
+void gui_vfo::set_vfo_gui_labels(int activevfo)
+{
+	if (activevfo == 0)
+	{
+		char	str[80];
+		sprintf(str, "%d m", vfo.get_band_no(0));
+		lv_label_set_text(band_label, str);
+		
+		str[0] = '\0';
+		switch (vfo.get_mode_no(0))
+		{
+		case mode_broadband_fm:
+			strcpy(str, "FM");
+			break;	
+		case mode_lsb:
+			strcpy(str, "LSB");
+			break;
+		case mode_usb:
+			strcpy(str, "USB");
+			break;
+		case mode_dsb:
+			strcpy(str, "DSB");
+		case mode_am:
+			strcpy(str, "AM");
+			break;
+		case mode_cw:
+			strcpy(str, "CW");
+			break;
+		}
+		lv_label_set_text(mode_label, str);
+	
+		if (vfo.get_rx())
+		{
+			lv_style_set_text_color(&label_style, lv_palette_main(LV_PALETTE_BLUE));
+			lv_label_set_text(rxtx_label, "RX");
+		}
+		else
+		{
+			lv_style_set_text_color(&label_style, lv_palette_main(LV_PALETTE_RED));
+			lv_label_set_text(rxtx_label, "TX");
+		}
+	}
 }

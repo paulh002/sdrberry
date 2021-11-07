@@ -75,7 +75,7 @@ void Comm::SendInformation(int info)
 		// Volume
 		{
 			char str[20];
-			int range = grp.get_vol_range();
+			int range = gbar.get_vol_range();
 			sprintf(str, "GT0%d", range);
 			Send((std::string) str);
 		}
@@ -86,7 +86,7 @@ void Comm::SendInformation(int info)
 			char str[20];
 			int  max_gain, min_gain;
 			
-			grp.get_gain_range(max_gain, min_gain);
+			gagc.get_gain_range(max_gain, min_gain);
 			sprintf(str, "GT1%2d,%2d", max_gain, min_gain);
 			Send((std::string) str);
 		}
@@ -119,7 +119,7 @@ void Comm::SendInformation(int info)
 			
 			strcpy(str, "GT3");
 			s = str;
-			grp.get_filter_range(filters);
+			gbar.get_filter_range(filters);
 			for (auto it : filters)
 			{
 				s.push_back(',');
@@ -165,10 +165,10 @@ void	Catinterface::checkCAT()
 		}
 		count = cat_message.GetAG();
 		if (count)
-			grp.set_vol_slider(count);
+			gbar.set_vol_slider(count);
 		count = cat_message.GetRG();
 		if (count)
-			grp.set_gain_slider(count);
+			gagc.set_gain_slider(count);
 		count = cat_message.GetTX();
 		if (m_mode != count)
 		{

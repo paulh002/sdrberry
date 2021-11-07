@@ -24,9 +24,9 @@ const int screenWidth = 800;
 const int screenHeight = 480;
 const int bottomHeight = 40;
 const int topHeight = 35;
-const int tunerHeight = 70;
+const int tunerHeight = 100;
+const int barHeight = 45;
 const int nobuttons = 8;
-const int rightWidth = 200;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 
@@ -37,6 +37,7 @@ lv_obj_t* bg_middle;
 lv_obj_t* vfo1_button;
 lv_obj_t* vfo2_button;
 lv_obj_t *tabview_mid;
+lv_obj_t *bar_view;
 
 using namespace std;
 
@@ -96,7 +97,22 @@ int main(int argc, char *argv[])
 	audio_output->set_volume(50);
 	
 	bpf.initFilter();
-		
+	
+	std::string smode = Settings_file.find_vfo1("Mode");
+	to_upper(smode);
+	if (smode == "FM")
+		mode = mode_broadband_fm;
+	if (smode == "LSB")
+		mode = mode_lsb;
+	if (smode == "USB")
+		mode = mode_usb;
+	if (smode == "DSB")
+		mode = mode_dsb;
+	if (smode == "AM")
+		mode = mode_am;
+	if (smode == "CW")
+		mode = mode_cw;
+	
 	/*LittlevGL init*/
 	lv_init();
 
@@ -135,7 +151,6 @@ int main(int argc, char *argv[])
 	
 	setup_top_bar(scr);
 	gui_vfo_inst.gui_vfo_init(scr);
-	grp.setup_right_pane(scr);
 	
 	static lv_style_t background_style;
 		
@@ -143,24 +158,32 @@ int main(int argc, char *argv[])
 	lv_style_set_radius(&background_style, 0);
 	lv_style_set_bg_color(&background_style, lv_palette_main(LV_PALETTE_RED));
 	
+	lv_obj_t * obj1;
+	bar_view = lv_obj_create(lv_scr_act());
+	lv_obj_set_pos(bar_view, 0, topHeight + tunerHeight );
+	lv_obj_set_size(bar_view, LV_HOR_RES - 3, barHeight);
+	gbar.init(bar_view, mode, LV_HOR_RES - 3, barHeight);
+	
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, 40);
-	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight);
-	lv_obj_set_size(tabview_mid, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
+	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
+	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight - barHeight);
 	
 	lv_obj_t *tab1 = lv_tabview_add_tab(tabview_mid, "Spectrum");
 	lv_obj_t *tab2 = lv_tabview_add_tab(tabview_mid, "Band");
 	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, "Frequency");
-	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "RX");
-	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "TX");
-	lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "Setup");
+	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "Mode");
+	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "Agc");
+	lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "TX");
+	lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, "Setup");
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 
-	Wf.init(tab1, 0, 0, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);	
-	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - rightWidth - 3);
-	Gui_tx.gui_tx_init(tab5, LV_HOR_RES - rightWidth - 3);
+	Wf.init(tab1, 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);	
+	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - 3);
+	Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
+	gagc.init(tab5, LV_HOR_RES - 3);
 		
-	lv_obj_t *label1 = lv_label_create(tab6);
+ 	lv_obj_t *label1 = lv_label_create(tab7);
 	lv_label_set_text(label1, "Setup");
 	
 	
@@ -177,26 +200,13 @@ int main(int argc, char *argv[])
 	//Ble_instance.set_mac_address(Settings_file.get_mac_address());
 	//Ble_instance.setup_ble();	
 	
-	std::string smode = Settings_file.find_vfo1("Mode");
-	to_upper(smode);
-	if (smode == "FM")
-		mode = mode_broadband_fm;
-	if (smode == "LSB")
-		mode = mode_lsb;
-	if (smode == "USB")
-		mode = mode_usb;
-	if (smode == "DSB")
-		mode = mode_dsb;
-	if (smode == "AM")
-		mode = mode_am;
-	if (smode == "CW")
-		mode = mode_cw;
+
 	Gui_rx.set_gui_mode(mode);
 		
 	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
 	ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr("default").c_str());
 	printf("samperate %f \n", ifrate);
-	keyb.init_keyboard(tab3, LV_HOR_RES - rightWidth - 3, screenHeight - topHeight - tunerHeight);
+	keyb.init_keyboard(tab3, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
 	
 	std::string default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
@@ -239,11 +249,11 @@ int main(int argc, char *argv[])
 		soapy_devices[0].channel_structure_tx[0].source_buffer_tx = &source_buffer_tx;
 		soapy_devices[0].channel_structure_rx[0].source_buffer_rx = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
-		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - rightWidth - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
-		grp.set_vol_slider(Settings_file.volume());		
-		grp.set_gain_range();
+		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
+		gbar.set_vol_slider(Settings_file.volume());		
+		gagc.set_gain_range();
 		Gui_tx.set_drv_range();
-		grp.set_gain_slider(Settings_file.gain());	
+		gagc.set_gain_slider(Settings_file.gain());	
 		vfo.set_vfo(freq, false);
 		select_mode(mode); // start streaming
 	}
@@ -331,6 +341,8 @@ void select_mode(int s_mode)
 	Gui_tx.set_tx_state(false);
 	vfo.vfo_rxtx(true, false);
 	vfo.set_vfo(0,false);
+	vfo.set_mode(0, mode);
+	gui_vfo_inst.set_vfo_gui_labels(0);
 	printf("select_mode_rx start rx threads\n");
 	switch (mode)
 	{
@@ -383,6 +395,7 @@ void select_mode_tx(int s_mode, int tone)
 		audio_input->open();
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
+	gui_vfo_inst.set_vfo_gui_labels(0);
 	printf("select_mode_tx start tx threads\n");
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)Gui_tx.get_drv_pos());
 	switch (mode)

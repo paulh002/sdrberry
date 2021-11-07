@@ -126,6 +126,7 @@ static void rx_button_handler(lv_event_t * e)
 					}
 			}
 		select_mode(bmode);
+		gbar.set_mode(bmode);
 	}
 }
 

@@ -1,23 +1,25 @@
 #include "Agc_class.h"
+#include "gui_agc.h"
 #include <complex.h>
 
 void Agc_class::execute(std::complex<float> in, std::complex<float> &out)
 {
 	// apply gain to input sample
-	out = in * gain;
+	out = in * gain * e0;
 	// compute output signal energy
 	float y2 = std::real(out * std::conj(out));
+	
 	// smooth energy estimate using single-pole low-pass filter
-	prime = (1.0 - alpha)* prime + alpha*y2;
-
+	prime = (1.0 - alpha)* prime + alpha*y2*slope;
+	//printf("in %12.4f y2 = %12.4f gain %12.4f\n", y1, y2, gain * expf(-0.5f * alpha * logf(prime)));
 	// return if locked
 	if (is_locked)
 		return ;
 	
 	// update gain according to output energy
-	if (prime > e0)
+	if (prime > 1e-6)
 		gain *= expf(-0.5f * alpha * logf(prime));
-	gain_unlimted = gain;
+	
 	// clamp to 120 dB gain
 	if (gain > max_gain)
 		gain = max_gain;
@@ -25,6 +27,18 @@ void Agc_class::execute(std::complex<float> in, std::complex<float> &out)
 	out *= scale;
 }
 
+void Agc_class::set_threshold(int t)
+{
+	e0 = pow(10.0, (float)t / 20);
+}
+
+void Agc_class::set_slope(int s)
+{
+	if (s < 0 || s > 20)
+		s = 0;
+	slope = pow(10.0, (float)s / 20);
+}
+	
 void Agc_class::execute_vector(std::vector<std::complex<float>> &vec)
 {
 	std::complex<float> out;
@@ -166,7 +180,9 @@ int Agc_class::reset()
 
 void Agc_class::print()
 {
-	printf("agc [rssi: %12.4f dB, urssi: %12.4f dB , output gain: %.3f dB, bw: %12.4e, locked: %s]:\n",
+	printf("agc [slope %12.4f e0: %12.4f rssi: %12.4f dB, urssi: %12.4f dB , output gain: %.3f dB, bw: %12.4e, locked: %s]:\n",
+		slope,
+		e0,
 		get_rssi(),
 		get_urssi(),
 		scale > 0 ? 10.*log10f(scale) : -100.0f,

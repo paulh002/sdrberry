@@ -69,6 +69,7 @@
       <AdditionalOptions />
       <CLanguageStandard />
       <CPPLanguageStandard />
+      <EnableAddressSanitizer>false</EnableAddressSanitizer>
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
@@ -97,8 +98,9 @@
     <ClCompile Include="FreeSansOblique32.c" />
     <ClCompile Include="FreeSansOblique42.c" />
     <ClCompile Include="FT891_CAT.cpp" />
+    <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
-    <ClCompile Include="gui_right_pane.cpp" />
+    <ClCompile Include="gui_bar.cpp" />
     <ClCompile Include="gui_rx.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_tx.cpp" />
@@ -277,8 +279,9 @@
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FT891_CAT.h" />
+    <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />
-    <ClInclude Include="gui_right_pane.h" />
+    <ClInclude Include="gui_bar.h" />
     <ClInclude Include="gui_rx.h" />
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_tx.h" />

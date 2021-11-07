@@ -16,7 +16,6 @@
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
 #include "Settings.h"
-#include "gui_right_pane.h"
 #include "gui_top_bar.h"
 #include "sdrstream.h"
 #include "gui_vfo.h"
@@ -69,6 +68,10 @@ public:
 	void set_step(int step, int delay) {vfo_setting.frq_step = step; m_delay = delay; };
 	void check_band(int dir, long long& freq);
 	int	 getBandIndex(int band);
+	int get_band_no(int vfo) {if (vfo < 2 && vfo >= 0) return vfo_setting.band[vfo]; else return 0;}
+	int get_mode_no(int vfo){if (vfo < 2 && vfo >= 0) return vfo_setting.mode[vfo]; else return 0;}
+	void set_mode(int vfo, int mode) {if (vfo < 2 && vfo >= 0) vfo_setting.mode[vfo] = mode;}
+	bool get_rx() {return vfo_setting.rx;}
 	long long get_sdr_frequency()
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];

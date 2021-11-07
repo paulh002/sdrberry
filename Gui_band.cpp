@@ -57,8 +57,6 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	string	label;
 	int		i = 0;
 	
-	
-	
 	//lv_coord_t w = lv_obj_get_width(o_tab);	
 	long f_min = r.front().minimum();
 	long f_max = r.front().maximum();
@@ -80,17 +78,8 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
 	
-	lv_obj_t * cb;
-	cb = lv_checkbox_create(o_tab);
-	lv_checkbox_set_text(cb, "limit vfo to bands");
-	lv_obj_add_event_cb(cb, ham_event_handler, LV_EVENT_ALL, NULL);
-	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, button_height_margin);
-	
-	if (vfo.limit_ham_band)
-		lv_obj_add_state(cb, LV_STATE_CHECKED);
-	
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
-	int				ibutton_x = 0, ibutton_y = 2;
+	int				ibutton_x = 0, ibutton_y = 0;
 
 	auto it_m = begin(Settings_file.labels);
 	auto it_f_low = begin(Settings_file.f_low);
@@ -134,6 +123,17 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	}
 	printf("ibutton : %d\n", ibuttons);
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
+
+	lv_obj_t * cb;
+	cb = lv_checkbox_create(o_tab);
+	lv_checkbox_set_text(cb, "limit vfo to bands");
+	lv_obj_add_event_cb(cb, ham_event_handler, LV_EVENT_ALL, NULL);
+	ibutton_y++;
+	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin);
+	
+	if (vfo.limit_ham_band)
+		lv_obj_add_state(cb, LV_STATE_CHECKED);
+	
 }
 
 int getIndex(vector<int> v, int s)

@@ -24,7 +24,6 @@
 #include "DataBuffer.h"
 #include "AudioOutput.h"
 #include "AudioInput.h"
-#include "gui_right_pane.h"
 #include "sdrberry.h"
 #include <stdexcept>
 

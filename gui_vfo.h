@@ -13,7 +13,7 @@ class gui_vfo
 public:
 	void gui_vfo_init(lv_obj_t* scr);
 	void set_vfo_gui(int vfo, long long freq);
-	void set_vfo_gui_labels(int activevfo);
+	//void set_vfo_gui_labels(int activevfo);
 	
 private:
 	lv_style_t	text_style, label_style;
@@ -26,6 +26,8 @@ private:
 	lv_obj_t*	band_label, *band_label2;
 	lv_obj_t*	mode_label, *mode_label2;
 	lv_obj_t*	rxtx_label, *rxtx_label2;
+	bool		rxtx {true};
+	int			mode[2];
 };
 
 extern gui_vfo	gui_vfo_inst;

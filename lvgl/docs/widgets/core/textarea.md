@@ -15,7 +15,7 @@ One line mode and password modes are supported.
 ## Parts and Styles
 - `LV_PART_MAIN` The background of the text area. Uses all the typical backgrond style properties and the text related style properties including `text_align` to align the text to the left, right or center.
 - `LV_PART_SCROLLBAR` The scrollbar that is shown when the text is too long.
-- `LV_PART_SELECTED` Detemines the style of the [selected text](#text-selection). Only `text_color` and `bg_color` style properties can be used.
+- `LV_PART_SELECTED` Detemines the style of the [selected text](/widgets/core/label.html#text-selection). Only `text_color` and `bg_color` style properties can be used. `bg_color` should be set directly on the label of the text area.
 - `LV_PART_CURSOR` Marks the position where the characters are inserted. The cursor's area is always the bounding box of the current character. 
 A block cursor can be created by adding a background color and background opacity to `LV_PART_CURSOR`'s style. The create line cursor leave the cursor transparent and set a left border. 
 The `anim_time` style property sets the cursor's blink time. 
@@ -75,11 +75,12 @@ In password mode `lv_textarea_get_text(textarea)` returns the actual text entere
 The visibility time can be adjusted with `LV_TEXTAREA_DEF_PWD_SHOW_TIME)` in `lv_conf.h`.
 
 ### Accepted characters
-You can set a list of accepted characters with `lv_textarae_set_accepted_chars(textarea, "0123456789.+-")`. 
+You can set a list of accepted characters with `lv_textarea_set_accepted_chars(textarea, "0123456789.+-")`. 
 Other characters will be ignored. 
 
 ### Max text length
 The maximum number of characters can be limited with `lv_textarea_set_max_length(textarea, max_char_num)`
+
 
 ### Very long texts
 If there is a very long text in the Text area (e. g. > 20k characters), scrolling and drawing might be slow. 
@@ -97,6 +98,8 @@ The event paramter is the text about to be inserted. `lv_textarea_set_insert_rep
 The new text cannot be in a local variable which is destroyed when the event callback exists. `""` means do not insert anything.
 - `LV_EVENT_VALUE_CHANGED` Sent when the content of the text area has been changed. 
 - `LV_EVENT_APPLY` Sent when `LV_KEY_ENTER` is pressed (or(sent) to a one line text area.
+
+See the events of the [Base object](/widgets/obj) too.
 
 Learn more about [Events](/overview/event).
 

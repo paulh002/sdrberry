@@ -53,11 +53,11 @@ class CVfo
 public:
 	CVfo();
 	
-	void vfo_init(long long freq, long ifrate, long pcmrate, SoapySDR::RangeList r);
+	void vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r);
 	void set_vfo_capability(struct device_structure *sdr_dev);
 	int	 set_vfo(long long freq, bool lock);
 	void step_vfo(long icount, bool lock);
-	long get_active_vfo();
+	long get_active_vfo_freq();
 	std::string get_vfo_str();
 	void set_tuner_offset(double offset);
 	void set_active_vfo(int active_vfo);
@@ -72,6 +72,7 @@ public:
 	int get_mode_no(int vfo){if (vfo < 2 && vfo >= 0) return vfo_setting.mode[vfo]; else return 0;}
 	void set_mode(int vfo, int mode) {if (vfo < 2 && vfo >= 0) vfo_setting.mode[vfo] = mode;}
 	bool get_rx() {return vfo_setting.rx;}
+	int	get_active_vfo() { return vfo_setting.active_vfo;}
 	long long get_sdr_frequency()
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];

@@ -28,11 +28,14 @@ PDF version: :download:`LVGL.pdf <LVGL.pdf>`
    :maxdepth: 2
    
    intro/index
+   examples
    get-started/index
    porting/index
    overview/index
    widgets/index
    layouts/index
+   libs/index
+   others/index
    CONTRIBUTING
    CHANGELOG
    ROADMAP

@@ -161,7 +161,7 @@ void	Catinterface::checkCAT()
 		if (count)
 		{
 			vfo.step_vfo(count, true);	
-			cat_message.SetFA(vfo.get_active_vfo());
+			cat_message.SetFA(vfo.get_active_vfo_freq());
 		}
 		count = cat_message.GetAG();
 		if (count)

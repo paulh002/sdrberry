@@ -21,8 +21,12 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 	bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 
-void CVfo::vfo_init(long long freq, long ifrate, long pcmrate, SoapySDR::RangeList r)
+void CVfo::vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r)
 {
+	
+	string s = Settings_file.find_vfo1("freq");
+	long long freq = strtoll((const char *)s.c_str(), NULL, 0);
+	
 	string ham = Settings_file.find_radio("band");
 	if (ham != "all")
 		vfo.limit_ham_band = true;
@@ -47,11 +51,14 @@ void CVfo::vfo_init(long long freq, long ifrate, long pcmrate, SoapySDR::RangeLi
 	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
 	vfo_setting.vfo_freq_sdr[0] = freq - ifrate / 4;	// position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 	vfo_setting.m_offset[0] = freq - vfo_setting.vfo_freq_sdr[0];  					// 
-	gui_vfo_inst.set_vfo_gui(0, freq);
+	
+	s = Settings_file.find_vfo2("freq");
+	freq = strtoll((const char *)s.c_str(), NULL, 0);
+	s = Settings_file.find_vfo2("Mode");
+	vfo_setting.mode[1] = Settings_file.convert_mode(s);
 	vfo_setting.vfo_freq[1] = freq;
 	vfo_setting.vfo_freq_sdr[1] = freq - ifrate / 4;
 	vfo_setting.m_offset[1] = freq - vfo_setting.vfo_freq_sdr[1];   					// 
-	gui_vfo_inst.set_vfo_gui(1, freq);
 	vfo_setting.m_max_offset = ifrate / 2;				// Max offset is 1/2 samplefrequency (Nyquist limit)
 	if(freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
 		return ;
@@ -61,6 +68,8 @@ void CVfo::vfo_init(long long freq, long ifrate, long pcmrate, SoapySDR::RangeLi
 	stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 	stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
 	bpf.SetBand(vfo_setting.band[0], vfo_setting.rx);
+	gui_vfo_inst.set_vfo_gui(0, freq);
+	gui_vfo_inst.set_vfo_gui(1, freq);
 }
 
 /* this function reads the device capability and translates it to f license bandplans*/
@@ -193,7 +202,7 @@ void CVfo::step_vfo(long icount, bool lock)
 	}
 }
 
-long CVfo::get_active_vfo()
+long CVfo::get_active_vfo_freq()
 {
 	return vfo_setting.vfo_freq[vfo_setting.active_vfo];
 }
@@ -247,7 +256,7 @@ void CVfo::set_band(int band, long long freq)
 {
 	set_vfo(freq, false);
 	vfo_setting.band[vfo_setting.active_vfo] = band;
-	gui_vfo_inst.set_vfo_gui_labels(vfo_setting.active_vfo);
+	//gui_vfo_inst.set_vfo_gui_labels(vfo_setting.active_vfo);
 }
 
 int CVfo::get_band(int active_vfo)

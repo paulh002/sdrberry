@@ -99,19 +99,7 @@ int main(int argc, char *argv[])
 	bpf.initFilter();
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
-	to_upper(smode);
-	if (smode == "FM")
-		mode = mode_broadband_fm;
-	if (smode == "LSB")
-		mode = mode_lsb;
-	if (smode == "USB")
-		mode = mode_usb;
-	if (smode == "DSB")
-		mode = mode_dsb;
-	if (smode == "AM")
-		mode = mode_am;
-	if (smode == "CW")
-		mode = mode_cw;
+	mode = Settings_file.convert_mode(smode);
 	
 	/*LittlevGL init*/
 	lv_init();
@@ -233,7 +221,7 @@ int main(int argc, char *argv[])
 		vfo.set_vfo_range(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum(),
 			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
 			
-		vfo.vfo_init((long long)freq, (long)ifrate, pcmrate, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
+		vfo.vfo_init((long)ifrate, pcmrate, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
 			for (auto& col : soapy_devices[0].channel_structure_rx[0].bandwidth_range)
 		{
 			int v = col.minimum();
@@ -342,7 +330,6 @@ void select_mode(int s_mode)
 	vfo.vfo_rxtx(true, false);
 	vfo.set_vfo(0,false);
 	vfo.set_mode(0, mode);
-	gui_vfo_inst.set_vfo_gui_labels(0);
 	printf("select_mode_rx start rx threads\n");
 	switch (mode)
 	{
@@ -395,7 +382,7 @@ void select_mode_tx(int s_mode, int tone)
 		audio_input->open();
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
-	gui_vfo_inst.set_vfo_gui_labels(0);
+	vfo.set_vfo(0, false);
 	printf("select_mode_tx start tx threads\n");
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)Gui_tx.get_drv_pos());
 	switch (mode)

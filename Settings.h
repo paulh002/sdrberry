@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 #include "configfile.h"
+#include "sdrberry.h"
+
 
 using namespace std;
 
@@ -21,6 +23,7 @@ public:
 	string find_sdr(string key);
 	long long find_vfo1_freq(string key);
 	string	find_vfo1(string key);
+	string	find_vfo2(string key);
 	double	find_samplerate(string key);
 	double	find_samplerate_tx(string key);
 	int		volume();
@@ -38,6 +41,7 @@ public:
 	void	set_gain(int gain);
 	string	find_input(string key);
 	string	find_cat(string key);
+	int		convert_mode(string s);
 		
 	vector<int>				meters;
 	vector<string>			labels;

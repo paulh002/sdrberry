@@ -9,7 +9,7 @@
 
 Join LVGL's community and leave your footprint in the library!
 
-There are a lot of ways to contribute to LVGL even if you are are new to the library or even new to programming. 
+There are a lot of ways to contribute to LVGL even if you are new to the library or even new to programming. 
 
 It might be scary to make the first step but you have nothing to be afraid of. 
 A friendly and helpful community is waiting for you. Get to know like-minded people and make something great together.
@@ -57,6 +57,33 @@ It will "copy" the `lvgl` repository to your GitHub account (`https://github.com
 7. Set the base branch. It means where you want to merge your update. In the `lvgl` repo fixes go to `master`, new features to `dev` branch. 
 8. Describe what is in the update. An example code is welcome if applicable.
 9. If you need to make more changes, just update your forked `lvgl` repo with new commits. They will automatically appear in the PR.
+
+### Commit message format
+In commit messages please follow the [Angular Commit Format](https://gist.github.com/brianclements/841ea7bffdb01346392c).
+
+Some examples:
+```
+fix(img) update size if a new source is set
+```
+
+```
+fix(bar) fix memory leak
+
+The animations weren't deleted in the destructor.
+
+Fixes: #1234
+```
+
+```
+feat add span widget
+
+The span widget allows mixing different font sizes, colors and styles.
+It's similar to HTML <span>
+```
+
+```
+docs(porting) fix typo
+```
 
 ## Developer Certification of Origin (DCO)
 
@@ -188,16 +215,19 @@ Just read the titles and if you are familiar with the topic don't hesitate to sh
 Participating in the discussions is one of the best ways to become part of the project and get to know like-minded people!
 
 ### Add features
-We collect the planned features in GitHub on the [Roadmap](/ROADMAP) page. If you are interested in any of them feel free to share your opinion and/or participate in the the implementation.
+If you have created a cool widget, or added useful feature to LVGL feel free to open a new PR for it. 
+We collect the optional features (a.k.a. plugins) in [lvgl/src/extra](https://github.com/lvgl/lvgl/tree/master/src/extra) folder so if you are interested in adding a new features please use this folder. 
+The [README](https://github.com/lvgl/lvgl/blob/master/src/extra/README.md) file describes the basics rules of contribution and also lists some ideas.
+
+For further ideas take a look at the [Roadmap](/ROADMAP) page. If you are interested in any of them feel free to share your opinion and/or participate in the implementation.
 
 Other features which are (still) not on the road map are listed in the [Feature request](https://forum.lvgl.io/c/feature-request/9) category of the Forum. 
-If you have a feature idea for LVGL please use the Forum to share it! 
-Make sure to check that there isn't an existing post; if there is, you should comment on it to show that there is increased interest in an existing request.
 
 When adding a new features the followings also needs to be updated:
-- Add a line to [CHANGELOG.md](https://github.com/lvgl/lvgl/blob/master/CHANGELOG.md).
-- Update the documentation. 
-- Add an example if applicable.  See this [guide](#write-examples).
+- Update [lv_conf_template.h](https://github.com/lvgl/lvgl/blob/master/lv_conf_template.h)
+- Add description in the [docs](https://github.com/lvgl/lvgl/tree/master/docs) 
+- Add [examples](https://github.com/lvgl/lvgl/tree/master/examples)
+- Update the [changelog](https://github.com/lvgl/lvgl/tree/master/docs/CHANGELOG.md)
 
 ### Become a maintainer
 

@@ -232,6 +232,17 @@ string Settings::find_vfo1(string key)
 		return string("");
 }
 
+string Settings::find_vfo2(string key)
+{
+	if (vfo2.find(key) != vfo2.end())
+	{
+		auto s = vfo2.find(key);
+		return string((char *)s->second.c_str());
+	}
+	else 
+		return string("");
+}
+
 double Settings::find_samplerate(string key)
 {
 	if (samplerate.find(key) != samplerate.end())
@@ -402,4 +413,24 @@ int Settings::agc_delay()
 	}
 	else 
 		return 0;
+}
+
+int Settings::convert_mode(string s)
+{
+	int mode = mode_lsb;
+	
+	to_upper(s);
+	if (s == "FM")
+		mode = mode_broadband_fm;
+	if (s == "LSB")
+		mode = mode_lsb;
+	if (s == "USB")
+		mode = mode_usb;
+	if (s == "DSB")
+		mode = mode_dsb;
+	if (s == "AM")
+		mode = mode_am;
+	if (s == "CW")
+		mode = mode_cw;
+	return mode;
 }

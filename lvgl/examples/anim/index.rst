@@ -1,5 +1,3 @@
-C
-^
 
 Start animation on an event 
 """"""""""""""""""""""""""""
@@ -12,8 +10,8 @@ Playback animation
 .. lv_example:: anim/lv_example_anim_2
   :language: c
 
+Animation timeline
+"""""""""""""""""""
+.. lv_example:: anim/lv_example_anim_timeline_1
+  :language: c
   
-MicroPython
-^^^^^^^^^^^
-
-No examples yet.

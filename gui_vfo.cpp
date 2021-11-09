@@ -66,7 +66,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_obj_set_height(vfo1_frequency, 40);
 	
 	band_label = lv_label_create(bg_tuner1);
-	lv_label_set_text(band_label, "80 m ");
+	lv_label_set_text(band_label, "1800 m ");
 	lv_obj_align_to(band_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
 	
 	mode_label = lv_label_create(bg_tuner1);
@@ -87,7 +87,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_obj_set_height(vfo2_frequency, 40);
 	
 	band_label2 = lv_label_create(bg_tuner2);
-	lv_label_set_text(band_label2, "80 m ");
+	lv_label_set_text(band_label2, "1800 m ");
 	lv_obj_align_to(band_label2, vfo2_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
 	
 	mode_label2 = lv_label_create(bg_tuner2);
@@ -102,7 +102,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 }
 
 
-void gui_vfo::set_vfo_gui(int vfo, long long freq)
+void gui_vfo::set_vfo_gui(int avfo, long long freq)
 {
 	char	str[20];
 	
@@ -114,10 +114,8 @@ void gui_vfo::set_vfo_gui(int vfo, long long freq)
 	{
 		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 	}
-	if (freq)
-		
 	
-	if (vfo)
+	if (avfo)
 	{
 		lv_label_set_text(vfo2_frequency, str);
 	}
@@ -125,7 +123,62 @@ void gui_vfo::set_vfo_gui(int vfo, long long freq)
 	{
 		lv_label_set_text(vfo1_frequency, str);	
 	}
-	set_vfo_gui_labels(vfo);
+	
+	int band = vfo.get_band_no(avfo);
+	sprintf(str, "%d m", band);
+	
+	if (avfo)
+		lv_label_set_text(band_label2, str);
+	else
+		lv_label_set_text(band_label, str);
+	
+	if (vfo.get_rx() != rxtx)
+	{
+		rxtx = vfo.get_rx();	
+		if (rxtx)
+		{
+			if (avfo)
+				lv_label_set_text(rxtx_label2, "RX");
+			else
+				lv_label_set_text(rxtx_label, "RX");
+		}
+		else
+		{
+			if (avfo)
+				lv_label_set_text(rxtx_label2, "#ff0000 TX#");
+			else
+				lv_label_set_text(rxtx_label, "#ff0000 TX#");	
+		}
+	}	
+	
+	if (mode[avfo] != vfo.get_mode_no(avfo))
+	{
+		mode[avfo] = vfo.get_mode_no(avfo);
+		switch (mode[avfo])
+		{
+		case mode_broadband_fm:
+			strcpy(str, "FM");
+			break;	
+		case mode_lsb:
+			strcpy(str, "LSB");
+			break;
+		case mode_usb:
+			strcpy(str, "USB");
+			break;
+		case mode_dsb:
+			strcpy(str, "DSB");
+		case mode_am:
+			strcpy(str, "AM");
+			break;
+		case mode_cw:
+			strcpy(str, "CW");
+			break;
+		}
+		if (avfo)
+			lv_label_set_text(mode_label2, str);
+		else
+			lv_label_set_text(mode_label, str);
+	}	
 }
 
 static lv_obj_t					*meter;
@@ -217,50 +270,56 @@ void set_s_meter(double value)
 	lv_meter_set_indicator_value(meter, smeter_indic, value);
 }
 
+/*
 void gui_vfo::set_vfo_gui_labels(int activevfo)
 {
-	if (activevfo == 0)
-	{
-		char	str[80];
-		sprintf(str, "%d m", vfo.get_band_no(0));
-		lv_label_set_text(band_label, str);
-		
-		str[0] = '\0';
-		switch (vfo.get_mode_no(0))
-		{
-		case mode_broadband_fm:
-			strcpy(str, "FM");
-			break;	
-		case mode_lsb:
-			strcpy(str, "LSB");
-			break;
-		case mode_usb:
-			strcpy(str, "USB");
-			break;
-		case mode_dsb:
-			strcpy(str, "DSB");
-		case mode_am:
-			strcpy(str, "AM");
-			break;
-		case mode_cw:
-			strcpy(str, "CW");
-			break;
-		}
-		lv_label_set_text(mode_label, str);
+	char	str[80];
+	sprintf(str, "%d m", vfo.get_band_no(activevfo));
 	
-		if (vfo.get_rx())
-			{
-				if (activevfo)
-					lv_label_set_text(rxtx_label2, "RX");
-				else
-					lv_label_set_text(rxtx_label, "RX");
-			}
-			else
-			{
-				if (activevfo)
-					lv_label_set_text(rxtx_label2, "#ff0000 TX#");
-				else
-					lv_label_set_text(rxtx_label, "#ff0000 TX#");	
-			}
+	if (activevfo)
+		lv_label_set_text(band_label2, str);
+	else
+		lv_label_set_text(band_label, str);
+			
+	str[0] = '\0';
+	switch (vfo.get_mode_no(activevfo))
+	{
+	case mode_broadband_fm:
+		strcpy(str, "FM");
+		break;	
+	case mode_lsb:
+		strcpy(str, "LSB");
+		break;
+	case mode_usb:
+		strcpy(str, "USB");
+		break;
+	case mode_dsb:
+		strcpy(str, "DSB");
+	case mode_am:
+		strcpy(str, "AM");
+		break;
+	case mode_cw:
+		strcpy(str, "CW");
+		break;
 	}
+	if (activevfo)
+		lv_label_set_text(mode_label2, str);
+	else
+		lv_label_set_text(mode_label, str);
+		
+	if (vfo.get_rx())
+		{
+			if (activevfo)
+				lv_label_set_text(rxtx_label2, "RX");
+			else
+				lv_label_set_text(rxtx_label, "RX");
+		}
+		else
+		{
+			if (activevfo)
+				lv_label_set_text(rxtx_label2, "#ff0000 TX#");
+			else
+				lv_label_set_text(rxtx_label, "#ff0000 TX#");	
+		}
 }
+*/

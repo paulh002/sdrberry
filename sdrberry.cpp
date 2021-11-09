@@ -252,11 +252,10 @@ int main(int argc, char *argv[])
 	
 	
 	/*Handle LitlevGL tasks (tickless mode)*/
-	auto timeLastStatus = std::chrono::high_resolution_clock::now();
+	auto timeLastStatus = std::chrono::high_resolution_clock::now(); 
 	while (1) {
-		unique_lock<mutex> gui_lock(gui_mutex); 
+		gui_mutex.lock();
 		lv_task_handler();
-		gui_lock.unlock(); 
 		Mouse_dev.step_vfo();
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastStatus + std::chrono::milliseconds(200) < now && !stop_flag.load())
@@ -271,6 +270,7 @@ int main(int argc, char *argv[])
 		if (midicontrole)
 			midicontrole->read_midi_input();
 		set_time_label();
+		gui_mutex.unlock();
 		usleep(5000);
 	}
 	delete audio_output;

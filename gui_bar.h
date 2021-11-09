@@ -37,7 +37,7 @@ private:
 	lv_obj_t	*button[20];
 
 	int			ibuttons {0};
-	const int	number_of_buttons {5};
+	const int	number_of_buttons {6};
 	lv_obj_t*	vol_slider, *vol_slider_label;
 	const int max_volume {100};
 };

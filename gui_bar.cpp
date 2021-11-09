@@ -47,6 +47,12 @@ static void bar_button_handler(lv_event_t * e)
 					else
 						gagc.set_agc_mode(0);						
 					break;
+				case 4:
+					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+						vfo.set_active_vfo(1);
+					else
+						vfo.set_active_vfo(0);	
+					break;
 				}
 			}
 		}
@@ -91,7 +97,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	int button_height_margin = button_height + y_margin;
 	int	ibutton_x = 0, ibutton_y = 0;
 	int i = 0;
-	int vol_width = 2* (w/3) - tab_margin;
+	
 	
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
@@ -148,6 +154,10 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "AGC");
 				break;
+			case 4:
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				strcpy(str, "VFO2");
+				break;
 			}
 			lv_label_set_text(lv_label, str);
 			lv_obj_center(lv_label);
@@ -172,6 +182,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	}
 	
 	int vol_x = ibutton_x * button_width_margin + 20 + x_margin_dropdown;
+	int vol_width = (w / 3) - 20;
 	vol_slider_label = lv_label_create(o_parent);
 	lv_label_set_text(vol_slider_label, "vol");
 	lv_obj_align(vol_slider_label, LV_ALIGN_TOP_LEFT, vol_x + vol_width + 5, 15);

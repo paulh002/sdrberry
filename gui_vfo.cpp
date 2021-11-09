@@ -77,6 +77,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_label_set_text(rxtx_label, "RX");
 	lv_obj_align_to(rxtx_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 200, 10);
 	lv_obj_add_style(rxtx_label, &label_style, 0);
+	lv_label_set_recolor(rxtx_label, true);
 	
 	vfo2_frequency = lv_label_create(bg_tuner2);
 	//lv_label_set_long_mode(vfo2_frequency, LV_LABEL_LONG_CLIP);
@@ -97,6 +98,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_label_set_text(rxtx_label2, "RX");
 	lv_obj_align_to(rxtx_label2, vfo2_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 200, 10);
 	lv_obj_add_style(rxtx_label2, &label_style, 0);
+	lv_label_set_recolor(rxtx_label2, true);
 }
 
 
@@ -123,6 +125,7 @@ void gui_vfo::set_vfo_gui(int vfo, long long freq)
 	{
 		lv_label_set_text(vfo1_frequency, str);	
 	}
+	set_vfo_gui_labels(vfo);
 }
 
 static lv_obj_t					*meter;
@@ -246,14 +249,18 @@ void gui_vfo::set_vfo_gui_labels(int activevfo)
 		lv_label_set_text(mode_label, str);
 	
 		if (vfo.get_rx())
-		{
-			lv_style_set_text_color(&label_style, lv_palette_main(LV_PALETTE_BLUE));
-			lv_label_set_text(rxtx_label, "RX");
-		}
-		else
-		{
-			lv_style_set_text_color(&label_style, lv_palette_main(LV_PALETTE_RED));
-			lv_label_set_text(rxtx_label, "TX");
-		}
+			{
+				if (activevfo)
+					lv_label_set_text(rxtx_label2, "RX");
+				else
+					lv_label_set_text(rxtx_label, "RX");
+			}
+			else
+			{
+				if (activevfo)
+					lv_label_set_text(rxtx_label2, "#ff0000 TX#");
+				else
+					lv_label_set_text(rxtx_label, "#ff0000 TX#");	
+			}
 	}
 }

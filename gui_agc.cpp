@@ -149,7 +149,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	gain_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(gain_slider_label, "gain 0 db");
-	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_TOP_MID, 0,-40);
+	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_TOP_MID, 0,-20);
 	
 	
 	//lv_obj_align_to(threshold_slider_label, o_tab, LV_ALIGN_CENTER, 0, -40);
@@ -163,7 +163,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_add_event_cb(threshold_slider, threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	set_threshold_slider(max_threshold + Settings_file.agc_threshold());
 	
-	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -40);
+	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
 	
 	
 	slope_slider_label = lv_label_create(o_tab);

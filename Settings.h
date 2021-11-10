@@ -50,6 +50,7 @@ public:
 	vector<int>				address;
 	vector<int>				command_rx;
 	vector<int>				command_tx;
+	vector<string>			mode;
 	
 private:
 	

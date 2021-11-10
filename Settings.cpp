@@ -144,6 +144,11 @@ void Settings::read_settings(string settings_file)
 		if (col.toLong() > 0L)
 			f_high.push_back(col.toLong());
 	}
+	for (auto& col : (*config)("mode"))
+	{
+		if (col.toString().length() > 0L)
+			mode.push_back(col.toString());
+	}
 	
 	config->useSection("filter");
 	

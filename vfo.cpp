@@ -36,16 +36,33 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r)
 	vfo_setting.vfo_high = r.front().maximum();
 	auto it_band = Settings_file.meters.begin();
 	auto it_high = Settings_file.f_high.begin();
+	auto it_mode = Settings_file.mode.begin();
 	for (auto col : Settings_file.f_low)
 	{
 		if ((col >= vfo_setting.vfo_low) && (col < vfo_setting.vfo_high))
 		{
 			vfo_setting.f_low.push_back(col);
-			vfo_setting.f_high.push_back(*it_high);
-			vfo_setting.meters.push_back(*it_band);
+			if (it_high != Settings_file.f_high.end())
+				vfo_setting.f_high.push_back(*it_high);
+			if (it_band != Settings_file.meters.end())
+				vfo_setting.meters.push_back(*it_band);
+			if (it_mode != Settings_file.mode.end())
+			{
+				if (*it_mode == "usb")
+					vfo_setting.f_mode.push_back(mode_usb);
+				if (*it_mode == "lsb")
+					vfo_setting.f_mode.push_back(mode_lsb);
+				if (*it_mode == "bfm")
+					vfo_setting.f_mode.push_back(mode_broadband_fm);
+				if (*it_mode == "am")
+					vfo_setting.f_mode.push_back(mode_am);
+				if (*it_mode == "dsb")
+					vfo_setting.f_mode.push_back(mode_dsb);
+			}
 		}
 		it_band++;
 		it_high++;
+		it_mode++;
 	}
 	vfo_setting.pcmrate = pcmrate;
 	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
@@ -254,9 +271,19 @@ void CVfo::set_vfo_range(long long low, long long high)
 
 void CVfo::set_band(int band, long long freq)
 {
-	set_vfo(freq, false);
+	int index = getBandIndex(band);
+	if (index >= 0 && index < vfo_setting.f_mode.size())
+	{
+		if (vfo_setting.mode[vfo_setting.active_vfo] != vfo_setting.f_mode[index])
+		{
+			vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.f_mode[index];
+			vfo_setting.band[vfo_setting.active_vfo] = band;
+			select_mode(vfo_setting.mode[vfo_setting.active_vfo], false);
+			return;
+		}
+	}
 	vfo_setting.band[vfo_setting.active_vfo] = band;
-	//gui_vfo_inst.set_vfo_gui_labels(vfo_setting.active_vfo);
+	set_vfo(freq, false);
 }
 
 int CVfo::get_band(int active_vfo)

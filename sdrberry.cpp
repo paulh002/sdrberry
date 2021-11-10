@@ -300,7 +300,7 @@ uint32_t custom_tick_get(void)
 
 static int mode_running = 0;
 
-void select_mode(int s_mode)
+void select_mode(int s_mode, bool bvfo)
 {	
 	startTime = std::chrono::high_resolution_clock::now(); 
 	// wait for threads to finish
@@ -328,8 +328,11 @@ void select_mode(int s_mode)
 	mode = s_mode;
 	Gui_tx.set_tx_state(false);
 	vfo.vfo_rxtx(true, false);
-	vfo.set_vfo(0,false);
-	vfo.set_mode(0, mode);
+	if (bvfo)
+	{
+		vfo.set_vfo(0, false);
+		vfo.set_mode(0, mode);
+	}
 	printf("select_mode_rx start rx threads\n");
 	switch (mode)
 	{

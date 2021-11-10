@@ -45,6 +45,7 @@ struct vfo_settings_struct
 	vector<string>		labels;
 	vector<long>		f_low;
 	vector<long>		f_high;
+	vector<int>			f_mode;
 	long				pcmrate;
 };
 

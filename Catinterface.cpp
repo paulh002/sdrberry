@@ -191,7 +191,6 @@ void	Catinterface::checkCAT()
 		count = cat_message.GetBand();
 		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
 		{
-			printf("band = %d \n", count);
 			gui_band_instance.set_gui(count);
 			int index  = getIndex(Settings_file.meters, count);
 			if (index >= 0)

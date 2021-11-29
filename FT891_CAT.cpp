@@ -249,8 +249,6 @@ int FT891_CAT::GetMessage(bool bwait)
 	strcpy(rxBuff, s.c_str());
 	for ( i = 0; i < strlen ( rxBuff ); i++ )	// Translate incoming message
 		rxBuff[i] = toupper ( rxBuff[i] );		// to all upper case
-	printf("%s", rxBuff);
-	printf(" \n");
 	return 1;								// There is a new message
 }
 

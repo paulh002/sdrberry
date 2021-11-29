@@ -186,6 +186,21 @@ void	Catinterface::checkCAT()
 				break;
 			}
 		}
+		count = cat_message.GetSH();
+		gbar.set_filter_slider(select_filter(count));	
+		count = cat_message.GetBand();
+		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
+		{
+			printf("band = %d \n", count);
+			gui_band_instance.set_gui(count);
+			int index  = getIndex(Settings_file.meters, count);
+			if (index >= 0)
+			{
+				long f_low = Settings_file.f_low.at(index);
+				int f_band = Settings_file.meters.at(index);
+				vfo.set_band(f_band, f_low);				
+			}
+		}
 	}
 }
 

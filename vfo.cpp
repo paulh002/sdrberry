@@ -81,12 +81,13 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r)
 		return ;
 	get_band(0);
 	get_band(1);
-	gui_band_instance.set_gui(vfo_setting.band[0]);
+	gui_band_instance.set_gui(vfo_setting.band[vfo_setting.active_vfo]);
 	stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 	stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
 	bpf.SetBand(vfo_setting.band[0], vfo_setting.rx);
 	gui_vfo_inst.set_vfo_gui(0, freq);
 	gui_vfo_inst.set_vfo_gui(1, freq);
+	catinterface.SetBand(get_band_in_meters());
 }
 
 /* this function reads the device capability and translates it to f license bandplans*/
@@ -278,6 +279,7 @@ void CVfo::set_band(int band, long long freq)
 		{
 			vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.f_mode[index];
 			vfo_setting.band[vfo_setting.active_vfo] = band;
+			set_vfo(freq, false);
 			select_mode(vfo_setting.mode[vfo_setting.active_vfo], false);
 			return;
 		}

@@ -71,7 +71,7 @@ struct	status {
 	uint8_t			NA		 = 0;				// Narrow filter mode on or off
 	uint8_t			RM		 = 0;				// Meter reading
 	uint8_t			SH_STAT	 = 1;				// Adjustable filter width on
-	uint8_t			SH_VALUE = 20;				// Adjustable filter width value = 3,000
+	int32_t			SH_VALUE = 3500;			// Adjustable filter width value = 3,500
 	uint8_t			SM		 = 0;				// S-meter reading
 	uint8_t			ST		 = 0;				// Split mode off
 	uint8_t			TX		 = 0;				// Transmitter off
@@ -116,7 +116,7 @@ struct	status {
 		{ "OI",  MSG_OI, MSG_BOTH },		// Opposite Band Information request/answer
 		{ "RIC", MSG_RI, MSG_STS  },		// Alternate way of asking for split status
 		{ "RM",  MSG_RM, MSG_STS  },		// Read meter
-		{ "SH0", MSG_SH, MSG_STS  },		// Set or request IF bandwidth
+		{ "SH0", MSG_SH, MSG_BOTH },		// Set or request IF bandwidth
 		{ "SM0", MSG_SM, MSG_STS  },		// Read S-meter
 		{ "ST",  MSG_ST, MSG_BOTH },		// ( 0 - 2) Split mode off, on or on +5KHz up
 		{ "SV",  MSG_SV, MSG_CMD  },		// Swap VFOs
@@ -244,10 +244,13 @@ int FT891_CAT::GetMessage(bool bwait)
 
 	if (catcommunicator_->Read(TERM_CH, s) < 0)
 		return -1;
+
 	
 	strcpy(rxBuff, s.c_str());
 	for ( i = 0; i < strlen ( rxBuff ); i++ )	// Translate incoming message
 		rxBuff[i] = toupper ( rxBuff[i] );		// to all upper case
+	printf("%s", rxBuff);
+	printf(" \n");
 	return 1;								// There is a new message
 }
 
@@ -461,6 +464,13 @@ bool FT891_CAT::ProcessCmd ()
 			cmdProcessed = true;						// Command was processed
 			break;
 
+		case MSG_SH:									// Set IF shift & status
+			strncpy ( tempBuff, &dataBuff[1], 5 );		// Extract the offset amount
+			radioStatus.SH_VALUE = atoi ( tempBuff );	// Set value in the structure
+			radioStatus.SH_STAT = dataBuff[0] - '0';	// Set on/off status
+			cmdProcessed = true; // Command was processed
+			break;
+		
 		case MSG_MD:									// Set mode (USB, LSB, CW, etc.)
 			tempMode = xtoi ( dataBuff );				// Convert to a number
 
@@ -908,4 +918,24 @@ void FT891_CAT::SendInformation(int info)
 {
 	catcommunicator_->SendInformation(info);  	// Send Information command	
 												// This command is implementation specific handled outside of F891_CAT
+}
+
+int FT891_CAT::GetSH()							// Get IF bandwidth
+{
+	if (!bVFOmode)
+		catcommunicator_->Send("SH0;");				// Send SH0 command
+	return radioStatus.SH_VALUE;					// Done!
+}
+
+void FT891_CAT::SetSH(int status, int bandwidth)			// Set IF Bandwidth
+{
+	std::string s;
+	char	str[20];
+
+	radioStatus.SH_STAT = status;
+	radioStatus.SH_VALUE = bandwidth;
+	sprintf(str, "SH0%1u%04d;", radioStatus.SH_STAT, radioStatus.SH_VALUE);
+	for (int i = 0; i < strlen(str); i++)
+		s.push_back(str[i]);
+	catcommunicator_->Send(s);
 }

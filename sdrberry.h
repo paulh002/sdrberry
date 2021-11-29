@@ -40,6 +40,7 @@
 #include "AMDemodulator.h"
 #include "AMmodulator.h"
 #include "MidiControle.h"
+#include "Catinterface.h"
 
 const int mode_lsb = 1;
 const int mode_usb = 2;
@@ -87,6 +88,6 @@ inline void samples_mean_rms(const SampleVector& samples,
     rms  = sqrt(vsumsq / n);
 }
 
-void select_filter(int ifilter);
+int  select_filter(int ifilter);
 void select_mode(int s_mode, bool bvfo = true);
 void select_mode_tx(int s_mode, int tone = 0);

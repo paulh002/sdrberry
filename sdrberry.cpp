@@ -352,9 +352,28 @@ void select_mode(int s_mode, bool bvfo)
 	}
 }
 
-void select_filter(int ifilter)
+int select_filter(int ifilter)
 {
 	filter = ifilter;
+	if (ifilter >= 500 && ifilter  < 1000)
+		filter = 0;
+	if (ifilter >= 1000 && ifilter  < 1500)
+		filter = 1;
+	if (ifilter >= 1500 && ifilter  < 2000)
+		filter = 2;
+	if (ifilter >= 2000 && ifilter  < 2500)
+		filter = 3;
+	if (ifilter >= 2500 && ifilter  < 3000)
+		filter = 4;
+	if (ifilter >= 3000 && ifilter  < 3500)
+		filter = 5;
+	if (ifilter >= 3500 && ifilter  < 4000)
+		filter = 6;
+	if (ifilter >= 4000)
+		filter = 7;
+	if (filter > 7)
+		filter = 6;
+	return filter;
 }
 
 void select_mode_tx(int s_mode, int tone)

@@ -179,7 +179,8 @@ void	 SetBand	( uint16_t bnd );				// Set band in meters (for band filters)
 void 	 SetFT  ( int ft);
 void 	 SetAG	( uint8_t ag );
 void 	 SetRG  ( uint8_t rg);
-
+void	 SetSH	(int status, int bandwidth);
+	
 uint32_t GetFA  ();								// Get VFO-A frequency
 uint32_t GetFB  ();								// Get VFO-B frequency
 uint8_t	 GetMDA ();								// Get VFO-A mode
@@ -190,6 +191,7 @@ uint16_t GetBand();								// Get selected band in meters
 int		 GetFT  ();
 uint8_t	 GetAG	();
 uint8_t	 GetRG();
+int		 GetSH();
 	
 void	SendInformation(int info);	
 /*

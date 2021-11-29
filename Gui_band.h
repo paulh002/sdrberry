@@ -40,4 +40,5 @@ private:
 	int			ibuttons;
 };
 
+int getIndex(vector<int> v, int s);
 extern Gui_band	gui_band_instance;

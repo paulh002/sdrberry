@@ -1,18 +1,4 @@
-#include <unistd.h>
-#include <pthread.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdint.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "lvgl/lvgl.h"
-#include "vfo.h"
-#include "Gui_band.h"
-#include "Settings.h"
-#include <string>
-#include <algorithm>
-#include "devices.h"
+#include "sdrberry.h"
 
 using namespace std;
 
@@ -158,18 +144,19 @@ void band_button(lv_event_t * e)
 	char *ptr = lv_label_get_text(label);
 	string s(ptr);
 	
-	int n = s.find("m");
-	s.erase(n);
-	int i = stoi(s);	
-	if (ptr != NULL)
+	if (code == LV_EVENT_CLICKED) 
 	{
-		int index  = getIndex(Settings_file.meters, i);		
-		long f_low = Settings_file.f_low.at(index);
-		int f_band = Settings_file.meters.at(index);
-		vfo.set_band(f_band, f_low);
-	}
-	
-	if (code == LV_EVENT_CLICKED) {
+		int n = s.find("m");
+		s.erase(n);
+		int i = stoi(s);	
+		if (ptr != NULL)
+		{
+			int index  = getIndex(Settings_file.meters, i);		
+			long f_low = Settings_file.f_low.at(index);
+			int f_band = Settings_file.meters.at(index);
+			vfo.set_band(f_band, f_low);
+			catinterface.SetBand(i);
+		}
 	
 		for (int i = 0; i < gui_band_instance.getbuttons(); i++)
 		{
@@ -178,6 +165,7 @@ void band_button(lv_event_t * e)
 				lv_obj_clear_state(gui_band_instance.get_button_obj(i), LV_STATE_CHECKED);
 			}
 		}
+		lv_obj_add_state(obj, LV_STATE_CHECKED);
 	}
 }
 

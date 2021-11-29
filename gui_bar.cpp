@@ -251,8 +251,8 @@ void gui_bar::get_filter_range(vector<string> &filters)
 
 void gui_bar::set_filter_slider(int filter)
 {
-	if (filter < 0 || filter > 6) 
-		filter = 0;
+	if (filter < 0 || filter > 7) 
+		filter = 6;
 	lv_dropdown_set_selected(button[number_of_buttons-1], filter);
 	select_filter(filter);
 }

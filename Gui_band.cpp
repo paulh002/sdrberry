@@ -145,10 +145,18 @@ void band_button(lv_event_t * e)
 	string s(ptr);
 	
 	if (code == LV_EVENT_CLICKED) 
-	{
-		int n = s.find("m");
-		s.erase(n);
-		int i = stoi(s);	
+	{	int			i, ii = 1;
+		size_t		n;
+		
+		n = s.find("c");
+		if (n != string::npos)
+			s.erase(n);
+		n = s.find("m");
+		if (n != string::npos)
+		{
+			s.erase(n);
+			i = stoi(s);
+		}
 		if (ptr != NULL)
 		{
 			int index  = getIndex(Settings_file.meters, i);		

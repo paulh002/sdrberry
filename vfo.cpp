@@ -90,6 +90,17 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r)
 	catinterface.SetBand(get_band_in_meters());
 }
 
+void CVfo::vfo_re_init(long ifrate, long pcmrate)
+{	
+	vfo_setting.pcmrate = pcmrate;
+	vfo_setting.vfo_freq_sdr[0] = vfo_setting.vfo_freq[0] - ifrate / 4; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
+	vfo_setting.m_offset[0] = vfo_setting.vfo_freq[0] - vfo_setting.vfo_freq_sdr[0]; // 
+	
+	vfo_setting.vfo_freq_sdr[1] = vfo_setting.vfo_freq[1] - ifrate / 4;
+	vfo_setting.m_offset[1] = vfo_setting.vfo_freq[1] - vfo_setting.vfo_freq_sdr[1]; // 
+	vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
+}
+
 /* this function reads the device capability and translates it to f license bandplans*/
 void CVfo::set_vfo_capability(struct device_structure *sdr_dev)
 {

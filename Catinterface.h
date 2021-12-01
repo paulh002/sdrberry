@@ -35,6 +35,7 @@ public:
 	long long	Getfa();
 	uint8_t		Getrg();
 	void		SetBand(uint16_t band);
+	void		SetAG(uint8_t volume);	
 
 
 private:

@@ -4,6 +4,7 @@ gui_rx	Gui_rx;
 const int number_of_buttons {8};
 
 static void rx_button_handler(lv_event_t * e);
+static void samplerate_button_handler(lv_event_t * e);
 	
 void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 {
@@ -107,8 +108,32 @@ void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 	d_samplerate = lv_dropdown_create(o_tab);
 	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_samplerate);
+	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
 }
 
+int gui_rx::get_sample_rate(int rate)
+{
+	if (rate >= 0 && rate < sample_rates.size())
+	{
+		return sample_rates.at(rate);
+	}
+	return 0;
+}
+
+static void samplerate_button_handler(lv_event_t * e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e); 
+	if (code == LV_EVENT_VALUE_CHANGED) 
+	{
+		int rate = lv_dropdown_get_selected(obj);
+		ifrate = Gui_rx.get_sample_rate(rate);
+		vfo.vfo_re_init((long)ifrate, pcmrate);
+		stop_rxtx();
+		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+		select_mode(mode);
+	}
+}
 
 static void rx_button_handler(lv_event_t * e)
 {

@@ -238,7 +238,8 @@ int main(int argc, char *argv[])
 		soapy_devices[0].channel_structure_rx[0].source_buffer_rx = &source_buffer_rx;
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
-		gbar.set_vol_slider(Settings_file.volume());		
+		gbar.set_vol_slider(Settings_file.volume());
+		catinterface.SetAG(Settings_file.volume());
 		gagc.set_gain_range();
 		Gui_tx.set_drv_range();
 		gagc.set_gain_slider(Settings_file.gain());	
@@ -300,6 +301,28 @@ uint32_t custom_tick_get(void)
 
 static int mode_running = 0;
 
+void stop_rxtx()
+{
+	startTime = std::chrono::high_resolution_clock::now(); 
+	// wait for threads to finish
+	printf("select_mode_rx stop all threads\n");
+	// stop transmit and close audio input
+	
+	printf("stop am_tx\n");
+	stop_txmod_flag = true;
+	unique_lock<mutex> lock_am_tx(am_tx_finish); 
+	printf("stop am_finish \n");
+	stop_flag = true;
+	unique_lock<mutex> lock_am(am_finish); 
+	printf("stop fm_finish \n");
+	unique_lock<mutex> lock_fm(fm_finish); 
+	lock_am.unlock();
+	lock_fm.unlock();
+	lock_am_tx.unlock();
+	audio_input->close();  
+	audio_output->close(); 
+}
+
 void select_mode(int s_mode, bool bvfo)
 {	
 	startTime = std::chrono::high_resolution_clock::now(); 
@@ -319,6 +342,7 @@ void select_mode(int s_mode, bool bvfo)
 	lock_fm.unlock();
 	lock_am_tx.unlock();
 	audio_input->close(); 
+	audio_output->close(); 
 	audio_output->open(&audiooutput_buffer);
 	
 	mode_running = 0;

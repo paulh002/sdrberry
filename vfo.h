@@ -55,6 +55,7 @@ public:
 	CVfo();
 	
 	void vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r);
+	void vfo_re_init(long ifrate, long pcmrate);
 	void set_vfo_capability(struct device_structure *sdr_dev);
 	int	 set_vfo(long long freq, bool lock);
 	void step_vfo(long icount, bool lock);

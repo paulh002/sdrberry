@@ -64,9 +64,10 @@ static void vol_slider_event_cb(lv_event_t * e)
 	char buf[20];
 	
 	lv_obj_t * slider = lv_event_get_target(e);
-	sprintf(buf, "volume %d", lv_slider_get_value(slider));
+	sprintf(buf, "vol %d", lv_slider_get_value(slider));
 	lv_label_set_text(gbar.get_vol_slider_label(), buf);
 	audio_output->set_volume(lv_slider_get_value(slider));
+	catinterface.SetAG(lv_slider_get_value(slider));
 }
 
 static void filter_slider_event_cb(lv_event_t * e)
@@ -190,7 +191,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_slider_set_range(vol_slider, 0, 100);
 	lv_obj_set_width(vol_slider, vol_width); 
 	lv_obj_align(vol_slider, LV_ALIGN_TOP_LEFT, vol_x , 15);
-	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_PRESSING, NULL);
 }
 
 void gui_bar::set_mode(int mode)

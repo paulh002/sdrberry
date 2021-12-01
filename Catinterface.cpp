@@ -215,3 +215,8 @@ void Catinterface::SetBand(uint16_t band)
 {
 	cat_message.SetBand(band);
 }
+
+void Catinterface::SetAG(uint8_t volume)	
+{
+	cat_message.SetAG(volume);
+}	

@@ -320,7 +320,7 @@ bool FT891_CAT::ParseMsg ()
  *	set the "hasData" indicator to true and set the "msg.Type" to "MSG_CMD".
  */
 
-	if ( messageLength > ( prefixLength ))			// If true, there is data attached
+	if ( messageLength > ( prefixLength + 1))			// If true, there is data attached
 	{
 		hasData = true;
 		newMessage.Type = MSG_CMD;					// Anything with data is a command
@@ -347,7 +347,7 @@ bool FT891_CAT::ParseMsg ()
  */
 
 	newMessage.Type = MSG_STS;						// Indicate so
-		return hasData;								// Which is "false"
+	return hasData;									// Which is "false"
 }
 
 
@@ -599,7 +599,7 @@ void FT891_CAT::ProcessStatus ()
 
 		case MSG_AG:									// Get AG Audio Gain
 			sprintf(tempBuff,							// Format message
-				"AG0%03u;", radioStatus.AG);
+				"AG%03u;", radioStatus.AG);
 			break;
 
 		case MSG_RG:									// Get RG RF Gain
@@ -773,7 +773,7 @@ void FT891_CAT::SetBand(uint16_t bnd)			// Set Band in meters
 	char	str[20];
 
 	radioStatus.BND = bnd; 						// Done!
-	sprintf(str, "%s%d;", msgTable[MSG_BS].Name, bnd);
+	sprintf(str, "%s%03d;", msgTable[MSG_BS].Name, bnd);
 	for (int i = 0; i < strlen(str); i++)
 		s.push_back(str[i]);
 	catcommunicator_->Send(s);
@@ -878,7 +878,7 @@ void FT891_CAT::SetAG(uint8_t ag)					// Set and send encoder step
 	std::string s;
 
 	if (ag > 255) ag = 255;
-	sprintf(str, "%s%d;", msgTable[MSG_AG].Name, ag);
+	sprintf(str, "%s%03d;", msgTable[MSG_AG].Name, ag);
 	for (int i = 0; i < strlen(str); i++)
 		s.push_back(str[i]);
 	catcommunicator_->Send(s);

@@ -18,7 +18,7 @@ extern const int topHeight;
 extern const int tunerHeight;
 extern const int rightWidth;
 
-const int nfft_samples	{512};
+const int nfft_samples	{1024};
 
 class Waterfall
 {

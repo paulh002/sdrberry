@@ -30,6 +30,7 @@ public:
 	void	add_sample_rate(int samplerate);
 	void	set_gui_mode(int mode);
 	void	set_sample_rate(int rate);
+	int		get_sample_rate(int rate);
 private:
 	int				mode;	
 	lv_obj_t*		mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label;

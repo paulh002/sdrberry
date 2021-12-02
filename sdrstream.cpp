@@ -46,7 +46,7 @@ void* rx_streaming_thread(void* psdr_dev)
 	if ((ifrate < 192001) && (ifrate > 48000))
 		default_block_length = 2048;
 	if ((ifrate < 384001) && (ifrate > 192000))
-		default_block_length = 2048;
+		default_block_length = 4096;
 	if (ifrate > 384001)
 		default_block_length = 32768;
 	

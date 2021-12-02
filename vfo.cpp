@@ -187,7 +187,6 @@ int CVfo::set_vfo(long long freq, bool lock)
 		}
 	}
 	printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
-	
 	if (lock)
 		unique_lock<mutex> gui_lock(gui_mutex);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
@@ -196,6 +195,7 @@ int CVfo::set_vfo(long long freq, bool lock)
 	{ // Band Change?
 		catinterface.SetBand(get_band_in_meters());
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
+		printf("vfo band change\n");
 	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
 	return 0;
@@ -289,13 +289,11 @@ void CVfo::set_band(int band, long long freq)
 		if (vfo_setting.mode[vfo_setting.active_vfo] != vfo_setting.f_mode[index])
 		{
 			vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.f_mode[index];
-			vfo_setting.band[vfo_setting.active_vfo] = band;
 			set_vfo(freq, false);
 			select_mode(vfo_setting.mode[vfo_setting.active_vfo], false);
 			return;
 		}
 	}
-	vfo_setting.band[vfo_setting.active_vfo] = band;
 	set_vfo(freq, false);
 }
 

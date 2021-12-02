@@ -304,6 +304,9 @@ void* am_demod_thread(void* ptr)
 			inbuf_length_warning = true;
 		}
 		
+		if (ammod.m_source_buffer->queued_samples() > 4096)
+			printf("Input buffer queued samples %u\n", ammod.m_source_buffer->queued_samples());
+		
 		if (ammod.m_source_buffer->queued_samples() == 0)
 		{
 			usleep(5000);
@@ -325,7 +328,7 @@ void* am_demod_thread(void* ptr)
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
 		for (auto& col : audiosamples)
-		{
+		{	// split the stream in blocks of samples of the size framesize 
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{

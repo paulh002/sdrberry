@@ -43,6 +43,8 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		timeLastPrint = now;
 		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 		sampleRate = 1000000.0 * double(totalSamples) / timePassed.count();
+		if (sampleRate < 38000.0 || sampleRate > 50000.0)
+			sampleRate = 48000.0;
 		//printf("Audio: \b%g sps\n", sampleRate);
 	}
 	return 0;

@@ -251,7 +251,7 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	{
 		msresamp_crcf_destroy(m_q);
 		m_r = r; 
-		//printf("resample rate %f \n", (float)get_audio_sample_rate() / (float)ifrate);
+		printf("resample rate %f audio rate %f\n", (float)get_audio_sample_rate() / (float)ifrate, get_audio_sample_rate());
 		m_q = msresamp_crcf_create(m_r, 60.0);
 		msresamp_crcf_print(m_q);
 		printf("\n");

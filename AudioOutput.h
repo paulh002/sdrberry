@@ -4,7 +4,6 @@
 #include "Audiodefs.h"
 #include "DataBuffer.h"
 
-
 class AudioOutput :
     public RtAudio
 {
@@ -32,7 +31,7 @@ protected:
 private:
 	RtAudio::StreamParameters	parameters;
 	DataBuffer<Sample>			*databuffer;
-	unsigned int				sampleRate;
+	unsigned int				m_sampleRate;
 	unsigned int				bufferFrames;  // 256 sample frames
 	double						m_volume {0.5};
 	string						m_error;
@@ -40,3 +39,4 @@ private:
 };
 
 extern  AudioOutput *audio_output;
+double get_audio_sample_rate();

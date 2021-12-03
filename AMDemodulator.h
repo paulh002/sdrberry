@@ -58,7 +58,6 @@ public:
 
 private:	
 	bool						m_init = false;
-	bool						m_bresample = false;
 	ampmodem					m_demod {0};
 	msresamp_crcf 				m_q {0};
 	iirfilt_crcf				m_lowpass {0};

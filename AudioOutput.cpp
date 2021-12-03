@@ -1,5 +1,16 @@
-#include "AudioOutput.h"
+#include "sdrberry.h"
 
+const auto startTime = std::chrono::high_resolution_clock::now();
+auto timeLastPrint = std::chrono::high_resolution_clock::now();
+unsigned long long totalSamples(0);
+double sampleRate {0.0};	
+mutex mSampleRate;
+
+double get_audio_sample_rate()
+{
+	unique_lock<mutex> lock_stream(mSampleRate);
+	return sampleRate;
+}
 
 int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
 {
@@ -20,8 +31,20 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		Sample v = col;
 		((double *)buffer)[i++] = v;
 	}
+	totalSamples += samples.size() /2; 
 	samples.clear();
 	samples.resize(0);
+	
+	// Calculate the real audio samplerate
+	const auto now = std::chrono::high_resolution_clock::now();
+	if (timeLastPrint + std::chrono::seconds(5) < now)
+	{
+		unique_lock<mutex> lock_stream(mSampleRate);
+		timeLastPrint = now;
+		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+		sampleRate = 1000000.0 * double(totalSamples) / timePassed.count();
+		//printf("Audio: \b%g sps\n", sampleRate);
+	}
 	return 0;
 }
 
@@ -34,15 +57,11 @@ bool AudioOutput::init(std::string device, int pcmrate)
 		return false;
 	}
 	parameters.deviceId = this->getDefaultOutputDevice();
-	//if (parameters.deviceId == 0)
-//	{
-//		m_zombie = true;
-//		return false;
-//	}
 	parameters.nChannels = 2;
 	parameters.firstChannel = 0;
-	sampleRate = pcmrate;
+	m_sampleRate = pcmrate;
 	bufferFrames = 1024;   // 256 sample frames
+	sampleRate = 0.99 * pcmrate;
 	return true;
 }
 
@@ -51,7 +70,7 @@ bool AudioOutput::open(DataBuffer<Sample>	*AudioBuffer)
 {
 	databuffer = AudioBuffer;
 	try {
-		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &Audioout, (void *)AudioBuffer);
+		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)AudioBuffer);
 		this->startStream();
 		printf("bufferFrames set: %d\n", bufferFrames);
 	}
@@ -104,5 +123,7 @@ bool AudioOutput::write(SampleVector& audiosamples)
 		//printf("queued audio vectors %d\n", databuffer->queued_samples());
 	}
 	audiosamples.clear();
+	//if (databuffer->queued_samples() > 4096)
+	//	printf("audio buffer queued samples %u\n", databuffer->queued_samples());
 	return true;
 }

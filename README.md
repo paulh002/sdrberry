@@ -9,7 +9,7 @@ Goal is to support Adalm pluto SDR and Radioberry SDR but it should also support
 Also the goal is to support optical encoder and support I2C / serial interface for bandpass filtering
 Currently it also supports basic BLE as controler input. I use a ESP32 as BLE server with a service for an optical encoder.
 
-To install you need to configure rasberry pi OS in text only mode, (switch of the GUI)
+To install you need to configure rasberry pi OS (buster) in text only mode, (switch off the GUI)
 Compiled using VisualGDB
 copy the cfg file (in install directory) to the home dir of the application
 
@@ -32,6 +32,7 @@ Done:
 - Transmitter part
 - USB CAT interface support (config serial controler in cfg file example ESP32 as CAT controler)
 - i2c filter support for PCF8574
+- USB Controler with ESP32 (Optical contoler for vfo and 2 mechanical encoders for volume and gain etc)
 
 Installation of libraries is necessary:
 - Liquid DSP

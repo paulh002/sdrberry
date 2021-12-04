@@ -438,6 +438,7 @@ void select_mode_tx(int s_mode, int tone)
 		//mode_running = 1;
 		break;
 		
+	case mode_cw:
 	case mode_am:
 	case mode_dsb:
 	case mode_usb:

@@ -68,26 +68,31 @@ void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 			lv_obj_set_user_data(rx_button[i], (void *)mode_cw);
 			break;
 		case 3:
+			strcpy(str, "AM");
+			lv_obj_add_flag(rx_button[i], LV_OBJ_FLAG_CHECKABLE);
+			lv_obj_set_user_data(rx_button[i], (void *)mode_am);
+			break;
+		case 4:
 			strcpy(str, "FM Nb");
 			lv_obj_add_flag(rx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(rx_button[i], (void *)mode_narrowband_fm);
 			break;
-		case 4:
+		case 5:
 			strcpy(str, "FM Bb");
 			lv_obj_add_flag(rx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(rx_button[i], (void *)mode_broadband_fm);
 			break;
-		case 5:
+		case 6:
 			strcpy(str, "FT8");
 			lv_obj_add_flag(rx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(rx_button[i], (void *)mode_ft8);
 			break;
-		case 6:
+		case 7:
 			strcpy(str, "FT4");
 			lv_obj_add_flag(rx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(rx_button[i], (void *)mode_ft4);
 			break;
-		case 7:
+		case 8:
 			strcpy(str, "RTTY");
 			lv_obj_add_flag(rx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(rx_button[i], (void *)mode_rtty);

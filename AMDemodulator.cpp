@@ -364,6 +364,7 @@ void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 				
 	switch (mode)
 	{
+	case mode_cw:
 	case mode_usb:
 		demod.suppressed_carrier = 1;
 		demod.mode = LIQUID_AMPMODEM_USB;

@@ -18,6 +18,7 @@ public:
 	double	get_volume() {return m_volume;}
 	void	set_volume(int vol)	{m_volume = exp(((double)vol * 6.908)/100.0) / 1000.0; } // log volume
 	unsigned int get_framesize() {return bufferFrames;}
+	int		queued_samples();
 	
 	operator bool() const
 	{

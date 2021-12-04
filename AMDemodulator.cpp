@@ -153,7 +153,21 @@ void AMDemodulator::mono_to_left_right(const SampleVector& samples_mono,
 
 static int agc_counter = 0;
 
-void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
+void AMDemodulator::adjust_resample_rate()
+{
+	// check if decimator need to be adjust according to audio samplerate
+	float r = (float)get_audio_sample_rate() / (float)ifrate; 
+	if (fabs(m_r - r) > 0.0001)
+	{
+		msresamp_crcf_destroy(m_q);
+		m_r = r; 
+		//printf("resample rate %f audio rate %f\n", (float)get_audio_sample_rate() / (float)ifrate, get_audio_sample_rate());
+		m_q = msresamp_crcf_create(m_r, 60.0);
+		msresamp_crcf_print(m_q);
+	}
+}
+
+void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
 {
 	unsigned int			num_written;
 	SampleVector			audio_tmp, audio_mono;
@@ -241,20 +255,10 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		}	
 	}
 	mono_to_left_right(audio_mono, audio);
+	audio_mono.clear();
 	buf_iffiltered.clear();
 	filter.clear();
 	buf_mix.clear();
-	
-	// check if decimator need to be adjust according to audio samplerate
-	float r = (float)get_audio_sample_rate() / (float)ifrate; 
-	if (fabs(m_r - r) > 0.0001)
-	{
-		msresamp_crcf_destroy(m_q);
-		m_r = r; 
-		//printf("resample rate %f audio rate %f\n", (float)get_audio_sample_rate() / (float)ifrate, get_audio_sample_rate());
-		m_q = msresamp_crcf_create(m_r, 60.0);
-		msresamp_crcf_print(m_q);
-	}
 }
 
 pthread_t		am_thread;
@@ -326,11 +330,18 @@ void* am_demod_thread(void* ptr)
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
-				audio_output->write(audioframes);		
+				if (audio_output->queued_samples() < (4 * audio_output->get_framesize()))
+					audio_output->write(audioframes);
+				else
+				{
+					printf("drop audio frames audio buffer size %d\n", audio_output->queued_samples());
+					audioframes.clear();
+				}
 			}
 		}
 		iqsamples.clear();
 		audiosamples.clear();
+		ammod.adjust_resample_rate();	
 	}
 	ammod.exit_demod();
 	pthread_exit(NULL); 

@@ -47,6 +47,7 @@ public:
 	void	adjust_gain(IQSampleVector& samples_in, float vol);
 	void	tune_offset(long offset);
 	void	exit_demod();
+	void	adjust_resample_rate();
 	
 	ampmodem	get_am_demod()
 	{

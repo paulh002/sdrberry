@@ -45,7 +45,7 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		sampleRate = 1000000.0 * double(totalSamples) / timePassed.count();
 		if (sampleRate < 38000.0 || sampleRate > 50000.0)
 			sampleRate = 48000.0;
-		//printf("Audio: \b%g sps\n", sampleRate);
+		printf("Audio: \b%g sps queued samples %d\n", sampleRate, audio_output->queued_samples());
 	}
 	return 0;
 }
@@ -125,7 +125,14 @@ bool AudioOutput::write(SampleVector& audiosamples)
 		//printf("queued audio vectors %d\n", databuffer->queued_samples());
 	}
 	audiosamples.clear();
-	if (databuffer->queued_samples() > 4096)
-		printf("audio buffer queued samples %u\n", databuffer->queued_samples());
+	//if (databuffer->queued_samples() > 4096)
+	//	printf("audio buffer queued samples %u\n", databuffer->queued_samples());
 	return true;
+}
+
+int	 AudioOutput::queued_samples()
+{
+	if (databuffer != nullptr)
+		return databuffer->queued_samples();
+	return 0;
 }

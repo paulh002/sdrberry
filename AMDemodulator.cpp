@@ -341,7 +341,7 @@ void* am_demod_thread(void* ptr)
 		}
 		iqsamples.clear();
 		audiosamples.clear();
-		ammod.adjust_resample_rate();	
+		//ammod.adjust_resample_rate();	
 	}
 	ammod.exit_demod();
 	pthread_exit(NULL); 

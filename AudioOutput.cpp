@@ -125,7 +125,7 @@ bool AudioOutput::write(SampleVector& audiosamples)
 		//printf("queued audio vectors %d\n", databuffer->queued_samples());
 	}
 	audiosamples.clear();
-	//if (databuffer->queued_samples() > 4096)
-	//	printf("audio buffer queued samples %u\n", databuffer->queued_samples());
+	if (databuffer->queued_samples() > 4096)
+		printf("audio buffer queued samples %u\n", databuffer->queued_samples());
 	return true;
 }

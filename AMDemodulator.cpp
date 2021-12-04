@@ -33,7 +33,7 @@ void	AMDemodulator::init(demod_struct * ptr)
 	msresamp_crcf_print(m_q);			
 	m_demod = ampmodem_create(mod_index, ptr->mode, ptr->suppressed_carrier);
 	tune_offset(vfo.get_vfo_offset());
-	m_lowpass = iirfilt_crcf_create_lowpass(m_order, 0.03125);
+	m_lowpass = iirfilt_crcf_create_lowpass(m_order, 0.052083);
 	m_init = true;
 	// create agc object
 	agc.set_bandwidth(0.01f);
@@ -89,35 +89,35 @@ void	AMDemodulator::set_filter(double if_rate, int band_width)
 	switch (band_width)
 	{
 	case 0:
-		// 500hz
-		factor = 0.00520833333333333;
+		// 500hz  fc/fsamplerate
+		factor = 0.010416667;
 		break;
 	case 1:
 		// 1Khz
-		factor = 0.010416667;
+		factor = 0.020833333333333315;
 		break;
 	case 2:
 		// 1.5 khz
-		factor = 0.015625;
+		factor = 0.03125;
 		break;
 	case 3:
 		// 2khz
-		factor = 0.0208333333333333;
+		factor = 0.0416666666666667;
 		break;
 	case 4:
 		// 2.5 khz
-		factor = 0.0260416666666667;
+		factor = 0.0520833333333333;
 		break;
 	case 5:
-		factor = 0.03125;
+		factor = 0.0625;
 		// 3 Khz
 		break;
 	case 6:
-		factor = 0.0364583333333333;
+		factor = 0.0729166666666667;
 		//  3.5Khz
 		break;
 	case 7:
-		factor = 0.0416666666666667;
+		factor = 0.0833333333333333;
 		//  4Khz
 		break;
 	}
@@ -251,10 +251,9 @@ void	AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	{
 		msresamp_crcf_destroy(m_q);
 		m_r = r; 
-		printf("resample rate %f audio rate %f\n", (float)get_audio_sample_rate() / (float)ifrate, get_audio_sample_rate());
+		//printf("resample rate %f audio rate %f\n", (float)get_audio_sample_rate() / (float)ifrate, get_audio_sample_rate());
 		m_q = msresamp_crcf_create(m_r, 60.0);
 		msresamp_crcf_print(m_q);
-		printf("\n");
 	}
 }
 

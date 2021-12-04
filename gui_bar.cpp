@@ -78,9 +78,9 @@ static void filter_slider_event_cb(lv_event_t * e)
 	if (code == LV_EVENT_VALUE_CHANGED) 
 	{
 		int sel = lv_dropdown_get_selected(obj);
-		select_filter(sel);
-	}
-	 
+		int bandwidth = select_filter(sel);
+		catinterface.SetSH(bandwidth);
+	}	 
 }
 
 void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
@@ -171,7 +171,9 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 			lv_obj_set_size(button[i], button_width + x_margin_dropdown, button_height);
 			lv_obj_add_style(button[i], &style_btn, 0);
 			lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-			lv_dropdown_set_selected(button[i], 6);
+			lv_dropdown_set_selected(button[i], 4);
+			int bandwidth = select_filter(4);
+			catinterface.SetSH(bandwidth);
 		}
 		
 		ibutton_x++;

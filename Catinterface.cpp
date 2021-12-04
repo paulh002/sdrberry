@@ -220,3 +220,8 @@ void Catinterface::SetAG(uint8_t volume)
 {
 	cat_message.SetAG(volume);
 }	
+
+void Catinterface::SetSH(int bandwidth)	
+{
+	cat_message.SetSH(0,bandwidth);
+}	

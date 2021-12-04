@@ -71,7 +71,7 @@ struct	status {
 	uint8_t			NA		 = 0;				// Narrow filter mode on or off
 	uint8_t			RM		 = 0;				// Meter reading
 	uint8_t			SH_STAT	 = 1;				// Adjustable filter width on
-	int32_t			SH_VALUE = 3500;			// Adjustable filter width value = 3,500
+	int32_t			SH_VALUE = 2500;			// Adjustable filter width value = 2,500
 	uint8_t			SM		 = 0;				// S-meter reading
 	uint8_t			ST		 = 0;				// Split mode off
 	uint8_t			TX		 = 0;				// Transmitter off

@@ -363,6 +363,6 @@ void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone ,DataBuffer<IQS
 	if (mod_data.tone == 0)
 		audio_input->open();
 	
-	create_tx_streaming_thread(&soapy_devices[0]);
+	TX_Stream::create_tx_streaming_thread(&soapy_devices[0]);
 	create_am_tx_thread(&mod_data);
 }

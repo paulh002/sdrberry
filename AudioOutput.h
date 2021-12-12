@@ -8,8 +8,8 @@ class AudioOutput :
     public RtAudio
 {
 public:
-	bool	init(std::string device, int pcmrate);
-	bool	open(DataBuffer<Sample>	*AudioBuffer);
+	bool	init(std::string device, int pcmrate, DataBuffer<Sample> *AudioBuffer);
+	bool	open();
 	bool	write(SampleVector& samples);
 	void	adjust_gain(SampleVector& samples);
 	void	close();

@@ -39,6 +39,7 @@ private:
 	int				ibuttons;
 	vector<int>		sample_rates;
 	lv_obj_t*		d_samplerate;
+	lv_obj_t*		d_receivers;
 };
 
 extern gui_rx	Gui_rx;

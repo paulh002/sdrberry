@@ -16,7 +16,8 @@ public:
 	void read_settings(string settings_file);
 	void init_settings(string settings_file);
 	void write_settings();
-	string get_mac_address() {return mac_address; };
+	string get_mac_address() {return mac_address; }
+	;
 	string find_audio(string key);
 	string find_radio(string key);
 	string find_probe(string key);
@@ -51,6 +52,7 @@ public:
 	vector<int>				command_rx;
 	vector<int>				command_tx;
 	vector<string>			mode;
+	vector <string>			receivers;
 	
 private:
 	

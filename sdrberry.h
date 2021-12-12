@@ -56,7 +56,6 @@ const int mode_rtty = 10;
 extern int		  mode;
 extern volatile int		filter;
 
-extern std::mutex	am_finish;
 extern std::mutex	am_tx_finish;
 extern std::mutex	fm_finish;
 extern std::mutex	stream_finish;
@@ -89,7 +88,7 @@ inline void samples_mean_rms(const SampleVector& samples,
     rms  = sqrt(vsumsq / n);
 }
 
-int  select_filter(int ifilter);
+void select_filter(int ifilter);
 void select_mode(int s_mode, bool bvfo = true);
 void select_mode_tx(int s_mode, int tone = 0);
 void stop_rxtx();

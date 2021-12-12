@@ -39,21 +39,33 @@ static void bar_button_handler(lv_event_t * e)
 					break;
 				case 1:
 				case 2:
+				case 3:
+				case 4:
+				case 5:
 					select_mode(bmode);
 					lv_obj_add_state(obj, LV_STATE_CHECKED);		
 					Gui_rx.set_gui_mode(bmode);
 					break;
-				case 3:
+				case 7:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						gagc.set_agc_mode(1);
 					else
 						gagc.set_agc_mode(0);						
 					break;
-				case 4:
+				case 6:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						vfo.set_active_vfo(1);
 					else
 						vfo.set_active_vfo(0);	
+					break;
+				case 8:
+					// Noise
+					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+					{
+					}
+					else
+					{
+					}
 					break;
 				}
 			}
@@ -72,6 +84,41 @@ static void vol_slider_event_cb(lv_event_t * e)
 	catinterface.SetAG(lv_slider_get_value(slider));
 }
 
+static void gain_slider_event_cb(lv_event_t * e)
+{
+	char buf[20];
+	
+	lv_obj_t * slider = lv_event_get_target(e);
+	sprintf(buf, "gain %ddb", lv_slider_get_value(slider));
+	lv_label_set_text(gbar.get_gain_slider_label(), buf);
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, soapy_devices[0].rx_channel, lv_slider_get_value(slider));
+	gagc.update_gain_slider(lv_slider_get_value(slider));
+}
+
+void gui_bar::update_gain_slider(int gain)
+{	
+	char buf[30];
+	
+	sprintf(buf, "gain %d db", gain);
+	lv_label_set_text(gain_slider_label, buf);		
+	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
+}
+
+void gui_bar::set_gain_slider(int gain)
+{
+	char buf[20];
+	
+	double max_gain = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	if (gain > max_gain)
+		gain = max_gain;
+	
+	sprintf(buf, "gain %ddb", gain);
+	lv_label_set_text(gain_slider_label, buf);		
+	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, (double)gain);
+	gagc.update_gain_slider(gain);
+}
+
 static void filter_slider_event_cb(lv_event_t * e)
 {
 	lv_obj_t * obj = lv_event_get_target(e);
@@ -80,28 +127,48 @@ static void filter_slider_event_cb(lv_event_t * e)
 	if (code == LV_EVENT_VALUE_CHANGED) 
 	{
 		int sel = lv_dropdown_get_selected(obj);
-		int bandwidth = select_filter(sel);
+		int bandwidth = gbar.get_ifilters(sel);
 		catinterface.SetSH(bandwidth);
+		select_filter(bandwidth);
 	}	 
 }
+
+void gui_bar::set_gain_range()
+{
+	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.minimum();
+	lv_slider_set_range(gain_slider, min_gain, max_gain);
+}
+
 
 void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 {
 	const lv_coord_t x_margin_dropdown  = 20;
 	const lv_coord_t x_margin  = 2;
 	const lv_coord_t y_margin  = 5;
-	const int x_number_buttons = 7;
+	const int x_number_buttons = 5;
 	const int y_number_buttons = 4;
+	const int max_rows = 2;
 	const lv_coord_t tab_margin  = w / 3;
 	
-	int button_width_margin = ((w - tab_margin) / x_number_buttons);
-	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	int button_height = h - y_margin - y_margin;
+	int button_width_margin = ((w - tab_margin) / (x_number_buttons +1));
+	int button_width = ((w - tab_margin) / (x_number_buttons+1)) - x_margin;
+	int button_height = h / max_rows - y_margin - y_margin;
 	int button_height_margin = button_height + y_margin;
 	int	ibutton_x = 0, ibutton_y = 0;
 	int i = 0;
 	
-	
+	ifilters.push_back(500);
+	ifilters.push_back(1000);
+	ifilters.push_back(1500);
+	ifilters.push_back(2000);
+	ifilters.push_back(2500);
+	ifilters.push_back(3000);
+	ifilters.push_back(3500);
+	ifilters.push_back(4000);
+	ifilters.push_back(4500);
+	ifilters.push_back(5000);
+
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -138,9 +205,11 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], NULL);
 				strcpy(str, "TX");
+				if (soapy_devices[0].tx_channels == 0)
+					lv_obj_add_flag(button[i], LV_OBJ_FLAG_HIDDEN);
 				break;
 			case 1:
-				strcpy(str, "Usb");
+				strcpy(str, "USB");
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)mode_usb);
 				if (mode == mode_usb)
@@ -155,12 +224,38 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 				break;
 			case 3:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				strcpy(str, "AGC");
+				lv_obj_set_user_data(button[i], (void *)mode_am);
+				strcpy(str, "AM");
+				if (mode == mode_am)
+					lv_obj_add_state(button[i], LV_STATE_CHECKED);
 				break;
 			case 4:
+				strcpy(str, "FM");
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[i], (void *)mode_narrowband_fm);
+				if (mode == mode_narrowband_fm)
+					lv_obj_add_state(button[i], LV_STATE_CHECKED);
+				break;
+			case 5:
+				strcpy(str, "bFM");
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[i], (void *)mode_broadband_fm);
+				if (mode == mode_broadband_fm)
+					lv_obj_add_state(button[i], LV_STATE_CHECKED);
+				break;
+			case 6:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "VFO2");
 				break;
+			case 7:
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				strcpy(str, "AGC");
+				break;
+			case 8:
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				strcpy(str, "Noise");
+				break;
+
 			}
 			lv_label_set_text(lv_label, str);
 			lv_obj_center(lv_label);
@@ -174,7 +269,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 			lv_obj_add_style(button[i], &style_btn, 0);
 			lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 			lv_dropdown_set_selected(button[i], 4);
-			int bandwidth = select_filter(4);
+			int bandwidth = ifilters[4];
 			catinterface.SetSH(bandwidth);
 		}
 		
@@ -186,7 +281,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 		}
 	}
 	
-	int vol_x = ibutton_x * button_width_margin + 20 + x_margin_dropdown;
+	int vol_x = x_number_buttons * button_width_margin + 10 + x_margin_dropdown;
 	int vol_width = (w / 3) - 20;
 	vol_slider_label = lv_label_create(o_parent);
 	lv_label_set_text(vol_slider_label, "vol");
@@ -196,6 +291,16 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_obj_set_width(vol_slider, vol_width); 
 	lv_obj_align(vol_slider, LV_ALIGN_TOP_LEFT, vol_x , 15);
 	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_PRESSING, NULL);
+	
+	int gain_y = 15 + y_margin + button_height_margin;
+	gain_slider_label = lv_label_create(o_parent);
+	lv_label_set_text(gain_slider_label, "gain");
+	lv_obj_align(gain_slider_label, LV_ALIGN_TOP_LEFT, vol_x + vol_width + 5, gain_y);
+	gain_slider = lv_slider_create(o_parent);
+	lv_slider_set_range(gain_slider, 0, 100);
+	lv_obj_set_width(gain_slider, vol_width); 
+	lv_obj_align(gain_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
+	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_PRESSING, NULL);
 }
 
 void gui_bar::set_mode(int mode)
@@ -254,10 +359,32 @@ void gui_bar::get_filter_range(vector<string> &filters)
 	filters.push_back("4 Khz");
 }
 
-void gui_bar::set_filter_slider(int filter)
+
+
+void gui_bar::set_filter_slider(int ifilter)
 {
+	int filter = 6;
+	
+	if (ifilter >= 500 && ifilter  < 1000)
+		filter = 0;
+	if (ifilter >= 1000 && ifilter  < 1500)
+		filter = 1;
+	if (ifilter >= 1500 && ifilter  < 2000)
+		filter = 2;
+	if (ifilter >= 2000 && ifilter  < 2500)
+		filter = 3;
+	if (ifilter >= 2500 && ifilter  < 3000)
+		filter = 4;
+	if (ifilter >= 3000 && ifilter  < 3500)
+		filter = 5;
+	if (ifilter >= 3500 && ifilter  < 4000)
+		filter = 6;
+	if (ifilter >= 4000)
+		filter = 7;
+	
 	if (filter < 0 || filter > 7) 
 		filter = 6;
+	
 	lv_dropdown_set_selected(button[number_of_buttons-1], filter);
-	select_filter(filter);
+	select_filter(ifilters[filter]);
 }

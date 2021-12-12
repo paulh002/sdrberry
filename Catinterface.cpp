@@ -187,7 +187,7 @@ void	Catinterface::checkCAT()
 			}
 		}
 		count = cat_message.GetSH();
-		gbar.set_filter_slider(select_filter(count));	
+		gbar.set_filter_slider(count);	
 		count = cat_message.GetBand();
 		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
 		{

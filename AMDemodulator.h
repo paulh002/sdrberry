@@ -7,74 +7,25 @@
 #include <vector>
 #include "DataBuffer.h"
 #include "AudioOutput.h"
-#include "Agc_class.h"
+#include "Demodulator.h"
 
-/*
-type = LIQUID_AMPMODEM_DSB;
-type = LIQUID_AMPMODEM_USB;
-type = LIQUID_AMPMODEM_LSB;
-*/
-	
-
-struct	demod_struct
-{
-	double					ifrate;
-	double					tuner_offset;
-	liquid_ampmodem_type	mode;
-	int						suppressed_carrier;
-	int						pcmrate;
-	double					bandwidth_pcm;
-	unsigned int			downsample;
-	DataBuffer<IQSample>	*source_buffer;
-	AudioOutput				*audio_output;
-	bool					stereo;
-};
-	
-
-class AMDemodulator
+class AMDemodulator : public Demodulator
 {
 public:
-	void	init(demod_struct * ptr);
-	void	set_filter(double if_rate, int band_width);
-	double	get_if_level()
-	{
-		return m_if_level;
-	}
-	void	calc_if_level(const IQSampleVector& samples_in);
-	void	process(const IQSampleVector& samples_in, SampleVector& audio);
+	static bool		create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	static void		destroy_demodulator();
+	static std::string getName() { return "AMDemodulator";}
+	
+	AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~AMDemodulator();
-	void	mono_to_left_right(const SampleVector& samples_mono, SampleVector& audio);
-	void	adjust_gain(IQSampleVector& samples_in, float vol);
-	void	tune_offset(long offset);
-	void	exit_demod();
-	void	adjust_resample_rate();
+	void	process(const IQSampleVector&	samples_in, SampleVector& audio) override;
+	void	operator()() override;
 	
-	ampmodem	get_am_demod()
-	{
-		return m_demod;
-	}
-	
-	DataBuffer<IQSample>        *m_source_buffer = NULL;	
-	double                      m_audio_mean, m_audio_rms, m_audio_level;
-
-private:	
-	bool						m_init = false;
-	ampmodem					m_demod {0};
-	msresamp_crcf 				m_q {0};
-	iirfilt_crcf				m_lowpass {0};
-	double						m_if_level {0};
-	mutex						m_mutex; // used to lock the process for changing filters
-	condition_variable			m_cond;
-	int							m_order {6};
-	float						m_r;
-	long						m_offset;
-	nco_crcf					m_upnco {nullptr};
-	Agc_class					agc;
-	int							m_iagc = 0;
-	float						alpha {0.1};
-	float						accuf {0};
+private:
+	ampmodem		m_demod {nullptr};
+	float			m_bandwidth;
+	Agc_class		agc;
+	int				m_iagc = 0;
 };
 
-
-int	create_am_thread(demod_struct *demod);
-void start_dsb(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+extern shared_ptr<AMDemodulator> sp_amdemod;

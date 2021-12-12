@@ -1,6 +1,7 @@
 #include "vfo.h"
 #include "Catinterface.h"
 #include "BandFilter.h"
+#include "sdrstream.h"
 
 extern mutex	gui_mutex;
 CVfo	vfo;
@@ -21,17 +22,18 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 	bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 
-void CVfo::vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r)
+void CVfo::vfo_init(long ifrate, long pcmrate, struct device_structure *dev)
 {
 	
 	string s = Settings_file.find_vfo1("freq");
 	long long freq = strtoll((const char *)s.c_str(), NULL, 0);
-	
+	sdr_dev = dev;
 	string ham = Settings_file.find_radio("band");
 	if (ham != "all")
 		vfo.limit_ham_band = true;
 	else
 		vfo.limit_ham_band = false;
+	SoapySDR::RangeList r = sdr_dev->channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range;
 	vfo_setting.vfo_low = r.front().minimum();
 	vfo_setting.vfo_high = r.front().maximum();
 	auto it_band = Settings_file.meters.begin();
@@ -82,12 +84,41 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r)
 	get_band(0);
 	get_band(1);
 	gui_band_instance.set_gui(vfo_setting.band[vfo_setting.active_vfo]);
-	stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
-	stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
+	rx_set_sdr_freq();
+	tx_set_sdr_freq();	
 	bpf.SetBand(vfo_setting.band[0], vfo_setting.rx);
 	gui_vfo_inst.set_vfo_gui(0, freq);
 	gui_vfo_inst.set_vfo_gui(1, freq);
 	catinterface.SetBand(get_band_in_meters());
+}
+
+void CVfo::set_freq_to_sdr()
+{
+	rx_set_sdr_freq();
+	tx_set_sdr_freq();
+}
+
+
+void	CVfo::rx_set_sdr_freq()
+{
+	if (sdr_dev != nullptr) 
+	{
+		if (sdr_dev->sdr != nullptr) 
+			sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+	}
+}
+
+void	CVfo::tx_set_sdr_freq()
+{
+	if (sdr_dev != nullptr) 
+	{
+		if (sdr_dev->sdr != NULL)
+		{
+			sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
+			sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate); 
+			sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[0].gain);
+		}
+	}
 }
 
 void CVfo::vfo_re_init(long ifrate, long pcmrate)
@@ -139,7 +170,7 @@ int CVfo::set_vfo(long long freq, bool lock)
 	vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
 	if (((abs(ifrate - ifrate_tx) > 0.1) || (abs(ifrate_tx - (double)vfo_setting.pcmrate) < 0.1)) && vfo_setting.tx)
 	{  // incase of different ifrates for tx don't use offset or incase tx samplerate is equal to pcmrate
-		stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq[vfo_setting.active_vfo]);
+		tx_set_sdr_freq();
 	}
 	else
 	{
@@ -149,8 +180,8 @@ int CVfo::set_vfo(long long freq, bool lock)
 			vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;  						// initialize the frequency to user default
 			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] = freq - ifrate / 4;  		// position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];  					// 
-			if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
-			if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+			if (vfo_setting.rx) rx_set_sdr_freq();
+			if (vfo_setting.tx) tx_set_sdr_freq(); 
 			tune_flag = true;
 		}
 		else if (freq > vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo])
@@ -162,8 +193,8 @@ int CVfo::set_vfo(long long freq, bool lock)
 				// set a new center frequency
 				vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] += vfo_setting.m_max_offset / 2;										// increase sdr with 1/4 sample frequency
 				vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]; 					// 
-				if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
-				if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+				if (vfo_setting.rx) rx_set_sdr_freq();
+				if (vfo_setting.tx) tx_set_sdr_freq(); 
 				tune_flag = true;																										// inform modulator of offset change
 				//printf("set sdr frequency %lld %lld %lld\n", vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] + vfo_setting.m_offset[vfo_setting.active_vfo], freq);
 			}
@@ -180,8 +211,8 @@ int CVfo::set_vfo(long long freq, bool lock)
 			// frequency decrease		
 			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] -= vfo_setting.m_max_offset / 2;										// decrease sdr with 1/4 sample frequency
 			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]; 					// offset is freq - sdr frequency
-			if (vfo_setting.rx) stream_rx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
-			if (vfo_setting.tx) stream_tx_set_frequency(vfo_setting.sdr_dev, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+			if (vfo_setting.rx) rx_set_sdr_freq();
+			if (vfo_setting.tx) tx_set_sdr_freq(); 
 			tune_flag = true;
 			//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 		}

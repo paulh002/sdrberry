@@ -49,7 +49,7 @@
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
-      <CPPLanguageStandard />
+      <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
       <DumpStackUsage>
       </DumpStackUsage>
@@ -68,7 +68,7 @@
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
-      <CPPLanguageStandard />
+      <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
     </ClCompile>
     <Link>
@@ -90,9 +90,11 @@
     <ClCompile Include="Catinterface.cpp" />
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
+    <ClCompile Include="Demodulator.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
+    <ClCompile Include="FMDemodulator.cpp" />
     <ClCompile Include="FreeSans42.c" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -275,9 +277,11 @@
     <ClInclude Include="configfile.h" />
     <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
+    <ClInclude Include="Demodulator.h" />
     <ClInclude Include="devices.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
+    <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />

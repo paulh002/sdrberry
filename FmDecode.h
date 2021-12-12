@@ -5,6 +5,18 @@
 #include "Filter.h"
 #include "DataBuffer.h"
 
+struct	demod_struct
+{
+	double					ifrate;
+	double					tuner_offset;
+	int						suppressed_carrier;
+	int						pcmrate;
+	double					bandwidth_pcm;
+	unsigned int			downsample;
+	DataBuffer<IQSample>	*source_buffer;
+	AudioOutput				*audio_output;
+	bool					stereo;
+};
 
 /* Detect frequency by phase discrimination between successive samples. */
 class PhaseDiscriminator

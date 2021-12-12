@@ -22,6 +22,8 @@ public:
 	void	set_gain_range(int min, int max);
 	void	set_gain_slider(int gain);
 	void	get_gain_range(int &max_gain, int &min_gain);
+	void	update_gain_slider(int gain);
+	
 	lv_obj_t *get_gain_slider_label() {return gain_slider_label;}
 	
 	int getbuttons()

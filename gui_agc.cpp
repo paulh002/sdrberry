@@ -58,6 +58,7 @@ static void gain_slider_event_cb(lv_event_t * e)
 	sprintf(buf, "gain %d db", lv_slider_get_value(slider));
 	lv_label_set_text(gagc.get_gain_slider_label(), buf);
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, soapy_devices[0].rx_channel, lv_slider_get_value(slider));
+	gbar.update_gain_slider(lv_slider_get_value(slider));
 }
 
 void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
@@ -243,6 +244,14 @@ void Gui_agc::set_gain_range()
 	lv_slider_set_range(gain_slider, min_gain, max_gain);
 }
 
+void Gui_agc::update_gain_slider(int gain)
+{	
+	char buf[20];
+	sprintf(buf, "gain %d db", gain);
+	lv_label_set_text(gain_slider_label, buf);		
+	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
+}
+
 void Gui_agc::set_gain_slider(int gain)
 {
 	char buf[20];
@@ -255,6 +264,7 @@ void Gui_agc::set_gain_slider(int gain)
 	lv_label_set_text(gain_slider_label, buf);		
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, (double)gain);
+	gbar.update_gain_slider(gain);
 }
 
 void Gui_agc::get_gain_range(int &max_gain, int &min_gain)

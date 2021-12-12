@@ -48,7 +48,7 @@ std::string toString(const std::vector<double> &nums, const double scale)
 {
     std::stringstream ss;
 
-    if (nums.size() > 3)
+    if (nums.size() > 5)
     {
         ss << "[" << (nums.front()/scale) << ", " << (nums.back()/scale) << "]";
         return ss.str();
@@ -265,14 +265,19 @@ static std::string probeChannel(SoapySDR::Device *device, struct channel_structu
 
 	//rates
 	rl = device->getSampleRateRange(dir, chan);
-    ss << "  Sample rates: " << toString(rl, 1e6) << " MSps" << std::endl;
+    ss << "  Sample rates range: " << toString(rl, 1e6) << " MSps" << std::endl;
 	channel->sample_range = rl;
 
+	//rates
+	const auto rates = device->listSampleRates(dir, chan);
+	if (not rates.empty()) ss << "  Sample rates: " << toString(rates, 1e6) << " MSps" << std::endl;
+	channel->sample_rates = rates;
+	
     //bandwidths
     const auto bws = device->getBandwidthRange(dir, chan);
     if (not bws.empty()) ss << "  Filter bandwidths: " << toString(bws, 1e6) << " MHz" << std::endl;
 	channel->bandwidth_range = bws;
-			
+	
     //sensors
     std::string sensors = toString(device->listSensors(dir, chan));
     if (not sensors.empty()) ss << "  Sensors: " << sensors << std::endl;

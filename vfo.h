@@ -54,10 +54,11 @@ class CVfo
 public:
 	CVfo();
 	
-	void vfo_init(long ifrate, long pcmrate, SoapySDR::RangeList r);
+	void vfo_init(long ifrate, long pcmrate, struct device_structure *dev);
 	void vfo_re_init(long ifrate, long pcmrate);
 	void set_vfo_capability(struct device_structure *sdr_dev);
 	int	 set_vfo(long long freq, bool lock);
+	void set_freq_to_sdr();
 	void step_vfo(long icount, bool lock);
 	long get_active_vfo_freq();
 	std::string get_vfo_str();
@@ -87,16 +88,20 @@ public:
 	long long get_tx_frequency();
 	long	get_vfo_offset();
 	void	return_bands(vector<int> &bands);
+		
 	std::atomic_bool tune_flag {false};
 	bool	limit_ham_band;
 	
 private:
 	struct vfo_settings_struct	vfo_setting;
-	int		m_delay_counter = 0;
-	int		m_delay;
-	std::mutex	m_vfo_mutex;
-	
-	int		get_band(int active_vfo);
+	struct device_structure		*sdr_dev;
+	int							m_delay_counter = 0;
+	int							m_delay;
+	std::mutex					m_vfo_mutex;
+
+	int							get_band(int active_vfo);
+	void						rx_set_sdr_freq();
+	void						tx_set_sdr_freq();
 };
 
 extern CVfo	vfo;			

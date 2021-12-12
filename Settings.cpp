@@ -168,6 +168,12 @@ void Settings::read_settings(string settings_file)
 			command_tx.push_back(col.toInt());
 	}
 	
+	config->useSection("SDR Receivers");
+	for (auto& col : (*config)("receivers"))
+	{
+		if (col.toString().length() > 0L)
+			receivers.push_back(col.toString());
+	}	
 }
 
 

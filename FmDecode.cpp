@@ -450,6 +450,9 @@ pthread_t fm_thread;
 
 void* rx_fm_thread(void* fm_ptr)
 {
+	const auto startTime = std::chrono::high_resolution_clock::now();
+	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	
 	unsigned int            block = 0, fft_block = 0;
 	bool                    inbuf_length_warning = false;
 	SampleVector            audioframes, audiosamples;
@@ -526,6 +529,13 @@ void* rx_fm_thread(void* fm_ptr)
 			{
 				audio_output->write(audioframes);		
 			}	
+		}
+		const auto now = std::chrono::high_resolution_clock::now();
+		if (timeLastPrint + std::chrono::seconds(1) < now)
+		{
+			timeLastPrint = now;
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
+			printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d\n", get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0), audio_output->queued_samples() / 2);
 		}
 		iqsamples.clear();
 		audiosamples.clear();

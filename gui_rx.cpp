@@ -5,7 +5,8 @@ const int number_of_buttons {8};
 
 static void rx_button_handler(lv_event_t * e);
 static void samplerate_button_handler(lv_event_t * e);
-	
+static void receivers_button_handler(lv_event_t * e);
+
 void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 {
 
@@ -114,6 +115,22 @@ void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_samplerate);
 	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
+
+	d_receivers = lv_dropdown_create(o_tab);
+	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_dropdown_clear_options(d_receivers);
+	lv_obj_add_event_cb(d_receivers, receivers_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
+	std::string def = Settings_file.find_sdr("default");
+	int i = 0;
+	for (auto& col : Settings_file.receivers)
+	{
+		lv_dropdown_add_option(d_receivers, col.c_str(), LV_DROPDOWN_POS_LAST);
+		if (col == def)
+		{
+			lv_dropdown_set_selected(d_receivers, i);
+		}
+	}
+	
 }
 
 int gui_rx::get_sample_rate(int rate)
@@ -137,6 +154,17 @@ static void samplerate_button_handler(lv_event_t * e)
 		stop_rxtx();
 		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		select_mode(mode);
+	}
+}
+
+static void receivers_button_handler(lv_event_t * e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e); 
+	if (code == LV_EVENT_VALUE_CHANGED) 
+	{
+		int selection = lv_dropdown_get_selected(obj);
+		
 	}
 }
 

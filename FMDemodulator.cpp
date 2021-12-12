@@ -1,114 +1,126 @@
-#include <cmath>
-#include <iostream>
-#include <csignal>
-#include <complex>
+#include "sdrberry.h"
 #include "FMDemodulator.h"
-#include <liquid.h>
-#include "sdrstream.h"
-#include <time.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h> 
+#include <thread>
 
-FMDemodulator	fm_demod;
+FMDemodulator::FMDemodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
+{
+	m_bandwidth = 12500; // Narrowband FM
+	Demodulator::set_reample_rate(pcmrate / ifrate); // down sample to pcmrate
+	Demodulator::set_filter(pcmrate, m_bandwidth);
+	demodFM = freqdem_create(0.5);
+}
+	
+void FMDemodulator::operator()()
+{	
+	const auto startTime = std::chrono::high_resolution_clock::now();
+	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	
+	int						ifilter {-1};
+	SampleVector            audiosamples, audioframes;
+	
+	Fft_calc.plan_fft(nfft_samples); //
+	while (!stop_flag.load())
+	{
+		if (vfo.tune_flag.load())
+		{
+			vfo.tune_flag = false;
+			tune_offset(vfo.get_vfo_offset());
+		}
+		
+		if (m_source_buffer->queued_samples() == 0)
+		{
+			usleep(5000);
+			continue;
+		}
+		
+		IQSampleVector iqsamples = m_source_buffer->pull();	
+		if (iqsamples.empty())
+		{
+			usleep(5000);
+			continue;
+		}	
+		Fft_calc.process_samples(iqsamples);
+		Fft_calc.set_signal_strength(get_if_level());
+		
+		process(iqsamples, audiosamples);
+		
+		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
+		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
 
-using namespace std;
-const int	CBUFFSIZE = 1024;
+		// Set nominal audio volume.
+		audio_output->adjust_gain(audiosamples);
+		for (auto& col : audiosamples)
+		{
+			// split the stream in blocks of samples of the size framesize 
+			audioframes.insert(audioframes.end(), col);
+			if (audioframes.size() == (2 * audio_output->get_framesize()))
+			{
+				audio_output->write(audioframes);
+			}
+		}
+		iqsamples.clear();
+		audiosamples.clear();
+		const auto now = std::chrono::high_resolution_clock::now();
+		if (timeLastPrint + std::chrono::seconds(10) < now)
+		{
+			timeLastPrint = now;
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
+			printf("RX Samplerate \b%g Audio Sample Rate Msps\t%g MBps \n", get_rxsamplerate(), (float)get_audio_sample_rate());
+		}
+	}
+}
 
-complex<float>  fm_buff[CBUFFSIZE];
-complex<float>  fm_resample_buff[CBUFFSIZE];
-float			audio_resample_buff[CBUFFSIZE];
+void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
+{
+	IQSampleVector		filter1, filter2;
+	SampleVector		audio_mono;
+		
+	// mix to correct frequency
+	mix_down(samples_in, filter1);
+	Resample(filter1, filter2);
+	filter1.clear();
+	filter(filter2, filter1);
+	filter2.clear();
+	calc_if_level(filter1);
+	for (auto col : filter1)
+	{
+		float v;
+		
+		freqdem_demodulate(demodFM, col, &v);
+		audio_mono.push_back(v);
+	}	
+	filter1.clear();
+	mono_to_left_right(audio_mono, audio);
+	audio_mono.clear();
+}
 
 FMDemodulator::~FMDemodulator()
 {
-	if (resampler !=NULL)
-		msresamp_crcf_destroy(resampler);
-	if (filter != NULL)
-		iirfilt_crcf_destroy(filter);
-}
-
-
-void FMDemodulator::init(float iInSampleRate, float iOutSampleRate)
-{
-	InSampleRate  = (float)iInSampleRate;
-	OutSampleRate = (float)iOutSampleRate;
-	
-
-	filter = iirfilt_crcf_create_prototype(ftype, btype,format,order,fc,f0,Ap,As);	
-	iirfilt_crcf_print(filter);
-	
-	InSampleRate  = (float)iInSampleRate;
-	float r =  iOutSampleRate / iInSampleRate;
-	float As = 60.0f; 
-	resampler = msresamp_crcf_create(r, As);
-	msresamp_crcf_print(resampler);
-	
-	float kf = 0.1f;
-	fdem = freqdem_create(kf);
-	
-	audio_filter = iirfilt_crcf_create_prototype(ftype, btype, format, order, 0.34013, 0.0, Ap, As);	
-	iirfilt_crcf_print(audio_filter); 
-	
-}
-
-
-
-void FMDemodulator::run(complex<float> *buf)
-{
-	for (int i = 0; i < CBUFFSIZE; i++) {
-		// run filter
-		iirfilt_crcf_execute(filter, buf[i], &fm_buff[i]);
-	}
-	
-	unsigned int num_written; 
-	
-	
-	msresamp_crcf_execute(resampler, fm_buff, CBUFFSIZE, fm_resample_buff, &num_written);
-	
-	/*
-	for (int i = 0; i < CBUFFSIZE; i++) {
-		// run filter
-		freqdem_demodulate(fdem, fm_resample_buff[i], &audio_resample_buff[i]);
-	}
-	
-	complex<float> a, b;
-	for (int i = 0; i < CBUFFSIZE; i++) {
-		// run filter
-		
-		a.real(audio_resample_buff[i]);
-		a.imag(0.0) ;
-		iirfilt_crcf_execute(audio_filter, a, &b);
-		audio_resample_buff[i] = b.real();
-	}
-	*/
-}
-
-pthread_t	fm_threads[2];
-
-void* rx_fmdemodulator_thread(void* psdr_dev)
-{
-	int ii = 0;
-	
-	while (1)
+	if (demodFM != nullptr)
 	{
-		//sem_wait(&rx_buffer_mutex1);
-		if (ii == 0)
-		{
-			//fm_demod.run(rx_buff1);
-			ii = 1;
-		}
-		else
-		{
-			//fm_demod.run(rx_buff2);				
-			ii = 0;
-		}
+		freqdem_destroy(demodFM);
+		demodFM = nullptr;		
 	}
 }
 
-void create_rx_fm_thread(float iInSampleRate, float iOutSampleRate)
+static	std::thread				fmdemod_thread;
+shared_ptr<FMDemodulator>		sp_fmdemod;
+
+bool FMDemodulator::create_demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+{	
+	if (sp_fmdemod != nullptr)
+		return false;
+	sp_fmdemod = make_shared<FMDemodulator>(ifrate, pcmrate, source_buffer, audio_output);
+	fmdemod_thread = std::thread(&FMDemodulator::operator(), sp_fmdemod);
+	return true;
+}
+
+void FMDemodulator::destroy_demodulator()
 {
-	fm_demod.init(iInSampleRate, iOutSampleRate);
-	//int rc = pthread_create(&fm_threads[0], NULL, rx_fmdemodulator_thread, NULL);
+	if (sp_fmdemod == nullptr)
+		return;
+	stop_flag = true; 
+	fmdemod_thread.join();
+	sp_fmdemod.reset();
 }

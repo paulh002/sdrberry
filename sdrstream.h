@@ -9,12 +9,34 @@
 #include "DataBuffer.h"
 #include "sdrberry.h"
 
-#define NUM_THREADS	4
-#define RX_THREAD	0
+extern double get_rxsamplerate();
 
-extern mutex stream_write;
+class RX_Stream
+{
+public:	
+	RX_Stream(struct device_structure *dev);
+	static  bool	create_rx_streaming_thread(struct device_structure *dev);
+	static	void	destroy_rx_streaming_thread();
+	void	operator()();
 
-int create_rx_streaming_thread(struct device_structure *sdr_dev);
-void stream_rx_set_frequency(struct device_structure *sdr_dev, unsigned long freq);
-int create_tx_streaming_thread(struct device_structure *sdr_dev);
-void stream_tx_set_frequency(struct device_structure *sdr_dev, unsigned long freq);
+private:
+	struct device_structure *sdr_dev;	
+};
+
+extern std::thread					rx_thread;
+extern shared_ptr<RX_Stream>		ptr_rx_stream;
+
+class TX_Stream
+{
+public:
+	TX_Stream(struct device_structure *dev);
+	static  bool	create_tx_streaming_thread(struct device_structure *dev);
+	static	void	destroy_tx_streaming_thread();
+	void	operator()();
+
+private:
+	struct device_structure *sdr_dev;	
+};
+
+extern std::thread					tx_thread;
+extern shared_ptr<TX_Stream>		ptr_tx_stream;

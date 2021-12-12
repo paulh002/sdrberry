@@ -24,24 +24,30 @@
 
 using namespace std;
 
-mutex stream_write;
+double	rx_sampleRate = 0;
 
-void* rx_streaming_thread(void* psdr_dev)
+double get_rxsamplerate()
 {
-	int						default_block_length;
-	SoapySDR::Stream		*rx_stream;
-	
-	unique_lock<mutex> lock_stream(stream_finish); 
+	return rx_sampleRate;
+}
+
+std::thread					rx_thread;
+std::thread					tx_thread;
+shared_ptr<RX_Stream>		ptr_rx_stream;
+shared_ptr<TX_Stream>		ptr_tx_stream;
+
+void RX_Stream::operator()()
+{
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastSpin = std::chrono::high_resolution_clock::now();
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
 	
-	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
-	int ret;
+	int						default_block_length;
+	SoapySDR::Stream		*rx_stream;
+	int						ret;
 
-	
 	default_block_length = 1024;
 	if ((ifrate < 192001) && (ifrate > 48000))
 		default_block_length = 2048;
@@ -49,21 +55,15 @@ void* rx_streaming_thread(void* psdr_dev)
 		default_block_length = 4096;
 	if (ifrate > 384001)
 		default_block_length = 32768;
-	
+	rx_sampleRate = ifrate / 1000000.0;
 	printf("default block length is set to %d\n", default_block_length);
-	try 
-	{
-		rx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << e.what();
-		pthread_exit(NULL);
-	}
+	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+	rx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
 	if (rx_stream == NULL)
 	{
 		fprintf(stderr, "Failed create receive stream\n");
-		pthread_exit(NULL);
+		stop_flag = true;
+		return;
 	}
 	
 	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
@@ -84,7 +84,8 @@ void* rx_streaming_thread(void* psdr_dev)
 		{
 			std::cout << e.what();
 			printf("Error readStream exception\n");
-			pthread_exit(NULL);
+			stop_flag = true;
+			continue;
 		}
 		if (ret == SOAPY_SDR_TIMEOUT) continue;
 		if (ret == SOAPY_SDR_OVERFLOW)
@@ -100,7 +101,8 @@ void* rx_streaming_thread(void* psdr_dev)
 		if (ret < 0)
 		{
 			printf("Error readStream\n");
-			pthread_exit(NULL);			
+			stop_flag = true;
+			continue;		
 		}
 		if (ret > 0)
 		{
@@ -123,58 +125,48 @@ void* rx_streaming_thread(void* psdr_dev)
 				else break;
 			}
 		}
-		if (timeLastPrint + std::chrono::seconds(10) < now)
-		{
-			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			const auto sampleRate = double(totalSamples) / timePassed.count();
-			printf("\b%g Msps\t%g MBps", sampleRate, sampleRate*1*sizeof(complex<float>));
-			if (overflows != 0) printf("\tOverflows %u", overflows);
-			if (underflows != 0) printf("\tUnderflows %u", underflows);
-			printf("\n ");
-		}
+		timeLastPrint = now;
+		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+		const auto sampleRate = double(totalSamples) / timePassed.count();
+		rx_sampleRate = sampleRate;
 	}
 	sdr_dev->channel_structure_rx[0].source_buffer_rx->push_end();
 	sdr_dev->sdr->deactivateStream(rx_stream);
 	sdr_dev->sdr->closeStream(rx_stream);
-	pthread_exit(NULL);
 }
 
-int create_rx_streaming_thread(struct device_structure *sdr_dev)
+RX_Stream::RX_Stream(struct device_structure *dev)
 {
-	return pthread_create(&sdr_dev->channel_structure_rx[0].thread, NULL, rx_streaming_thread, (void *)sdr_dev);
+	sdr_dev = dev;
 }
 
-void stream_rx_set_frequency(struct device_structure *sdr_dev,unsigned long freq)
-{
-	if (sdr_dev->sdr != NULL)
-	{
-		sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, freq);		
-	}
+bool RX_Stream::create_rx_streaming_thread(struct device_structure *dev)
+{	
+	if (ptr_rx_stream != nullptr)
+		return false;
+	ptr_rx_stream = make_shared<RX_Stream>(dev);
+	rx_thread = std::thread(&RX_Stream::operator(), ptr_rx_stream);
+	return true;
 }
 
-void stream_tx_set_frequency(struct device_structure *sdr_dev, unsigned long freq)
+void RX_Stream::destroy_rx_streaming_thread()
 {
-	if (sdr_dev->sdr != NULL)
-	{
-		sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, freq);	
-		sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate); 
-		sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[0].gain);
-	}
+	if (ptr_rx_stream == nullptr)
+		return;
+	stop_flag = true;
+	rx_thread.join();
+	ptr_rx_stream.reset();
 }
-
-void* tx_streaming_thread(void* psdr_dev)
-{
-	SoapySDR::Stream		*tx_stream;
 	
-	unique_lock<mutex> lock_stream(stream_finish); 
+void TX_Stream::operator()()
+{
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastSpin = std::chrono::high_resolution_clock::now();
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
 	
-	struct device_structure *sdr_dev = (struct device_structure *)psdr_dev;
+	SoapySDR::Stream		*tx_stream;
 	int ret;
 
 	try 
@@ -184,12 +176,12 @@ void* tx_streaming_thread(void* psdr_dev)
 	catch (const std::exception& e)
 	{
 		std::cout << e.what();
-		pthread_exit(NULL);
+		return;
 	}
 	if (tx_stream == NULL)
 	{
 		fprintf(stderr, "Failed create receive stream\n");
-		pthread_exit(NULL);
+		return;
 	}
 
 	sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
@@ -205,7 +197,6 @@ void* tx_streaming_thread(void* psdr_dev)
 		long long					time_ns(0);
 		int							samples_transmit;
 		
-		unique_lock<mutex> lock_stream_write(stream_write);
 		IQSampleVector16 iqsamples = sdr_dev->channel_structure_tx[0].source_buffer_tx->pull();
 		if (iqsamples.empty())
 		{
@@ -253,7 +244,7 @@ void* tx_streaming_thread(void* psdr_dev)
 			sdr_dev->sdr->deactivateStream(tx_stream);
 			sdr_dev->sdr->closeStream(tx_stream);
 			iqsamples.clear();
-			pthread_exit(NULL);			
+			return;			
 		}
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastPrint + std::chrono::seconds(5) < now)
@@ -272,10 +263,27 @@ void* tx_streaming_thread(void* psdr_dev)
 	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
 	sdr_dev->sdr->deactivateStream(tx_stream);
 	sdr_dev->sdr->closeStream(tx_stream);
-	pthread_exit(NULL);
 }
 
-int create_tx_streaming_thread(struct device_structure *sdr_dev)
+TX_Stream::TX_Stream(struct device_structure *dev)
 {
-	return pthread_create(&sdr_dev->channel_structure_tx[0].thread, NULL, tx_streaming_thread, (void *)sdr_dev);
+	sdr_dev = dev;
+}
+
+bool TX_Stream::create_tx_streaming_thread(struct device_structure *dev)
+{	
+	if (ptr_tx_stream != nullptr)
+		return false;
+	ptr_tx_stream = make_shared<TX_Stream>(dev);
+	tx_thread = std::thread(&TX_Stream::operator(), ptr_tx_stream);
+	return true;
+}
+
+void TX_Stream::destroy_tx_streaming_thread()
+{
+	if (ptr_tx_stream == nullptr)
+		return;
+	stop_flag = true;
+	tx_thread.join();
+	ptr_tx_stream.reset();
 }

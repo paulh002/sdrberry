@@ -37,21 +37,21 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	
 	// Calculate the real audio samplerate
 	const auto now = std::chrono::high_resolution_clock::now();
-	if (timeLastPrint + std::chrono::seconds(5) < now)
-	{
+	//if (timeLastPrint + std::chrono::seconds(5) < now)
+	//{
 		unique_lock<mutex> lock_stream(mSampleRate);
 		timeLastPrint = now;
 		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 		sampleRate = 1000000.0 * double(totalSamples) / timePassed.count();
 		if (sampleRate < 38000.0 || sampleRate > 50000.0)
 			sampleRate = 48000.0;
-		printf("Audio: \b%g sps queued samples %d\n", sampleRate, audio_output->queued_samples());
-	}
+		//printf("Audio: %g sps queued samples %d \n", sampleRate, audio_output->queued_samples());
+	//}
 	return 0;
 }
 
 
-bool AudioOutput::init(std::string device, int pcmrate)
+bool AudioOutput::init(std::string device, int pcmrate, DataBuffer<Sample>	*AudioBuffer)
 {
 	if (this->getDeviceCount() < 1) {
 		std::cout << "\nNo audio devices found!\n";
@@ -64,15 +64,15 @@ bool AudioOutput::init(std::string device, int pcmrate)
 	m_sampleRate = pcmrate;
 	bufferFrames = 1024;   // 256 sample frames
 	sampleRate = 0.99 * pcmrate;
+	databuffer = AudioBuffer;
 	return true;
 }
 
 
-bool AudioOutput::open(DataBuffer<Sample>	*AudioBuffer)
+bool AudioOutput::open()
 {
-	databuffer = AudioBuffer;
 	try {
-		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)AudioBuffer);
+		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer);
 		this->startStream();
 		printf("bufferFrames set: %d\n", bufferFrames);
 	}

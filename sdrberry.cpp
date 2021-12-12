@@ -58,7 +58,6 @@ double				freq = 89800000;
 //double	tuner_freq = freq + 0.25 * ifrate;
 //double	tuner_offset = freq - tuner_freq;
 
-mutex	am_tx_finish;
 mutex	fm_finish;
 
 Mouse			Mouse_dev;
@@ -311,6 +310,7 @@ void destroy_demodulators()
 {
 	FMDemodulator::destroy_demodulator();
 	AMDemodulator::destroy_demodulator();
+	AMmodulator::destroy_modulator();
 	RX_Stream::destroy_rx_streaming_thread();
 	TX_Stream::destroy_tx_streaming_thread();
 }
@@ -320,12 +320,9 @@ void stop_rxtx()
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
 	destroy_demodulators();
-	stop_txmod_flag = true;
-	unique_lock<mutex> lock_am_tx(am_tx_finish); 
 	stop_flag = true;
 	unique_lock<mutex> lock_fm(fm_finish); 
 	lock_fm.unlock();
-	lock_am_tx.unlock();
 	audio_input->close();  
 	audio_output->close(); 
 }
@@ -339,19 +336,13 @@ void select_mode(int s_mode, bool bvfo)
 	
 	destroy_demodulators();
 	printf("stop am_tx\n");
-	stop_txmod_flag = true;
-	unique_lock<mutex> lock_am_tx(am_tx_finish); 
-	printf("stop am_finish \n");
 	stop_flag = true; 
-	printf("stop fm_finish \n");
 	unique_lock<mutex> lock_fm(fm_finish); 
 	lock_fm.unlock();
-	lock_am_tx.unlock();
 	audio_input->close(); 
 	audio_output->close(); 
 	stop_tx_flag = false;
 	stop_flag = false;
-	stop_txmod_flag = false;
 	mode = s_mode;
 	if (soapy_devices[0].tx_channels > 0)
 		Gui_tx.set_tx_state(false);
@@ -387,12 +378,6 @@ void select_mode(int s_mode, bool bvfo)
 	}
 }
 
-void select_filter(int ifilter)
-{
-	if (sp_amdemod)
-		sp_amdemod->set_filter(ifilter);
-}
-
 void select_mode_tx(int s_mode, int tone)
 {
 	if (soapy_devices[0].tx_channels == 0)
@@ -407,12 +392,9 @@ void select_mode_tx(int s_mode, int tone)
 	//printf("select_mode_tx stop all threads\n");
 	stop_flag = true;
 	// wait for threads to finish
-
 	unique_lock<mutex> lock_fm(fm_finish); 
-	unique_lock<mutex> lock_am_tx(am_tx_finish); 
-	
 	lock_fm.unlock();
-	lock_am_tx.unlock();
+	
 	stop_flag = false;
 	mode = s_mode;
 	audio_output->close();
@@ -435,7 +417,8 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		start_dsb_tx(mode, ifrate, pcmrate, tone, &source_buffer_tx, audio_input);
+		AMmodulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
+		TX_Stream::create_tx_streaming_thread(&soapy_devices[0]);
 		break;
 	}
 }

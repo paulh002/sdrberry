@@ -2,8 +2,7 @@
 #include "AMDemodulator.h"
 #include <thread>
 
-static	std::thread				amdemod_thread;
-shared_ptr<AMDemodulator>		sp_amdemod;
+static shared_ptr<AMDemodulator> sp_amdemod;
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
@@ -172,7 +171,7 @@ bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, Dat
 	if (sp_amdemod != nullptr)
 		return false;
 	sp_amdemod = make_shared<AMDemodulator>(mode, ifrate, pcmrate, source_buffer, audio_output);
-	amdemod_thread = std::thread(&AMDemodulator::operator(), sp_amdemod);
+	sp_amdemod->amdemod_thread = std::thread(&AMDemodulator::operator(), sp_amdemod);
 	return true;
 }
 
@@ -180,7 +179,13 @@ void AMDemodulator::destroy_demodulator()
 {
 	if (sp_amdemod == nullptr)
 		return;
-	stop_flag = true;
-	amdemod_thread.join();
+	sp_amdemod->stop_flag = true;
+	sp_amdemod->amdemod_thread.join();
 	sp_amdemod.reset();
+}
+
+void select_filter(int ifilter)
+{
+	if (sp_amdemod)
+		sp_amdemod->set_filter(ifilter);
 }

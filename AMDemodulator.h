@@ -21,6 +21,9 @@ public:
 	void	process(const IQSampleVector&	samples_in, SampleVector& audio) override;
 	void	operator()() override;
 	
+	atomic<bool>		stop_flag {false};
+	std::thread			amdemod_thread;
+	
 private:
 	ampmodem		m_demod {nullptr};
 	float			m_bandwidth;
@@ -28,4 +31,4 @@ private:
 	int				m_iagc = 0;
 };
 
-extern shared_ptr<AMDemodulator> sp_amdemod;
+void select_filter(int ifilter);

@@ -11,34 +11,27 @@
 #include "AudioInput.h"
 #include "sdrberry.h"
 
-struct	modulator_struct
-{
-	int						tone;
-	double					ifrate;
-	double					tuner_offset;
-	liquid_ampmodem_type	mode;
-	int						suppressed_carrier;
-	int						pcmrate;
-	double					bandwidth_pcm;
-	unsigned int			downsample;
-	DataBuffer<IQSample16>	*source_buffer;
-	AudioInput				*audio_input;
-};
 
 class AMmodulator
 {
 public:
-	void	init(modulator_struct * ptr);
+	AMmodulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
+	~AMmodulator();
 	void	tone(bool tone);
-	void	set_filter(double if_rate, int band_width);
+	void	set_filter(float samplerate, float band_width);
 	void	process(const SampleVector& samples, double if_rate, DataBuffer<IQSample16> *source_buffer);
+	void	operator()();
 	double get_if_level() const
 	{
 		return m_if_level;
 	}
-	void	am_exit();
 	void	createBandpass(int txfilter);
 	void	tune_offset(long offset);
+	
+	static void destroy_modulator();
+	static bool create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
+	atomic<bool>			stop_txmod_flag {false};	
+	std::thread				ammod_thread;
 	
 private:
 	mutex					m_mutex;  // used to lock the process for changing filters
@@ -59,7 +52,5 @@ private:
 	bool					m_tone;
 	AudioInput				*m_audio_input;
 	double					m_ifrate;
+	int						m_pcmrate;
 };
-
-
-void start_dsb_tx(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);

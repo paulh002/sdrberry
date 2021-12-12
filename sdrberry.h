@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include <liquid.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <thread>
 #include "RtAudio.h"
 #include "DataBuffer.h"
@@ -53,17 +52,12 @@ const int mode_broadband_fm = 8;
 const int mode_narrowband_fm = 9;
 const int mode_rtty = 10;
 
-extern int		  mode;
+extern int		        mode;
 extern volatile int		filter;
 
-extern std::mutex	am_tx_finish;
 extern std::mutex	fm_finish;
-extern std::mutex	stream_finish;
 
 extern atomic_bool stop_flag;
-extern atomic_bool stop_tx_flag;
-extern atomic_bool stop_txmod_flag;
-
 
 //double	freq = 89950000;
 extern double   ifrate;
@@ -88,7 +82,6 @@ inline void samples_mean_rms(const SampleVector& samples,
     rms  = sqrt(vsumsq / n);
 }
 
-void select_filter(int ifilter);
 void select_mode(int s_mode, bool bvfo = true);
 void select_mode_tx(int s_mode, int tone = 0);
 void stop_rxtx();

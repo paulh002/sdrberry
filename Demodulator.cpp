@@ -2,7 +2,7 @@
 #include "sdrberry.h"
 
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
-{
+{	//  Transmit constructor
 	m_ifrate = ifrate;
 	m_pcmrate = pcmrate;
 	m_transmit_buffer = source_buffer;
@@ -10,12 +10,10 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *sou
 
 	// resampler and band filter assume pcmfrequency on the low side
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
-	tune_offset(vfo.get_vfo_offset());
-	audio_input->open();
 }
 
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-{
+{	//  Receive constructor
 	m_ifrate = ifrate;
 	m_pcmrate = pcmrate;
 	m_source_buffer = source_buffer;
@@ -101,11 +99,18 @@ void Demodulator::Resample(const IQSampleVector& filter_in,
 {	
 	unsigned int num_written;
 	
-	float nx = (float)filter_in.size() * m_resample_rate + 500;
-	filter_out.reserve((int)ceilf(nx));
-	filter_out.resize((int)ceilf(nx));
-	msresamp_crcf_execute(m_q, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);	
-	filter_out.resize(num_written);
+	if (m_q)
+	{
+		float nx = (float)filter_in.size() * m_resample_rate + 500;
+		filter_out.reserve((int)ceilf(nx));
+		filter_out.resize((int)ceilf(nx));
+		msresamp_crcf_execute(m_q, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);	
+		filter_out.resize(num_written);
+	}
+	else
+	{
+		filter_out = filter_in;
+	}
 }	
 
 void Demodulator::filter(const IQSampleVector& filter_in,
@@ -133,6 +138,10 @@ void Demodulator::mix_down(const IQSampleVector& filter_in,
 			filter_out.push_back(v);
 		}
 	}
+	else
+	{
+		filter_out = filter_in;
+	}
 }
 
 void Demodulator::mix_up(const IQSampleVector& filter_in,
@@ -148,6 +157,10 @@ void Demodulator::mix_up(const IQSampleVector& filter_in,
 			nco_crcf_mix_up(m_upnco, col, &v);
 			filter_out.push_back(v);
 		}
+	}
+	else
+	{
+		filter_out = filter_in;
 	}
 }
 

@@ -39,6 +39,7 @@ FMModulator::FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	Demodulator::set_reample_rate(ifrate / pcmrate); // UP sample to ifrate
 	modFM = freqmod_create(kf); 
 	source_buffer->restart_queue();
+	audio_input->open();
 }
 
 void FMModulator::operator()()

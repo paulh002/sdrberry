@@ -67,10 +67,17 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	
 	m_tone = tone; 
 	m_fcutoff = 2500;
-	Demodulator::set_filter(m_pcmrate, m_fcutoff);
-	Demodulator::set_reample_rate(ifrate / pcmrate); // UP sample to ifrate
+	if ((ifrate - pcmrate) > 0.1)
+	{	// only resample and tune if ifrate > pcmrate
+		tune_offset(vfo.get_vfo_offset());
+		set_reample_rate(ifrate / pcmrate); // UP sample to ifrate		
+	}
+	set_filter(m_pcmrate, m_fcutoff);
+	
 	modAM = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
+	if (tone == 0)
+		audio_input->open();
 }
 
 void AMModulator::operator()()
@@ -89,11 +96,11 @@ void AMModulator::operator()()
 			tune_offset(vfo.get_vfo_offset());
 		}
 		
-		//if (m_tone)
-		//{
-		//	m_audio_input->ToneBuffer(m_tone);
-		//	m_transmit_buffer->wait_queue_empty(2);
-		//}
+		if (m_tone)
+		{
+			m_audio_input->ToneBuffer(m_tone);
+			m_transmit_buffer->wait_queue_empty(2);
+		}
 	
 		if (m_audio_input->read(audiosamples) == false)
 		{

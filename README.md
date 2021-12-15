@@ -48,7 +48,7 @@ Installation of libraries is necessary:
 - libpthread.so.0
 
 
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211109_011342.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20210909_183113.jpg)
 

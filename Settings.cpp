@@ -432,6 +432,8 @@ int Settings::convert_mode(string s)
 	
 	to_upper(s);
 	if (s == "FM")
+		mode = mode_narrowband_fm;
+	if (s == "BFM")
 		mode = mode_broadband_fm;
 	if (s == "LSB")
 		mode = mode_lsb;

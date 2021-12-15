@@ -175,9 +175,15 @@ static void tx_button_handler(lv_event_t * e)
 	if (s == "TX")
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
 			select_mode_tx(mode);
+			gbar.set_tx(true);
+		}
 		else
+		{
 			select_mode(mode);
+			gbar.set_tx(false);
+		}
 	}
 	if (s == "Tune") 
 	{
@@ -258,6 +264,9 @@ void gui_tx::set_drv_slider(int drive)
 	sprintf(buf, "drive %d", drive);
 	lv_label_set_text(drv_slider_label, buf);
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	
+	soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].gain = (double)drive;
+	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, soapy_devices[0].channel_structure_tx[soapy_devices[0].tx_channel].gain);
 }
 
 int gui_tx::get_drv_pos()

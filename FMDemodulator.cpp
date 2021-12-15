@@ -66,7 +66,7 @@ void FMDemodulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("RX Samplerate \b%g Audio Sample Rate Msps\t%g MBps \n", get_rxsamplerate(), (float)get_audio_sample_rate());
+			printf("RX Samplerate %g Audio Sample Rate Msps\t%g MBps \n", get_rxsamplerate(), (float)get_audio_sample_rate());
 		}
 	}
 }

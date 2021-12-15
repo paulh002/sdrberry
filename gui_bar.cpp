@@ -303,6 +303,19 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_PRESSING, NULL);
 }
 
+void gui_bar::set_tx(bool tx)
+{
+	if (tx)
+	{
+		lv_obj_add_state(button[0], LV_STATE_CHECKED);
+	}
+	else
+	{
+		lv_obj_clear_state(button[0], LV_STATE_CHECKED);		
+	}
+
+}
+
 void gui_bar::set_mode(int mode)
 {
 	if (mode == mode_usb)

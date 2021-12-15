@@ -39,6 +39,7 @@ public:
 	{
 		return ifilters[sel];
 	}
+	void		set_tx(bool tx);
 	
 private:
 	lv_style_t	style_btn;

@@ -1,6 +1,19 @@
 #include "Demodulator.h"
 #include "sdrberry.h"
 
+Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
+{
+	m_ifrate = ifrate;
+	m_pcmrate = pcmrate;
+	m_transmit_buffer = source_buffer;
+	m_audio_input = audio_input;
+
+	// resampler and band filter assume pcmfrequency on the low side
+	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
+	tune_offset(vfo.get_vfo_offset());
+	audio_input->open();
+}
+
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {
 	m_ifrate = ifrate;
@@ -109,13 +122,32 @@ void Demodulator::filter(const IQSampleVector& filter_in,
 void Demodulator::mix_down(const IQSampleVector& filter_in,
 	IQSampleVector& filter_out)
 {	
-	for (auto& col : filter_in)
+	if (m_upnco)
 	{
-		complex<float> v;
+		for (auto& col : filter_in)
+		{
+			complex<float> v;
 		
-		nco_crcf_step(m_upnco);
-		nco_crcf_mix_down(m_upnco, col, &v);
-		filter_out.push_back(v);
+			nco_crcf_step(m_upnco);
+			nco_crcf_mix_down(m_upnco, col, &v);
+			filter_out.push_back(v);
+		}
+	}
+}
+
+void Demodulator::mix_up(const IQSampleVector& filter_in,
+	IQSampleVector& filter_out)
+{	
+	if (m_upnco)
+	{
+		for (auto& col : filter_in)
+		{
+			complex<float> v;
+		
+			nco_crcf_step(m_upnco);
+			nco_crcf_mix_up(m_upnco, col, &v);
+			filter_out.push_back(v);
+		}
 	}
 }
 

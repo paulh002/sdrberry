@@ -37,7 +37,7 @@
 #include "FmDecode.h"
 #include "Waterfall.h"
 #include "AMDemodulator.h"
-#include "AMmodulator.h"
+#include "AMModulator.h"
 #include "MidiControle.h"
 #include "Catinterface.h"
 

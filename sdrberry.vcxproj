@@ -82,7 +82,7 @@
   <ItemGroup>
     <ClCompile Include="Agc_class.cpp" />
     <ClCompile Include="AMDemodulator.cpp" />
-    <ClCompile Include="AMmodulator.cpp" />
+    <ClCompile Include="AMModulator.cpp" />
     <ClCompile Include="AudioInput.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="BandFilter.cpp" />
@@ -95,6 +95,7 @@
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
+    <ClCompile Include="FMModulator.cpp" />
     <ClCompile Include="FreeSans42.c" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -266,7 +267,7 @@
     <ClCompile Include="wiringSerial.c" />
     <ClInclude Include="Agc_class.h" />
     <ClInclude Include="AMDemodulator.h" />
-    <ClInclude Include="AMmodulator.h" />
+    <ClInclude Include="AMModulator.h" />
     <ClInclude Include="Audiodefs.h" />
     <ClInclude Include="AudioInput.h" />
     <ClInclude Include="AudioOutput.h" />
@@ -282,6 +283,7 @@
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
+    <ClInclude Include="FMModulator.h" />
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />

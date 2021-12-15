@@ -1,12 +1,12 @@
 #pragma once
 #include "Demodulator.h"
 
-class AMModulator :
+class FMModulator :
     public Demodulator
 {
 public:
-	AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
-	~AMModulator();
+	FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
+	~FMModulator();
 	
 	void	process(const IQSampleVector& samples_in, SampleVector& samples);
 	void	operator()();
@@ -18,10 +18,10 @@ public:
 	static void destroy_modulator();
 	static bool create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
 	atomic<bool>			stop_flag {false};	
-	std::thread				ammod_thread;
+	std::thread				fmmod_thread;
 
 private:
 	bool					m_tone;
-	ampmodem 				modAM {nullptr};
+	freqmod					modFM {nullptr};
 };
 

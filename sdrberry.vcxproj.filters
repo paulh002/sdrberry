@@ -1051,9 +1051,6 @@
     <ClCompile Include="FreeSans42.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="AMmodulator.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="AudioInput.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1103,6 +1100,12 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="Demodulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FMModulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="AMModulator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1295,9 +1298,6 @@
     <ClInclude Include="MidiControle.h">
       <Filter>Header files\RtMidi</Filter>
     </ClInclude>
-    <ClInclude Include="AMmodulator.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="AudioInput.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -1347,6 +1347,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Demodulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMModulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="AMModulator.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

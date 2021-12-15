@@ -4,6 +4,8 @@
 #include "BandFilter.h"
 #include "Demodulator.h"
 #include "FMDemodulator.h"
+#include "FMModulator.h"
+#include "AMModulator.h"
 
 AudioOutput *audio_output;
 AudioInput *audio_input;
@@ -187,6 +189,8 @@ int main(int argc, char *argv[])
 		
 	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
 	ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr("default").c_str());
+	if (ifrate_tx == 0)
+		ifrate_tx = ifrate;
 	printf("samperate %f \n", ifrate);
 	keyb.init_keyboard(tab3, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
 	
@@ -310,7 +314,8 @@ void destroy_demodulators()
 {
 	FMDemodulator::destroy_demodulator();
 	AMDemodulator::destroy_demodulator();
-	AMmodulator::destroy_modulator();
+	AMModulator::destroy_modulator();
+	FMModulator::destroy_modulator();
 	RX_Stream::destroy_rx_streaming_thread();
 	TX_Stream::destroy_tx_streaming_thread();
 }
@@ -411,14 +416,19 @@ void select_mode_tx(int s_mode, int tone)
 		//start_fm_tx(ifrate, pcmrate, true, &source_buffer_tx, audio_output);
 		//mode_running = 1;
 		break;
+	
+	case mode_narrowband_fm:
+		FMModulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
+		TX_Stream::create_tx_streaming_thread(&soapy_devices[0], ifrate_tx);
+		break;
 		
 	case mode_cw:
 	case mode_am:
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		AMmodulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(&soapy_devices[0]);
+		AMModulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
+		TX_Stream::create_tx_streaming_thread(&soapy_devices[0], ifrate_tx);
 		break;
 	}
 }

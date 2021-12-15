@@ -3,10 +3,12 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
+#include <thread>
 #include <liquid.h>
 #include <vector>
 #include "DataBuffer.h"
 #include "AudioOutput.h"
+#include "AudioInput.h"
 #include "Agc_class.h"
 
 class Demodulator
@@ -17,6 +19,7 @@ public:
 protected:
 	~Demodulator();
 	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
 	void			mono_to_left_right(const SampleVector& samples_mono, SampleVector& audio);
 	void			adjust_gain(IQSampleVector& samples_in, float vol);
 	void			tune_offset(long offset);
@@ -26,6 +29,7 @@ protected:
 	void			filter(const IQSampleVector& filter_in, IQSampleVector& filter_out);
 	void			set_reample_rate(float resample_rate);
 	void			mix_down(const IQSampleVector& filter_in,IQSampleVector& filter_out);
+	void			mix_up(const IQSampleVector& filter_in, IQSampleVector& filter_out);
 	void			calc_if_level(const IQSampleVector& samples_in);
 	double			get_if_level() 	{return m_if_level;}
 	void			set_filter(float samplerate, float band_width);
@@ -36,6 +40,9 @@ protected:
 	double						m_ifrate;
 	int							m_pcmrate;
 	atomic<int>					m_fcutoff;
+	DataBuffer<IQSample16>		*m_transmit_buffer;
+	AudioInput					*m_audio_input;
+	double						m_if_level {0};
 	
 private:
 	nco_crcf					m_upnco {nullptr};
@@ -46,5 +53,4 @@ private:
 	int							m_order {6};
 	float						alpha {0.1};
 	float						accuf {0};
-	double						m_if_level {0};
 };

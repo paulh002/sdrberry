@@ -57,7 +57,6 @@ void RX_Stream::operator()()
 		default_block_length = 32768;
 	rx_sampleRate = ifrate / 1000000.0;
 	printf("default block length is set to %d\n", default_block_length);
-	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 	rx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
 	if (rx_stream == NULL)
 	{
@@ -66,6 +65,7 @@ void RX_Stream::operator()()
 		return;
 	}
 	
+	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
 	while (!stop_flag.load())
 	{
@@ -166,6 +166,7 @@ void TX_Stream::operator()()
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
 	
+	IQSampleVector16		iqsamples;
 	SoapySDR::Stream		*tx_stream;
 	int ret;
 
@@ -184,12 +185,12 @@ void TX_Stream::operator()()
 		return;
 	}
 
-	sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
-	sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, 0.1);
+	sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, m_ifrate);
+	sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
 	sdr_dev->sdr->setAntenna(SOAPY_SDR_TX, 0, string("A"));
 	sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
-	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[0].gain);
-	while (1)
+	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[soapy_devices[0].tx_channel].gain);
+	while (!stop_flag.load())
 	{
 		unsigned int				overflows(0);
 		unsigned int				underflows(0); 
@@ -197,7 +198,7 @@ void TX_Stream::operator()()
 		long long					time_ns(0);
 		int							samples_transmit;
 		
-		IQSampleVector16 iqsamples = sdr_dev->channel_structure_tx[0].source_buffer_tx->pull();
+		iqsamples = sdr_dev->channel_structure_tx[0].source_buffer_tx->pull();
 		if (iqsamples.empty())
 		{
 			// an empty vector is send when the stream is closed by suppying process
@@ -206,7 +207,7 @@ void TX_Stream::operator()()
 			sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
 			sdr_dev->sdr->deactivateStream(tx_stream);
 			sdr_dev->sdr->closeStream(tx_stream);
-			pthread_exit(NULL);
+			return;
 		}
 		//printf("samples %d %d %d \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		samples_transmit = iqsamples.size();
@@ -260,7 +261,16 @@ void TX_Stream::operator()()
 		iqsamples.clear();		
 	}
 	printf("Exit writeStream\n");
-	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
+	bool bempty = false;
+	do
+	{
+		iqsamples = sdr_dev->channel_structure_tx[0].source_buffer_tx->pull();
+		if (!iqsamples.empty())
+			iqsamples.clear();
+		else
+			bempty = true;
+		} while (!bempty);
+	//sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
 	sdr_dev->sdr->deactivateStream(tx_stream);
 	sdr_dev->sdr->closeStream(tx_stream);
 }
@@ -270,11 +280,12 @@ TX_Stream::TX_Stream(struct device_structure *dev)
 	sdr_dev = dev;
 }
 
-bool TX_Stream::create_tx_streaming_thread(struct device_structure *dev)
+bool TX_Stream::create_tx_streaming_thread(struct device_structure *dev, double ifrate)
 {	
 	if (ptr_tx_stream != nullptr)
 		return false;
 	ptr_tx_stream = make_shared<TX_Stream>(dev);
+	ptr_tx_stream->set_if_rate(ifrate);
 	tx_thread = std::thread(&TX_Stream::operator(), ptr_tx_stream);
 	return true;
 }
@@ -283,7 +294,7 @@ void TX_Stream::destroy_tx_streaming_thread()
 {
 	if (ptr_tx_stream == nullptr)
 		return;
-	stop_flag = true;
+	ptr_tx_stream->stop_flag = true;
 	tx_thread.join();
 	ptr_tx_stream.reset();
 }

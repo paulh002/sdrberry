@@ -30,12 +30,15 @@ class TX_Stream
 {
 public:
 	TX_Stream(struct device_structure *dev);
-	static  bool	create_tx_streaming_thread(struct device_structure *dev);
+	static  bool	create_tx_streaming_thread(struct device_structure *dev, double ifrate);
 	static	void	destroy_tx_streaming_thread();
 	void	operator()();
-
+	void	set_if_rate(double ifrate) {m_ifrate = ifrate;} 
+	atomic<bool>		stop_flag {false};
+	
 private:
 	struct device_structure *sdr_dev;	
+	double m_ifrate;
 };
 
 extern std::thread					tx_thread;

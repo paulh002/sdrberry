@@ -33,11 +33,15 @@
         <string>*.txt</string>
         <string>*.cmake</string>
       </FileMasks>
-      <TransferNewFilesOnly>true</TransferNewFilesOnly>
+      <TransferNewFilesOnly>false</TransferNewFilesOnly>
       <IncludeSubdirectories>true</IncludeSubdirectories>
-      <SelectedDirectories />
       <DeleteDisappearedFiles>true</DeleteDisappearedFiles>
       <ApplyGlobalExclusionList>true</ApplyGlobalExclusionList>
+      <Extension>
+        <Direction>Outgoing</Direction>
+        <SkipMountPoints>false</SkipMountPoints>
+        <OverwriteTrigger>Always</OverwriteTrigger>
+      </Extension>
     </MainSourceTransferCommand>
     <AllowChangingHostForMainCommands>false</AllowChangingHostForMainCommands>
     <SkipBuildIfNoSourceFilesChanged>false</SkipBuildIfNoSourceFilesChanged>
@@ -136,6 +140,7 @@
       <EnableNonStopMode>false</EnableNonStopMode>
       <MaxBreakpointLimit>0</MaxBreakpointLimit>
       <EnableVerboseMode>true</EnableVerboseMode>
+      <EnablePrettyPrinters>false</EnablePrettyPrinters>
     </AdditionalGDBSettings>
     <LaunchGDBSettings xsi:type="GDBLaunchParametersNewInstance">
       <DebuggedProgram>$(TargetPath)</DebuggedProgram>

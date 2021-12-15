@@ -94,8 +94,8 @@ void CVfo::vfo_init(long ifrate, long pcmrate, struct device_structure *dev)
 
 void CVfo::set_freq_to_sdr()
 {
-	rx_set_sdr_freq();
-	tx_set_sdr_freq();
+	if (vfo_setting.rx) rx_set_sdr_freq();
+	if (vfo_setting.tx) tx_set_sdr_freq(); 
 }
 
 
@@ -115,7 +115,8 @@ void	CVfo::tx_set_sdr_freq()
 		if (sdr_dev->sdr != NULL)
 		{
 			sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
-			sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate); 
+			sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate_tx); 
+			sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, ifrate_tx); 
 			sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[0].gain);
 		}
 	}

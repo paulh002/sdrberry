@@ -5,7 +5,7 @@ The main goal for this project is to learn about c++ programming, liquid dsp, an
 Functionalit is in beta currently
 
 This source code is still in development.  
-Goal is to support Adalm pluto SDR and Radioberry SDR but it should also support other SDR receivers based on SoapySDR.
+Goal is to support Adalm pluto SDR, Radioberry, RTL-SDR, SDRPlay etc but it should also support other SDR receivers based on SoapySDR.
 Also the goal is to support optical encoder and support I2C / serial interface for bandpass filtering
 Currently it also supports basic BLE as controler input. I use a ESP32 as BLE server with a service for an optical encoder.
 
@@ -21,10 +21,11 @@ ToDo:
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
-- i2c support for 16 bits 
+- Optimze resampling to keep delay in audio to minimum
 
 Done:
 - Adalm Pluto
+- Rtlsdr support
 - Radioberry support
 - FM broadband
 - SSB support

@@ -54,7 +54,7 @@ void Demodulator::tune_offset(long offset)
 	if (m_upnco != nullptr)
 		nco_crcf_destroy(m_upnco);
 	m_offset = offset;
-	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifrate);
+	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)m_ifrate);
 	m_upnco = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(m_upnco, 0.0f);
 	nco_crcf_set_frequency(m_upnco, rad_per_sample);

@@ -154,7 +154,9 @@ long CVfo::get_vfo_offset()
  * 
  * This is done to minimize the changing of the local oscilator of the sdr receiver (like Pluto)
  * ToDo: for SDR receivers without local oscilator this behaviour is not necessary, but sill used
- * to be checked if this is ok for receivers like radioberry
+ * to be checked if this is ok for receivers like radioberry. In case of transmit if the ifrate is the same
+ * as pcmrate the 1/4 ifrate shift is not used. Keep in mind that the radioberry only has a transmit ifrate of 48 Khz. 
+ * So it need to tuned differently than the receiver.
  **/
 
 int CVfo::set_vfo(long long freq, bool lock)

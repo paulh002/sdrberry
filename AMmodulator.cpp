@@ -26,6 +26,8 @@ AMModulator::~AMModulator()
 {
 	if (modAM)
 		ampmodem_destroy(modAM);
+	if (m_fft != nullptr)
+		nco_crcf_destroy(m_fft);
 }
 
 AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
@@ -68,9 +70,14 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	m_tone = tone; 
 	m_fcutoff = 2500;
 	if ((ifrate - pcmrate) > 0.1)
-	{	// only resample and tune if ifrate > pcmrate
+	{
+		// only resample and tune if ifrate > pcmrate
 		tune_offset(vfo.get_vfo_offset());
 		set_reample_rate(ifrate / pcmrate); // UP sample to ifrate		
+	}
+	else
+	{	// mix the transmid signal to the mid of the fft display
+		fft_offset(ifrate / 4);
 	}
 	set_filter(m_pcmrate, m_fcutoff);
 	
@@ -136,10 +143,10 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	
 	// Low pass filter 5 Khz for NB FM
 	filter(buf_mod, buf_filter);	
+	buf_mod.clear();
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();
 	mix_up(buf_out, buf_filter); // Mix up to vfo freq	
-	buf_out16.clear();
 	for (auto& col : buf_filter)
 	{
 		complex<float> f;
@@ -150,10 +157,41 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 		IQSample16 s16 {i, q};
 		buf_out16.push_back(s16);
 	}
-	Fft_calc.process_samples(buf_filter);
+	mix_up_fft(buf_filter, buf_mod);
+	Fft_calc.process_samples(buf_mod);
 	m_transmit_buffer->push(move(buf_out16));
 
 	buf_mod.clear();
 	buf_out.clear();
 	buf_filter.clear();
+}
+
+void AMModulator::mix_up_fft(const IQSampleVector& filter_in,
+	IQSampleVector& filter_out)
+{	
+	if (m_fft)
+	{
+		for (auto& col : filter_in)
+		{
+			complex<float> v;
+		
+			nco_crcf_step(m_fft);
+			nco_crcf_mix_up(m_fft, col, &v);
+			filter_out.push_back(v);
+		}
+	}
+	else
+	{
+		filter_out = filter_in;
+	}
+}
+
+void AMModulator::fft_offset(long offset)
+{
+	if (m_fft != nullptr)
+		nco_crcf_destroy(m_fft);
+	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(offset)) / (float)m_ifrate);
+	m_fft = nco_crcf_create(LIQUID_NCO);
+	nco_crcf_set_phase(m_fft, 0.0f);
+	nco_crcf_set_frequency(m_fft, rad_per_sample);
 }

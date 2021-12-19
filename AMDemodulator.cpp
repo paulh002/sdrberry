@@ -47,11 +47,11 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	Demodulator::set_filter(m_pcmrate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	gbar.set_filter_slider(m_bandwidth);
-	catinterface.SetSH(m_bandwidth);
+	//catinterface.SetSH(m_bandwidth);
 	
-	agc.set_bandwidth(0.01f);
+	//agc.set_bandwidth(0.01f);
 	//agc.set_enery_levels(0.1f, 1.0f);
-	agc.print();
+	//agc.print();
 }
 
 

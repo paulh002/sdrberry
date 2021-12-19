@@ -89,6 +89,9 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 
 void AMModulator::operator()()
 {
+	const auto startTime = std::chrono::high_resolution_clock::now();
+	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	
 	unsigned int            fft_block = 0;
 	bool                    inbuf_length_warning = false;
 	SampleVector            audiosamples;
@@ -118,6 +121,14 @@ void AMModulator::operator()()
 		Fft_calc.set_signal_strength(m_audio_input->get_rms_level());
 		process(dummy, audiosamples);
 		audiosamples.clear();
+		
+		const auto now = std::chrono::high_resolution_clock::now();
+		if (timeLastPrint + std::chrono::seconds(1) < now)
+		{
+			timeLastPrint = now;
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
+			printf("TX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d\n", get_txsamplerate() * 1000000.0, (float)get_audio_input_rate(), get_audio_input_rate() / (get_txsamplerate() * 1000000.0), m_audio_input->queued_samples() / 2);
+		}
 	}
 	m_transmit_buffer->push_end();
 	printf("exit am_mod_thread\n");

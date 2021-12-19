@@ -27,19 +27,15 @@ public:
 			return nullptr;
 		return rx_button[i];
 	}
-	void	add_sample_rate(int samplerate);
 	void	set_gui_mode(int mode);
-	void	set_sample_rate(int rate);
-	int		get_sample_rate(int rate);
+
 private:
 	int				mode;	
 	lv_obj_t*		mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label;
 	lv_style_t		style_btn;
 	lv_obj_t		*rx_button[10];
 	int				ibuttons;
-	vector<int>		sample_rates;
-	lv_obj_t*		d_samplerate;
-	lv_obj_t*		d_receivers;
+
 };
 
 extern gui_rx	Gui_rx;

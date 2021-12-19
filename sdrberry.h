@@ -20,12 +20,12 @@
 #include "lvgl/lvgl.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
-#include "devices.h"
 #include "gui_top_bar.h"
 #include "gui_tx.h"
 #include "gui_rx.h"
 #include "gui_agc.h"
 #include "gui_bar.h"
+#include "gui_setup.h"
 #include "ble_interface.h"
 #include "vfo.h"
 #include "sdrstream.h"
@@ -40,6 +40,7 @@
 #include "AMModulator.h"
 #include "MidiControle.h"
 #include "Catinterface.h"
+#include "SdrDevice.h"
 
 const int mode_lsb = 1;
 const int mode_usb = 2;
@@ -63,6 +64,10 @@ extern atomic_bool stop_flag;
 extern double   ifrate;
 extern double   ifrate_tx;
 extern int      pcmrate;
+extern  SdrDeviceVector	    SdrDevices;
+extern std::string			default_radio;
+extern int					default_rx_channel;
+extern int					default_tx_channel;
 
 /** Compute mean and RMS over a sample vector. */
 inline void samples_mean_rms(const SampleVector& samples,

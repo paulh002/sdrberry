@@ -44,6 +44,22 @@ template <class Element>
 			lock.unlock();
 			m_cond.notify_all();
 		}
+		
+		void clear()
+		{
+			unique_lock<mutex> lock(m_mutex);
+			vector<Element> ret;
+			while (!m_queue.empty())
+			{
+				m_qlen -= m_queue.front().size();
+				swap(ret, m_queue.front());
+				m_queue.pop();
+				ret.clear();
+			}
+			m_end_marked = false;
+			lock.unlock();
+			m_cond.notify_all();
+		}
 
 		/** Return number of samples in queue. */
 		size_t queued_samples()

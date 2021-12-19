@@ -22,18 +22,20 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 	bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 
-void CVfo::vfo_init(long ifrate, long pcmrate, struct device_structure *dev)
+void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int fchannel)
 {
-	
+	SdrDevices = fSdrDevices;
+	radio = fradio;
+	channel = fchannel;
+		
 	string s = Settings_file.find_vfo1("freq");
 	long long freq = strtoll((const char *)s.c_str(), NULL, 0);
-	sdr_dev = dev;
 	string ham = Settings_file.find_radio("band");
 	if (ham != "all")
 		vfo.limit_ham_band = true;
 	else
 		vfo.limit_ham_band = false;
-	SoapySDR::RangeList r = sdr_dev->channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range;
+	SoapySDR::RangeList r = SdrDevices->get_full_frequency_range_list(radio, channel); 
 	vfo_setting.vfo_low = r.front().minimum();
 	vfo_setting.vfo_high = r.front().maximum();
 	auto it_band = Settings_file.meters.begin();
@@ -101,24 +103,21 @@ void CVfo::set_freq_to_sdr()
 
 void	CVfo::rx_set_sdr_freq()
 {
-	if (sdr_dev != nullptr) 
-	{
-		if (sdr_dev->sdr != nullptr) 
-			sdr_dev->sdr->setFrequency(SOAPY_SDR_RX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+	if (SdrDevices)
+	{	
+		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_RX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+
 	}
 }
 
 void	CVfo::tx_set_sdr_freq()
 {
-	if (sdr_dev != nullptr) 
-	{
-		if (sdr_dev->sdr != NULL)
-		{
-			sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
-			sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, ifrate_tx); 
-			sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, ifrate_tx); 
-			sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[0].gain);
-		}
+	if (SdrDevices)
+	{	
+		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_TX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
+		SdrDevices->SdrDevices[radio]->setSampleRate(SOAPY_SDR_TX, 0, ifrate_tx); 
+		SdrDevices->SdrDevices[radio]->setBandwidth(SOAPY_SDR_TX, 0, ifrate_tx); 
+		SdrDevices->SdrDevices[radio]->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 	}
 }
 
@@ -131,12 +130,6 @@ void CVfo::vfo_re_init(long ifrate, long pcmrate)
 	vfo_setting.vfo_freq_sdr[1] = vfo_setting.vfo_freq[1] - ifrate / 4;
 	vfo_setting.m_offset[1] = vfo_setting.vfo_freq[1] - vfo_setting.vfo_freq_sdr[1]; // 
 	vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
-}
-
-/* this function reads the device capability and translates it to f license bandplans*/
-void CVfo::set_vfo_capability(struct device_structure *sdr_dev)
-{
-	vfo_setting.sdr_dev = sdr_dev;
 }
 
 long CVfo::get_vfo_offset()
@@ -257,7 +250,7 @@ void CVfo::step_vfo(long icount, bool lock)
 	
 	if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
 		return;	
-	if (vfo_setting.sdr_dev != NULL)
+	if (SdrDevices)
 	{
 		if (vfo.limit_ham_band)
 			check_band(icount, freq);

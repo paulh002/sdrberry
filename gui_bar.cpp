@@ -91,7 +91,14 @@ static void gain_slider_event_cb(lv_event_t * e)
 	lv_obj_t * slider = lv_event_get_target(e);
 	sprintf(buf, "gain %ddb", lv_slider_get_value(slider));
 	lv_label_set_text(gbar.get_gain_slider_label(), buf);
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, soapy_devices[0].rx_channel, lv_slider_get_value(slider));
+	try 
+	{
+		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, default_rx_channel, lv_slider_get_value(slider));
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
 	gagc.update_gain_slider(lv_slider_get_value(slider));
 }
 
@@ -106,16 +113,32 @@ void gui_bar::update_gain_slider(int gain)
 
 void gui_bar::set_gain_slider(int gain)
 {
-	char buf[20];
+	char	buf[20];
+	double	max_gain {0.0};
 	
-	double max_gain = soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
+	try 
+	{
+		max_gain = (double)SdrDevices.SdrDevices.at(default_radio)->rx_channels[default_rx_channel]->get_full_gain_range().maximum();
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+		return;
+	}
+	
 	if (gain > max_gain)
 		gain = max_gain;
-	
 	sprintf(buf, "gain %ddb", gain);
 	lv_label_set_text(gain_slider_label, buf);		
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_RX, 0, (double)gain);
+	try
+	{
+		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, default_rx_channel, (double)gain);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
 	gagc.update_gain_slider(gain);
 }
 
@@ -135,8 +158,17 @@ static void filter_slider_event_cb(lv_event_t * e)
 
 void gui_bar::set_gain_range()
 {
-	int max_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.maximum();
-	int min_gain = (int)soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_gain_range.minimum();
+	int max_gain = 100, min_gain = 0;
+	
+	try
+	{
+		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels[default_rx_channel]->get_full_gain_range().maximum();
+		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels[default_rx_channel]->get_full_gain_range().minimum();
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
 	lv_slider_set_range(gain_slider, min_gain, max_gain);
 }
 
@@ -205,7 +237,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], NULL);
 				strcpy(str, "TX");
-				if (soapy_devices[0].tx_channels == 0)
+				if (SdrDevices.get_tx_channels(default_radio) == 0)
 					lv_obj_add_flag(button[i], LV_OBJ_FLAG_HIDDEN);
 				break;
 			case 1:
@@ -376,6 +408,8 @@ void gui_bar::get_filter_range(vector<string> &filters)
 
 void gui_bar::set_filter_slider(int ifilter)
 {
+	if (!button[number_of_buttons - 1])
+		return;
 	int filter = 6;
 	
 	if (ifilter >= 500 && ifilter  < 1000)

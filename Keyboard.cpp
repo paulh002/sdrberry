@@ -12,7 +12,6 @@
 #include "Settings.h"
 #include <string>
 #include <algorithm>
-#include "devices.h"
 #include "Keyboard.h"
 
 

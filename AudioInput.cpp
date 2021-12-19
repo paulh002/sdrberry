@@ -1,6 +1,14 @@
 #include "AudioInput.h"
 
+static const auto startTime = std::chrono::high_resolution_clock::now();
+static auto timeLastPrint = std::chrono::high_resolution_clock::now();
+static unsigned long long totalSamples(0);
+static double sampleRate {0.0};	
 
+double get_audio_input_rate()
+{
+	return sampleRate;
+}
 
 int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
 {
@@ -23,6 +31,14 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	}
 	audioinput->set_level(l);
 	databuffer->push(move(buf));
+	
+	const auto now = std::chrono::high_resolution_clock::now();
+	timeLastPrint = now;
+	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	sampleRate = 1000000.0 * double(totalSamples) / timePassed.count();
+	if (sampleRate < 38000.0 || sampleRate > 50000.0)
+		sampleRate = 48000.0;
+	
 	return 0;
 }
 
@@ -141,4 +157,11 @@ float  AudioInput::get_rms_level()
 void AudioInput::set_level(float f)
 {
 	m_level = f;
+}
+
+int	 AudioInput::queued_samples()
+{
+	if (databuffer != nullptr)
+		return databuffer->queued_samples();
+	return 0;
 }

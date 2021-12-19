@@ -43,8 +43,7 @@ public:
 	
 private:
 	lv_style_t	style_btn;
-	lv_obj_t	*button[20];
-
+	lv_obj_t	*button[20] { nullptr };
 	int			ibuttons {0};
 	const int	number_of_buttons {10};
 	lv_obj_t*	vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;

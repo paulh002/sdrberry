@@ -991,12 +991,6 @@
     <ClCompile Include="lv_drivers\display\SHARP_MIP.c">
       <Filter>Source files\lv_drivers</Filter>
     </ClCompile>
-    <ClCompile Include="device.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="SoapySDRProbe.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="sdrstream.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1108,6 +1102,12 @@
     <ClCompile Include="AMModulator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="SdrDevice.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_setup.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1192,9 +1192,6 @@
     </ClInclude>
     <ClInclude Include="lvgl\src\lvgl.h">
       <Filter>Header files\lvgl</Filter>
-    </ClInclude>
-    <ClInclude Include="devices.h">
-      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="SoapySDR\Device.hpp">
       <Filter>Header files\SoapySDR</Filter>
@@ -1353,6 +1350,18 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="AMModulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SdrDevice.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Errors.hpp">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapySDR\Errors.h">
+      <Filter>Header files\SoapySDR</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_setup.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -35,13 +35,13 @@ protected:
 	void			set_filter(float samplerate, float band_width);
 
 	double                      m_audio_mean, m_audio_rms, m_audio_level;
-	DataBuffer<IQSample>		*m_source_buffer;
-	AudioOutput					*m_audio_output;
+	DataBuffer<IQSample>		*m_source_buffer {nullptr};
+	AudioOutput					*m_audio_output {nullptr};
 	double						m_ifrate;
 	int							m_pcmrate;
 	atomic<int>					m_fcutoff;
-	DataBuffer<IQSample16>		*m_transmit_buffer;
-	AudioInput					*m_audio_input;
+	DataBuffer<IQSample16>		*m_transmit_buffer {nullptr};
+	AudioInput					*m_audio_input {nullptr};
 	double						m_if_level {0};
 	
 private:

@@ -1,5 +1,4 @@
 #include <unistd.h>
-#include <pthread.h>
 #include <mutex>
 #include <time.h>
 #include <sys/time.h>
@@ -11,26 +10,32 @@
 #include "lvgl/lvgl.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
-#include "devices.h"
 #include "sdrstream.h"
 #include "vfo.h"
 #include <SoapySDR/Device.h>
 #include <SoapySDR/Formats.h>
 #include <SoapySDR/Types.h>
 #include <iostream>
-
+#include "SdrDevice.h"
 #include "DataBuffer.h"
 #include "sdrberry.h"
 
 using namespace std;
 
 double	rx_sampleRate = 0;
+double	tx_sampleRate = 0;
+
 
 double get_rxsamplerate()
 {
 	return rx_sampleRate;
 }
 
+double get_txsamplerate()
+{
+	return tx_sampleRate;
+
+}
 std::thread					rx_thread;
 std::thread					tx_thread;
 shared_ptr<RX_Stream>		ptr_rx_stream;
@@ -57,16 +62,19 @@ void RX_Stream::operator()()
 		default_block_length = 32768;
 	rx_sampleRate = ifrate / 1000000.0;
 	printf("default block length is set to %d\n", default_block_length);
-	rx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
-	if (rx_stream == NULL)
+	try
 	{
-		fprintf(stderr, "Failed create receive stream\n");
+		rx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
+		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+		SdrDevices.SdrDevices.at(radio)->activateStream(rx_stream);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
 		stop_flag = true;
 		return;
 	}
 	
-	sdr_dev->sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
-	sdr_dev->sdr->activateStream(rx_stream, 0, 0, 0);
 	while (!stop_flag.load())
 	{
 		unsigned int				overflows(0);
@@ -78,7 +86,7 @@ void RX_Stream::operator()()
 		void *buffs[] = { buf.data() };
 		try 
 		{
-			ret = sdr_dev->sdr->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
+			ret = SdrDevices.SdrDevices.at(radio)->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
 		}
 		catch (const std::exception& e)
 		{
@@ -107,7 +115,7 @@ void RX_Stream::operator()()
 		if (ret > 0)
 		{
 			buf.resize(ret);
-			sdr_dev->channel_structure_rx[0].source_buffer_rx->push(move(buf));
+			m_source_buffer->push(move(buf));
 		}
 		
 		totalSamples += ret;
@@ -118,7 +126,14 @@ void RX_Stream::operator()()
 			while (true)
 			{
 				size_t chanMask; int flags; long long timeNs;
-				ret = sdr_dev->sdr->readStreamStatus(rx_stream, chanMask, flags, timeNs, 0);
+				try
+				{
+					ret = SdrDevices.SdrDevices.at(radio)->readStreamStatus(rx_stream, chanMask, flags, timeNs, 0);
+				}
+				catch (const std::exception& e)
+				{
+					std::cout << e.what();
+				}
 				if (ret == SOAPY_SDR_OVERFLOW) overflows++;
 				else if (ret == SOAPY_SDR_UNDERFLOW) underflows++;
 				else if (ret == SOAPY_SDR_TIME_ERROR) {}
@@ -130,21 +145,30 @@ void RX_Stream::operator()()
 		const auto sampleRate = double(totalSamples) / timePassed.count();
 		rx_sampleRate = sampleRate;
 	}
-	sdr_dev->channel_structure_rx[0].source_buffer_rx->push_end();
-	sdr_dev->sdr->deactivateStream(rx_stream);
-	sdr_dev->sdr->closeStream(rx_stream);
+	m_source_buffer->clear(); //push_end();
+	try
+	{
+		SdrDevices.SdrDevices.at(radio)->deactivateStream(rx_stream);
+		SdrDevices.SdrDevices.at(radio)->closeStream(rx_stream);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
 }
 
-RX_Stream::RX_Stream(struct device_structure *dev)
+RX_Stream::RX_Stream(std::string sradio, int chan, DataBuffer<IQSample> *source_buffer)
 {
-	sdr_dev = dev;
+	radio = sradio;
+	channel = chan;
+	m_source_buffer = source_buffer;
 }
 
-bool RX_Stream::create_rx_streaming_thread(struct device_structure *dev)
+bool RX_Stream::create_rx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample> *source_buffer)
 {	
 	if (ptr_rx_stream != nullptr)
 		return false;
-	ptr_rx_stream = make_shared<RX_Stream>(dev);
+	ptr_rx_stream = make_shared<RX_Stream>(sradio, chan, source_buffer);
 	rx_thread = std::thread(&RX_Stream::operator(), ptr_rx_stream);
 	return true;
 }
@@ -170,26 +194,22 @@ void TX_Stream::operator()()
 	SoapySDR::Stream		*tx_stream;
 	int ret;
 
-	try 
+	try
 	{
-		tx_stream = sdr_dev->sdr->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CS16);
+		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CS16);
+		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, m_ifrate);
+		SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
+		SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
+		SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
+		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 	}
 	catch (const std::exception& e)
 	{
+		printf("Failed create receive stream\n");
 		std::cout << e.what();
 		return;
 	}
-	if (tx_stream == NULL)
-	{
-		fprintf(stderr, "Failed create receive stream\n");
-		return;
-	}
-
-	sdr_dev->sdr->setSampleRate(SOAPY_SDR_TX, 0, m_ifrate);
-	sdr_dev->sdr->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
-	sdr_dev->sdr->setAntenna(SOAPY_SDR_TX, 0, string("A"));
-	sdr_dev->sdr->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
-	sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, sdr_dev->channel_structure_tx[soapy_devices[0].tx_channel].gain);
+	
 	while (!stop_flag.load())
 	{
 		unsigned int				overflows(0);
@@ -198,15 +218,23 @@ void TX_Stream::operator()()
 		long long					time_ns(0);
 		int							samples_transmit;
 		
-		iqsamples = sdr_dev->channel_structure_tx[0].source_buffer_tx->pull();
+		iqsamples = m_source_buffer->pull();
 		if (iqsamples.empty())
 		{
 			// an empty vector is send when the stream is closed by suppying process
 			// source_buffer->push_end()
 			printf("Received Push_End Exit writeStream\n");
-			sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
-			sdr_dev->sdr->deactivateStream(tx_stream);
-			sdr_dev->sdr->closeStream(tx_stream);
+			try
+			{
+				SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, 0.0);
+				SdrDevices.SdrDevices.at(radio)->deactivateStream(tx_stream);
+				SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
+			}
+			catch (const std::exception& e)
+			{
+				std::cout << e.what();
+				return;
+			}
 			return;
 		}
 		//printf("samples %d %d %d \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
@@ -214,7 +242,7 @@ void TX_Stream::operator()()
 		void *buffs[] = { iqsamples.data() };
 		do
 		{
-			ret = sdr_dev->sdr->writeStream(tx_stream, buffs, samples_transmit, flags, time_ns, 1e5);
+			ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, buffs, samples_transmit, flags, time_ns, 1e5);
 			//printf("send samples %d %d\n", ret, samples_transmit);
 			if (ret > 0)
 			{
@@ -223,7 +251,7 @@ void TX_Stream::operator()()
 				complex<int16_t> *f = iqsamples.data();
 				buffs[0] = &f[iqsamples.size() - samples_transmit];
 			}
-		} while ((ret > 0) && (samples_transmit > 0));
+		} while ((ret > 0) && (samples_transmit > 0) && !stop_flag.load());
 		
 		if(ret == SOAPY_SDR_TIMEOUT) 
 		{
@@ -242,49 +270,52 @@ void TX_Stream::operator()()
 		if (ret < 0)
 		{
 			printf("Error writeStream\n");
-			sdr_dev->sdr->deactivateStream(tx_stream);
-			sdr_dev->sdr->closeStream(tx_stream);
+			try
+			{
+				SdrDevices.SdrDevices.at(radio)->deactivateStream(tx_stream);
+				SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
+			}
+			catch (const std::exception& e)
+			{
+				std::cout << e.what();
+			}
 			iqsamples.clear();
 			return;			
 		}
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(5) < now)
-		{
-			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			const auto sampleRate = double(totalSamples) / timePassed.count();
-			printf("tx \b%g Msps\t%g MBps", sampleRate, sampleRate * 1*sizeof(complex<float>));
-			if (overflows != 0) printf("\tOverflows %u", overflows);
-			if (underflows != 0) printf("\tUnderflows %u", underflows);
-			printf("\n ");
-		}
+		timeLastPrint = now;
+		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+		const auto sampleRate = double(totalSamples) / timePassed.count();
+		tx_sampleRate = sampleRate;
 		iqsamples.clear();		
 	}
 	printf("Exit writeStream\n");
 	bool bempty = false;
-	do
-	{
-		iqsamples = sdr_dev->channel_structure_tx[0].source_buffer_tx->pull();
-		if (!iqsamples.empty())
-			iqsamples.clear();
-		else
-			bempty = true;
-		} while (!bempty);
 	//sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
-	sdr_dev->sdr->deactivateStream(tx_stream);
-	sdr_dev->sdr->closeStream(tx_stream);
+	m_source_buffer->clear();
+	try
+	{
+		SdrDevices.SdrDevices.at(radio)->deactivateStream(tx_stream);
+		SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}			
 }
 
-TX_Stream::TX_Stream(struct device_structure *dev)
+TX_Stream::TX_Stream(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer)
 {
-	sdr_dev = dev;
+	radio = sradio;
+	channel = chan;
+	m_source_buffer = source_buffer;
 }
 
-bool TX_Stream::create_tx_streaming_thread(struct device_structure *dev, double ifrate)
+bool TX_Stream::create_tx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer,  double ifrate)
 {	
 	if (ptr_tx_stream != nullptr)
 		return false;
-	ptr_tx_stream = make_shared<TX_Stream>(dev);
+	ptr_tx_stream = make_shared<TX_Stream>(sradio, chan, source_buffer);
 	ptr_tx_stream->set_if_rate(ifrate);
 	tx_thread = std::thread(&TX_Stream::operator(), ptr_tx_stream);
 	return true;

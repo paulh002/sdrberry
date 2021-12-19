@@ -4,14 +4,12 @@ gui_rx	Gui_rx;
 const int number_of_buttons {8};
 
 static void rx_button_handler(lv_event_t * e);
-static void samplerate_button_handler(lv_event_t * e);
-static void receivers_button_handler(lv_event_t * e);
 
 void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 {
 
 	const lv_coord_t x_margin  = 10;
-	const lv_coord_t y_margin  = 20;
+	const lv_coord_t y_margin  = 5;
 	const int x_number_buttons = 5;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin  = 20;
@@ -33,11 +31,7 @@ void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
-	
-	lv_obj_t* label = lv_label_create(o_tab);
-	lv_label_set_text(label, "Mode");
-	lv_obj_align(label, LV_ALIGN_TOP_LEFT, 0, 0);
-	lv_obj_clear_flag(label, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
 	
 	ibuttons = number_of_buttons;
 	for (int i = 0; i < ibuttons; i++)
@@ -109,63 +103,6 @@ void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 			ibutton_y++;
 		}
 	}
-	
-	ibutton_y++;
-	d_samplerate = lv_dropdown_create(o_tab);
-	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
-	lv_dropdown_clear_options(d_samplerate);
-	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
-
-	d_receivers = lv_dropdown_create(o_tab);
-	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, button_width_margin, y_margin + ibutton_y * button_height_margin);
-	lv_dropdown_clear_options(d_receivers);
-	lv_obj_add_event_cb(d_receivers, receivers_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
-	std::string def = Settings_file.find_sdr("default");
-	int i = 0;
-	for (auto& col : Settings_file.receivers)
-	{
-		lv_dropdown_add_option(d_receivers, col.c_str(), LV_DROPDOWN_POS_LAST);
-		if (col == def)
-		{
-			lv_dropdown_set_selected(d_receivers, i);
-		}
-	}
-	
-}
-
-int gui_rx::get_sample_rate(int rate)
-{
-	if (rate >= 0 && rate < sample_rates.size())
-	{
-		return sample_rates.at(rate);
-	}
-	return 0;
-}
-
-static void samplerate_button_handler(lv_event_t * e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e); 
-	if (code == LV_EVENT_VALUE_CHANGED) 
-	{
-		int rate = lv_dropdown_get_selected(obj);
-		ifrate = Gui_rx.get_sample_rate(rate);
-		vfo.vfo_re_init((long)ifrate, pcmrate);
-		stop_rxtx();
-		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
-		select_mode(mode);
-	}
-}
-
-static void receivers_button_handler(lv_event_t * e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e); 
-	if (code == LV_EVENT_VALUE_CHANGED) 
-	{
-		int selection = lv_dropdown_get_selected(obj);
-		
-	}
 }
 
 static void rx_button_handler(lv_event_t * e)
@@ -186,15 +123,6 @@ static void rx_button_handler(lv_event_t * e)
 		select_mode(bmode);
 		gbar.set_mode(bmode);
 	}
-}
-
-void gui_rx::add_sample_rate(int samplerate)
-{
-	char	str[30];
-	
-	sample_rates.push_back(samplerate);
-	sprintf(str, "%d Khz", samplerate / 1000);
-	lv_dropdown_add_option(d_samplerate, str, LV_DROPDOWN_POS_LAST);
 }
 
 void	gui_rx::set_gui_mode(int mode)
@@ -229,15 +157,4 @@ void	gui_rx::set_gui_mode(int mode)
 			lv_obj_clear_state(Gui_rx.get_button_obj(i), LV_STATE_CHECKED);
 		}
 	}
-}
-
-void gui_rx::set_sample_rate(int rate)
-{
-	int i;
-	for (i = 0; i < sample_rates.size(); i++)
-	{
-		if (sample_rates[i] == rate)
-			break;
-	}
-	lv_dropdown_set_selected(d_samplerate, i);
 }

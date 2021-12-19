@@ -34,8 +34,6 @@ const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 
-
-
 lv_obj_t* scr;
 lv_obj_t* bg_middle;
 lv_obj_t* vfo1_button;
@@ -60,14 +58,18 @@ double				freq = 89800000;
 //double	tuner_freq = freq + 0.25 * ifrate;
 //double	tuner_offset = freq - tuner_freq;
 
-mutex	fm_finish;
-
+mutex			fm_finish;
 Mouse			Mouse_dev;
 Catinterface	catinterface;
 BandFilter		bpf;
 
 MidiControle	*midicontrole = nullptr;
 auto			startTime = std::chrono::high_resolution_clock::now();
+
+SdrDeviceVector		SdrDevices;
+std::string			default_radio;
+int					default_rx_channel = 0;
+int					default_tx_channel = 0;
 
 int main(int argc, char *argv[])
 {
@@ -81,7 +83,8 @@ int main(int argc, char *argv[])
 
 	string s = Settings_file.find_audio("device");	
 	audio_output = new AudioOutput();
-	if (!(*audio_output)) {
+	if (!audio_output) 
+	{
 		fprintf(stderr, "ERROR: AudioOutput\n");
 		exit(1);
 	}
@@ -161,8 +164,6 @@ int main(int argc, char *argv[])
 	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD);
 	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "Mode");
 	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "Agc");
-	//lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "TX");
-	//lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 
@@ -194,9 +195,10 @@ int main(int argc, char *argv[])
 	printf("samperate %f \n", ifrate);
 	keyb.init_keyboard(tab3, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
 	
-	std::string default_radio = Settings_file.find_sdr("default");
+	default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
-	
+	default_rx_channel = 0;
+	default_tx_channel = 0;
 		
 	midicontrole = new(MidiControle);
 	if (midicontrole)
@@ -205,44 +207,71 @@ int main(int argc, char *argv[])
 		if (ports > 1)
 			midicontrole->openport(1);
 	}
-	
+	SoapySDR::ModuleManager mm(false);
+	SoapySDR::loadModules();
 	freq = Settings_file.find_vfo1_freq("freq");
-	if (discover_devices(Settings_file.find_probe((char *)default_radio.c_str())) == EXIT_SUCCESS)
+	
+	for (auto & con : Settings_file.receivers)
+	{
+		std::string probe = Settings_file.find_probe((char *)con.c_str());
+		SdrDevices.AddDevice(con, probe);
+	}
+	
+	if (SdrDevices.MakeDevice(default_radio))
 	{	
 		gbar.init(bar_view, mode, LV_HOR_RES - 3, barHeight);
-		soapy_devices[0].rx_channel = 0;
-		std::cout << "probe: " << Settings_file.find_probe((char *)default_radio.c_str()).c_str() << std::endl;
-		std::string start_freq = std::to_string(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum() / 1.0e6);
-		std::string stop_freq = std::to_string(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum() / 1.0e6);
-		std::string s = std::string(soapy_devices[0].driver.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
+		SoapySDR::Range r = SdrDevices.get_full_frequency_range(default_radio, default_rx_channel);
+		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
+		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
+		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
-		vfo.set_vfo_capability(&soapy_devices[0]);
-		vfo.set_vfo_range(soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().minimum(),
-			soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range.front().maximum());
-			
-		vfo.vfo_init((long)ifrate, pcmrate, &soapy_devices[0]);
-		for (auto& col : soapy_devices[0].channel_structure_rx[0].sample_rates)
+		
+		vfo.set_vfo_range(r.minimum(),r.maximum());	
+		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel);
+		try
 		{
-			int v = (int)col;
-			Gui_rx.add_sample_rate(v);
-		}
-		Gui_rx.set_sample_rate((int)ifrate);
-		if (soapy_devices[0].tx_channels > 0)
-		{
-			lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "TX");
-			Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
-			Gui_tx.set_sample_rate((int)ifrate_tx);
-			Gui_tx.set_drv_range();
-			for (auto& col : soapy_devices[0].channel_structure_tx[0].sample_rates)
+			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
-				int v = (int)col;
-				Gui_tx.add_sample_rate(v);
+				lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "TX");
+				Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
+				Gui_tx.set_sample_rate((int)ifrate_tx);
+				Gui_tx.set_drv_range();
+				for (auto& col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
+				{
+					int v = (int)col;
+					Gui_tx.add_sample_rate(v);
+				}
 			}
 		}
-		soapy_devices[0].channel_structure_tx[0].source_buffer_tx = &source_buffer_tx;
-		soapy_devices[0].channel_structure_rx[0].source_buffer_rx = &source_buffer_rx;
-		soapy_devices[0].sdr->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
-		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - 3, soapy_devices[0].channel_structure_rx[soapy_devices[0].rx_channel].full_frequency_range);
+		catch (const std::exception& e)
+		{
+			std::cout << e.what();
+		}
+		lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);	
+		gsetup.init(tab7, LV_HOR_RES - 3);
+		gsetup.set_radio(default_radio);		
+		try
+		{	
+			for (auto& col : SdrDevices.SdrDevices.at(default_radio)->get_rx_sample_rates(default_rx_channel))
+			{
+				int v = (int)col;
+				gsetup.add_sample_rate(v);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what();
+		}
+		gsetup.set_sample_rate((int)ifrate);
+		try
+		{
+			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what();
+		}
+		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
 		gagc.set_gain_range();
@@ -255,13 +284,11 @@ int main(int argc, char *argv[])
 	else
 	{
 		gbar.init(bar_view, mode, LV_HOR_RES - 3, barHeight); 
-		lv_label_set_text(label_status, "No SDR Device Found"); 
+		lv_label_set_text(label_status, "No SDR Device Found");
+		lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);	
+		gsetup.init(tab7, LV_HOR_RES - 3);
+		gsetup.set_radio(default_radio);
 	}
-	
-	
-	lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);		
-	lv_obj_t *label1 = lv_label_create(tab7);
-	lv_label_set_text(label1, "Setup");
 	
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now(); 
@@ -334,6 +361,8 @@ void stop_rxtx()
 
 void select_mode(int s_mode, bool bvfo)
 {	
+	if (!SdrDevices.isValid(default_radio))
+		return;
 	startTime = std::chrono::high_resolution_clock::now(); 
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
@@ -344,12 +373,10 @@ void select_mode(int s_mode, bool bvfo)
 	stop_flag = true; 
 	unique_lock<mutex> lock_fm(fm_finish); 
 	lock_fm.unlock();
-	audio_input->close(); 
-	audio_output->close(); 
 	stop_tx_flag = false;
 	stop_flag = false;
 	mode = s_mode;
-	if (soapy_devices[0].tx_channels > 0)
+	if (SdrDevices.get_tx_channels(default_radio) > 0)
 		Gui_tx.set_tx_state(false);
 	vfo.vfo_rxtx(true, false);
 	vfo.set_freq_to_sdr();
@@ -363,13 +390,13 @@ void select_mode(int s_mode, bool bvfo)
 	{
 	case mode_narrowband_fm:
 		FMDemodulator::create_demodulator(ifrate, pcmrate, &source_buffer_rx, audio_output);
-		RX_Stream::create_rx_streaming_thread(&soapy_devices[0]);
+		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	
 	case mode_broadband_fm:
 		audio_output->open(); 
 		start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
-		RX_Stream::create_rx_streaming_thread(&soapy_devices[0]); 
+		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx); 
 		break;
 		
 	case mode_am:
@@ -378,16 +405,16 @@ void select_mode(int s_mode, bool bvfo)
 	case mode_lsb:
 		vfo.set_step(10, 0);
 		AMDemodulator::create_demodulator(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
-		RX_Stream::create_rx_streaming_thread(&soapy_devices[0]);
+		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	}
 }
 
 void select_mode_tx(int s_mode, int tone)
 {
-	if (soapy_devices[0].tx_channels == 0)
-		return;
 	// Stop all threads
+	if (!SdrDevices.isValid(default_radio))
+		return;
 	startTime = std::chrono::high_resolution_clock::now();
 	auto now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> timePassed = now - startTime;
@@ -409,7 +436,15 @@ void select_mode_tx(int s_mode, int tone)
 	vfo.vfo_rxtx(false, true);
 	vfo.set_vfo(0, false);
 	printf("select_mode_tx start tx threads\n");
-	soapy_devices[0].sdr->setGain(SOAPY_SDR_TX, soapy_devices[0].tx_channel, (double)Gui_tx.get_drv_pos());
+	try
+	{
+		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, default_rx_channel, (double)Gui_tx.get_drv_pos());
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+		return;
+	}
 	switch (mode)
 	{	
 	case mode_broadband_fm:
@@ -419,7 +454,7 @@ void select_mode_tx(int s_mode, int tone)
 	
 	case mode_narrowband_fm:
 		FMModulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(&soapy_devices[0], ifrate_tx);
+		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 		
 	case mode_cw:
@@ -428,8 +463,16 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_usb:
 	case mode_lsb:
 		AMModulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(&soapy_devices[0], ifrate_tx);
+		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 	}
 }
 
+/*
+ *
+ *const auto startTime = std::chrono::high_resolution_clock::now();
+		const auto now = std::chrono::high_resolution_clock::now();
+		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
+		printf("create demodulator %lld\n", timePassed.count());
+ *
+ **/

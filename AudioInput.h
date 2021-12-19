@@ -7,6 +7,8 @@
 #include "Audiodefs.h"
 #include "DataBuffer.h"
 
+extern double get_audio_input_rate();
+	
 class AudioInput : public RtAudio
 {
 public:
@@ -23,7 +25,8 @@ public:
 	bool	get_stereo()		{return m_stereo;};
 	float	get_rms_level();
 	void	set_level(float f);
-	
+	int		queued_samples();
+		
 	operator bool() const
 	{
 		return (!m_zombie) && m_error.empty();

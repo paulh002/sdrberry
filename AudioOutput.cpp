@@ -1,9 +1,9 @@
 #include "sdrberry.h"
 
-const auto startTime = std::chrono::high_resolution_clock::now();
-auto timeLastPrint = std::chrono::high_resolution_clock::now();
-unsigned long long totalSamples(0);
-double sampleRate {0.0};	
+static const auto startTime = std::chrono::high_resolution_clock::now();
+static auto timeLastPrint = std::chrono::high_resolution_clock::now();
+static unsigned long long totalSamples(0);
+static double sampleRate {0.0};	
 mutex mSampleRate;
 
 double get_audio_sample_rate()
@@ -55,7 +55,6 @@ bool AudioOutput::init(std::string device, int pcmrate, DataBuffer<Sample>	*Audi
 {
 	if (this->getDeviceCount() < 1) {
 		std::cout << "\nNo audio devices found!\n";
-		m_zombie = true;
 		return false;
 	}
 	parameters.deviceId = this->getDefaultOutputDevice();
@@ -92,9 +91,11 @@ void AudioOutput::adjust_gain(SampleVector& samples)
 
 void AudioOutput::close()
 {
-	stop();
 	if (isStreamOpen()) 
+	{
+		stopStream();
 		closeStream();
+	}
 }
 
 AudioOutput::~AudioOutput()
@@ -102,31 +103,13 @@ AudioOutput::~AudioOutput()
 	close();
 }
 
-void AudioOutput::stop()
-{
-	if (isStreamOpen())
-	{	
-		try {
-			// Stop the stream
-			stopStream();
-		}
-		catch (RtAudioError& e) {
-			e.printMessage();
-		}
-	}
-}
-
-
 bool AudioOutput::write(SampleVector& audiosamples)
 {
-	if (databuffer)
+	if (databuffer && isStreamOpen())
 	{
 		databuffer->push(move(audiosamples));
-		//printf("queued audio vectors %d\n", databuffer->queued_samples());
 	}
 	audiosamples.clear();
-	//if (databuffer->queued_samples() > 4096)
-	//	printf("audio buffer queued samples %u\n", databuffer->queued_samples());
 	return true;
 }
 

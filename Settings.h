@@ -7,7 +7,6 @@
 #include "configfile.h"
 #include "sdrberry.h"
 
-
 using namespace std;
 
 class Settings

@@ -22,7 +22,23 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	// resampler and band filter assume pcmfrequency on the low side
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	tune_offset(vfo.get_vfo_offset());
+	printf("open audio\n");
 	audio_output->open();
+}
+
+Demodulator::~Demodulator()
+{
+	printf("destructor demod called\n");
+	if (m_upnco != nullptr)
+		nco_crcf_destroy(m_upnco);
+	m_upnco = nullptr;
+	if (m_lowpass)
+		iirfilt_crcf_destroy(m_lowpass);
+	m_lowpass = nullptr;
+	if (m_audio_output != nullptr)
+		m_audio_output->close(); 
+	if (m_audio_input != nullptr)
+		m_audio_input->close(); 
 }
 
 void Demodulator::set_reample_rate(float resample_rate)
@@ -67,18 +83,6 @@ void Demodulator::adjust_gain(IQSampleVector& samples_in, float vol)
 		col.real(col.real() * vol);
 		col.imag(col.imag() * vol);
 	}
-}
-
-Demodulator::~Demodulator()
-{
-	printf("destructor demod called\n");
-	if (m_upnco != nullptr)
-		nco_crcf_destroy(m_upnco);
-	m_upnco = nullptr;
-	if (m_lowpass)
-		iirfilt_crcf_destroy(m_lowpass);
-	m_lowpass = nullptr;
-	audio_output->close(); 
 }
 
 void Demodulator::mono_to_left_right(const SampleVector& samples_mono,

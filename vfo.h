@@ -3,7 +3,6 @@
 #include <mutex>
 #include <atomic>
 #include <unistd.h>
-#include <pthread.h>
 #include <mutex>
 #include <time.h>
 #include <sys/time.h>
@@ -19,7 +18,7 @@
 #include "gui_top_bar.h"
 #include "sdrstream.h"
 #include "gui_vfo.h"
-#include "devices.h"
+#include "SdrDevice.h"
 
 #define	MAX_NUM_BAND	15
 
@@ -35,7 +34,6 @@ struct vfo_settings_struct
 	int					active_vfo;
 	unsigned long		current_freq_vfo1[MAX_NUM_BAND];
 	unsigned long		current_freq_vfo2[MAX_NUM_BAND];
-	struct				device_structure *sdr_dev;
 	double				tuner_offset; 
 	bool				tx;
 	bool				rx;
@@ -54,9 +52,8 @@ class CVfo
 public:
 	CVfo();
 	
-	void vfo_init(long ifrate, long pcmrate, struct device_structure *dev);
+	void vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int fchannel);
 	void vfo_re_init(long ifrate, long pcmrate);
-	void set_vfo_capability(struct device_structure *sdr_dev);
 	int	 set_vfo(long long freq, bool lock);
 	void set_freq_to_sdr();
 	void step_vfo(long icount, bool lock);
@@ -94,10 +91,12 @@ public:
 	
 private:
 	struct vfo_settings_struct	vfo_setting;
-	struct device_structure		*sdr_dev;
 	int							m_delay_counter = 0;
 	int							m_delay;
 	std::mutex					m_vfo_mutex;
+	SdrDeviceVector				*SdrDevices {nullptr};
+	std::string					radio;
+	int							channel;
 
 	int							get_band(int active_vfo);
 	void						rx_set_sdr_freq();

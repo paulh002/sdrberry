@@ -60,6 +60,7 @@
       <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
+      <VerboseMode>false</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
@@ -91,7 +92,6 @@
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
     <ClCompile Include="Demodulator.cpp" />
-    <ClCompile Include="device.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
@@ -105,6 +105,7 @@
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
     <ClCompile Include="gui_rx.cpp" />
+    <ClCompile Include="gui_setup.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
@@ -256,10 +257,10 @@
     <ClCompile Include="lvgl\src\widgets\lv_switch.c" />
     <ClCompile Include="lvgl\src\widgets\lv_table.c" />
     <ClCompile Include="lvgl\src\widgets\lv_textarea.c" />
+    <ClCompile Include="SdrDevice.cpp" />
     <ClCompile Include="sdrstream.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Setup.cpp" />
-    <ClCompile Include="SoapySDRProbe.cpp" />
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
@@ -279,7 +280,6 @@
     <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="Demodulator.h" />
-    <ClInclude Include="devices.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
@@ -289,6 +289,7 @@
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_bar.h" />
     <ClInclude Include="gui_rx.h" />
+    <ClInclude Include="gui_setup.h" />
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />
@@ -427,6 +428,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PCF8574.h" />
     <ClInclude Include="RtMidi.h" />
+    <ClInclude Include="SdrDevice.h" />
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Setup.h" />
@@ -435,6 +437,8 @@
     <ClInclude Include="SoapySDR\ConverterPrimitives.hpp" />
     <ClInclude Include="SoapySDR\ConverterRegistry.hpp" />
     <ClInclude Include="SoapySDR\Device.hpp" />
+    <ClInclude Include="SoapySDR\Errors.h" />
+    <ClInclude Include="SoapySDR\Errors.hpp" />
     <ClInclude Include="SoapySDR\Formats.hpp" />
     <ClInclude Include="SoapySDR\Registry.hpp" />
     <ClInclude Include="SoapySDR\Time.hpp" />

@@ -8,8 +8,6 @@
 #include "AudioOutput.h"
 #include "Filter.h"
 #include "FmDecode.h"
-
-
 #include <liquid.h>
 #include <complex>
 #include <vector>
@@ -542,6 +540,7 @@ void* rx_fm_thread(void* fm_ptr)
 		buf_mix.clear();
 	}
 	nco_crcf_destroy(upnco);
+	audio_output->close(); 
 	pthread_exit(NULL);
 }	
 

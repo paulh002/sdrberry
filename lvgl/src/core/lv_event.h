@@ -1,5 +1,5 @@
 /**
- * @file lv_templ.h
+ * @file lv_event.h
  *
  */
 
@@ -75,9 +75,10 @@ typedef enum {
     LV_EVENT_CHILD_CHANGED,       /**< Child was removed, added, or its size, position were changed */
     LV_EVENT_CHILD_CREATED,       /**< Child was created, always bubbles up to all parents*/
     LV_EVENT_CHILD_DELETED,       /**< Child was deleted, always bubbles up to all parents*/
+    LV_EVENT_SCREEN_UNLOAD_START, /**< A screen unload started, fired immediately when scr_load is called*/
+    LV_EVENT_SCREEN_LOAD_START,   /**< A screen load started, fired when the screen change delay is expired*/
     LV_EVENT_SCREEN_LOADED,       /**< A screen was loaded*/
     LV_EVENT_SCREEN_UNLOADED,     /**< A screen was unloaded*/
-
     LV_EVENT_SIZE_CHANGED,        /**< Object coordinates/size have changed*/
     LV_EVENT_STYLE_CHANGED,       /**< Object's style has changed*/
     LV_EVENT_LAYOUT_CHANGED,      /**< The children position has changed due to a layout recalculation*/
@@ -243,6 +244,14 @@ bool lv_obj_remove_event_cb_with_user_data(struct _lv_obj_t * obj, lv_event_cb_t
  * @return          true if any event handlers were removed
  */
 bool lv_obj_remove_event_dsc(struct _lv_obj_t * obj, struct _lv_event_dsc_t * event_dsc);
+
+/**
+ * The the user data of an event obejct event callback. Always the first match with `event_cb` will be returned.
+ * @param obj               pointer to an object
+ * @param event_cb          the event function
+ * @return                  the user_data
+ */
+void * lv_obj_get_event_user_data(struct _lv_obj_t * obj, lv_event_cb_t event_cb);
 
 /**
  * Get the input device passed as parameter to indev related events.

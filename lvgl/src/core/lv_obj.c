@@ -114,20 +114,22 @@ void lv_init(void)
 
     _lv_group_init();
 
-#if LV_USE_GPU_STM32_DMA2D
-    /*Initialize DMA2D GPU*/
-    lv_gpu_stm32_dma2d_init();
-#endif
+    lv_draw_init();
 
-#if LV_USE_GPU_NXP_PXP && LV_USE_GPU_NXP_PXP_AUTO_INIT
-    if(lv_gpu_nxp_pxp_init(&pxp_default_cfg) != LV_RES_OK) {
-        LV_LOG_ERROR("PXP init error. STOP.\n");
-        for(; ;) ;
-    }
-#endif
-#if LV_USE_GPU_SDL
-    lv_gpu_sdl_init();
-#endif
+    //#if LV_USE_GPU_STM32_DMA2D
+    //    /*Initialize DMA2D GPU*/
+    //    lv_gpu_stm32_dma2d_init();
+    //#endif
+    //
+    //#if LV_USE_GPU_NXP_PXP && LV_USE_GPU_NXP_PXP_AUTO_INIT
+    //    if(lv_gpu_nxp_pxp_init(&pxp_default_cfg) != LV_RES_OK) {
+    //        LV_LOG_ERROR("PXP init error. STOP.\n");
+    //        for(; ;) ;
+    //    }
+    //#endif
+    //#if LV_USE_GPU_SDL
+    //    lv_gpu_sdl_init();
+    //#endif
 
     _lv_obj_style_init();
     _lv_ll_init(&LV_GC_ROOT(_lv_disp_ll), sizeof(lv_disp_t));
@@ -145,7 +147,7 @@ void lv_init(void)
 
     uint8_t * txt_u8 = (uint8_t *)txt;
     if(txt_u8[0] != 0xc3 || txt_u8[1] != 0x81 || txt_u8[2] != 0x00) {
-        LV_LOG_WARN("The strings has no UTF-8 encoding. Non-ASCII characters won't be displayed.");
+        LV_LOG_WARN("The strings have no UTF-8 encoding. Non-ASCII characters won't be displayed.");
     }
 
     uint32_t endianess_test = 0x11223344;
@@ -174,7 +176,7 @@ void lv_init(void)
 #endif
 
 #if LV_LOG_LEVEL == LV_LOG_LEVEL_TRACE
-    LV_LOG_WARN("Log level is set the Trace which makes LVGL much slower");
+    LV_LOG_WARN("Log level is set to 'Trace' which makes LVGL much slower");
 #endif
 
     lv_extra_init();
@@ -237,6 +239,7 @@ void lv_obj_add_flag(lv_obj_t * obj, lv_obj_flag_t f)
 
     if((was_on_layout != lv_obj_is_layout_positioned(obj)) || (f & (LV_OBJ_FLAG_LAYOUT_1 |  LV_OBJ_FLAG_LAYOUT_2))) {
         lv_obj_mark_layout_as_dirty(lv_obj_get_parent(obj));
+        lv_obj_mark_layout_as_dirty(obj);
     }
 
     if(f & LV_OBJ_FLAG_SCROLLABLE) {
@@ -265,6 +268,7 @@ void lv_obj_clear_flag(lv_obj_t * obj, lv_obj_flag_t f)
         lv_obj_invalidate(obj);
         if(lv_obj_is_layout_positioned(obj)) {
             lv_obj_mark_layout_as_dirty(lv_obj_get_parent(obj));
+            lv_obj_mark_layout_as_dirty(obj);
         }
     }
 
@@ -423,6 +427,7 @@ static void lv_obj_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
     obj->flags |= LV_OBJ_FLAG_SCROLLABLE;
     obj->flags |= LV_OBJ_FLAG_SCROLL_ELASTIC;
     obj->flags |= LV_OBJ_FLAG_SCROLL_MOMENTUM;
+    obj->flags |= LV_OBJ_FLAG_SCROLL_WITH_ARROW;
     if(parent) obj->flags |= LV_OBJ_FLAG_GESTURE_BUBBLE;
 
     LV_TRACE_OBJ_CREATE("finished");
@@ -575,6 +580,7 @@ static void lv_obj_draw(lv_event_t * e)
             draw_dsc.bg_opa = LV_OPA_TRANSP;
             draw_dsc.outline_opa = LV_OPA_TRANSP;
             draw_dsc.shadow_opa = LV_OPA_TRANSP;
+            draw_dsc.bg_img_opa = LV_OPA_TRANSP;
             lv_obj_init_draw_rect_dsc(obj, LV_PART_MAIN, &draw_dsc);
 
             lv_coord_t w = lv_obj_get_style_transform_width(obj, LV_PART_MAIN);
@@ -698,7 +704,7 @@ static void lv_obj_event(const lv_obj_class_t * class_p, lv_event_t * e)
     LV_UNUSED(class_p);
 
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * obj = lv_event_get_current_target(e);
     if(code == LV_EVENT_PRESSED) {
         lv_obj_add_state(obj, LV_STATE_PRESSED);
     }
@@ -740,7 +746,7 @@ static void lv_obj_event(const lv_obj_class_t * class_p, lv_event_t * e)
                 if(res != LV_RES_OK) return;
             }
         }
-        else if(lv_obj_has_flag(obj, LV_OBJ_FLAG_SCROLLABLE) && !lv_obj_is_editable(obj)) {
+        else if(lv_obj_has_flag(obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW) && !lv_obj_is_editable(obj)) {
             /*scroll by keypad or encoder*/
             lv_anim_enable_t anim_enable = LV_ANIM_OFF;
             lv_coord_t sl = lv_obj_get_scroll_left(obj);

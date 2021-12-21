@@ -329,7 +329,7 @@ void lv_label_get_letter_pos(const lv_obj_t * obj, uint32_t char_id, lv_point_t 
 
     /*Search the line of the index letter*/;
     while(txt[new_line_start] != '\0') {
-        new_line_start += _lv_txt_get_next_line(&txt[line_start], font, letter_space, max_w, flag);
+        new_line_start += _lv_txt_get_next_line(&txt[line_start], font, letter_space, max_w, NULL, flag);
         if(byte_id < new_line_start || txt[new_line_start] == '\0')
             break; /*The line of 'index' letter begins at 'line_start'*/
 
@@ -430,7 +430,7 @@ uint32_t lv_label_get_letter_on(const lv_obj_t * obj, lv_point_t * pos_in)
 
     /*Search the line of the index letter*/;
     while(txt[line_start] != '\0') {
-        new_line_start += _lv_txt_get_next_line(&txt[line_start], font, letter_space, max_w, flag);
+        new_line_start += _lv_txt_get_next_line(&txt[line_start], font, letter_space, max_w, NULL, flag);
 
         if(pos.y <= y + letter_height) {
             /*The line is found (stored in 'line_start')*/
@@ -548,7 +548,7 @@ bool lv_label_is_char_under_pos(const lv_obj_t * obj, lv_point_t * pos)
 
     /*Search the line of the index letter*/;
     while(txt[line_start] != '\0') {
-        new_line_start += _lv_txt_get_next_line(&txt[line_start], font, letter_space, max_w, flag);
+        new_line_start += _lv_txt_get_next_line(&txt[line_start], font, letter_space, max_w, NULL, flag);
 
         if(pos->y <= y + letter_height) break; /*The line is found (stored in 'line_start')*/
         y += letter_height + line_space;
@@ -819,8 +819,8 @@ static void draw_main(lv_event_t * e)
         label_draw_dsc.sel_bg_color = lv_obj_get_style_bg_color(obj, LV_PART_SELECTED);
     }
 
-    /* In SROLL and SROLL_CIRC mode the CENTER and RIGHT are pointless so remove them.
-     * (In addition they will result misalignment is this case)*/
+    /* In SCROLL and SCROLL_CIRCULAR mode the CENTER and RIGHT are pointless, so remove them.
+     * (In addition, they will create misalignment in this situation)*/
     if((label->long_mode == LV_LABEL_LONG_SCROLL || label->long_mode == LV_LABEL_LONG_SCROLL_CIRCULAR) &&
        (label_draw_dsc.align == LV_TEXT_ALIGN_CENTER || label_draw_dsc.align == LV_TEXT_ALIGN_RIGHT)) {
         lv_point_t size;
@@ -852,7 +852,8 @@ static void draw_main(lv_event_t * e)
 
     if(label->long_mode == LV_LABEL_LONG_SCROLL || label->long_mode == LV_LABEL_LONG_SCROLL_CIRCULAR) {
         lv_draw_label(&txt_coords, &txt_clip, &label_draw_dsc, label->text, hint);
-    } else {
+    }
+    else {
         lv_draw_label(&txt_coords, clip_area, &label_draw_dsc, label->text, hint);
     }
 
@@ -910,7 +911,7 @@ static void lv_label_refr_text(lv_obj_t * obj)
 
     lv_obj_refresh_self_size(obj);
 
-    /*In scroll mode start an offset animations*/
+    /*In scroll mode start an offset animation*/
     if(label->long_mode == LV_LABEL_LONG_SCROLL) {
         uint16_t anim_speed = lv_obj_get_style_anim_speed(obj, LV_PART_MAIN);
         if(anim_speed == 0) anim_speed = LV_LABEL_DEF_SCROLL_SPEED;
@@ -1123,7 +1124,7 @@ static void lv_label_refr_text(lv_obj_t * obj)
             for(i = 0; i <= LV_LABEL_DOT_NUM; i++) {
                 len += _lv_txt_encoded_size(&label->text[byte_id]);
                 _lv_txt_encoded_next(label->text, &byte_id);
-                if (len > LV_LABEL_DOT_NUM || byte_id > txt_len) {
+                if(len > LV_LABEL_DOT_NUM || byte_id > txt_len) {
                     break;
                 }
             }

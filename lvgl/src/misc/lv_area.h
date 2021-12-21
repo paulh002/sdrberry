@@ -234,9 +234,9 @@ void lv_area_align(const lv_area_t * base, lv_area_t * to_align, lv_align_t alig
  **********************/
 
 #if LV_USE_LARGE_COORD
-#define _LV_COORD_TYPE_SHIFT    (29)
+#define _LV_COORD_TYPE_SHIFT    (29U)
 #else
-#define _LV_COORD_TYPE_SHIFT    (13)
+#define _LV_COORD_TYPE_SHIFT    (13U)
 #endif
 
 #define _LV_COORD_TYPE_MASK     (3 << _LV_COORD_TYPE_SHIFT)
@@ -247,7 +247,7 @@ void lv_area_align(const lv_area_t * base, lv_area_t * to_align, lv_align_t alig
 #define _LV_COORD_TYPE_SPEC     (1 << _LV_COORD_TYPE_SHIFT)
 #define _LV_COORD_TYPE_PX_NEG   (3 << _LV_COORD_TYPE_SHIFT)
 
-#define LV_COORD_IS_PX(x)       (_LV_COORD_TYPE(x) == _LV_COORD_TYPE_PX) || \
+#define LV_COORD_IS_PX(x)       (_LV_COORD_TYPE(x) == _LV_COORD_TYPE_PX || \
                                  _LV_COORD_TYPE(x) == _LV_COORD_TYPE_PX_NEG ? true : false)
 #define LV_COORD_IS_SPEC(x)     (_LV_COORD_TYPE(x) == _LV_COORD_TYPE_SPEC ? true : false)
 

@@ -62,6 +62,7 @@ public:
 	int			SoapySDRRateTest(const std::string &argStr, const double sampleRate, const std::string &channelStr, const std::string &directionStr);
 	static int	checkDriver(const std::string &driverName);
 	int			MakeSdrDevice();
+	int			UnmakeSdrDevice();
 	bool		isDeviceActive()  { return (soapyDevice != nullptr) ;}
 	std::vector<double>	get_rx_sample_rates(int channel) {return rx_channels[channel]->get_sample_rates();}
 	std::vector<double>	get_tx_sample_rates(int channel) {return tx_channels[channel]->get_sample_rates();}
@@ -162,6 +163,7 @@ public:
 	int		get_tx_channels(std::string name);
 	bool	isValid(std::string name);
 	int		get_device_index(std::string dev);
+	bool	UnMakeDevice(std::string name);
 	
 private:
 	std::map<std::string, int>		dev_map;

@@ -21,6 +21,7 @@ public:
 	void add_sample_rate(int samplerate);
 	void step_drv_slider(int step);
 	void set_sample_rate(int rate);
+	void clear_sample_rate();
 	
 	int getbuttons()
 	{

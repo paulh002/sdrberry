@@ -43,6 +43,33 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	string	label;
 	int		i = 0;
 	
+	if (!o_tab)
+	{
+		//nullptr then reinitialize
+		o_tab = tab;
+		for (int ii = 0; ii < ibuttons; ii++)
+		{
+			lv_obj_del(button[ii]);
+			button[i] = nullptr;
+		}
+		ibuttons = 0;
+	}
+	else
+	{
+		tab = o_tab;
+		lv_style_init(&style_btn);
+		lv_style_set_radius(&style_btn, 10);
+		lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
+		lv_style_set_bg_grad_color(&style_btn, lv_color_make(0x00, 0x00, 0x00));
+		lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
+		lv_style_set_bg_opa(&style_btn, 255);
+		lv_style_set_border_color(&style_btn, lv_color_make(0x9b, 0x36, 0x36)); // lv_color_make(0x2e, 0x44, 0xb2)
+		lv_style_set_border_width(&style_btn, 2);
+		lv_style_set_border_opa(&style_btn, 255);
+		lv_style_set_outline_color(&style_btn, lv_color_black());
+		lv_style_set_outline_opa(&style_btn, 255);
+	}
+	
 	//lv_coord_t w = lv_obj_get_width(o_tab);	
 	long f_min = r.front().minimum();
 	long f_max = r.front().maximum();
@@ -51,18 +78,6 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
 	button_height = 50;
 	button_height_margin = button_height + y_margin;
-	
-	lv_style_init(&style_btn);
-	lv_style_set_radius(&style_btn, 10);
-	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
-	lv_style_set_bg_grad_color(&style_btn, lv_color_make(0x00, 0x00, 0x00));
-	lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
-	lv_style_set_bg_opa(&style_btn, 255);
-	lv_style_set_border_color(&style_btn, lv_color_make(0x9b, 0x36, 0x36));      // lv_color_make(0x2e, 0x44, 0xb2)
-	lv_style_set_border_width(&style_btn, 2);
-	lv_style_set_border_opa(&style_btn, 255);
-	lv_style_set_outline_color(&style_btn, lv_color_black());
-	lv_style_set_outline_opa(&style_btn, 255);
 	
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
@@ -107,9 +122,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 			ibuttons++;
 		}
 	}
-	printf("ibutton : %d\n", ibuttons);
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
-
 	lv_obj_t * cb;
 	cb = lv_checkbox_create(o_tab);
 	lv_checkbox_set_text(cb, "limit vfo to bands");

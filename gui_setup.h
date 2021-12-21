@@ -20,13 +20,13 @@ public:
 	void	set_sample_rate(int rate);
 	int		get_sample_rate(int rate);
 	void	set_radio(std::string name);
+	void	clear_sample_rate();
 private:
 	lv_style_t		style_btn;
 	
 	vector<int>		sample_rates;
 	lv_obj_t*		d_samplerate;
 	lv_obj_t*		d_receivers;
-	int				i_samplerate_count;
 };
 
 extern gui_setup	gsetup;

@@ -40,6 +40,7 @@ lv_obj_t* vfo1_button;
 lv_obj_t* vfo2_button;
 lv_obj_t *tabview_mid;
 lv_obj_t *bar_view;
+lv_obj_t *tab_buttons;
 
 using namespace std;
 
@@ -89,9 +90,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	audio_output->init(s, pcmrate, &audiooutput_buffer);
-
-
-	//(char *)s.c_str(), pcmrate
 	audio_input = new AudioInput();
 	if (!(*audio_input)) {
 		fprintf(stderr, "ERROR: AudioInput\n");
@@ -164,14 +162,18 @@ int main(int argc, char *argv[])
 	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD);
 	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "Mode");
 	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "Agc");
+	lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "TX");
+	lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);	
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
-
+	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
 	Wf.init(tab1, 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);	
 	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - 3);
-	//Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
 	gagc.init(tab5, LV_HOR_RES - 3);
-		
+	Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
+	gsetup.init(tab7, LV_HOR_RES - 3);
+	lv_btnmatrix_set_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
+	
 	if (Settings_file.get_mac_address() != std::string(""))
 	{
 		//create_ble_thread(Settings_file.get_mac_address());
@@ -232,8 +234,7 @@ int main(int argc, char *argv[])
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
-				lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "TX");
-				Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
+				lv_btnmatrix_clear_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
 				Gui_tx.set_sample_rate((int)ifrate_tx);
 				Gui_tx.set_drv_range();
 				for (auto& col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
@@ -247,8 +248,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);	
-		gsetup.init(tab7, LV_HOR_RES - 3);
+
 		gsetup.set_radio(default_radio);		
 		try
 		{	
@@ -285,8 +285,6 @@ int main(int argc, char *argv[])
 	{
 		gbar.init(bar_view, mode, LV_HOR_RES - 3, barHeight); 
 		lv_label_set_text(label_status, "No SDR Device Found");
-		lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);	
-		gsetup.init(tab7, LV_HOR_RES - 3);
 		gsetup.set_radio(default_radio);
 	}
 	
@@ -467,6 +465,85 @@ void select_mode_tx(int s_mode, int tone)
 		break;
 	}
 }
+
+
+void	switch_sdrreceiver(std::string receiver)
+{
+	/// First switchoff current receiver
+	stop_rxtx();
+	SdrDevices.UnMakeDevice(default_radio);
+	default_radio = receiver;
+	// Hide TX page
+	lv_btnmatrix_set_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
+	if (SdrDevices.MakeDevice(default_radio))
+	{
+		// set top line with receiver information
+		SoapySDR::Range r = SdrDevices.get_full_frequency_range(default_radio, default_rx_channel);
+		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
+		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
+		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
+		lv_label_set_text(label_status, s.c_str());
+		vfo.set_vfo_range(r.minimum(), r.maximum());	
+		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel);
+		try
+		{
+			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
+			{
+				lv_btnmatrix_clear_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
+				Gui_tx.clear_sample_rate();
+				Gui_tx.set_sample_rate((int)ifrate_tx);
+				Gui_tx.set_drv_range();
+				for (auto& col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
+				{
+					int v = (int)col;
+					Gui_tx.add_sample_rate(v);
+				}
+			}
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what();
+		}
+		// Rx sample rates
+		ifrate = Settings_file.find_samplerate(Settings_file.find_sdr(default_radio).c_str());
+		ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr(default_radio).c_str());
+		if (ifrate_tx == 0)
+			ifrate_tx = ifrate;
+		printf("samperate rx%f sample rate tx %f\n", ifrate, ifrate_tx);
+		gsetup.clear_sample_rate();
+		try
+		{	
+			for (auto& col : SdrDevices.SdrDevices.at(default_radio)->get_rx_sample_rates(default_rx_channel))
+			{
+				int v = (int)col;
+				gsetup.add_sample_rate(v);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what();
+		}
+		gsetup.set_sample_rate((int)ifrate);
+		try
+		{
+			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what();
+		}
+		gui_band_instance.init_button_gui(nullptr, LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
+		gbar.set_vol_slider(Settings_file.volume());
+		catinterface.SetAG(Settings_file.volume());
+		gagc.set_gain_range();
+		gbar.set_gain_range();
+		gagc.set_gain_slider(Settings_file.gain());	
+		gbar.set_gain_slider(Settings_file.gain());	
+		vfo.set_vfo(freq, false);
+		select_mode(mode); // start streaming
+	}
+}
+
 
 /*
  *

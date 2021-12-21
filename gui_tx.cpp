@@ -320,6 +320,10 @@ void gui_tx::set_tx_state(bool state)
 	}
 }
 
+void gui_tx::clear_sample_rate()
+{
+	lv_dropdown_clear_options(drp_samplerate);
+}
 
 void gui_tx::add_sample_rate(int samplerate)
 {

@@ -727,3 +727,14 @@ bool SdrDeviceVector::isValid(std::string name)
 	}
 	return false;
 }
+
+bool SdrDeviceVector::UnMakeDevice(std::string name)
+{
+	auto it = SdrDevices.find(name);
+	if (it != SdrDevices.end())
+	{ 
+		if (SdrDevices[name]->UnmakeSdrDevice() == EXIT_SUCCESS)
+			return true;
+	}
+	return false;
+}

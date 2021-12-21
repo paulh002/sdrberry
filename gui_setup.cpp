@@ -48,9 +48,6 @@ void gui_setup::add_sample_rate(int samplerate)
 {
 	char	str[30];
 	
-	if (!i_samplerate_count)
-		lv_dropdown_clear_options(d_samplerate);
-	i_samplerate_count++;
 	sample_rates.push_back(samplerate);
 	sprintf(str, "%d Khz", samplerate / 1000);
 	lv_dropdown_add_option(d_samplerate, str, LV_DROPDOWN_POS_LAST);
@@ -65,6 +62,11 @@ void gui_setup::set_sample_rate(int rate)
 			break;
 	}
 	lv_dropdown_set_selected(d_samplerate, i);
+}
+
+void gui_setup::clear_sample_rate()
+{
+	lv_dropdown_clear_options(d_samplerate);
 }
 
 void gui_setup::set_radio(std::string name)
@@ -105,8 +107,6 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_samplerate);
 	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
-	lv_dropdown_add_option(d_samplerate, "00", LV_DROPDOWN_POS_LAST);
-	i_samplerate_count = 0;
 	
 	d_receivers = lv_dropdown_create(o_tab);
 	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, button_width_margin, y_margin + ibutton_y * button_height_margin);

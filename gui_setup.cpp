@@ -1,6 +1,7 @@
 #include "gui_setup.h"
 
 gui_setup	gsetup;
+extern 		void switch_sdrreceiver(std::string receiver);
 
 static void receivers_button_handler(lv_event_t * e)
 {
@@ -8,7 +9,13 @@ static void receivers_button_handler(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e); 
 	if (code == LV_EVENT_VALUE_CHANGED) 
 	{
+		char	buf[80];
+		std::string receiver;
+		
+		receiver.reserve(80);
 		int selection = lv_dropdown_get_selected(obj);
+		lv_dropdown_get_selected_str(obj,buf, 79);
+		switch_sdrreceiver(std::string(buf));
 	}
 }
 
@@ -111,7 +118,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	d_receivers = lv_dropdown_create(o_tab);
 	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_receivers);
-	//lv_obj_add_event_cb(d_receivers, receivers_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(d_receivers, receivers_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
 	std::string def = Settings_file.find_sdr("default");
 	for (auto& col : Settings_file.receivers)
 	{

@@ -24,6 +24,12 @@ public:
 	std::vector<double>	get_sample_rates() {return sample_rates;}
 	std::string probeChannel();
 	SoapySDR::Range get_full_gain_range() {return full_gain_range;}
+	bool	get_agc() {return agc;}
+	bool	set_agc_state(bool state)
+	{
+		agc_state = state;
+		return state;
+	}
 	
 private:
 	SoapySDR::Device	*soapyDevice {nullptr};
@@ -33,6 +39,7 @@ private:
 	
 	bool								full_duplex {false};
 	bool								agc {false};
+	bool								agc_state;
 	std::string							formats;
 	double								fullScale {0.0};
 	std::string							Native_format;
@@ -71,22 +78,76 @@ public:
 		
 	void setFrequency(const int direction, const size_t channel, const double frequency)
 	{
+		if (direction == SOAPY_SDR_TX && numTxChans < 1)
+				return;
 		return soapyDevice->setFrequency(direction, channel, frequency);
 	}
 	
 	void setSampleRate(const int direction, const size_t channel, const double rate)
 	{
+		if (direction == SOAPY_SDR_TX && numTxChans < 1)
+				return;
 		return soapyDevice->setSampleRate(direction, channel, rate);
+	}
+	
+	double getSampleRate(const int direction, const size_t channel) const	
+	{
+		if (direction == SOAPY_SDR_TX && numTxChans < 1)
+			return 0.0;
+		return soapyDevice->getSampleRate(direction, channel);
 	}
 	
 	void setBandwidth(const int direction, const size_t channel, const double bw)
 	{
+		if (direction == SOAPY_SDR_TX && numTxChans < 1)
+				return;
 		return soapyDevice->setBandwidth(direction, channel, bw);
 	}
 	
 	void setGain(const int direction, const size_t channel, const double value)
 	{
+		if (direction == SOAPY_SDR_TX && numTxChans < 1)
+				return;
+		if (direction == SOAPY_SDR_RX)
+		{
+			if (rx_channels.at(channel)->get_agc())
+			{
+				if (soapyDevice->getGainMode(direction, channel))
+					return;
+			}
+		}	
 		return soapyDevice->setGain(direction, channel, value);	
+	}
+	
+	void setGain(const int direction, const size_t channel, const std::string &name, const double value)
+	{
+		if (direction == SOAPY_SDR_TX && numTxChans < 1)
+			return;
+		if (direction == SOAPY_SDR_RX)
+		{
+			if (rx_channels.at(channel)->get_agc())
+			{
+				if (soapyDevice->getGainMode(direction, channel))
+					return;
+			}
+		}
+		
+		return soapyDevice->setGain(direction, channel, name, value);	
+	}
+	
+	bool hasGainMode(const int direction, const size_t channel) const
+	{
+		return soapyDevice->hasGainMode(direction, channel);
+	}
+	
+	void setGainMode(const int direction, const size_t channel, const bool automatic)
+	{
+		return soapyDevice->setGainMode(direction, channel, automatic);
+	}
+
+	bool getGainMode(const int direction, const size_t channel) const
+	{
+		return rx_channels.at(channel)->set_agc_state(soapyDevice->getGainMode(direction, channel));
 	}
 	
 	SoapySDR::Stream *setupStream(const int direction, const std::string &format, const std::vector<size_t> &channels = std::vector<size_t>(), const SoapySDR::Kwargs &args = SoapySDR::Kwargs())

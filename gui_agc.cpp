@@ -142,12 +142,10 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 			ibutton_y++;
 		}
 	}
-	
-	lv_obj_add_state(get_button_obj(agc_mode), LV_STATE_CHECKED);
-	
 	agc_mode = Settings_file.agc_mode();
 	if (agc_mode > 3 || agc_mode < 0)
 		agc_mode = 0;
+	lv_obj_add_state(get_button_obj(agc_mode), LV_STATE_CHECKED);
 	ibutton_y++;
 	gain_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(gain_slider, w / 2 - 50); 

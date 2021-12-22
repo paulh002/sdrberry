@@ -52,7 +52,7 @@ class CVfo
 public:
 	CVfo();
 	
-	void vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int fchannel);
+	void vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel, int ftx_channel);
 	void vfo_re_init(long ifrate, long pcmrate);
 	int	 set_vfo(long long freq, bool lock);
 	void set_freq_to_sdr();
@@ -96,7 +96,8 @@ private:
 	std::mutex					m_vfo_mutex;
 	SdrDeviceVector				*SdrDevices {nullptr};
 	std::string					radio;
-	int							channel;
+	int							rx_channel, tx_channel;
+	long						offset_frequency;
 
 	int							get_band(int active_vfo);
 	void						rx_set_sdr_freq();

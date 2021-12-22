@@ -22,11 +22,12 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 	bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 
-void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int fchannel)
+void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel,int ftx_channel)
 {
 	SdrDevices = fSdrDevices;
 	radio = fradio;
-	channel = fchannel;
+	rx_channel = frx_channel;
+	tx_channel = frx_channel;
 		
 	string s = Settings_file.find_vfo1("freq");
 	long long freq = strtoll((const char *)s.c_str(), NULL, 0);
@@ -35,7 +36,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 		vfo.limit_ham_band = true;
 	else
 		vfo.limit_ham_band = false;
-	SoapySDR::RangeList r = SdrDevices->get_full_frequency_range_list(radio, channel); 
+	SoapySDR::RangeList r = SdrDevices->get_full_frequency_range_list(radio, rx_channel); 
 	vfo_setting.vfo_low = r.front().minimum();
 	vfo_setting.vfo_high = r.front().maximum();
 	auto it_band = Settings_file.meters.begin();
@@ -68,9 +69,24 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 		it_high++;
 		it_mode++;
 	}
+	if (freq < vfo_setting.vfo_low)
+		freq = vfo_setting.vfo_low;
+	if (freq > vfo_setting.vfo_high)
+		freq = vfo_setting.vfo_high;
+	
+	if (ifrate < 500000.0)
+	{
+		offset_frequency = ifrate / 4;
+		vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
+	}
+	else
+	{
+		offset_frequency = ifrate / 8; 
+		vfo_setting.m_max_offset = ifrate / 4; // Max offset is 1/2 samplefrequency (Nyquist limit)
+	}
 	vfo_setting.pcmrate = pcmrate;
 	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
-	vfo_setting.vfo_freq_sdr[0] = freq - ifrate / 4;	// position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
+	vfo_setting.vfo_freq_sdr[0] = freq - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 	vfo_setting.m_offset[0] = freq - vfo_setting.vfo_freq_sdr[0];  					// 
 	
 	s = Settings_file.find_vfo2("freq");
@@ -78,9 +94,8 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 	s = Settings_file.find_vfo2("Mode");
 	vfo_setting.mode[1] = Settings_file.convert_mode(s);
 	vfo_setting.vfo_freq[1] = freq;
-	vfo_setting.vfo_freq_sdr[1] = freq - ifrate / 4;
+	vfo_setting.vfo_freq_sdr[1] = freq - offset_frequency;
 	vfo_setting.m_offset[1] = freq - vfo_setting.vfo_freq_sdr[1];   					// 
-	vfo_setting.m_max_offset = ifrate / 2;				// Max offset is 1/2 samplefrequency (Nyquist limit)
 	if(freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
 		return ;
 	get_band(0);
@@ -94,42 +109,49 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 	catinterface.SetBand(get_band_in_meters());
 }
 
+void CVfo::vfo_re_init(long ifrate, long pcmrate)
+{	
+	vfo_setting.pcmrate = pcmrate;
+	if (ifrate < 500000.0)
+	{
+		offset_frequency = ifrate / 4;
+		vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
+	}
+	else
+	{
+		offset_frequency = ifrate / 8; 
+		vfo_setting.m_max_offset = ifrate / 4; // Max offset is 1/2 samplefrequency (Nyquist limit)
+	}
+	vfo_setting.vfo_freq_sdr[0] = vfo_setting.vfo_freq[0] - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
+	vfo_setting.m_offset[0] = vfo_setting.vfo_freq[0] - vfo_setting.vfo_freq_sdr[0]; // 
+	
+	vfo_setting.vfo_freq_sdr[1] = vfo_setting.vfo_freq[1] - offset_frequency;
+	vfo_setting.m_offset[1] = vfo_setting.vfo_freq[1] - vfo_setting.vfo_freq_sdr[1]; // 
+}
+
 void CVfo::set_freq_to_sdr()
 {
 	if (vfo_setting.rx) rx_set_sdr_freq();
 	if (vfo_setting.tx) tx_set_sdr_freq(); 
 }
 
-
 void	CVfo::rx_set_sdr_freq()
 {
-	if (SdrDevices)
+	if (SdrDevices && rx_channel >= 0)
 	{	
-		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_RX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
-
+		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 	}
 }
 
 void	CVfo::tx_set_sdr_freq()
 {
-	if (SdrDevices)
+	if (SdrDevices && tx_channel >= 0)
 	{	
-		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_TX, 0, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
-		SdrDevices->SdrDevices[radio]->setSampleRate(SOAPY_SDR_TX, 0, ifrate_tx); 
-		SdrDevices->SdrDevices[radio]->setBandwidth(SOAPY_SDR_TX, 0, ifrate_tx); 
-		SdrDevices->SdrDevices[radio]->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
+		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_TX, tx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);	
+		SdrDevices->SdrDevices[radio]->setSampleRate(SOAPY_SDR_TX, tx_channel, ifrate_tx); 
+		SdrDevices->SdrDevices[radio]->setBandwidth(SOAPY_SDR_TX, tx_channel, ifrate_tx); 
+		SdrDevices->SdrDevices[radio]->setGain(SOAPY_SDR_TX, tx_channel, Gui_tx.get_drv_pos());
 	}
-}
-
-void CVfo::vfo_re_init(long ifrate, long pcmrate)
-{	
-	vfo_setting.pcmrate = pcmrate;
-	vfo_setting.vfo_freq_sdr[0] = vfo_setting.vfo_freq[0] - ifrate / 4; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
-	vfo_setting.m_offset[0] = vfo_setting.vfo_freq[0] - vfo_setting.vfo_freq_sdr[0]; // 
-	
-	vfo_setting.vfo_freq_sdr[1] = vfo_setting.vfo_freq[1] - ifrate / 4;
-	vfo_setting.m_offset[1] = vfo_setting.vfo_freq[1] - vfo_setting.vfo_freq_sdr[1]; // 
-	vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
 }
 
 long CVfo::get_vfo_offset()
@@ -174,7 +196,7 @@ int CVfo::set_vfo(long long freq, bool lock)
 		if (abs(freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) > vfo_setting.m_max_offset)
 		{
 			vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;  						// initialize the frequency to user default
-			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] = freq - ifrate / 4;  		// position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
+			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] = freq - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];  					// 
 			if (vfo_setting.rx) rx_set_sdr_freq();
 			if (vfo_setting.tx) tx_set_sdr_freq(); 

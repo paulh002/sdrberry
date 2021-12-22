@@ -227,9 +227,12 @@ int main(int argc, char *argv[])
 		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		lv_label_set_text(label_status, s.c_str()); 
-		
+		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
+			default_tx_channel = -1;
+		else
+			default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(),r.maximum());	
-		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel);
+		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -483,8 +486,12 @@ void	switch_sdrreceiver(std::string receiver)
 		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		lv_label_set_text(label_status, s.c_str());
+		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
+			default_tx_channel = -1;
+		else
+			default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());	
-		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel);
+		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -505,8 +512,8 @@ void	switch_sdrreceiver(std::string receiver)
 			std::cout << e.what();
 		}
 		// Rx sample rates
-		ifrate = Settings_file.find_samplerate(Settings_file.find_sdr(default_radio).c_str());
-		ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr(default_radio).c_str());
+		ifrate = Settings_file.find_samplerate(default_radio.c_str());
+		ifrate_tx = Settings_file.find_samplerate_tx(default_radio.c_str());
 		if (ifrate_tx == 0)
 			ifrate_tx = ifrate;
 		printf("samperate rx%f sample rate tx %f\n", ifrate, ifrate_tx);

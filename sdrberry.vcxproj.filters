@@ -1385,86 +1385,86 @@
     <ClInclude Include="gui_setup.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_lru.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_mask.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_stack_blur.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_texture_cache.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_utils.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\draw\sw\lv_draw_sw.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\bmp\lv_bmp.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\ffmpeg\lv_ffmpeg.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\freetype\lv_freetype.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\fsdrv\lv_fsdrv.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="lvgl\src\misc\lv_anim_timeline.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\bmp\lv_bmp.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_lru.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_mask.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_stack_blur.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_texture_cache.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_utils.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\draw\sw\lv_draw_sw.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\ffmpeg\lv_ffmpeg.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\freetype\lv_freetype.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\fsdrv\lv_fsdrv.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
     <ClInclude Include="lvgl\src\extra\libs\gif\lv_gif.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\png\lodepng.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\png\lv_png.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\qrcode\lv_qrcode.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\qrcode\qrcodegen.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\rlottie\lv_rlottie.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\sjpg\lv_sjpg.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\sjpg\tjpgd.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\sjpg\tjpgdcnf.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\lv_libs.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\others\monkey\lv_monkey.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\others\snapshot\lv_snapshot.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\others\lv_others.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lvgl\src\extra\widgets\menu\lv_menu.h">
-      <Filter>Header files</Filter>
+      <Filter>Header files\lvgl</Filter>
     </ClInclude>
     <ClInclude Include="lvgl\src\gpu\lv_gpu_sdl.h">
-      <Filter>Header files</Filter>
+      <Filter>Header files\lvgl</Filter>
     </ClInclude>
-    <ClInclude Include="lvgl\src\misc\lv_anim_timeline.h">
-      <Filter>Header files</Filter>
+    <ClInclude Include="lvgl\src\extra\libs\lv_libs.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\widgets\menu\lv_menu.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\others\monkey\lv_monkey.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\others\lv_others.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\png\lv_png.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\qrcode\lv_qrcode.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\rlottie\lv_rlottie.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\sjpg\lv_sjpg.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\others\snapshot\lv_snapshot.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\sjpg\tjpgdcnf.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\sjpg\tjpgd.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\qrcode\qrcodegen.h">
+      <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="lvgl\src\extra\libs\png\lodepng.h">
+      <Filter>Header files\lvgl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

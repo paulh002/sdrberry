@@ -163,7 +163,10 @@ void band_button(lv_event_t * e)
 		
 		n = s.find("c");
 		if (n != string::npos)
+		{
 			s.erase(n);
+			i = stoi(s);
+		}
 		n = s.find("m");
 		if (n != string::npos)
 		{

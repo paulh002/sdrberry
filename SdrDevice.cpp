@@ -235,6 +235,22 @@ int	SdrDevice::makeDevice()
 	return EXIT_SUCCESS;
 }
 
+int	SdrDevice::UnmakeSdrDevice()
+{
+	std::cout << "UnMake device " << driver << std::endl;
+	try
+	{
+		SoapySDR::Device::unmake(soapyDevice);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << "Error unmaking device: " << ex.what() << std::endl;
+		return EXIT_FAILURE;
+	}
+	std::cout << std::endl;
+	return EXIT_SUCCESS;
+}
+
 
 std::string SdrDevice::SoapySDRDeviceProbe()
 {
@@ -375,7 +391,7 @@ std::string SdrDeviceChannel::probeChannel()
 	if (soapyDevice->hasIQBalance(dir, chan)) correctionsList.push_back("IQ balance");
 	std::string corrections = toString(correctionsList);
 	if (not corrections.empty()) ss << "  Corrections: " << corrections << std::endl;
-
+	
 	//gains
 	full_gain_range = soapyDevice->getGainRange(dir, chan);
 	ss << "  Full gain range: " << toString(full_gain_range) << " dB" << std::endl;

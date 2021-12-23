@@ -21,6 +21,14 @@
 #include "SdrDevice.h"
 
 #define	MAX_NUM_BAND	15
+struct bands
+{
+	int			meters;
+	string		labels;
+	long		f_low;
+	long		f_high;
+	int			f_mode;
+} ;
 
 struct vfo_settings_struct
 {
@@ -39,11 +47,7 @@ struct vfo_settings_struct
 	bool				rx;
 	long				m_max_offset;
 	long				m_offset[2];
-	vector<int>			meters;
-	vector<string>		labels;
-	vector<long>		f_low;
-	vector<long>		f_high;
-	vector<int>			f_mode;
+	vector<bands>		m_bands;
 	long				pcmrate;
 };
 

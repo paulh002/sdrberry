@@ -117,7 +117,7 @@ void AMDemodulator::operator()()
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
-				if ((audio_output->queued_samples() / 2) < 2048)
+			if ((audio_output->queued_samples() / 2) < 2048)
 					audio_output->write(audioframes);
 				else
 				{

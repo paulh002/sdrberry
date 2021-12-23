@@ -359,7 +359,6 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_obj_align(gain_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
 	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_PRESSING, NULL);
 	
-	
 	try
 	{
 		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(default_rx_channel)->get_agc())
@@ -373,7 +372,27 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	{
 		std::cout << e.what();
 	}						
+}
 
+void gui_bar::check_agc()
+{
+	try
+	{
+		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(default_rx_channel)->get_agc())
+		{
+			bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, default_rx_channel);
+			if (bAgc)
+				lv_obj_add_state(button[7], LV_STATE_CHECKED);
+			else
+				lv_obj_clear_state(button[7], LV_STATE_CHECKED);
+		}
+		else
+			lv_obj_clear_state(button[7], LV_STATE_CHECKED);			
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
 }
 
 void gui_bar::set_tx(bool tx)

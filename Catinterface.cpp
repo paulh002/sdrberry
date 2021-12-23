@@ -225,3 +225,8 @@ void Catinterface::SetSH(int bandwidth)
 {
 	cat_message.SetSH(0,bandwidth);
 }	
+
+void Catinterface::SetFA(uint32_t freq)	
+{
+	cat_message.SetFA(freq);
+}	

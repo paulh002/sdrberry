@@ -37,6 +37,7 @@ public:
 	void		SetBand(uint16_t band);
 	void		SetAG(uint8_t volume);	
 	void		SetSH(int bandwidth);	
+	void		SetFA(uint32_t freq);
 	
 
 

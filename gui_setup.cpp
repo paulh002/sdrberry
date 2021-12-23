@@ -73,6 +73,7 @@ void gui_setup::set_sample_rate(int rate)
 
 void gui_setup::clear_sample_rate()
 {
+	sample_rates.clear();
 	lv_dropdown_clear_options(d_samplerate);
 }
 
@@ -124,4 +125,17 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	{
 		lv_dropdown_add_option(d_receivers, col.c_str(), LV_DROPDOWN_POS_LAST);
 	}
+	
+	
+	int span_y = 15 + y_margin + button_height_margin;
+	span_slider = lv_slider_create(o_tab);
+	lv_slider_set_range(span_slider, 0, 100);
+	lv_obj_set_width(span_slider, w / 2 - 50); 
+	lv_obj_center(span_slider);
+	//lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_PRESSING, NULL);
+
+	span_slider_label = lv_label_create(o_tab);
+	lv_label_set_text(span_slider_label, "span");
+	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	
 }

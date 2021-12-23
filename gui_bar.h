@@ -28,6 +28,7 @@ public:
 	void		set_gain_slider(int gain);
 	int			getbuttons() 	{return ibuttons;}
 	void		set_mode(int mode);
+	void		check_agc();
 	lv_obj_t*	get_button_obj(int i)
 	{
 		if (i >= ibuttons)

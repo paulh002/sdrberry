@@ -469,6 +469,24 @@ void select_mode_tx(int s_mode, int tone)
 	}
 }
 
+/*
+ * To switch from SDR receiver we have to do a few things:
+ * 1) Stop current threats for receive and or transmit.
+ * 2) Unmake the old device in SoapySDR
+ * 3) Make the new device and probe device
+ * 4) Set samplerate for new device from config file
+ * 6) Update the buttons in the band tabview
+ * 7) Update the AGC button in button bar
+ * 8) Set text in top status bar to new device and frequency range
+ * 9) Check device rx samplerates and add to dropdown box in setting tab
+ * 10) Check if device support transmit and add transmit sample rates to dropdown and show TX tab
+ * 11) Re initialize the vfo class so:
+ *		- max min supported frequency is updated
+ *		- 
+ *
+ *
+ *
+ **/
 
 void	switch_sdrreceiver(std::string receiver)
 {
@@ -480,6 +498,12 @@ void	switch_sdrreceiver(std::string receiver)
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
 	if (SdrDevices.MakeDevice(default_radio))
 	{
+		ifrate = Settings_file.find_samplerate(default_radio.c_str());
+		ifrate_tx = Settings_file.find_samplerate_tx(default_radio.c_str());
+		if (ifrate_tx == 0)
+			ifrate_tx = ifrate;
+		printf("samperate rx%f sample rate tx %f\n", ifrate, ifrate_tx);
+		gbar.check_agc();
 		// set top line with receiver information
 		SoapySDR::Range r = SdrDevices.get_full_frequency_range(default_radio, default_rx_channel);
 		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
@@ -512,11 +536,6 @@ void	switch_sdrreceiver(std::string receiver)
 			std::cout << e.what();
 		}
 		// Rx sample rates
-		ifrate = Settings_file.find_samplerate(default_radio.c_str());
-		ifrate_tx = Settings_file.find_samplerate_tx(default_radio.c_str());
-		if (ifrate_tx == 0)
-			ifrate_tx = ifrate;
-		printf("samperate rx%f sample rate tx %f\n", ifrate, ifrate_tx);
 		gsetup.clear_sample_rate();
 		try
 		{	
@@ -546,7 +565,7 @@ void	switch_sdrreceiver(std::string receiver)
 		gbar.set_gain_range();
 		gagc.set_gain_slider(Settings_file.gain());	
 		gbar.set_gain_slider(Settings_file.gain());	
-		vfo.set_vfo(freq, false);
+		//vfo.set_vfo(freq, false);
 		select_mode(mode); // start streaming
 	}
 }

@@ -25,11 +25,6 @@ public:
 	std::string probeChannel();
 	SoapySDR::Range get_full_gain_range() {return full_gain_range;}
 	bool	get_agc() {return agc;}
-	bool	set_agc_state(bool state)
-	{
-		agc_state = state;
-		return state;
-	}
 	
 private:
 	SoapySDR::Device	*soapyDevice {nullptr};
@@ -39,7 +34,6 @@ private:
 	
 	bool								full_duplex {false};
 	bool								agc {false};
-	bool								agc_state;
 	std::string							formats;
 	double								fullScale {0.0};
 	std::string							Native_format;
@@ -147,7 +141,7 @@ public:
 
 	bool getGainMode(const int direction, const size_t channel) const
 	{
-		return rx_channels.at(channel)->set_agc_state(soapyDevice->getGainMode(direction, channel));
+		return soapyDevice->getGainMode(direction, channel);
 	}
 	
 	SoapySDR::Stream *setupStream(const int direction, const std::string &format, const std::vector<size_t> &channels = std::vector<size_t>(), const SoapySDR::Kwargs &args = SoapySDR::Kwargs())

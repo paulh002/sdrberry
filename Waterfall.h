@@ -23,20 +23,23 @@ const int nfft_samples	{1024};
 class Waterfall
 {
 public:
-	void	init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
-	void	load_data();
-	void	set_pos(int32_t  offset);
+	void							init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate);
+	void							load_data();
+	void							set_pos(int32_t  offset);
 	std::vector<lv_coord_t>			data_set;
-	lv_chart_cursor_t *get_cursor()
+	lv_chart_cursor_t				*get_cursor()
 	{
 		return m_cursor;
 	}
-
+	void							set_fft_if_rate(float ifrate, int n);
+		
 private:
 	lv_obj_t						*chart;
 	lv_chart_series_t				*ser;
 	lv_style_t						waterfall_style;
 	lv_chart_cursor_t				*m_cursor;
+	atomic<float>					m_ifrate;
+	atomic<int>						m_n;
 };
 
 class Fft_calculator

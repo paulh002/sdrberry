@@ -21,6 +21,12 @@ public:
 	int		get_sample_rate(int rate);
 	void	set_radio(std::string name);
 	void	clear_sample_rate();
+	lv_obj_t*		get_span_slider_label()	{return span_slider_label;}
+	int		get_span() {return m_span.load();}
+	void	set_span(int span){ m_span.store(span);}
+	void	set_span_range(int span);
+	void	set_span_value(int span);
+	
 private:
 	lv_style_t		style_btn;
 	
@@ -28,6 +34,7 @@ private:
 	lv_obj_t*		d_samplerate;
 	lv_obj_t*		d_receivers;
 	lv_obj_t*		span_slider_label, *span_slider;
+	atomic<int>		m_span;
 };
 
 extern gui_setup	gsetup;

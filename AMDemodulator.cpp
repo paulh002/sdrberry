@@ -70,16 +70,18 @@ void AMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	
-	int						ifilter {-1};
+	int						ifilter {-1}, span;
 	SampleVector            audiosamples, audioframes;
-	
-	Fft_calc.plan_fft(nfft_samples); //
+		
+	Fft_calc.plan_fft(nfft_samples); 
 	while (!stop_flag.load())
 	{
-		if (vfo.tune_flag.load())
+		span = gsetup.get_span();
+		if (vfo.tune_flag.load() || m_span != span)
 		{
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
+			set_span(span);
 		}
 		
 		if (ifilter != m_fcutoff.load())
@@ -101,9 +103,9 @@ void AMDemodulator::operator()()
 			usleep(5000);
 			continue;
 		}	
-		Fft_calc.process_samples(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());
 		
+		perform_fft(iqsamples);
+		Fft_calc.set_signal_strength(get_if_level());		
 		process(iqsamples, audiosamples);
 		
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
@@ -121,7 +123,7 @@ void AMDemodulator::operator()()
 					audio_output->write(audioframes);
 				else
 				{
-					printf("drop frames\n");
+					//printf("drop frames\n");
 					audioframes.clear();
 				}
 			}
@@ -134,9 +136,8 @@ void AMDemodulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d\n", get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0), audio_output->queued_samples()/2);
+			//printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d\n", get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0), audio_output->queued_samples()/2);
 		}
-
 	}
 	
 }

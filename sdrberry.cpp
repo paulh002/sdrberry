@@ -102,6 +102,12 @@ int main(int argc, char *argv[])
 	std::string smode = Settings_file.find_vfo1("Mode");
 	mode = Settings_file.convert_mode(smode);
 	
+	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
+	ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr("default").c_str());
+	if (ifrate_tx == 0)
+		ifrate_tx = ifrate;
+	printf("samperate %f \n", ifrate);
+	
 	/*LittlevGL init*/
 	lv_init();
 
@@ -167,7 +173,7 @@ int main(int argc, char *argv[])
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	Wf.init(tab1, 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);	
+	Wf.init(tab1, 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);	
 	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - 3);
 	gagc.init(tab5, LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
@@ -189,12 +195,6 @@ int main(int argc, char *argv[])
 	
 
 	Gui_rx.set_gui_mode(mode);
-		
-	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
-	ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr("default").c_str());
-	if (ifrate_tx == 0)
-		ifrate_tx = ifrate;
-	printf("samperate %f \n", ifrate);
 	keyb.init_keyboard(tab3, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
 	
 	default_radio = Settings_file.find_sdr("default");
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
 			midicontrole->read_midi_input();
 		set_time_label();
 		gui_mutex.unlock();
-		usleep(5000);
+		usleep(1000);
 	}
 	delete audio_output;
 	if (midicontrole)

@@ -19,6 +19,20 @@ static void receivers_button_handler(lv_event_t * e)
 	}
 }
 
+static void span_slider_event_cb(lv_event_t * e)
+{
+	char buf[20]; 
+	
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e); 
+
+	int i = lv_slider_get_value(obj) * 50;
+	sprintf(buf, "span %d Khz", i);
+	lv_label_set_text(gsetup.get_span_slider_label(), buf);
+	gsetup.set_span(i*1000);
+}
+	
+
 int gui_setup::get_sample_rate(int rate)
 {
 	if (rate >= 0 && rate < sample_rates.size())
@@ -47,6 +61,8 @@ static void samplerate_button_handler(lv_event_t * e)
 			std::cout << e.what() << endl;
 			return;
 		}
+		gsetup.set_span_range(ifrate);
+		gsetup.set_span_value(ifrate);
 		select_mode(mode);
 	}
 }
@@ -129,13 +145,42 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	int span_y = 15 + y_margin + button_height_margin;
 	span_slider = lv_slider_create(o_tab);
-	lv_slider_set_range(span_slider, 0, 100);
 	lv_obj_set_width(span_slider, w / 2 - 50); 
 	lv_obj_center(span_slider);
-	//lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_PRESSING, NULL);
+	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_PRESSING, NULL);
 
 	span_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(span_slider_label, "span");
 	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	
+	string span = Settings_file.find_radio("span");
+	int i = atoi(span.c_str());
+	set_span_range(ifrate);
+	set_span_value(i * 1000);
+}
+
+void gui_setup::set_span_value(int span)
+{
+	char	buf[30];
+	
+	int maxv = lv_slider_get_max_value(span_slider);
+	int v = span / 50000;
+	
+	if(v < 0 || v > maxv)
+		span = maxv;
+	lv_slider_set_value(span_slider, v, LV_ANIM_ON);
+	sprintf(buf, "span %d Khz", v * 50);
+	lv_label_set_text(gsetup.get_span_slider_label(), buf);
+	// store in atomic<int> so demodulator thread can request it
+	m_span.store(span);	
+}
+
+void gui_setup::set_span_range(int span)
+{
+	char	buf[30];
+	
+	int v = span / 100000;
+	if (v < 0 || v > 80)
+		span = 80;
+	lv_slider_set_range(span_slider, 1, v);
 }

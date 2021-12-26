@@ -120,7 +120,7 @@ static void draw_event_cb(lv_event_t * e)
 }
 
 
-void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
+void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
 	lv_style_init(&waterfall_style);
 	lv_style_set_radius(&waterfall_style, 0);
@@ -143,15 +143,24 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
+	m_ifrate = ifrate;
 }
 
 void Waterfall::set_pos(int32_t  offset)
 {
 	uint32_t pos;
-		
-	float div = ifrate / nfft_samples;
+	
+	offset = offset - ((m_ifrate.load() / 2) * m_n.load());
+	float div = m_ifrate.load() / nfft_samples;
 	pos = (uint32_t)round(offset / div);
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
+	printf("offset %d pos: %d\n", offset, pos);
+}
+
+void Waterfall::set_fft_if_rate(float ifrate, int n)
+{
+	m_ifrate.store(ifrate);
+	m_n.store(n);
 }
 
 void Waterfall::load_data()

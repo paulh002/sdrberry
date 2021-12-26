@@ -16,16 +16,18 @@ void FMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	
-	int						ifilter {-1};
+	int						ifilter {-1}, span;
 	SampleVector            audiosamples, audioframes;
 	
 	Fft_calc.plan_fft(nfft_samples); //
 	while (!stop_flag.load())
 	{
-		if (vfo.tune_flag.load())
+		span = gsetup.get_span();
+		if (vfo.tune_flag.load() || m_span != span)
 		{
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
+			set_span(span);
 		}
 		
 		if (m_source_buffer->queued_samples() == 0)
@@ -40,11 +42,9 @@ void FMDemodulator::operator()()
 			usleep(5000);
 			continue;
 		}	
-		Fft_calc.process_samples(iqsamples);
+		perform_fft(iqsamples);
 		Fft_calc.set_signal_strength(get_if_level());
-		
 		process(iqsamples, audiosamples);
-		
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
 		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
 

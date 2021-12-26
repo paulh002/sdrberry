@@ -30,6 +30,7 @@ static void span_slider_event_cb(lv_event_t * e)
 	sprintf(buf, "span %d Khz", i);
 	lv_label_set_text(gsetup.get_span_slider_label(), buf);
 	gsetup.set_span(i*1000);
+	gui_vfo_inst.set_span(i);	
 }
 	
 
@@ -173,6 +174,7 @@ void gui_setup::set_span_value(int span)
 	lv_label_set_text(gsetup.get_span_slider_label(), buf);
 	// store in atomic<int> so demodulator thread can request it
 	m_span.store(span);	
+	gui_vfo_inst.set_span(span / 1000);
 }
 
 void gui_setup::set_span_range(int span)

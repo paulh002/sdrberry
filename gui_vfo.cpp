@@ -73,6 +73,10 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_label_set_text(mode_label, "LSB ");
 	lv_obj_align_to(mode_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 50, 10);
 	
+	span_label = lv_label_create(bg_tuner1);
+	lv_label_set_text(span_label, "100 Khz ");
+	lv_obj_align_to(span_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 100, 10);
+	
 	rxtx_label = lv_label_create(bg_tuner1);
 	lv_label_set_text(rxtx_label, "RX");
 	lv_obj_align_to(rxtx_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 200, 10);
@@ -104,7 +108,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 
 void gui_vfo::set_vfo_gui(int avfo, long long freq)
 {
-	char	str[20];
+	char	str[30];
 	
 	if (freq > 10000000LU)
 	{
@@ -268,4 +272,13 @@ void set_s_meter(double value)
 	value = value + 100.0;
 	//printf(" value s%f \n", value);
 	lv_meter_set_indicator_value(meter, smeter_indic, value);
+}
+
+void gui_vfo::set_span(int span)
+{
+	char str[30];
+	
+	span = gsetup.get_span();
+	sprintf(str, "%d Khz", span / 1000);
+	lv_label_set_text(span_label, str);
 }

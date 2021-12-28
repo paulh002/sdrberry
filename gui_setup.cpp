@@ -27,10 +27,10 @@ static void span_slider_event_cb(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e); 
 
 	int i = lv_slider_get_value(obj) * 50;
-	sprintf(buf, "span %d Khz", i);
-	lv_label_set_text(gsetup.get_span_slider_label(), buf);
-	gsetup.set_span(i*1000);
-	gui_vfo_inst.set_span(i);	
+	if (i > 0)
+	{		
+		gsetup.set_span_value(i * 1000);
+	}
 }
 	
 
@@ -51,6 +51,7 @@ static void samplerate_button_handler(lv_event_t * e)
 	{
 		int rate = lv_dropdown_get_selected(obj);
 		ifrate = gsetup.get_sample_rate(rate);
+		gsetup.m_ifrate = ifrate;
 		vfo.vfo_re_init((long)ifrate, pcmrate);
 		stop_rxtx();
 		try
@@ -62,8 +63,8 @@ static void samplerate_button_handler(lv_event_t * e)
 			std::cout << e.what() << endl;
 			return;
 		}
-		gsetup.set_span_range(ifrate);
-		gsetup.set_span_value(ifrate);
+		gsetup.set_span_range(ifrate/2);
+		gsetup.set_span_value(ifrate/2);
 		select_mode(mode);
 	}
 }
@@ -114,6 +115,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	int button_height = 50;
 	int button_height_margin = button_height + y_margin;
 	int	ibutton_x = 0, ibutton_y = 0;
+	m_ifrate = ifrate;
 	
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
@@ -156,7 +158,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	string span = Settings_file.find_radio("span");
 	int i = atoi(span.c_str());
-	set_span_range(ifrate);
+	set_span_range(ifrate/2);
 	set_span_value(i * 1000);
 }
 
@@ -169,20 +171,44 @@ void gui_setup::set_span_value(int span)
 	
 	if(v < 0 || v > maxv)
 		span = maxv;
-	lv_slider_set_value(span_slider, v, LV_ANIM_ON);
-	sprintf(buf, "span %d Khz", v * 50);
-	lv_label_set_text(gsetup.get_span_slider_label(), buf);
+	if (v > 0)
+	{
+		if (((m_ifrate / 2) - (double)span) < 0.1)
+		{
+			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);
+			span = m_ifrate / 2;
+			sprintf(buf, "span %d Khz", span / 1000);
+			gui_vfo_inst.set_span(span / 1000);			
+		}
+		else
+		{
+			lv_slider_set_value(span_slider, v, LV_ANIM_ON);
+			sprintf(buf, "span %d Khz", v * 50);
+			gui_vfo_inst.set_span(v * 50);
+		}
+	}
+	else
+	{
+		lv_slider_set_value(span_slider, 1, LV_ANIM_ON);
+		sprintf(buf, "span %d Khz", span / 1000);		
+		gui_vfo_inst.set_span(span / 1000);
+	}
+	lv_label_set_text(span_slider_label, buf);
 	// store in atomic<int> so demodulator thread can request it
 	m_span.store(span);	
-	gui_vfo_inst.set_span(span / 1000);
 }
 
 void gui_setup::set_span_range(int span)
 {
 	char	buf[30];
 	
-	int v = span / 100000;
+	int v = span / 50000;
+	int m = span % 50000;
 	if (v < 0 || v > 80)
 		span = 80;
+	if (v == 0)
+		span = 1;
+	if (m > 0)
+		v++;
 	lv_slider_set_range(span_slider, 1, v);
 }

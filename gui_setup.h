@@ -23,13 +23,13 @@ public:
 	void	clear_sample_rate();
 	lv_obj_t*		get_span_slider_label()	{return span_slider_label;}
 	int		get_span() {return m_span.load();}
-	void	set_span(int span){ m_span.store(span);}
 	void	set_span_range(int span);
 	void	set_span_value(int span);
 	
+	double			m_ifrate;
+	
 private:
 	lv_style_t		style_btn;
-	
 	vector<int>		sample_rates;
 	lv_obj_t*		d_samplerate;
 	lv_obj_t*		d_receivers;

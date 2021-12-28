@@ -278,7 +278,6 @@ void gui_vfo::set_span(int span)
 {
 	char str[30];
 	
-	span = gsetup.get_span();
-	sprintf(str, "%d Khz", span / 1000);
+	sprintf(str, "%d Khz", span);
 	lv_label_set_text(span_label, str);
 }

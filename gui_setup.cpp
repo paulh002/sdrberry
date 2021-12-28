@@ -172,7 +172,7 @@ void gui_setup::set_span_value(int span)
 	if(v < 0 || v > maxv)
 		span = maxv;
 	if (v > 0)
-	{
+	{	// the highest span is limited by ifrate/2
 		if (((m_ifrate / 2) - (double)span) < 0.1)
 		{
 			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);

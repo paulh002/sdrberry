@@ -32,7 +32,9 @@ void Demodulator::set_span(int span)
 	if (span < (m_ifrate/2) && span > 0)
 	{
 		if (m_span != span)
+		{
 			set_fft_reample_rate((float)span * 2);
+		}
 		m_span = span;
 		int n =  (vfo.get_vfo_offset() / m_span);
 		//printf("window: %d  offset %d\n", n, m_span * n);
@@ -42,8 +44,10 @@ void Demodulator::set_span(int span)
 	}
 	else
 	{
+		m_span = span;
 		set_fft_mixer(0);
 		Wf.set_fft_if_rate(m_ifrate, 0);
+		Wf.set_pos(vfo.get_vfo_offset());
 	}
 }
 

@@ -60,7 +60,7 @@
       <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
-      <VerboseMode>false</VerboseMode>
+      <VerboseMode>true</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">

@@ -70,7 +70,7 @@ void AMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	
-	int						ifilter {-1}, span;
+	int						ifilter {-1}, span, rcount {0}, dropped_frames {0};
 	SampleVector            audiosamples, audioframes;
 		
 	Fft_calc.plan_fft(nfft_samples); 
@@ -124,6 +124,7 @@ void AMDemodulator::operator()()
 				else
 				{
 					//printf("drop frames\n");
+					dropped_frames++;
 					audioframes.clear();
 				}
 			}
@@ -132,11 +133,26 @@ void AMDemodulator::operator()()
 		iqsamples.clear();
 		audiosamples.clear();
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(1) < now)
+		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			//printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d\n", get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0), audio_output->queued_samples()/2);
+			printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d droppedframes %d\n", 
+				get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0)
+				, audio_output->queued_samples()/2, dropped_frames);
+			dropped_frames = 0;
+			if (1.0 - (get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0)) > 0.001)
+			{
+				if (rcount > 10 &&  dropped_frames > 0)
+				{
+					Demodulator::set_reample_rate(get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0));
+					rcount = 0;
+				}
+				if (rcount < 10)
+					rcount++;
+				else
+					rcount = 0;
+			}
 		}
 	}
 	

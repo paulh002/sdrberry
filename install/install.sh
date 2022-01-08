@@ -47,6 +47,7 @@ sudo apt-get install -y libboost1.62-all-dev
 sudo ldconfig
 git clone https://github.com/thestk/rtaudio
 cd rtaudio
+git checkout 5.2.0
 mkdir build
 cd build
 cmake ..

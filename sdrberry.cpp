@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
 	
 	/*A small buffer for LittlevGL to draw the screen's content*/
 	static lv_color_t buf[DISP_BUF_SIZE];
+	//static lv_color_t buf1[DISP_BUF_SIZE];
 
 	/*Initialize a descriptor for the buffer*/
 	static lv_disp_draw_buf_t disp_buf;
@@ -195,7 +196,7 @@ int main(int argc, char *argv[])
 	
 
 	Gui_rx.set_gui_mode(mode);
-	keyb.init_keyboard(tab3, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
+	keyb.init_keyboard(tab3, LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	
 	default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
@@ -298,7 +299,7 @@ int main(int argc, char *argv[])
 		lv_task_handler();
 		Mouse_dev.step_vfo();
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastStatus + std::chrono::milliseconds(200) < now && !stop_flag.load())
+		if (timeLastStatus + std::chrono::milliseconds(100) < now && !stop_flag.load())
 		{
 			timeLastStatus = now;
 			Fft_calc.upload_fft(Wf.data_set);

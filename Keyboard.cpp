@@ -97,12 +97,11 @@ void Keyboard::init_keyboard(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_style_set_text_align(&text_style, LV_ALIGN_CENTER);
 	lv_style_set_text_font(&text_style, &FreeSans42);
 	
-	
-	
 	/*Create a keyboard to use it with an of the text areas*/
 	lv_obj_t *kb = lv_keyboard_create(o_tab);
 	lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_NUMBER);
 	lv_obj_set_size(kb, w - 40, h - 150);
+	lv_obj_align(kb, LV_ALIGN_RIGHT_MID, 0, 0);
 	lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL, NULL);
 	
 	/*Create a text area. The keyboard will write here*/

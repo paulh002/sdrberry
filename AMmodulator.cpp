@@ -127,7 +127,7 @@ void AMModulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("TX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d\n", get_txsamplerate() * 1000000.0, (float)get_audio_input_rate(), get_audio_input_rate() / (get_txsamplerate() * 1000000.0), m_audio_input->queued_samples() / 2);
+			printf("TX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued transmitbuffer Samples %d\n", get_txsamplerate() * 1000000.0, (float)get_audio_input_rate(), get_audio_input_rate() / (get_txsamplerate() * 1000000.0), m_transmit_buffer->queued_samples());
 		}
 	}
 	m_transmit_buffer->push_end();

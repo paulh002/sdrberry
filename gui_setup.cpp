@@ -158,6 +158,8 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	string span = Settings_file.find_radio("span");
 	int i = atoi(span.c_str());
+	if (((i * 1000) > (ifrate / 2)) || i == 0)
+		i = ifrate / 2000;
 	set_span_range(ifrate/2);
 	set_span_value(i * 1000);
 }

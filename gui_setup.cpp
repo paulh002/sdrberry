@@ -1,4 +1,8 @@
 #include "gui_setup.h"
+#include <filesystem>
+#include <iostream>
+#include <fstream>
+#include <string>
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
@@ -33,7 +37,19 @@ static void span_slider_event_cb(lv_event_t * e)
 	}
 }
 	
+static void brightness_slider_event_cb(lv_event_t * e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e); 
 
+	int i = lv_slider_get_value(obj);
+	if (i > 0)
+	{		
+		gsetup.set_brightness(i);
+	}
+}
+
+	
 int gui_setup::get_sample_rate(int rate)
 {
 	if (rate >= 0 && rate < sample_rates.size())
@@ -196,6 +212,19 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 		i = ifrate / 2000;
 	set_span_range(ifrate/2);
 	set_span_value(i * 1000);
+	
+	int brightness_y = 15 + y_margin + 2* button_height_margin;
+	brightness_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(brightness_slider, w / 2 - 50); 
+	lv_obj_align_to(brightness_slider, span_slider_label, LV_ALIGN_OUT_BOTTOM_MID, -30, 10);
+	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_PRESSING, NULL);
+	lv_slider_set_range(brightness_slider, 0, 255);
+	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
+	
+	brightness_slider_label = lv_label_create(o_tab);
+	lv_label_set_text(brightness_slider_label, "brightness");
+	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	
 }
 
 void gui_setup::set_span_value(int span)
@@ -247,4 +276,38 @@ void gui_setup::set_span_range(int span)
 	if (m > 0)
 		v++;
 	lv_slider_set_range(span_slider, 1, v);
+}
+
+void gui_setup::set_brightness(int brightness)
+{
+	std::string			f{"/sys/class/backlight/10-0045/brightness"};
+	char				buf[20];
+	std::ofstream		myfile;
+		
+	myfile.open(f);
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/rpi_backlight/brightness";
+		myfile.open(f);	
+	}
+	sprintf(buf,"%d", brightness);
+	myfile << std::string(buf);
+}
+
+int gui_setup::get_brightness()
+{
+	int brightness;
+	std::string		f{"/sys/class/backlight/10-0045/actual_brightness"};
+	std::string		s;
+	std::ifstream	myfile;
+	
+	myfile.open(f);
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/rpi_backlight/actual_brightness";
+		myfile.open(f);	
+	}
+	myfile >> s;
+	brightness = atoi(s.c_str());
+	return brightness;
 }

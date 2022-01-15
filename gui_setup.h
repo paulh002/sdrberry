@@ -25,7 +25,8 @@ public:
 	int		get_span() {return m_span.load();}
 	void	set_span_range(int span);
 	void	set_span_value(int span);
-	
+	void	set_brightness(int brightness);
+	int		get_brightness();
 	double			m_ifrate;
 	
 private:
@@ -34,6 +35,7 @@ private:
 	lv_obj_t*		d_samplerate;
 	lv_obj_t*		d_receivers;
 	lv_obj_t*		span_slider_label, *span_slider;
+	lv_obj_t*		brightness_slider_label, *brightness_slider;
 	lv_obj_t*		d_audio;
 	atomic<int>		m_span;
 };

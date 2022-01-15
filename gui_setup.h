@@ -34,6 +34,7 @@ private:
 	lv_obj_t*		d_samplerate;
 	lv_obj_t*		d_receivers;
 	lv_obj_t*		span_slider_label, *span_slider;
+	lv_obj_t*		d_audio;
 	atomic<int>		m_span;
 };
 

@@ -50,6 +50,51 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	return 0;
 }
 
+void AudioOutput::listDevices(std::vector<std::string> &devices)
+{
+	int noDevices = this->getDeviceCount();
+	struct DeviceInfo	dev;
+		
+	if (noDevices < 1) {
+		std::cout << "\nNo audio devices found!\n";
+		return ;
+	}
+	for (int i = 0; i < noDevices; i++)
+	{
+		dev = getDeviceInfo(i);
+		if (dev.outputChannels > 0 || dev.inputChannels > 0)
+			devices.push_back(dev.name);
+	}
+}
+
+int AudioOutput::getDevices(std::string device)
+{
+	int noDevices = this->getDeviceCount();
+	struct DeviceInfo	dev;
+		
+	if (noDevices < 1) {
+		std::cout << "\nNo audio devices found!\n";
+		return -1;
+	}
+	for (int i = 0; i < noDevices; i++)
+	{
+		dev = getDeviceInfo(i);
+		if (dev.name.find(device) != std::string::npos)
+		{
+			return i;
+		}
+	}
+	return 0; // return default device
+}
+
+void AudioOutput::init_device(std::string device)
+{
+	if (device != "default")
+		parameters.deviceId = getDevices(device);
+	else
+		parameters.deviceId = this->getDefaultOutputDevice(); 
+}
+
 
 bool AudioOutput::init(std::string device, int pcmrate, DataBuffer<Sample>	*AudioBuffer)
 {
@@ -57,13 +102,17 @@ bool AudioOutput::init(std::string device, int pcmrate, DataBuffer<Sample>	*Audi
 		std::cout << "\nNo audio devices found!\n";
 		return false;
 	}
-	parameters.deviceId = this->getDefaultOutputDevice();
+	if (device != "default")
+		parameters.deviceId = getDevices(device);
+	else
+		parameters.deviceId = this->getDefaultOutputDevice();
 	parameters.nChannels = 2;
 	parameters.firstChannel = 0;
 	m_sampleRate = pcmrate;
 	bufferFrames = 1024;   // 256 sample frames
 	sampleRate = 0.99 * pcmrate;
 	databuffer = AudioBuffer;
+	printf("Default audio device = %d\n", parameters.deviceId);
 	return true;
 }
 

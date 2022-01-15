@@ -55,9 +55,9 @@
       </DumpStackUsage>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
       <VerboseMode>true</VerboseMode>
@@ -73,9 +73,9 @@
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>/lib/arm-linux-gnueabihf/libpthread.so.0;/usr/local/lib/libliquid.so;/usr/local/lib/libtinyb.so;/usr/local/lib/librtaudio.so;/lib/arm-linux-gnueabihf/libasound.so;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>

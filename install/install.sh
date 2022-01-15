@@ -1,5 +1,6 @@
 #!/bin/bash
 #if false; then
+sudo apt install build-essential git cmake swig -y
 sudo apt-get -y install git
 sudo apt-get install -y\
     cmake g++ \

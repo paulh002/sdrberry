@@ -13,6 +13,7 @@ class AudioInput : public RtAudio
 {
 public:
 	bool init(std::string device, int pcmrate, bool stereo, DataBuffer<Sample>	*AudioBuffer);
+	void init_device(std::string device);
 	bool open();
 	void adjust_gain(SampleVector& samples);
 	bool read(SampleVector& samples);
@@ -26,7 +27,9 @@ public:
 	float	get_rms_level();
 	void	set_level(float f);
 	int		queued_samples();
-		
+	int		getDevices(std::string device);
+	void	listDevices(std::vector<std::string> &devices);
+	
 	operator bool() const
 	{
 		return (!m_zombie) && m_error.empty();

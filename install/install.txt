@@ -154,3 +154,10 @@ POWERDOWN_TIME=0
 disable_overscan=1 
 
 cat /proc/bus/input/devices
+
+# Check the name of the audio device with alsmixer use F6 to select audio device
+# change sdrberry_settings.cfg 
+alsamixer
+
+[Audio]
+device = "USB Audio Device"

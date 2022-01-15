@@ -56,7 +56,9 @@ void evdev_init(void)
 {
 	char str[2048];
 	int input_device = 0;
+	char *ptr;
 	
+	// search for touch screen
 	// first check which device need to be opened.
 	do
 	{
@@ -67,7 +69,9 @@ void evdev_init(void)
 			char name[256] = "Unknown";
 			ioctl(evdev_fd, EVIOCGNAME(sizeof(name)), name);
 			printf("Input device name: \"%s\"\n", name);
-			char *ptr = strstr(name, "raspberrypi-ts");
+			ptr = strstr(name, "raspberrypi-ts");
+			if (ptr == NULL) // Bullseye changed driver name
+			    ptr = strstr(name, "ft5x06");
 			if (ptr == NULL)
 			{
 				close(evdev_fd);
@@ -75,6 +79,8 @@ void evdev_init(void)
 				evdev_fd = -1;
 			}
 		}
+		else
+			input_device++;
 	} while (input_device < 10 && evdev_fd == -1) ;	
 
     if(evdev_fd == -1) {

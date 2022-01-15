@@ -3,7 +3,16 @@
   <ConfigurationName>Debug</ConfigurationName>
   <Project xsi:type="com.visualgdb.project.linux">
     <CustomSourceDirectories>
-      <Directories />
+      <Directories>
+        <SourceDirMappingEntry>
+          <RemoteDir>/home/pi/rtaudio</RemoteDir>
+          <LocalDir>D:\source\rtaudio</LocalDir>
+        </SourceDirMappingEntry>
+        <SourceDirMappingEntry>
+          <RemoteDir>/home/pi/rtaudio</RemoteDir>
+          <LocalDir>D:\source\rtaudio</LocalDir>
+        </SourceDirMappingEntry>
+      </Directories>
       <PathStyle>RemoteUnix</PathStyle>
     </CustomSourceDirectories>
     <AutoProgramSPIFFSPartition>true</AutoProgramSPIFFSPartition>

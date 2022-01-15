@@ -42,14 +42,62 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	return 0;
 }
 
+void AudioInput::listDevices(std::vector<std::string> &devices)
+{
+	int noDevices = this->getDeviceCount();
+	struct DeviceInfo	dev;
+		
+	if (noDevices < 1) {
+		std::cout << "\nNo audio devices found!\n";
+		return ;
+	}
+	for (int i = 0; i < noDevices; i++)
+	{
+		dev = getDeviceInfo(i);
+		if (dev.outputChannels > 0 || dev.inputChannels > 0)
+			devices.push_back(dev.name);
+	}
+}
+
+int AudioInput::getDevices(std::string device)
+{
+	int noDevices = this->getDeviceCount();
+	struct DeviceInfo	dev;
+		
+	if (noDevices < 1) {
+		std::cout << "\nNo audio devices found!\n";
+		return -1;
+	}
+	for (int i = 0; i < noDevices; i++)
+	{
+		dev = getDeviceInfo(i);
+		if (dev.name.find(device) != std::string::npos)
+		{
+			return i;
+		}
+	}
+	return 0; // return default device
+}
+
+void AudioInput::init_device(std::string device)
+{
+	if (device != "default")
+		parameters.deviceId = getDevices(device);
+	else
+		parameters.deviceId = this->getDefaultInputDevice();	
+}
+
 bool AudioInput::init(std::string device, int pcmrate, bool stereo ,DataBuffer<Sample>	*AudioBuffer)
 {
 	if (this->getDeviceCount() < 1) {
 		std::cout << "\nNo audio devices found!\n";
 		m_zombie = true;
 		return false;
-	}		
-	parameters.deviceId = this->getDefaultInputDevice();
+	}	
+	if (device != "default")
+		parameters.deviceId = getDevices(device);
+	else
+		parameters.deviceId = this->getDefaultInputDevice();
 /*	if (parameters.deviceId)
 	{
 		m_zombie = true;

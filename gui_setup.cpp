@@ -69,6 +69,22 @@ static void samplerate_button_handler(lv_event_t * e)
 	}
 }
 
+static void audio_button_handler(lv_event_t * e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e); 
+	if (code == LV_EVENT_VALUE_CHANGED) 
+	{	char buf[30];
+		
+		int item = lv_dropdown_get_selected(obj);
+		lv_dropdown_get_selected_str(obj,buf, sizeof(buf));
+		stop_rxtx();
+		audio_output->init_device(std::string(buf));
+		audio_input->init_device(std::string(buf));
+		select_mode(mode, false);
+	}
+}
+
 void gui_setup::add_sample_rate(int samplerate)
 {
 	char	str[30];
@@ -145,7 +161,25 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 		lv_dropdown_add_option(d_receivers, col.c_str(), LV_DROPDOWN_POS_LAST);
 	}
 	
-	
+	d_audio = lv_dropdown_create(o_tab);
+	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, 2*button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_set_width(d_audio, 2*button_width);
+	lv_dropdown_clear_options(d_audio);
+	lv_obj_add_event_cb(d_audio, audio_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
+	std::vector<std::string> devices;
+	audio_output->listDevices(devices);
+	string s = Settings_file.find_audio("device");	
+	for (int i = 0; i < devices.size(); i++)
+	{
+		if (devices[i].length() > 0)
+		{
+			lv_dropdown_add_option(d_audio, devices[i].c_str(), LV_DROPDOWN_POS_LAST);
+			if (s.length()> 0 && devices[i].find(s) != std::string::npos)
+			{
+				lv_dropdown_set_selected(d_audio, i);	
+			}
+		}
+	}
 	int span_y = 15 + y_margin + button_height_margin;
 	span_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(span_slider, w / 2 - 50); 

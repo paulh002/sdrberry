@@ -9,7 +9,7 @@ Goal is to support Adalm pluto SDR, Radioberry, RTL-SDR, SDRPlay etc but it shou
 Also the goal is to support optical encoder and support I2C / serial interface for bandpass filtering
 Currently it also supports basic BLE as controler input. I use a ESP32 as BLE server with a service for an optical encoder.
 
-To install you need to configure rasberry pi OS (buster) in text only mode, (switch off the GUI)
+To install you need to configure rasberry pi OS in text only mode, (switch off the GUI)
 Compiled using VisualGDB
 copy the cfg file (in install directory) to the home dir of the application
 
@@ -26,14 +26,19 @@ ToDo:
 Done:
 - Adalm Pluto
 - Rtlsdr support
+- SDRPlay support
 - Radioberry support
-- FM broadband
+- FM broadband (only receive)
+- FM Narrowband
 - SSB support
 - Basic BLE support
 - Transmitter part
 - USB CAT interface support (config serial controler in cfg file example ESP32 as CAT controler)
 - i2c filter support for PCF8574
 - USB Controler with ESP32 (Optical contoler for vfo and 2 mechanical encoders for volume and gain etc)
+- Add audio device selection
+- TFT brightness controll
+- Support both Raspberry pi buster and Bullseye
 
 Installation of libraries is necessary:
 - Liquid DSP
@@ -45,7 +50,7 @@ Installation of libraries is necessary:
 - libad9361-iio
 - bluez-5.60
 - tinyb
-- libpthread.so.0
+- pthread
 
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)

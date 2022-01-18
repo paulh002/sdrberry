@@ -10,8 +10,8 @@ Also the goal is to support optical encoder and support I2C / serial interface f
 Currently it also supports basic BLE as controler input. I use a ESP32 as BLE server with a service for an optical encoder.
 
 To install you need to configure rasberry pi OS in text only mode, (switch off the GUI)
-Compiled using VisualGDB
-copy the cfg file (in install directory) to the home dir of the application
+Compiled using VisualGDB or cmake and gcc
+copy the cfg file (in install directory) to the home dir
 
 a compiled executable and soapyradioberry library is available in executable directory
 installation instruction in install_guide.txt
@@ -39,6 +39,7 @@ Done:
 - Add audio device selection
 - TFT brightness controll
 - Support both Raspberry pi buster and Bullseye
+- CMake compilation
 
 Installation of libraries is necessary:
 - Liquid DSP
@@ -51,6 +52,22 @@ Installation of libraries is necessary:
 - bluez-5.60
 - tinyb
 - pthread
+
+# Compile with cmake
+Download the repository in pi home directory
+
+git clone https://github.com/paulh002/sdrberry
+cd sdrberry
+mkdir build
+chmod +x ../do_cmake.sh
+../do_cmake.sh
+sudo make install
+
+#start sdrberry
+first copy config file to pi home dir
+cd ~
+cp sdrberry/sdrberry_settings.cfg .
+sudo sdrberry
 
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)

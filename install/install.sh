@@ -137,10 +137,13 @@ echo "Radioberry driver installed."
 
 #-----------------------------------------------------------------------------
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry1.sh
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/executable/sdrberry
-chmod +x sdrberry
-chmod +x sdrberry1.sh
+cd sdrberry
+mkdir build
+cd build
+chmod +x ../do_cmake.sh
+../do_cmake.sh
+sudo make install
+cd ~
 sudo sed 's/$/ vt.global_cursor_default=0/' /boot/cmdline.txt
 
 

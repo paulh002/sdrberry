@@ -56,18 +56,18 @@ Installation of libraries is necessary:
 # Compile with cmake
 Download the repository in pi home directory
 
-git clone https://github.com/paulh002/sdrberry
-cd sdrberry
-mkdir build
-chmod +x ../do_cmake.sh
-../do_cmake.sh
-sudo make install
+git clone https://github.com/paulh002/sdrberry  
+cd sdrberry  
+mkdir build  
+chmod +x ../do_cmake.sh  
+../do_cmake.sh  
+sudo make install  
 
 #start sdrberry
-first copy config file to pi home dir
-cd ~
-cp sdrberry/sdrberry_settings.cfg .
-sudo sdrberry
+first copy config file to pi home dir  
+cd ~  
+cp sdrberry/sdrberry_settings.cfg .  
+sudo sdrberry  
 
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)

@@ -57,28 +57,28 @@ Installation of libraries is necessary:
 
 
 ## Install and compile with cmake
-Download the repository in pi home directory
-'''
+Download the repository in pi home directory  
+```
 git clone https://github.com/paulh002/sdrberry  
 chmod +x ./sdrberry/install/install.sh
 ./sdrberry/install/install.sh
-'''
+```
 ## Compile with cmake (assuming all libraries are available)
-'''
+```
 git clone https://github.com/paulh002/sdrberry  
 cd sdrberry  
 mkdir build  
 chmod +x ../do_cmake.sh  
 ../do_cmake.sh  
 sudo make install  
-'''
+```
 #start sdrberry
-'''
+```
 first copy config file to pi home dir  
 cd ~  
 cp sdrberry/sdrberry_settings.cfg .  
 sudo sdrberry  
-'''
+```
 
 #DSI display 7inch
 In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline.txt files for rotating the screen

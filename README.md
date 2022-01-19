@@ -72,7 +72,7 @@ chmod +x ../do_cmake.sh
 ../do_cmake.sh  
 sudo make install  
 ```
-#start sdrberry
+##start sdrberry
 ```
 first copy config file to pi home dir  
 cd ~  
@@ -80,7 +80,7 @@ cp sdrberry/sdrberry_settings.cfg .
 sudo sdrberry  
 ```
 
-#DSI display 7inch
+##DSI display 7inch
 In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline.txt files for rotating the screen
 5 inch DSI screens from waveshare do not need any adjustment
 

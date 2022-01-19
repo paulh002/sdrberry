@@ -58,21 +58,21 @@ sudo make install
 sudo ldconfig 
 cd~
 sudo apt-get remove -y pulseaudio
-cat ~/.asoundrc
-cat << EOF | tee ~/.asoundrc
-
-pcm.!default {
-        type hw
-        card 1
-}
-
-ctl.!default {
-        type hw
-        card 1
-}
-EOF
-sudo sed -i "s/^defaults.ctl.card.*/defaults.ctl.card 1/" /usr/share/alsa/alsa.conf
-sudo sed -i "s/^defaults.pcm.card.*/defaults.pcm.card 1/" /usr/share/alsa/alsa.conf
+#cat ~/.asoundrc
+#cat << EOF | tee ~/.asoundrc
+#
+#pcm.!default {
+#        type hw
+#        card 1
+#}
+#
+#ctl.!default {
+#        type hw
+#        card 1
+#}
+#EOF
+#sudo sed -i "s/^defaults.ctl.card.*/defaults.ctl.card 1/" /usr/share/alsa/alsa.conf
+#sudo sed -i "s/^defaults.pcm.card.*/defaults.pcm.card 1/" /usr/share/alsa/alsa.conf
 sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
 git clone https://github.com/analogdevicesinc/libad9361-iio
 sudo apt-get install -y doxygen

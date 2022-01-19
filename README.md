@@ -46,9 +46,10 @@ Installation of libraries is necessary:
 - Alsa audio
 - SoapySDR
 - SoapyPlutoSDR (support for Adalm Pluto SDR)
+- SoapySDRPlay (support for SDRPlay devices)
 - SoapyRadioBerry (support radioberry)
-- libiio
-- libad9361-iio
+- libiio (support for Adalm Pluto SDR)
+- libad9361-iio (support for Adalm Pluto SDR)
 - bluez-5.60
 - tinyb
 - pthread

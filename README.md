@@ -40,6 +40,7 @@ Done:
 - TFT brightness controll
 - Support both Raspberry pi buster and Bullseye
 - CMake compilation
+- Morse code decoder
 
 Installation of libraries is necessary:
 - Liquid DSP

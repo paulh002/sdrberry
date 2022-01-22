@@ -2,6 +2,7 @@
 #include "AMDemodulator.h"
 #include <thread>
 
+
 static shared_ptr<AMDemodulator> sp_amdemod;
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
@@ -14,13 +15,13 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	Demodulator::set_reample_rate(pcmrate / ifrate); // down sample to pcmrate
 	switch (mode)
 	{
-	case mode_cw:
 	case mode_usb:
 		m_bandwidth = 2500; // SSB
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
 		printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
 		break;
+	case mode_cw:
 	case mode_lsb:
 		m_bandwidth = 2500; // SSB
 		suppressed_carrier = 1;
@@ -47,6 +48,8 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	Demodulator::set_filter(m_pcmrate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	gbar.set_filter_slider(m_bandwidth);
+	pMDecoder = make_unique<MorseDecoder>(m_pcmrate);
+	
 	//catinterface.SetSH(m_bandwidth);
 	
 	//agc.set_bandwidth(0.01f);
@@ -133,7 +136,7 @@ void AMDemodulator::operator()()
 		iqsamples.clear();
 		audiosamples.clear();
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(10) < now)
+		if (timeLastPrint + std::chrono::seconds(100) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
@@ -170,6 +173,8 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
+	if (gsetup.get_cw())
+		pMDecoder->decode(filter1);
 	for (auto col : filter1)
 	{
 		float v;

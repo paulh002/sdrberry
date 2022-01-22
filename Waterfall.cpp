@@ -119,7 +119,6 @@ static void draw_event_cb(lv_event_t * e)
 	}
 }
 
-
 void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
 	lv_style_init(&waterfall_style);

@@ -27,6 +27,8 @@ public:
 	void	set_span_value(int span);
 	void	set_brightness(int brightness);
 	int		get_brightness();
+	bool	get_cw();
+	void	set_cw(bool bcw);
 	double			m_ifrate;
 	
 private:
@@ -36,7 +38,7 @@ private:
 	lv_obj_t*		d_receivers;
 	lv_obj_t*		span_slider_label, *span_slider;
 	lv_obj_t*		brightness_slider_label, *brightness_slider;
-	lv_obj_t*		d_audio;
+	lv_obj_t*		d_audio, *check_cw;
 	atomic<int>		m_span;
 };
 

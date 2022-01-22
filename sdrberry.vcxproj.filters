@@ -1129,6 +1129,9 @@
     <ClCompile Include="lvgl\src\extra\libs\sjpg\tjpgd.c">
       <Filter>Source files\lvgl</Filter>
     </ClCompile>
+    <ClCompile Include="MorseDecoder.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1465,6 +1468,9 @@
     </ClInclude>
     <ClInclude Include="lvgl\src\extra\libs\png\lodepng.h">
       <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="MorseDecoder.h">
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

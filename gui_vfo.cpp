@@ -64,7 +64,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_obj_set_width(vfo1_frequency, LV_HOR_RES - 20);
 	lv_label_set_text(vfo1_frequency, "3,500.00");
 	lv_obj_set_height(vfo1_frequency, 40);
-	
+
 	band_label = lv_label_create(bg_tuner1);
 	lv_label_set_text(band_label, "1800 m ");
 	lv_obj_align_to(band_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
@@ -82,7 +82,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_obj_align_to(rxtx_label, vfo1_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 200, 10);
 	lv_obj_add_style(rxtx_label, &label_style, 0);
 	lv_label_set_recolor(rxtx_label, true);
-	
+
 	vfo2_frequency = lv_label_create(bg_tuner2);
 	//lv_label_set_long_mode(vfo2_frequency, LV_LABEL_LONG_CLIP);
 	lv_obj_add_style(vfo2_frequency, &text_style, 0);
@@ -104,7 +104,6 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_obj_add_style(rxtx_label2, &label_style, 0);
 	lv_label_set_recolor(rxtx_label2, true);
 }
-
 
 void gui_vfo::set_vfo_gui(int avfo, long long freq)
 {

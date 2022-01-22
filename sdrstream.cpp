@@ -59,7 +59,7 @@ void RX_Stream::operator()()
 	if ((ifrate < 384001) && (ifrate > 192000))
 		default_block_length = 4096;
 	if (ifrate > 384001)
-		default_block_length = 32768;
+		default_block_length = 32768/2;
 	rx_sampleRate = ifrate / 1000000.0;
 	printf("default block length is set to %d\n", default_block_length);
 	try

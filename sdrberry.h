@@ -53,6 +53,11 @@ const int mode_broadband_fm = 8;
 const int mode_narrowband_fm = 9;
 const int mode_rtty = 10;
 
+extern const int barHeight;
+extern const int MorseHeight;
+extern lv_obj_t *bar_view;
+extern lv_obj_t *tabview_mid;
+
 extern int		        mode;
 extern volatile int		filter;
 

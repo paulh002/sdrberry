@@ -207,7 +207,8 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	const int y_number_buttons = 4;
 	const int max_rows = 2;
 	const lv_coord_t tab_margin  = w / 3;
-	
+	const int cw_margin = 20;
+
 	int button_width_margin = ((w - tab_margin) / (x_number_buttons +1));
 	int button_width = ((w - tab_margin) / (x_number_buttons+1)) - x_margin;
 	int button_height = h / max_rows - y_margin - y_margin;
@@ -371,9 +372,63 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	catch (const std::exception& e)
 	{
 		std::cout << e.what();
-	}						
-}
+	}
 
+	int cw_y = y_margin + 2 * button_height_margin;
+
+	lv_style_init(&cw_style);
+	lv_style_set_radius(&cw_style, 0);
+	lv_style_set_bg_color(&cw_style, lv_color_black());
+
+	cw_box = lv_obj_create(o_parent);
+	lv_obj_add_style(cw_box, &cw_style, 0);
+	lv_obj_set_pos(cw_box, 2, cw_y);
+	lv_obj_set_size(cw_box, 5 * button_width_margin, 30);
+	lv_obj_clear_flag(cw_box, LV_OBJ_FLAG_SCROLLABLE);
+
+	cw_wpm = lv_label_create(cw_box);
+	lv_obj_align(cw_wpm, LV_ALIGN_BOTTOM_LEFT, 30, 15);
+	lv_label_set_text(cw_wpm, "wpm: ");
+
+	cw_message = lv_label_create(cw_box);
+	lv_obj_align(cw_message, LV_ALIGN_BOTTOM_LEFT, 100, 15);
+	lv_label_set_text(cw_message, "....");
+	
+	cw_led = lv_led_create(cw_box);
+	lv_obj_align(cw_led, LV_ALIGN_BOTTOM_LEFT, 0, 15);
+	lv_led_set_color(cw_led, lv_palette_main(LV_PALETTE_RED));
+	lv_obj_set_size(cw_led, 15, 15);
+	lv_led_off(cw_led);
+	hide_cw(true);
+	}
+
+	void gui_bar::set_led(bool status)
+	{
+		if (status)
+			lv_led_on(cw_led);
+		else
+			lv_led_off(cw_led);
+
+	}
+	
+	void gui_bar::hide_cw(bool hide)
+	{
+		if (hide)
+		{
+			lv_obj_add_flag(cw_led, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(cw_box, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(cw_wpm, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(cw_message, LV_OBJ_FLAG_HIDDEN);
+		}
+		else
+		{
+			lv_obj_clear_flag(cw_led, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_clear_flag(cw_box, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_clear_flag(cw_wpm, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_clear_flag(cw_message, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
+	
 void gui_bar::check_agc()
 {
 	try
@@ -408,6 +463,20 @@ void gui_bar::set_tx(bool tx)
 
 }
 
+void gui_bar::set_cw_message(std::string message)
+{
+	lv_label_set_text(cw_message,message.c_str());
+}
+
+void gui_bar::set_cw_wpm(int wpm)
+{
+	char str[30];
+
+	sprintf(str, "wpm: %d", wpm);
+	lv_label_set_text(cw_wpm, str);
+}
+
+	
 void gui_bar::set_mode(int mode)
 {
 	if (mode == mode_usb)

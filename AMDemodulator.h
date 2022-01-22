@@ -8,6 +8,7 @@
 #include "DataBuffer.h"
 #include "AudioOutput.h"
 #include "Demodulator.h"
+#include "MorseDecoder.h"
 
 class AMDemodulator : public Demodulator
 {
@@ -29,6 +30,7 @@ private:
 	float			m_bandwidth;
 	Agc_class		agc;
 	int				m_iagc = 0;
+	unique_ptr<MorseDecoder> pMDecoder;
 };
 
 void select_filter(int ifilter);

@@ -292,6 +292,7 @@
     <ClCompile Include="lv_drivers\indev\mousewheel.c" />
     <ClCompile Include="lv_drivers\indev\XPT2046.c" />
     <ClCompile Include="MidiControle.cpp" />
+    <ClCompile Include="MorseDecoder.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="PCF8574.cpp" />
     <ClCompile Include="RtMidi.cpp" />
@@ -491,6 +492,7 @@
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
     <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="MidiControle.h" />
+    <ClInclude Include="MorseDecoder.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PCF8574.h" />
     <ClInclude Include="RtMidi.h" />

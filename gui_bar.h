@@ -29,6 +29,11 @@ public:
 	int			getbuttons() 	{return ibuttons;}
 	void		set_mode(int mode);
 	void		check_agc();
+	void		set_cw_message(std::string message);
+	void		set_cw_wpm(int wpm);
+	void		hide_cw(bool hide);
+	void		set_led(bool status);
+	
 	lv_obj_t*	get_button_obj(int i)
 	{
 		if (i >= ibuttons)
@@ -50,6 +55,8 @@ private:
 	lv_obj_t*	vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
 	const int max_volume {100};
 	vector<int>	ifilters;
+	lv_obj_t *cw_wpm, *cw_message, *cw_box, *cw_led;
+	lv_style_t	cw_style;
 };
 
 extern gui_bar gbar;

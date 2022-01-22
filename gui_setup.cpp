@@ -85,6 +85,43 @@ static void samplerate_button_handler(lv_event_t * e)
 	}
 }
 
+static void event_handler_morse(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
+			gbar.hide_cw(false);
+			lv_obj_set_height(bar_view, barHeight + MorseHeight);
+			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight + MorseHeight);
+			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight - MorseHeight);
+		}
+		else
+		{
+			gbar.hide_cw(true);
+			lv_obj_set_height(bar_view, barHeight);
+			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
+			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight);
+		}
+	}
+}
+
+void gui_setup::set_cw(bool bcw)
+{
+	if (bcw)
+		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
+	else
+		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
+	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
+bool gui_setup::get_cw()
+{
+	return lv_obj_get_state(check_cw) & LV_STATE_CHECKED;
+}
+
 static void audio_button_handler(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -224,7 +261,12 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	brightness_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(brightness_slider_label, "brightness");
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
-	
+
+	check_cw = lv_checkbox_create(o_tab);
+	lv_checkbox_set_text(check_cw, "Morse Decoder");
+	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, NULL);
+	lv_obj_align_to(check_cw, d_samplerate, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+	//lv_obj_add_state(check_cw, LV_STATE_CHECKED);
 }
 
 void gui_setup::set_span_value(int span)

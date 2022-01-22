@@ -30,6 +30,7 @@ const int bottomHeight = 40;
 const int topHeight = 35;
 const int tunerHeight = 100;
 const int barHeight = 90;
+const int MorseHeight = 30;
 const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
@@ -400,11 +401,15 @@ void select_mode(int s_mode, bool bvfo)
 		start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx); 
 		break;
-		
+
+	case mode_cw:
+		gsetup.set_cw(true);
 	case mode_am:
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
+		if (mode != mode_cw) 
+			gsetup.set_cw(false);
 		vfo.set_step(10, 0);
 		AMDemodulator::create_demodulator(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);

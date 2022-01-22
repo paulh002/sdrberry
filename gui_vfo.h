@@ -15,7 +15,8 @@ public:
 	void	set_vfo_gui(int vfo, long long freq);
 	void	set_span(int span);
 	
-private:
+
+  private:
 	lv_style_t	text_style, label_style;
 	lv_style_t	tuner_style;
 	lv_obj_t*	vfo1_frequency;
@@ -26,7 +27,8 @@ private:
 	lv_obj_t*	band_label, *band_label2;
 	lv_obj_t*	mode_label, *mode_label2;
 	lv_obj_t*	rxtx_label, *rxtx_label2;
-	lv_obj_t*	span_label, *span_label2;	
+	lv_obj_t*	span_label, *span_label2;
+	lv_obj_t	*cw_led;
 	bool		rxtx {true};
 	int			mode[2];
 };

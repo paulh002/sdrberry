@@ -10,35 +10,38 @@ MorseDecoder::MorseDecoder(float ifrate)
 	sine = sin(omega);
 	cosine = cos(omega);
 	coeff = 2.0 * cosine;
-	
+
+	unsigned int order = 4; // filter order
+	float fc = 0.00208333333333333333333333333333f;		// cutoff frequency 100Hz / 48000Hz
+	float f0 = 0.01041666666666666666666666666667f;		// center frequency 500Hz / 48000Hz
+	float Ap = 1.0f;		// pass-band ripple
+	float As = 40.0f;		// stop-band attenuation
+
+	q = iirfilt_crcf_create_prototype(LIQUID_IIRDES_BUTTER, LIQUID_IIRDES_BANDPASS, LIQUID_IIRDES_TF, order=1, fc, f0, Ap, As);
+	iirfilt_crcf_print(q);
+}
+
+MorseDecoder::~MorseDecoder()
+{
+	iirfilt_crcf_destroy(q);
 }
 
 void MorseDecoder::decode(const IQSampleVector &samples_in)
 {
-	float y{0.0}, magnitude;
-	int i = 0;
-	
-	// extra
-	// input is a sample vector with baseband small engough only to contain the morse signal
-/*	for (auto &out : samples_in)
+	float y{0.0},	magnitude;
+	int				i = 0;
+	IQSampleVector	filter_out;
+
+	for (auto con : samples_in)
 	{
-		float Q0;
-		y = std::real(out * std::conj(out));
-		Q0 = coeff * Q1 - Q2 + y;
-		Q2 = Q1;
-		Q1 = Q0;
-		i++;
-		if (i > n)
-			break;
+		complex<float> v;
+
+		// run filter
+		iirfilt_crcf_execute(q, con, &v);
+		filter_out.insert(filter_out.end(), v);
 	}
-	y = y / samples_in.size();
-	magnitude = sqrt(y);
-	float magnitudeSquared = (Q1 * Q1) + (Q2 * Q2) - Q1 * Q2 * coeff; // we do only need the real part //
-	magnitude = sqrt(magnitudeSquared);
-	Q2 = 0;
-	Q1 = 0;
-*/
-	for (auto &out : samples_in)
+
+	for (auto &out : filter_out)
 	{
 		y += std::real(out * std::conj(out));
 	}
@@ -129,7 +132,6 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 				//printf("- ");
 				wpm = (wpm + (1200000 / ((highduration.count()) / 3))) / 2; //// the most precise we can do ;o)
 				gbar.set_cw_wpm(wpm);
-				//printf("\nwpm = %d\n", wpm);
 				}
 		}
 
@@ -154,8 +156,6 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 				CodeToChar();
 				CodeBuffer[0] = '\0';
 				AddCharacter(' ');
-				printf(" \n");
-				fflush(stdout);
 			}
 		}
 	}
@@ -172,15 +172,6 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 	realstatebefore = realstate;
 	lasthighduration = highduration;
 	filteredstatebefore = filteredstate;
-	
-/*	display.drawString(0, 0, "WPM = " + String(wpm));
-	display.drawString(64, 0, "BW = " + String(bw, 0) + "Hz");
-	display.setFont(ArialMT_Plain_16);
-	display.drawString(0, 26, DisplayLine);
-	display.display();
-	display.setFont(ArialMT_Plain_10);
-	display.clear();
-*/
 }
 
 void MorseDecoder::read(std::string &message)
@@ -305,8 +296,6 @@ void MorseDecoder::CodeToChar()
 	if (decode_char != '{')
 	{
 		AddCharacter(decode_char);
-		printf("%c",decode_char);
-		fflush(stdout);
 	}
 }
 

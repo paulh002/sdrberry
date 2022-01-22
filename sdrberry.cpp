@@ -46,8 +46,6 @@ lv_obj_t *tab_buttons;
 using namespace std;
 
 atomic_bool stop_flag(false);
-atomic_bool stop_tx_flag(false);
-atomic_bool	stop_txmod_flag(false);
 
 std::mutex gui_mutex;
 
@@ -96,8 +94,10 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "ERROR: AudioInput\n");
 	}	
 	audio_input->init(s, pcmrate, false, &audioinput_buffer);
+	audio_input->open();
 	audio_output->set_volume(50);
-	
+	audio_output->open();
+
 	bpf.initFilter();
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
@@ -315,7 +315,10 @@ int main(int argc, char *argv[])
 		gui_mutex.unlock();
 		usleep(1000);
 	}
+	audio_output->close();
 	delete audio_output;
+	audio_input->close();
+	delete audio_input;
 	if (midicontrole)
 		delete midicontrole;
 	return 0;
@@ -353,30 +356,24 @@ void destroy_demodulators()
 void stop_rxtx()
 {
 	// wait for threads to finish
-	printf("select_mode_rx stop all threads\n");
+	// printf("select_mode_rx stop all threads\n");
 	destroy_demodulators();
 	stop_flag = true;
 	unique_lock<mutex> lock_fm(fm_finish); 
 	lock_fm.unlock();
-	audio_input->close();  
-	audio_output->close(); 
 }
+
+extern std::chrono::high_resolution_clock::time_point starttime1;
 
 void select_mode(int s_mode, bool bvfo)
 {	
 	if (!SdrDevices.isValid(default_radio))
 		return;
-	startTime = std::chrono::high_resolution_clock::now(); 
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
-	// stop transmit and close audio input
-	
+	// stop transmit
 	destroy_demodulators();
-	printf("stop am_tx\n");
-	stop_flag = true; 
-	unique_lock<mutex> lock_fm(fm_finish); 
-	lock_fm.unlock();
-	stop_tx_flag = false;
+	stop_flag = true; // depreciated only used for broadband fm
 	stop_flag = false;
 	mode = s_mode;
 	if (SdrDevices.get_tx_channels(default_radio) > 0)
@@ -397,7 +394,6 @@ void select_mode(int s_mode, bool bvfo)
 		break;
 	
 	case mode_broadband_fm:
-		audio_output->open(); 
 		start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx); 
 		break;
@@ -436,9 +432,8 @@ void select_mode_tx(int s_mode, int tone)
 	
 	stop_flag = false;
 	mode = s_mode;
-	audio_output->close();
 	if (tone == 0)
-		audio_input->open();
+		audio_input_on = true;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
 	vfo.set_vfo(0, false);

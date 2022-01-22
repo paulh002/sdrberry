@@ -10,6 +10,7 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *sou
 
 	// resampler and band filter assume pcmfrequency on the low side
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
+	audio_input_on = true;	
 }
 
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
@@ -23,8 +24,6 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	tune_offset(vfo.get_vfo_offset());
 	set_span(gsetup.get_span());
-	printf("open audio\n");
-	audio_output->open();
 }
 
 void Demodulator::set_span(int span)
@@ -53,6 +52,7 @@ void Demodulator::set_span(int span)
 
 Demodulator::~Demodulator()
 {
+	auto startTime = std::chrono::high_resolution_clock::now();
 	printf("destructor demod called\n");
 	if (m_q)
 		msresamp_crcf_destroy(m_q);
@@ -67,10 +67,12 @@ Demodulator::~Demodulator()
 	if (m_fftmix)
 		nco_crcf_destroy(m_fftmix);
 	m_fftmix = nullptr;
-	if (m_audio_output != nullptr)
-		m_audio_output->close(); 
-	if (m_audio_input != nullptr)
-		m_audio_input->close(); 
+
+	audio_input_on = false;
+
+	auto now = std::chrono::high_resolution_clock::now();
+	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	cout << "Stoptime demodulator:" << timePassed.count() << endl;
 }
 
 void Demodulator::set_reample_rate(float resample_rate)

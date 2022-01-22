@@ -16,8 +16,9 @@ public:
 	static  bool	create_rx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample> *source_buffer);
 	static	void	destroy_rx_streaming_thread();
 	void	operator()();
+	atomic_bool		stop_flag {false};
 
-private:
+  private:
 	std::string				radio;
 	int						channel;
 	DataBuffer<IQSample>	*m_source_buffer;

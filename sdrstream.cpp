@@ -25,7 +25,6 @@ using namespace std;
 double	rx_sampleRate = 0;
 double	tx_sampleRate = 0;
 
-
 double get_rxsamplerate()
 {
 	return rx_sampleRate;
@@ -40,6 +39,7 @@ std::thread					rx_thread;
 std::thread					tx_thread;
 shared_ptr<RX_Stream>		ptr_rx_stream;
 shared_ptr<TX_Stream>		ptr_tx_stream;
+std::mutex					rxstream_mutex;
 
 void RX_Stream::operator()()
 {
@@ -47,7 +47,8 @@ void RX_Stream::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastSpin = std::chrono::high_resolution_clock::now();
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
-	unsigned long long totalSamples(0);
+	unsigned long long		totalSamples(0);
+	unique_lock<mutex>		lock_rx(rxstream_mutex);
 	
 	int						default_block_length;
 	SoapySDR::Stream		*rx_stream;
@@ -74,7 +75,7 @@ void RX_Stream::operator()()
 		stop_flag = true;
 		return;
 	}
-	
+
 	while (!stop_flag.load())
 	{
 		unsigned int				overflows(0);
@@ -169,17 +170,24 @@ bool RX_Stream::create_rx_streaming_thread(std::string sradio, int chan, DataBuf
 	if (ptr_rx_stream != nullptr)
 		return false;
 	ptr_rx_stream = make_shared<RX_Stream>(sradio, chan, source_buffer);
+	ptr_rx_stream->stop_flag = false;
 	rx_thread = std::thread(&RX_Stream::operator(), ptr_rx_stream);
 	return true;
 }
 
 void RX_Stream::destroy_rx_streaming_thread()
 {
+	auto startTime = std::chrono::high_resolution_clock::now();
+	
 	if (ptr_rx_stream == nullptr)
 		return;
-	stop_flag = true;
+	ptr_rx_stream->stop_flag = true;
 	rx_thread.join();
 	ptr_rx_stream.reset();
+
+	auto now = std::chrono::high_resolution_clock::now();
+	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	cout << "Stoptime RX_Stream:" << timePassed.count() << endl;
 }
 	
 void TX_Stream::operator()()
@@ -323,9 +331,15 @@ bool TX_Stream::create_tx_streaming_thread(std::string sradio, int chan, DataBuf
 
 void TX_Stream::destroy_tx_streaming_thread()
 {
+	auto startTime = std::chrono::high_resolution_clock::now();
+
 	if (ptr_tx_stream == nullptr)
 		return;
 	ptr_tx_stream->stop_flag = true;
 	tx_thread.join();
 	ptr_tx_stream.reset();
+
+	auto now = std::chrono::high_resolution_clock::now();
+	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	cout << "Stoptime TX_Stream:" << timePassed.count() << endl;
 }

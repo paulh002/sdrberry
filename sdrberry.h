@@ -62,6 +62,8 @@ extern int		        mode;
 extern volatile int		filter;
 
 extern std::mutex	fm_finish;
+extern std::mutex   amdemod_mutex;
+extern std::mutex   rxstream_mutex;
 
 extern atomic_bool stop_flag;
 

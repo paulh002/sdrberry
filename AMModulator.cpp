@@ -111,13 +111,17 @@ void AMModulator::operator()()
 			m_audio_input->ToneBuffer(m_tone);
 			m_transmit_buffer->wait_queue_empty(2);
 		}
-	
-		if (m_audio_input->read(audiosamples) == false)
+
+		if (audio_input_on)
 		{
-			printf("wait for input\n");
-			usleep(1000); // wait 1024 audio sample time
-			continue;
+			if (m_audio_input->read(audiosamples) == false)
+			{
+				printf("wait for input\n");
+				usleep(1000); // wait 1024 audio sample time
+				continue;
+			}
 		}
+		
 		Fft_calc.set_signal_strength(m_audio_input->get_rms_level());
 		process(dummy, audiosamples);
 		audiosamples.clear();

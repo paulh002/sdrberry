@@ -22,6 +22,10 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	
 	if(((DataBuffer<Sample> *)userData)->queued_samples() == 0)
 	{
+		for (int i = 0; i < 2*nBufferFrames; i++)
+		{
+			((double *)buffer)[i] = 0.0;
+		}
 		return 0;
 	}
 	SampleVector samples = ((DataBuffer<Sample> *)userData)->pull();

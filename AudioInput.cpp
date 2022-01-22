@@ -3,7 +3,9 @@
 static const auto startTime = std::chrono::high_resolution_clock::now();
 static auto timeLastPrint = std::chrono::high_resolution_clock::now();
 static unsigned long long totalSamples(0);
-static double sampleRate {0.0};	
+static double sampleRate {0.0};
+
+atomic_bool audio_input_on(false);
 
 double get_audio_input_rate()
 {
@@ -17,6 +19,9 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	
 	if (status)
 		std::cout << "Stream overflow detected!" << std::endl;
+	if (!audio_input_on)
+		return 0;
+
 	// Do something with the data in the "inputBuffer" buffer.
 	//printf("frames %u \n", nBufferFrames);
 	SampleVector	buf;

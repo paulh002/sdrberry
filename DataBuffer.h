@@ -12,6 +12,7 @@
 #include <condition_variable>
 
 using namespace std;
+extern atomic_bool stop_flag;
 
 /** Buffer to move sample data between threads. */
 template <class Element>
@@ -78,7 +79,7 @@ template <class Element>
 		{
 			vector<Element> ret;
 			unique_lock<mutex> lock(m_mutex);
-			while (m_queue.empty() && !m_end_marked)
+			while (m_queue.empty() && !m_end_marked && !stop_flag.load())
 			{
 				m_cond.wait(lock); // conditional wait unlocks the mutex!
 			}

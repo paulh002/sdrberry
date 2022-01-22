@@ -51,3 +51,4 @@ private:
 };
 
 extern  AudioInput  *audio_input;
+extern atomic_bool	audio_input_on;

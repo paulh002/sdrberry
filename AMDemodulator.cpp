@@ -4,6 +4,9 @@
 
 
 static shared_ptr<AMDemodulator> sp_amdemod;
+std::mutex amdemod_mutex;
+
+std::chrono::high_resolution_clock::time_point starttime1 {};
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
@@ -44,12 +47,16 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 		printf("Mode not correct\n");		
 		return;
 	}
+	const auto startTime = std::chrono::high_resolution_clock::now();
 	m_fcutoff = m_bandwidth;
 	Demodulator::set_filter(m_pcmrate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	gbar.set_filter_slider(m_bandwidth);
 	pMDecoder = make_unique<MorseDecoder>(m_pcmrate);
-	
+	auto now = std::chrono::high_resolution_clock::now();
+	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	cout << "starttime :" << timePassed.count() << endl;
+
 	//catinterface.SetSH(m_bandwidth);
 	
 	//agc.set_bandwidth(0.01f);
@@ -75,8 +82,11 @@ void AMDemodulator::operator()()
 	
 	int						ifilter {-1}, span, rcount {0}, dropped_frames {0};
 	SampleVector            audiosamples, audioframes;
+	unique_lock<mutex>		lock_am(amdemod_mutex);
+	IQSampleVector			iqsamples;
 		
-	Fft_calc.plan_fft(nfft_samples); 
+	Fft_calc.plan_fft(nfft_samples);
+	m_source_buffer->clear();
 	while (!stop_flag.load())
 	{
 		span = gsetup.get_span();
@@ -100,17 +110,16 @@ void AMDemodulator::operator()()
 			continue;
 		}
 		
+				
 		IQSampleVector iqsamples = m_source_buffer->pull();	
 		if (iqsamples.empty())
 		{
 			usleep(5000);
 			continue;
-		}	
-		
+		}
 		perform_fft(iqsamples);
 		Fft_calc.set_signal_strength(get_if_level());		
 		process(iqsamples, audiosamples);
-		
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
 		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
 
@@ -131,7 +140,6 @@ void AMDemodulator::operator()()
 					audioframes.clear();
 				}
 			}
-			
 		}
 		iqsamples.clear();
 		audiosamples.clear();
@@ -158,7 +166,7 @@ void AMDemodulator::operator()()
 			}
 		}
 	}
-	
+	starttime1 = std::chrono::high_resolution_clock::now();
 }
 
 void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
@@ -199,11 +207,17 @@ bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, Dat
 
 void AMDemodulator::destroy_demodulator()
 {
+	auto startTime = std::chrono::high_resolution_clock::now();
+	
 	if (sp_amdemod == nullptr)
 		return;
 	sp_amdemod->stop_flag = true;
 	sp_amdemod->amdemod_thread.join();
 	sp_amdemod.reset();
+
+	auto now = std::chrono::high_resolution_clock::now();
+	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;
 }
 
 void select_filter(int ifilter)

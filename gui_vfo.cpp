@@ -51,7 +51,8 @@ void gui_vfo::gui_vfo_init(lv_obj_t* scr)
 	lv_style_set_bg_color(&text_style, lv_color_black());
 	lv_style_set_text_align(&text_style, LV_ALIGN_CENTER);
 	lv_style_set_text_font(&text_style, &FreeSansOblique42);
-	
+
+	lv_style_init(&label_style);
 	lv_style_set_radius(&label_style, 5);
 	lv_style_set_bg_opa(&label_style, LV_OPA_COVER);
 	lv_style_set_bg_color(&label_style, lv_color_black());

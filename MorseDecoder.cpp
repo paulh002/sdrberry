@@ -3,14 +3,6 @@
 
 MorseDecoder::MorseDecoder(float ifrate)
 {
-	sampling_freq = ifrate;
-	bw = sampling_freq / n;
-	int k = (int)(0.5 + ((n * target_freq) / sampling_freq));
-	omega = (2.0 * M_PI * k) / n;
-	sine = sin(omega);
-	cosine = cos(omega);
-	coeff = 2.0 * cosine;
-
 	unsigned int order = 4; // filter order
 	float fc = 0.00208333333333333333333333333333f;		// cutoff frequency 100Hz / 48000Hz
 	float f0 = 0.01041666666666666666666666666667f;		// center frequency 500Hz / 48000Hz
@@ -19,6 +11,8 @@ MorseDecoder::MorseDecoder(float ifrate)
 
 	q = iirfilt_crcf_create_prototype(LIQUID_IIRDES_BUTTER, LIQUID_IIRDES_BANDPASS, LIQUID_IIRDES_TF, order=1, fc, f0, Ap, As);
 	iirfilt_crcf_print(q);
+
+	magnitudelimit = 0.01;
 }
 
 MorseDecoder::~MorseDecoder()
@@ -47,15 +41,19 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 	}
 	magnitude = y / samples_in.size();
 	//printf("%f\n", magnitude);
+	const float g = 0.0006667;
 	if (magnitude > magnitudelimit_low)
 	{
-		magnitudelimit = (magnitudelimit + ((magnitude - magnitudelimit) / 6));
+		//magnitudelimit = (magnitudelimit + ((magnitude - magnitudelimit) / 6));
+
+		magnitudelimit = (1.0 - g) * magnitudelimit + g * magnitude;
 	} /// moving average filter
 	if (magnitudelimit < magnitudelimit_low)
 		magnitudelimit = magnitudelimit_low;
-
+	//printf("limit %f mag %f %f %s\n", magnitudelimit, magnitude, 6 * magnitudelimit, magnitude > magnitudelimit * 0.3 ? "y" : "n");
+	
 	// Now check the magnitude //
-	if (magnitude > magnitudelimit * 0.3) // just to have some space up
+	if (magnitude > magnitudelimit * 0.6) // just to have some space up
 	{
 		realstate = 1;
 	}

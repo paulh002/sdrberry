@@ -404,11 +404,11 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 
 	void gui_bar::set_led(bool status)
 	{
+		unique_lock<mutex> gui_lock(gui_mutex);
 		if (status)
 			lv_led_on(cw_led);
 		else
 			lv_led_off(cw_led);
-
 	}
 	
 	void gui_bar::hide_cw(bool hide)
@@ -465,6 +465,7 @@ void gui_bar::set_tx(bool tx)
 
 void gui_bar::set_cw_message(std::string message)
 {
+	unique_lock<mutex> gui_lock(gui_mutex);
 	lv_label_set_text(cw_message,message.c_str());
 }
 
@@ -472,6 +473,7 @@ void gui_bar::set_cw_wpm(int wpm)
 {
 	char str[30];
 
+	unique_lock<mutex> gui_lock(gui_mutex);
 	sprintf(str, "wpm: %d", wpm);
 	lv_label_set_text(cw_wpm, str);
 }

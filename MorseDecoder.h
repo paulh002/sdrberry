@@ -25,17 +25,7 @@ class MorseDecoder
 	void read(std::string &message);
 
   private:
-	float coeff;
-	float Q1 = 0;
-	float Q2 = 0;
-	float sine;
-	float cosine;
-	float sampling_freq{0};
-	float target_freq{496.0}; // adjust for your needs
-	float omega;
-	int n{128};
-	float bw;
-	float magnitudelimit = {0.000244140625};
+	float magnitudelimit;
 	float magnitudelimit_low{0.000244140625};
 	iirfilt_crcf q;
 

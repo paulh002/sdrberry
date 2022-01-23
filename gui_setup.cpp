@@ -237,15 +237,19 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 			}
 		}
 	}
-	int span_y = 15 + y_margin + button_height_margin;
+	//int span_y = 15 + y_margin + button_height_margin;
+	ibutton_y++;
+	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin /2;
 	span_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(span_slider, w / 2 - 50); 
-	lv_obj_center(span_slider);
+	//lv_obj_center(span_slider);
+	lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
+
 	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_PRESSING, NULL);
 
 	span_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(span_slider_label, "span");
-	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
 	
 	string span = Settings_file.find_radio("span");
 	int i = atoi(span.c_str());
@@ -257,14 +261,14 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	int brightness_y = 15 + y_margin + 2* button_height_margin;
 	brightness_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(brightness_slider, w / 2 - 50); 
-	lv_obj_align_to(brightness_slider, span_slider_label, LV_ALIGN_OUT_BOTTOM_MID, -30, 10);
+	lv_obj_align_to(brightness_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
 	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_PRESSING, NULL);
 	lv_slider_set_range(brightness_slider, 0, 255);
 	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
 	
 	brightness_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(brightness_slider_label, "brightness");
-	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	check_cw = lv_checkbox_create(o_tab);
 	lv_checkbox_set_text(check_cw, "Morse Decoder");

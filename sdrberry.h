@@ -66,6 +66,7 @@ extern std::mutex   amdemod_mutex;
 extern std::mutex   rxstream_mutex;
 
 extern atomic_bool stop_flag;
+extern mutex gui_mutex;
 
 //double	freq = 89950000;
 extern double   ifrate;

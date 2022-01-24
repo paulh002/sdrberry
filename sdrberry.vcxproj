@@ -45,7 +45,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
@@ -55,9 +55,9 @@
       </DumpStackUsage>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
       <VerboseMode>true</VerboseMode>
@@ -65,7 +65,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
@@ -73,9 +73,9 @@
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -109,6 +109,7 @@
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
+    <ClCompile Include="HidDev.cpp" />
     <ClCompile Include="img_lvgl_logo.c" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="lvgl\src\core\lv_disp.c" />
@@ -333,6 +334,7 @@
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />
+    <ClInclude Include="HidDev.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="liquid.h" />
     <ClInclude Include="liquid.internal.h" />

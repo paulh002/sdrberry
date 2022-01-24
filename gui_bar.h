@@ -20,6 +20,7 @@ public:
 	void		set_vol_slider(int volume);
 	void		set_filter_slider(int filter);
 	void		step_vol_slider(int step);
+	void		step_gain_slider(int step);
 	lv_obj_t*	get_vol_slider_label() {return vol_slider_label;}
 	lv_obj_t*	get_gain_slider_label() {return gain_slider_label;}
 	int			get_vol_range();

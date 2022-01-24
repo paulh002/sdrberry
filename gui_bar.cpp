@@ -136,14 +136,21 @@ void gui_bar::update_gain_slider(int gain)
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 }
 
+void gui_bar::step_gain_slider(int step)
+{
+	set_gain_slider(lv_slider_get_value(gain_slider) + step);
+}
+
 void gui_bar::set_gain_slider(int gain)
 {
 	char	buf[20];
 	double	max_gain {0.0};
+	double min_gain{0.0};
 	
-	try 
+	try
 	{
 		max_gain = (double)SdrDevices.SdrDevices.at(default_radio)->rx_channels[default_rx_channel]->get_full_gain_range().maximum();
+		min_gain = (double)SdrDevices.SdrDevices.at(default_radio)->rx_channels[default_rx_channel]->get_full_gain_range().minimum();
 	}
 	catch (const std::exception& e)
 	{
@@ -153,6 +160,8 @@ void gui_bar::set_gain_slider(int gain)
 	
 	if (gain > max_gain)
 		gain = max_gain;
+	if (gain < min_gain)
+		gain = min_gain;
 	sprintf(buf, "gain %ddb", gain);
 	lv_label_set_text(gain_slider_label, buf);		
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 

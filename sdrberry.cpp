@@ -1,5 +1,6 @@
 #include "sdrberry.h"
 #include "Mouse.h"
+#include "HidDev.h"
 #include "Catinterface.h"
 #include "BandFilter.h"
 #include "Demodulator.h"
@@ -60,6 +61,7 @@ double				freq = 89800000;
 
 mutex			fm_finish;
 Mouse			Mouse_dev;
+HidDev			HidDev_dev;
 Catinterface	catinterface;
 BandFilter		bpf;
 
@@ -76,7 +78,7 @@ int main(int argc, char *argv[])
 	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
-
+	HidDev_dev.init("");
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
@@ -157,6 +159,7 @@ int main(int argc, char *argv[])
 	
 	lv_obj_t * obj1;
 	bar_view = lv_obj_create(lv_scr_act());
+	lv_obj_set_style_radius(bar_view, 0,0);
 	lv_obj_set_pos(bar_view, 0, topHeight + tunerHeight );
 	lv_obj_set_size(bar_view, LV_HOR_RES - 3, barHeight);
 	
@@ -299,6 +302,7 @@ int main(int argc, char *argv[])
 		gui_mutex.lock();
 		lv_task_handler();
 		Mouse_dev.step_vfo();
+		HidDev_dev.step_vfo();
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastStatus + std::chrono::milliseconds(100) < now && !stop_flag.load())
 		{

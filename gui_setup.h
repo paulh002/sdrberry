@@ -29,6 +29,7 @@ public:
 	int		get_brightness();
 	bool	get_cw();
 	void	set_cw(bool bcw);
+	void	toggle_cw();
 	double			m_ifrate;
 	
 private:

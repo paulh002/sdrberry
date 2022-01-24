@@ -108,6 +108,15 @@ static void event_handler_morse(lv_event_t *e)
 	}
 }
 
+void gui_setup::toggle_cw()
+{
+	if (lv_obj_get_state(check_cw) & LV_STATE_CHECKED)
+		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
+	else 
+		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
+	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
 void gui_setup::set_cw(bool bcw)
 {
 	if (bcw)

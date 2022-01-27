@@ -41,6 +41,7 @@ Done:
 - Support both Raspberry pi buster and Bullseye
 - CMake compilation
 - Morse code decoder
+- Support for Contour Shuttle Express
 
 Installation of libraries is necessary:
 - Liquid DSP
@@ -72,6 +73,7 @@ cd sdrberry
 mkdir build  
 chmod +x ../do_cmake.sh  
 ../do_cmake.sh  
+make
 sudo make install  
 ```
 ## start sdrberry  

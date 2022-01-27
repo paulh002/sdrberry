@@ -56,11 +56,13 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
 	
+	m_button_group = lv_group_create();
 	ibuttons = number_of_buttons;
 	for (int i = 0; i < ibuttons; i++)
 	{	char	str[80];
 		
 		tx_button[i] = lv_btn_create(o_tab);
+		lv_group_add_obj(m_button_group, tx_button[i]);
 		lv_obj_add_style(tx_button[i], &style_btn, 0); 
 		lv_obj_add_event_cb(tx_button[i], tx_button_handler, LV_EVENT_CLICKED, NULL);
 		lv_obj_align(tx_button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
@@ -113,6 +115,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	mic_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	set_mic_slider(Settings_file.micgain());
+	lv_group_add_obj(m_button_group, mic_slider);
 	
 	drv_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(drv_slider, w / 2 - 50); 
@@ -122,11 +125,21 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	drv_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	set_drv_slider(Settings_file.drive());
-	
+	lv_group_add_obj(m_button_group, drv_slider);
+
 	ibutton_y++;
 	drp_samplerate = lv_dropdown_create(o_tab);
 	lv_obj_align(drp_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(drp_samplerate);
+	lv_group_add_obj(m_button_group, drp_samplerate);
+
+	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
+}
+
+void gui_tx::set_group()
+{
+	lv_indev_set_group(encoder_indev_t, m_button_group);
+	lv_group_focus_obj(tx_button[0]);
 }
 
 static void mic_slider_event_cb(lv_event_t * e)

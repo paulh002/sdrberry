@@ -43,6 +43,8 @@ lv_obj_t* vfo2_button;
 lv_obj_t *tabview_mid;
 lv_obj_t *bar_view;
 lv_obj_t *tab_buttons;
+lv_indev_t *encoder_indev_t{nullptr};
+lv_group_t *button_group{nullptr};
 
 using namespace std;
 
@@ -72,6 +74,43 @@ SdrDeviceVector		SdrDevices;
 std::string			default_radio;
 int					default_rx_channel = 0;
 int					default_tx_channel = 0;
+
+
+void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
+{
+	data->enc_diff = HidDev_dev.encoder_rotate();
+	data->state = HidDev_dev.encoder_key_press();
+}
+
+vector<lv_obj_t *> tab;
+
+static void tabview_event_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	int i = lv_tabview_get_tab_act(tabview_mid);
+		switch (i)
+		{
+		case 0:
+			lv_indev_set_group(encoder_indev_t, button_group);
+			break;
+		case 1:
+			gui_band_instance.set_group();
+			break;
+		case 3:
+			Gui_rx.set_group();
+			break;
+		case 4:
+			gagc.set_group();
+			break;
+		case 5:
+			Gui_tx.set_group();
+			break;
+		case 6:
+			gsetup.set_group();
+			break;
+		}
+}
 
 int main(int argc, char *argv[])
 {
@@ -143,6 +182,14 @@ int main(int argc, char *argv[])
 	indev_drv.type = LV_INDEV_TYPE_POINTER;
 	indev_drv.read_cb = evdev_read;       // defined in lv_drivers/indev/evdev.h
 	lv_indev_drv_register(&indev_drv);
+
+	lv_indev_drv_t indev_drv_enc;
+	lv_indev_drv_init(&indev_drv_enc);
+	indev_drv_enc.type = LV_INDEV_TYPE_ENCODER;
+	indev_drv_enc.read_cb = encoder_read;
+	encoder_indev_t = lv_indev_drv_register(&indev_drv_enc);
+	button_group = lv_group_create();
+	lv_indev_set_group(encoder_indev_t, button_group);
 	
 	lv_theme_t* th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
 	lv_disp_set_theme(NULL, th);
@@ -165,24 +212,26 @@ int main(int argc, char *argv[])
 	
 	
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, 40);
+	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+
 	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
 	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight - barHeight);
-	
-	lv_obj_t *tab1 = lv_tabview_add_tab(tabview_mid, "Spectrum");
-	lv_obj_t *tab2 = lv_tabview_add_tab(tabview_mid, "Band");
-	lv_obj_t *tab3 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD);
-	lv_obj_t *tab4 = lv_tabview_add_tab(tabview_mid, "Mode");
-	lv_obj_t *tab5 = lv_tabview_add_tab(tabview_mid, "Agc");
-	lv_obj_t *tab6 = lv_tabview_add_tab(tabview_mid, "TX");
-	lv_obj_t *tab7 = lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS);	
+
+	tab.push_back(lv_tabview_add_tab(tabview_mid, "Spectrum"));
+	tab.push_back(lv_tabview_add_tab(tabview_mid, "Band"));
+	tab.push_back(lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
+	tab.push_back(lv_tabview_add_tab(tabview_mid, "Mode"));
+	tab.push_back(lv_tabview_add_tab(tabview_mid, "Agc"));
+	tab.push_back(lv_tabview_add_tab(tabview_mid, "TX"));
+	tab.push_back(lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	Wf.init(tab1, 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);	
-	Gui_rx.gui_rx_init(tab4, LV_HOR_RES - 3);
-	gagc.init(tab5, LV_HOR_RES - 3);
-	Gui_tx.gui_tx_init(tab6, LV_HOR_RES - 3);
-	gsetup.init(tab7, LV_HOR_RES - 3);
+	Wf.init(tab[0], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);	
+	Gui_rx.gui_rx_init(tab[3], LV_HOR_RES - 3);
+	gagc.init(tab[4], LV_HOR_RES - 3);
+	Gui_tx.gui_tx_init(tab[5], LV_HOR_RES - 3);
+	gsetup.init(tab[6], LV_HOR_RES - 3);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
 	
 	if (Settings_file.get_mac_address() != std::string(""))
@@ -200,7 +249,7 @@ int main(int argc, char *argv[])
 	
 
 	Gui_rx.set_gui_mode(mode);
-	keyb.init_keyboard(tab3, LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
+	keyb.init_keyboard(tab[2], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	
 	default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
@@ -225,8 +274,8 @@ int main(int argc, char *argv[])
 	}
 	
 	if (SdrDevices.MakeDevice(default_radio))
-	{	
-		gbar.init(bar_view, mode, LV_HOR_RES - 3, barHeight);
+	{
+		gbar.init(bar_view, button_group,  mode, LV_HOR_RES - 3, barHeight);
 		SoapySDR::Range r = SdrDevices.get_full_frequency_range(default_radio, default_rx_channel);
 		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
 		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
@@ -279,7 +328,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		gui_band_instance.init_button_gui(tab2, LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
+		gui_band_instance.init_button_gui(tab[1], LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
 		gagc.set_gain_range();
@@ -291,14 +340,16 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		gbar.init(bar_view, mode, LV_HOR_RES - 3, barHeight); 
+		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight); 
 		lv_label_set_text(label_status, "No SDR Device Found");
 		gsetup.set_radio(default_radio);
 	}
-	
+
+	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	/*Handle LitlevGL tasks (tickless mode)*/
-	auto timeLastStatus = std::chrono::high_resolution_clock::now(); 
-	while (1) {
+	auto timeLastStatus = std::chrono::high_resolution_clock::now();
+	while (1)
+	{
 		gui_mutex.lock();
 		lv_task_handler();
 		Mouse_dev.step_vfo();
@@ -312,7 +363,7 @@ int main(int argc, char *argv[])
 			double s = Fft_calc.get_signal_strength();
 			set_s_meter(s);
 		}
-		
+
 		if (midicontrole)
 			midicontrole->read_midi_input();
 		set_time_label();

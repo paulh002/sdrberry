@@ -82,6 +82,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
 
+	m_button_group = lv_group_create();
 	auto it_m = begin(Settings_file.labels);
 	auto it_f_low = begin(Settings_file.f_low);
 	ibuttons = 0; // count number of buttons
@@ -97,12 +98,12 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 		if(label.length() && f_low >= f_min && f_low <= f_max)
 		{	
 			button[i] = lv_btn_create(o_tab);
+			lv_group_add_obj(m_button_group, button[i]);
 			lv_obj_add_style(button[i], &style_btn, 0); 
 			lv_obj_add_event_cb(button[i], band_button, LV_EVENT_CLICKED, NULL);
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
 			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);		
 			lv_obj_set_size(button[i], button_width, button_height);
-		
 			lv_obj_t* lv_label = lv_label_create(button[i]);
 		
 			char str[20];
@@ -125,6 +126,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_t * cb;
 	cb = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, cb);
 	lv_checkbox_set_text(cb, "limit vfo to bands");
 	lv_obj_add_event_cb(cb, ham_event_handler, LV_EVENT_ALL, NULL);
 	ibutton_y++;
@@ -132,8 +134,15 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	
 	if (vfo.limit_ham_band)
 		lv_obj_add_state(cb, LV_STATE_CHECKED);
-	
+	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
+
+void Gui_band::set_group()
+{
+	lv_indev_set_group(encoder_indev_t, m_button_group);
+	lv_group_focus_obj(button[0]);
+}
+
 
 int getIndex(vector<int> v, int s)
 {

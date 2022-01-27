@@ -95,13 +95,14 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
-	
+	m_button_group = lv_group_create();
 	ibuttons = number_of_buttons;
 	for (i = 0; i < ibuttons; i++)
 	{
 		char	str[80];
 		
 		button[i] = lv_btn_create(o_tab);
+		lv_group_add_obj(m_button_group, button[i]);
 		lv_obj_add_style(button[i], &style_btn, 0); 
 		lv_obj_add_event_cb(button[i], agc_button_handler, LV_EVENT_CLICKED, NULL);
 		lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
@@ -152,7 +153,8 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_slider_set_range(gain_slider, 0, 100);
 	lv_obj_align_to(gain_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-	
+	lv_group_add_obj(m_button_group, gain_slider);
+
 	gain_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(gain_slider_label, "gain 0 db");
 	lv_obj_align_to(gain_slider_label, gain_slider, LV_ALIGN_TOP_MID, 0,-20);
@@ -168,7 +170,8 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_align_to(threshold_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(threshold_slider, threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	set_threshold_slider(max_threshold + Settings_file.agc_threshold());
-	
+	lv_group_add_obj(m_button_group, threshold_slider);
+
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
 	
 	
@@ -181,16 +184,26 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_align_to(slope_slider, slope_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	lv_obj_add_event_cb(slope_slider, slope_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	set_slope_slider(Settings_file.agc_slope());
-	
+	lv_group_add_obj(m_button_group, slope_slider);
+
 	delay_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(delay_slider_label, "Delay ");
 	lv_obj_align_to(delay_slider_label, threshold_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	delay_slider = lv_slider_create(o_tab);
+	lv_group_add_obj(m_button_group, delay_slider);
+
 	lv_slider_set_range(delay_slider, 0, 1000);
 	lv_obj_set_width(delay_slider, w / 2 - 50); 
 	lv_obj_align_to(delay_slider, delay_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	lv_obj_add_event_cb(delay_slider, delay_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	set_delay_slider(Settings_file.agc_delay());
+	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
+}
+
+void Gui_agc::set_group()
+{
+	lv_indev_set_group(encoder_indev_t, m_button_group);
+	lv_group_focus_obj(button[0]);
 }
 
 void Gui_agc::set_slope_slider(int t)

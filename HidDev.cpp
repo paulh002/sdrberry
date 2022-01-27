@@ -2,6 +2,7 @@
 #include "gui_setup.h"
 
 extern void strupr(char *str);
+extern HidDev HidDev_dev;
 
 HidDev::HidDev()
 {
@@ -12,7 +13,6 @@ HidDev::HidDev()
 	last_val = 0;
 	speed = 0;
 	value = 0;
-	status = 0;
 	last_time = std::chrono::high_resolution_clock::now();
 }
 
@@ -75,38 +75,59 @@ bool HidDev::read_event()
 
 void HidDev::step_vfo()
 {
-	if (!read_event())
-	{
-		auto now = std::chrono::high_resolution_clock::now();
-		const auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time);
-		if (timePassed.count() > 10000 && status > 0)
-		{
-			status = 0;
-		}
-	}
-	
-	if (in_event.type == EV_KEY && in_event.value == 1)
+	// Check if a shuttle event is happening
+	// If no event within 10 sec clear status for jog so the default is resored
+
+	bool bevent = read_event();
+	// Check for key press
+	if (bevent && in_event.type == EV_KEY)
 	{
 		switch (in_event.code)
 		{
+			// first key switches to rotery encoding function
 		case 260:
-			gsetup.toggle_cw();
+			if (in_event.value == 1)
+			{
+				if (encoder)
+					encoder = false;
+				else
+					encoder = true;
+			}
 			break;
 		case 261:
+			// 2nd key hotkey for CW decoding
+			if (in_event.value == 1)
+				gsetup.toggle_cw();
 			break;
 		case 262:
+			// Middle button is used as keypress for rotery encoder option
+			if (in_event.value == 1)
+				enc_pressed = true;
+			else
+				enc_pressed = false;
 			break;
 		case 263:
 			break;
 		case 264:
-			status++;
-			if (status > 2)
-				status = 0;
+			// Txset_tx_state
+			if (in_event.value == 1)
+			{
+				if (!txstate)
+				{
+					txstate = true;
+					select_mode_tx(mode);
+				}
+				else
+				{
+					txstate = false;
+					select_mode(mode);
+				}
+			}
 			break;
 		}
 	}
 
-	if (in_event.type == EV_REL && in_event.code == 11)
+	if (bevent && in_event.type == EV_REL && in_event.code == 11)
 	{
 		switch (in_event.value)
 		{
@@ -130,105 +151,11 @@ void HidDev::step_vfo()
 			break;
 		}
 	}
-	
-	if (in_event.type == EV_REL && in_event.code == 11 && (in_event.value == 120 || in_event.value == -120))
-		value = 0;
-	
-	if (value != 0 && status == 1)
-	{
-		auto now = std::chrono::high_resolution_clock::now();
-		const auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time);
-		if (timePassed.count() > 20 && value == 1)
-		{
-			gbar.step_vol_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 10 && value == 2)
-		{
-			gbar.step_vol_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 5 && value == 3)
-		{
-			gbar.step_vol_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 1 && value == 4)
-		{
-			gbar.step_vol_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 20 && value == -1)
-		{
-			gbar.step_vol_slider(-1);
-			last_time = now;
-		}
-		if (timePassed.count() > 10 && value == -2)
-		{
-			gbar.step_vol_slider(-1);
-			last_time = now;
-		}
-		if (timePassed.count() > 5 && value == -3)
-		{
-			gbar.step_vol_slider(-1);
-			last_time = now;
-		}
-		if (timePassed.count() > 1 && value == -4)
-		{
-			gbar.step_vol_slider(-1);
-			last_time = now;
-		}
-		return;
-	}
 
-	if (value != 0 && status == 2)
-	{
-		auto now = std::chrono::high_resolution_clock::now();
-		const auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time);
-		if (timePassed.count() > 20 && value == 1)
-		{
-			gbar.step_gain_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 10 && value == 2)
-		{
-			gbar.step_gain_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 5 && value == 3)
-		{
-			gbar.step_gain_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 1 && value == 4)
-		{
-			gbar.step_gain_slider(1);
-			last_time = now;
-		}
-		if (timePassed.count() > 20 && value == -1)
-		{
-			gbar.step_gain_slider(-1);
-			last_time = now;
-		}
-		if (timePassed.count() > 10 && value == -2)
-		{
-			gbar.step_gain_slider(-1);
-			last_time = now;
-		}
-		if (timePassed.count() > 5 && value == -3)
-		{
-			gbar.step_gain_slider(-1);
-			last_time = now;
-		}
-		if (timePassed.count() > 1 && value == -4)
-		{
-			gbar.step_gain_slider(-1);
-			last_time = now;
-		}
-		return;
-	}
-	
-	if (value != 0 && status == 0)
+	if (bevent && in_event.type == EV_REL && in_event.code == 11 && (in_event.value == 120 || in_event.value == -120))
+		value = 0;
+		
+	if (value != 0)
 	{
 		auto now = std::chrono::high_resolution_clock::now();
 		const auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time);
@@ -264,11 +191,82 @@ void HidDev::step_vfo()
 		}
 		return;
 	}
-	
-	if (in_event.type == EV_REL && in_event.code == 7 && in_event.value > last_val)
+
+	if (bevent && in_event.type == EV_REL && in_event.code == 7)
+	{
+		rotate(in_event.value);
+		if (!encoder)
+			rotate_vfo();
+	}
+}
+
+void HidDev::rotate_vfo()
+{
+	if (enc_moved > 0)
 		vfo.step_vfo(step, false);
-	if (in_event.type == EV_REL && in_event.code == 7 && in_event.value < last_val)
+	if (enc_moved < 0)
 		vfo.step_vfo(-1 * step, false);
-	if (in_event.type == EV_REL && in_event.code == 7)
-		last_val = in_event.value;
+	enc_moved = 0;
+}
+
+// translate the 1 to 255 to direction clock wise enc_moved =1
+// anti clocke wise enc_moved = -1
+
+void HidDev::rotate(int value)
+{
+	if (value == last_val)
+		return;
+	if (last_val == 0 && (value == 1 || value == 255)) // initial
+	{ // This is the initial move when shuttle starts up
+		if (value == 1)
+			enc_moved = 1;
+		else
+			enc_moved = -1;
+		last_val = value;
+		return;
+	}
+
+	if (last_val < 255 && last_val != 1)
+	{
+		if (value > last_val)
+			enc_moved = 1;
+		else
+			enc_moved = -1;
+		last_val = value;
+		return;
+	}
+
+	if (value == 1 && last_val == 255)
+	{
+		enc_moved = 1;
+		last_val = value;
+		return;
+	}
+
+	if (value == 255 && last_val == 1)
+	{
+		enc_moved = -1;
+		last_val = value;
+	}
+	last_val = value;
+}
+
+lv_indev_state_t HidDev::encoder_key_press()
+{
+	if (!encoder)
+		return LV_INDEV_STATE_REL;
+	if (enc_pressed)
+		return LV_INDEV_STATE_PRESSED;
+	return LV_INDEV_STATE_REL;
+}
+
+int HidDev::encoder_rotate()
+{
+	if (encoder)
+	{
+		int i = enc_moved;
+		enc_moved = 0;
+		return i;
+	}
+	return 0;
 }

@@ -23,7 +23,7 @@ public:
 	void	set_gain_slider(int gain);
 	void	get_gain_range(int &max_gain, int &min_gain);
 	void	update_gain_slider(int gain);
-	
+	void	set_group();
 	lv_obj_t *get_gain_slider_label() {return gain_slider_label;}
 	
 	int getbuttons()
@@ -86,7 +86,7 @@ private:
 	const int	number_of_buttons {4};
 	const int	top_y {10};
 	int			agc_mode {0};
-
+	lv_group_t *m_button_group{nullptr};
 };
 
 

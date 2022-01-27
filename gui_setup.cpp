@@ -199,6 +199,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	int	ibutton_x = 0, ibutton_y = 0;
 	m_ifrate = ifrate;
 	
+	m_button_group = lv_group_create();
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -213,11 +214,13 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
 	
 	d_samplerate = lv_dropdown_create(o_tab);
+	lv_group_add_obj(m_button_group, d_samplerate);
 	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_samplerate);
 	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
 	
 	d_receivers = lv_dropdown_create(o_tab);
+	lv_group_add_obj(m_button_group, d_receivers);
 	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_receivers);
 	lv_obj_add_event_cb(d_receivers, receivers_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
@@ -228,6 +231,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	}
 	
 	d_audio = lv_dropdown_create(o_tab);
+	lv_group_add_obj(m_button_group, d_audio);
 	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, 2*button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_width(d_audio, 2*button_width);
 	lv_dropdown_clear_options(d_audio);
@@ -250,11 +254,12 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	ibutton_y++;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin /2;
 	span_slider = lv_slider_create(o_tab);
+	lv_group_add_obj(m_button_group, span_slider);
 	lv_obj_set_width(span_slider, w / 2 - 50); 
 	//lv_obj_center(span_slider);
 	lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
 
-	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_PRESSING, NULL);
+	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
 	span_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(span_slider_label, "span");
@@ -269,9 +274,10 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	int brightness_y = 15 + y_margin + 2* button_height_margin;
 	brightness_slider = lv_slider_create(o_tab);
+	lv_group_add_obj(m_button_group, brightness_slider);
 	lv_obj_set_width(brightness_slider, w / 2 - 50); 
 	lv_obj_align_to(brightness_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
-	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_PRESSING, NULL);
+	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	lv_slider_set_range(brightness_slider, 0, 255);
 	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
 	
@@ -280,10 +286,19 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	check_cw = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, check_cw);
 	lv_checkbox_set_text(check_cw, "Morse Decoder");
 	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, NULL);
 	lv_obj_align_to(check_cw, d_samplerate, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
 	//lv_obj_add_state(check_cw, LV_STATE_CHECKED);
+
+	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
+}
+
+void gui_setup::set_group()
+{
+	lv_indev_set_group(encoder_indev_t, m_button_group);
+	lv_group_focus_obj(d_samplerate);
 }
 
 void gui_setup::set_span_value(int span)

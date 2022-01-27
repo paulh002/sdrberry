@@ -57,6 +57,7 @@ extern const int barHeight;
 extern const int MorseHeight;
 extern lv_obj_t *bar_view;
 extern lv_obj_t *tabview_mid;
+extern lv_indev_t *encoder_indev_t;
 
 extern int		        mode;
 extern volatile int		filter;

@@ -27,8 +27,9 @@ public:
 		return button[i];
 	}
 	void		set_gui(int band);
+	void		set_group();
 	
-private:
+  private:
 	lv_obj_t	*tab;
 	lv_obj_t	*button[100];
 	lv_style_t	style_btn;
@@ -38,6 +39,7 @@ private:
 	int			button_width_margin;
 	int			button_height_margin;
 	int			ibuttons;
+	lv_group_t *m_button_group{nullptr};
 };
 
 int getIndex(vector<int> v, int s);

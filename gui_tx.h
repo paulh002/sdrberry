@@ -22,6 +22,7 @@ public:
 	void step_drv_slider(int step);
 	void set_sample_rate(int rate);
 	void clear_sample_rate();
+	void set_group();
 	
 	int getbuttons()
 	{
@@ -47,6 +48,7 @@ private:
 	vector<int>		sample_rates;
 	int				ibuttons;
 	const int		number_of_buttons {6};
+	lv_group_t		*m_button_group{nullptr};
 };
 
 extern gui_tx	Gui_tx;

@@ -32,13 +32,14 @@ void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
-	
+	m_button_group = lv_group_create();
 	ibuttons = number_of_buttons;
 	for (int i = 0; i < ibuttons; i++)
 	{
 		char	str[80];
 		
 		rx_button[i] = lv_btn_create(o_tab);
+		lv_group_add_obj(m_button_group, rx_button[i]);
 		lv_obj_add_style(rx_button[i], &style_btn, 0); 
 		lv_obj_add_event_cb(rx_button[i], rx_button_handler, LV_EVENT_CLICKED, NULL);
 		lv_obj_align(rx_button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
@@ -103,6 +104,13 @@ void gui_rx::gui_rx_init(lv_obj_t* o_tab, lv_coord_t w)
 			ibutton_y++;
 		}
 	}
+	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
+}
+
+void gui_rx::set_group()
+{
+	lv_indev_set_group(encoder_indev_t, m_button_group);
+	lv_group_focus_obj(rx_button[0]);
 }
 
 static void rx_button_handler(lv_event_t * e)

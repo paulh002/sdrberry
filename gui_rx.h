@@ -28,13 +28,15 @@ public:
 		return rx_button[i];
 	}
 	void	set_gui_mode(int mode);
-
+	void set_group();
+	
 private:
 	int				mode;	
 	lv_obj_t*		mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label;
 	lv_style_t		style_btn;
 	lv_obj_t		*rx_button[10];
 	int				ibuttons;
+	lv_group_t		*m_button_group{nullptr};
 
 };
 

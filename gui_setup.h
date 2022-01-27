@@ -30,6 +30,8 @@ public:
 	bool	get_cw();
 	void	set_cw(bool bcw);
 	void	toggle_cw();
+	void	set_group();
+	
 	double			m_ifrate;
 	
 private:
@@ -41,6 +43,7 @@ private:
 	lv_obj_t*		brightness_slider_label, *brightness_slider;
 	lv_obj_t*		d_audio, *check_cw;
 	atomic<int>		m_span;
+	lv_group_t		*m_button_group{nullptr};
 };
 
 extern gui_setup	gsetup;

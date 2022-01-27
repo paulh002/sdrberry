@@ -141,6 +141,19 @@ void gui_bar::step_gain_slider(int step)
 	set_gain_slider(lv_slider_get_value(gain_slider) + step);
 }
 
+gui_bar::~gui_bar()
+{
+	for (int i = 0; i < ibuttons; i++)
+	{
+		if (button[i] != nullptr)
+			lv_obj_del(button[i]);
+	}
+	lv_obj_del(vol_slider);
+	lv_obj_del(vol_slider_label);
+	lv_obj_del(gain_slider);
+	lv_obj_del(gain_slider_label);
+}
+
 void gui_bar::set_gain_slider(int gain)
 {
 	char	buf[20];
@@ -206,8 +219,7 @@ void gui_bar::set_gain_range()
 	lv_slider_set_range(gain_slider, min_gain, max_gain);
 }
 
-
-void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
+void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h)
 {
 	const lv_coord_t x_margin_dropdown  = 20;
 	const lv_coord_t x_margin  = 2;
@@ -251,6 +263,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_obj_set_style_pad_hor(o_parent, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(o_parent, 0, LV_PART_MAIN);
 	lv_obj_clear_flag(o_parent, LV_OBJ_FLAG_SCROLLABLE);
+	m_button_group = button_group;
 	
 	ibuttons = number_of_buttons;
 	for (i = 0; i < ibuttons; i++)
@@ -264,7 +277,8 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 			lv_obj_add_event_cb(button[i], bar_button_handler, LV_EVENT_CLICKED, NULL);
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
 			lv_obj_set_size(button[i], button_width, button_height);
-						
+			lv_group_add_obj(button_group, button[i]);
+			
 			lv_obj_t* lv_label = lv_label_create(button[i]);
 			switch (i)
 			{
@@ -329,6 +343,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 		}
 		else
 		{
+			filter = i;
 			button[i] = lv_dropdown_create(o_parent);
 			lv_dropdown_set_options_static(button[i], opts);
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
@@ -336,6 +351,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 			lv_obj_add_style(button[i], &style_btn, 0);
 			lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 			lv_dropdown_set_selected(button[i], 4);
+			lv_group_add_obj(button_group, button[i]);
 			int bandwidth = ifilters[4];
 			catinterface.SetSH(bandwidth);
 		}
@@ -357,7 +373,7 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_slider_set_range(vol_slider, 0, 100);
 	lv_obj_set_width(vol_slider, vol_width); 
 	lv_obj_align(vol_slider, LV_ALIGN_TOP_LEFT, vol_x , 15);
-	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_PRESSING, NULL);
+	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	
 	int gain_y = 15 + y_margin + button_height_margin;
 	gain_slider_label = lv_label_create(o_parent);
@@ -367,8 +383,11 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_slider_set_range(gain_slider, 0, 100);
 	lv_obj_set_width(gain_slider, vol_width); 
 	lv_obj_align(gain_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
-	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_PRESSING, NULL);
-	
+	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+
+	lv_group_add_obj(button_group, vol_slider);
+	lv_group_add_obj(button_group, gain_slider);
+
 	try
 	{
 		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(default_rx_channel)->get_agc())
@@ -409,8 +428,17 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 	lv_obj_set_size(cw_led, 15, 15);
 	lv_led_off(cw_led);
 	hide_cw(true);
+
+	lv_style_init(&style_selected_color);
+	lv_style_set_bg_opa(&style_selected_color, LV_OPA_COVER);
+	lv_style_set_bg_color(&style_selected_color, lv_palette_main(LV_PALETTE_YELLOW));
 	}
 
+	void gui_bar::set_focus()
+	{
+		lv_group_focus_obj(button[0]);
+	}
+	
 	void gui_bar::set_led(bool status)
 	{
 		unique_lock<mutex> gui_lock(gui_mutex);
@@ -419,7 +447,26 @@ void gui_bar::init(lv_obj_t* o_parent, int mode, lv_coord_t w, lv_coord_t h)
 		else
 			lv_led_off(cw_led);
 	}
-	
+
+	void gui_bar::select_option(int option)
+	{
+		switch (option)
+		{
+		case 0:
+			lv_obj_remove_style(vol_slider, &style_selected_color, LV_PART_KNOB);
+			lv_obj_remove_style(gain_slider, &style_selected_color, LV_PART_KNOB);
+			break;
+		case 1:
+			lv_obj_remove_style(gain_slider, &style_selected_color, LV_PART_KNOB);
+			lv_obj_add_style(vol_slider, &style_selected_color, LV_PART_KNOB);
+			break;
+		case 2:
+			lv_obj_remove_style(vol_slider, &style_selected_color, LV_PART_KNOB);
+			lv_obj_add_style(gain_slider, &style_selected_color,LV_PART_KNOB);
+			break;
+		}
+	}
+
 	void gui_bar::hide_cw(bool hide)
 	{
 		if (hide)

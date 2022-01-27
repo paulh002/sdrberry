@@ -88,6 +88,8 @@ sudo sdrberry
 In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline.txt files for rotating the screen
 5 inch DSI screens from waveshare do not need any adjustment
 
+![sdrberry](https://github.com/paulh002/sdrberry/blob/master/contour.jpg)
+
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20210909_183113.jpg)

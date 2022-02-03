@@ -42,6 +42,7 @@ Done:
 - CMake compilation
 - Morse code decoder
 - Support for Contour Shuttle Express
+- Receive FT8
 
 Installation of libraries is necessary:
 - Liquid DSP
@@ -89,6 +90,8 @@ In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline
 5 inch DSI screens from waveshare do not need any adjustment
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/contour.jpg)
+
+![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20220203_ft8.jpg)
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)
 

@@ -42,7 +42,8 @@ public:
 	string	find_input(string key);
 	string	find_cat(string key);
 	int		convert_mode(string s);
-		
+	long long	get_ft8(int band);
+
 	vector<int>				meters;
 	vector<string>			labels;
 	vector<long>			f_low;
@@ -50,6 +51,7 @@ public:
 	vector<int>				address;
 	vector<int>				command_rx;
 	vector<int>				command_tx;
+	vector<long>			ft8_freq;
 	vector<string>			mode;
 	vector <string>			receivers;
 	

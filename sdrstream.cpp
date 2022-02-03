@@ -66,7 +66,7 @@ void RX_Stream::operator()()
 	try
 	{
 		rx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
-		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, channel, ifrate);
 		SdrDevices.SdrDevices.at(radio)->activateStream(rx_stream);
 	}
 	catch (const std::exception& e)
@@ -83,8 +83,9 @@ void RX_Stream::operator()()
 		int							flags(0); 
 		long long					time_ns(0);
 		vector<complex<float>>		buf(default_block_length);
-		
-		void *buffs[] = { buf.data() };
+		vector<complex<float>>		buf2(default_block_length);
+
+		void *buffs[] = { buf.data(), buf2.data() };
 		try 
 		{
 			ret = SdrDevices.SdrDevices.at(radio)->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);

@@ -36,7 +36,7 @@ FMModulator::FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	m_tone = tone;
 	m_fcutoff = 5000;
 	Demodulator::set_filter(m_pcmrate, m_fcutoff);
-	Demodulator::set_reample_rate(ifrate / pcmrate); // UP sample to ifrate
+	Demodulator::set_resample_rate(ifrate / pcmrate); // UP sample to ifrate
 	modFM = freqmod_create(kf); 
 	source_buffer->restart_queue();
 	audio_input->open();

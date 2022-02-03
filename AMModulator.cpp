@@ -73,7 +73,7 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	{
 		// only resample and tune if ifrate > pcmrate
 		tune_offset(vfo.get_vfo_offset());
-		set_reample_rate(ifrate / pcmrate); // UP sample to ifrate		
+		set_resample_rate(ifrate / pcmrate); // UP sample to ifrate		
 	}
 	else
 	{	// mix the transmid signal to the mid of the fft display

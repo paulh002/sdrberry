@@ -173,7 +173,14 @@ void Settings::read_settings(string settings_file)
 	{
 		if (col.toString().length() > 0L)
 			receivers.push_back(col.toString());
-	}	
+	}
+
+	config->useSection("ft8");
+	for (auto &col : (*config)("freq"))
+	{
+		if (col.toInt() > 0)
+			ft8_freq.push_back((long)col.toInt());
+	}
 }
 
 
@@ -446,4 +453,12 @@ int Settings::convert_mode(string s)
 	if (s == "CW")
 		mode = mode_cw;
 	return mode;
+}
+
+long long Settings::get_ft8(int band)
+{
+	if (ft8_freq.size() > band)
+		return 1000L * ft8_freq[band];
+	else
+		return 0;
 }

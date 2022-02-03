@@ -65,7 +65,7 @@ bool HidDev::read_event()
 			return false;
 		if (bytes == sizeof(struct input_event))
 		{
-			printf("CONTOUR DESIGN type %d code %d, value %d\n", in_event.type, in_event.code, in_event.value);
+			//printf("CONTOUR DESIGN type %d code %d, value %d\n", in_event.type, in_event.code, in_event.value);
 			return true;
 		}
 	}

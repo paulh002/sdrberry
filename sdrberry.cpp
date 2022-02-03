@@ -7,6 +7,7 @@
 #include "FMDemodulator.h"
 #include "FMModulator.h"
 #include "AMModulator.h"
+#include "FT8Demodulator.h"
 
 AudioOutput *audio_output;
 AudioInput *audio_input;
@@ -82,7 +83,7 @@ void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 	data->state = HidDev_dev.encoder_key_press();
 }
 
-vector<lv_obj_t *> tab;
+std::map<string, lv_obj_t *> tab;
 
 static void tabview_event_cb(lv_event_t *e)
 {
@@ -217,23 +218,24 @@ int main(int argc, char *argv[])
 	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
 	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight - barHeight);
 
-	tab.push_back(lv_tabview_add_tab(tabview_mid, "Spectrum"));
-	tab.push_back(lv_tabview_add_tab(tabview_mid, "Band"));
-	tab.push_back(lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
-	tab.push_back(lv_tabview_add_tab(tabview_mid, "Mode"));
-	tab.push_back(lv_tabview_add_tab(tabview_mid, "Agc"));
-	tab.push_back(lv_tabview_add_tab(tabview_mid, "TX"));
-	tab.push_back(lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
+	tab["spectrum"] = (lv_tabview_add_tab(tabview_mid, "Spectrum"));
+	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
+	tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
+	tab["mode"] = (lv_tabview_add_tab(tabview_mid, "Mode"));
+	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
+	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
+	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
+	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	Wf.init(tab[0], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);	
-	Gui_rx.gui_rx_init(tab[3], LV_HOR_RES - 3);
-	gagc.init(tab[4], LV_HOR_RES - 3);
-	Gui_tx.gui_tx_init(tab[5], LV_HOR_RES - 3);
-	gsetup.init(tab[6], LV_HOR_RES - 3);
+	Wf.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);
+	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
+	Gui_rx.gui_rx_init(tab["mode"], LV_HOR_RES - 3);
+	gagc.init(tab["agc"], LV_HOR_RES - 3);
+	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
+	gsetup.init(tab["settings"], LV_HOR_RES - 3);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
-	
 	if (Settings_file.get_mac_address() != std::string(""))
 	{
 		//create_ble_thread(Settings_file.get_mac_address());
@@ -249,7 +251,7 @@ int main(int argc, char *argv[])
 	
 
 	Gui_rx.set_gui_mode(mode);
-	keyb.init_keyboard(tab[2], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
+	keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	
 	default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
@@ -328,7 +330,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		gui_band_instance.init_button_gui(tab[1], LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
+		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
 		gagc.set_gain_range();
@@ -404,6 +406,7 @@ void destroy_demodulators()
 	AMDemodulator::destroy_demodulator();
 	AMModulator::destroy_modulator();
 	FMModulator::destroy_modulator();
+	FT8Demodulator::destroy_demodulator();
 	RX_Stream::destroy_rx_streaming_thread();
 	TX_Stream::destroy_tx_streaming_thread();
 }
@@ -463,6 +466,12 @@ void select_mode(int s_mode, bool bvfo)
 			gsetup.set_cw(false);
 		vfo.set_step(10, 0);
 		AMDemodulator::create_demodulator(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
+		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
+		break;
+	case mode_ft8:
+		vfo.set_step(10, 0);
+		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))), false);
+		FT8Demodulator::create_demodulator(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	}

@@ -32,7 +32,7 @@ void Demodulator::set_span(int span)
 	{
 		if (m_span != span)
 		{
-			set_fft_reample_rate((float)span * 2);
+			set_fft_resample_rate((float)span * 2);
 		}
 		m_span = span;
 		int n =  (vfo.get_vfo_offset() / m_span);
@@ -75,7 +75,7 @@ Demodulator::~Demodulator()
 	cout << "Stoptime demodulator:" << timePassed.count() << endl;
 }
 
-void Demodulator::set_reample_rate(float resample_rate)
+void Demodulator::set_resample_rate(float resample_rate)
 {
 	float As {60.0f};
 		
@@ -86,7 +86,7 @@ void Demodulator::set_reample_rate(float resample_rate)
 	msresamp_crcf_print(m_q);	
 }
 
-void Demodulator::set_fft_reample_rate(float resample_rate)
+void Demodulator::set_fft_resample_rate(float resample_rate)
 {
 	float As {60.0f};
 		

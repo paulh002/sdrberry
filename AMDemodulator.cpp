@@ -6,7 +6,7 @@
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
 
-std::chrono::high_resolution_clock::time_point starttime1 {};
+static std::chrono::high_resolution_clock::time_point starttime1 {};
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
@@ -15,7 +15,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 	
-	Demodulator::set_reample_rate(pcmrate / ifrate); // down sample to pcmrate
+	Demodulator::set_resample_rate(pcmrate / ifrate); // down sample to pcmrate
 	switch (mode)
 	{
 	case mode_usb:
@@ -156,7 +156,7 @@ void AMDemodulator::operator()()
 			{
 				if (rcount > 10 &&  dropped_frames > 0)
 				{
-					Demodulator::set_reample_rate(get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0));
+					Demodulator::set_resample_rate(get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0));
 					rcount = 0;
 				}
 				if (rcount < 10)

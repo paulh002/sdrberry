@@ -27,7 +27,7 @@ protected:
 	void			Resample(const IQSampleVector& filter_in, IQSampleVector& filter_out);
 	virtual void	operator()() = 0;
 	void			filter(const IQSampleVector& filter_in, IQSampleVector& filter_out);
-	void			set_reample_rate(float resample_rate);
+	void			set_resample_rate(float resample_rate);
 	void			mix_down(const IQSampleVector& filter_in,IQSampleVector& filter_out);
 	void			mix_up(const IQSampleVector& filter_in, IQSampleVector& filter_out);
 	void			calc_if_level(const IQSampleVector& samples_in);
@@ -35,7 +35,7 @@ protected:
 	void			set_fft_mixer(float offset);
 	void			set_filter(float samplerate, float band_width);
 	void			fft_mix(int dir, const IQSampleVector& filter_in, IQSampleVector& filter_out);
-	void			set_fft_reample_rate(float resample_rate);
+	void			set_fft_resample_rate(float resample_rate);
 	void			fft_resample(const IQSampleVector& filter_in, IQSampleVector& filter_out);
 	void			set_span(int span);
 	void			perform_fft(const IQSampleVector& iqsamples);

@@ -32,6 +32,7 @@
 #include "gui_vfo.h"
 #include "Settings.h"
 #include "Gui_band.h"
+#include "gui_ft8.h"
 #include "Keyboard.h"
 #include "Filter.h"
 #include "FmDecode.h"

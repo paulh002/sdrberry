@@ -45,7 +45,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
@@ -55,9 +55,9 @@
       </DumpStackUsage>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;fftw3;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
       <VerboseMode>true</VerboseMode>
@@ -65,7 +65,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
@@ -74,7 +74,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;rtaudio;liquid;asound;pthread;fftw3;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -101,9 +101,17 @@
     <ClCompile Include="FreeSansOblique32.c" />
     <ClCompile Include="FreeSansOblique42.c" />
     <ClCompile Include="FT891_CAT.cpp" />
+    <ClCompile Include="FT8Demodulator.cpp" />
+    <ClCompile Include="ft8\fft.cpp" />
+    <ClCompile Include="ft8\ft8.cpp" />
+    <ClCompile Include="ft8\libldpc.cpp" />
+    <ClCompile Include="ft8\osd.cpp" />
+    <ClCompile Include="ft8\unpack.cpp" />
+    <ClCompile Include="ft8\util.cpp" />
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
+    <ClCompile Include="gui_ft8.cpp" />
     <ClCompile Include="gui_rx.cpp" />
     <ClCompile Include="gui_setup.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
@@ -326,9 +334,17 @@
     <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="FMModulator.h" />
     <ClInclude Include="FT891_CAT.h" />
+    <ClInclude Include="FT8Demodulator.h" />
+    <ClInclude Include="ft8\arrays.h" />
+    <ClInclude Include="ft8\fft.h" />
+    <ClInclude Include="ft8\ft8.h" />
+    <ClInclude Include="ft8\int128.h" />
+    <ClInclude Include="ft8\unpack.h" />
+    <ClInclude Include="ft8\util.h" />
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_bar.h" />
+    <ClInclude Include="gui_ft8.h" />
     <ClInclude Include="gui_rx.h" />
     <ClInclude Include="gui_setup.h" />
     <ClInclude Include="gui_top_bar.h" />

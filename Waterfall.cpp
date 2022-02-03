@@ -92,22 +92,24 @@ static void draw_event_cb(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t * obj = lv_event_get_target(e);
-	
-	if (code == LV_EVENT_DRAW_PART_BEGIN) 
+
+	if (code == LV_EVENT_DRAW_PART_BEGIN)
 	{
-		lv_obj_draw_part_dsc_t * dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+		lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
 		/*Set the markers' text*/
-		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X) 
+		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
 		{
-			string	str[vert_lines];
+			string str[vert_lines];
 			long long f = vfo.get_sdr_frequency();
-				
-			//int ii = (int)floor((ifrate / 2.0) / (float)hor_lines / (float)(nfft_samples / 2)); 
-			int ii = (int)floor((ifrate / 2.0) / (float)(vert_lines -1)); 
-				
+			int span = gsetup.get_span();
+
+			//int ii = (int)floor((ifrate / 2.0) / (float)hor_lines / (float)(nfft_samples / 2));
+			//int ii = (int)floor((ifrate / 2.0) / (float)(vert_lines -1));
+			int ii = span / (vert_lines - 1);
+
 			for (int i = 0; i < vert_lines; i++)
 			{
-				char	str1[20];
+				char str1[20];
 				double l = (double)((f / 10ULL) % 1000ULL) / 100.0;
 				sprintf(str1, "%4.2f", l);
 				str[i] = string(str1);
@@ -116,6 +118,44 @@ static void draw_event_cb(lv_event_t * e)
 			}
 			lv_snprintf(dsc->text, sizeof(dsc->text), "%s", str[dsc->value].c_str());
 		}
+		/*else
+		{
+			if (dsc->part == LV_PART_ITEMS)
+			{
+				if (dsc->p1 && dsc->p2)
+				{
+					lv_draw_mask_line_param_t line_mask_param;
+					lv_draw_mask_line_points_init(&line_mask_param, dsc->p1->x, dsc->p1->y, dsc->p2->x, dsc->p2->y, LV_DRAW_MASK_LINE_SIDE_BOTTOM);
+					int16_t line_mask_id = lv_draw_mask_add(&line_mask_param, NULL);
+
+					// Add a fade effect: transparent bottom covering top
+					lv_coord_t h = lv_obj_get_height(obj);
+					lv_draw_mask_fade_param_t fade_mask_param;
+					lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_TRANSP, obj->coords.y2);
+					int16_t fade_mask_id = lv_draw_mask_add(&fade_mask_param, NULL);
+
+					//Draw a rectangle that will be affected by the mask
+					lv_draw_rect_dsc_t draw_rect_dsc;
+					lv_draw_rect_dsc_init(&draw_rect_dsc);
+					draw_rect_dsc.bg_opa = LV_OPA_80;
+					draw_rect_dsc.bg_color = dsc->line_dsc->color;
+
+					lv_area_t obj_clip_area;
+					_lv_area_intersect(&obj_clip_area, dsc->clip_area, &obj->coords);
+
+					lv_area_t a;
+					a.x1 = dsc->p1->x;
+					a.x2 = dsc->p2->x - 1;
+					a.y1 = LV_MIN(dsc->p1->y, dsc->p2->y);
+					a.y2 = obj->coords.y2;
+					lv_draw_rect(&a, &obj_clip_area, &draw_rect_dsc);
+					
+					//Remove the masks
+					lv_draw_mask_remove_id(line_mask_id);
+					lv_draw_mask_remove_id(fade_mask_id);
+				}
+			} 
+		}*/
 	}
 }
 
@@ -128,7 +168,7 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	chart = lv_chart_create(scr);
 	lv_obj_add_style(chart, &waterfall_style, 0); 
 	lv_obj_set_pos(chart, x, y); 
-	lv_obj_set_size(chart, w, h - 150);
+	lv_obj_set_size(chart, w, (h - 150));
 	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);

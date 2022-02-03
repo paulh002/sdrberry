@@ -143,6 +143,12 @@
     <Filter Include="Source files\lvgl">
       <UniqueIdentifier>{33f950b1-e55b-478b-a45e-0a8f6f07a28e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source files\ft8">
+      <UniqueIdentifier>{b7ec8bbd-dfff-4ff9-81eb-90732b9a22f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\ft8">
+      <UniqueIdentifier>{8730a9af-6f58-4c84-98a3-3ba617b86327}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdrberry.cpp">
@@ -1135,6 +1141,30 @@
     <ClCompile Include="HidDev.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="ft8\fft.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\ft8.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\util.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="FT8Demodulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\unpack.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\osd.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\libldpc.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_ft8.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1476,6 +1506,30 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="HidDev.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\fft.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\ft8.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\util.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="FT8Demodulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\unpack.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\int128.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\arrays.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_ft8.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

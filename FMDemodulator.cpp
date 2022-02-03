@@ -6,7 +6,7 @@ FMDemodulator::FMDemodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *s
 	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
 {
 	m_bandwidth = 12500; // Narrowband FM
-	Demodulator::set_reample_rate(pcmrate / ifrate); // down sample to pcmrate
+	Demodulator::set_resample_rate(pcmrate / ifrate); // down sample to pcmrate
 	Demodulator::set_filter(pcmrate, m_bandwidth);
 	demodFM = freqdem_create(0.5);
 }

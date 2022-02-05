@@ -22,7 +22,6 @@
 #include "lv_drivers/indev/evdev.h"
 #include "gui_top_bar.h"
 #include "gui_tx.h"
-#include "gui_rx.h"
 #include "gui_agc.h"
 #include "gui_bar.h"
 #include "gui_setup.h"

@@ -25,6 +25,11 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 		printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
 		break;
 	case mode_cw:
+		m_bandwidth = 500; // CW
+		suppressed_carrier = 1;
+		am_mode = LIQUID_AMPMODEM_LSB;
+		printf("mode CW LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
+		break;
 	case mode_lsb:
 		m_bandwidth = 2500; // SSB
 		suppressed_carrier = 1;
@@ -56,7 +61,6 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
-
 	//catinterface.SetSH(m_bandwidth);
 	
 	//agc.set_bandwidth(0.01f);
@@ -181,7 +185,7 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
-	if (gsetup.get_cw())
+	if (!stop_flag.load() && gsetup.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)
 	{

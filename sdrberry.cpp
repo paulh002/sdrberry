@@ -419,11 +419,12 @@ void select_mode(int s_mode, bool bvfo)
 {	
 	if (!SdrDevices.isValid(default_radio))
 		return;
+
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
 	// stop transmit
-	destroy_demodulators();
 	stop_flag = true; // depreciated only used for broadband fm
+	destroy_demodulators();
 	stop_flag = false;
 	mode = s_mode;
 	if (SdrDevices.get_tx_channels(default_radio) > 0)
@@ -450,7 +451,6 @@ void select_mode(int s_mode, bool bvfo)
 
 	case mode_cw:
 		gsetup.set_cw(true);
-		gbar.set_filter_slider(0);
 	case mode_am:
 	case mode_dsb:
 	case mode_usb:

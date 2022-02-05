@@ -111,9 +111,15 @@ static void event_handler_morse(lv_event_t *e)
 void gui_setup::toggle_cw()
 {
 	if (lv_obj_get_state(check_cw) & LV_STATE_CHECKED)
+	{
 		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
-	else 
+		gbar.set_filter_slider(2500);
+	}
+	else
+	{
 		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
+		gbar.set_filter_slider(500);
+	}
 	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 

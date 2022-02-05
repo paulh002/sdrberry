@@ -497,15 +497,6 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 		lv_group_focus_obj(button[0]);
 	}
 	
-	void gui_bar::set_led(bool status)
-	{
-		unique_lock<mutex> gui_lock(gui_mutex);
-		if (status)
-			lv_led_on(cw_led);
-		else
-			lv_led_off(cw_led);
-	}
-
 	void gui_bar::select_option(int option)
 	{
 		switch (option)
@@ -566,7 +557,15 @@ void gui_bar::check_agc()
 
 void gui_bar::set_cw_message(std::string message)
 {
-	unique_lock<mutex> gui_lock(gui_mutex);
+	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
+	gui_lock.try_lock();
+	if (!gui_lock.owns_lock())
+	{
+		usleep(1000);
+		gui_lock.try_lock();
+		if (!gui_lock.owns_lock())
+			return;
+	}
 	lv_label_set_text(cw_message,message.c_str());
 }
 
@@ -574,12 +573,35 @@ void gui_bar::set_cw_wpm(int wpm)
 {
 	char str[30];
 
-	unique_lock<mutex> gui_lock(gui_mutex);
+	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
+	gui_lock.try_lock();
+	if (!gui_lock.owns_lock())
+	{
+		usleep(1000);
+		gui_lock.try_lock();
+		if (!gui_lock.owns_lock())
+			return;
+	}
 	sprintf(str, "wpm: %d", wpm);
 	lv_label_set_text(cw_wpm, str);
 }
 
-
+void gui_bar::set_led(bool status)
+{
+	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
+	gui_lock.try_lock();
+	if (!gui_lock.owns_lock())
+	{
+		usleep(1000);
+		gui_lock.try_lock();
+		if (!gui_lock.owns_lock())
+			return;
+	}
+	if (status)
+		lv_led_on(cw_led);
+	else
+		lv_led_off(cw_led);
+}
 
 void gui_bar::step_vol_slider(int step)
 {

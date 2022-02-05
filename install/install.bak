@@ -58,6 +58,21 @@ sudo make install
 sudo ldconfig 
 cd~
 sudo apt-get remove -y pulseaudio
+#cat ~/.asoundrc
+#cat << EOF | tee ~/.asoundrc
+#
+#pcm.!default {
+#        type hw
+#        card 1
+#}
+#
+#ctl.!default {
+#        type hw
+#        card 1
+#}
+#EOF
+#sudo sed -i "s/^defaults.ctl.card.*/defaults.ctl.card 1/" /usr/share/alsa/alsa.conf
+#sudo sed -i "s/^defaults.pcm.card.*/defaults.pcm.card 1/" /usr/share/alsa/alsa.conf
 sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
 git clone https://github.com/analogdevicesinc/libad9361-iio
 sudo apt-get install -y doxygen
@@ -81,13 +96,6 @@ sudo ldconfig
 cd ~
 #fi
 git clone https://github.com/paulh002/SoapyRadioberry
-cd SoapyRadioberry
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
 #git clone  --depth=1 https://github.com/pa3gsb/Radioberry-2.x
@@ -128,14 +136,15 @@ echo ""
 echo "Radioberry driver installed."
 
 #-----------------------------------------------------------------------------
-wget https://raw.githubusercontent.com/paulh00ls2/sdrberry/master/install/sdrberry_settings.cfg
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry
 mkdir build
 cd build
 chmod +x ../do_cmake.sh
 ../do_cmake.sh
-make
 sudo make install
 cd ~
 sudo sed 's/$/ vt.global_cursor_default=0/' /boot/cmdline.txt
+
+

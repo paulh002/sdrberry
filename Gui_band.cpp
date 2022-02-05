@@ -188,6 +188,7 @@ void band_button(lv_event_t * e)
 			long f_low = Settings_file.f_low.at(index);
 			int f_band = Settings_file.meters.at(index);
 			vfo.set_band(f_band, f_low);
+			gbar.set_mode(mode);
 			catinterface.SetBand(i);
 		}
 	

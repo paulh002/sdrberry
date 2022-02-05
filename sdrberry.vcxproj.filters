@@ -559,9 +559,6 @@
     <ClCompile Include="strlib.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="Gui_band.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="Keyboard.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -587,9 +584,6 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="gui_tx.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_rx.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="configoption.cpp">
@@ -1165,6 +1159,9 @@
     <ClCompile Include="gui_ft8.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Gui_band.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1359,9 +1356,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_tx.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui_rx.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="SoapySDR\Constants.h">

@@ -22,7 +22,6 @@ ToDo:
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
-- Optimze resampling to keep delay in audio to minimum
 
 Done:
 - Adalm Pluto

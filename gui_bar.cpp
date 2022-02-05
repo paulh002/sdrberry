@@ -11,12 +11,55 @@ static const char * opts = "0.5 Khz\n"
 
 gui_bar gbar;
 
+void gui_bar::set_tx(bool tx)
+{
+	if (tx)
+		lv_obj_add_state(button[0], LV_STATE_CHECKED);
+	else 
+		lv_obj_clear_state(button[0], LV_STATE_CHECKED);
+}
+
+void gui_bar::set_mode(int mode)
+{
+	for (int i = 1; i < 8; i++)
+		lv_obj_clear_state(button[i], LV_STATE_CHECKED);
+
+	if (mode == mode_usb)
+	{
+		lv_obj_add_state(button[1], LV_STATE_CHECKED);
+	}
+	if (mode == mode_lsb)
+	{
+		lv_obj_add_state(button[2], LV_STATE_CHECKED);
+	}
+	if (mode == mode_am)
+	{
+		lv_obj_add_state(button[3], LV_STATE_CHECKED);
+	}
+	if (mode == mode_narrowband_fm)
+	{
+		lv_obj_add_state(button[4], LV_STATE_CHECKED);
+	}
+	if (mode == mode_cw)
+	{
+		lv_obj_add_state(button[5], LV_STATE_CHECKED);
+	}
+	if (mode == mode_ft8)
+	{
+		lv_obj_add_state(button[6], LV_STATE_CHECKED);
+	}
+	if (mode == mode_broadband_fm)
+	{
+		lv_obj_add_state(button[6], LV_STATE_CHECKED);
+	}
+}
+
 static void bar_button_handler(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
 	
-	int bmode = (int)lv_obj_get_user_data(obj);
+	int bmode = (long)lv_obj_get_user_data(obj);
 	
 	if (code == LV_EVENT_CLICKED) {
 	
@@ -42,11 +85,12 @@ static void bar_button_handler(lv_event_t * e)
 				case 3:
 				case 4:
 				case 5:
+				case 6:
+				case 7:
 					select_mode(bmode);
 					lv_obj_add_state(obj, LV_STATE_CHECKED);		
-					Gui_rx.set_gui_mode(bmode);
 					break;
-				case 7:
+				case 9:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 					{
 						//	gagc.set_agc_mode(1);
@@ -77,13 +121,13 @@ static void bar_button_handler(lv_event_t * e)
 						}						
 					}
 					break;
-				case 6:
+				case 8:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						vfo.set_active_vfo(1);
 					else
 						vfo.set_active_vfo(0);	
 					break;
-				case 8:
+				case 10:
 					// Noise
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 					{
@@ -224,7 +268,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	const lv_coord_t x_margin_dropdown  = 20;
 	const lv_coord_t x_margin  = 2;
 	const lv_coord_t y_margin  = 5;
-	const int x_number_buttons = 5;
+	const int x_number_buttons = 6;
 	const int y_number_buttons = 4;
 	const int max_rows = 2;
 	const lv_coord_t tab_margin  = w / 3;
@@ -318,21 +362,35 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 					lv_obj_add_state(button[i], LV_STATE_CHECKED);
 				break;
 			case 5:
+				strcpy(str, "CW");
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[i], (void *)mode_cw);
+				if (mode == mode_cw)
+					lv_obj_add_state(button[i], LV_STATE_CHECKED);
+				break;
+			case 6:
+				strcpy(str, "FT8");
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[i], (void *)mode_ft8);
+				if (mode == mode_ft8)
+					lv_obj_add_state(button[i], LV_STATE_CHECKED);
+				break;
+			case 7:
 				strcpy(str, "bFM");
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)mode_broadband_fm);
 				if (mode == mode_broadband_fm)
 					lv_obj_add_state(button[i], LV_STATE_CHECKED);
 				break;
-			case 6:
+			case 8:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "VFO2");
 				break;
-			case 7:
+			case 9:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "AGC");
 				break;
-			case 8:
+			case 10:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "Noise");
 				break;
@@ -365,7 +423,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	}
 	
 	int vol_x = x_number_buttons * button_width_margin + 10 + x_margin_dropdown;
-	int vol_width = (w / 3) - 20;
+	int vol_width = (w / 3) - 30;
 	vol_slider_label = lv_label_create(o_parent);
 	lv_label_set_text(vol_slider_label, "vol");
 	lv_obj_align(vol_slider_label, LV_ALIGN_TOP_LEFT, vol_x + vol_width + 5, 15);
@@ -506,19 +564,6 @@ void gui_bar::check_agc()
 	}
 }
 
-void gui_bar::set_tx(bool tx)
-{
-	if (tx)
-	{
-		lv_obj_add_state(button[0], LV_STATE_CHECKED);
-	}
-	else
-	{
-		lv_obj_clear_state(button[0], LV_STATE_CHECKED);		
-	}
-
-}
-
 void gui_bar::set_cw_message(std::string message)
 {
 	unique_lock<mutex> gui_lock(gui_mutex);
@@ -534,25 +579,7 @@ void gui_bar::set_cw_wpm(int wpm)
 	lv_label_set_text(cw_wpm, str);
 }
 
-	
-void gui_bar::set_mode(int mode)
-{
-	if (mode == mode_usb)
-	{
-		lv_obj_add_state(button[1], LV_STATE_CHECKED);
-		lv_obj_clear_state(button[2], LV_STATE_CHECKED);
-	}
-	if (mode == mode_lsb)
-	{
-		lv_obj_clear_state(button[1], LV_STATE_CHECKED);
-		lv_obj_add_state(button[2], LV_STATE_CHECKED);
-	}
-	if (mode != mode_lsb && mode != mode_usb)
-	{
-		lv_obj_clear_state(button[1], LV_STATE_CHECKED);
-		lv_obj_clear_state(button[2], LV_STATE_CHECKED);		
-	}
-}
+
 
 void gui_bar::step_vol_slider(int step)
 {

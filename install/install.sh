@@ -137,6 +137,7 @@ echo "Radioberry driver installed."
 
 #-----------------------------------------------------------------------------
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
+git clone https://github.com/paulh002/sdrberry
 cd sdrberry
 mkdir build
 cd build

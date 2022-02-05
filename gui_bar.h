@@ -37,7 +37,8 @@ public:
   void set_cw_wpm(int wpm);
   void hide_cw(bool hide);
   void set_led(bool status);
-
+  void set_tx(bool tx);
+  
   lv_obj_t *get_button_obj(int i)
   {
 	  if (i >= ibuttons)
@@ -49,14 +50,13 @@ public:
 	{
 		return ifilters[sel];
 	}
-	void		set_tx(bool tx);
 	
 private:
 	lv_style_t	style_btn;
 	lv_obj_t	*button[20] { nullptr };
 	int			ibuttons {0};
 	int			filter;
-	const int	number_of_buttons {10};
+	const int	number_of_buttons {12};
 	lv_obj_t*	vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
 	const int max_volume {100};
 	vector<int>	ifilters;

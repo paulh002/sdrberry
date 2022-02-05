@@ -47,7 +47,7 @@ int hcb(int *a91, double hz0, double hz1, double off,
 	struct tm result;
 	gmtime_r(&saved_cycle_start, &result);
 
-	printf("%02d%02d%02d %3d %3d %5.2f %6.1f %s\n",
+	/*printf("%02d%02d%02d %3d %3d %5.2f %6.1f %s\n",
 		   result.tm_hour,
 		   result.tm_min,
 		   result.tm_sec,
@@ -57,7 +57,7 @@ int hcb(int *a91, double hz0, double hz1, double off,
 		   hz0,
 		   msg.c_str());
 	fflush(stdout);
-	
+	*/
 	gft8.add_line(result.tm_hour,
 				  result.tm_min,
 				  result.tm_sec,

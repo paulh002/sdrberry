@@ -122,6 +122,7 @@ void HidDev::step_vfo()
 					txstate = false;
 					select_mode(mode);
 				}
+				gbar.set_tx(txstate);
 			}
 			break;
 		}

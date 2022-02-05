@@ -99,15 +99,12 @@ static void tabview_event_cb(lv_event_t *e)
 			gui_band_instance.set_group();
 			break;
 		case 3:
-			Gui_rx.set_group();
-			break;
-		case 4:
 			gagc.set_group();
 			break;
-		case 5:
+		case 4:
 			Gui_tx.set_group();
 			break;
-		case 6:
+		case 5:
 			gsetup.set_group();
 			break;
 		}
@@ -211,7 +208,6 @@ int main(int argc, char *argv[])
 	lv_obj_set_pos(bar_view, 0, topHeight + tunerHeight );
 	lv_obj_set_size(bar_view, LV_HOR_RES - 3, barHeight);
 	
-	
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, 40);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
@@ -221,7 +217,6 @@ int main(int argc, char *argv[])
 	tab["spectrum"] = (lv_tabview_add_tab(tabview_mid, "Spectrum"));
 	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
 	tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
-	tab["mode"] = (lv_tabview_add_tab(tabview_mid, "Mode"));
 	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
@@ -231,7 +226,6 @@ int main(int argc, char *argv[])
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
 	Wf.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);
 	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
-	Gui_rx.gui_rx_init(tab["mode"], LV_HOR_RES - 3);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3);
@@ -248,9 +242,7 @@ int main(int argc, char *argv[])
 	
 	//Ble_instance.set_mac_address(Settings_file.get_mac_address());
 	//Ble_instance.setup_ble();	
-	
 
-	Gui_rx.set_gui_mode(mode);
 	keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	
 	default_radio = Settings_file.find_sdr("default");
@@ -458,6 +450,7 @@ void select_mode(int s_mode, bool bvfo)
 
 	case mode_cw:
 		gsetup.set_cw(true);
+		gbar.set_filter_slider(0);
 	case mode_am:
 	case mode_dsb:
 	case mode_usb:

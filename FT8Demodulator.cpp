@@ -17,6 +17,7 @@
 static shared_ptr<FT8Demodulator>	sp_ft8demod;
 std::mutex							ft8demod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1{};
+DataQueue<FT8Message> FT8Queue;
 
 std::mutex cycle_mu;
 volatile int cycle_count;
@@ -58,7 +59,8 @@ int hcb(int *a91, double hz0, double hz1, double off,
 		   msg.c_str());
 	fflush(stdout);
 	*/
-	gft8.add_line(result.tm_hour,
+	
+	/* gft8.add_line(result.tm_hour,
 				  result.tm_min,
 				  result.tm_sec,
 				  (int)snr,
@@ -66,8 +68,30 @@ int hcb(int *a91, double hz0, double hz1, double off,
 				  off - 0.5,
 				  hz0,
 				  msg.c_str());
-	
+	*/
+
+	FT8Queue.push(FT8Message(result.tm_hour,
+							 result.tm_min,
+							 result.tm_sec,
+							 (int)snr,
+							 correct_bits,
+							 off - 0.5,
+							 hz0,
+							 msg));
+
 	return 2; // 2 => new decode, do subtract.
+}
+
+void FT8Message::display()
+{
+	gft8.add_line(hh,
+				  min,
+				  sec,
+				  snr,
+				  correct_bits,
+				  off - 0.5,
+				  hz0,
+				  msg.c_str());
 }
 
 bool FT8Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)

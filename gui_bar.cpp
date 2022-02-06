@@ -87,7 +87,7 @@ static void bar_button_handler(lv_event_t * e)
 				case 5:
 				case 6:
 				case 7:
-					select_mode(bmode);
+					select_mode(bmode,true);
 					lv_obj_add_state(obj, LV_STATE_CHECKED);		
 					break;
 				case 9:

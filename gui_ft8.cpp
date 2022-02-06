@@ -74,7 +74,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 {
 	char str[128];
 	
-	unique_lock<mutex> gui_lock(gui_mutex);
+	//unique_lock<mutex> gui_lock(gui_mutex);
 	if (bclear)
 	{
 		lv_table_set_row_cnt(table, 1);

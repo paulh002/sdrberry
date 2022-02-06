@@ -344,6 +344,8 @@ int main(int argc, char *argv[])
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	while (1)
 	{
+		FT8Message msg;
+
 		gui_mutex.lock();
 		lv_task_handler();
 		Mouse_dev.step_vfo();
@@ -357,7 +359,10 @@ int main(int argc, char *argv[])
 			double s = Fft_calc.get_signal_strength();
 			set_s_meter(s);
 		}
-
+		while (FT8Queue.pull(msg))
+		{			
+			msg.display();
+		}
 		if (midicontrole)
 			midicontrole->read_midi_input();
 		set_time_label();
@@ -433,8 +438,8 @@ void select_mode(int s_mode, bool bvfo)
 	vfo.set_freq_to_sdr();
 	if (bvfo)
 	{
-		vfo.set_vfo(0, false);
 		vfo.set_mode(0, mode);
+		vfo.set_vfo(0, false);
 	}
 	printf("select_mode_rx start rx threads\n");
 	switch (mode)

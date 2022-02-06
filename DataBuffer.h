@@ -12,7 +12,6 @@
 #include <condition_variable>
 
 using namespace std;
-extern atomic_bool stop_flag;
 
 /** Buffer to move sample data between threads. */
 template <class Element>
@@ -79,7 +78,7 @@ template <class Element>
 		{
 			vector<Element> ret;
 			unique_lock<mutex> lock(m_mutex);
-			while (m_queue.empty() && !m_end_marked && !stop_flag.load())
+			while (m_queue.empty() && !m_end_marked)
 			{
 				m_cond.wait(lock); // conditional wait unlocks the mutex!
 			}
@@ -140,4 +139,36 @@ template <class Element>
 		condition_variable  m_cond;
 	};
 
-
+	template <class Element>
+	class DataQueue
+	{
+	  public:
+		/** Add samples to the queue. */
+		void push(Element samples)
+		{
+			unique_lock<mutex> lock(m_mutex);
+			m_queue.push(samples);
+		}
+		
+		bool pull(Element &sample)
+		{
+			unique_lock<mutex> lock(m_mutex);
+			if (!m_queue.empty())
+			{
+				sample = m_queue.front();
+				m_queue.pop();
+				return true;
+			}
+			return false;
+		}
+		
+		size_t size()
+		{
+			unique_lock<mutex> lock(m_mutex);
+			return m_queue.size();
+		}
+		
+	  private:
+		queue<Element> m_queue;
+		mutex m_mutex;
+	};

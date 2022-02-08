@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
-				lv_btnmatrix_clear_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
+				lv_btnmatrix_clear_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 				Gui_tx.set_sample_rate((int)ifrate_tx);
 				Gui_tx.set_drv_range();
 				for (auto& col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))

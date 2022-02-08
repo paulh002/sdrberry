@@ -38,3 +38,4 @@ private:
 
 extern  AudioOutput *audio_output;
 double get_audio_sample_rate();
+extern atomic<int> underrun;

@@ -88,6 +88,7 @@ cmake ..
 make
 sudo make install
 sudo ldconfig
+cd ~
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
 #git clone  --depth=1 https://github.com/pa3gsb/Radioberry-2.x
@@ -113,7 +114,6 @@ sudo dtc -@ -I dts -O dtb -o radioberry.dtbo radioberry.dts
 sudo cp radioberry.dtbo /boot/overlays
 #add driver to config.txt
 sudo grep -Fxq "dtoverlay=radioberry" /boot/config.txt || sudo sed -i '$ a dtoverlay=radioberry' /boot/config.txt
-sudo cp ./libSoapyRadioberrySDR.so /usr/local/lib/SoapySDR/modules0.8/.
 sudo cp ./radioberry.rbf /lib/firmware/.
 cd ~
 

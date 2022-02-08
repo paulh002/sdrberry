@@ -107,18 +107,12 @@ void AMDemodulator::operator()()
 			printf("set filter %d\n", ifilter);
 			set_filter(m_pcmrate, ifilter);
 		}
-		
-		if (m_source_buffer->queued_samples() == 0)
-		{
-			usleep(5000);
-			continue;
-		}
-		
-				
+						
 		IQSampleVector iqsamples = m_source_buffer->pull();	
 		if (iqsamples.empty())
 		{
-			usleep(5000);
+			printf("No samples queued 2\n");
+			usleep(500);
 			continue;
 		}
 		perform_fft(iqsamples);
@@ -148,7 +142,7 @@ void AMDemodulator::operator()()
 		iqsamples.clear();
 		audiosamples.clear();
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(100) < now)
+		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			

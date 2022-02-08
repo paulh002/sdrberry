@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3);
-	lv_btnmatrix_set_btn_ctrl(tab_buttons, 5, LV_BTNMATRIX_CTRL_HIDDEN);
+	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 	if (Settings_file.get_mac_address() != std::string(""))
 	{
 		//create_ble_thread(Settings_file.get_mac_address());

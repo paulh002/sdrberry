@@ -183,16 +183,10 @@ void FT8Demodulator::operator()()
 			set_filter(m_pcmrate, ifilter);
 		}
 
-		if (m_source_buffer->queued_samples() == 0)
-		{
-			usleep(5000);
-			continue;
-		}
-
 		IQSampleVector iqsamples = m_source_buffer->pull();
 		if (iqsamples.empty())
 		{
-			usleep(5000);
+			usleep(500);
 			continue;
 		}
 		perform_fft(iqsamples);

@@ -138,4 +138,4 @@ chmod +x ../do_cmake.sh
 make
 sudo make install
 cd ~
-sudo sed 's/$/ vt.global_cursor_default=0/' /boot/cmdline.txt
+sudo sed -i 's/$/ vt.global_cursor_default=0/' /boot/cmdline.txt

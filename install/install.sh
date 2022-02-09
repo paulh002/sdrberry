@@ -29,7 +29,7 @@ cd ~
 wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.60.tar.xz
 tar xvf bluez-5.60.tar.xz
 sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev libdbus-1-dev libical-dev
-sudo apt-get install -y python-docutils
+sudo apt-get install -y docutils-common
 cd bluez-5.60
 ./configure --enable-library
 make -j4
@@ -139,3 +139,5 @@ make
 sudo make install
 cd ~
 sudo sed -i 's/$/ vt.global_cursor_default=0/' /boot/cmdline.txt
+sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/config.txt
+sudo reboot

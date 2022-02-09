@@ -10,6 +10,10 @@
 
 #if LV_USE_DEMO_WIDGETS
 
+#if LV_MEM_CUSTOM == 0 && LV_MEM_SIZE < (38ul * 1024ul)
+    #error Insufficient memory for lv_demo_widgets. Please set LV_MEM_SIZE to at least 38KB (38ul * 1024ul).  48KB is recommended. 
+#endif
+
 /*********************
  *      DEFINES
  *********************/
@@ -101,36 +105,36 @@ void lv_demo_widgets(void)
     if(disp_size == DISP_LARGE) {
         tab_h = 70;
 #if LV_FONT_MONTSERRAT_24
-        font_large     =  &lv_font_montserrat_24;
+        font_large     = &lv_font_montserrat_24;
 #else
         LV_LOG_WARN("LV_FONT_MONTSERRAT_24 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
 #endif
 #if LV_FONT_MONTSERRAT_16
-        font_normal    =  &lv_font_montserrat_16;
+        font_normal    = &lv_font_montserrat_16;
 #else
         LV_LOG_WARN("LV_FONT_MONTSERRAT_16 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
 #endif
     } else if(disp_size == DISP_MEDIUM) {
         tab_h = 45;
 #if LV_FONT_MONTSERRAT_20
-        font_large     =  &lv_font_montserrat_20;
+        font_large     = &lv_font_montserrat_20;
 #else
         LV_LOG_WARN("LV_FONT_MONTSERRAT_20 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
 #endif
 #if LV_FONT_MONTSERRAT_14
-        font_normal    =  &lv_font_montserrat_14;
+        font_normal    = &lv_font_montserrat_14;
 #else
         LV_LOG_WARN("LV_FONT_MONTSERRAT_14 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
 #endif
     } else { /* disp_size == DISP_SMALL */
         tab_h = 45;
 #if LV_FONT_MONTSERRAT_18
-        font_large     =  &lv_font_montserrat_18;
+        font_large     = &lv_font_montserrat_18;
 #else
     LV_LOG_WARN("LV_FONT_MONTSERRAT_18 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
 #endif
 #if LV_FONT_MONTSERRAT_12
-        font_normal    =  &lv_font_montserrat_12;
+        font_normal    = &lv_font_montserrat_12;
 #else
     LV_LOG_WARN("LV_FONT_MONTSERRAT_12 is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
 #endif
@@ -1058,7 +1062,7 @@ static void color_event_cb(lv_event_t * e)
     }
     else if(code == LV_EVENT_CLICKED) {
         lv_palette_t * palette_primary = lv_event_get_user_data(e);
-        lv_palette_t palette_secondary = (*palette_primary) + 3; /*Use an other palette as secondary*/
+        lv_palette_t palette_secondary = (*palette_primary) + 3; /*Use another palette as secondary*/
         if(palette_secondary >= _LV_PALETTE_LAST) palette_secondary = 0;
 
         lv_theme_default_init(NULL, lv_palette_main(*palette_primary), lv_palette_main(palette_secondary), LV_THEME_DEFAULT_DARK, font_normal);
@@ -1280,13 +1284,13 @@ static void slider_event_cb(lv_event_t * e)
             lv_draw_rect_dsc_init(&rect_dsc);
             rect_dsc.bg_color = lv_palette_darken(LV_PALETTE_GREY, 3);
             rect_dsc.radius = LV_DPX(5);
-            lv_draw_rect(&bg_area, dsc->clip_area, &rect_dsc);
+            lv_draw_rect(dsc->draw_ctx, &rect_dsc, &bg_area);
 
             lv_draw_label_dsc_t label_dsc;
             lv_draw_label_dsc_init(&label_dsc);
             label_dsc.color = lv_color_white();
             label_dsc.font = font_normal;
-            lv_draw_label(&txt_area, dsc->clip_area, &label_dsc, buf, NULL);
+            lv_draw_label(dsc->draw_ctx, &label_dsc, &txt_area, buf, NULL);
         }
     }
 }
@@ -1334,15 +1338,16 @@ static void chart_event_cb(lv_event_t * e)
                 draw_rect_dsc.bg_color = dsc->line_dsc->color;
 
                 lv_area_t obj_clip_area;
-                _lv_area_intersect(&obj_clip_area, dsc->clip_area, &obj->coords);
-
+                _lv_area_intersect(&obj_clip_area, dsc->draw_ctx->clip_area, &obj->coords);
+                const lv_area_t * clip_area_ori = dsc->draw_ctx->clip_area;
+                dsc->draw_ctx->clip_area = &obj_clip_area;
                 lv_area_t a;
                 a.x1 = dsc->p1->x;
                 a.x2 = dsc->p2->x - 1;
                 a.y1 = LV_MIN(dsc->p1->y, dsc->p2->y);
                 a.y2 = obj->coords.y2;
-                lv_draw_rect(&a, &obj_clip_area, &draw_rect_dsc);
-
+                lv_draw_rect(dsc->draw_ctx, &draw_rect_dsc, &a);
+                dsc->draw_ctx->clip_area = clip_area_ori;
                 /*Remove the masks*/
                 lv_draw_mask_remove_id(line_mask_id);
                 lv_draw_mask_remove_id(fade_mask_id);
@@ -1396,13 +1401,13 @@ static void chart_event_cb(lv_event_t * e)
                 lv_draw_rect_dsc_init(&rect_dsc);
                 rect_dsc.bg_color = ser->color;
                 rect_dsc.radius = LV_DPX(5);
-                lv_draw_rect(&bg_area, dsc->clip_area, &rect_dsc);
+                lv_draw_rect(dsc->draw_ctx, &rect_dsc, &bg_area);
 
                 lv_draw_label_dsc_t label_dsc;
                 lv_draw_label_dsc_init(&label_dsc);
                 label_dsc.color = lv_color_white();
                 label_dsc.font = font_normal;
-                lv_draw_label(&txt_area, dsc->clip_area, &label_dsc, buf, NULL);
+                lv_draw_label(dsc->draw_ctx, &label_dsc, &txt_area,  buf, NULL);
             } else {
                 dsc->rect_dsc->outline_width = 0;
                 dsc->rect_dsc->shadow_width = 0;
@@ -1447,18 +1452,18 @@ static void shop_chart_event_cb(lv_event_t * e)
             a.y2 = a.y1 + 4 + (devices[dsc->id] * h) / 100; /*+4 to overlap the radius*/
             draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_RED);
             draw_rect_dsc.radius = 4;
-            lv_draw_rect(&a, dsc->clip_area, &draw_rect_dsc);
+            lv_draw_rect(dsc->draw_ctx, &draw_rect_dsc, &a);
 
             a.y1 = a.y2 - 4;                                    /*-4 to overlap the radius*/
             a.y2 = a.y1 +  (clothes[dsc->id] * h) / 100;
             draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_BLUE);
             draw_rect_dsc.radius = 0;
-            lv_draw_rect(&a, dsc->clip_area, &draw_rect_dsc);
+            lv_draw_rect( dsc->draw_ctx, &draw_rect_dsc, &a);
 
             a.y1 = a.y2;
             a.y2 = a.y1 + (services[dsc->id] * h) / 100;
             draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_GREEN);
-            lv_draw_rect(&a, dsc->clip_area, &draw_rect_dsc);
+            lv_draw_rect( dsc->draw_ctx, &draw_rect_dsc, &a);
         }
     }
 }

@@ -5,7 +5,7 @@ static auto timeLastPrint = std::chrono::high_resolution_clock::now();
 static unsigned long long totalSamples(0);
 static double sampleRate {0.0};	
 mutex mSampleRate;
-atomic<int> underrun = 0;
+atomic<int> underrun{0};
 
 double get_audio_sample_rate()
 {

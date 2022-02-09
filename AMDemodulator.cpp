@@ -15,7 +15,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 	
-	Demodulator::set_resample_rate(pcmrate / ifrate); // down sample to pcmrate
+	Demodulator::set_resample_rate( (1.005 * (float)pcmrate) / ifrate); // down sample to pcmrate
 	switch (mode)
 	{
 	case mode_usb:

@@ -38,6 +38,7 @@ public:
   void hide_cw(bool hide);
   void set_led(bool status);
   void set_tx(bool tx);
+  void get_gain_range(int &max_gain, int &min_gain);
   
   lv_obj_t *get_button_obj(int i)
   {

@@ -31,10 +31,7 @@ public:
 	int		txgain();
 	int		micgain();
 	int		drive();
-	int		agc_delay();
-	int		agc_slope();
-	int		agc_threshold();
-	int		agc_mode();
+	int		getagc(string key);
 	void	set_drive(int drive);
 	void	set_micgain(int gain);
 	void	set_txgain(int gain);

@@ -259,6 +259,8 @@ static void draw_indic(lv_event_t * e)
     lv_coord_t barw = lv_area_get_width(&bar_coords);
     lv_coord_t barh = lv_area_get_height(&bar_coords);
     int32_t range = bar->max_value - bar->min_value;
+	if (range == 0)
+		range = 1;
     bool hor = barw >= barh ? true : false;
     bool sym = false;
     if(bar->mode == LV_BAR_MODE_SYMMETRICAL && bar->min_value < 0 && bar->max_value > 0 &&

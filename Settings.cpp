@@ -387,49 +387,14 @@ string Settings::find_cat(string key)
 		return string("");
 }
 
-
-
-int Settings::agc_mode()
+int Settings::getagc(std::string key)
 {
-	if (agc.find("mode") != agc.end())
+	if (agc.find(key) != agc.end())
 	{
-		auto s = agc.find("mode");
+		auto s = agc.find(key);
 		return atoi((const char *)s->second.c_str());
 	}
-	else 
-		return 0;
-}
-
-int Settings::agc_threshold()
-{
-	if (agc.find("threshold") != agc.end())
-	{
-		auto s = agc.find("threshold");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-int Settings::agc_slope()
-{
-	if (agc.find("slope") != agc.end())
-	{
-		auto s = agc.find("slope");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-int Settings::agc_delay()
-{
-	if (agc.find("delay") != agc.end())
-	{
-		auto s = agc.find("delay");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
+	else
 		return 0;
 }
 

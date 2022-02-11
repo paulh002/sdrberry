@@ -1,7 +1,7 @@
 #include "sdrberry.h"
 #include "AMDemodulator.h"
 #include <thread>
-
+#include "PeakLevelDetector.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -14,8 +14,9 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	float					mod_index  = 0.03125f; 
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
-	
-	Demodulator::set_resample_rate( (1.005 * (float)pcmrate) / ifrate); // down sample to pcmrate
+
+	sample_ratio = (1.05 * (float)pcmrate) / ifrate;
+	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
 	switch (mode)
 	{
 	case mode_usb:
@@ -83,16 +84,25 @@ void AMDemodulator::operator()()
 {	
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
-	
+	std::chrono::high_resolution_clock::time_point now, start1;
+
+	AudioProcessor Agc;
+
 	int						ifilter {-1}, span, rcount {0}, dropped_frames {0};
 	SampleVector            audiosamples, audioframes;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			iqsamples;
-		
+	long long pr_time{0};
+	int vsize;
+
+	Agc.prepareToPlay(pcmrate);
+	Agc.setThresholdDB(gagc.get_threshold());
+	Agc.setRatio(10);
 	Fft_calc.plan_fft(nfft_samples);
 	m_source_buffer->clear();
 	while (!stop_flag.load())
 	{
+		start1 = std::chrono::high_resolution_clock::now();
 		span = gsetup.get_span();
 		if (vfo.tune_flag.load() || m_span != span)
 		{
@@ -116,11 +126,18 @@ void AMDemodulator::operator()()
 			continue;
 		}
 		perform_fft(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());		
+		Fft_calc.set_signal_strength(get_if_level());
 		process(iqsamples, audiosamples);
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
 		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
-
+		if (gagc.get_agc_mode())
+		{
+			Agc.setRelease(gagc.get_release());
+			Agc.setRatio(gagc.get_ratio());
+			Agc.setAtack(gagc.get_atack());
+			Agc.setThresholdDB(gagc.get_threshold());
+			Agc.processBlock(audiosamples);
+		}
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
 		for (auto& col : audiosamples)
@@ -129,8 +146,10 @@ void AMDemodulator::operator()()
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
-			if ((audio_output->queued_samples() / 2) < 4096)
+				if ((audio_output->queued_samples() / 2) < 4096)
+				{
 					audio_output->write(audioframes);
+				}
 				else
 				{
 					//printf("drop frames\n");
@@ -141,28 +160,36 @@ void AMDemodulator::operator()()
 		}
 		iqsamples.clear();
 		audiosamples.clear();
-		const auto now = std::chrono::high_resolution_clock::now();
+		now = std::chrono::high_resolution_clock::now();
+		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
+		if (pr_time < process_time1.count())
+			pr_time = process_time1.count();
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d droppedframes %d underrun %d\n", 
-				get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0)
-				, audio_output->queued_samples()/2, dropped_frames, underrun.load());
-			dropped_frames = 0;
-			underrun = 0;
-			if (1.0 - (get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0)) > 0.001)
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+			printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d droppedframes %d underrun %d process time %lld\n",
+				   get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0), audio_output->queued_samples() / 2, dropped_frames, underrun.load(), pr_time);
+
+			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
+			pr_time = 0;
+			if (rcount > 15 && dropped_frames > 10 && underrun ==0)
 			{
-				if (rcount > 10 &&  dropped_frames > 0)
-				{
-					Demodulator::set_resample_rate(get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0));
-					rcount = 0;
-				}
-				if (rcount < 10)
-					rcount++;
-				else
-					rcount = 0;
+				sample_ratio = 1.01 * get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0);
+				Demodulator::set_resample_rate(sample_ratio);
+				rcount = 0;
 			}
+			if (rcount > 5 && underrun > 0)
+			{
+				sample_ratio = 1.01 * sample_ratio;
+				Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
+				rcount = 0;
+			}
+			rcount++;
+			if (rcount > 11)
+				rcount = 0;
+			underrun = 0;
+			dropped_frames = 0;
 		}
 	}
 	starttime1 = std::chrono::high_resolution_clock::now();

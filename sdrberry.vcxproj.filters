@@ -613,9 +613,6 @@
     <ClCompile Include="wiringPiI2C.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="Agc_class.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="gui_agc.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1141,6 +1138,9 @@
     <ClCompile Include="lvgl\src\draw\lv_draw_mask.c">
       <Filter>Source files\lvgl</Filter>
     </ClCompile>
+    <ClCompile Include="PeakLevelDetector.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1361,9 +1361,6 @@
     <ClInclude Include="wiringPiI2C.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="Agc_class.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="gui_agc.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -1507,6 +1504,9 @@
     </ClInclude>
     <ClInclude Include="lvgl\src\draw\sw\lv_draw_sw_gradient.h">
       <Filter>Header files\lvgl</Filter>
+    </ClInclude>
+    <ClInclude Include="PeakLevelDetector.h">
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

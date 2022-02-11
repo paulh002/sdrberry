@@ -28,6 +28,7 @@ public:
 private:
 	ampmodem		m_demod {nullptr};
 	float			m_bandwidth;
+	float			sample_ratio;
 	Agc_class		agc;
 	int				m_iagc = 0;
 	unique_ptr<MorseDecoder> pMDecoder;

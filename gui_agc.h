@@ -17,19 +17,13 @@ class Gui_agc
 {
 public:
 	void	init(lv_obj_t* o_tab, lv_coord_t w);
-	void	set_gain_range();
-	void	step_gain_slider(int step);
-	void	set_gain_range(int min, int max);
-	void	set_gain_slider(int gain);
-	void	get_gain_range(int &max_gain, int &min_gain);
-	void	update_gain_slider(int gain);
+	void	set_ratio_range();
+	void	set_ratio_range(int min, int max);
+	void	set_ratio_slider(int ratio);
 	void	set_group();
-	lv_obj_t *get_gain_slider_label() {return gain_slider_label;}
+	lv_obj_t *get_ratio_slider_label() {return ratio_slider_label;}
 	
-	int getbuttons()
-	{
-		return ibuttons;
-	}
+	int getbuttons() {return ibuttons;	}
 	lv_obj_t* get_button_obj(int i)
 	{
 		if (i >= ibuttons)
@@ -41,29 +35,39 @@ public:
 	{
 		return threshold_slider_label;
 	}
-	
-	lv_obj_t *get_slope_slider_label()
+
+	lv_obj_t *get_atack_slider_label()
 	{
-		return slope_slider_label;
+		return atack_slider_label;
 	}
-	
-	lv_obj_t *get_delay_slider_label()
+
+	lv_obj_t *get_release_slider_label()
 	{
-		return delay_slider_label;
+		return release_slider_label;
 	}
 	int get_threshold()
 	{
-		return lv_slider_get_value(threshold_slider) * -1;// - max_threshold;
+		return (lv_slider_get_value(threshold_slider)  -100) / 5;// - max_threshold;
 	}
 	
-	int get_slope()
+	float get_atack()
 	{
-		return lv_slider_get_value(slope_slider);
+		return (float)lv_slider_get_value(atack_slider) / 1000.f;
+	}
+
+	float get_release()
+	{
+		return (float)lv_slider_get_value(release_slider) / 1000.f;
 	}
 	
-	void set_slope_slider(int t);
+	float get_ratio()
+	{
+		return (float)lv_slider_get_value(ratio_slider) ;
+	}
+	
+	void set_atack_slider(int t);
 	void set_threshold_slider(int t);
-	void set_delay_slider(int t);
+	void set_release_slider(int t);
 	int get_agc_mode()
 	{
 		return agc_mode;
@@ -73,14 +77,14 @@ public:
 		agc_mode = m;
 	}
 	
-	const int	max_threshold {150};
+	//const int	max_threshold {200};
 	
 private:
 	lv_style_t	style_btn;
-	lv_obj_t	*gain_slider_label, *gain_slider;
+	lv_obj_t	*ratio_slider_label, *ratio_slider;
 	lv_obj_t	*threshold_slider_label, *threshold_slider;
-	lv_obj_t	*slope_slider_label, *slope_slider;
-	lv_obj_t	*delay_slider_label, *delay_slider;
+	lv_obj_t	*atack_slider_label, *atack_slider;
+	lv_obj_t	*release_slider_label, *release_slider;
 	lv_obj_t	*button[10];
 	int			ibuttons {0};
 	const int	number_of_buttons {4};

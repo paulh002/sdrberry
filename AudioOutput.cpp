@@ -161,10 +161,9 @@ AudioOutput::~AudioOutput()
 bool AudioOutput::write(SampleVector& audiosamples)
 {
 	if (databuffer && isStreamOpen())
-	{
 		databuffer->push(move(audiosamples));
-	}
-	audiosamples.clear();
+	else
+		audiosamples.clear();
 	return true;
 }
 

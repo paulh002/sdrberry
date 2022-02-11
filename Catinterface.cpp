@@ -86,7 +86,7 @@ void Comm::SendInformation(int info)
 			char str[20];
 			int  max_gain, min_gain;
 			
-			gagc.get_gain_range(max_gain, min_gain);
+			gbar.get_gain_range(max_gain, min_gain);
 			sprintf(str, "GT1%2d,%2d", max_gain, min_gain);
 			Send((std::string) str);
 		}
@@ -168,7 +168,7 @@ void	Catinterface::checkCAT()
 			gbar.set_vol_slider(count);
 		count = cat_message.GetRG();
 		if (count)
-			gagc.set_gain_slider(count);
+			gbar.set_gain_slider(count);
 		count = cat_message.GetTX();
 		if (m_mode != count)
 		{

@@ -36,7 +36,7 @@
     <EnableAddressSanitizer>false</EnableAddressSanitizer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
-    <RemoteBuildHost>192.168.88.51</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.41</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -81,7 +81,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Agc_class.cpp" />
     <ClCompile Include="AMDemodulator.cpp" />
     <ClCompile Include="AMModulator.cpp" />
     <ClCompile Include="AudioInput.cpp" />
@@ -296,6 +295,7 @@
     <ClCompile Include="MorseDecoder.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="PCF8574.cpp" />
+    <ClCompile Include="PeakLevelDetector.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
     <ClCompile Include="SdrDevice.cpp" />
@@ -307,7 +307,6 @@
     <ClCompile Include="Waterfall.cpp" />
     <ClCompile Include="wiringPiI2C.c" />
     <ClCompile Include="wiringSerial.c" />
-    <ClInclude Include="Agc_class.h" />
     <ClInclude Include="AMDemodulator.h" />
     <ClInclude Include="AMModulator.h" />
     <ClInclude Include="Audiodefs.h" />
@@ -505,6 +504,7 @@
     <ClInclude Include="MorseDecoder.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PCF8574.h" />
+    <ClInclude Include="PeakLevelDetector.h" />
     <ClInclude Include="RtMidi.h" />
     <ClInclude Include="SdrDevice.h" />
     <ClInclude Include="sdrstream.h" />

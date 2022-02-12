@@ -281,14 +281,15 @@ void File::parseOptionLine(const std::string& line, const std::string& section)
             // Trim any whitespace around the name and value
             strlib::trimWhitespace(name);
             strlib::trimWhitespace(value);
-            // Check if this is the start of an array
+			strlib::stripNewLines(value);
+			// Check if this is the start of an array
             Option& option = options[section][name];
 // ph002 change to support single line array
 // like:  myarray = {1,2,3,4}
 	        if ((value == "{") || (value[0] == '{'))
             {
 	            bool bline = false;
-	            arrayOptionName = name;
+				arrayOptionName = name;
                 currentArrayStack.assign(1, 0);
 	            if (value.find(',') > 0)
 	            {

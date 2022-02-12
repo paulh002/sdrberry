@@ -4,40 +4,20 @@ using namespace std;
 Settings	Settings_file;
 
 const cfg::File::ConfigMap defaultOptions = {
-	{"SDR Receivers", {
-			{ "default", cfg::makeOption("pluto") },
-			{ "receiver1", cfg::makeOption("pluto") },
-			{ "receiver2", cfg::makeOption("radioberry") }
-		} 
-	}, 
-	{"probes", {
-	{ "pluto", cfg::makeOption("driver=plutosdr,hostname=192.168.100.1") },
-	{ "radioberry", cfg::makeOption("driver=radioberry") } } 
-	},
-	{ "ESP32", {
-	{ "mac address", cfg::makeOption("7c:9e:bd:f8:64:92") } } 
-	
-	},
-	{"Radio", {
-			{ "gain", cfg::makeOption(0,0,100) },
-			{ "Volume", cfg::makeOption(0, 0, 100) },
-			{ "AGC", cfg::makeOption("off") }			
-		} 
-	}, 
-	{"VFO1", {
-			{ "freq", cfg::makeOption(3500000) },
-			{ "Mode", cfg::makeOption("LSB") }
-		} 
-	},
-	{"VFO2", {
-			{ "freq", cfg::makeOption(3500000) },
-			{ "Mode", cfg::makeOption("LSB") }
-		} 
-	},
-	{"Audio", {
-			{ "device", cfg::makeOption("default") }
-		} 
-	}
+	{"SDR Receivers", {{"default", cfg::makeOption("radioberry")}}},
+	{"input", {{"mouse", cfg::makeOption("Mouse")}, {"touchscreen", cfg::makeOption("ft5x06")}}},
+	{"probes", {{"plutosdr", cfg::makeOption("driver=plutosdr,hostname=192.168.100.1")}, {"radioberry", cfg::makeOption("driver=radioberry")}, {"rtlsdr", cfg::makeOption("driver=rtlsdr")}, {"sdrplay", cfg::makeOption("driver=sdrplay")}}},
+	{"ESP32", {{"mac address", cfg::makeOption("")}}},
+	{"CAT", {{"USB", cfg::makeOption("/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0")}}},
+	{"samplerate", {{"radioberry", cfg::makeOption(384)}, {"plutosdr", cfg::makeOption(1000)}, {"rtlsdr", cfg::makeOption(1000)}, {"sdrplay", cfg::makeOption(1000)}}},
+	{"samplerate_tx", {{"radioberry", cfg::makeOption(384)}}},
+
+	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"Volume", cfg::makeOption(10)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}}},
+	{"VFO1", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
+	{"VFO2", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
+	{"Audio", {{"device", cfg::makeOption("default")}}},
+	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}},
+	{"filter", {{"i2cdevice", cfg::makeOption("pcf8574")}}}
 };
 
 void Settings::write_settings()
@@ -51,6 +31,135 @@ void Settings::write_settings()
 	config->writeToFile(file.c_str());
 }
 
+void Settings::default_settings()
+{
+	config->useSection("SDR Receivers");
+	(*config)("receivers").push(cfg::makeOption("radioberry"));
+	(*config)("receivers").push(cfg::makeOption("plutosdr"));
+	(*config)("receivers").push(cfg::makeOption("rtlsdr"));
+	(*config)("receivers").push(cfg::makeOption("sdrplay"));
+
+	config->useSection("Agc");
+	(*config)("fast").push(cfg::makeOption(10));
+	(*config)("fast").push(cfg::makeOption(100));
+	(*config)("medium").push(cfg::makeOption(50));
+	(*config)("medium").push(cfg::makeOption(250));
+	(*config)("slow").push(cfg::makeOption(100));
+	(*config)("slow").push(cfg::makeOption(500));
+
+	config->useSection("bands");
+	(*config)("meters").push(cfg::makeOption(160));
+	(*config)("meters").push(cfg::makeOption(80));
+	(*config)("meters").push(cfg::makeOption(60));
+	(*config)("meters").push(cfg::makeOption(40));
+	(*config)("meters").push(cfg::makeOption(30));
+	(*config)("meters").push(cfg::makeOption(20));
+	(*config)("meters").push(cfg::makeOption(17));
+	(*config)("meters").push(cfg::makeOption(15));
+	(*config)("meters").push(cfg::makeOption(10));
+	(*config)("meters").push(cfg::makeOption(6));
+	(*config)("meters").push(cfg::makeOption(4));
+	(*config)("meters").push(cfg::makeOption(3));
+	(*config)("meters").push(cfg::makeOption(2));
+	(*config)("meters").push(cfg::makeOption(70));
+	(*config)("meters").push(cfg::makeOption(23));
+	(*config)("meters").push(cfg::makeOption(13));
+
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("m"));
+	(*config)("labels").push(cfg::makeOption("cm"));
+	(*config)("labels").push(cfg::makeOption("cm"));
+	(*config)("labels").push(cfg::makeOption("cm"));
+
+	(*config)("f_low").push(cfg::makeOption(1800000));
+	(*config)("f_low").push(cfg::makeOption(3500000));
+	(*config)("f_low").push(cfg::makeOption(5350000));
+	(*config)("f_low").push(cfg::makeOption(7000000));
+	(*config)("f_low").push(cfg::makeOption(10100000));
+	(*config)("f_low").push(cfg::makeOption(14000000));
+	(*config)("f_low").push(cfg::makeOption(18068000));
+	(*config)("f_low").push(cfg::makeOption(21000000));
+	(*config)("f_low").push(cfg::makeOption(28000000));
+	(*config)("f_low").push(cfg::makeOption(50000000));
+	(*config)("f_low").push(cfg::makeOption(70000000));
+	(*config)("f_low").push(cfg::makeOption(83000000));
+	(*config)("f_low").push(cfg::makeOption(144000000));
+	(*config)("f_low").push(cfg::makeOption(430000000));
+	(*config)("f_low").push(cfg::makeOption(1240000000));
+	(*config)("f_low").push(cfg::makeOption(2320000000));
+
+	(*config)("f_high").push(cfg::makeOption(1880000));
+	(*config)("f_high").push(cfg::makeOption(3800000));
+	(*config)("f_high").push(cfg::makeOption(5450000));
+	(*config)("f_high").push(cfg::makeOption(7200000));
+	(*config)("f_high").push(cfg::makeOption(10150000));
+	(*config)("f_high").push(cfg::makeOption(14350000));
+	(*config)("f_high").push(cfg::makeOption(18168000));
+	(*config)("f_high").push(cfg::makeOption(21450000));
+	(*config)("f_high").push(cfg::makeOption(29000000));
+	(*config)("f_high").push(cfg::makeOption(52000000));
+	(*config)("f_high").push(cfg::makeOption(70500000));
+	(*config)("f_high").push(cfg::makeOption(107000000));
+	(*config)("f_high").push(cfg::makeOption(146000000));
+	(*config)("f_high").push(cfg::makeOption(436000000));
+	(*config)("f_high").push(cfg::makeOption(1300000000));
+	(*config)("f_high").push(cfg::makeOption(2400000000));
+
+	(*config)("mode").push(cfg::makeOption("lsb"));
+	(*config)("mode").push(cfg::makeOption("lsb"));
+	(*config)("mode").push(cfg::makeOption("lsb"));
+	(*config)("mode").push(cfg::makeOption("lsb"));
+	(*config)("mode").push(cfg::makeOption("lsb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+	(*config)("mode").push(cfg::makeOption("usb"));
+
+	config->useSection("ft8");
+	(*config)("freq").push(cfg::makeOption(1840));
+	(*config)("freq").push(cfg::makeOption(3573));
+	(*config)("freq").push(cfg::makeOption(5357));
+	(*config)("freq").push(cfg::makeOption(7073));
+	(*config)("freq").push(cfg::makeOption(10133));
+	(*config)("freq").push(cfg::makeOption(14074));
+	(*config)("freq").push(cfg::makeOption(18100));
+	(*config)("freq").push(cfg::makeOption(21074));
+	(*config)("freq").push(cfg::makeOption(28074));
+
+	config->useSection("filter");
+	(*config)("address").push(cfg::makeOption(56));
+	(*config)("address").push(cfg::makeOption(57));
+
+	vector<int> command1{21, 137, 22, 133, 21, 137, 25, 133, 21, 137, 37, 133, 21, 134, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137};
+	for (auto con : command1)
+	{
+		(*config)("command_rx").push(cfg::makeOption(con));
+	}
+	vector<int> command2{21, 73, 22, 69, 21, 73, 25, 69, 21, 73, 37, 69, 21, 70, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73};
+	for (auto con : command2)
+	{
+		(*config)("command_tx").push(cfg::makeOption(con));
+	}
+}
+
 void Settings::read_settings(string settings_file)
 {
 	config = new cfg::File();
@@ -59,6 +168,7 @@ void Settings::read_settings(string settings_file)
 	if (!config->loadFromFile((char *)settings_file.c_str()))
 	{
 		config->setDefaultOptions(defaultOptions);
+		default_settings();
 		config->writeToFile(settings_file.c_str());
 	}
 	int i = 0;

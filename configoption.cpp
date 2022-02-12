@@ -251,20 +251,21 @@ std::string Option::buildArrayString(const std::string& indentStr) const
     // Continue building array strings until the option is just a single element and not an array
     if (options)
     {
-        std::string nextIndentStr(indentStr + '\t');
+		std::string nextIndentStr(indentStr); //
+		//std::string nextIndentStr(indentStr + '\t');  //
 
         // Build the array string
-        std::string arrayStr("{\n");
+		std::string arrayStr("{"); //std::string arrayStr("{\n");
         unsigned arraySize = options->size();
         for (unsigned i = 0; i < arraySize; ++i)
         {
             arrayStr += nextIndentStr;
             arrayStr += (*options)[i].buildArrayString(nextIndentStr);
             if (i < arraySize - 1)
-                arrayStr += ",\n";
+				arrayStr += ", "; //arrayStr += ",\n";
         }
-        arrayStr += '\n' + indentStr + '}';
-        return arrayStr;
+		arrayStr += indentStr + '}'; //arrayStr += '\n' + indentStr + '}';
+		return arrayStr;
     }
     else
         return toStringWithQuotes();

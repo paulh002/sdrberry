@@ -53,7 +53,7 @@ public:
 	vector <string>			receivers;
 	
 private:
-	
+	void					default_settings();
 	cfg::File				*config;
 	string					file;
 	string					mac_address;

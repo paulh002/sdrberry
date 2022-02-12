@@ -191,7 +191,9 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	set_threshold_slider(Settings_file.getagc("threshold"));
 	lv_group_add_obj(m_button_group, threshold_slider);
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
-	
+
+	int atack, release;
+	Settings_file.getagc_preset("fast", atack, release);
 	
 	atack_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(atack_slider_label, "atack ");
@@ -201,7 +203,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_set_width(atack_slider, w / 2 - 50); 
 	lv_obj_align_to(atack_slider, atack_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	lv_obj_add_event_cb(atack_slider, atack_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-	set_atack_slider(Settings_file.getagc("atack"));
+	set_atack_slider(atack);
 	lv_group_add_obj(m_button_group, atack_slider);
 
 	release_slider_label = lv_label_create(o_tab);
@@ -209,7 +211,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_align_to(release_slider_label, threshold_slider, LV_ALIGN_OUT_BOTTOM_MID, -25, 10);
 	release_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, release_slider);
-	set_release_slider(Settings_file.getagc("release"));
+	set_release_slider(release);
 	lv_slider_set_range(release_slider, 0, 1000);
 	
 	lv_obj_set_width(release_slider, w / 2 - 50); 

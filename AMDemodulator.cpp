@@ -173,7 +173,7 @@ void AMDemodulator::operator()()
 
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			pr_time = 0;
-			if (rcount > 15 && dropped_frames > 10 && underrun ==0)
+			if (rcount > 10 && dropped_frames > 15 && underrun ==0)
 			{
 				sample_ratio = 1.01 * get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0);
 				Demodulator::set_resample_rate(sample_ratio);

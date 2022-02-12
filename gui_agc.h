@@ -21,7 +21,9 @@ public:
 	void	set_ratio_range(int min, int max);
 	void	set_ratio_slider(int ratio);
 	void	set_group();
-	lv_obj_t *get_ratio_slider_label() {return ratio_slider_label;}
+	void	set_agc_mode(int m);
+
+	lv_obj_t *get_ratio_slider_label() { return ratio_slider_label; }
 	
 	int getbuttons() {return ibuttons;	}
 	lv_obj_t* get_button_obj(int i)
@@ -71,10 +73,6 @@ public:
 	int get_agc_mode()
 	{
 		return agc_mode;
-	}
-	void	set_agc_mode(int m)
-	{
-		agc_mode = m;
 	}
 	
 	//const int	max_threshold {200};

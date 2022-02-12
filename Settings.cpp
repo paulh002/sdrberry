@@ -427,3 +427,19 @@ long long Settings::get_ft8(int band)
 	else
 		return 0;
 }
+
+void Settings::getagc_preset(std::string key, int &atack, int &release)
+{
+	int i = 0;
+	atack = 0;
+	release = 0;
+	config->useSection("Agc");
+	for (auto &col : (*config)(key))
+	{
+		if (i == 1)
+			atack = col.toInt();
+		if (i == 2)			
+			release = col.toInt();
+		i++;
+	}
+}

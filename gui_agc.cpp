@@ -21,6 +21,34 @@ static void agc_button_handler(lv_event_t * e)
 	}
 }
 
+void Gui_agc::set_agc_mode(int m)
+{
+	int atack, release;
+	
+	agc_mode = m;
+	switch (m)
+	{
+	case 1:
+		// fast
+		Settings_file.getagc_preset("fast", atack, release);
+		set_atack_slider(atack);
+		set_release_slider(release);
+		break;
+	case 2:
+		// medium
+		Settings_file.getagc_preset("medium", atack, release);
+		set_atack_slider(atack);
+		set_release_slider(release);
+		break;
+	case 3:
+		// slow
+		Settings_file.getagc_preset("slow", atack, release);
+		set_atack_slider(atack);
+		set_release_slider(release);
+		break;
+	}
+}
+
 static void threshold_slider_event_cb(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);

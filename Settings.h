@@ -16,7 +16,6 @@ public:
 	void init_settings(string settings_file);
 	void write_settings();
 	string get_mac_address() {return mac_address; }
-	;
 	string find_audio(string key);
 	string find_radio(string key);
 	string find_probe(string key);
@@ -40,6 +39,7 @@ public:
 	string	find_cat(string key);
 	int		convert_mode(string s);
 	long long	get_ft8(int band);
+	void	getagc_preset(std::string key, int &atack, int &release);
 
 	vector<int>				meters;
 	vector<string>			labels;

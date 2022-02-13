@@ -300,14 +300,16 @@ void File::parseOptionLine(const std::string& line, const std::string& section)
 	                {   
 		                int n = value.find(',');
 		                std::string s = value.substr(1, n-1);
-		                setOption(option.push(), s);
+						strlib::trimWhitespace(s);
+						setOption(option.push(), s);
 		                value.erase(1, n);
 	                }
 		            if (value.find('}') > 0)
 		            {
 			            int n = value.find('}');
 			            std::string s = value.substr(1, n - 1);
-			            setOption(option.push(), s);
+						strlib::trimWhitespace(s);
+						setOption(option.push(), s);
 					}
 		        }
 				if (bline)

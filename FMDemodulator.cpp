@@ -29,13 +29,13 @@ void FMDemodulator::operator()()
 			tune_offset(vfo.get_vfo_offset());
 			set_span(span);
 		}
-		
-		IQSampleVector iqsamples = m_source_buffer->pull();	
+
+		IQSampleVector iqsamples = m_source_buffer->pull();
 		if (iqsamples.empty())
 		{
 			usleep(500);
 			continue;
-		}	
+		}
 		perform_fft(iqsamples);
 		Fft_calc.set_signal_strength(get_if_level());
 		process(iqsamples, audiosamples);
@@ -44,9 +44,9 @@ void FMDemodulator::operator()()
 
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
-		for (auto& col : audiosamples)
+		for (auto &col : audiosamples)
 		{
-			// split the stream in blocks of samples of the size framesize 
+			// split the stream in blocks of samples of the size framesize
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
@@ -59,8 +59,8 @@ void FMDemodulator::operator()()
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("RX Samplerate %g Audio Sample Rate Msps\t%g MBps \n", get_rxsamplerate(), (float)get_audio_sample_rate());
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+			printf("Queued Audio Samples %d underrun %d\n", audio_output->queued_samples() / 2, underrun.load());
 		}
 	}
 }

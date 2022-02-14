@@ -1,17 +1,5 @@
 #include "sdrberry.h"
-
-static const auto startTime = std::chrono::high_resolution_clock::now();
-static auto timeLastPrint = std::chrono::high_resolution_clock::now();
-static unsigned long long totalSamples(0);
-static double sampleRate {0.0};	
-mutex mSampleRate;
 atomic<int> underrun{0};
-
-double get_audio_sample_rate()
-{
-	unique_lock<mutex> lock_stream(mSampleRate);
-	return sampleRate;
-}
 
 int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
 {
@@ -37,22 +25,8 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		Sample v = col;
 		((double *)buffer)[i++] = v;
 	}
-	totalSamples += samples.size() /2; 
 	samples.clear();
 	samples.resize(0);
-	
-	// Calculate the real audio samplerate
-	const auto now = std::chrono::high_resolution_clock::now();
-	//if (timeLastPrint + std::chrono::seconds(5) < now)
-	//{
-		unique_lock<mutex> lock_stream(mSampleRate);
-		timeLastPrint = now;
-		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-		sampleRate = 1000000.0 * double(totalSamples) / timePassed.count();
-		if (sampleRate < 38000.0 || sampleRate > 50000.0)
-			sampleRate = 48000.0;
-		//printf("Audio: %g sps queued samples %d \n", sampleRate, audio_output->queued_samples());
-	//}
 	return 0;
 }
 
@@ -116,7 +90,6 @@ bool AudioOutput::init(std::string device, int pcmrate, DataBuffer<Sample>	*Audi
 	parameters.firstChannel = 0;
 	m_sampleRate = pcmrate;
 	bufferFrames = 1024;   // 256 sample frames
-	sampleRate = 0.99 * pcmrate;
 	databuffer = AudioBuffer;
 	printf("Default audio device = %d\n", parameters.deviceId);
 	return true;

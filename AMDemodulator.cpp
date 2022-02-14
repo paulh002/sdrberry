@@ -168,14 +168,12 @@ void AMDemodulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d droppedframes %d underrun %d process time %lld\n",
-				   get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0), audio_output->queued_samples() / 2, dropped_frames, underrun.load(), pr_time);
-
+			printf("Queued Audio Samples %d droppedframes %d underrun %d\n", audio_output->queued_samples() / 2, dropped_frames, underrun.load());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			pr_time = 0;
-			if (rcount > 10 && dropped_frames > 15 && underrun ==0)
+			if (rcount > 10 && underrun ==0 &&  dropped_frames > 15) 
 			{
-				sample_ratio = 1.01 * get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0);
+				sample_ratio = sample_ratio / 1.01 ;
 				Demodulator::set_resample_rate(sample_ratio);
 				rcount = 0;
 			}

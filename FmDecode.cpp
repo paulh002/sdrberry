@@ -533,7 +533,7 @@ void* rx_fm_thread(void* fm_ptr)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("RX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued Audio Samples %d\n", get_rxsamplerate() * 1000000.0, (float)get_audio_sample_rate(), get_audio_sample_rate() / (get_rxsamplerate() * 1000000.0), audio_output->queued_samples() / 2);
+			printf("Queued Audio Samples %d underrun %d\n", audio_output->queued_samples() / 2, underrun.load());
 		}
 		iqsamples.clear();
 		audiosamples.clear();

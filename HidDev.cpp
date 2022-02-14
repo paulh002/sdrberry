@@ -110,7 +110,7 @@ void HidDev::step_vfo()
 			break;
 		case 264:
 			// Txset_tx_state
-			if (in_event.value == 1)
+			if (in_event.value == 1 && SdrDevices.get_tx_channels(default_radio))
 			{
 				if (!txstate)
 				{

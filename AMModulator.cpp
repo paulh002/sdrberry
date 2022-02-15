@@ -64,9 +64,6 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 		printf("Mode not correct\n");		
 		return;
 	}
-	if (tone == 0)
-		audio_input->open();
-	
 	m_tone = tone; 
 	m_fcutoff = 2500;
 	if ((ifrate - pcmrate) > 0.1)
@@ -83,8 +80,6 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	
 	modAM = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
-	if (tone == 0)
-		audio_input->open();
 }
 
 void AMModulator::operator()()

@@ -120,22 +120,20 @@ int main(int argc, char *argv[])
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
 
-	string s = Settings_file.find_audio("device");	
-	audio_output = new AudioOutput();
+	string s = Settings_file.find_audio("device");
+	audio_output = new AudioOutput(pcmrate, &audiooutput_buffer);
 	if (!audio_output) 
 	{
 		fprintf(stderr, "ERROR: AudioOutput\n");
 		exit(1);
 	}
-	audio_output->init(s, pcmrate, &audiooutput_buffer);
-	audio_input = new AudioInput();
+	audio_input = new AudioInput(pcmrate, false, &audioinput_buffer);
 	if (!(*audio_input)) {
 		fprintf(stderr, "ERROR: AudioInput\n");
 	}	
-	audio_input->init(s, pcmrate, false, &audioinput_buffer);
-	audio_input->open();
+	audio_input->open(s);
 	audio_output->set_volume(50);
-	audio_output->open();
+	audio_output->open(s);
 
 	bpf.initFilter();
 	

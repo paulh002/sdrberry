@@ -148,11 +148,9 @@ static void audio_button_handler(lv_event_t * e)
 		lv_dropdown_get_selected_str(obj,buf, sizeof(buf));
 		stop_rxtx();
 		audio_output->close();
-		audio_output->init_device(std::string(buf));
-		audio_output->open();
+		audio_output->open(std::string(buf));
 		audio_input->close();
-		audio_input->init_device(std::string(buf));
-		audio_input->open();
+		audio_input->open(std::string(buf));
 		select_mode(mode, false);
 	}
 }

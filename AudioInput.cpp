@@ -84,41 +84,29 @@ int AudioInput::getDevices(std::string device)
 	return 0; // return default device
 }
 
-void AudioInput::init_device(std::string device)
+AudioInput::AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer)
+	: parameters{}, m_volume{0.5}, asteps{}, m_level{}
 {
-	if (device != "default")
-		parameters.deviceId = getDevices(device);
-	else
-		parameters.deviceId = this->getDefaultInputDevice();	
-}
-
-bool AudioInput::init(std::string device, int pcmrate, bool stereo ,DataBuffer<Sample>	*AudioBuffer)
-{
-	if (this->getDeviceCount() < 1) {
-		std::cout << "\nNo audio devices found!\n";
-		m_zombie = true;
-		return false;
-	}	
-	if (device != "default")
-		parameters.deviceId = getDevices(device);
-	else
-		parameters.deviceId = this->getDefaultInputDevice();
-/*	if (parameters.deviceId)
-	{
-		m_zombie = true;
-		return false;
-	}*/
 	m_stereo = stereo;
 	databuffer = AudioBuffer; 
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 1024;  // 256 sample frames
-return true;
+	bufferFrames = 1024;
 }
 
-bool AudioInput::open()
+bool AudioInput::open(std::string device)
 {
+	if (this->getDeviceCount() < 1)
+	{
+		std::cout << "\nNo audio devices found!\n";
+		return false;
+	}
+	if (device != "default")
+		parameters.deviceId = getDevices(device);
+	else
+		parameters.deviceId = this->getDefaultInputDevice();
+	
 	try {
 		this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
 		this->startStream();

@@ -67,18 +67,20 @@ int AudioOutput::getDevices(std::string device)
 	return 0; // return default device
 }
 
-void AudioOutput::init_device(std::string device)
+AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer)
+	: parameters{}, bufferFrames{}, m_volume{}
 {
-	if (device != "default")
-		parameters.deviceId = getDevices(device);
-	else
-		parameters.deviceId = this->getDefaultOutputDevice(); 
+	m_sampleRate = pcmrate;
+	databuffer = AudioBuffer;
+	bufferFrames = 1024;
+	parameters.nChannels = 2;
+	parameters.firstChannel = 0;
 }
 
-
-bool AudioOutput::init(std::string device, int pcmrate, DataBuffer<Sample>	*AudioBuffer)
+bool AudioOutput::open(std::string device)
 {
-	if (this->getDeviceCount() < 1) {
+	if (this->getDeviceCount() < 1)
+	{
 		std::cout << "\nNo audio devices found!\n";
 		return false;
 	}
@@ -86,18 +88,9 @@ bool AudioOutput::init(std::string device, int pcmrate, DataBuffer<Sample>	*Audi
 		parameters.deviceId = getDevices(device);
 	else
 		parameters.deviceId = this->getDefaultOutputDevice();
-	parameters.nChannels = 2;
-	parameters.firstChannel = 0;
-	m_sampleRate = pcmrate;
-	bufferFrames = 1024;   // 256 sample frames
-	databuffer = AudioBuffer;
+
 	printf("Default audio device = %d\n", parameters.deviceId);
-	return true;
-}
 
-
-bool AudioOutput::open()
-{
 	try {
 		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer);
 		this->startStream();

@@ -8,19 +8,18 @@ class AudioOutput :
     public RtAudio
 {
 public:
-	bool	init(std::string device, int pcmrate, DataBuffer<Sample> *AudioBuffer);
-	void	init_device(std::string device);
-	bool	open();
-	bool	write(SampleVector& samples);
-	void	adjust_gain(SampleVector& samples);
-	void	close();
-	~AudioOutput();
-	double	get_volume() {return m_volume;}
-	void	set_volume(int vol)	{m_volume = exp(((double)vol * 6.908)/100.0) / 1000.0; } // log volume
-	unsigned int get_framesize() {return bufferFrames;}
-	int		queued_samples();
-	void	listDevices(std::vector<std::string> &devices);
-	int		getDevices(std::string device);
+  AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer);
+  bool open(std::string device);
+  bool write(SampleVector &samples);
+  void adjust_gain(SampleVector &samples);
+  void close();
+  ~AudioOutput();
+  double get_volume() { return m_volume; }
+  void set_volume(int vol) { m_volume = exp(((double)vol * 6.908) / 100.0) / 1000.0; } // log volume
+  unsigned int get_framesize() { return bufferFrames; }
+  int queued_samples();
+  void listDevices(std::vector<std::string> &devices);
+  int getDevices(std::string device);
 
 	
 protected:
@@ -32,7 +31,7 @@ private:
 	DataBuffer<Sample>			*databuffer;
 	unsigned int				m_sampleRate;
 	unsigned int				bufferFrames;  // 256 sample frames
-	double						m_volume {0.5};
+	double						m_volume;
 	string						m_error;
 };
 

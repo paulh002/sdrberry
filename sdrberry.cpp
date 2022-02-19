@@ -490,8 +490,6 @@ void select_mode_tx(int s_mode, int tone)
 	
 	stop_flag = false;
 	mode = s_mode;
-	if (tone == 0)
-		audio_input_on = true;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
 	vfo.set_vfo(0, false);

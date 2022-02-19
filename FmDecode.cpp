@@ -532,8 +532,8 @@ void* rx_fm_thread(void* fm_ptr)
 		if (timeLastPrint + std::chrono::seconds(1) < now)
 		{
 			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("Queued Audio Samples %d underrun %d\n", audio_output->queued_samples() / 2, underrun.load());
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+			printf("Queued Audio Samples %d underrun %d\n", audio_output->queued_samples() / 2, audio_output->get_underrun());
 		}
 		iqsamples.clear();
 		audiosamples.clear();

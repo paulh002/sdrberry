@@ -20,8 +20,10 @@ public:
   int queued_samples();
   void listDevices(std::vector<std::string> &devices);
   int getDevices(std::string device);
+  void inc_underrun() { underrun++; }
+  void clear_underrun() { underrun = 0; }
+  int  get_underrun() { return underrun.load(); }
 
-	
 protected:
 	void samplesToInt16(const SampleVector& samples,
 		std::vector<std::uint8_t>& bytes);
@@ -33,7 +35,7 @@ private:
 	unsigned int				bufferFrames;  // 256 sample frames
 	double						m_volume;
 	string						m_error;
+	atomic<int>					underrun;
 };
 
 extern  AudioOutput *audio_output;
-extern atomic<int> underrun;

@@ -28,6 +28,7 @@ AMModulator::~AMModulator()
 		ampmodem_destroy(modAM);
 	if (m_fft != nullptr)
 		nco_crcf_destroy(m_fft);
+	audio_input->set_tone(0);
 }
 
 AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
@@ -64,7 +65,7 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 		printf("Mode not correct\n");		
 		return;
 	}
-	m_tone = tone; 
+	audio_input->set_tone(tone);
 	m_fcutoff = 2500;
 	if ((ifrate - pcmrate) > 0.1)
 	{
@@ -92,29 +93,21 @@ void AMModulator::operator()()
 	SampleVector            audiosamples;
 	IQSampleVector			dummy;
 		
-	Fft_calc.plan_fft(nfft_samples * 10); 
+	Fft_calc.plan_fft(nfft_samples * 10);
+	m_audio_input->clear();
 	while (!stop_flag.load())
 	{
-		if (vfo.tune_flag)
+		if (vfo.tune_flag.load())
 		{
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
 		}
-		
-		if (m_tone)
-		{
-			m_audio_input->ToneBuffer(m_tone);
-			m_transmit_buffer->wait_queue_empty(2);
-		}
 
-		if (audio_input_on)
+		if (m_audio_input->read(audiosamples) == false)
 		{
-			if (m_audio_input->read(audiosamples) == false)
-			{
-				printf("wait for input\n");
-				usleep(1000); // wait 1024 audio sample time
-				continue;
-			}
+			printf("wait for input\n");
+			//usleep(1000); // wait 1024 audio sample time
+			continue;
 		}
 		
 		Fft_calc.set_signal_strength(m_audio_input->get_rms_level());
@@ -122,11 +115,11 @@ void AMModulator::operator()()
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(1) < now)
+		if (timeLastPrint + std::chrono::seconds(100) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("TX Samplerate %g Audio Sample Rate Msps %g Bps %f Queued transmitbuffer Samples %d\n", get_txsamplerate() * 1000000.0, (float)get_audio_input_rate(), get_audio_input_rate() / (get_txsamplerate() * 1000000.0), m_transmit_buffer->queued_samples());
+			printf("Queued transmitbuffer Samples %d\n", m_transmit_buffer->queued_samples());
 		}
 	}
 	m_transmit_buffer->push_end();

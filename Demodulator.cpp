@@ -10,7 +10,6 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *sou
 
 	// resampler and band filter assume pcmfrequency on the low side
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
-	audio_input_on = true;	
 }
 
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
@@ -67,9 +66,6 @@ Demodulator::~Demodulator()
 	if (m_fftmix)
 		nco_crcf_destroy(m_fftmix);
 	m_fftmix = nullptr;
-
-	audio_input_on = false;
-
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime demodulator:" << timePassed.count() << endl;

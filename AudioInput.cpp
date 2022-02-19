@@ -1,17 +1,5 @@
 #include "AudioInput.h"
 
-static const auto startTime = std::chrono::high_resolution_clock::now();
-static auto timeLastPrint = std::chrono::high_resolution_clock::now();
-static unsigned long long totalSamples(0);
-static double sampleRate {0.0};
-
-atomic_bool audio_input_on(false);
-
-double get_audio_input_rate()
-{
-	return sampleRate;
-}
-
 int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
 {
 	AudioInput					*audioinput = (AudioInput *)userData ;
@@ -19,8 +7,11 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	
 	if (status)
 		std::cout << "Stream overflow detected!" << std::endl;
-	if (!audio_input_on)
+	if (audioinput->get_tone())
+	{
+		audioinput->ToneBuffer();
 		return 0;
+	}
 
 	// Do something with the data in the "inputBuffer" buffer.
 	//printf("frames %u \n", nBufferFrames);
@@ -35,15 +26,8 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 		l += f*f;
 	}
 	audioinput->set_level(l);
+	databuffer->clear();
 	databuffer->push(move(buf));
-	
-	const auto now = std::chrono::high_resolution_clock::now();
-	timeLastPrint = now;
-	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	sampleRate = 1000000.0 * double(totalSamples) / timePassed.count();
-	if (sampleRate < 38000.0 || sampleRate > 50000.0)
-		sampleRate = 48000.0;
-	
 	return 0;
 }
 
@@ -85,14 +69,14 @@ int AudioInput::getDevices(std::string device)
 }
 
 AudioInput::AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer)
-	: parameters{}, m_volume{0.5}, asteps{}, m_level{}
+	: parameters{}, m_volume{0.5}, asteps{}, m_level{}, tune_tone{0}
 {
 	m_stereo = stereo;
 	databuffer = AudioBuffer; 
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 1024;
+	bufferFrames = 512;
 }
 
 bool AudioInput::open(std::string device)
@@ -158,14 +142,15 @@ double AudioInput::Nexttone()
 	return sin(angle);
 }
 
-void AudioInput::ToneBuffer(int twotone)
+void AudioInput::ToneBuffer()
 {
 	SampleVector	buf;
+	printf("tone %d \n", tune_tone);
 	for (int i = 0; i < bufferFrames; i++)
 	{
 		Sample f;
-		
-		if (twotone == 2)
+
+		if (tune_tone == 2)
 		{
 			f = (Sample) NextTwotone();
 		}

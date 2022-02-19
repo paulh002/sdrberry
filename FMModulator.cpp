@@ -33,7 +33,7 @@ FMModulator::FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 {
 	float kf          = 0.1f; // modulation factor
 	
-	m_tone = tone;
+	audio_input->set_tone(tone);
 	m_fcutoff = 5000;
 	Demodulator::set_filter(m_pcmrate, m_fcutoff);
 	Demodulator::set_resample_rate(ifrate / pcmrate); // UP sample to ifrate
@@ -57,12 +57,6 @@ void FMModulator::operator()()
 			tune_offset(vfo.get_vfo_offset());
 		}
 		
-		if (m_tone)
-		{
-			m_audio_input->ToneBuffer(m_tone);
-			m_transmit_buffer->wait_queue_empty(2);
-		}
-	
 		if (m_audio_input->read(audiosamples) == false)
 		{
 			printf("wait for input\n");

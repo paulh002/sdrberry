@@ -1,12 +1,11 @@
 #include "sdrberry.h"
-atomic<int> underrun{0};
 
 int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
 {
 	double *buffer = (double *) outputBuffer;
 	
 	if (status)
-		std::cout << "Stream underflow detected!" << std::endl;
+		std::cout << "Stream underflow detected!\n" << std::endl;
 	// Write interleaved audio data.
 	
 	if(((DataBuffer<Sample> *)userData)->queued_samples() == 0)
@@ -15,7 +14,8 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		{
 			((double *)buffer)[i] = 0.0;
 		}
-		underrun++;
+		if (audio_output != nullptr)
+			audio_output->inc_underrun();
 		return 0;
 	}
 	SampleVector samples = ((DataBuffer<Sample> *)userData)->pull();
@@ -68,7 +68,7 @@ int AudioOutput::getDevices(std::string device)
 }
 
 AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer)
-	: parameters{}, bufferFrames{}, m_volume{}
+	: parameters{}, bufferFrames{}, m_volume{}, underrun{0}
 {
 	m_sampleRate = pcmrate;
 	databuffer = AudioBuffer;

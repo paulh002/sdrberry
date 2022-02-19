@@ -7,8 +7,6 @@
 #include "Audiodefs.h"
 #include "DataBuffer.h"
 
-extern double get_audio_input_rate();
-	
 class AudioInput : public RtAudio
 {
 public:
@@ -20,7 +18,7 @@ public:
   ~AudioInput();
   double get_volume() { return m_volume; }
   void set_volume(double vol) { m_volume = vol; }
-  void ToneBuffer(int tone);
+  void ToneBuffer();
   DataBuffer<Sample> *get_databuffer() { return databuffer; };
   bool get_stereo() { return m_stereo; };
   float get_rms_level();
@@ -28,10 +26,11 @@ public:
   int queued_samples();
   int getDevices(std::string device);
   void listDevices(std::vector<std::string> &devices);
-  
-  
+  void set_tone(int tone) { tune_tone = tone; }
+  int get_tone() { return tune_tone; }
   operator bool() const { return m_error.empty();}
-	
+  void clear() { databuffer->clear();}
+
 private:
 	RtAudio::StreamParameters	parameters;
 	unsigned int				sampleRate;
@@ -44,6 +43,7 @@ private:
 	double						Nexttone();
 	double						NextTwotone();
 	float						m_level;
+	int							tune_tone;
 };
 
 extern  AudioInput  *audio_input;

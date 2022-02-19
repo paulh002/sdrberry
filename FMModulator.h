@@ -10,7 +10,6 @@ public:
 	
 	void	process(const IQSampleVector& samples_in, SampleVector& samples);
 	void	operator()();
-	void	tone(bool tone);
 	double get_if_level() const
 	{
 		return m_if_level;
@@ -21,7 +20,6 @@ public:
 	std::thread				fmmod_thread;
 
 private:
-	bool					m_tone;
 	freqmod					modFM {nullptr};
 };
 

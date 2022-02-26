@@ -193,6 +193,7 @@ long CVfo::get_vfo_offset()
 int CVfo::set_vfo(long long freq, bool lock)
 {
 	unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
+	int retval{0};
 	
 	if (freq == 0L)
 	{
@@ -261,9 +262,10 @@ int CVfo::set_vfo(long long freq, bool lock)
 		catinterface.SetBand(get_band_in_meters());
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
 		printf("vfo band change\n");
+		retval = 1;
 	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
-	return 0;
+	return retval;
 }
 
 void CVfo::sync_rx_vfo()
@@ -292,7 +294,17 @@ void CVfo::step_vfo(long icount, bool lock)
 	{
 		if (vfo.limit_ham_band)
 			check_band(icount, freq);
-		set_vfo(freq, lock);	
+		int i = set_vfo(freq, lock);
+		if (vfo.limit_ham_band && i == 1)
+		{	// check if we need to swtich mode
+			int index = getBandIndex(vfo_setting.band[vfo_setting.active_vfo]);
+			if (index >= 0 && index < vfo_setting.m_bands.size() && vfo_setting.mode[vfo_setting.active_vfo] != vfo_setting.m_bands[index].f_mode)
+			{
+				vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.m_bands[index].f_mode;
+				select_mode(vfo_setting.mode[vfo_setting.active_vfo], false);
+				gbar.set_mode(mode);
+			}
+		}
 	}
 }
 

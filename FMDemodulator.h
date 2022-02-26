@@ -20,7 +20,7 @@ public:
 	~FMDemodulator();
 	void	process(const IQSampleVector&	samples_in, SampleVector& audio) override;
 	void	operator()() override;
-			
+	atomic<bool> stop_flag{false};		
 	
 private:
 	freqdem	demodFM {nullptr};

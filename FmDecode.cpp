@@ -17,6 +17,8 @@
 
 using namespace std;
 
+static atomic_bool stop_flag(false);
+
 /*
  *
  * FM Decoder adapted from SoftFM https://github.com/jorisvr/SoftFM
@@ -540,7 +542,6 @@ void* rx_fm_thread(void* fm_ptr)
 		buf_mix.clear();
 	}
 	nco_crcf_destroy(upnco);
-	audio_output->close(); 
 	pthread_exit(NULL);
 }	
 
@@ -569,3 +570,10 @@ void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *sou
 	int rc = pthread_create(&fm_thread, NULL, rx_fm_thread, (void *)&fm_demod);	
 }
 	/* end */
+
+void stop_fm()
+{
+	stop_flag = true; // depreciated only used for broadband fm
+	unique_lock<mutex> lock_fm(fm_finish);
+	stop_flag = false;
+}

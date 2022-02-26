@@ -114,7 +114,7 @@ void FMDemodulator::destroy_demodulator()
 {
 	if (sp_fmdemod == nullptr)
 		return;
-	stop_flag = true; 
+	sp_fmdemod->stop_flag = true; 
 	fmdemod_thread.join();
 	sp_fmdemod.reset();
 }

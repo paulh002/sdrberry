@@ -66,7 +66,6 @@ extern std::mutex	fm_finish;
 extern std::mutex   amdemod_mutex;
 extern std::mutex   rxstream_mutex;
 
-extern atomic_bool stop_flag;
 extern mutex gui_mutex;
 
 //double	freq = 89950000;
@@ -98,4 +97,4 @@ inline void samples_mean_rms(const SampleVector& samples,
 
 void select_mode(int s_mode, bool bvfo = true);
 void select_mode_tx(int s_mode, int tone = 0);
-void stop_rxtx();
+void destroy_demodulators();

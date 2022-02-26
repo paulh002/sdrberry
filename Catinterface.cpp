@@ -197,7 +197,8 @@ void	Catinterface::checkCAT()
 			{
 				long f_low = Settings_file.f_low.at(index);
 				int f_band = Settings_file.meters.at(index);
-				vfo.set_band(f_band, f_low);				
+				vfo.set_band(f_band, f_low);
+				gbar.set_mode(mode);
 			}
 		}
 	}

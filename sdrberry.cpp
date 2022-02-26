@@ -48,9 +48,6 @@ lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
 
 using namespace std;
-
-atomic_bool stop_flag(false);
-
 std::mutex gui_mutex;
 
 int					mode = mode_broadband_fm;
@@ -347,7 +344,7 @@ int main(int argc, char *argv[])
 		Mouse_dev.step_vfo();
 		HidDev_dev.step_vfo();
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastStatus + std::chrono::milliseconds(100) < now && !stop_flag.load())
+		if (timeLastStatus + std::chrono::milliseconds(100) < now)
 		{
 			timeLastStatus = now;
 			Fft_calc.upload_fft(Wf.data_set);
@@ -400,18 +397,9 @@ void destroy_demodulators()
 	AMModulator::destroy_modulator();
 	FMModulator::destroy_modulator();
 	FT8Demodulator::destroy_demodulator();
+	stop_fm();
 	RX_Stream::destroy_rx_streaming_thread();
 	TX_Stream::destroy_tx_streaming_thread();
-}
-
-void stop_rxtx()
-{
-	// wait for threads to finish
-	// printf("select_mode_rx stop all threads\n");
-	destroy_demodulators();
-	stop_flag = true;
-	unique_lock<mutex> lock_fm(fm_finish); 
-	lock_fm.unlock();
 }
 
 extern std::chrono::high_resolution_clock::time_point starttime1;
@@ -424,9 +412,7 @@ void select_mode(int s_mode, bool bvfo)
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
 	// stop transmit
-	stop_flag = true; // depreciated only used for broadband fm
 	destroy_demodulators();
-	stop_flag = false;
 	mode = s_mode;
 	if (SdrDevices.get_tx_channels(default_radio) > 0)
 		Gui_tx.set_tx_state(false);
@@ -481,14 +467,6 @@ void select_mode_tx(int s_mode, int tone)
 	std::chrono::duration<double> timePassed = now - startTime;
 	printf("select_mode_tx stop all threads time %4.2f\n", (double)timePassed.count() * 1000000.0);
 	destroy_demodulators();
-	
-	//printf("select_mode_tx stop all threads\n");
-	stop_flag = true;
-	// wait for threads to finish
-	unique_lock<mutex> lock_fm(fm_finish); 
-	lock_fm.unlock();
-	
-	stop_flag = false;
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
@@ -548,7 +526,7 @@ void select_mode_tx(int s_mode, int tone)
 void	switch_sdrreceiver(std::string receiver)
 {
 	/// First switchoff current receiver
-	stop_rxtx();
+	destroy_demodulators();
 	SdrDevices.UnMakeDevice(default_radio);
 	default_radio = receiver;
 	// Hide TX page

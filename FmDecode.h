@@ -249,5 +249,5 @@ private:
 };
 
 void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-
+void stop_fm();
 #endif

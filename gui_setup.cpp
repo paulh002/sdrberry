@@ -69,7 +69,7 @@ static void samplerate_button_handler(lv_event_t * e)
 		ifrate = gsetup.get_sample_rate(rate);
 		gsetup.m_ifrate = ifrate;
 		vfo.vfo_re_init((long)ifrate, pcmrate);
-		stop_rxtx();
+		destroy_demodulators();
 		try
 		{
 			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, default_rx_channel, ifrate);
@@ -146,7 +146,7 @@ static void audio_button_handler(lv_event_t * e)
 		
 		int item = lv_dropdown_get_selected(obj);
 		lv_dropdown_get_selected_str(obj,buf, sizeof(buf));
-		stop_rxtx();
+		destroy_demodulators();
 		audio_output->close();
 		audio_output->open(std::string(buf));
 		audio_input->close();

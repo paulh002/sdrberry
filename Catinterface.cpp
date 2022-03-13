@@ -154,7 +154,7 @@ void	Catinterface::checkCAT()
 			return;
 		}
 	}
-	if (ret == 1)
+	if (ret == 1 && !bpause_cat.load())
 	{
 		// do something
 		int count = cat_message.GetFT();

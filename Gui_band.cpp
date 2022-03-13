@@ -1,6 +1,8 @@
 #include "sdrberry.h"
+#include "BandFilter.h"
 
 using namespace std;
+
 
 const lv_coord_t x_margin  = 10;
 const lv_coord_t y_margin  = 10;
@@ -37,6 +39,20 @@ static void ham_event_handler(lv_event_t * e)
 	}
 }
 
+static void band_event_handler(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+			bpf.Setpasstrough(true);
+		else
+			bpf.Setpasstrough(false);
+	}
+}
+
+	
 void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeList r)
 {
 	int		band;
@@ -127,13 +143,20 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	lv_obj_t * cb;
 	cb = lv_checkbox_create(o_tab);
 	lv_group_add_obj(m_button_group, cb);
-	lv_checkbox_set_text(cb, "limit vfo to bands");
+	lv_checkbox_set_text(cb, "limit vfo to bands1");
 	lv_obj_add_event_cb(cb, ham_event_handler, LV_EVENT_ALL, NULL);
 	ibutton_y++;
 	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin);
 	
 	if (vfo.limit_ham_band)
 		lv_obj_add_state(cb, LV_STATE_CHECKED);
+
+	cb = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, cb);
+	lv_checkbox_set_text(cb, "band filter off");
+	lv_obj_add_event_cb(cb, band_event_handler, LV_EVENT_ALL, NULL);
+	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin + button_height_margin/2);
+
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 

@@ -158,6 +158,17 @@ void Settings::default_settings()
 	{
 		(*config)("command_tx").push(cfg::makeOption(con));
 	}
+
+	vector<int> command3{21, 137};
+	for (auto con : command3)
+	{
+		(*config)("passthrough_rx").push(cfg::makeOption(con));
+	}
+	vector<int> command4{21, 73};
+	for (auto con : command4)
+	{
+		(*config)("passthrough_tx").push(cfg::makeOption(con));
+	}
 }
 
 void Settings::read_settings(string settings_file)
@@ -276,6 +287,17 @@ void Settings::read_settings(string settings_file)
 	{
 		if (col.toInt() > 0)
 			command_tx.push_back(col.toInt());
+	}
+
+	for (auto &col : (*config)("passthrough_rx"))
+	{
+		if (col.toInt() > 0)
+			passthrough_rx.push_back(col.toInt());
+	}
+	for (auto &col : (*config)("passthrough_tx"))
+	{
+		if (col.toInt() > 0)
+			passthrough_tx.push_back(col.toInt());
 	}
 	
 	config->useSection("SDR Receivers");

@@ -323,13 +323,13 @@ void gui_tx::set_tx_state(bool state)
 		if (lv_obj_get_state(tx_button[3]) & LV_STATE_CHECKED)
 			{
 				// If Vfo split mode set active vfo 1
-				vfo.set_active_vfo(1);
+				//vfo.set_active_vfo(1);
 			}
 	}
 	else
 	{
 		lv_obj_clear_state(tx_button[0], LV_STATE_CHECKED); 		
-		vfo.set_active_vfo(0);
+		//vfo.set_active_vfo(0);
 	}
 }
 

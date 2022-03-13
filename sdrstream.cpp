@@ -75,7 +75,7 @@ void RX_Stream::operator()()
 		stop_flag = true;
 		return;
 	}
-
+	stop_flag = false;
 	while (!stop_flag.load())
 	{
 		unsigned int				overflows(0);
@@ -171,7 +171,6 @@ bool RX_Stream::create_rx_streaming_thread(std::string sradio, int chan, DataBuf
 	if (ptr_rx_stream != nullptr)
 		return false;
 	ptr_rx_stream = make_shared<RX_Stream>(sradio, chan, source_buffer);
-	ptr_rx_stream->stop_flag = false;
 	rx_thread = std::thread(&RX_Stream::operator(), ptr_rx_stream);
 	return true;
 }

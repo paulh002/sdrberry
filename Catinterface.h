@@ -38,15 +38,15 @@ public:
 	void		SetAG(uint8_t volume);	
 	void		SetSH(int bandwidth);	
 	void		SetFA(uint32_t freq);
-	
+	void		Pause_Cat(bool pause) { bpause_cat = pause; }
 
-
-private:
+  private:
 	FT891_CAT		cat_message;
 	bool			f_rxtx;
 	Comm			comm_port;
 	bool			bcomm_port;
-	int				m_mode;		
+	int				m_mode;
+	atomic<bool> bpause_cat{false};
 };
 
 

@@ -404,11 +404,12 @@ void destroy_demodulators()
 
 extern std::chrono::high_resolution_clock::time_point starttime1;
 
+
 void select_mode(int s_mode, bool bvfo)
-{	
+{
 	if (!SdrDevices.isValid(default_radio))
 		return;
-
+	catinterface.Pause_Cat(true);
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
 	// stop transmit
@@ -455,6 +456,7 @@ void select_mode(int s_mode, bool bvfo)
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	}
+	catinterface.Pause_Cat(false);
 }
 
 void select_mode_tx(int s_mode, int tone)
@@ -462,6 +464,7 @@ void select_mode_tx(int s_mode, int tone)
 	// Stop all threads
 	if (!SdrDevices.isValid(default_radio))
 		return;
+	catinterface.Pause_Cat(true);
 	startTime = std::chrono::high_resolution_clock::now();
 	auto now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> timePassed = now - startTime;
@@ -502,6 +505,7 @@ void select_mode_tx(int s_mode, int tone)
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 	}
+	catinterface.Pause_Cat(false);
 }
 
 /*

@@ -258,7 +258,7 @@ int CVfo::set_vfo(long long freq, bool lock)
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	Wf.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo))
-	{ // Band Change?
+	{ // Band Change?r
 		catinterface.SetBand(get_band_in_meters());
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
 		printf("vfo band change\n");
@@ -374,6 +374,8 @@ void CVfo::set_band(int band, long long freq)
 	set_vfo(freq, false);
 }
 
+// return 1 if band has changed
+// update vfo_setting.band[active_vfo] to current band
 int CVfo::get_band(int active_vfo)
 {
 	long long	freq = vfo_setting.vfo_freq[active_vfo];

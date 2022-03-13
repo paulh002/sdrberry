@@ -93,7 +93,8 @@ public:
 	std::atomic_bool tune_flag {false};
 	bool	limit_ham_band;
 	
-private:
+
+  private:
 	struct vfo_settings_struct	vfo_setting;
 	int							m_delay_counter = 0;
 	int							m_delay;

@@ -17,10 +17,12 @@ class BandFilter
 public:
 	void initFilter();
 	void SetBand(int band, bool rx);
-	
-private:
+	void Setpasstrough(bool b);
+
+  private:
 	std::vector<PCF8574>	pcf8574;
 	bool	connected;
+	bool	bandfilter_pass_trough{false};
 };
 
 extern BandFilter bpf;

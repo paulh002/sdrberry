@@ -168,7 +168,7 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	chart = lv_chart_create(scr);
 	lv_obj_add_style(chart, &waterfall_style, 0); 
 	lv_obj_set_pos(chart, x, y); 
-	lv_obj_set_size(chart, w, (h - 150));
+	lv_obj_set_size(chart, w, (h - 170));
 	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
@@ -234,7 +234,7 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 void Fft_calculator::set_signal_strength(double strength)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
-	signal_strength =  20* log10(strength);
+	signal_strength =  20* log10(strength) + 120;
 	//printf(" signal_strength %f \n", signal_strength);
 }
 

@@ -125,6 +125,7 @@ void AMDemodulator::operator()()
 			usleep(500);
 			continue;
 		}
+		adjust_gain(iqsamples, gbar.get_rf());
 		perform_fft(iqsamples);
 		Fft_calc.set_signal_strength(get_if_level());
 		process(iqsamples, audiosamples);
@@ -170,6 +171,7 @@ void AMDemodulator::operator()()
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Queued Audio Samples %d droppedframes %d underrun %d\n", audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
+			printf("mean %f rms %f \n", m_audio_mean, m_audio_rms);
 			pr_time = 0;
 			if (rcount > 10 && audio_output->get_underrun() == 0 &&  dropped_frames > 15) 
 			{

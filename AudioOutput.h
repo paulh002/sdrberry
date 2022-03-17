@@ -15,7 +15,7 @@ public:
   void close();
   ~AudioOutput();
   double get_volume() { return m_volume; }
-  void set_volume(int vol) { m_volume = exp(((double)vol * 6.908) / 100.0) / 1000.0; } // log volume
+  void set_volume(int vol);
   unsigned int get_framesize() { return bufferFrames; }
   int queued_samples();
   void listDevices(std::vector<std::string> &devices);

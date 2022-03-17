@@ -162,7 +162,8 @@ public:
      */
     void process(const IQSampleVector& samples_in,
                  SampleVector& audio);
-
+	
+	void adjust_gain(IQSampleVector &samples_in, float vol);
     /** Return true if a stereo signal is detected. */
     bool stereo_detected() const
     {

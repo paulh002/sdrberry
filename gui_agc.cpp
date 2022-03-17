@@ -98,7 +98,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	int button_height = 50;
+	int button_height = 40;
 	int button_height_margin = button_height + y_margin;
 	int	ibutton_x = 0, ibutton_y = 0;
 	int i = 0;

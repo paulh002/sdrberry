@@ -103,6 +103,13 @@ bool AudioOutput::open(std::string device)
 	return true;	
 }
 
+void AudioOutput::set_volume(int vol) 
+{
+	// log volume
+	m_volume = exp(((double)vol * 6.908) / 100.0) / 1000;
+	//fprintf(stderr,"vol %f\n", (float)m_volume);
+} 
+
 void AudioOutput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {

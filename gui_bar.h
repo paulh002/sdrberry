@@ -27,10 +27,10 @@ public:
   void select_option(int option);
   lv_obj_t *get_vol_slider_label() { return vol_slider_label; }
   lv_obj_t *get_gain_slider_label() { return gain_slider_label; }
-  lv_obj_t *get_rf_slider_label() { return rf_slider_label; }
+  lv_obj_t *get_if_slider_label() { return if_slider_label; }
   int get_vol_range();
-  float get_rf();
-  void set_rf(int rf);
+  float get_if();
+  void set_if(int rf);
   void set_gain_range();
   void update_gain_slider(int gain);
   void set_gain_slider(int gain);
@@ -56,7 +56,7 @@ public:
 		return ifilters[sel];
 	}
 
-	atomic<float> m_rf;
+	atomic<float> m_if;
 	
 private:
 	lv_style_t	style_btn;
@@ -65,7 +65,7 @@ private:
 	int			filter;
 	const int	number_of_buttons {12};
 	lv_obj_t*	vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
-	lv_obj_t	*rf_slider_label, *rf_slider;
+	lv_obj_t	*if_slider_label, *if_slider;
 	const int	max_volume {100};
 	vector<int>	ifilters;
 	lv_obj_t	*cw_wpm, *cw_message, *cw_box, *cw_led;

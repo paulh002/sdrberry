@@ -320,6 +320,7 @@ int main(int argc, char *argv[])
 		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
+		gbar.set_if(Settings_file.if_gain());
 		gbar.set_gain_range();
 		gbar.set_gain_slider(Settings_file.gain());	
 		vfo.set_vfo(freq, false);

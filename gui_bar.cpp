@@ -152,14 +152,14 @@ static void vol_slider_event_cb(lv_event_t * e)
 	catinterface.SetAG(lv_slider_get_value(slider));
 }
 
-static void rf_slider_event_cb(lv_event_t *e)
+static void if_slider_event_cb(lv_event_t *e)
 {
 	char buf[20];
 
 	lv_obj_t *slider = lv_event_get_target(e);
-	sprintf(buf, "rf %d db", lv_slider_get_value(slider));
-	lv_label_set_text(gbar.get_rf_slider_label(), buf);
-	gbar.m_rf = 10 * lv_slider_get_value(slider);
+	sprintf(buf, "if %d db", lv_slider_get_value(slider));
+	lv_label_set_text(gbar.get_if_slider_label(), buf);
+	gbar.m_if = 10 * lv_slider_get_value(slider);
 }
 
 static void gain_slider_event_cb(lv_event_t * e)
@@ -167,7 +167,7 @@ static void gain_slider_event_cb(lv_event_t * e)
 	char buf[20];
 	
 	lv_obj_t * slider = lv_event_get_target(e);
-	sprintf(buf, "gain %ddb", lv_slider_get_value(slider));
+	sprintf(buf, "gain %d db", lv_slider_get_value(slider));
 	lv_label_set_text(gbar.get_gain_slider_label(), buf);
 	try 
 	{
@@ -194,7 +194,7 @@ void gui_bar::step_gain_slider(int step)
 }
 
 gui_bar::gui_bar()
-	: m_rf{1000}
+	: m_if{1000}
 {
 
 }
@@ -233,7 +233,7 @@ void gui_bar::set_gain_slider(int gain)
 		gain = max_gain;
 	if (gain < min_gain)
 		gain = min_gain;
-	sprintf(buf, "gain %ddb", gain);
+	sprintf(buf, "gain %d db", gain);
 	lv_label_set_text(gain_slider_label, buf);		
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 	try
@@ -447,15 +447,15 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
 	int gain_y = 15 + button_height_margin;
-	rf_slider_label = lv_label_create(o_parent);
-	lv_label_set_text(rf_slider_label, "rf 60 db");
-	lv_obj_align(rf_slider_label, LV_ALIGN_TOP_LEFT, vol_x + vol_width + 5, gain_y);
-	rf_slider = lv_slider_create(o_parent);
-	lv_slider_set_range(rf_slider, 0, 100);
-	lv_obj_set_width(rf_slider, vol_width);
-	lv_obj_align(rf_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
-	lv_obj_add_event_cb(rf_slider, rf_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-	lv_slider_set_value(rf_slider, 60, LV_ANIM_OFF);
+	if_slider_label = lv_label_create(o_parent);
+	lv_label_set_text(if_slider_label, "if 60 db");
+	lv_obj_align(if_slider_label, LV_ALIGN_TOP_LEFT, vol_x + vol_width + 5, gain_y);
+	if_slider = lv_slider_create(o_parent);
+	lv_slider_set_range(if_slider, 0, 100);
+	lv_obj_set_width(if_slider, vol_width);
+	lv_obj_align(if_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
+	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_slider_set_value(if_slider, 60, LV_ANIM_OFF);
 	
 	gain_y += (button_height_margin);
 	gain_slider_label = lv_label_create(o_parent);
@@ -652,19 +652,19 @@ int gui_bar::get_vol_range()
 	return max_volume;
 }
 
-float gui_bar::get_rf()
+float gui_bar::get_if()
 {
-	return m_rf.load();
+	return m_if.load();
 }
 
-void gui_bar::set_rf(int rf)
+void gui_bar::set_if(int rf)
 {
 	char buf[30];
 
-	lv_slider_set_value(rf_slider, rf, LV_ANIM_ON);
-	sprintf(buf, "rf %d db", rf);
-	lv_label_set_text(vol_slider_label, buf);
-	m_rf = std::pow(10.0,(float)rf / 20.0);
+	lv_slider_set_value(if_slider, rf, LV_ANIM_ON);
+	sprintf(buf, "if %d db", rf);
+	lv_label_set_text(if_slider_label, buf);
+	m_if = std::pow(10.0,(float)rf / 20.0);
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)

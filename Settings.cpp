@@ -416,6 +416,17 @@ int Settings::volume()
 		return 0;
 }
 
+int Settings::if_gain()
+{
+	if (radio.find("if-gain") != radio.end())
+	{
+		auto s = radio.find("if-gain");
+		return atoi((const char *)s->second.c_str());
+	}
+	else
+		return 0;
+}
+
 int Settings::gain()
 {
 	if (radio.find("gain") != radio.end())

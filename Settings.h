@@ -40,7 +40,8 @@ public:
 	int		convert_mode(string s);
 	long long	get_ft8(int band);
 	void	getagc_preset(std::string key, int &atack, int &release);
-
+	int		if_gain();
+	
 	vector<int>				meters;
 	vector<string>			labels;
 	vector<long>			f_low;

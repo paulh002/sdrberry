@@ -505,7 +505,7 @@ void* rx_fm_thread(void* fm_ptr)
 			usleep(5000);
 			continue;
 		}
-		pfm->adjust_gain(iqsamples, gbar.get_rf());
+		pfm->adjust_gain(iqsamples, gbar.get_if());
 		buf_mix.clear();
 		for (auto& col : iqsamples)
 		{

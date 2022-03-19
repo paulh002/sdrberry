@@ -472,7 +472,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 		std::cout << e.what();
 	}
 
-	int cw_y = y_margin + 2 * button_height_margin;
+	int cw_y = y_margin + max_rows * button_height_margin;
 
 	lv_style_init(&cw_style);
 	lv_style_set_radius(&cw_style, 0);

@@ -189,6 +189,7 @@ void FT8Demodulator::operator()()
 			usleep(500);
 			continue;
 		}
+		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		Fft_calc.set_signal_strength(get_if_level());
 		process(iqsamples, audiosamples);

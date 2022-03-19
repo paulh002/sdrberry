@@ -267,9 +267,9 @@ void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 
 void set_s_meter(double value)
 {
-	//printf("value %f", value);
+	//printf("value %f\n", value);
 	//value = 30.0 + value;
-	value = value + 100.0;
+	//value = value + 200.0;
 	//printf(" value s%f \n", value);
 	lv_meter_set_indicator_value(meter, smeter_indic, value);
 }

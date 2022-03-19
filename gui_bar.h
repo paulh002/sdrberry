@@ -16,6 +16,7 @@ extern const int tunerHeight;
 class gui_bar
 {
 public:
+  gui_bar();
   ~gui_bar();
   void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
   void set_vol_slider(int volume);
@@ -26,7 +27,10 @@ public:
   void select_option(int option);
   lv_obj_t *get_vol_slider_label() { return vol_slider_label; }
   lv_obj_t *get_gain_slider_label() { return gain_slider_label; }
+  lv_obj_t *get_if_slider_label() { return if_slider_label; }
   int get_vol_range();
+  float get_if();
+  void set_if(int rf);
   void set_gain_range();
   void update_gain_slider(int gain);
   void set_gain_slider(int gain);
@@ -51,6 +55,8 @@ public:
 	{
 		return ifilters[sel];
 	}
+
+	atomic<float> m_if;
 	
 private:
 	lv_style_t	style_btn;
@@ -59,11 +65,13 @@ private:
 	int			filter;
 	const int	number_of_buttons {12};
 	lv_obj_t*	vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
-	const int max_volume {100};
+	lv_obj_t	*if_slider_label, *if_slider;
+	const int	max_volume {100};
 	vector<int>	ifilters;
-	lv_obj_t *cw_wpm, *cw_message, *cw_box, *cw_led;
-	lv_style_t cw_style, style_selected_color;
-	lv_group_t *m_button_group{nullptr};
+	lv_obj_t	*cw_wpm, *cw_message, *cw_box, *cw_led;
+	lv_style_t	cw_style, style_selected_color;
+	lv_group_t	*m_button_group{nullptr};
+	
 };
 
 extern gui_bar gbar;

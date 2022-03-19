@@ -38,7 +38,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	int button_height = 50;
+	int button_height = 40;
 	int button_height_margin = button_height + y_margin;
 	
 	lv_style_init(&style_btn);
@@ -52,7 +52,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
-	
+	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
 	

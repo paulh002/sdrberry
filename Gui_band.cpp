@@ -92,7 +92,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 		
 	button_width_margin = ((w - tab_margin) / x_number_buttons);
 	button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	button_height = 50;
+	button_height = 40;
 	button_height_margin = button_height + y_margin;
 	
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;

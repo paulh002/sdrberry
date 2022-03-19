@@ -446,6 +446,15 @@ void FmDecoder::stereo_to_left_right(const SampleVector& samples_mono,
     }
 }
 
+void FmDecoder::adjust_gain(IQSampleVector &samples_in, float vol)
+{
+	for (auto &col : samples_in)
+	{
+		col.real(col.real() * vol);
+		col.imag(col.imag() * vol);
+	}
+}
+
 pthread_t fm_thread;
 
 void* rx_fm_thread(void* fm_ptr)
@@ -496,7 +505,7 @@ void* rx_fm_thread(void* fm_ptr)
 			usleep(5000);
 			continue;
 		}
-		
+		pfm->adjust_gain(iqsamples, gbar.get_if());
 		buf_mix.clear();
 		for (auto& col : iqsamples)
 		{

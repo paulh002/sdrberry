@@ -143,32 +143,24 @@ static void bar_button_handler(lv_event_t * e)
 
 static void vol_slider_event_cb(lv_event_t * e)
 {
-	char buf[20];
-	
 	lv_obj_t * slider = lv_event_get_target(e);
-	sprintf(buf, "vol %d", lv_slider_get_value(slider));
-	lv_label_set_text(gbar.get_vol_slider_label(), buf);
+	lv_label_set_text_fmt(gbar.get_vol_slider_label(), "vol %d", lv_slider_get_value(slider));
 	audio_output->set_volume(lv_slider_get_value(slider));
 	catinterface.SetAG(lv_slider_get_value(slider));
 }
 
 static void if_slider_event_cb(lv_event_t *e)
 {
-	char buf[20];
-
 	lv_obj_t *slider = lv_event_get_target(e);
-	sprintf(buf, "if %d db", lv_slider_get_value(slider));
-	lv_label_set_text(gbar.get_if_slider_label(), buf);
+	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	gbar.m_if = 10 * lv_slider_get_value(slider);
 }
 
 static void gain_slider_event_cb(lv_event_t * e)
 {
-	char buf[20];
-	
 	lv_obj_t * slider = lv_event_get_target(e);
-	sprintf(buf, "gain %d db", lv_slider_get_value(slider));
-	lv_label_set_text(gbar.get_gain_slider_label(), buf);
+
+	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	try 
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, default_rx_channel, lv_slider_get_value(slider));
@@ -181,10 +173,7 @@ static void gain_slider_event_cb(lv_event_t * e)
 
 void gui_bar::update_gain_slider(int gain)
 {	
-	char buf[30];
-	
-	sprintf(buf, "gain %d db", gain);
-	lv_label_set_text(gain_slider_label, buf);		
+	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 }
 
@@ -214,7 +203,6 @@ gui_bar::~gui_bar()
 
 void gui_bar::set_gain_slider(int gain)
 {
-	char	buf[20];
 	double	max_gain {0.0};
 	double min_gain{0.0};
 	
@@ -233,8 +221,8 @@ void gui_bar::set_gain_slider(int gain)
 		gain = max_gain;
 	if (gain < min_gain)
 		gain = min_gain;
-	sprintf(buf, "gain %d db", gain);
-	lv_label_set_text(gain_slider_label, buf);		
+
+	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 	try
 	{
@@ -278,7 +266,7 @@ void gui_bar::set_gain_range()
 
 void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h)
 {
-	const lv_coord_t x_margin_dropdown  = 20;
+	const lv_coord_t x_margin_dropdown  = 0;
 	const lv_coord_t x_margin  = 2;
 	const lv_coord_t y_margin = 2; //5;
 	const int x_number_buttons = 4;
@@ -595,8 +583,6 @@ void gui_bar::set_cw_message(std::string message)
 
 void gui_bar::set_cw_wpm(int wpm)
 {
-	char str[30];
-
 	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
 	gui_lock.try_lock();
 	if (!gui_lock.owns_lock())
@@ -606,8 +592,7 @@ void gui_bar::set_cw_wpm(int wpm)
 		if (!gui_lock.owns_lock())
 			return;
 	}
-	sprintf(str, "wpm: %d", wpm);
-	lv_label_set_text(cw_wpm, str);
+	lv_label_set_text_fmt(cw_wpm, "wpm: %d", wpm);
 }
 
 void gui_bar::set_led(bool status)
@@ -638,12 +623,8 @@ void gui_bar::set_vol_slider(int volume)
 		volume = 0;
 	if (volume > max_volume)
 		volume = max_volume;
-	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);
-	
-	char buf[20];
-	
-	sprintf(buf, "vol %d", volume);
-	lv_label_set_text(vol_slider_label, buf);
+	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);	
+	lv_label_set_text_fmt(vol_slider_label, "vol %d", volume);
 	audio_output->set_volume(volume);
 }
 
@@ -659,11 +640,8 @@ float gui_bar::get_if()
 
 void gui_bar::set_if(int rf)
 {
-	char buf[30];
-
 	lv_slider_set_value(if_slider, rf, LV_ANIM_ON);
-	sprintf(buf, "if %d db", rf);
-	lv_label_set_text(if_slider_label, buf);
+	lv_label_set_text_fmt(if_slider_label, "if %d db", rf);
 	m_if = std::pow(10.0,(float)rf / 20.0);
 }
 

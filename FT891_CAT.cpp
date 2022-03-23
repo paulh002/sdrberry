@@ -532,6 +532,7 @@ bool FT891_CAT::ProcessCmd ()
 			{
 				int tempFT = atoi(dataBuff);   					// Convert into temporary place
 				SendInformation(tempFT);
+				SetBand(GetBand());
 			}
 			cmdProcessed = true;
 			break;

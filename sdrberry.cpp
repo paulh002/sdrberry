@@ -53,8 +53,6 @@ std::mutex gui_mutex;
 int					mode = mode_broadband_fm;
 double				ifrate  = 0.53e6;  //1.0e6;//
 double				ifrate_tx;
-bool				stereo  = true;
-int					pcmrate = 48000;
 double				freq = 89800000;
 //double	tuner_freq = freq + 0.25 * ifrate;
 //double	tuner_offset = freq - tuner_freq;
@@ -109,7 +107,8 @@ static void tabview_event_cb(lv_event_t *e)
 
 int main(int argc, char *argv[])
 {
-	
+	const int pcmrate {48000};
+
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
 	HidDev_dev.init("");
@@ -117,21 +116,29 @@ int main(int argc, char *argv[])
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
 
+	auto RtApi = RtAudio::LINUX_ALSA;
+
 	string s = Settings_file.find_audio("device");
-	audio_output = new AudioOutput(pcmrate, &audiooutput_buffer);
+	string api = Settings_file.find_audio("api");
+	if (api == "pulse")
+		RtApi = RtAudio::LINUX_PULSE;
+	
+	audio_output = new AudioOutput(pcmrate, &audiooutput_buffer, RtApi);
 	if (!audio_output) 
 	{
 		fprintf(stderr, "ERROR: AudioOutput\n");
 		exit(1);
 	}
-	audio_input = new AudioInput(pcmrate, false, &audioinput_buffer);
-	if (!(*audio_input)) {
-		fprintf(stderr, "ERROR: AudioInput\n");
-	}	
-	audio_input->open(s);
+	
 	audio_output->set_volume(50);
 	audio_output->open(s);
 
+	audio_input = new AudioInput(audio_output->get_samplerate(), false, &audioinput_buffer, RtApi);
+	if (!(*audio_input))
+	{
+		fprintf(stderr, "ERROR: AudioInput\n");
+	}
+	audio_input->open(s);
 	bpf.initFilter();
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
@@ -408,6 +415,8 @@ extern std::chrono::high_resolution_clock::time_point starttime1;
 
 void select_mode(int s_mode, bool bvfo)
 {
+	bool stereo{false};
+	
 	if (!SdrDevices.isValid(default_radio))
 		return;
 	catinterface.Pause_Cat(true);
@@ -429,12 +438,16 @@ void select_mode(int s_mode, bool bvfo)
 	switch (mode)
 	{
 	case mode_narrowband_fm:
-		FMDemodulator::create_demodulator(ifrate, pcmrate, &source_buffer_rx, audio_output);
+		FMDemodulator::create_demodulator(ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	
 	case mode_broadband_fm:
-		start_fm(ifrate, pcmrate, true, &source_buffer_rx, audio_output);
+		if (audio_output->get_channels() > 1)
+			stereo = true;
+		else
+			stereo = false;
+		start_fm(ifrate, audio_output->get_samplerate(), stereo, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx); 
 		break;
 
@@ -447,13 +460,13 @@ void select_mode(int s_mode, bool bvfo)
 		if (mode != mode_cw) 
 			gsetup.set_cw(false);
 		vfo.set_step(10, 0);
-		AMDemodulator::create_demodulator(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
+		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_ft8:
 		vfo.set_step(10, 0);
 		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))), false);
-		FT8Demodulator::create_demodulator(mode, ifrate, pcmrate, &source_buffer_rx, audio_output);
+		FT8Demodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	}
@@ -488,12 +501,12 @@ void select_mode_tx(int s_mode, int tone)
 	switch (mode)
 	{	
 	case mode_broadband_fm:
-		//start_fm_tx(ifrate, pcmrate, true, &source_buffer_tx, audio_output);
+		//start_fm_tx(ifrate, audio_output->get_samplerate(), true, &source_buffer_tx, audio_output);
 		//mode_running = 1;
 		break;
 	
 	case mode_narrowband_fm:
-		FMModulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
+		FMModulator::create_modulator(mode, ifrate_tx, audio_output->get_samplerate(), tone, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 		
@@ -502,7 +515,7 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		AMModulator::create_modulator(mode, ifrate_tx, pcmrate, tone, &source_buffer_tx, audio_input);
+		AMModulator::create_modulator(mode, ifrate_tx, audio_output->get_samplerate(), tone, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 	}
@@ -554,8 +567,8 @@ void	switch_sdrreceiver(std::string receiver)
 			default_tx_channel = -1;
 		else
 			default_tx_channel = 0;
-		vfo.set_vfo_range(r.minimum(), r.maximum());	
-		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.set_vfo_range(r.minimum(), r.maximum());
+		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)

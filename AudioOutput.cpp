@@ -10,7 +10,8 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	
 	if(((DataBuffer<Sample> *)userData)->queued_samples() == 0)
 	{
-		for (int i = 0; i < 2*nBufferFrames; i++)
+		int bytes = nBufferFrames * min(audio_output->get_channels(), 2);
+		for (int i = 0; i < bytes; i++)
 		{
 			((double *)buffer)[i] = 0.0;
 		}
@@ -42,7 +43,7 @@ void AudioOutput::listDevices(std::vector<std::string> &devices)
 	for (int i = 0; i < noDevices; i++)
 	{
 		dev = getDeviceInfo(i);
-		if (dev.outputChannels > 0 || dev.inputChannels > 0)
+		if ((dev.outputChannels > 0 || dev.inputChannels > 0) && !dev.name.find("Monitor"))
 			devices.push_back(dev.name);
 	}
 }
@@ -50,7 +51,6 @@ void AudioOutput::listDevices(std::vector<std::string> &devices)
 int AudioOutput::getDevices(std::string device)
 {
 	int noDevices = this->getDeviceCount();
-	struct DeviceInfo	dev;
 		
 	if (noDevices < 1) {
 		std::cout << "\nNo audio devices found!\n";
@@ -58,17 +58,24 @@ int AudioOutput::getDevices(std::string device)
 	}
 	for (int i = 0; i < noDevices; i++)
 	{
-		dev = getDeviceInfo(i);
-		if (dev.name.find(device) != std::string::npos)
+		info = getDeviceInfo(i);
+		printf("%d device: %s input %d output %d\n", i, info.name.c_str(), info.inputChannels, info.outputChannels);
+		if (info.name.find(device) != std::string::npos && info.outputChannels > 0)
 		{
+			if (info.outputChannels < parameters.nChannels)
+				parameters.nChannels = info.outputChannels;
+			printf("audio device = %s Samplerate %d\n", info.name.c_str(), info.preferredSampleRate);
+			if (info.preferredSampleRate)
+				m_sampleRate = info.preferredSampleRate;
 			return i;
 		}
 	}
 	return 0; // return default device
 }
 
-AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer)
-	: parameters{}, bufferFrames{}, m_volume{}, underrun{0}
+AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+	: RtAudio(api),
+	parameters{}, bufferFrames{}, m_volume{}, underrun{0}
 {
 	m_sampleRate = pcmrate;
 	databuffer = AudioBuffer;
@@ -79,27 +86,34 @@ AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer)
 
 bool AudioOutput::open(std::string device)
 {
+	RtAudioErrorType err;
+	StreamOptions option{{0}, {0}, {0}, {0}};
+
+	option.flags = RTAUDIO_MINIMIZE_LATENCY;
 	if (this->getDeviceCount() < 1)
 	{
 		std::cout << "\nNo audio devices found!\n";
 		return false;
 	}
 	if (device != "default")
+	{
 		parameters.deviceId = getDevices(device);
+	}
 	else
+	{
 		parameters.deviceId = this->getDefaultOutputDevice();
-
+		info = getDeviceInfo(parameters.deviceId);
+		printf("%d device: %s input %d output %d\n", parameters.deviceId, info.name.c_str(), info.inputChannels, info.outputChannels);
+	}
 	printf("Default audio device = %d\n", parameters.deviceId);
 
-	try {
-		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer);
-		this->startStream();
-		printf("bufferFrames set: %d\n", bufferFrames);
-	}
-	catch (RtAudioError& e) {
-		e.printMessage();
+	err = this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, &option);
+	if (err != RTAUDIO_NO_ERROR)
+	{
+		printf("Cannot open audio output stream\n");
 		return false;
 	}
+	this->startStream();
 	return true;	
 }
 

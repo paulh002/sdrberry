@@ -8,7 +8,7 @@ HidDev::HidDev()
 {
 	m_fd = -1;
 	numIndex = 2;
-	step = 10;
+	step = 5;// steps of 100 Hz
 	bstep = false;
 	last_val = 0;
 	speed = 0;
@@ -97,7 +97,9 @@ void HidDev::step_vfo()
 		case 261:
 			// 2nd key hotkey for CW decoding
 			if (in_event.value == 1)
+			{
 				gsetup.toggle_cw();
+			}
 			break;
 		case 262:
 			// Middle button is used as keypress for rotery encoder option

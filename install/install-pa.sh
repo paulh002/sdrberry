@@ -1,4 +1,5 @@
 #!/bin/bash
+# this install version updates pulseaudio to latest version to support bluetooth headset
 #if false; then
 sudo apt update
 sudo apt install build-essential git cmake swig -y
@@ -6,6 +7,19 @@ sudo apt-get -y install git
 sudo apt-get install -y\
     cmake g++ \
     libpython-dev python-numpy swig
+sudo pip3 install meson
+sudo apt install -y ninja-build
+sudo apt install -y cmake
+sudo apt-get build-dep pulseaudio && sudo apt-get install checkinstall git libpulse-dev
+sudo apt install -y pulseaudio-utils
+sudo apt-get install doxygen
+git clone https://gitlab.freedesktop.org/pulseaudio/pulseaudio.git
+cd pulseaudio
+meson build
+ninja -C build
+sudo ninja -C build install
+sudo ldconfig
+cd ~
 git clone https://github.com/pothosware/SoapySDR.git
 cd SoapySDR
 git pull origin master
@@ -17,7 +31,7 @@ sudo make install
 sudo ldconfig
 cd ~
 sudo apt-get install -y fftw3-dev
-git clone https://github.com/jgaeddert/liquid-dsp
+git clone git://github.com/jgaeddert/liquid-dsp.git
 sudo apt-get install -y automake autoconf
 cd liquid-dsp
 ./bootstrap.sh
@@ -57,7 +71,6 @@ make -j4
 sudo make install
 sudo ldconfig 
 cd~
-sudo apt-get remove -y pulseaudio
 sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
 git clone https://github.com/analogdevicesinc/libad9361-iio
 sudo apt-get install -y doxygen

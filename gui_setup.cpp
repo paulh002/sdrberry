@@ -68,7 +68,7 @@ static void samplerate_button_handler(lv_event_t * e)
 		int rate = lv_dropdown_get_selected(obj);
 		ifrate = gsetup.get_sample_rate(rate);
 		gsetup.m_ifrate = ifrate;
-		vfo.vfo_re_init((long)ifrate, pcmrate);
+		vfo.vfo_re_init((long)ifrate, audio_output->get_samplerate());
 		destroy_demodulators();
 		try
 		{
@@ -112,13 +112,17 @@ void gui_setup::toggle_cw()
 {
 	if (lv_obj_get_state(check_cw) & LV_STATE_CHECKED)
 	{
+		int bandwidth{2500};
 		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
-		gbar.set_filter_slider(2500);
+		gbar.set_filter_slider(bandwidth);
+		catinterface.SetSH(bandwidth);
 	}
 	else
 	{
+		int bandwidth{500};
 		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
-		gbar.set_filter_slider(500);
+		gbar.set_filter_slider(bandwidth);
+		catinterface.SetSH(bandwidth);
 	}
 	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
 }

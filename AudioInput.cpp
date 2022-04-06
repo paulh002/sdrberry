@@ -31,6 +31,7 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	return 0;
 }
 
+
 void AudioInput::listDevices(std::vector<std::string> &devices)
 {
 	int noDevices = this->getDeviceCount();
@@ -51,7 +52,6 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 int AudioInput::getDevices(std::string device)
 {
 	int noDevices = this->getDeviceCount();
-	struct DeviceInfo	dev;
 		
 	if (noDevices < 1) {
 		std::cout << "\nNo audio devices found!\n";
@@ -59,17 +59,21 @@ int AudioInput::getDevices(std::string device)
 	}
 	for (int i = 0; i < noDevices; i++)
 	{
-		dev = getDeviceInfo(i);
-		if (dev.name.find(device) != std::string::npos)
+		info = getDeviceInfo(i);
+		printf("%d device: %s input %d output %d\n", i, info.name.c_str(), info.inputChannels, info.outputChannels);
+
+		if (info.name.find(device) != std::string::npos && info.inputChannels > 0)
 		{
+			if (info.outputChannels < parameters.nChannels)
+				parameters.nChannels = info.outputChannels;
 			return i;
 		}
 	}
 	return 0; // return default device
 }
 
-AudioInput::AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer)
-	: parameters{}, m_volume{0.5}, asteps{}, m_level{}, tune_tone{0}
+AudioInput::AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+	: RtAudio(api), parameters{}, m_volume{0.5}, asteps{}, m_level{}, tune_tone{0}
 {
 	m_stereo = stereo;
 	databuffer = AudioBuffer; 
@@ -79,8 +83,25 @@ AudioInput::AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer
 	bufferFrames = 512;
 }
 
+std::vector<RtAudio::Api> AudioInput::listApis()
+{
+	std::vector<RtAudio::Api> apis;
+	RtAudio ::getCompiledApi(apis);
+
+	std::cout << "\nCompiled APIs:\n";
+	for (size_t i = 0; i < apis.size(); i++)
+		std::cout << i << ". " << RtAudio::getApiDisplayName(apis[i])
+				  << " (" << RtAudio::getApiName(apis[i]) << ")" << std::endl;
+
+	return apis;
+}
+
 bool AudioInput::open(std::string device)
 {
+	RtAudioErrorType err;
+
+	std::cout << "\nRtAudio Version " << RtAudio::getVersion() << std::endl;
+	listApis();
 	if (this->getDeviceCount() < 1)
 	{
 		std::cout << "\nNo audio devices found!\n";
@@ -90,15 +111,15 @@ bool AudioInput::open(std::string device)
 		parameters.deviceId = getDevices(device);
 	else
 		parameters.deviceId = this->getDefaultInputDevice();
-	
-	try {
-		this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
-		this->startStream();
-	}
-	catch (RtAudioError& e) {
-		e.printMessage();
+
+	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
+	if (err != RTAUDIO_NO_ERROR)
+	{
+		printf("Cannot open audio input stream\n");
 		return false;
 	}
+	this->startStream();
+
 	return true;	
 }
 

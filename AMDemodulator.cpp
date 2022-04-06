@@ -95,7 +95,7 @@ void AMDemodulator::operator()()
 	long long pr_time{0};
 	int vsize;
 
-	Agc.prepareToPlay(pcmrate);
+	Agc.prepareToPlay(audio_output->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
 	Fft_calc.plan_fft(nfft_samples);
@@ -145,11 +145,15 @@ void AMDemodulator::operator()()
 		{
 			// split the stream in blocks of samples of the size framesize 
 			audioframes.insert(audioframes.end(), col);
-			if (audioframes.size() == (2 * audio_output->get_framesize()))
+			if (audioframes.size() == audio_output->get_framesize())
 			{
 				if ((audio_output->queued_samples() / 2) < 4096)
 				{
-					audio_output->write(audioframes);
+					SampleVector		audio_stereo;
+
+					mono_to_left_right(audioframes, audio_stereo);
+					audio_output->write(audio_stereo);
+					audioframes.clear();
 				}
 				else
 				{
@@ -198,7 +202,6 @@ void AMDemodulator::operator()()
 void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
 {
 	IQSampleVector		filter1, filter2;
-	SampleVector		audio_mono;
 		
 	// mix to correct frequency
 	mix_down(samples_in, filter1);
@@ -214,12 +217,10 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		float v;
 		
 		ampmodem_demodulate(m_demod, (liquid_float_complex)col, &v);
-		audio_mono.push_back(v);
+		audio.push_back(v);
 	}	
 	filter1.clear();
 	filter2.clear();
-	mono_to_left_right(audio_mono, audio);
-	audio_mono.clear();
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)

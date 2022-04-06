@@ -1,4 +1,5 @@
 #!/bin/bash
+# this install version updates pulseaudio to latest version to support bluetooth headset
 #if false; then
 sudo apt update
 sudo apt install build-essential git cmake swig -y
@@ -6,16 +7,31 @@ sudo apt-get -y install git
 sudo apt-get install -y\
     cmake g++ \
     libpython-dev python-numpy swig
-git clone https://github.com/pothosware/SoapySDR.git
-cd SoapySDR
-git pull origin master
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
-sudo ldconfig
-cd ~
+#sudo apt install python3 idle3
+#sudo apt-get install python3-pip
+#sudo pip3 install meson
+#sudo apt install -y ninja-build
+#sudo apt install -y cmake
+#sudo apt-get build-dep pulseaudio && sudo apt-get install checkinstall git libpulse-dev
+#sudo apt install -y pulseaudio-utils
+#sudo apt-get install doxygen
+#git clone https://gitlab.freedesktop.org/pulseaudio/pulseaudio.git
+#cd pulseaudio
+#meson build
+#ninja -C build
+#sudo ninja -C build install
+#sudo ldconfig
+#cd ~
+#git clone https://github.com/pothosware/SoapySDR.git
+#cd SoapySDR
+#git pull origin master
+#mkdir build
+#cd build
+#cmake ..
+#make -j4
+#sudo make install
+#sudo ldconfig
+#cd ~
 sudo apt-get install -y fftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
@@ -57,7 +73,6 @@ make -j4
 sudo make install
 sudo ldconfig 
 cd~
-sudo apt-get remove -y pulseaudio
 sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
 git clone https://github.com/analogdevicesinc/libad9361-iio
 sudo apt-get install -y doxygen
@@ -89,45 +104,6 @@ make
 sudo make install
 sudo ldconfig
 cd ~
-#-----------------------------------------------------------------------------
-echo "Installing Radioberry driver..."
-#git clone  --depth=1 https://github.com/pa3gsb/Radioberry-2.x
-
-sudo apt-get -y install raspberrypi-kernel-headers
-sudo apt-get -y install linux-headers-rpi
-sudo apt-get -y install device-tree-compiler
-sudo apt-get -y install pigpio
-
-#unregister radioberry driver
-sudo modprobe -r radioberry
-	
-if [ ! -d "/lib/modules/$(uname -r)/kernel/drivers/sdr" ]; then
-	sudo mkdir /lib/modules/$(uname -r)/kernel/drivers/sdr
-fi
-
-#cd Radioberry-2.x/SBC/rpi-4/device_driver/driver
-cd SoapyRadioberry/driver
-make
-
-sudo cp radioberry.ko /lib/modules/$(uname -r)/kernel/drivers/sdr
-sudo dtc -@ -I dts -O dtb -o radioberry.dtbo radioberry.dts
-sudo cp radioberry.dtbo /boot/overlays
-#add driver to config.txt
-sudo grep -Fxq "dtoverlay=radioberry" /boot/config.txt || sudo sed -i '$ a dtoverlay=radioberry' /boot/config.txt
-sudo cp ./radioberry.rbf /lib/firmware/.
-cd ~
-
-sudo depmod	
-#register radioberry driver
-sudo modprobe radioberry
-sudo chmod 666 /dev/radioberry
-#show radioberry driver info.
-sudo modinfo radioberry
-
-echo ""
-echo "Radioberry driver installed."
-
-#-----------------------------------------------------------------------------
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry

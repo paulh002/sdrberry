@@ -10,7 +10,7 @@
 class AudioInput : public RtAudio
 {
 public:
-  AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer);
+  AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
   bool open(std::string device);
   void adjust_gain(SampleVector &samples);
   bool read(SampleVector &samples);
@@ -30,9 +30,12 @@ public:
   int get_tone() { return tune_tone; }
   operator bool() const { return m_error.empty();}
   void clear() { databuffer->clear();}
+  std::vector<RtAudio::Api> listApis();
+  
 
 private:
 	RtAudio::StreamParameters	parameters;
+	RtAudio::DeviceInfo			info;
 	unsigned int				sampleRate;
 	unsigned int				bufferFrames;
 	double						m_volume;

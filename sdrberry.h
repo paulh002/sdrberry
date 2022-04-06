@@ -68,10 +68,8 @@ extern std::mutex   rxstream_mutex;
 
 extern mutex gui_mutex;
 
-//double	freq = 89950000;
 extern double   ifrate;
 extern double   ifrate_tx;
-extern int      pcmrate;
 extern  SdrDeviceVector	    SdrDevices;
 extern std::string			default_radio;
 extern int					default_rx_channel;

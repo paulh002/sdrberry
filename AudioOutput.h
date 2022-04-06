@@ -8,7 +8,7 @@ class AudioOutput :
     public RtAudio
 {
 public:
-  AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer);
+  AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
   bool open(std::string device);
   bool write(SampleVector &samples);
   void adjust_gain(SampleVector &samples);
@@ -23,6 +23,8 @@ public:
   void inc_underrun() { underrun++; }
   void clear_underrun() { underrun = 0; }
   int  get_underrun() { return underrun.load(); }
+  int get_channels() { return info.outputChannels; }
+  unsigned int get_samplerate() { return m_sampleRate; }
 
 protected:
 	void samplesToInt16(const SampleVector& samples,
@@ -30,6 +32,7 @@ protected:
 
 private:
 	RtAudio::StreamParameters	parameters;
+	RtAudio::DeviceInfo			info;
 	DataBuffer<Sample>			*databuffer;
 	unsigned int				m_sampleRate;
 	unsigned int				bufferFrames;  // 256 sample frames

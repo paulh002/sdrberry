@@ -154,7 +154,12 @@ void Demodulator::mono_to_left_right(const SampleVector& samples_mono,
 {
 	unsigned int n = samples_mono.size();
 
-	audio.resize(2*n);
+	if (audio_output->get_channels() < 2)
+	{
+		audio = samples_mono;
+		return;
+	}
+	audio.resize(2 * n);
 	for (unsigned int i = 0; i < n; i++) {
 		Sample m = samples_mono[i];
 		audio[2*i]   = m;

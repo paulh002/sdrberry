@@ -161,3 +161,27 @@ alsamixer
 
 [Audio]
 device = "USB Audio Device"
+
+I manage to remove boot messages by modifying /boot/cmdline.txt, adding
+fbcon=map:2
+
+Easier Splash Screen (not as fast but continuous) based on this link:
+
+make two files in /etc/systemd/system/ called splashscreen0.service and splashscreen1.service with the same contents, except the line starting with ExecStart change fb# to fb0 and fb1 respectivley.
+
+[Unit]
+Description=Splash screen
+DefaultDependencies=no
+After=local-fs.target
+
+[Service]
+ExecStart=/usr/bin/fbi -d /dev/fb# --noverbose -a /opt/splash.png
+StandardInput=tty
+StandardOutput=tty
+
+[Install]
+WantedBy=sysinit.target
+
+This will display the image on BOTH fb0 and fb1, so that when the switch happens it will not show (I see a barely visible flicker when it happens).
+
+Once this is done run systemctl enable splashscreen0 and systemctl enable splashscreen1 as root, and restart. The image will now stay on the TFT screen permanently, except when an app is run. :)

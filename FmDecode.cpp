@@ -357,7 +357,7 @@ void FmDecoder::process(const IQSampleVector& samples_in,
     m_dcblock_mono.process_inplace(m_buf_mono);
     m_deemph_mono.process_inplace(m_buf_mono);
 
-    if (m_stereo_enabled) {
+	if (m_stereo_enabled && audio_output->get_channels() > 1) {
 
         // Lock on stereo pilot.
         m_pilotpll.process(m_buf_baseband, m_buf_rawstereo);

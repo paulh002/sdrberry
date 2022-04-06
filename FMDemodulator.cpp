@@ -49,9 +49,13 @@ void FMDemodulator::operator()()
 		{
 			// split the stream in blocks of samples of the size framesize
 			audioframes.insert(audioframes.end(), col);
-			if (audioframes.size() == (2 * audio_output->get_framesize()))
+			if (audioframes.size() == audio_output->get_framesize())
 			{
-				audio_output->write(audioframes);
+				SampleVector audio_stereo;
+
+				mono_to_left_right(audioframes, audio_stereo);
+				audio_output->write(audio_stereo);
+				audioframes.clear();
 			}
 		}
 		iqsamples.clear();
@@ -69,7 +73,6 @@ void FMDemodulator::operator()()
 void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
 {
 	IQSampleVector		filter1, filter2;
-	SampleVector		audio_mono;
 		
 	// mix to correct frequency
 	mix_down(samples_in, filter1);
@@ -83,11 +86,9 @@ void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		float v;
 		
 		freqdem_demodulate(demodFM, col, &v);
-		audio_mono.push_back(v);
+		audio.push_back(v);
 	}	
 	filter1.clear();
-	mono_to_left_right(audio_mono, audio);
-	audio_mono.clear();
 }
 
 FMDemodulator::~FMDemodulator()

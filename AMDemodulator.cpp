@@ -183,7 +183,7 @@ void AMDemodulator::operator()()
 				Demodulator::set_resample_rate(sample_ratio);
 				rcount = 0;
 			}
-			if (rcount > 5 && audio_output->get_underrun() > 0)
+			if (rcount > 5 && audio_output->get_underrun() > 0 && dropped_frames == 0)
 			{
 				sample_ratio = 1.01 * sample_ratio;
 				Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate

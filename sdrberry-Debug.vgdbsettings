@@ -17,10 +17,15 @@
     </CustomSourceDirectories>
     <AutoProgramSPIFFSPartition>true</AutoProgramSPIFFSPartition>
     <BuildHost>
-      <HostName>192.168.88.30</HostName>
+      <HostName>192.168.88.41</HostName>
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </BuildHost>
+    <DeploymentHost>
+      <HostName>192.168.88.30</HostName>
+      <Transport>SSH</Transport>
+      <UserName>pi</UserName>
+    </DeploymentHost>
     <MainSourceTransferCommand>
       <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
       <RemoteHost>

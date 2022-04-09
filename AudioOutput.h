@@ -1,8 +1,9 @@
 #pragma once
-#include <string>
 #include "RtAudio.h"
 #include "Audiodefs.h"
 #include "DataBuffer.h"
+#include <map>
+#include <string>
 
 class AudioOutput :
     public RtAudio
@@ -25,6 +26,9 @@ public:
   int  get_underrun() { return underrun.load(); }
   int get_channels() { return info.outputChannels; }
   unsigned int get_samplerate() { return m_sampleRate; }
+  unsigned int getDevices();
+  bool open(unsigned int device);
+  unsigned int get_device() { return device_open;}
 
 protected:
 	void samplesToInt16(const SampleVector& samples,
@@ -39,6 +43,8 @@ private:
 	double						m_volume;
 	string						m_error;
 	atomic<int>					underrun;
+	map<int, std::string> device_map;
+	unsigned int device_open;
 };
 
 extern  AudioOutput *audio_output;

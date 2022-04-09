@@ -59,7 +59,7 @@ double				freq = 89800000;
 
 mutex			fm_finish;
 Mouse			Mouse_dev;
-HidDev			HidDev_dev;
+HidDev			HidDev_dev, HidDev_dev1;
 Catinterface	catinterface;
 BandFilter		bpf;
 
@@ -111,7 +111,8 @@ int main(int argc, char *argv[])
 
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
-	HidDev_dev.init("");
+	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
+	HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
@@ -138,7 +139,7 @@ int main(int argc, char *argv[])
 	{
 		fprintf(stderr, "ERROR: AudioInput\n");
 	}
-	audio_input->open(s);
+	audio_input->open(audio_output->get_device());
 	bpf.initFilter();
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
@@ -351,6 +352,7 @@ int main(int argc, char *argv[])
 		lv_task_handler();
 		Mouse_dev.step_vfo();
 		HidDev_dev.step_vfo();
+		HidDev_dev1.step_vfo();
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastStatus + std::chrono::milliseconds(100) < now)
 		{

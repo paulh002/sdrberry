@@ -17,7 +17,7 @@ public:
   void close();
   ~AudioInput();
   double get_volume() { return m_volume; }
-  void set_volume(double vol) { m_volume = vol; }
+  void set_volume(int vol);
   void ToneBuffer();
   DataBuffer<Sample> *get_databuffer() { return databuffer; };
   bool get_stereo() { return m_stereo; };
@@ -31,7 +31,7 @@ public:
   operator bool() const { return m_error.empty();}
   void clear() { databuffer->clear();}
   std::vector<RtAudio::Api> listApis();
-  
+  bool open(unsigned int device);
 
 private:
 	RtAudio::StreamParameters	parameters;

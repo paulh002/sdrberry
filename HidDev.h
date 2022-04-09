@@ -1,5 +1,6 @@
 #pragma once
 #include <linux/input.h>
+#include <linux/hiddev.h>
 #include <cstdio>
 #include <string.h>
 #include <time.h>
@@ -26,6 +27,7 @@ class HidDev
 	char HidDevName[80];
 	bool bstep;
 	input_event in_event;
+	hiddev_event hid_event;
 	int step;
 	int value;
 	int last_val{0};
@@ -40,5 +42,6 @@ class HidDev
 	bool read_event();
 	string HidName;
 	bool txstate{false};
+	bool usb_hid;
 };
 

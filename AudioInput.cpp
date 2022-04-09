@@ -100,8 +100,6 @@ bool AudioInput::open(std::string device)
 {
 	RtAudioErrorType err;
 
-	std::cout << "\nRtAudio Version " << RtAudio::getVersion() << std::endl;
-	listApis();
 	if (this->getDeviceCount() < 1)
 	{
 		std::cout << "\nNo audio devices found!\n";
@@ -123,6 +121,33 @@ bool AudioInput::open(std::string device)
 	return true;	
 }
 
+bool AudioInput::open(unsigned int device)
+{
+	RtAudioErrorType err;
+
+	parameters.deviceId = device;
+	info = getDeviceInfo(device);
+	if (info.inputChannels < parameters.nChannels)
+		parameters.nChannels = info.inputChannels;
+	if (info.preferredSampleRate)
+		sampleRate = info.preferredSampleRate;
+	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
+	if (err != RTAUDIO_NO_ERROR)
+	{
+		printf("Cannot open audio input stream\n");
+		return false;
+	}
+	this->startStream();
+	return true;
+}
+
+void AudioInput::set_volume(int vol)
+{
+	// log volume
+	m_volume = exp(((double)vol * 6.908) / 100.0) /10.0;
+	printf("mic vol %f\n", (float)m_volume);
+}
+
 void AudioInput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
@@ -138,6 +163,7 @@ bool AudioInput::read(SampleVector& samples)
 	samples = databuffer->pull();
 	if (samples.empty())
 		return false;
+	adjust_gain(samples);
 	return true;
 }
 

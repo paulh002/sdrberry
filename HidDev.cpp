@@ -1,6 +1,28 @@
 #include "HidDev.h"
 #include "gui_setup.h"
 
+
+/* Jabra Vendor Id */
+#define JABRA_VID ((__u16)0x0B0E)
+#define TelephonyUsagePage ((__u16)0x000B)
+#define ConsumerUsagePage ((__u16)0x000C)
+#define LEDUsagePage ((__u16)0x0008)
+#define ButtonUsagePage ((__u16)0x0009)
+
+/* HID Usage Id definitions:  Telephony usage page (0x0B) */
+#define Tel_Hook_Switch ((__u16)0x0020)
+#define Tel_Flash ((__u16)0x0021)
+#define Tel_Feature ((__u16)0x0022)
+#define Tel_Hold ((__u16)0x0023)
+#define Tel_Redial ((__u16)0x0024)
+#define Tel_Transfer ((__u16)0x0025)
+#define Tel_Drop ((__u16)0x0026)
+#define Tel_Park ((__u16)0x0027)
+#define Tel_Forward ((__u16)0x0028)
+#define Tel_Alternate ((__u16)0x0029)
+#define Tel_Line ((__u16)0x002A)
+#define Tel_Speaker ((__u16)0x002B)
+
 extern void strupr(char *str);
 extern HidDev HidDev_dev;
 
@@ -14,6 +36,7 @@ HidDev::HidDev()
 	speed = 0;
 	value = 0;
 	last_time = std::chrono::high_resolution_clock::now();
+	usb_hid = false;
 }
 
 HidDev::~HidDev()
@@ -27,16 +50,21 @@ HidDev::~HidDev()
 void HidDev::init(string mouse_name)
 {
 	// first find a mouse
-	if (HidName.size() == 0)
-		HidName = "CONTOUR DESIGN SHUTTLEXPRESS";
+	if (mouse_name == "GN Audio A/S Jabra Evolve2 30 Consumer Control")
+	{
+		usb_hid = true;
+		HidName = mouse_name;
+	}
 	transform(HidName.begin(), HidName.end(), HidName.begin(), ::toupper);
-
 	numIndex = 0;
 	do
 	{
-		sprintf(HidDevName, "/dev/input/event%d", numIndex);
+		if (usb_hid)
+			sprintf(HidDevName, "/dev/usb/hiddev%d", numIndex);
+		else
+			sprintf(HidDevName, "/dev/input/event%d", numIndex);
 		m_fd = open(HidDevName, O_RDONLY | O_NONBLOCK);
-		if (m_fd > 0)
+		if (m_fd > 0 && !usb_hid)
 		{
 			char name[256] = "Unknown";
 			ioctl(m_fd, EVIOCGNAME(sizeof(name)), name);
@@ -46,26 +74,47 @@ void HidDev::init(string mouse_name)
 			if (ptr == NULL)
 			{
 				close(m_fd);
-				numIndex++;
 				m_fd = -1;
 			}
 		}
-		else
-			numIndex++;
+		if (m_fd > 0 && usb_hid)
+		{
+			struct hiddev_devinfo devinfo;
+
+			ioctl(m_fd, HIDIOCGDEVINFO, &devinfo);
+			if (devinfo.vendor != JABRA_VID)
+			{
+				close(m_fd);
+				m_fd = -1;
+			}	
+		}
+	if (m_fd == -1)
+		numIndex++;
 	} while (numIndex < 10 && m_fd == -1);
 }
 
 bool HidDev::read_event()
 {
 	int bytes;
-	if (m_fd > 0)
+	if (m_fd > 0 && !usb_hid)
 	{
 		bytes = read(m_fd, (void *)&in_event, sizeof(struct input_event));
 		if (bytes == -1)
 			return false;
-		if (bytes == sizeof(struct input_event))
+		if (bytes == sizeof(struct input_event) )
 		{
-			//printf("CONTOUR DESIGN type %d code %d, value %d\n", in_event.type, in_event.code, in_event.value);
+			printf("%s type %d code %d, value %d\n", HidName.c_str(),in_event.type, in_event.code, in_event.value);
+			return true;
+		}
+	}
+	if (m_fd > 0 && usb_hid)
+	{
+		bytes = read(m_fd, (void *)&hid_event, sizeof(struct hiddev_event));
+		if (bytes == -1)
+			return false;
+		if (bytes == sizeof(struct hiddev_event))
+		{
+			printf("%s hid %d, value %d\n", HidName.c_str(), hid_event.hid, hid_event.value);
 			return true;
 		}
 	}
@@ -80,6 +129,32 @@ void HidDev::step_vfo()
 
 	bool bevent = read_event();
 	// Check for key press
+
+	if (bevent && usb_hid)
+	{
+		unsigned int a = hid_event.hid >> 16;
+		unsigned int b = hid_event.hid & 0xFFFF;
+
+		if (a == TelephonyUsagePage && hid_event.value == 1 && b == Tel_Hook_Switch)
+		{	
+		if (SdrDevices.get_tx_channels(default_radio))
+			{
+				if (!txstate)
+				{
+					txstate = true;
+					select_mode_tx(mode);
+				}
+				else
+				{
+					txstate = false;
+					select_mode(mode);
+				}
+				gbar.set_tx(txstate);
+			}
+		}
+		return;
+	}
+
 	if (bevent && in_event.type == EV_KEY)
 	{
 		switch (in_event.code)

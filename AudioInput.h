@@ -10,7 +10,7 @@
 class AudioInput : public RtAudio
 {
 public:
-  AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
+  AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
   bool open(std::string device);
   void adjust_gain(SampleVector &samples);
   bool read(SampleVector &samples);
@@ -21,8 +21,6 @@ public:
   void ToneBuffer();
   DataBuffer<Sample> *get_databuffer() { return databuffer; };
   bool get_stereo() { return m_stereo; };
-  float get_rms_level();
-  void set_level(float f);
   int queued_samples();
   int getDevices(std::string device);
   void listDevices(std::vector<std::string> &devices);
@@ -45,7 +43,6 @@ private:
 	bool						m_stereo;
 	double						Nexttone();
 	double						NextTwotone();
-	float						m_level;
 	int							tune_tone;
 };
 

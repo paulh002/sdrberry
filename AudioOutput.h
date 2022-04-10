@@ -27,7 +27,6 @@ public:
   int get_channels() { return info.outputChannels; }
   unsigned int get_samplerate() { return m_sampleRate; }
   unsigned int getDevices();
-  bool open(unsigned int device);
   unsigned int get_device() { return device_open;}
 
 protected:

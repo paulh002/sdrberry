@@ -129,6 +129,20 @@ void Demodulator::calc_if_level(const IQSampleVector& samples_in)
 	m_if_level = accuf;
 }
 
+void Demodulator::calc_af_level(const SampleVector &samples_in)
+{
+	float y2 = 0.0;
+	for (auto &con : samples_in)
+	{
+		y2 += con * con;
+	}
+	// smooth energy estimate using single-pole low-pass filter
+	y2 = y2 / samples_in.size();
+	accuf = (1.0 - alpha) * accuf + alpha * y2;
+	m_af_level = accuf;
+	//printf("af %f\n", m_af_level);
+}
+
 void Demodulator::tune_offset(long offset)
 {
 	if (m_upnco != nullptr)

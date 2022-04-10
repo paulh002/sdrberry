@@ -32,6 +32,7 @@ protected:
 	void			mix_up(const IQSampleVector& filter_in, IQSampleVector& filter_out);
 	void			calc_if_level(const IQSampleVector& samples_in);
 	double			get_if_level() 	{return m_if_level;}
+	double			get_af_level() { return m_af_level; }
 	void			set_fft_mixer(float offset);
 	void			set_filter(float samplerate, float band_width);
 	void			fft_mix(int dir, const IQSampleVector& filter_in, IQSampleVector& filter_out);
@@ -39,7 +40,8 @@ protected:
 	void			fft_resample(const IQSampleVector& filter_in, IQSampleVector& filter_out);
 	void			set_span(int span);
 	void			perform_fft(const IQSampleVector& iqsamples);
-	
+	void			calc_af_level(const SampleVector &samples_in);
+
 	double                      m_audio_mean, m_audio_rms, m_audio_level;
 	DataBuffer<IQSample>		*m_source_buffer {nullptr};
 	AudioOutput					*m_audio_output {nullptr};
@@ -49,6 +51,7 @@ protected:
 	DataBuffer<IQSample16>		*m_transmit_buffer {nullptr};
 	AudioInput					*m_audio_input {nullptr};
 	double						m_if_level {0};
+	double						m_af_level {0};
 	int							m_span {0};
 	
 private:

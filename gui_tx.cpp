@@ -145,9 +145,9 @@ void gui_tx::set_group()
 static void mic_slider_event_cb(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
-	char buf[20];
+	char buf[30];
 	
-	sprintf(buf, "gain %d db", lv_slider_get_value(slider));
+	sprintf(buf, "mic gain %d db", lv_slider_get_value(slider));
 	lv_label_set_text(Gui_tx.get_mic_label(), buf);
 	lv_obj_align_to(Gui_tx.get_mic_label(), slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	if (audio_input != nullptr)
@@ -174,7 +174,7 @@ void gui_tx::set_mic_slider(int volume)
 	lv_label_set_text(mic_slider_label, buf);
 	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	if (audio_input != nullptr)
-		audio_input->set_volume(volume / 100.0);
+		audio_input->set_volume(volume);
 }
 
 static void tx_button_handler(lv_event_t * e)

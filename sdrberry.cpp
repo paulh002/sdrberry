@@ -140,6 +140,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "ERROR: AudioInput\n");
 	}
 	audio_input->open(audio_output->get_device());
+	audio_input->set_volume(Settings_file.micgain());
 	bpf.initFilter();
 	
 	std::string smode = Settings_file.find_vfo1("Mode");

@@ -1,4 +1,11 @@
 #include "sdrberry.h"
+/*
+ * Audioout fills the audio output buffer.
+ * If there are no samples available (underrun) mutted sound is send
+ * Sound data is pulled from databuffer and copied to rtaudio buffer
+ * A underrun counter is increased for adjusting samplerate of the radio
+ **/
+
 
 int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
 {
@@ -26,19 +33,28 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		Sample v = col;
 		((double *)buffer)[i++] = v;
 	}
-	samples.clear();
-	samples.resize(0);
 	return 0;
 }
+
+/*
+* List alsa audio devices but skip the Monitor ones 
+*
+**/
 
 void AudioOutput::listDevices(std::vector<std::string> &devices)
 {
 	for (auto const &dev : device_map)
 	{
-		if (dev.second.size() > 0)
+		if (dev.second.size() > 0 && dev.second.find("Monitor") == std::string::npos)
 			devices.push_back(dev.second);
 	}
-} // && !dev.second.find("Monitor")
+}
+
+/*
+* Search for device number based on device name
+* Issue -> very slow when user is not allowed to open device
+* 
+*/
 
 int AudioOutput::getDevices(std::string device)
 {
@@ -80,6 +96,13 @@ AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer, RtAudio::
 	device_open = 0;
 }
 
+/*
+ * Open sound device based on name
+ * if name is default open default device
+ * GetDevics() fills the map with device names and ID's
+ * Use samplerate which is optimized for device 
+ **/
+
 bool AudioOutput::open(std::string device)
 {
 	RtAudioErrorType err;
@@ -88,14 +111,18 @@ bool AudioOutput::open(std::string device)
 
 	parameters.deviceId = 0;
 	getDevices();
-	for (auto const &it : device_map)
+	if (device == "default")
+		device_open = this->getDefaultInputDevice();
+	else
 	{
-		if (it.second.find(device) != std::string::npos)
+		for (auto const &it : device_map)
 		{
-			device_open = it.first;
+			if (it.second.find(device) != std::string::npos)
+			{
+				device_open = it.first;
+			}
 		}
 	}
-	
 	info = getDeviceInfo(device_open);
 	if (info.preferredSampleRate)
 		m_sampleRate = info.preferredSampleRate;
@@ -111,28 +138,9 @@ bool AudioOutput::open(std::string device)
 	return true;	
 }
 
-bool AudioOutput::open(unsigned int device)
-{
-	RtAudioErrorType err;
-	StreamOptions option{{0}, {0}, {0}, {0}};
-	option.flags = RTAUDIO_MINIMIZE_LATENCY;
-
-	device_open = device;
-	info = getDeviceInfo(device_open);
-	if (info.preferredSampleRate)
-		m_sampleRate = info.preferredSampleRate;
-	printf("audio device = %d %s samplerate %d\n", parameters.deviceId, info.name.c_str(), m_sampleRate);
-	parameters.deviceId = device_open;
-	err = this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, &option);
-	if (err != RTAUDIO_NO_ERROR)
-	{
-		printf("Cannot open audio output stream\n");
-		return false;
-	}
-	this->startStream();
-	return true;
-}
-
+/*
+ * Set volume of output use log scale
+ **/
 void AudioOutput::set_volume(int vol) 
 {
 	// log volume
@@ -161,6 +169,10 @@ AudioOutput::~AudioOutput()
 	close();
 }
 
+/*
+ * Write data to audio buffer
+ **/
+
 bool AudioOutput::write(SampleVector& audiosamples)
 {
 	if (databuffer && isStreamOpen())
@@ -176,6 +188,12 @@ int	 AudioOutput::queued_samples()
 		return databuffer->queued_samples();
 	return 0;
 }
+
+/*
+ * Code is copied from RTAUDIO to return a list of devices and their ID
+ * The ID is card number + 1 
+ *
+ **/
 
 unsigned int AudioOutput::getDevices()
 {

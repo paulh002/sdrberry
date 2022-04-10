@@ -109,8 +109,8 @@ void AMModulator::operator()()
 			//usleep(1000); // wait 1024 audio sample time
 			continue;
 		}
-		
-		Fft_calc.set_signal_strength(m_audio_input->get_rms_level());
+		calc_af_level(audiosamples);
+		Fft_calc.set_signal_strength(get_af_level());
 		process(dummy, audiosamples);
 		audiosamples.clear();
 		

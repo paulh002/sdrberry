@@ -16,16 +16,13 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	// Do something with the data in the "inputBuffer" buffer.
 	//printf("frames %u \n", nBufferFrames);
 	SampleVector	buf;
-	Sample			l = 0.0;
 	for (int i = 0; i < nBufferFrames; i++)
 	{
 		Sample f = ((double *)inputBuffer)[i];
 		buf.push_back(f);
 		if (audioinput->get_stereo())
 			buf.push_back(f);
-		l += f*f;
 	}
-	audioinput->set_level(l);
 	databuffer->clear();
 	databuffer->push(move(buf));
 	return 0;
@@ -72,8 +69,8 @@ int AudioInput::getDevices(std::string device)
 	return 0; // return default device
 }
 
-AudioInput::AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
-	: RtAudio(api), parameters{}, m_volume{0.5}, asteps{}, m_level{}, tune_tone{0}
+AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+	: RtAudio(api), parameters{}, m_volume{0.5}, asteps{}, tune_tone{0}
 {
 	m_stereo = stereo;
 	databuffer = AudioBuffer; 
@@ -212,24 +209,12 @@ void AudioInput::ToneBuffer()
 	databuffer->push(move(buf));
 }
 
-
-
 double AudioInput::NextTwotone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	double angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 48000) asteps = 0;
 	return (sin(angle) + sin(angle)) /2.0;
-}
-
-float  AudioInput::get_rms_level()
-{
-	return m_level / (float)bufferFrames;
-}
-
-void AudioInput::set_level(float f)
-{
-	m_level = f;
 }
 
 int	 AudioInput::queued_samples()

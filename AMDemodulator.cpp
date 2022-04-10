@@ -127,8 +127,8 @@ void AMDemodulator::operator()()
 		}
 		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());
 		process(iqsamples, audiosamples);
+		Fft_calc.set_signal_strength(get_if_level());
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
 		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
 		if (gagc.get_agc_mode())

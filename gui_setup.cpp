@@ -154,7 +154,6 @@ static void audio_button_handler(lv_event_t * e)
 		audio_output->close();
 		audio_output->open(std::string(buf));
 		audio_input->close();
-		//audio_input->open(std::string(buf));
 		audio_input->open(audio_output->get_device());
 		select_mode(mode, false);
 	}

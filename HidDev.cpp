@@ -90,7 +90,7 @@ void HidDev::init(string mouse_name)
 		}
 	if (m_fd == -1)
 		numIndex++;
-	} while (numIndex < 10 && m_fd == -1);
+	} while (numIndex < 30 && m_fd == -1);
 }
 
 bool HidDev::read_event()

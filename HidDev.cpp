@@ -50,11 +50,9 @@ HidDev::~HidDev()
 void HidDev::init(string mouse_name)
 {
 	// first find a mouse
+	HidName = mouse_name;
 	if (mouse_name == "GN Audio A/S Jabra Evolve2 30 Consumer Control")
-	{
 		usb_hid = true;
-		HidName = mouse_name;
-	}
 	transform(HidName.begin(), HidName.end(), HidName.begin(), ::toupper);
 	numIndex = 0;
 	do

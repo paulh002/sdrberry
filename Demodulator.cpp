@@ -1,6 +1,12 @@
 #include "Demodulator.h"
 #include "sdrberry.h"
+/*
+ *
+ ** Basic class for processing radio data for bith RX and TX
+ **
+ **/
 
+// Transmit mode contructor
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
 {	//  Transmit constructor
 	m_ifrate = ifrate;
@@ -12,6 +18,7 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *sou
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 }
 
+// Receive mode contructor
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {	//  Receive constructor
 	m_ifrate = ifrate;
@@ -25,6 +32,8 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	set_span(gsetup.get_span());
 }
 
+// decrease the span of the fft display by downmixing the bandwidth of the receiver
+// Chop the bandwith in parts en display correct part 
 void Demodulator::set_span(int span)
 {
 	if (span < (m_ifrate/2) && span > 0)
@@ -143,6 +152,9 @@ void Demodulator::calc_af_level(const SampleVector &samples_in)
 	//printf("af %f\n", m_af_level);
 }
 
+// The vfo class calculates an offset within the bandwidth of the sdr radio
+// tune offset configure the mixer to mix offset down to baseband
+// use mix_down() to mix down to baseband during receive,mix_up() for transmit to mixup from baseband
 void Demodulator::tune_offset(long offset)
 {
 	if (m_upnco != nullptr)
@@ -163,6 +175,7 @@ void Demodulator::adjust_gain(IQSampleVector& samples_in, float vol)
 	}
 }
 
+// copy mono signal to both sereo channels
 void Demodulator::mono_to_left_right(const SampleVector& samples_mono,
 	SampleVector& audio)
 {
@@ -200,6 +213,7 @@ void Demodulator::Resample(const IQSampleVector& filter_in,
 	}
 }	
 
+// audio filter 500 hz - 4.0 Khz
 void Demodulator::filter(const IQSampleVector& filter_in,
 	IQSampleVector& filter_out)
 {	

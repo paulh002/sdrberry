@@ -63,10 +63,6 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
 	//catinterface.SetSH(m_bandwidth);
-	
-	//agc.set_bandwidth(0.01f);
-	//agc.set_enery_levels(0.1f, 1.0f);
-	//agc.print();
 }
 
 

@@ -8,6 +8,32 @@ extern const int tunerHeight;
 
 gui_ft8 gft8;
 
+static void draw_part_event_cb(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	/*If the cells are drawn...*/
+	if (dsc->part == LV_PART_ITEMS)
+	{
+		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
+		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+
+		/*Make the texts in the first cell center aligned*/
+
+		/*MAke every 2nd row grayish*/
+		if (col == 5)
+		{
+			char *ptr = table->cell_data[((col+1) * (row+1))-1] + 1;
+			if (strstr(ptr, "CQ") != NULL)
+			{
+				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
+				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			}
+		}
+	}
+}
+
 void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
 {
 
@@ -44,6 +70,8 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_set_style_pad_ver(o_tab, 0, LV_PART_MAIN);
 	
 	table = lv_table_create(o_tab);
+	lv_obj_add_event_cb(table, draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+	
 	lv_obj_add_style(table, &ft8_style, 0);
 	//lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
 	lv_obj_set_pos(table, x, y);
@@ -107,3 +135,4 @@ void gui_ft8::clear()
 	
 	bclear = true;
 }
+

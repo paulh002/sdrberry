@@ -64,8 +64,10 @@ Demodulator::~Demodulator()
 	printf("destructor demod called\n");
 	if (m_q)
 		msresamp_crcf_destroy(m_q);
+	m_q = nullptr;
 	if (m_fft_resample)
 		msresamp_crcf_destroy(m_fft_resample);
+	m_fft_resample = nullptr;
 	if (m_upnco != nullptr)
 		nco_crcf_destroy(m_upnco);
 	m_upnco = nullptr;

@@ -110,6 +110,7 @@ bool AudioOutput::open(std::string device)
 	option.flags = RTAUDIO_MINIMIZE_LATENCY;
 
 	parameters.deviceId = 0;
+	parameters.firstChannel = 0;
 	getDevices();
 	if (device == "default")
 		device_open = this->getDefaultInputDevice();
@@ -126,8 +127,9 @@ bool AudioOutput::open(std::string device)
 	info = getDeviceInfo(device_open);
 	if (info.preferredSampleRate)
 		m_sampleRate = info.preferredSampleRate;
-	printf("audio device = %d %s samplerate %d\n", parameters.deviceId, device.c_str(), m_sampleRate);
 	parameters.deviceId = device_open;
+	parameters.nChannels = info.outputChannels;
+	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), m_sampleRate, parameters.nChannels);
 	err = this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, &option);
 	if (err != RTAUDIO_NO_ERROR)
 	{
@@ -220,7 +222,7 @@ unsigned int AudioOutput::getDevices()
 		if (result < 0)
 		{
 			handle = 0;
-			cout << "RtApiAlsa::getDeviceCount: control open, card = " << card << ", " << snd_strerror(result) << "." << endl;
+			cout << "AudioOutput::getDevices: control open, card = " << card << ", " << snd_strerror(result) << "." << endl;
 			goto nextcard;
 		}
 		subdevice = -1;
@@ -240,7 +242,7 @@ unsigned int AudioOutput::getDevices()
 			result = snd_ctl_pcm_next_device(handle, &subdevice);
 			if (result < 0)
 			{
-				cout << "RtApiAlsa::getDeviceCount: control next device, card = " << card << ", " << snd_strerror(result) << "." << endl;
+				cout << "AudioOutput::getDevices: control next device, card = " << card << ", " << snd_strerror(result) << "." << endl;
 				break;
 			}
 			if (subdevice < 0)

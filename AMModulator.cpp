@@ -103,9 +103,9 @@ void AMModulator::operator()()
 			tune_offset(vfo.get_vfo_offset());
 		}
 
-		if (m_audio_input->read(audiosamples) == false)
+		if (!m_audio_input->read(audiosamples))
 		{
-			printf("wait for input\n");
+			//printf("wait for input\n");
 			//usleep(1000); // wait 1024 audio sample time
 			continue;
 		}

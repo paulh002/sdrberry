@@ -114,7 +114,7 @@ bool AudioInput::open(std::string device)
 		return false;
 	}
 	this->startStream();
-
+	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, device.c_str(), sampleRate);
 	return true;	
 }
 
@@ -124,8 +124,7 @@ bool AudioInput::open(unsigned int device)
 
 	parameters.deviceId = device;
 	info = getDeviceInfo(device);
-	if (info.inputChannels < parameters.nChannels)
-		parameters.nChannels = info.inputChannels;
+	parameters.nChannels = info.inputChannels;
 	if (info.preferredSampleRate)
 		sampleRate = info.preferredSampleRate;
 	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
@@ -135,6 +134,7 @@ bool AudioInput::open(unsigned int device)
 		return false;
 	}
 	this->startStream();
+	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, info.name.c_str(), sampleRate);
 	return true;
 }
 
@@ -156,6 +156,8 @@ void AudioInput::adjust_gain(SampleVector& samples)
 bool AudioInput::read(SampleVector& samples)
 {
 	if (databuffer == nullptr)
+		return false;
+	if (!isStreamOpen())
 		return false;
 	samples = databuffer->pull();
 	if (samples.empty())

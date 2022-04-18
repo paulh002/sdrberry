@@ -130,6 +130,7 @@ static void bar_button_handler(lv_event_t * e)
 					// Noise
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 					{
+						select_mode(mode_echo, true);
 					}
 					else
 					{

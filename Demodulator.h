@@ -20,6 +20,7 @@ protected:
 	~Demodulator();
 	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
+	Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input);
 	void			mono_to_left_right(const SampleVector& samples_mono, SampleVector& audio);
 	void			adjust_gain(IQSampleVector& samples_in, float vol);
 	void			tune_offset(long offset);
@@ -41,6 +42,8 @@ protected:
 	void			set_span(int span);
 	void			perform_fft(const IQSampleVector& iqsamples);
 	void			calc_af_level(const SampleVector &samples_in);
+	void			set_bandpass_filter(float high, float mid_high, float mid_low, float low);
+	void			exec_bandpass_filter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 
 	double                      m_audio_mean, m_audio_rms, m_audio_level;
 	DataBuffer<IQSample>		*m_source_buffer {nullptr};
@@ -66,4 +69,18 @@ private:
 	int							m_order {6};
 	float						alpha {0.1};
 	float						accuf {0};
-};
+
+	iirfilt_crcf q_bandpass{nullptr};
+	iirfilt_crcf q_lowpass{nullptr};
+	iirfilt_crcf q_highpass{nullptr};
+
+	const liquid_iirdes_filtertype ftype{LIQUID_IIRDES_BUTTER};
+	const liquid_iirdes_bandtype btype{LIQUID_IIRDES_BANDPASS};
+	const liquid_iirdes_format format{LIQUID_IIRDES_SOS};
+
+	unsigned int order;	// filter order
+	float fc, fcl, fch;	// cutoff frequency
+	float f0, f0l, f0h;	// center frequency
+	float Ap;	// pass-band ripple
+	float As;	// stop-band attenuation
+	};

@@ -91,6 +91,7 @@
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
     <ClCompile Include="Demodulator.cpp" />
+    <ClCompile Include="EchoAudio.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
@@ -112,6 +113,7 @@
     <ClCompile Include="gui_bar.cpp" />
     <ClCompile Include="gui_ft8.cpp" />
     <ClCompile Include="gui_setup.cpp" />
+    <ClCompile Include="gui_speech.cpp" />
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
@@ -321,6 +323,7 @@
     <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="Demodulator.h" />
+    <ClInclude Include="EchoAudio.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
@@ -338,6 +341,7 @@
     <ClInclude Include="gui_bar.h" />
     <ClInclude Include="gui_ft8.h" />
     <ClInclude Include="gui_setup.h" />
+    <ClInclude Include="gui_speech.h" />
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />

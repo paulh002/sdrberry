@@ -1,5 +1,7 @@
 #include "AudioInput.h"
 
+#define dB2mag(x) pow(10.0, (x) / 20.0)
+
 int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
 {
 	AudioInput					*audioinput = (AudioInput *)userData ;
@@ -78,6 +80,7 @@ AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *Au
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
 	bufferFrames = 512;
+	gaindb = 0;
 }
 
 std::vector<RtAudio::Api> AudioInput::listApis()
@@ -148,7 +151,7 @@ void AudioInput::set_volume(int vol)
 void AudioInput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
-		samples[i] *= m_volume;
+		samples[i] *= m_volume * dB2mag(gaindb);
 	}
 }
 

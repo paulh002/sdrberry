@@ -1,10 +1,26 @@
 #include "Demodulator.h"
 #include "sdrberry.h"
+#include "gui_speech.h"
+
+#define dB2mag(x) pow(10.0, (x) / 20.0)
+
 /*
  *
  ** Basic class for processing radio data for bith RX and TX
  **
  **/
+
+Demodulator::Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input)
+{ //  echo constructor
+	m_ifrate = 0;
+	m_pcmrate = pcmrate;
+	m_transmit_buffer = nullptr;
+	m_audio_input = audio_input;
+	m_audio_output = audio_output;
+	
+	// resampler and band filter assume pcmfrequency on the low side
+	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
+}
 
 // Transmit mode contructor
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
@@ -77,6 +93,17 @@ Demodulator::~Demodulator()
 	if (m_fftmix)
 		nco_crcf_destroy(m_fftmix);
 	m_fftmix = nullptr;
+	
+	if (q_bandpass)
+		iirfilt_crcf_destroy(q_bandpass);
+	if (q_lowpass)
+		iirfilt_crcf_destroy(q_lowpass);
+	if (q_highpass)
+		iirfilt_crcf_destroy(q_highpass);
+	q_bandpass = nullptr;
+	q_lowpass = nullptr;
+	q_highpass = nullptr;
+	
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime demodulator:" << timePassed.count() << endl;
@@ -332,5 +359,50 @@ void Demodulator::perform_fft(const IQSampleVector& iqsamples)
 	else
 	{
 		Fft_calc.process_samples(iqsamples);
+	}
+}
+
+void Demodulator::set_bandpass_filter(float high, float mid_high, float mid_low, float low)
+{
+	float fc = mid_low / (float)m_pcmrate;  // cutoff frequency
+	float f0 = mid_high / (float)m_pcmrate; // center frequency
+	Ap = 1.0f;						// pass-band ripple
+	As = 40.0f;						// stop-band attenuation
+	order = 4;
+	
+	if (q_bandpass)
+		iirfilt_crcf_destroy(q_bandpass);
+	if (q_lowpass)
+		iirfilt_crcf_destroy(q_lowpass);
+	if (q_highpass)
+		iirfilt_crcf_destroy(q_highpass);	
+	
+	q_bandpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
+	iirfilt_crcf_print(q_bandpass);
+
+	fc = low / (float)m_pcmrate; // cutoff frequency
+	f0 = mid_low / (float)m_pcmrate; // center frequency
+	q_lowpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
+	iirfilt_crcf_print(q_lowpass);
+
+	fc = mid_high / (float)m_pcmrate; // cutoff frequency
+	f0 = high / (float)m_pcmrate; // center frequency
+	q_highpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
+	iirfilt_crcf_print(q_highpass);
+}
+
+void Demodulator::exec_bandpass_filter(const IQSampleVector &filter_in,
+									   IQSampleVector &filter_out)
+{
+	float bass_gain = dB2mag(gspeech.get_bass());
+	float treble_gain = dB2mag(gspeech.get_treble());
+	for (auto &col : filter_in)
+	{
+		complex<float> v, w, u;
+		iirfilt_crcf_execute(q_bandpass, col, &v);
+		iirfilt_crcf_execute(q_lowpass, col, &w);
+		iirfilt_crcf_execute(q_highpass, col, &u);
+		v = v + w * bass_gain + u * treble_gain;
+		filter_out.insert(filter_out.end(), v);
 	}
 }

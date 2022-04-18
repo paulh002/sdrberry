@@ -30,6 +30,7 @@ public:
   void clear() { databuffer->clear();}
   std::vector<RtAudio::Api> listApis();
   bool open(unsigned int device);
+  void set_gain(int g) { gaindb = g; }
 
 private:
 	RtAudio::StreamParameters	parameters;
@@ -44,6 +45,7 @@ private:
 	double						Nexttone();
 	double						NextTwotone();
 	int							tune_tone;
+	int							gaindb;
 };
 
 extern  AudioInput  *audio_input;

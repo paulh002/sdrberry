@@ -27,7 +27,7 @@ public:
   int get_channels() { return info.outputChannels; }
   unsigned int get_samplerate() { return m_sampleRate; }
   unsigned int getDevices();
-  unsigned int get_device() { return device_open;}
+  unsigned int get_device() { return parameters.deviceId;}
 
 protected:
 	void samplesToInt16(const SampleVector& samples,
@@ -43,7 +43,6 @@ private:
 	string						m_error;
 	atomic<int>					underrun;
 	map<int, std::string> device_map;
-	unsigned int device_open;
 };
 
 extern  AudioOutput *audio_output;

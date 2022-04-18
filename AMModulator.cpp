@@ -1,6 +1,8 @@
 #include "AMModulator.h"
 #include "Waterfall.h"
 #include "Audiodefs.h"
+#include "gui_speech.h"
+#include "PeakLevelDetector.h"
 
 static shared_ptr<AMModulator> sp_ammod;
 
@@ -77,8 +79,7 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	{	// mix the transmid signal to the mid of the fft display
 		fft_offset(ifrate / 4);
 	}
-	set_filter(m_pcmrate, m_fcutoff);
-	
+	set_bandpass_filter(2700.0f, 2000.0f, 500.0f, 150.0f);
 	modAM = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
 }
@@ -92,9 +93,15 @@ void AMModulator::operator()()
 	bool                    inbuf_length_warning = false;
 	SampleVector            audiosamples;
 	IQSampleVector			dummy;
-		
+	AudioProcessor			Speech;
+
+	Speech.prepareToPlay(audio_output->get_samplerate());
+	Speech.setThresholdDB(gagc.get_threshold());
+	Speech.setRatio(gspeech.get_ratio());
 	Fft_calc.plan_fft(nfft_samples * 10);
 	m_audio_input->clear();
+	if (gspeech.get_speech_mode())
+		m_audio_input->set_gain(10);
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag.load())
@@ -109,17 +116,28 @@ void AMModulator::operator()()
 			//usleep(1000); // wait 1024 audio sample time
 			continue;
 		}
+		if (gspeech.get_speech_mode())
+		{
+			Speech.setRelease(gspeech.get_release());
+			Speech.setRatio(gspeech.get_ratio());
+			Speech.setAtack(gspeech.get_atack());
+			Speech.setThresholdDB(gspeech.get_threshold());
+			Speech.processBlock(audiosamples);
+		}
+		else
+			m_audio_input->set_gain(0);
 		calc_af_level(audiosamples);
 		Fft_calc.set_signal_strength(get_af_level());
 		process(dummy, audiosamples);
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(100) < now)
+		if (timeLastPrint + std::chrono::seconds(5) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
 			printf("Queued transmitbuffer Samples %d\n", m_transmit_buffer->queued_samples());
+			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
 	}
 	m_transmit_buffer->push_end();
@@ -144,8 +162,7 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	double if_rms = rms_level_approx(buf_mod);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
 	
-	// Low pass filter 5 Khz for NB FM
-	filter(buf_mod, buf_filter);	
+	exec_bandpass_filter(buf_mod, buf_filter);
 	buf_mod.clear();
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();

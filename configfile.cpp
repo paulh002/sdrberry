@@ -283,7 +283,7 @@ void File::parseOptionLine(const std::string& line, const std::string& section)
             strlib::trimWhitespace(value);
 			strlib::stripNewLines(value);
 			// Check if this is the start of an array
-            Option& option = options[section][name];
+            // Option& option = options[section][name];
 // ph002 change to support single line array
 // like:  myarray = {1,2,3,4}
 	        if ((value == "{") || (value[0] == '{'))
@@ -294,7 +294,6 @@ void File::parseOptionLine(const std::string& line, const std::string& section)
 	            if (value.find(',') > 0)
 	            {
 		            Option& option = getArrayOption(section, arrayOptionName);
-		            startArray(option);
 		            bline = true;	         
 	                while (value.find(',') != -1)
 	                {   
@@ -320,7 +319,8 @@ void File::parseOptionLine(const std::string& line, const std::string& section)
             }
             else
             {
-                if (!setOption(option, value) && (flags & Verbose))
+				Option &option = options[section][name];
+				if (!setOption(option, value) && (flags & Verbose))
                 {
                     std::cout << "Warning: Option \"" << name << "\" in [" << section << "] was out of range.\n";
                     std::cout << "    Using default value: " << option.toStringWithQuotes() << std::endl;

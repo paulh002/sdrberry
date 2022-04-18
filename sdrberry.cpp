@@ -8,6 +8,8 @@
 #include "FMModulator.h"
 #include "AMModulator.h"
 #include "FT8Demodulator.h"
+#include "gui_speech.h"
+#include "EchoAudio.h"
 
 AudioOutput *audio_output;
 AudioInput *audio_input;
@@ -222,6 +224,7 @@ int main(int argc, char *argv[])
 	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
 	tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
 	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
+	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
@@ -231,6 +234,7 @@ int main(int argc, char *argv[])
 	Wf.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);
 	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
+	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
@@ -408,6 +412,7 @@ void destroy_demodulators()
 	AMModulator::destroy_modulator();
 	FMModulator::destroy_modulator();
 	FT8Demodulator::destroy_demodulator();
+	EchoAudio::destroy_modulator();
 	stop_fm();
 	RX_Stream::destroy_rx_streaming_thread();
 	TX_Stream::destroy_tx_streaming_thread();
@@ -471,6 +476,9 @@ void select_mode(int s_mode, bool bvfo)
 		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))), false);
 		FT8Demodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
+		break;
+	case mode_echo:
+		EchoAudio::create_modulator(audio_output->get_samplerate(), audio_output,audio_input);
 		break;
 	}
 	catinterface.Pause_Cat(false);

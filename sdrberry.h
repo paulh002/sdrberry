@@ -52,6 +52,7 @@ const int mode_ft4 = 7;
 const int mode_broadband_fm = 8;
 const int mode_narrowband_fm = 9;
 const int mode_rtty = 10;
+const int mode_echo = 11;
 
 extern const int barHeight;
 extern const int MorseHeight;

@@ -17,7 +17,9 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"VFO2", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"Audio", {{"device", cfg::makeOption("default")}}},
 	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}},
-	{"filter", {{"i2cdevice", cfg::makeOption("pcf8574")}}}
+	{"Speech", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(12)}, {"threshold", cfg::makeOption(0)}, {"bass", cfg::makeOption(0)}, {"treble", cfg::makeOption(0)}}},
+	{"filter", {{"i2cdevice", cfg::makeOption("pcf8574")}}},
+	{"ft8", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}}}
 };
 
 void Settings::write_settings()
@@ -40,6 +42,14 @@ void Settings::default_settings()
 	(*config)("receivers").push(cfg::makeOption("sdrplay"));
 
 	config->useSection("Agc");
+	(*config)("fast").push(cfg::makeOption(10));
+	(*config)("fast").push(cfg::makeOption(100));
+	(*config)("medium").push(cfg::makeOption(50));
+	(*config)("medium").push(cfg::makeOption(250));
+	(*config)("slow").push(cfg::makeOption(100));
+	(*config)("slow").push(cfg::makeOption(500));
+	
+	config->useSection("Speech");
 	(*config)("fast").push(cfg::makeOption(10));
 	(*config)("fast").push(cfg::makeOption(100));
 	(*config)("medium").push(cfg::makeOption(50));
@@ -241,6 +251,12 @@ void Settings::read_settings(string settings_file)
 	{
 		//cout << "Option name: " << option.first << endl;
 		agc.insert(pair<string, string>(option.first, option.second));
+	}
+	
+	for (auto &option : config->getSection("Speech"))
+	{
+		cout << "Option name: " << option.first << " value: " << option.second <<endl;
+		speech.insert(pair<string, string>(option.first, option.second));
 	}
 	
 	config->useSection("bands");
@@ -541,6 +557,17 @@ int Settings::getagc(std::string key)
 		return 0;
 }
 
+int Settings::getspeech(std::string key)
+{
+	if (speech.find(key) != speech.end())
+	{
+		auto s = speech.find(key);
+		return atoi((const char *)s->second.c_str());
+	}
+	else
+		return 0;
+}
+
 int Settings::convert_mode(string s)
 {
 	int mode = mode_lsb;
@@ -579,10 +606,38 @@ void Settings::getagc_preset(std::string key, int &atack, int &release)
 	config->useSection("Agc");
 	for (auto &col : (*config)(key))
 	{
-		if (i == 1)
+		if (i == 0)
 			atack = col.toInt();
-		if (i == 2)			
+		if (i == 1)			
 			release = col.toInt();
 		i++;
 	}
+}
+
+void Settings::getspeech_preset(std::string key, int &atack, int &release)
+{
+	int i = 0;
+	atack = 0;
+	release = 0;
+	config->useSection("Speech");
+	for (auto &col : (*config)(key))
+	{
+		if (i == 0)
+			atack = col.toInt();
+		if (i == 1)
+			release = col.toInt();
+		i++;
+	}
+}
+
+void Settings::save_speech(std::string key, int value)
+{
+	config->useSection("Speech");
+	auto &col = (*config)(key);
+	col = value;
+}
+
+void Settings::save()
+{
+	config->writeToFile(file.c_str());
 }

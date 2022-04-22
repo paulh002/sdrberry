@@ -89,7 +89,7 @@ void AMDemodulator::operator()()
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			iqsamples;
 	long long pr_time{0};
-	int vsize;
+	int vsize, passes{0};
 
 	Agc.prepareToPlay(audio_output->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
@@ -121,6 +121,8 @@ void AMDemodulator::operator()()
 			usleep(500);
 			continue;
 		}
+		int nosamples = iqsamples.size();
+		passes++;
 		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		process(iqsamples, audiosamples);
@@ -137,6 +139,7 @@ void AMDemodulator::operator()()
 		}
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
+		int noaudiosamples = audiosamples.size();
 		for (auto& col : audiosamples)
 		{
 			// split the stream in blocks of samples of the size framesize 
@@ -169,10 +172,11 @@ void AMDemodulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			printf("Queued Audio Samples %d droppedframes %d underrun %d\n", audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
+			printf("Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", nosamples, noaudiosamples, passes, audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("mean %f rms %f \n", m_audio_mean, m_audio_rms);
 			pr_time = 0;
+			passes = 0;
 			if (rcount > 10 && audio_output->get_underrun() == 0 &&  dropped_frames > 15) 
 			{
 				sample_ratio = sample_ratio / 1.01 ;

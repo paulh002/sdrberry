@@ -1526,5 +1526,8 @@
     <ClInclude Include="EchoAudio.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="sma.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

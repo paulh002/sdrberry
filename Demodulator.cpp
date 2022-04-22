@@ -394,6 +394,11 @@ void Demodulator::set_bandpass_filter(float high, float mid_high, float mid_low,
 void Demodulator::exec_bandpass_filter(const IQSampleVector &filter_in,
 									   IQSampleVector &filter_out)
 {
+	if (q_bandpass == nullptr || q_lowpass == nullptr || q_highpass == nullptr)
+	{
+		filter_out = filter_in;
+		return;
+	}
 	float bass_gain = dB2mag(gspeech.get_bass());
 	float treble_gain = dB2mag(gspeech.get_treble());
 	for (auto &col : filter_in)

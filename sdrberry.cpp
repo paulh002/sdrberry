@@ -527,7 +527,7 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_usb:
 	case mode_lsb:
 		AMModulator::create_modulator(mode, ifrate_tx, audio_output->get_samplerate(), tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
+		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate);
 		break;
 	}
 	catinterface.Pause_Cat(false);

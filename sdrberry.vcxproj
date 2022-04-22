@@ -516,6 +516,7 @@
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Setup.h" />
+    <ClInclude Include="sma.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
     <ClInclude Include="SoapySDR\Constants.h" />
     <ClInclude Include="SoapySDR\ConverterPrimitives.hpp" />

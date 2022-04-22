@@ -57,7 +57,7 @@ void EchoAudio::operator()()
 	IQSampleVector buf_mod, buf_filter;
 	AudioProcessor Speech;
 
-	liquid_ampmodem_type am_mode{LIQUID_AMPMODEM_LSB};
+	liquid_ampmodem_type am_mode{LIQUID_AMPMODEM_USB};
 
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gagc.get_threshold());

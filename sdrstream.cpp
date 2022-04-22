@@ -62,12 +62,13 @@ void RX_Stream::operator()()
 	if (ifrate > 384001)
 		default_block_length = 32768/2;
 	rx_sampleRate = ifrate / 1000000.0;
-	printf("default block length is set to %d\n", default_block_length);
+	printf("default block length is set to %d ifrate %f\n", default_block_length, ifrate);
 	try
 	{
 		rx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, channel, ifrate);
 		SdrDevices.SdrDevices.at(radio)->activateStream(rx_stream);
+		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, 0, gbar.get_rf_gain());
 	}
 	catch (const std::exception& e)
 	{
@@ -201,15 +202,16 @@ void TX_Stream::operator()()
 	IQSampleVector16		iqsamples;
 	SoapySDR::Stream		*tx_stream;
 	int ret;
+	complex<int16_t> *f{nullptr};
 
 	try
 	{
+		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CS16);
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, m_ifrate);
-		SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
-		SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
-		SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
-		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
+		//SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
+		//SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
+		//SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());		
 	}
 	catch (const std::exception& e)
 	{
@@ -225,7 +227,7 @@ void TX_Stream::operator()()
 		int							flags(0); //SOAPY_SDR_END_BURST 
 		long long					time_ns(0);
 		int							samples_transmit;
-		
+
 		iqsamples = m_source_buffer->pull();
 		if (iqsamples.empty())
 		{
@@ -234,7 +236,8 @@ void TX_Stream::operator()()
 			printf("Received Push_End Exit writeStream\n");
 			try
 			{
-				SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, 0.0);
+				SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, m_ifrate);
+				//SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, 0.0);
 				SdrDevices.SdrDevices.at(radio)->deactivateStream(tx_stream);
 				SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
 			}
@@ -256,7 +259,7 @@ void TX_Stream::operator()()
 			{
 				totalSamples += ret;
 				samples_transmit -= ret;
-				complex<int16_t> *f = iqsamples.data();
+				f = iqsamples.data();
 				buffs[0] = &f[iqsamples.size() - samples_transmit];
 			}
 		} while ((ret > 0) && (samples_transmit > 0) && !stop_flag.load());
@@ -299,7 +302,7 @@ void TX_Stream::operator()()
 	}
 	printf("Exit writeStream\n");
 	bool bempty = false;
-	//sdr_dev->sdr->setGain(SOAPY_SDR_TX, 0, 0.0);
+	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, m_ifrate);
 	m_source_buffer->clear();
 	try
 	{

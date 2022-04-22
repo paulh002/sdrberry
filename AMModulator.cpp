@@ -77,7 +77,7 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	}
 	else
 	{	// mix the transmid signal to the mid of the fft display
-		fft_offset(ifrate / 4);
+		//fft_offset(ifrate / 4);
 	}
 	set_bandpass_filter(2700.0f, 2000.0f, 500.0f, 150.0f);
 	modAM = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
@@ -126,6 +126,7 @@ void AMModulator::operator()()
 		}
 		else
 			m_audio_input->set_gain(0);
+		
 		calc_af_level(audiosamples);
 		Fft_calc.set_signal_strength(get_af_level());
 		process(dummy, audiosamples);
@@ -180,7 +181,6 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	mix_up_fft(buf_filter, buf_mod);
 	Fft_calc.process_samples(buf_mod);
 	m_transmit_buffer->push(move(buf_out16));
-
 	buf_mod.clear();
 	buf_out.clear();
 	buf_filter.clear();

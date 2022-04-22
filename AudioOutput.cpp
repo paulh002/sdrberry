@@ -127,7 +127,7 @@ bool AudioOutput::open(std::string device)
 		m_sampleRate = info.preferredSampleRate;
 	parameters.nChannels = info.outputChannels;
 	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), m_sampleRate, parameters.nChannels);
-	err = this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, &option);
+	err = this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, NULL);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio output stream\n");

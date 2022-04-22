@@ -45,7 +45,13 @@ public:
 	int		if_gain();
 	void	save_speech(std::string key, int value);
 	void	save();
-
+	void	save_ifgain(int ifgain);
+	void	save_vol(int vol);
+	void	save_rf(int rf);
+	void	save_vfo(int vfo, long freq);
+	void	save_span(int span);
+	
+	
 	vector<int>				meters;
 	vector<string>			labels;
 	vector<long>			f_low;

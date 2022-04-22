@@ -641,3 +641,45 @@ void Settings::save()
 {
 	config->writeToFile(file.c_str());
 }
+
+void Settings::save_ifgain(int ifgain)
+{
+	config->useSection("Radio");
+	auto &col = (*config)("if-gain");
+	col = ifgain;
+}
+
+void Settings::save_vol(int vol)
+{
+	config->useSection("Radio");
+	auto &col = (*config)("volume");
+	col = vol;
+}
+
+void Settings::save_rf(int rf)
+{
+	config->useSection("Radio");
+	auto &col = (*config)("gain");
+	col = rf;
+}
+
+void Settings::save_vfo(int vfo, long freq)
+{
+	if (vfo)
+	{
+		config->useSection("VFO2");
+	}
+	else
+	{
+		config->useSection("VFO1");
+	}
+	auto &col = (*config)("freq");
+	col = freq;
+}
+
+void Settings::save_span(int span)
+{
+	config->useSection("Radio");
+	auto &col = (*config)("span");
+	col = span;
+}

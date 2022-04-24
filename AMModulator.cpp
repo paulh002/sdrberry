@@ -98,7 +98,7 @@ void AMModulator::operator()()
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gagc.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
-	Fft_calc.plan_fft(nfft_samples * 10);
+	Fft_calc.plan_fft(nfft_samples);
 	m_audio_input->clear();
 	if (gspeech.get_speech_mode())
 		m_audio_input->set_gain(10);

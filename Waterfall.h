@@ -63,7 +63,8 @@ private:
   IQSampleVector m_input;
   std::vector<float> v_window;
   int fft_avg;
-  std::vector<SMA<4>> avg_filter;
+  std::vector<SMA<2>> avg_filter;
+  std::vector<EMA<2>> ema_filter;
 };
 
 template <typename _Real>

@@ -39,6 +39,7 @@ Waterfall		Wf;
 Fft_calculator::Fft_calculator()
 	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0} {
 	avg_filter.resize(nfft_samples);
+	ema_filter.resize(nfft_samples);
 }
 
 Fft_calculator::~Fft_calculator()
@@ -110,7 +111,7 @@ static void draw_event_cb(lv_event_t * e)
 		/*Add a fade effect: transparent bottom covering top*/
 		lv_coord_t h = lv_obj_get_height(obj);
 		lv_draw_mask_fade_param_t fade_mask_param;
-		lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_60,
+		lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_50,
 							   obj->coords.y2);
 		int16_t fade_mask_id = lv_draw_mask_add(&fade_mask_param, NULL);
 

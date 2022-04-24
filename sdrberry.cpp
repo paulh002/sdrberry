@@ -481,6 +481,7 @@ void select_mode(int s_mode, bool bvfo)
 		EchoAudio::create_modulator(audio_output->get_samplerate(), audio_output,audio_input);
 		break;
 	}
+	vfo.set_freq_to_sdr();
 	catinterface.Pause_Cat(false);
 }
 

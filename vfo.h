@@ -76,7 +76,8 @@ public:
 	int get_mode_no(int vfo){if (vfo < 2 && vfo >= 0) return vfo_setting.mode[vfo]; else return 0;}
 	void set_mode(int vfo, int mode) {if (vfo < 2 && vfo >= 0) vfo_setting.mode[vfo] = mode;}
 	bool get_rx() {return vfo_setting.rx;}
-	int	get_active_vfo() { return vfo_setting.active_vfo;}
+	bool get_tx() {return vfo_setting.tx;}
+	int get_active_vfo() { return vfo_setting.active_vfo; }
 	long long get_sdr_frequency()
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];

@@ -76,6 +76,7 @@ static void threshold_slider_event_cb(lv_event_t *e)
 	char str[80];
 	sprintf(str, "threshold %d db", (lv_slider_get_value(slider) - 100) / 5);
 	lv_label_set_text(gspeech.get_threshold_slider_label(), str);
+	gspeech.set_threshold((lv_slider_get_value(slider) - 100) / 5);
 }
 
 static void atack_slider_event_cb(lv_event_t *e)
@@ -86,6 +87,7 @@ static void atack_slider_event_cb(lv_event_t *e)
 	char str[80];
 	sprintf(str, "atack %d ms", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_atack_slider_label(), str);
+	gspeech.set_atack(lv_slider_get_value(slider) / 1000.f);
 }
 
 static void release_slider_event_cb(lv_event_t *e)
@@ -96,6 +98,7 @@ static void release_slider_event_cb(lv_event_t *e)
 	char str[80];
 	sprintf(str, "release %d ms", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_release_slider_label(), str);
+	gspeech.set_release(lv_slider_get_value(slider) / 1000.f);
 }
 
 static void ratio_slider_event_cb(lv_event_t *e)
@@ -104,6 +107,7 @@ static void ratio_slider_event_cb(lv_event_t *e)
 	char buf[20];
 	sprintf(buf, "ratio %d", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_ratio_slider_label(), buf);
+	gspeech.set_ratio(lv_slider_get_value(slider));
 }
 
 static void bass_slider_event_cb(lv_event_t *e)
@@ -112,6 +116,7 @@ static void bass_slider_event_cb(lv_event_t *e)
 	char buf[20];
 	sprintf(buf, "bass %d", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_bass_slider_label(), buf);
+	gspeech.set_bass(lv_slider_get_value(slider));
 }
 
 static void treble_slider_event_cb(lv_event_t *e)
@@ -120,8 +125,8 @@ static void treble_slider_event_cb(lv_event_t *e)
 	char buf[20];
 	sprintf(buf, "treble %d", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_treble_slider_label(), buf);
+	gspeech.set_treble(lv_slider_get_value(slider));
 }
-
 
 void gui_speech::init(lv_obj_t *o_tab, lv_coord_t w)
 {
@@ -301,6 +306,7 @@ void gui_speech::set_atack_slider(int t)
 	lv_slider_set_value(atack_slider, t, LV_ANIM_ON);
 	sprintf(str, "atack %d ms", t);
 	lv_label_set_text(atack_slider_label, str);
+	set_atack(lv_slider_get_value(atack_slider) / 1000.f);
 }
 
 void gui_speech::set_bass_slider(int t)
@@ -310,6 +316,7 @@ void gui_speech::set_bass_slider(int t)
 	lv_slider_set_value(bass_slider, t, LV_ANIM_ON);
 	sprintf(str, "bass %d", t);
 	lv_label_set_text(bass_slider_label, str);
+	set_bass(lv_slider_get_value(bass_slider));
 }
 
 void gui_speech::set_treble_slider(int t)
@@ -319,6 +326,7 @@ void gui_speech::set_treble_slider(int t)
 	lv_slider_set_value(treble_slider, t, LV_ANIM_ON);
 	sprintf(str, "treble %d", t);
 	lv_label_set_text(treble_slider_label, str);
+	set_treble(lv_slider_get_value(treble_slider));
 }
 
 void gui_speech::set_threshold_slider(int t)
@@ -328,6 +336,7 @@ void gui_speech::set_threshold_slider(int t)
 	lv_slider_set_value(threshold_slider, abs(t1), LV_ANIM_ON);
 	sprintf(str, "threshold -%d db", t);
 	lv_label_set_text(threshold_slider_label, str);
+	set_threshold((lv_slider_get_value(threshold_slider) - 100) / 5);
 }
 
 void gui_speech::set_release_slider(int t)
@@ -337,6 +346,7 @@ void gui_speech::set_release_slider(int t)
 	lv_slider_set_value(release_slider, t, LV_ANIM_ON);
 	sprintf(str, "release %d ms", t);
 	lv_label_set_text(release_slider_label, str);
+	set_release(lv_slider_get_value(release_slider) / 1000.f);
 }
 
 void gui_speech::set_ratio_range(int min, int max)
@@ -351,4 +361,37 @@ void gui_speech::set_ratio_slider(int gain)
 	sprintf(buf, "ratio %d", gain);
 	lv_label_set_text(ratio_slider_label, buf);
 	lv_slider_set_value(ratio_slider, gain, LV_ANIM_ON);
+	set_ratio(lv_slider_get_value(ratio_slider));
 }
+
+/*
+int gui_speech::get_threshold()
+{
+	return (lv_slider_get_value(threshold_slider) - 100) / 5; // - max_threshold;
+}
+
+float gui_speech::get_atack()
+{
+	return (float)lv_slider_get_value(atack_slider) / 1000.f;
+}
+
+float gui_speech::get_release()
+{
+	return (float)lv_slider_get_value(release_slider) / 1000.f;
+}
+
+float gui_speech::get_ratio()
+{
+	return (float)lv_slider_get_value(ratio_slider);
+}
+
+int gui_speech::get_treble()
+{
+	return lv_slider_get_value(treble_slider);
+}
+
+int gui_speech::get_bass()
+{
+	return lv_slider_get_value(bass_slider);
+}
+*/

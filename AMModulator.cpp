@@ -96,12 +96,12 @@ void AMModulator::operator()()
 	AudioProcessor			Speech;
 
 	Speech.prepareToPlay(audio_output->get_samplerate());
-	Speech.setThresholdDB(gagc.get_threshold());
+	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
 	Fft_calc.plan_fft(nfft_samples);
 	m_audio_input->clear();
 	if (gspeech.get_speech_mode())
-		m_audio_input->set_gain(10);
+		m_audio_input->set_gain(0);
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag.load())
@@ -109,13 +109,8 @@ void AMModulator::operator()()
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
 		}
-
 		if (!m_audio_input->read(audiosamples))
-		{
-			//printf("wait for input\n");
-			//usleep(1000); // wait 1024 audio sample time
 			continue;
-		}
 		if (gspeech.get_speech_mode())
 		{
 			Speech.setRelease(gspeech.get_release());
@@ -126,10 +121,11 @@ void AMModulator::operator()()
 		}
 		else
 			m_audio_input->set_gain(0);
-		
+
 		calc_af_level(audiosamples);
 		Fft_calc.set_signal_strength(get_af_level());
 		process(dummy, audiosamples);
+		
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
@@ -141,6 +137,7 @@ void AMModulator::operator()()
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
 	}
+	m_transmit_buffer->clear();
 	m_transmit_buffer->push_end();
 	printf("exit am_mod_thread\n");
 }
@@ -151,8 +148,7 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	IQSampleVector16			buf_out16;
 	unsigned int				num_written;
 	
-	// Modulate audio to USB, LSB or DSB
-	buf_mod.clear(); 
+	// Modulate audio to USB, LSB or DSB; 
 	for (auto& col : samples)
 	{
 		complex<float> f;	
@@ -181,9 +177,9 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	mix_up_fft(buf_filter, buf_mod);
 	Fft_calc.process_samples(buf_mod);
 	m_transmit_buffer->push(move(buf_out16));
-	buf_mod.clear();
-	buf_out.clear();
-	buf_filter.clear();
+//	buf_mod.clear();
+//	buf_out.clear();
+//	buf_filter.clear();
 }
 
 void AMModulator::mix_up_fft(const IQSampleVector& filter_in,
@@ -214,4 +210,22 @@ void AMModulator::fft_offset(long offset)
 	m_fft = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(m_fft, 0.0f);
 	nco_crcf_set_frequency(m_fft, rad_per_sample);
+}
+
+void AMModulator::audio_feedback(const SampleVector &audiosamples)
+{
+	
+	for (auto &col : audiosamples)
+	{
+		// split the stream in blocks of samples of the size framesize
+		audioframes.insert(audioframes.end(), col);
+		if (audioframes.size() == audio_output->get_framesize())
+		{
+			SampleVector audio_stereo;
+			
+			mono_to_left_right(audioframes, audio_stereo);
+			audio_output->write(audio_stereo);
+			audioframes.clear();
+		}
+	}
 }

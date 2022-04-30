@@ -53,34 +53,64 @@ class gui_speech
 		return treble_slider_label;
 	}
 
+	void set_threshold(int s)
+	{
+		a_threshold = s;
+	}
+
+	void set_atack(float f)
+	{
+		a_atack = f;
+	}
+
+	void set_release(float f)
+	{
+		a_release = f;
+	}
+
+	void set_ratio(int s)
+	{
+		a_ratio = s;
+	}
+
+	void set_treble(int s)
+	{
+		a_treble = s;
+	}
+
+	void set_bass(int s)
+	{
+		a_bass = s;
+	}
+	
 	int get_threshold()
 	{
-		return (lv_slider_get_value(threshold_slider) - 100) / 5; // - max_threshold;
+		return a_threshold; // - max_threshold;
 	}
 
 	float get_atack()
 	{
-		return (float)lv_slider_get_value(atack_slider) / 1000.f;
+		return a_atack;
 	}
 
 	float get_release()
 	{
-		return (float)lv_slider_get_value(release_slider) / 1000.f;
+		return a_release;
 	}
 
 	float get_ratio()
 	{
-		return (float)lv_slider_get_value(ratio_slider);
+		return a_ratio;
 	}
 
 	int get_treble()
 	{
-		return lv_slider_get_value(treble_slider);
+		return a_treble;
 	}
 
 	int get_bass()
 	{
-		return lv_slider_get_value(bass_slider);
+		return a_bass;
 	}
 	
 	void set_atack_slider(int t);
@@ -111,7 +141,12 @@ class gui_speech
 	const int top_y{10};
 	int speech_mode{0};
 	lv_group_t *m_button_group{nullptr};
+	atomic<int> a_threshold;
+	atomic<float> a_atack;
+	atomic<float> a_release;
+	atomic<int> a_ratio;
+	atomic<int> a_treble;
+	atomic<int> a_bass;
 };
 
 extern gui_speech gspeech;
-

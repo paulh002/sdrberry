@@ -48,7 +48,7 @@ void FMModulator::operator()()
 	SampleVector            audiosamples;
 	IQSampleVector			dummy;
 		
-	Fft_calc.plan_fft(nfft_samples * 10); 
+	Fft_calc.plan_fft(nfft_samples); 
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag)

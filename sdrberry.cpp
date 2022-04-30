@@ -258,13 +258,6 @@ int main(int argc, char *argv[])
 	default_rx_channel = 0;
 	default_tx_channel = 0;
 		
-	midicontrole = new(MidiControle);
-	if (midicontrole)
-	{
-		int ports = midicontrole->check_midi_input();
-		if (ports > 1)
-			midicontrole->openport(1);
-	}
 	SoapySDR::ModuleManager mm(false);
 	SoapySDR::loadModules();
 	freq = Settings_file.find_vfo1_freq("freq");
@@ -371,8 +364,6 @@ int main(int argc, char *argv[])
 		{			
 			msg.display();
 		}
-		if (midicontrole)
-			midicontrole->read_midi_input();
 		set_time_label();
 		gui_mutex.unlock();
 		usleep(1000);
@@ -419,7 +410,7 @@ void destroy_demodulators()
 }
 
 extern std::chrono::high_resolution_clock::time_point starttime1;
-
+static bool stream_rx_on{false};
 
 void select_mode(int s_mode, bool bvfo)
 {
@@ -443,6 +434,11 @@ void select_mode(int s_mode, bool bvfo)
 		vfo.set_vfo(0, false);
 	}
 	printf("select_mode_rx start rx threads\n");
+	/*if (!stream_rx_on)
+	{
+		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
+		stream_rx_on = true;
+	}*/
 	switch (mode)
 	{
 	case mode_narrowband_fm:
@@ -468,6 +464,7 @@ void select_mode(int s_mode, bool bvfo)
 		if (mode != mode_cw) 
 			gsetup.set_cw(false);
 		vfo.set_step(10, 0);
+		printf("Start AMDemodulator\n");
 		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;

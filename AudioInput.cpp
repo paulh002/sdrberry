@@ -79,7 +79,7 @@ AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *Au
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 1024;
+	bufferFrames = 512;
 	gaindb = 0;
 }
 
@@ -127,7 +127,7 @@ bool AudioInput::open(unsigned int device)
 
 	parameters.deviceId = device;
 	info = getDeviceInfo(device);
-	parameters.nChannels = info.inputChannels;
+	parameters.nChannels = 1; //	info.inputChannels;
 	if (info.preferredSampleRate)
 		sampleRate = info.preferredSampleRate;
 	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);

@@ -60,24 +60,12 @@ void EchoAudio::operator()()
 	liquid_ampmodem_type am_mode{LIQUID_AMPMODEM_USB};
 
 	Speech.prepareToPlay(audio_output->get_samplerate());
-	Speech.setThresholdDB(gagc.get_threshold());
+	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
-	Fft_calc.plan_fft(nfft_samples * 10);
+	Fft_calc.plan_fft(nfft_samples);
 	m_audio_input->clear();
 	if (gspeech.get_speech_mode())
 		m_audio_input->set_gain(20);
-
-	unsigned int order = 4; // filter order
-	float fc = 500.0f / (float)m_pcmrate;		// cutoff frequency
-	float f0 = 2000.0f / (float) m_pcmrate;		// center frequency
-	float Ap = 1.0f;		// pass-band ripple
-	float As = 40.0f;		// stop-band attenuation
-
-	float factor = 500.0f / (float)m_pcmrate;
-	
-	liquid_iirdes_filtertype ftype = LIQUID_IIRDES_BUTTER;
-	liquid_iirdes_bandtype btype = LIQUID_IIRDES_BANDPASS;
-	liquid_iirdes_format format = LIQUID_IIRDES_SOS;
 
 	float mod_index = 0.99f; // modulation index (bandwidth)
 	ampmodem modAM = ampmodem_create(mod_index, am_mode, 1);

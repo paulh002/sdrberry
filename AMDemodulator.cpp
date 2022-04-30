@@ -129,7 +129,7 @@ void AMDemodulator::operator()()
 		Fft_calc.set_signal_strength(get_if_level());
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
 		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
-		if (gagc.get_agc_mode())
+		if (false) //if (gagc.get_agc_mode())
 		{
 			Agc.setRelease(gagc.get_release());
 			Agc.setRatio(gagc.get_ratio());
@@ -172,7 +172,7 @@ void AMDemodulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			printf("Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", nosamples, noaudiosamples, passes, audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
+			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", m_source_buffer->size(),nosamples, noaudiosamples, passes, audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("mean %f rms %f \n", m_audio_mean, m_audio_rms);
 			pr_time = 0;

@@ -177,9 +177,6 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	mix_up_fft(buf_filter, buf_mod);
 	Fft_calc.process_samples(buf_mod);
 	m_transmit_buffer->push(move(buf_out16));
-//	buf_mod.clear();
-//	buf_out.clear();
-//	buf_filter.clear();
 }
 
 void AMModulator::mix_up_fft(const IQSampleVector& filter_in,

@@ -79,7 +79,7 @@ AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *Au
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 512;
+	bufferFrames = 2048;
 	gaindb = 0;
 }
 

@@ -154,7 +154,7 @@ void	CVfo::rx_set_sdr_freq()
 {
 	if (SdrDevices && rx_channel >= 0)
 	{	
-		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 	}
 }
 

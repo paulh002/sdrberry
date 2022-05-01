@@ -48,7 +48,7 @@ void RX_Stream::operator()()
 	auto timeLastSpin = std::chrono::high_resolution_clock::now();
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long		totalSamples(0);
-//	unique_lock<mutex>		lock_rx(rxstream_mutex);
+	unique_lock<mutex>		lock_rx(rxstream_mutex);
 	
 	int						default_block_length;
 	SoapySDR::Stream		*rx_stream;
@@ -67,9 +67,9 @@ void RX_Stream::operator()()
 	try
 	{
 		rx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
-		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, channel, ifrate);
+		//SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, channel, ifrate);
 		SdrDevices.SdrDevices.at(radio)->activateStream(rx_stream);
-		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, channel, gbar.get_rf_gain());
+		//SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, channel, gbar.get_rf_gain());
 	}
 	catch (const std::exception& e)
 	{
@@ -119,8 +119,8 @@ void RX_Stream::operator()()
 		if (ret > 0)
 		{
 			buf.resize(ret);
-			if (m_source_buffer->size() > 1)
-				m_source_buffer->clear();
+			//if (m_source_buffer->size() > 1)
+			//	m_source_buffer->clear();
 			m_source_buffer->push(move(buf));
 		}
 		
@@ -171,11 +171,13 @@ RX_Stream::RX_Stream(std::string sradio, int chan, DataBuffer<IQSample> *source_
 	m_source_buffer = source_buffer;
 }
 
-bool RX_Stream::create_rx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample> *source_buffer)
+bool RX_Stream::create_rx_streaming_thread(std::string radio, int chan, DataBuffer<IQSample> *source_buffer)
 {	
 	if (ptr_rx_stream != nullptr)
 		return false;
-	ptr_rx_stream = make_shared<RX_Stream>(sradio, chan, source_buffer);
+	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, chan, ifrate);
+	SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, chan, gbar.get_rf_gain());
+	ptr_rx_stream = make_shared<RX_Stream>(radio, chan, source_buffer);
 	rx_thread = std::thread(&RX_Stream::operator(), ptr_rx_stream);
 	return true;
 }
@@ -207,14 +209,14 @@ void TX_Stream::operator()()
 	SoapySDR::Stream		*tx_stream;
 	int ret;
 	complex<int16_t> *f{nullptr};
-//	unique_lock<mutex> lock_rx(rxstream_mutex);
+	unique_lock<mutex> lock_rx(rxstream_mutex);
 	
 	try
 	{
-		SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
-		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
+		//SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
+		//SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CS16);
-		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, m_ifrate);
+	//	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, m_ifrate);
 		//SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
 		//SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
 	}
@@ -308,11 +310,14 @@ TX_Stream::TX_Stream(std::string sradio, int chan, DataBuffer<IQSample16> *sourc
 	m_source_buffer = source_buffer;
 }
 
-bool TX_Stream::create_tx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer,  double ifrate)
+bool TX_Stream::create_tx_streaming_thread(std::string radio, int chan, DataBuffer<IQSample16> *source_buffer,  double ifrate)
 {	
 	if (ptr_tx_stream != nullptr)
 		return false;
-	ptr_tx_stream = make_shared<TX_Stream>(sradio, chan, source_buffer);
+	SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, chan, (double)vfo.get_tx_frequency());
+	SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, chan, Gui_tx.get_drv_pos());
+	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, chan, ifrate);
+	ptr_tx_stream = make_shared<TX_Stream>(radio, chan, source_buffer);
 	ptr_tx_stream->set_if_rate(ifrate);
 	tx_thread = std::thread(&TX_Stream::operator(), ptr_tx_stream);
 	return true;

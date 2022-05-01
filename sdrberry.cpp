@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 	ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr("default").c_str());
 	if (ifrate_tx == 0)
 		ifrate_tx = ifrate;
-	printf("samperate %f \n", ifrate);
+	printf("samperate rx %f samplerate tx %f \n", ifrate, ifrate_tx);
 	
 	/*LittlevGL init*/
 	lv_init();
@@ -525,7 +525,7 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_usb:
 	case mode_lsb:
 		AMModulator::create_modulator(mode, ifrate_tx, audio_output->get_samplerate(), tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate);
+		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 	}
 	catinterface.Pause_Cat(false);

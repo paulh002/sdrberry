@@ -129,7 +129,7 @@ void AMDemodulator::operator()()
 		Fft_calc.set_signal_strength(get_if_level());
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
 		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
-		if (false) //if (gagc.get_agc_mode())
+		if (gagc.get_agc_mode())
 		{
 			Agc.setRelease(gagc.get_release());
 			Agc.setRatio(gagc.get_ratio());
@@ -235,13 +235,13 @@ bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, Dat
 void AMDemodulator::destroy_demodulator()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
-	
+
 	if (sp_amdemod == nullptr)
 		return;
 	sp_amdemod->stop_flag = true;
 	sp_amdemod->amdemod_thread.join();
 	sp_amdemod.reset();
-
+	sp_amdemod = nullptr;
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;

@@ -47,16 +47,6 @@ cd ~
 sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
 sudo apt-get install -y libboost1.62-all-dev
 sudo ldconfig
-git clone https://github.com/thestk/rtaudio
-cd rtaudio
-git checkout 5.2.0
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
-sudo ldconfig 
-cd~
 sudo apt-get remove -y pulseaudio
 sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
 git clone https://github.com/analogdevicesinc/libad9361-iio
@@ -80,7 +70,8 @@ sudo make install
 sudo ldconfig
 cd ~
 #fi
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_pluto.cfg
+mv sdrberry_settings_pluto.cfg sdrberry_settings.cfg
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry
 mkdir build

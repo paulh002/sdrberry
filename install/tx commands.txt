@@ -1,7 +1,0 @@
-0x02 00370AA0 (freq)
-0x09 C0000000 (TX Gain)
-0x0A 0000007C (RX Gain)
-0x10 70020000 (CW hangtime)
-0x17 0000040A (PTT hangtime, TX buffer latency)
-0x00 00000004 (sample rate 48Khz)
-0x01 0036F650 (TX Frequency)

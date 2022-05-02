@@ -1,4 +1,11 @@
 #include "sdrberry.h"
+/*
+ * Audioout fills the audio output buffer.
+ * If there are no samples available (underrun) mutted sound is send
+ * Sound data is pulled from databuffer and copied to rtaudio buffer
+ * A underrun counter is increased for adjusting samplerate of the radio
+ **/
+
 
 int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
 {
@@ -10,7 +17,8 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	
 	if(((DataBuffer<Sample> *)userData)->queued_samples() == 0)
 	{
-		for (int i = 0; i < 2*nBufferFrames; i++)
+		int bytes = nBufferFrames * min(audio_output->get_channels(), 2);
+		for (int i = 0; i < bytes; i++)
 		{
 			((double *)buffer)[i] = 0.0;
 		}
@@ -25,84 +33,113 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		Sample v = col;
 		((double *)buffer)[i++] = v;
 	}
-	samples.clear();
-	samples.resize(0);
 	return 0;
 }
 
+/*
+* List alsa audio devices but skip the Monitor ones 
+*
+**/
+
 void AudioOutput::listDevices(std::vector<std::string> &devices)
 {
-	int noDevices = this->getDeviceCount();
-	struct DeviceInfo	dev;
-		
-	if (noDevices < 1) {
-		std::cout << "\nNo audio devices found!\n";
-		return ;
-	}
-	for (int i = 0; i < noDevices; i++)
+	for (auto const &dev : device_map)
 	{
-		dev = getDeviceInfo(i);
-		if (dev.outputChannels > 0 || dev.inputChannels > 0)
-			devices.push_back(dev.name);
+		if (dev.second.size() > 0 && dev.second.find("Monitor") == std::string::npos)
+			devices.push_back(dev.second);
 	}
 }
 
+/*
+* Search for device number based on device name
+* Issue -> very slow when user is not allowed to open device
+* 
+*/
+
 int AudioOutput::getDevices(std::string device)
 {
+	RtAudio::DeviceInfo		dev_info;
 	int noDevices = this->getDeviceCount();
-	struct DeviceInfo	dev;
-		
+	int retval = 0;
+
 	if (noDevices < 1) {
 		std::cout << "\nNo audio devices found!\n";
 		return -1;
 	}
 	for (int i = 0; i < noDevices; i++)
 	{
-		dev = getDeviceInfo(i);
-		if (dev.name.find(device) != std::string::npos)
+		dev_info = getDeviceInfo(i);
+		printf("%d device: %s input %d output %d\n", i, info.name.c_str(), info.inputChannels, info.outputChannels);
+		if (dev_info.name.find(device) != std::string::npos && dev_info.outputChannels > 0)
 		{
-			return i;
+			printf("audio device = %s Samplerate %d\n", info.name.c_str(), info.preferredSampleRate);
+			info = dev_info;
+			retval = i;
 		}
 	}
-	return 0; // return default device
+	return retval; // return default device
 }
 
-AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer)
-	: parameters{}, bufferFrames{}, m_volume{}, underrun{0}
+AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+	: RtAudio(api),
+	  parameters{}, bufferFrames{}, m_volume{}, underrun{0}, info{0}
 {
 	m_sampleRate = pcmrate;
 	databuffer = AudioBuffer;
 	bufferFrames = 1024;
 	parameters.nChannels = 2;
 	parameters.firstChannel = 0;
+	parameters.deviceId = 0;
 }
+
+/*
+ * Open sound device based on name
+ * if name is default open default device
+ * GetDevics() fills the map with device names and ID's
+ * Use samplerate which is optimized for device 
+ **/
 
 bool AudioOutput::open(std::string device)
 {
-	if (this->getDeviceCount() < 1)
-	{
-		std::cout << "\nNo audio devices found!\n";
-		return false;
-	}
-	if (device != "default")
-		parameters.deviceId = getDevices(device);
+	int retry{0};
+	RtAudioErrorType err;
+	StreamOptions option{{0}, {0}, {0}, {0}};
+	option.flags = RTAUDIO_MINIMIZE_LATENCY;
+
+	getDevices();
+	parameters.deviceId = 0;
+	parameters.firstChannel = 0;
+	parameters.nChannels = 2;
+	if (device == "default")
+		parameters.deviceId = this->getDefaultInputDevice();
 	else
-		parameters.deviceId = this->getDefaultOutputDevice();
-
-	printf("Default audio device = %d\n", parameters.deviceId);
-
-	try {
-		this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer);
-		this->startStream();
-		printf("bufferFrames set: %d\n", bufferFrames);
+	{
+		for (auto const &it : device_map)
+		{
+			if (it.second.find(device) != std::string::npos)
+			{
+				parameters.deviceId = it.first;
+			}
+		}
 	}
-	catch (RtAudioError& e) {
-		e.printMessage();
+	info = this->getDeviceInfo(parameters.deviceId);
+	if (info.preferredSampleRate)
+		m_sampleRate = info.preferredSampleRate;
+	parameters.nChannels = info.outputChannels;
+	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), m_sampleRate, parameters.nChannels);
+	err = this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, NULL);
+	if (err != RTAUDIO_NO_ERROR)
+	{
+		printf("Cannot open audio output stream\n");
 		return false;
 	}
+	this->startStream();
 	return true;	
 }
 
+/*
+ * Set volume of output use log scale
+ **/
 void AudioOutput::set_volume(int vol) 
 {
 	// log volume
@@ -131,6 +168,10 @@ AudioOutput::~AudioOutput()
 	close();
 }
 
+/*
+ * Write data to audio buffer
+ **/
+
 bool AudioOutput::write(SampleVector& audiosamples)
 {
 	if (databuffer && isStreamOpen())
@@ -145,4 +186,70 @@ int	 AudioOutput::queued_samples()
 	if (databuffer != nullptr)
 		return databuffer->queued_samples();
 	return 0;
+}
+
+/*
+ * Code is copied from RTAUDIO to return a list of devices and their ID
+ * The ID is card number + 1 
+ *
+ **/
+
+unsigned int AudioOutput::getDevices()
+{
+	unsigned nDevices = 0;
+	int result, subdevice, card;
+	char name[64];
+	snd_ctl_t *handle = 0;
+
+	strcpy(name, "default");
+	result = snd_ctl_open(&handle, "default", 0);
+	if (result == 0)
+	{
+		nDevices++;
+		snd_ctl_close(handle);
+	}
+
+	// Count cards and devices
+	card = -1;
+	snd_card_next(&card);
+	while (card >= 0)
+	{
+		sprintf(name, "hw:%d", card);
+		result = snd_ctl_open(&handle, name, 0);
+		if (result < 0)
+		{
+			handle = 0;
+			cout << "AudioOutput::getDevices: control open, card = " << card << ", " << snd_strerror(result) << "." << endl;
+			goto nextcard;
+		}
+		subdevice = -1;
+		// Get the device name
+		if (strncmp(name, "default", 7) != 0)
+		{
+			char *cardname;
+			result = snd_card_get_name(card, &cardname);
+			if (result >= 0)
+			{
+				device_map[card+1] = string(cardname);
+				free(cardname);
+			}
+		}
+		while (1)
+		{
+			result = snd_ctl_pcm_next_device(handle, &subdevice);
+			if (result < 0)
+			{
+				cout << "AudioOutput::getDevices: control next device, card = " << card << ", " << snd_strerror(result) << "." << endl;
+				break;
+			}
+			if (subdevice < 0)
+				break;
+			nDevices++;
+		}
+	nextcard:
+		if (handle)
+			snd_ctl_close(handle);
+		snd_card_next(&card);
+	}
+	return nDevices;
 }

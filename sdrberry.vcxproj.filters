@@ -1141,6 +1141,15 @@
     <ClCompile Include="PeakLevelDetector.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="RtAudio.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_speech.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="EchoAudio.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1506,6 +1515,18 @@
       <Filter>Header files\lvgl</Filter>
     </ClInclude>
     <ClInclude Include="PeakLevelDetector.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_speech.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="EchoAudio.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="sma.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

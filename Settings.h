@@ -31,6 +31,7 @@ public:
 	int		micgain();
 	int		drive();
 	int		getagc(string key);
+	int		getspeech(string key);
 	void	set_drive(int drive);
 	void	set_micgain(int gain);
 	void	set_txgain(int gain);
@@ -40,7 +41,16 @@ public:
 	int		convert_mode(string s);
 	long long	get_ft8(int band);
 	void	getagc_preset(std::string key, int &atack, int &release);
+	void	getspeech_preset(std::string key, int &atack, int &release);
 	int		if_gain();
+	void	save_speech(std::string key, int value);
+	void	save();
+	void	save_ifgain(int ifgain);
+	void	save_vol(int vol);
+	void	save_rf(int rf);
+	void	save_vfo(int vfo, long freq);
+	void	save_span(int span);
+	
 	
 	vector<int>				meters;
 	vector<string>			labels;
@@ -71,6 +81,7 @@ private:
 	map<string, string>		input_dev;
 	map<string, string>		cat;
 	map<string, string>		agc;
+	map<string, string>		speech;
 };
 
 

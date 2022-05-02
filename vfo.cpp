@@ -154,7 +154,7 @@ void	CVfo::rx_set_sdr_freq()
 {
 	if (SdrDevices && rx_channel >= 0)
 	{	
-		SdrDevices->SdrDevices[radio]->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 	}
 }
 
@@ -162,11 +162,7 @@ void	CVfo::tx_set_sdr_freq()
 {
 	if (SdrDevices && tx_channel >= 0)
 	{	
-		SdrDevices->SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, ifrate_tx);
-		SdrDevices->SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, ifrate_tx); //0.1
-		SdrDevices->SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
 		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
-		SdrDevices->SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 	}
 }
 

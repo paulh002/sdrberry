@@ -1,6 +1,28 @@
 #include "Demodulator.h"
 #include "sdrberry.h"
+#include "gui_speech.h"
 
+#define dB2mag(x) pow(10.0, (x) / 20.0)
+
+/*
+ *
+ ** Basic class for processing radio data for bith RX and TX
+ **
+ **/
+
+Demodulator::Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input)
+{ //  echo constructor
+	m_ifrate = 0;
+	m_pcmrate = pcmrate;
+	m_transmit_buffer = nullptr;
+	m_audio_input = audio_input;
+	m_audio_output = audio_output;
+	
+	// resampler and band filter assume pcmfrequency on the low side
+	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
+}
+
+// Transmit mode contructor
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
 {	//  Transmit constructor
 	m_ifrate = ifrate;
@@ -12,6 +34,7 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *sou
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 }
 
+// Receive mode contructor
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {	//  Receive constructor
 	m_ifrate = ifrate;
@@ -25,6 +48,8 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	set_span(gsetup.get_span());
 }
 
+// decrease the span of the fft display by downmixing the bandwidth of the receiver
+// Chop the bandwith in parts en display correct part 
 void Demodulator::set_span(int span)
 {
 	if (span < (m_ifrate/2) && span > 0)
@@ -55,8 +80,10 @@ Demodulator::~Demodulator()
 	printf("destructor demod called\n");
 	if (m_q)
 		msresamp_crcf_destroy(m_q);
+	m_q = nullptr;
 	if (m_fft_resample)
 		msresamp_crcf_destroy(m_fft_resample);
+	m_fft_resample = nullptr;
 	if (m_upnco != nullptr)
 		nco_crcf_destroy(m_upnco);
 	m_upnco = nullptr;
@@ -66,6 +93,17 @@ Demodulator::~Demodulator()
 	if (m_fftmix)
 		nco_crcf_destroy(m_fftmix);
 	m_fftmix = nullptr;
+	
+	if (q_bandpass)
+		iirfilt_crcf_destroy(q_bandpass);
+	if (q_lowpass)
+		iirfilt_crcf_destroy(q_lowpass);
+	if (q_highpass)
+		iirfilt_crcf_destroy(q_highpass);
+	q_bandpass = nullptr;
+	q_lowpass = nullptr;
+	q_highpass = nullptr;
+	
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime demodulator:" << timePassed.count() << endl;
@@ -129,6 +167,23 @@ void Demodulator::calc_if_level(const IQSampleVector& samples_in)
 	m_if_level = accuf;
 }
 
+void Demodulator::calc_af_level(const SampleVector &samples_in)
+{
+	float y2 = 0.0;
+	for (auto &con : samples_in)
+	{
+		y2 += con * con;
+	}
+	// smooth energy estimate using single-pole low-pass filter
+	y2 = y2 / samples_in.size();
+	accuf = (1.0 - alpha) * accuf + alpha * y2;
+	m_af_level = accuf;
+	//printf("af %f\n", m_af_level);
+}
+
+// The vfo class calculates an offset within the bandwidth of the sdr radio
+// tune offset configure the mixer to mix offset down to baseband
+// use mix_down() to mix down to baseband during receive,mix_up() for transmit to mixup from baseband
 void Demodulator::tune_offset(long offset)
 {
 	if (m_upnco != nullptr)
@@ -149,12 +204,18 @@ void Demodulator::adjust_gain(IQSampleVector& samples_in, float vol)
 	}
 }
 
+// copy mono signal to both sereo channels
 void Demodulator::mono_to_left_right(const SampleVector& samples_mono,
 	SampleVector& audio)
 {
 	unsigned int n = samples_mono.size();
 
-	audio.resize(2*n);
+	if (audio_output->get_channels() < 2)
+	{
+		audio = samples_mono;
+		return;
+	}
+	audio.resize(2 * n);
 	for (unsigned int i = 0; i < n; i++) {
 		Sample m = samples_mono[i];
 		audio[2*i]   = m;
@@ -181,6 +242,7 @@ void Demodulator::Resample(const IQSampleVector& filter_in,
 	}
 }	
 
+// audio filter 500 hz - 4.0 Khz
 void Demodulator::filter(const IQSampleVector& filter_in,
 	IQSampleVector& filter_out)
 {	
@@ -297,5 +359,55 @@ void Demodulator::perform_fft(const IQSampleVector& iqsamples)
 	else
 	{
 		Fft_calc.process_samples(iqsamples);
+	}
+}
+
+void Demodulator::set_bandpass_filter(float high, float mid_high, float mid_low, float low)
+{
+	float fc = mid_low / (float)m_pcmrate;  // cutoff frequency
+	float f0 = mid_high / (float)m_pcmrate; // center frequency
+	Ap = 1.0f;						// pass-band ripple
+	As = 40.0f;						// stop-band attenuation
+	order = 4;
+	
+	if (q_bandpass)
+		iirfilt_crcf_destroy(q_bandpass);
+	if (q_lowpass)
+		iirfilt_crcf_destroy(q_lowpass);
+	if (q_highpass)
+		iirfilt_crcf_destroy(q_highpass);	
+	
+	q_bandpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
+	iirfilt_crcf_print(q_bandpass);
+
+	fc = low / (float)m_pcmrate; // cutoff frequency
+	f0 = mid_low / (float)m_pcmrate; // center frequency
+	q_lowpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
+	iirfilt_crcf_print(q_lowpass);
+
+	fc = mid_high / (float)m_pcmrate; // cutoff frequency
+	f0 = high / (float)m_pcmrate; // center frequency
+	q_highpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
+	iirfilt_crcf_print(q_highpass);
+}
+
+void Demodulator::exec_bandpass_filter(const IQSampleVector &filter_in,
+									   IQSampleVector &filter_out)
+{
+	if (q_bandpass == nullptr || q_lowpass == nullptr || q_highpass == nullptr)
+	{
+		filter_out = filter_in;
+		return;
+	}
+	float bass_gain = dB2mag(gspeech.get_bass());
+	float treble_gain = dB2mag(gspeech.get_treble());
+	for (auto &col : filter_in)
+	{
+		complex<float> v, w, u;
+		iirfilt_crcf_execute(q_bandpass, col, &v);
+		iirfilt_crcf_execute(q_lowpass, col, &w);
+		iirfilt_crcf_execute(q_highpass, col, &u);
+		v = v + w * bass_gain + u * treble_gain;
+		filter_out.insert(filter_out.end(), v);
 	}
 }

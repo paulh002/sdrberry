@@ -17,7 +17,8 @@ sudo make install
 sudo ldconfig
 cd ~
 sudo apt-get install -y fftw3-dev
-git clone git://github.com/jgaeddert/liquid-dsp.git
+git clone https://github.com/jgaeddert/liquid-dsp
+git checkout v1.4.0
 sudo apt-get install -y automake autoconf
 cd liquid-dsp
 ./bootstrap.sh
@@ -47,38 +48,7 @@ cd ~
 sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
 sudo apt-get install -y libboost1.62-all-dev
 sudo ldconfig
-git clone https://github.com/thestk/rtaudio
-cd rtaudio
-git checkout 5.2.0
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
-sudo ldconfig 
-cd~
 sudo apt-get remove -y pulseaudio
-sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
-git clone https://github.com/analogdevicesinc/libad9361-iio
-sudo apt-get install -y doxygen
-sudo apt-get install -y libiio-dev
-sudo apt-get install -y libiio-utils
-cd libad9361-iio
-cmake ./CMakeLists.txt
-mkdir build
-make -j4
-sudo make install
-sudo ldconfig
-cd ~
-git clone https://github.com/pothosware/SoapyPlutoSDR
-cd SoapyPlutoSDR
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
-cd ~
 #fi
 git clone https://github.com/paulh002/SoapyRadioberry
 cd SoapyRadioberry
@@ -126,7 +96,6 @@ sudo modinfo radioberry
 
 echo ""
 echo "Radioberry driver installed."
-
 #-----------------------------------------------------------------------------
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 git clone https://github.com/paulh002/sdrberry

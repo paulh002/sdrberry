@@ -47,26 +47,11 @@ public:
 	{
 		return release_slider_label;
 	}
-	int get_threshold()
-	{
-		return (lv_slider_get_value(threshold_slider)  -100) / 5;// - max_threshold;
-	}
 	
-	float get_atack()
-	{
-		return (float)lv_slider_get_value(atack_slider) / 1000.f;
-	}
-
-	float get_release()
-	{
-		return (float)lv_slider_get_value(release_slider) / 1000.f;
-	}
-	
-	float get_ratio()
-	{
-		return (float)lv_slider_get_value(ratio_slider) ;
-	}
-	
+	int get_threshold();
+	float get_atack();
+	float get_release();
+	float get_ratio();
 	void set_atack_slider(int t);
 	void set_threshold_slider(int t);
 	void set_release_slider(int t);

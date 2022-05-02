@@ -10,6 +10,7 @@
 #include <condition_variable>
 #include "lvgl/lvgl.h"
 #include "sdrberry.h"
+#include "sma.h"
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -23,15 +24,12 @@ const int nfft_samples	{1024};
 class Waterfall
 {
 public:
-	void							init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate);
-	void							load_data();
-	void							set_pos(int32_t  offset);
-	std::vector<lv_coord_t>			data_set;
-	lv_chart_cursor_t				*get_cursor()
-	{
-		return m_cursor;
-	}
-	void							set_fft_if_rate(float ifrate, int n);
+  void init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate);
+  void load_data();
+  void set_pos(int32_t offset);
+  std::vector<lv_coord_t> data_set;
+  lv_chart_cursor_t *get_cursor()  { return m_cursor;}
+  void set_fft_if_rate(float ifrate, int n);
 		
 private:
 	lv_obj_t						*chart;
@@ -44,26 +42,29 @@ private:
 
 class Fft_calculator
 {
-public:	
-	void	process_samples(const IQSampleVector&	input);
-	void	plan_fft(int size);
-	void	upload_fft(std::vector<lv_coord_t>&	data_set);
-	void	set_signal_strength(double strength);
-	double	get_signal_strength();
-	
-	Fft_calculator();
-	~Fft_calculator();
+public:
+  void process_samples(const IQSampleVector &input);
+  void plan_fft(int size);
+  void upload_fft(std::vector<lv_coord_t> &data_set);
+  void set_signal_strength(double strength);
+  double get_signal_strength();
+
+  Fft_calculator();
+  ~Fft_calculator();
 private:
-	const int					type = LIQUID_FFT_FORWARD; 
-	int							flags = 0;                     // FFT flags (typically ignored)
-	int							nfft = 0;    // transform size
-	std::vector<std::complex<float>> fft_output;
-	fftplan						plan {0};
-	std::mutex					m_mutex;
-	std::condition_variable		m_cond;
-	double						signal_strength {0};
-	IQSampleVector				m_input;
-	std::vector<float>			v_window;
+  const int type = LIQUID_FFT_FORWARD;
+  int flags = 0; // FFT flags (typically ignored)
+  int nfft = 0;  // transform size
+  std::vector<std::complex<float>> fft_output;
+  fftplan plan{0};
+  std::mutex m_mutex;
+  std::condition_variable m_cond;
+  double signal_strength{0};
+  IQSampleVector m_input;
+  std::vector<float> v_window;
+  int fft_avg;
+  std::vector<SMA<2>> avg_filter;
+  std::vector<EMA<2>> ema_filter;
 };
 
 template <typename _Real>

@@ -9,6 +9,7 @@
 #include <condition_variable>
 #include "Waterfall.h"
 #include "sdrberry.h"
+#include "sma.h"
 
 using namespace std;
 
@@ -36,8 +37,9 @@ Fft_calculator	Fft_calc;
 Waterfall		Wf;
 
 Fft_calculator::Fft_calculator()
-{
-	
+	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0} {
+	avg_filter.resize(nfft_samples);
+	ema_filter.resize(nfft_samples);
 }
 
 Fft_calculator::~Fft_calculator()
@@ -93,9 +95,48 @@ static void draw_event_cb(lv_event_t * e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t * obj = lv_event_get_target(e);
 
-	if (code == LV_EVENT_DRAW_PART_BEGIN)
+	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	
+	if (dsc->part == LV_PART_ITEMS)
 	{
-		lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+		if (!dsc->p1 || !dsc->p2)
+			return;
+
+		/*Add a line mask that keeps the area below the line*/
+		lv_draw_mask_line_param_t line_mask_param;
+		lv_draw_mask_line_points_init(&line_mask_param, dsc->p1->x, dsc->p1->y, dsc->p2->x, dsc->p2->y,
+									  LV_DRAW_MASK_LINE_SIDE_BOTTOM);
+		int16_t line_mask_id = lv_draw_mask_add(&line_mask_param, NULL);
+
+		/*Add a fade effect: transparent bottom covering top*/
+		lv_coord_t h = lv_obj_get_height(obj);
+		lv_draw_mask_fade_param_t fade_mask_param;
+		lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_50,
+							   obj->coords.y2);
+		int16_t fade_mask_id = lv_draw_mask_add(&fade_mask_param, NULL);
+
+		/*Draw a rectangle that will be affected by the mask*/
+		lv_draw_rect_dsc_t draw_rect_dsc;
+		lv_draw_rect_dsc_init(&draw_rect_dsc);
+		draw_rect_dsc.bg_opa = LV_OPA_40;
+		draw_rect_dsc.bg_color = dsc->line_dsc->color;
+
+		lv_area_t a;
+		a.x1 = dsc->p1->x;
+		a.x2 = dsc->p2->x - 1;
+		a.y1 = LV_MIN(dsc->p1->y, dsc->p2->y);
+		a.y2 = obj->coords.y2;
+		lv_draw_rect(dsc->draw_ctx, &draw_rect_dsc, &a);
+
+		/*Remove the masks*/
+		lv_draw_mask_free_param(&line_mask_param);
+		lv_draw_mask_free_param(&fade_mask_param);
+		lv_draw_mask_remove_id(line_mask_id);
+		lv_draw_mask_remove_id(fade_mask_id);
+		}
+	
+	if (code == LV_EVENT_DRAW_PART_BEGIN)
+	{	
 		/*Set the markers' text*/
 		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
 		{
@@ -118,44 +159,6 @@ static void draw_event_cb(lv_event_t * e)
 			}
 			lv_snprintf(dsc->text, sizeof(dsc->text), "%s", str[dsc->value].c_str());
 		}
-		/*else
-		{
-			if (dsc->part == LV_PART_ITEMS)
-			{
-				if (dsc->p1 && dsc->p2)
-				{
-					lv_draw_mask_line_param_t line_mask_param;
-					lv_draw_mask_line_points_init(&line_mask_param, dsc->p1->x, dsc->p1->y, dsc->p2->x, dsc->p2->y, LV_DRAW_MASK_LINE_SIDE_BOTTOM);
-					int16_t line_mask_id = lv_draw_mask_add(&line_mask_param, NULL);
-
-					// Add a fade effect: transparent bottom covering top
-					lv_coord_t h = lv_obj_get_height(obj);
-					lv_draw_mask_fade_param_t fade_mask_param;
-					lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_TRANSP, obj->coords.y2);
-					int16_t fade_mask_id = lv_draw_mask_add(&fade_mask_param, NULL);
-
-					//Draw a rectangle that will be affected by the mask
-					lv_draw_rect_dsc_t draw_rect_dsc;
-					lv_draw_rect_dsc_init(&draw_rect_dsc);
-					draw_rect_dsc.bg_opa = LV_OPA_80;
-					draw_rect_dsc.bg_color = dsc->line_dsc->color;
-
-					lv_area_t obj_clip_area;
-					_lv_area_intersect(&obj_clip_area, dsc->clip_area, &obj->coords);
-
-					lv_area_t a;
-					a.x1 = dsc->p1->x;
-					a.x2 = dsc->p2->x - 1;
-					a.y1 = LV_MIN(dsc->p1->y, dsc->p2->y);
-					a.y2 = obj->coords.y2;
-					lv_draw_rect(&a, &obj_clip_area, &draw_rect_dsc);
-					
-					//Remove the masks
-					lv_draw_mask_remove_id(line_mask_id);
-					lv_draw_mask_remove_id(fade_mask_id);
-				}
-			} 
-		}*/
 	}
 }
 
@@ -172,13 +175,14 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
+	lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
 	
 	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 6, 1, true, 80);
 	lv_chart_set_div_line_count(chart, hor_lines, vert_lines); 
 	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 50);
-    lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
 	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE),  LV_DIR_BOTTOM);
-	
+
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
@@ -214,10 +218,11 @@ void Waterfall::load_data()
 }
 
 
+
 void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
-	int i = 0, av = 0;
+	int i = 0, av = 0, value, avg{0};
 	data_set.resize(fft_output.size()/2);
 	int start = fft_output.size() / 2;
 		
@@ -225,8 +230,11 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 	{
 		if (i == (fft_output.size() / 2))
 			break;
-		//if (i > 0)
-			data_set[i] = noise_floor + (lv_coord_t)10 * log10((col.real() * col.real() + col.imag() * col.imag()));
+		std::complex f = std::conj(col) * col;
+		value = noise_floor + (lv_coord_t)(20.0 * log10(f.real()));
+		data_set[i] = avg_filter[i](value);
+
+		//data_set[i] = noise_floor + (lv_coord_t)20 * log10((col.real() * col.real() + col.imag() * col.imag()));
 		i++;
 	}
 }

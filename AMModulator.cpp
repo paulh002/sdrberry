@@ -1,6 +1,8 @@
 #include "AMModulator.h"
 #include "Waterfall.h"
 #include "Audiodefs.h"
+#include "gui_speech.h"
+#include "PeakLevelDetector.h"
 
 static shared_ptr<AMModulator> sp_ammod;
 
@@ -75,10 +77,9 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	}
 	else
 	{	// mix the transmid signal to the mid of the fft display
-		fft_offset(ifrate / 4);
+		//fft_offset(ifrate / 4);
 	}
-	set_filter(m_pcmrate, m_fcutoff);
-	
+	set_bandpass_filter(2700.0f, 2000.0f, 500.0f, 150.0f);
 	modAM = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
 }
@@ -92,9 +93,15 @@ void AMModulator::operator()()
 	bool                    inbuf_length_warning = false;
 	SampleVector            audiosamples;
 	IQSampleVector			dummy;
-		
-	Fft_calc.plan_fft(nfft_samples * 10);
+	AudioProcessor			Speech;
+
+	Speech.prepareToPlay(audio_output->get_samplerate());
+	Speech.setThresholdDB(gspeech.get_threshold());
+	Speech.setRatio(gspeech.get_ratio());
+	Fft_calc.plan_fft(nfft_samples);
 	m_audio_input->clear();
+	if (gspeech.get_speech_mode())
+		m_audio_input->set_gain(0);
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag.load())
@@ -102,26 +109,35 @@ void AMModulator::operator()()
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
 		}
-
-		if (m_audio_input->read(audiosamples) == false)
-		{
-			printf("wait for input\n");
-			//usleep(1000); // wait 1024 audio sample time
+		if (!m_audio_input->read(audiosamples))
 			continue;
+		if (gspeech.get_speech_mode())
+		{
+			Speech.setRelease(gspeech.get_release());
+			Speech.setRatio(gspeech.get_ratio());
+			Speech.setAtack(gspeech.get_atack());
+			Speech.setThresholdDB(gspeech.get_threshold());
+			Speech.processBlock(audiosamples);
 		}
-		
-		Fft_calc.set_signal_strength(m_audio_input->get_rms_level());
+		else
+			m_audio_input->set_gain(0);
+
+		calc_af_level(audiosamples);
+		Fft_calc.set_signal_strength(get_af_level());
 		process(dummy, audiosamples);
+		
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(100) < now)
+		if (timeLastPrint + std::chrono::seconds(5) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
 			printf("Queued transmitbuffer Samples %d\n", m_transmit_buffer->queued_samples());
+			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
 	}
+	m_transmit_buffer->clear();
 	m_transmit_buffer->push_end();
 	printf("exit am_mod_thread\n");
 }
@@ -132,8 +148,7 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	IQSampleVector16			buf_out16;
 	unsigned int				num_written;
 	
-	// Modulate audio to USB, LSB or DSB
-	buf_mod.clear(); 
+	// Modulate audio to USB, LSB or DSB; 
 	for (auto& col : samples)
 	{
 		complex<float> f;	
@@ -144,8 +159,7 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	double if_rms = rms_level_approx(buf_mod);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
 	
-	// Low pass filter 5 Khz for NB FM
-	filter(buf_mod, buf_filter);	
+	exec_bandpass_filter(buf_mod, buf_filter);
 	buf_mod.clear();
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();
@@ -163,10 +177,6 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	mix_up_fft(buf_filter, buf_mod);
 	Fft_calc.process_samples(buf_mod);
 	m_transmit_buffer->push(move(buf_out16));
-
-	buf_mod.clear();
-	buf_out.clear();
-	buf_filter.clear();
 }
 
 void AMModulator::mix_up_fft(const IQSampleVector& filter_in,
@@ -197,4 +207,22 @@ void AMModulator::fft_offset(long offset)
 	m_fft = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(m_fft, 0.0f);
 	nco_crcf_set_frequency(m_fft, rad_per_sample);
+}
+
+void AMModulator::audio_feedback(const SampleVector &audiosamples)
+{
+	
+	for (auto &col : audiosamples)
+	{
+		// split the stream in blocks of samples of the size framesize
+		audioframes.insert(audioframes.end(), col);
+		if (audioframes.size() == audio_output->get_framesize())
+		{
+			SampleVector audio_stereo;
+			
+			mono_to_left_right(audioframes, audio_stereo);
+			audio_output->write(audio_stereo);
+			audioframes.clear();
+		}
+	}
 }

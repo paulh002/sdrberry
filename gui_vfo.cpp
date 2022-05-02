@@ -177,6 +177,9 @@ void gui_vfo::set_vfo_gui(int avfo, long long freq)
 		case mode_cw:
 			strcpy(str, "CW");
 			break;
+		case mode_ft8:
+			strcpy(str, "FT8");
+			break;
 		}
 		if (avfo)
 			lv_label_set_text(mode_label2, str);

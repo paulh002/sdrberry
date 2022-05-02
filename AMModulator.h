@@ -24,5 +24,7 @@ private:
 	nco_crcf				m_fft {nullptr};
 	void					fft_offset(long offset);
 	void					mix_up_fft(const IQSampleVector& filter_in, IQSampleVector& filter_out);
+	SampleVector			audioframes;
+	void					audio_feedback(const SampleVector &audiosamples);
 };
 

@@ -268,3 +268,22 @@ void Gui_agc::set_ratio_slider(int gain)
 	lv_slider_set_value(ratio_slider, gain, LV_ANIM_ON); 
 }
 
+int Gui_agc::get_threshold()
+{
+	return (lv_slider_get_value(threshold_slider) - 100) / 5; // - max_threshold;
+}
+
+float Gui_agc::get_atack()
+{
+	return (float)lv_slider_get_value(atack_slider) / 1000.f;
+}
+
+float Gui_agc::get_release()
+{
+	return (float)lv_slider_get_value(release_slider) / 1000.f;
+}
+
+float Gui_agc::get_ratio()
+{
+	return (float)lv_slider_get_value(ratio_slider);
+}

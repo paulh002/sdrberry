@@ -10,19 +10,17 @@
 class AudioInput : public RtAudio
 {
 public:
-  AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer);
+  AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
   bool open(std::string device);
   void adjust_gain(SampleVector &samples);
   bool read(SampleVector &samples);
   void close();
   ~AudioInput();
   double get_volume() { return m_volume; }
-  void set_volume(double vol) { m_volume = vol; }
+  void set_volume(int vol);
   void ToneBuffer();
   DataBuffer<Sample> *get_databuffer() { return databuffer; };
   bool get_stereo() { return m_stereo; };
-  float get_rms_level();
-  void set_level(float f);
   int queued_samples();
   int getDevices(std::string device);
   void listDevices(std::vector<std::string> &devices);
@@ -30,9 +28,13 @@ public:
   int get_tone() { return tune_tone; }
   operator bool() const { return m_error.empty();}
   void clear() { databuffer->clear();}
+  std::vector<RtAudio::Api> listApis();
+  bool open(unsigned int device);
+  void set_gain(int g) { gaindb = g; }
 
 private:
 	RtAudio::StreamParameters	parameters;
+	RtAudio::DeviceInfo			info;
 	unsigned int				sampleRate;
 	unsigned int				bufferFrames;
 	double						m_volume;
@@ -42,8 +44,8 @@ private:
 	bool						m_stereo;
 	double						Nexttone();
 	double						NextTwotone();
-	float						m_level;
 	int							tune_tone;
+	int							gaindb;
 };
 
 extern  AudioInput  *audio_input;

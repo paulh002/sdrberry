@@ -63,10 +63,6 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQ
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
 	//catinterface.SetSH(m_bandwidth);
-	
-	//agc.set_bandwidth(0.01f);
-	//agc.set_enery_levels(0.1f, 1.0f);
-	//agc.print();
 }
 
 
@@ -93,9 +89,9 @@ void AMDemodulator::operator()()
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			iqsamples;
 	long long pr_time{0};
-	int vsize;
+	int vsize, passes{0};
 
-	Agc.prepareToPlay(pcmrate);
+	Agc.prepareToPlay(audio_output->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
 	Fft_calc.plan_fft(nfft_samples);
@@ -125,10 +121,12 @@ void AMDemodulator::operator()()
 			usleep(500);
 			continue;
 		}
+		int nosamples = iqsamples.size();
+		passes++;
 		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());
 		process(iqsamples, audiosamples);
+		Fft_calc.set_signal_strength(get_if_level());
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
 		m_audio_level = 0.95 * m_audio_level + 0.05 * m_audio_rms;
 		if (gagc.get_agc_mode())
@@ -141,15 +139,20 @@ void AMDemodulator::operator()()
 		}
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
+		int noaudiosamples = audiosamples.size();
 		for (auto& col : audiosamples)
 		{
 			// split the stream in blocks of samples of the size framesize 
 			audioframes.insert(audioframes.end(), col);
-			if (audioframes.size() == (2 * audio_output->get_framesize()))
+			if (audioframes.size() == audio_output->get_framesize())
 			{
 				if ((audio_output->queued_samples() / 2) < 4096)
 				{
-					audio_output->write(audioframes);
+					SampleVector		audio_stereo;
+
+					mono_to_left_right(audioframes, audio_stereo);
+					audio_output->write(audio_stereo);
+					audioframes.clear();
 				}
 				else
 				{
@@ -169,17 +172,18 @@ void AMDemodulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			printf("Queued Audio Samples %d droppedframes %d underrun %d\n", audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
+			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", m_source_buffer->size(),nosamples, noaudiosamples, passes, audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("mean %f rms %f \n", m_audio_mean, m_audio_rms);
 			pr_time = 0;
+			passes = 0;
 			if (rcount > 10 && audio_output->get_underrun() == 0 &&  dropped_frames > 15) 
 			{
 				sample_ratio = sample_ratio / 1.01 ;
 				Demodulator::set_resample_rate(sample_ratio);
 				rcount = 0;
 			}
-			if (rcount > 5 && audio_output->get_underrun() > 0)
+			if (rcount > 5 && audio_output->get_underrun() > 0 && dropped_frames == 0)
 			{
 				sample_ratio = 1.01 * sample_ratio;
 				Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
@@ -198,7 +202,6 @@ void AMDemodulator::operator()()
 void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
 {
 	IQSampleVector		filter1, filter2;
-	SampleVector		audio_mono;
 		
 	// mix to correct frequency
 	mix_down(samples_in, filter1);
@@ -214,12 +217,10 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		float v;
 		
 		ampmodem_demodulate(m_demod, (liquid_float_complex)col, &v);
-		audio_mono.push_back(v);
+		audio.push_back(v);
 	}	
 	filter1.clear();
 	filter2.clear();
-	mono_to_left_right(audio_mono, audio);
-	audio_mono.clear();
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
@@ -234,13 +235,13 @@ bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, Dat
 void AMDemodulator::destroy_demodulator()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
-	
+
 	if (sp_amdemod == nullptr)
 		return;
 	sp_amdemod->stop_flag = true;
 	sp_amdemod->amdemod_thread.join();
 	sp_amdemod.reset();
-
+	sp_amdemod = nullptr;
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;

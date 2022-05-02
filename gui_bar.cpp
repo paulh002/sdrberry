@@ -130,6 +130,7 @@ static void bar_button_handler(lv_event_t * e)
 					// Noise
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 					{
+						select_mode(mode_echo, true);
 					}
 					else
 					{
@@ -147,6 +148,7 @@ static void vol_slider_event_cb(lv_event_t * e)
 	lv_label_set_text_fmt(gbar.get_vol_slider_label(), "vol %d", lv_slider_get_value(slider));
 	audio_output->set_volume(lv_slider_get_value(slider));
 	catinterface.SetAG(lv_slider_get_value(slider));
+	Settings_file.save_vol(lv_slider_get_value(slider));
 }
 
 static void if_slider_event_cb(lv_event_t *e)
@@ -154,6 +156,7 @@ static void if_slider_event_cb(lv_event_t *e)
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	gbar.m_if = 10 * lv_slider_get_value(slider);
+	Settings_file.save_ifgain(lv_slider_get_value(slider));
 }
 
 static void gain_slider_event_cb(lv_event_t * e)
@@ -161,6 +164,7 @@ static void gain_slider_event_cb(lv_event_t * e)
 	lv_obj_t * slider = lv_event_get_target(e);
 
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
+	Settings_file.save_rf(lv_slider_get_value(slider));
 	try 
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, default_rx_channel, lv_slider_get_value(slider));
@@ -223,7 +227,8 @@ void gui_bar::set_gain_slider(int gain)
 		gain = min_gain;
 
 	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
-	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
+	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
+	Settings_file.save_rf(gain);
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, default_rx_channel, (double)gain);
@@ -626,6 +631,7 @@ void gui_bar::set_vol_slider(int volume)
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);	
 	lv_label_set_text_fmt(vol_slider_label, "vol %d", volume);
 	audio_output->set_volume(volume);
+	Settings_file.save_vol(volume);
 }
 
 int gui_bar::get_vol_range()
@@ -642,6 +648,7 @@ void gui_bar::set_if(int rf)
 {
 	lv_slider_set_value(if_slider, rf, LV_ANIM_ON);
 	lv_label_set_text_fmt(if_slider_label, "if %d db", rf);
+	Settings_file.save_ifgain(rf);
 	m_if = std::pow(10.0,(float)rf / 20.0);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 - 2020 Joseph Gaeddert
+ * Copyright (c) 2007 - 2022 Joseph Gaeddert
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -810,21 +810,6 @@ float estimate_req_filter_len_Herrmann(float _df,
                                        float _As);
 
 
-// fir_farrow
-#define LIQUID_FIRFARROW_DEFINE_INTERNAL_API(FIRFARROW,TO,TC,TI)  \
-void FIRFARROW(_genpoly)(FIRFARROW() _q);
-
-LIQUID_FIRFARROW_DEFINE_INTERNAL_API(LIQUID_FIRFARROW_MANGLE_RRRF,
-                                     float,
-                                     float,
-                                     float)
-
-LIQUID_FIRFARROW_DEFINE_INTERNAL_API(LIQUID_FIRFARROW_MANGLE_CRCF,
-                                     liquid_float_complex,
-                                     float,
-                                     liquid_float_complex)
-
-
 // firdes : finite impulse response filter design
 
 // Find approximate bandwidth adjustment factor rho based on
@@ -844,12 +829,12 @@ float rkaiser_approximate_rho(unsigned int _m,
 //  _dt     :   filter fractional sample delay
 //  _h      :   resulting filter [size: 2*_k*_m+1]
 //  _rho    :   transition bandwidth adjustment, 0 < _rho < 1
-void liquid_firdes_rkaiser_bisection(unsigned int _k,
-                                     unsigned int _m,
-                                     float _beta,
-                                     float _dt,
-                                     float * _h,
-                                     float * _rho);
+int liquid_firdes_rkaiser_bisection(unsigned int _k,
+                                    unsigned int _m,
+                                    float _beta,
+                                    float _dt,
+                                    float * _h,
+                                    float * _rho);
 
 // Design frequency-shifted root-Nyquist filter based on
 // the Kaiser-windowed sinc using the quadratic method.
@@ -860,12 +845,12 @@ void liquid_firdes_rkaiser_bisection(unsigned int _k,
 //  _dt     :   filter fractional sample delay
 //  _h      :   resulting filter [size: 2*_k*_m+1]
 //  _rho    :   transition bandwidth adjustment, 0 < _rho < 1
-void liquid_firdes_rkaiser_quadratic(unsigned int _k,
-                                     unsigned int _m,
-                                     float _beta,
-                                     float _dt,
-                                     float * _h,
-                                     float * _rho);
+int liquid_firdes_rkaiser_quadratic(unsigned int _k,
+                                    unsigned int _m,
+                                    float _beta,
+                                    float _dt,
+                                    float * _h,
+                                    float * _rho);
 
 // compute filter coefficients and determine resulting ISI
 //  
@@ -883,31 +868,31 @@ float liquid_firdes_rkaiser_internal_isi(unsigned int _k,
                                          float * _h);
 
 // Design flipped Nyquist/root-Nyquist filters
-void liquid_firdes_fnyquist(liquid_firfilt_type _type,
-                            int                 _root,
-                            unsigned int        _k,
-                            unsigned int        _m,
-                            float               _beta,
-                            float               _dt,
-                            float *             _h);
+int liquid_firdes_fnyquist(liquid_firfilt_type _type,
+                           int                 _root,
+                           unsigned int        _k,
+                           unsigned int        _m,
+                           float               _beta,
+                           float               _dt,
+                           float *             _h);
 
 // flipped exponential frequency response
-void liquid_firdes_fexp_freqresponse(unsigned int _k,
+int liquid_firdes_fexp_freqresponse(unsigned int _k,
+                                    unsigned int _m,
+                                    float        _beta,
+                                    float *      _H);
+
+// flipped hyperbolic secant frequency response
+int liquid_firdes_fsech_freqresponse(unsigned int _k,
                                      unsigned int _m,
                                      float        _beta,
                                      float *      _H);
 
 // flipped hyperbolic secant frequency response
-void liquid_firdes_fsech_freqresponse(unsigned int _k,
-                                      unsigned int _m,
-                                      float        _beta,
-                                      float *      _H);
-
-// flipped hyperbolic secant frequency response
-void liquid_firdes_farcsech_freqresponse(unsigned int _k,
-                                         unsigned int _m,
-                                         float        _beta,
-                                         float *      _H);
+int liquid_firdes_farcsech_freqresponse(unsigned int _k,
+                                        unsigned int _m,
+                                        float        _beta,
+                                        float *      _H);
 
 // iirdes : infinite impulse response filter design
 
@@ -1346,6 +1331,7 @@ MODEM() MODEM(_create_arb64opt)(void);                          \
 MODEM() MODEM(_create_arb128opt)(void);                         \
 MODEM() MODEM(_create_arb256opt)(void);                         \
 MODEM() MODEM(_create_arb64vt)(void);                           \
+MODEM() MODEM(_create_pi4dqpsk)(void);                          \
                                                                 \
 /* Scale arbitrary modem energy to unity */                     \
 int MODEM(_arb_scale)(MODEM() _q);                              \
@@ -1370,6 +1356,7 @@ int MODEM(_modulate_qpsk)     ( MODEM(), unsigned int, TC *);   \
 int MODEM(_modulate_ook)      ( MODEM(), unsigned int, TC *);   \
 int MODEM(_modulate_sqam32)   ( MODEM(), unsigned int, TC *);   \
 int MODEM(_modulate_sqam128)  ( MODEM(), unsigned int, TC *);   \
+int MODEM(_modulate_pi4dqpsk) ( MODEM(), unsigned int, TC *);   \
                                                                 \
 /* modem demodulate routines */                                 \
 int MODEM(_demodulate_ask)    ( MODEM(), TC, unsigned int *);   \
@@ -1383,6 +1370,7 @@ int MODEM(_demodulate_qpsk)   ( MODEM(), TC, unsigned int *);   \
 int MODEM(_demodulate_ook)    ( MODEM(), TC, unsigned int *);   \
 int MODEM(_demodulate_sqam32) ( MODEM(), TC, unsigned int *);   \
 int MODEM(_demodulate_sqam128)( MODEM(), TC, unsigned int *);   \
+int MODEM(_demodulate_pi4dqpsk)(MODEM(), TC, unsigned int *);   \
                                                                 \
 /* modem demodulate (soft) routines */                          \
 int MODEM(_demodulate_soft_bpsk)(MODEM()         _q,            \
@@ -1393,6 +1381,10 @@ int MODEM(_demodulate_soft_qpsk)(MODEM()         _q,            \
                                  TC              _x,            \
                                  unsigned int *  _sym_out,      \
                                  unsigned char * _soft_bits);   \
+int MODEM(_demodulate_soft_pi4dqpsk)(MODEM()         _q,        \
+                                     TC              _x,        \
+                                     unsigned int *  _sym_out,  \
+                                     unsigned char* _soft_bits);\
 int MODEM(_demodulate_soft_arb)( MODEM()         _q,            \
                                  TC              _x,            \
                                  unsigned int *  _sym_out,      \

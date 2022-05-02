@@ -1,5 +1,7 @@
 #include "AudioInput.h"
 
+#define dB2mag(x) pow(10.0, (x) / 20.0)
+
 int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
 {
 	AudioInput					*audioinput = (AudioInput *)userData ;
@@ -16,20 +18,18 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	// Do something with the data in the "inputBuffer" buffer.
 	//printf("frames %u \n", nBufferFrames);
 	SampleVector	buf;
-	Sample			l = 0.0;
 	for (int i = 0; i < nBufferFrames; i++)
 	{
 		Sample f = ((double *)inputBuffer)[i];
 		buf.push_back(f);
 		if (audioinput->get_stereo())
 			buf.push_back(f);
-		l += f*f;
 	}
-	audioinput->set_level(l);
 	databuffer->clear();
 	databuffer->push(move(buf));
 	return 0;
 }
+
 
 void AudioInput::listDevices(std::vector<std::string> &devices)
 {
@@ -51,7 +51,6 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 int AudioInput::getDevices(std::string device)
 {
 	int noDevices = this->getDeviceCount();
-	struct DeviceInfo	dev;
 		
 	if (noDevices < 1) {
 		std::cout << "\nNo audio devices found!\n";
@@ -59,28 +58,48 @@ int AudioInput::getDevices(std::string device)
 	}
 	for (int i = 0; i < noDevices; i++)
 	{
-		dev = getDeviceInfo(i);
-		if (dev.name.find(device) != std::string::npos)
+		info = getDeviceInfo(i);
+		printf("%d device: %s input %d output %d\n", i, info.name.c_str(), info.inputChannels, info.outputChannels);
+
+		if (info.name.find(device) != std::string::npos && info.inputChannels > 0)
 		{
+			if (info.outputChannels < parameters.nChannels)
+				parameters.nChannels = info.outputChannels;
 			return i;
 		}
 	}
 	return 0; // return default device
 }
 
-AudioInput::AudioInput(int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer)
-	: parameters{}, m_volume{0.5}, asteps{}, m_level{}, tune_tone{0}
+AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+	: RtAudio(api), parameters{}, m_volume{0.5}, asteps{}, tune_tone{0}
 {
 	m_stereo = stereo;
 	databuffer = AudioBuffer; 
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 512;
+	bufferFrames = 2048;
+	gaindb = 0;
+}
+
+std::vector<RtAudio::Api> AudioInput::listApis()
+{
+	std::vector<RtAudio::Api> apis;
+	RtAudio ::getCompiledApi(apis);
+
+	std::cout << "\nCompiled APIs:\n";
+	for (size_t i = 0; i < apis.size(); i++)
+		std::cout << i << ". " << RtAudio::getApiDisplayName(apis[i])
+				  << " (" << RtAudio::getApiName(apis[i]) << ")" << std::endl;
+
+	return apis;
 }
 
 bool AudioInput::open(std::string device)
 {
+	RtAudioErrorType err;
+
 	if (this->getDeviceCount() < 1)
 	{
 		std::cout << "\nNo audio devices found!\n";
@@ -90,22 +109,49 @@ bool AudioInput::open(std::string device)
 		parameters.deviceId = getDevices(device);
 	else
 		parameters.deviceId = this->getDefaultInputDevice();
-	
-	try {
-		this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
-		this->startStream();
-	}
-	catch (RtAudioError& e) {
-		e.printMessage();
+
+	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
+	if (err != RTAUDIO_NO_ERROR)
+	{
+		printf("Cannot open audio input stream\n");
 		return false;
 	}
+	this->startStream();
+	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, device.c_str(), sampleRate);
 	return true;	
+}
+
+bool AudioInput::open(unsigned int device)
+{
+	RtAudioErrorType err;
+
+	parameters.deviceId = device;
+	info = getDeviceInfo(device);
+	parameters.nChannels = 1; //	info.inputChannels;
+	if (info.preferredSampleRate)
+		sampleRate = info.preferredSampleRate;
+	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
+	if (err != RTAUDIO_NO_ERROR)
+	{
+		printf("Cannot open audio input stream\n");
+		return false;
+	}
+	this->startStream();
+	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, info.name.c_str(), sampleRate);
+	return true;
+}
+
+void AudioInput::set_volume(int vol)
+{
+	// log volume
+	m_volume = exp(((double)vol * 6.908) / 100.0) /10.0;
+	printf("mic vol %f\n", (float)m_volume);
 }
 
 void AudioInput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
-		samples[i] *= m_volume;
+		samples[i] *= m_volume * dB2mag(gaindb);
 	}
 }
 
@@ -114,9 +160,12 @@ bool AudioInput::read(SampleVector& samples)
 {
 	if (databuffer == nullptr)
 		return false;
+	if (!isStreamOpen())
+		return false;
 	samples = databuffer->pull();
 	if (samples.empty())
 		return false;
+	adjust_gain(samples);
 	return true;
 }
 
@@ -165,24 +214,12 @@ void AudioInput::ToneBuffer()
 	databuffer->push(move(buf));
 }
 
-
-
 double AudioInput::NextTwotone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	double angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 48000) asteps = 0;
 	return (sin(angle) + sin(angle)) /2.0;
-}
-
-float  AudioInput::get_rms_level()
-{
-	return m_level / (float)bufferFrames;
-}
-
-void AudioInput::set_level(float f)
-{
-	m_level = f;
 }
 
 int	 AudioInput::queued_samples()

@@ -253,7 +253,6 @@ int main(int argc, char *argv[])
 
 	keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	
-	default_radio = Settings_file.find_sdr("default");
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	default_rx_channel = 0;
 	default_tx_channel = 0;
@@ -261,7 +260,8 @@ int main(int argc, char *argv[])
 	SoapySDR::ModuleManager mm(false);
 	SoapySDR::loadModules();
 	freq = Settings_file.find_vfo1_freq("freq");
-	
+
+	default_radio = Settings_file.find_sdr("default");
 	for (auto & con : Settings_file.receivers)
 	{
 		std::string probe = Settings_file.find_probe((char *)con.c_str());
@@ -326,10 +326,17 @@ int main(int argc, char *argv[])
 		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
-		gbar.set_if(Settings_file.if_gain());
+		gbar.set_if(Settings_file.if_gain(default_radio));
 		gbar.set_gain_range();
-		gbar.set_gain_slider(Settings_file.gain());	
+		gbar.set_gain_slider(Settings_file.gain(default_radio));	
 		vfo.set_vfo(freq, false);
+		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
+		{
+			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, 0);
+			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
+			printf("setBandwidth %ld \n", bw);
+		}
+		
 		select_mode(mode); // start streaming
 	}
 	else
@@ -475,7 +482,7 @@ void select_mode(int s_mode, bool bvfo)
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_echo:
-		EchoAudio::create_modulator(audio_output->get_samplerate(), audio_output,audio_input);
+		//EchoAudio::create_modulator(audio_output->get_samplerate(), audio_output,audio_input);
 		break;
 	}
 	vfo.set_freq_to_sdr();

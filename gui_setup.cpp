@@ -23,10 +23,32 @@ static void receivers_button_handler(lv_event_t * e)
 	}
 }
 
+static void contour_slider_event_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+
+	int i = lv_slider_get_value(obj);
+	if (i > 0)
+	{
+		gsetup.set_contour_value(i);
+	}
+}
+
+static void floor_slider_event_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+
+	int i = lv_slider_get_value(obj);
+	if (i > 0)
+	{
+		gsetup.set_floor_value(i);
+	}
+}
+
 static void span_slider_event_cb(lv_event_t * e)
 {
-	char buf[20]; 
-	
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
 
@@ -258,29 +280,52 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 			}
 		}
 	}
-	//int span_y = 15 + y_margin + button_height_margin;
+	
+	check_cw = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, check_cw);
+	lv_checkbox_set_text(check_cw, "Morse Decoder");
+	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, NULL);
+	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, 4 * button_width_margin, y_margin + ibutton_y * button_height_margin);
+
 	ibutton_y++;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin /2;
+	int brightness_y = 15 + y_margin + 2 * button_height_margin;
 	span_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, span_slider);
 	lv_obj_set_width(span_slider, w / 2 - 50); 
 	//lv_obj_center(span_slider);
-	lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
+	//lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
+	lv_obj_align_to(span_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, y_span);
 
 	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
 	span_slider_label = lv_label_create(o_tab);
-	lv_label_set_text(span_slider_label, "span");
-	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
+	lv_label_set_text(span_slider_label, "span 500 Khz");
+	//lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
+	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	
+
 	string span = Settings_file.find_radio("span");
 	int i = atoi(span.c_str());
 	if (((i * 1000) > (ifrate / 2)) || i == 0)
 		i = ifrate / 2000;
 	set_span_range(ifrate/2);
 	set_span_value(i * 1000);
+
+	//lv_obj_t *contour_slider_label, *contour_slider;
+	//lv_obj_t *floor_slider_label, *floor_slider;
+
+	contour_slider = lv_slider_create(o_tab);
+	lv_group_add_obj(m_button_group, contour_slider);
+	lv_obj_set_width(contour_slider, w / 2 - 50);
+	lv_obj_align_to(contour_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, y_span);
+	lv_slider_set_range(contour_slider, 1, 10);
 	
-	int brightness_y = 15 + y_margin + 2* button_height_margin;
+	lv_obj_add_event_cb(contour_slider, contour_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	contour_slider_label = lv_label_create(o_tab);
+	lv_label_set_text(contour_slider_label, "speed 1");
+	lv_obj_align_to(contour_slider_label, contour_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+
 	brightness_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, brightness_slider);
 	lv_obj_set_width(brightness_slider, w / 2 - 50); 
@@ -293,12 +338,17 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_label_set_text(brightness_slider_label, "brightness");
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	check_cw = lv_checkbox_create(o_tab);
-	lv_group_add_obj(m_button_group, check_cw);
-	lv_checkbox_set_text(check_cw, "Morse Decoder");
-	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, NULL);
-	lv_obj_align_to(check_cw, d_samplerate, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
-	//lv_obj_add_state(check_cw, LV_STATE_CHECKED);
+	floor_slider = lv_slider_create(o_tab);
+	lv_group_add_obj(m_button_group, floor_slider);
+	lv_obj_set_width(floor_slider, w / 2 - 50);
+	lv_obj_align_to(floor_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, w / 2, 40);
+	lv_slider_set_range(floor_slider, 1, 20);
+
+	lv_obj_add_event_cb(floor_slider, floor_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	floor_slider_label = lv_label_create(o_tab);
+	lv_label_set_text(floor_slider_label, "Noise floor 1");
+	lv_obj_align_to(floor_slider_label, floor_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+	
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
@@ -374,6 +424,27 @@ void gui_setup::set_brightness(int brightness)
 	}
 	sprintf(buf,"%d", brightness);
 	myfile << std::string(buf);
+}
+
+void gui_setup::set_contour_value(int speed)
+{
+	char buf[20];
+
+	sprintf(buf, " speed %d ",speed);
+	lv_label_set_text(contour_slider_label, buf);
+}
+
+int gui_setup::get_contour_value()
+{
+	return lv_slider_get_value(contour_slider);
+}
+
+void gui_setup::set_floor_value(int speed)
+{
+	char buf[20];
+
+	sprintf(buf, " noise floor %d ", speed);
+	lv_label_set_text(floor_slider_label, buf);
 }
 
 int gui_setup::get_brightness()

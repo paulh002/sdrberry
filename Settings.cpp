@@ -11,8 +11,12 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"CAT", {{"USB", cfg::makeOption("/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0")}}},
 	{"samplerate", {{"radioberry", cfg::makeOption(384)}, {"plutosdr", cfg::makeOption(1000)}, {"rtlsdr", cfg::makeOption(1000)}, {"sdrplay", cfg::makeOption(1000)}}},
 	{"samplerate_tx", {{"radioberry", cfg::makeOption(384)}}},
-
 	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"volume", cfg::makeOption(50)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}}},
+	{"radioberry", {{"gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}}},
+	{"sdrplay", {{"gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}}},
+	{"rtlsdr", {{"gain", cfg::makeOption(40)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(60)}}},
+	{"hackrf", {{"gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(3)}}},
+	{"plutosdr", {{"gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}}},
 	{"VFO1", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"VFO2", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"Audio", {{"device", cfg::makeOption("default")}}},
@@ -441,6 +445,40 @@ int Settings::if_gain()
 	}
 	else
 		return 0;
+}
+
+int Settings::if_gain(string sdrdevice)
+{
+	auto option = config->getSection(sdrdevice);
+	auto s = option.find("if-gain");
+	string st = s->second;
+	return atoi((const char *)st.c_str());
+}
+
+int Settings::gain(string sdrdevice)
+{
+	auto option = config->getSection(sdrdevice);
+	auto s = option.find("gain");
+	string st = s->second;
+	return atoi((const char *)st.c_str());
+}
+
+int Settings::get_int(string sdrdevice, string key)
+{
+	auto option = config->getSection(sdrdevice);
+	auto s = option.find(key);
+	string st = s->second;
+	return atoi((const char *)st.c_str());
+}
+
+string Settings::get_string(string sdrdevice, string key)
+{
+	string st;
+	auto option = config->getSection(sdrdevice);
+	auto s = option.find(key);
+	if (s != option.end())
+		st = s->second;
+	return st;
 }
 
 int Settings::gain()

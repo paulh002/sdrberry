@@ -31,7 +31,10 @@ public:
 	void	set_cw(bool bcw);
 	void	toggle_cw();
 	void	set_group();
-	
+	void set_contour_value(int speed);
+	void set_floor_value(int floor);
+	int get_contour_value();
+
 	double			m_ifrate;
 	
 private:
@@ -44,6 +47,8 @@ private:
 	lv_obj_t*		d_audio, *check_cw;
 	atomic<int>		m_span;
 	lv_group_t		*m_button_group{nullptr};
+	lv_obj_t *contour_slider_label, *contour_slider;
+	lv_obj_t *floor_slider_label, *floor_slider;
 };
 
 extern gui_setup	gsetup;

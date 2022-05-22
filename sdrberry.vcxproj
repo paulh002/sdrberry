@@ -60,7 +60,7 @@
       <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
-      <VerboseMode>true</VerboseMode>
+      <VerboseMode>false</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
@@ -102,10 +102,14 @@
     <ClCompile Include="FreeSansOblique42.c" />
     <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="FT8Demodulator.cpp" />
+    <ClCompile Include="ft8\crc.c" />
+    <ClCompile Include="ft8\encode.c" />
     <ClCompile Include="ft8\fft.cpp" />
     <ClCompile Include="ft8\ft8.cpp" />
     <ClCompile Include="ft8\libldpc.cpp" />
     <ClCompile Include="ft8\osd.cpp" />
+    <ClCompile Include="ft8\pack.c" />
+    <ClCompile Include="ft8\text.c" />
     <ClCompile Include="ft8\unpack.cpp" />
     <ClCompile Include="ft8\util.cpp" />
     <ClCompile Include="gui_agc.cpp" />
@@ -331,9 +335,14 @@
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="FT8Demodulator.h" />
     <ClInclude Include="ft8\arrays.h" />
+    <ClInclude Include="ft8\constants.h" />
+    <ClInclude Include="ft8\crc.h" />
+    <ClInclude Include="ft8\encode.h" />
     <ClInclude Include="ft8\fft.h" />
     <ClInclude Include="ft8\ft8.h" />
     <ClInclude Include="ft8\int128.h" />
+    <ClInclude Include="ft8\pack.h" />
+    <ClInclude Include="ft8\text.h" />
     <ClInclude Include="ft8\unpack.h" />
     <ClInclude Include="ft8\util.h" />
     <ClInclude Include="gui_agc.h" />

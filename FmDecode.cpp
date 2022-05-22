@@ -505,6 +505,7 @@ void* rx_fm_thread(void* fm_ptr)
 			usleep(5000);
 			continue;
 		}
+		int nosamples = iqsamples.size();
 		pfm->adjust_gain(iqsamples, gbar.get_if());
 		buf_mix.clear();
 		for (auto& col : iqsamples)
@@ -516,7 +517,7 @@ void* rx_fm_thread(void* fm_ptr)
 			buf_mix.push_back(v);
 		}
 		
-		if (buf_mix.size() >= nfft_samples && fft_block == 5)
+		if (fft_block == 5)
 		{
 			fft_block = 0;			
 			Fft_calc.process_samples(buf_mix);
@@ -528,7 +529,7 @@ void* rx_fm_thread(void* fm_ptr)
 		// Measure audio level.
 		samples_mean_rms(audiosamples, audio_mean, audio_rms);
 		audio_level = 0.95 * audio_level + 0.05 * audio_rms;
-
+		int noaudiosamples = audiosamples.size();
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);	
 		for (auto& col : audiosamples)
@@ -540,11 +541,12 @@ void* rx_fm_thread(void* fm_ptr)
 			}	
 		}
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(1) < now)
+		if (timeLastPrint + std::chrono::seconds(20) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			printf("Queued Audio Samples %d underrun %d\n", audio_output->queued_samples() / 2, audio_output->get_underrun());
+			printf("Buffer queue %d Radio samples %d Audio Samples %d Queued Audio Samples %d underrun %d\n", fm_demod->source_buffer->size(),nosamples, noaudiosamples, audio_output->queued_samples() / 2,  audio_output->get_underrun());
+			audio_output->clear_underrun();
 		}
 		iqsamples.clear();
 		audiosamples.clear();

@@ -25,8 +25,10 @@ public:
 	std::string probeChannel();
 	SoapySDR::Range get_full_gain_range() {return full_gain_range;}
 	bool	get_agc() {return agc;}
-	
-private:
+	int get_bandwith_count() { return bandwidth_range.size(); }
+	long get_bandwith(int no) { return bandwidth_range[no].minimum(); }
+
+  private:
 	SoapySDR::Device	*soapyDevice {nullptr};
 
 	int		dir {0};
@@ -69,7 +71,9 @@ public:
 	std::vector<double>	get_tx_sample_rates(int channel) {return tx_channels[channel]->get_sample_rates();}
 	int			get_txchannels() {return numTxChans;}
 	int			get_rxchannels() {return numRxChans;}
-		
+	int			get_bandwith_count(int channel) { return rx_channels[channel]->get_bandwith_count(); }
+	long		get_bandwith(int channel, int no) { return rx_channels[channel]->get_bandwith(no); }
+
 	void setFrequency(const int direction, const size_t channel, const double frequency)
 	{
 		if (direction == SOAPY_SDR_TX && numTxChans < 1)

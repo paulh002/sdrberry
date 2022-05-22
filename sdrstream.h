@@ -34,13 +34,11 @@ public:
 	static  bool	create_tx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer, double ifrate);
 	static	void	destroy_tx_streaming_thread();
 	void	operator()();
-	void	set_if_rate(double ifrate) {m_ifrate = ifrate;} 
 	atomic<bool>		stop_flag {false};
 	
 private:
 	std::string				radio;
 	int						channel;
-	double					m_ifrate;
 	DataBuffer<IQSample16> *m_source_buffer;
 };
 

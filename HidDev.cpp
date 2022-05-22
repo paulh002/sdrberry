@@ -205,6 +205,7 @@ void HidDev::step_vfo()
 
 	if (bevent && in_event.type == EV_REL && in_event.code == 11)
 	{
+		
 		switch (in_event.value)
 		{
 		case -240:
@@ -216,6 +217,9 @@ void HidDev::step_vfo()
 		case -480:
 			value = -3;
 			break;
+		case -600:
+			value = -4;
+			break;
 		case 240:
 			value = 1;
 			break;
@@ -224,6 +228,9 @@ void HidDev::step_vfo()
 			break;
 		case 480:
 			value = 3;
+			break;
+		case 600:
+			value = 4;
 			break;
 		}
 	}
@@ -250,6 +257,11 @@ void HidDev::step_vfo()
 			vfo.step_vfo(step, false);
 			last_time = now;
 		}
+		if (timePassed.count() > 1 && value == 4)
+		{
+			vfo.step_vfo(1.5*step, false);
+			last_time = now;
+		}
 		if (timePassed.count() > 20 && value == -1)
 		{
 			vfo.step_vfo(-1 * step, false);
@@ -263,6 +275,11 @@ void HidDev::step_vfo()
 		if (timePassed.count() > 1 && value == -3)
 		{
 			vfo.step_vfo(-1 * step, false);
+			last_time = now;
+		}
+		if (timePassed.count() > 1 && value == -4)
+		{
+			vfo.step_vfo(-1.5 * step, false);
 			last_time = now;
 		}
 		return;

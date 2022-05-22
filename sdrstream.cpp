@@ -60,7 +60,7 @@ void RX_Stream::operator()()
 	if ((ifrate < 384001) && (ifrate > 192000))
 		default_block_length = 8192;
 	if (ifrate > 384001)
-		default_block_length = 32768/2;
+		default_block_length = 32768;
 	rx_sampleRate = ifrate / 1000000.0;
 	
 	printf("default block length is set to %d ifrate %f\n", default_block_length, ifrate);
@@ -314,11 +314,10 @@ bool TX_Stream::create_tx_streaming_thread(std::string radio, int chan, DataBuff
 {	
 	if (ptr_tx_stream != nullptr)
 		return false;
+	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, chan, ifrate);
 	SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, chan, (double)vfo.get_tx_frequency());
 	SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, chan, Gui_tx.get_drv_pos());
-	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, chan, ifrate);
 	ptr_tx_stream = make_shared<TX_Stream>(radio, chan, source_buffer);
-	ptr_tx_stream->set_if_rate(ifrate);
 	tx_thread = std::thread(&TX_Stream::operator(), ptr_tx_stream);
 	return true;
 }

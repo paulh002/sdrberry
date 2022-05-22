@@ -155,7 +155,8 @@ static void if_slider_event_cb(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
-	gbar.m_if = 10 * lv_slider_get_value(slider);
+	int sl = lv_slider_get_value(slider);
+	gbar.m_if = std::pow(10.0, (float)sl / 20.0);
 	Settings_file.save_ifgain(lv_slider_get_value(slider));
 }
 
@@ -467,9 +468,15 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	{
 		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(default_rx_channel)->get_agc())
 		{
-			bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, default_rx_channel);
-			if (bAgc)
-				lv_obj_add_state(button[9], LV_STATE_CHECKED);
+			string sagc = Settings_file.get_string(default_radio, "AGC");
+			if (sagc == "off")
+				SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, default_rx_channel, false);
+			else
+			{
+				bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, default_rx_channel);
+				if (bAgc)
+					lv_obj_add_state(button[9], LV_STATE_CHECKED);
+			}
 		}
 	}
 	catch (const std::exception& e)
@@ -646,10 +653,10 @@ float gui_bar::get_if()
 
 void gui_bar::set_if(int rf)
 {
+	m_if = std::pow(10.0, (float)rf / 20.0);
 	lv_slider_set_value(if_slider, rf, LV_ANIM_ON);
 	lv_label_set_text_fmt(if_slider_label, "if %d db", rf);
 	Settings_file.save_ifgain(rf);
-	m_if = std::pow(10.0,(float)rf / 20.0);
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)

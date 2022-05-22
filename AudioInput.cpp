@@ -144,7 +144,7 @@ bool AudioInput::open(unsigned int device)
 void AudioInput::set_volume(int vol)
 {
 	// log volume
-	m_volume = exp(((double)vol * 6.908) / 100.0) /10.0;
+	m_volume = exp(((double)vol * 6.908) / 100.0) / 5.0;
 	printf("mic vol %f\n", (float)m_volume);
 }
 
@@ -188,13 +188,13 @@ double AudioInput::Nexttone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 48000) asteps = 0;
-	return sin(angle);
+	return sin(angle) / 100.0;
 }
 
 void AudioInput::ToneBuffer()
 {
 	SampleVector	buf;
-	printf("tone %d \n", tune_tone);
+	
 	for (int i = 0; i < bufferFrames; i++)
 	{
 		Sample f;
@@ -219,7 +219,7 @@ double AudioInput::NextTwotone()
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	double angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 48000) asteps = 0;
-	return (sin(angle) + sin(angle)) /2.0;
+	return (sin(angle) + sin(angle)) /200.0;
 }
 
 int	 AudioInput::queued_samples()

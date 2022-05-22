@@ -1150,6 +1150,18 @@
     <ClCompile Include="EchoAudio.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="ft8\crc.c">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\encode.c">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\pack.c">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\text.c">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1528,6 +1540,21 @@
     </ClInclude>
     <ClInclude Include="sma.h">
       <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\constants.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\crc.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\encode.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\pack.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\text.h">
+      <Filter>Header files\ft8</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

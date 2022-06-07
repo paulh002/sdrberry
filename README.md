@@ -22,12 +22,14 @@ ToDo:
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
+- Different noise reduction schemas like lms etc.
 
 Done:
 - Adalm Pluto
 - Rtlsdr support
 - SDRPlay support
 - Radioberry support
+- Hackrf support
 - FM broadband (only receive)
 - FM Narrowband
 - SSB support
@@ -43,6 +45,7 @@ Done:
 - Morse code decoder
 - Support for Contour Shuttle Express
 - Receive FT8
+- Noise reduction (spectral noise reduction)
 
 Installation of libraries is necessary:
 - Liquid DSP

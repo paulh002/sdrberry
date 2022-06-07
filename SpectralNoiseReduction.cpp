@@ -1,5 +1,17 @@
 #include "SpectralNoiseReduction.h"
 
+/************************************************************************************
+	Adapted from T41-ep AC8GY and WTEE
+
+	Noise reduction with spectral subtraction rule
+    based on Romanin et al. 2009 & Schmitt et al. 2002
+    and MATLAB voicebox
+    and Gerkmann & Hendriks 2002
+    and Yao et al. 2016
+
+   STAND: UHSDR github 14.1.2018
+************************************************************************************/
+
 
 SpectralNoiseReduction::SpectralNoiseReduction(float pcmrate, tuple<float,float> bw)
 {

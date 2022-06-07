@@ -17,12 +17,15 @@ public:
 	static	void	destroy_rx_streaming_thread();
 	void	operator()();
 	atomic_bool		stop_flag {false};
-
+	
   private:
 	std::string				radio;
 	int						channel;
 	DataBuffer<IQSample>	*m_source_buffer;
 };
+
+extern atomic_bool pause_flag;
+
 
 extern std::thread					rx_thread;
 extern shared_ptr<RX_Stream>		ptr_rx_stream;

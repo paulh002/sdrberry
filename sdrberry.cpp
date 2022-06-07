@@ -147,9 +147,10 @@ int main(int argc, char *argv[])
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
 	mode = Settings_file.convert_mode(smode);
-	
-	ifrate = Settings_file.find_samplerate(Settings_file.find_sdr("default").c_str());
-	ifrate_tx = Settings_file.find_samplerate_tx(Settings_file.find_sdr("default").c_str());
+
+	default_radio = Settings_file.find_sdr("default");
+	ifrate = Settings_file.get_int(default_radio, "samplerate") * 1000;
+	ifrate_tx = Settings_file.get_int(default_radio, "samplerate_tx") * 1000;
 	if (ifrate_tx == 0)
 		ifrate_tx = ifrate;
 	printf("samperate rx %f samplerate tx %f \n", ifrate, ifrate_tx);
@@ -222,7 +223,8 @@ int main(int argc, char *argv[])
 
 	tab["spectrum"] = (lv_tabview_add_tab(tabview_mid, "Spectrum"));
 	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
-	tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
+	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
+	//tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
 	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
@@ -237,6 +239,7 @@ int main(int argc, char *argv[])
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3);
+	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 	if (Settings_file.get_mac_address() != std::string(""))
 	{
@@ -251,7 +254,7 @@ int main(int argc, char *argv[])
 	//Ble_instance.set_mac_address(Settings_file.get_mac_address());
 	//Ble_instance.setup_ble();	
 
-	keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
+	//keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	default_rx_channel = 0;
@@ -334,9 +337,10 @@ int main(int argc, char *argv[])
 		{
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, 0);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
+			vfo.vfo_re_init(ifrate, pcmrate, bw);
 			printf("setBandwidth %ld \n", bw);
 		}
-		
+		gsetup.init_bandwidth();
 		select_mode(mode); // start streaming
 	}
 	else
@@ -412,7 +416,7 @@ void destroy_demodulators()
 	FT8Demodulator::destroy_demodulator();
 	EchoAudio::destroy_modulator();
 	stop_fm();
-	RX_Stream::destroy_rx_streaming_thread();
+	//RX_Stream::destroy_rx_streaming_thread();
 	TX_Stream::destroy_tx_streaming_thread();
 }
 
@@ -441,11 +445,6 @@ void select_mode(int s_mode, bool bvfo)
 		vfo.set_vfo(0, false);
 	}
 	printf("select_mode_rx start rx threads\n");
-	/*if (!stream_rx_on)
-	{
-		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
-		stream_rx_on = true;
-	}*/
 	switch (mode)
 	{
 	case mode_narrowband_fm:
@@ -473,7 +472,13 @@ void select_mode(int s_mode, bool bvfo)
 		vfo.set_step(10, 0);
 		printf("Start AMDemodulator\n");
 		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
-		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
+		if (!stream_rx_on)
+		{
+			RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
+			stream_rx_on = true;
+		}
+		else
+			pause_flag = false;
 		break;
 	case mode_ft8:
 		vfo.set_step(10, 0);
@@ -500,20 +505,12 @@ void select_mode_tx(int s_mode, int tone)
 	std::chrono::duration<double> timePassed = now - startTime;
 	printf("select_mode_tx stop all threads time %4.2f\n", (double)timePassed.count() * 1000000.0);
 	destroy_demodulators();
+	pause_flag = true;
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true);
 	vfo.set_vfo(0, false);
 	printf("select_mode_tx start tx threads\n");
-	try
-	{
-		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, default_rx_channel, (double)Gui_tx.get_drv_pos());
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << e.what();
-		return;
-	}
 	switch (mode)
 	{	
 	case mode_broadband_fm:

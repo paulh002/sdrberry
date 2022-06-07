@@ -62,7 +62,7 @@ void	Fft_calculator::process_samples(const IQSampleVector&	input)
 	m_input.insert(m_input.end(), input.begin(), input.end());
 	if (m_input.size() >= nfft)
 	{
-		std::unique_lock<std::mutex> lock(m_mutex); 
+		std::unique_lock<std::mutex> lock(m_mutex);
 		// Apply hamming window
 		for (int i = 0; i < nfft; i++)
 		{

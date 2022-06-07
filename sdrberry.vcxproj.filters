@@ -1162,6 +1162,12 @@
     <ClCompile Include="ft8\text.c">
       <Filter>Source files\ft8</Filter>
     </ClCompile>
+    <ClCompile Include="gui_rx.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpectralNoiseReduction.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1555,6 +1561,12 @@
     </ClInclude>
     <ClInclude Include="ft8\text.h">
       <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_rx.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpectralNoiseReduction.h">
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

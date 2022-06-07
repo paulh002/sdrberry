@@ -25,6 +25,7 @@
 #include "gui_agc.h"
 #include "gui_bar.h"
 #include "gui_setup.h"
+#include "gui_rx.h"
 #include "ble_interface.h"
 #include "vfo.h"
 #include "sdrstream.h"

@@ -2,6 +2,7 @@
 #include "AMDemodulator.h"
 #include <thread>
 #include "PeakLevelDetector.h"
+#include "SpectralNoiseReduction.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -81,8 +82,9 @@ void AMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1;
-
+	
 	AudioProcessor Agc;
+	unique_ptr<SpectralNoiseReduction> pNoisesp;
 
 	int						ifilter {-1}, span, rcount {0}, dropped_frames {0};
 	SampleVector            audiosamples, audioframes;
@@ -90,6 +92,8 @@ void AMDemodulator::operator()()
 	IQSampleVector			iqsamples;
 	long long pr_time{0};
 	int vsize, passes{0};
+
+	pNoisesp = make_unique<SpectralNoiseReduction>(m_pcmrate, tuple<float,float>(0, 2500));
 
 	Agc.prepareToPlay(audio_output->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
@@ -114,7 +118,7 @@ void AMDemodulator::operator()()
 			set_filter(m_pcmrate, ifilter);
 		}
 						
-		IQSampleVector iqsamples = m_source_buffer->pull();	
+		iqsamples = m_source_buffer->pull();	
 		if (iqsamples.empty())
 		{
 			printf("No samples queued 2\n");
@@ -148,9 +152,17 @@ void AMDemodulator::operator()()
 			{
 				if ((audio_output->queued_samples() / 2) < 4096)
 				{
-					SampleVector		audio_stereo;
+					SampleVector		audio_stereo, audio_noise;
 
-					mono_to_left_right(audioframes, audio_stereo);
+					if (gbar.get_noise())
+					{
+						pNoisesp->Process(audioframes, audio_noise);
+						mono_to_left_right(audio_noise, audio_stereo);
+					}
+					else
+					{
+						mono_to_left_right(audioframes, audio_stereo);
+					}
 					audio_output->write(audio_stereo);
 					audioframes.clear();
 				}

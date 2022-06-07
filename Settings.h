@@ -54,8 +54,12 @@ public:
 	int		gain(string sdrdevice);
 	int		get_int(string sdrdevice, string key);
 	string  get_string(string sdrdevice, string key);
+	void	save_int(string section, string key, int value);
+	void	save_string(string section, string key, string value);
+	void get_array_long(std::string section, std::string key, vector<long> &array);
+	void set_array_long(std::string section, std::string key, vector<long> &array);
 
-	vector<int> meters;
+	vector<int>				meters;
 	vector<string>			labels;
 	vector<long>			f_low;
 	vector<long>			f_high;

@@ -722,6 +722,6 @@ void gui_bar::get_gain_range(int &max_gain, int &min_gain)
 int gui_bar::get_noise()
 {
 	if (lv_obj_get_state(button[10]) & LV_STATE_CHECKED)
-		return 1;
+		return guirx.get_noise() + 1;
 	return 0;
 }

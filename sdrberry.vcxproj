@@ -125,6 +125,7 @@
     <ClCompile Include="HidDev.cpp" />
     <ClCompile Include="img_lvgl_logo.c" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="LMSNoisereducer.cpp" />
     <ClCompile Include="lvgl\src\core\lv_disp.c" />
     <ClCompile Include="lvgl\src\core\lv_event.c" />
     <ClCompile Include="lvgl\src\core\lv_group.c" />
@@ -361,6 +362,7 @@
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="liquid.h" />
     <ClInclude Include="liquid.internal.h" />
+    <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_lru.h" />
     <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_mask.h" />
     <ClInclude Include="lvgl\src\draw\sdl\lv_draw_sdl_stack_blur.h" />

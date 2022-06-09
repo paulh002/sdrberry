@@ -9,6 +9,8 @@
 #include "AudioOutput.h"
 #include "Demodulator.h"
 #include "MorseDecoder.h"
+#include "LMSNoisereducer.h"
+#include "SpectralNoiseReduction.h"
 
 class AMDemodulator : public Demodulator
 {
@@ -32,6 +34,9 @@ private:
 	Agc_class		agc;
 	int				m_iagc = 0;
 	unique_ptr<MorseDecoder> pMDecoder;
+	unique_ptr<LMSNoisereducer> pLMS;
+	unique_ptr<Xanr> pXanr;
+	unique_ptr<SpectralNoiseReduction> pNoisesp;
 };
 
 void select_filter(int ifilter);

@@ -2,7 +2,7 @@
 #include "AMDemodulator.h"
 #include <thread>
 #include "PeakLevelDetector.h"
-#include "SpectralNoiseReduction.h"
+
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -84,8 +84,7 @@ void AMDemodulator::operator()()
 	std::chrono::high_resolution_clock::time_point now, start1;
 	
 	AudioProcessor Agc;
-	unique_ptr<SpectralNoiseReduction> pNoisesp;
-
+	
 	int						ifilter {-1}, span, rcount {0}, dropped_frames {0};
 	SampleVector            audiosamples, audioframes;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
@@ -94,7 +93,9 @@ void AMDemodulator::operator()()
 	int vsize, passes{0};
 
 	pNoisesp = make_unique<SpectralNoiseReduction>(m_pcmrate, tuple<float,float>(0, 2500));
-
+	pLMS = make_unique<LMSNoisereducer>();
+	pXanr = make_unique<Xanr>();
+	
 	Agc.prepareToPlay(audio_output->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
@@ -154,14 +155,18 @@ void AMDemodulator::operator()()
 				{
 					SampleVector		audio_stereo, audio_noise;
 
-					if (gbar.get_noise())
+					switch (gbar.get_noise())
 					{
+					case 1:
+						pXanr->Process(audioframes, audio_noise);
+						break;
+					case 3:
 						pNoisesp->Process(audioframes, audio_noise);
 						mono_to_left_right(audio_noise, audio_stereo);
-					}
-					else
-					{
+						break;
+					default:
 						mono_to_left_right(audioframes, audio_stereo);
+						break;
 					}
 					audio_output->write(audio_stereo);
 					audioframes.clear();
@@ -222,9 +227,20 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
+	switch (gbar.get_noise())
+	{
+	case 2:
+		pLMS->Process(filter1, filter2);
+		break;
+	default:
+		filter2 = filter1;
+		break;
+	}
+
 	if (gsetup.get_cw())
-		pMDecoder->decode(filter1);
-	for (auto col : filter1)
+		pMDecoder->decode(filter2);
+
+	for (auto col : filter2)
 	{
 		float v;
 		

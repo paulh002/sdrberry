@@ -23,6 +23,7 @@ SpectralNoiseReduction::SpectralNoiseReduction(float pcmrate, tuple<float,float>
 	SpectralNoiseReductionInit();
 }
 
+
 void SpectralNoiseReduction::SpectralNoiseReductionInit()
 {
 	for (int bindx = 0; bindx < NR_FFT_L / 2; bindx++)

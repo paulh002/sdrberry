@@ -164,6 +164,10 @@ void AMDemodulator::operator()()
 						pNoisesp->Process(audioframes, audio_noise);
 						mono_to_left_right(audio_noise, audio_stereo);
 						break;
+					case 4:
+						pNoisesp->Process_Kim1_NR(audioframes, audio_noise);
+						mono_to_left_right(audio_noise, audio_stereo);
+						break;
 					default:
 						mono_to_left_right(audioframes, audio_stereo);
 						break;

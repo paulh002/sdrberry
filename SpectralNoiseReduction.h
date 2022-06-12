@@ -18,6 +18,7 @@ class SpectralNoiseReduction
   public:
 	SpectralNoiseReduction(float pcmrate, tuple<float, float> bandwidth);
 	void Process(const SampleVector &samples_in, SampleVector &samples_out);
+	void Process_Kim1_NR(const SampleVector &samples_in, SampleVector &samples_out);
 	void SpectralNoiseReductionInit();
 
   private:
@@ -48,21 +49,39 @@ class SpectralNoiseReduction
 	const float asnr = 20;		   // active SNR in dB
 	const float psini = 0.5;	   // initial speech probability [0.5]
 	const float pspri = 0.5;	   // prior speech probability [0.5]
+	const uint8_t NR_L_frames = 3;
+	const uint8_t NR_N_frames = 15;
+	float NR_KIM_K = 1.0;
+	float NR_onemalpha = (1.0 - NR_alpha);
+	float NR_beta = 0.85;
+	float NR_onemtwobeta = (1.0 - (2.0 * NR_beta));
 	float DF;
 	float SampleRate;
+	float NR_PSI = 3.0;
+	uint32_t NR_X_pointer = 0;
+	uint32_t NR_E_pointer = 0;
+	float NR_sum = 0;
+	float NR_T;
+	uint8_t NR_use_X = 0;
+	uint8_t NR_Kim;
 	tuple<float, float> bandwidth;
 
 	array<float, NR_FFT_L / 2> NR_last_sample_buffer_R;
 	array<float, NR_FFT_L / 2> NR_last_sample_buffer_L;
-	array<array<float, 2>, NR_FFT_L / 2> NR_Gts;
 	array<float, NR_FFT_L / 2> NR_G;
-	array<array<float, 2>, NR_FFT_L / 2> NR_Nest;
 	array<float, NR_FFT_L / 2> NR_Hk_old;
-	array<complex<float>, NR_FFT_L> NR_FFT_buffer;
-	array<complex<float>, NR_FFT_L> NR_FFT_buffer1;
 	array<float, NR_FFT_L> NR_last_iFFT_result;
-	array<array<float, 3>, NR_FFT_L /2> NR_X;
 	array<float, NR_FFT_L / 2> NR_SNR_prio;
 	array<float, NR_FFT_L / 2> NR_SNR_post;
 	array<float, NR_FFT_L / 2> NR_long_tone_gain;
+	array<float, NR_FFT_L / 2> NR_lambda;
+	array<float, NR_FFT_L / 2> NR_M;
+
+	array<array<float, 15>,NR_FFT_L / 2> NR_E;
+	array<array<float, 3>, NR_FFT_L / 2> NR_X;
+	array<array<float, 2>, NR_FFT_L / 2> NR_Nest;
+	array<array<float, 2>, NR_FFT_L / 2> NR_Gts;
+
+	array<complex<float>, NR_FFT_L> NR_FFT_buffer;
+	array<complex<float>, NR_FFT_L> NR_FFT_buffer1;
 };

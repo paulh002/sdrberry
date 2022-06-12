@@ -90,7 +90,7 @@ void Xanr::Process(const SampleVector &samples_in, SampleVector &samples_out)
 
 	for (int i = 0; i < samples_in.size(); i++)
 	{
-		ANR_d[ANR_in_idx] = samples_in[i].real();
+		ANR_d[ANR_in_idx] = samples_in[i];
 
 		y = 0;
 		sigma = 0;

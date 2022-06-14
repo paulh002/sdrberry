@@ -91,10 +91,12 @@ static void samplerate_button_handler(lv_event_t * e)
 		ifrate = gsetup.get_sample_rate(rate);
 		gsetup.m_ifrate = ifrate;
 
-		int sel = lv_dropdown_get_selected(obj);
-		if (sel <= SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
+		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0) > 0)
 		{
-			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, sel);
+			long bw = 0L;
+
+			int sel = gsetup.get_bandwidth_sel();
+			bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, sel);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
 			vfo.vfo_re_init((long)ifrate, audio_output->get_samplerate(), bw);
 			printf("setBandwidth %ld \n", bw);
@@ -102,7 +104,7 @@ static void samplerate_button_handler(lv_event_t * e)
 		else
 			vfo.vfo_re_init((long)ifrate, audio_output->get_samplerate(), 0L);
 
-		destroy_demodulators();
+		destroy_demodulators(true);
 		try
 		{
 			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, default_rx_channel, ifrate);

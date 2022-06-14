@@ -122,10 +122,6 @@ int main(int argc, char *argv[])
 	auto RtApi = RtAudio::LINUX_ALSA;
 
 	string s = Settings_file.find_audio("device");
-	string api = Settings_file.find_audio("api");
-	if (api == "pulse")
-		RtApi = RtAudio::LINUX_PULSE;
-	
 	audio_output = new AudioOutput(pcmrate, &audiooutput_buffer, RtApi);
 	if (!audio_output) 
 	{
@@ -407,7 +403,9 @@ uint32_t custom_tick_get(void)
 	return time_ms;
 }
 
-void destroy_demodulators()
+static bool stream_rx_on{false};
+
+void destroy_demodulators(bool all)
 {
 	FMDemodulator::destroy_demodulator();
 	AMDemodulator::destroy_demodulator();
@@ -416,12 +414,16 @@ void destroy_demodulators()
 	FT8Demodulator::destroy_demodulator();
 	EchoAudio::destroy_modulator();
 	stop_fm();
-	//RX_Stream::destroy_rx_streaming_thread();
+	if (all)
+	{
+		RX_Stream::destroy_rx_streaming_thread();
+		stream_rx_on = false;
+	}
 	TX_Stream::destroy_tx_streaming_thread();
 }
 
 extern std::chrono::high_resolution_clock::time_point starttime1;
-static bool stream_rx_on{false};
+
 
 void select_mode(int s_mode, bool bvfo)
 {

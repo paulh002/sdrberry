@@ -53,6 +53,17 @@ void gui_rx::get_buttons(vector<long> &array)
 	}
 }
 
+void noise_handler(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		int noise = guirx.get_noise();
+		Settings_file.save_int("Radio", "noise", noise);
+	}
+}
+
 void gui_rx::set_freq(lv_obj_t *obj, long long freq)
 {
 	for (auto &con : buttons)
@@ -158,9 +169,13 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_dropdown_clear_options(drp_noise);
 	lv_group_add_obj(m_button_group, drp_noise);
 	lv_dropdown_add_option(drp_noise, "Leaky LMS", LV_DROPDOWN_POS_LAST);
-	lv_dropdown_add_option(drp_noise, "LMS", LV_DROPDOWN_POS_LAST);
+	//lv_dropdown_add_option(drp_noise, "LMS", LV_DROPDOWN_POS_LAST);
 	lv_dropdown_add_option(drp_noise, "Spectral", LV_DROPDOWN_POS_LAST);
 	lv_dropdown_add_option(drp_noise, "Kim", LV_DROPDOWN_POS_LAST);
-	
+
+	int noise = Settings_file.get_int("Radio", "noise");
+	lv_dropdown_set_selected(drp_noise, noise);
+	lv_obj_add_event_cb(drp_noise, noise_handler, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, NULL);
+
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }

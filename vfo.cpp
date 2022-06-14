@@ -132,10 +132,10 @@ void CVfo::vfo_re_init(long ifrate, long pcmrate, long bandwidth)
 		vfo_setting.bandwidth = pcmrate/2;
 	if (ifrate < 500000.0)
 	{
-		if (bandwidth < ifrate / 4)
+		if (vfo_setting.bandwidth < ifrate / 4)
 		{
-			offset_frequency = bandwidth / 2;
-			vfo_setting.m_max_offset = bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
+			offset_frequency = vfo_setting.bandwidth / 2;
+			vfo_setting.m_max_offset = vfo_setting.bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
 		}
 		else
 		{
@@ -147,8 +147,8 @@ void CVfo::vfo_re_init(long ifrate, long pcmrate, long bandwidth)
 	{
 		if (bandwidth < ifrate / 4)
 		{
-			offset_frequency = bandwidth / 2;
-			vfo_setting.m_max_offset = bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
+			offset_frequency = vfo_setting.bandwidth / 2;
+			vfo_setting.m_max_offset = vfo_setting.bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
 		}
 		else
 		{

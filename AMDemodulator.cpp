@@ -93,7 +93,7 @@ void AMDemodulator::operator()()
 	int vsize, passes{0};
 
 	pNoisesp = make_unique<SpectralNoiseReduction>(m_pcmrate, tuple<float,float>(0, 2500));
-	pLMS = make_unique<LMSNoisereducer>();
+	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
 	pXanr = make_unique<Xanr>();
 	
 	Agc.prepareToPlay(audio_output->get_samplerate());
@@ -160,11 +160,11 @@ void AMDemodulator::operator()()
 					case 1:
 						pXanr->Process(audioframes, audio_noise);
 						break;
-					case 3:
+					case 2:
 						pNoisesp->Process(audioframes, audio_noise);
 						mono_to_left_right(audio_noise, audio_stereo);
 						break;
-					case 4:
+					case 3:
 						pNoisesp->Process_Kim1_NR(audioframes, audio_noise);
 						mono_to_left_right(audio_noise, audio_stereo);
 						break;
@@ -231,20 +231,10 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
-	switch (gbar.get_noise())
-	{
-	case 2:
-		pLMS->Process(filter1, filter2);
-		break;
-	default:
-		filter2 = filter1;
-		break;
-	}
-
 	if (gsetup.get_cw())
-		pMDecoder->decode(filter2);
+		pMDecoder->decode(filter1);
 
-	for (auto col : filter2)
+	for (auto col : filter1)
 	{
 		float v;
 		

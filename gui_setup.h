@@ -35,7 +35,7 @@ public:
 	void set_floor_value(int floor);
 	int get_contour_value();
 	void init_bandwidth();
-
+	int get_bandwidth_sel() { return lv_dropdown_get_selected(d_bandwitdth); }
 	double			m_ifrate;
 	
 private:

@@ -197,7 +197,7 @@ void Waterfall::set_pos(int32_t  offset)
 	float div = m_ifrate.load() / nfft_samples;
 	pos = (uint32_t)round(offset / div);
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
-	printf("offset %d pos: %d ifrate %f div %f\n",offset, pos, m_ifrate.load(), div);
+	//printf("offset %d pos: %d ifrate %f div %f\n",offset, pos, m_ifrate.load(), div);
 }
 
 void Waterfall::set_fft_if_rate(float ifrate, int n)

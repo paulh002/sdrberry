@@ -25,6 +25,7 @@
 #include "gui_agc.h"
 #include "gui_bar.h"
 #include "gui_setup.h"
+#include "gui_rx.h"
 #include "ble_interface.h"
 #include "vfo.h"
 #include "sdrstream.h"
@@ -96,4 +97,4 @@ inline void samples_mean_rms(const SampleVector& samples,
 
 void select_mode(int s_mode, bool bvfo = true);
 void select_mode_tx(int s_mode, int tone = 0);
-void destroy_demodulators();
+void destroy_demodulators(bool all = false);

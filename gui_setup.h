@@ -31,7 +31,11 @@ public:
 	void	set_cw(bool bcw);
 	void	toggle_cw();
 	void	set_group();
-	
+	void set_contour_value(int speed);
+	void set_floor_value(int floor);
+	int get_contour_value();
+	void init_bandwidth();
+	int get_bandwidth_sel() { return lv_dropdown_get_selected(d_bandwitdth); }
 	double			m_ifrate;
 	
 private:
@@ -41,9 +45,11 @@ private:
 	lv_obj_t*		d_receivers;
 	lv_obj_t*		span_slider_label, *span_slider;
 	lv_obj_t*		brightness_slider_label, *brightness_slider;
-	lv_obj_t*		d_audio, *check_cw;
+	lv_obj_t*		d_audio, *check_cw, *d_bandwitdth;
 	atomic<int>		m_span;
 	lv_group_t		*m_button_group{nullptr};
+	lv_obj_t *contour_slider_label, *contour_slider;
+	lv_obj_t *floor_slider_label, *floor_slider;
 };
 
 extern gui_setup	gsetup;

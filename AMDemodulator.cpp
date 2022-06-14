@@ -3,6 +3,7 @@
 #include <thread>
 #include "PeakLevelDetector.h"
 
+
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
 
@@ -81,9 +82,9 @@ void AMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1;
-
+	
 	AudioProcessor Agc;
-
+	
 	int						ifilter {-1}, span, rcount {0}, dropped_frames {0};
 	SampleVector            audiosamples, audioframes;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
@@ -91,6 +92,10 @@ void AMDemodulator::operator()()
 	long long pr_time{0};
 	int vsize, passes{0};
 
+	pNoisesp = make_unique<SpectralNoiseReduction>(m_pcmrate, tuple<float,float>(0, 2500));
+	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
+	pXanr = make_unique<Xanr>();
+	
 	Agc.prepareToPlay(audio_output->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
@@ -114,7 +119,7 @@ void AMDemodulator::operator()()
 			set_filter(m_pcmrate, ifilter);
 		}
 						
-		IQSampleVector iqsamples = m_source_buffer->pull();	
+		iqsamples = m_source_buffer->pull();	
 		if (iqsamples.empty())
 		{
 			printf("No samples queued 2\n");
@@ -148,9 +153,25 @@ void AMDemodulator::operator()()
 			{
 				if ((audio_output->queued_samples() / 2) < 4096)
 				{
-					SampleVector		audio_stereo;
+					SampleVector		audio_stereo, audio_noise;
 
-					mono_to_left_right(audioframes, audio_stereo);
+					switch (gbar.get_noise())
+					{
+					case 1:
+						pXanr->Process(audioframes, audio_noise);
+						break;
+					case 2:
+						pNoisesp->Process(audioframes, audio_noise);
+						mono_to_left_right(audio_noise, audio_stereo);
+						break;
+					case 3:
+						pNoisesp->Process_Kim1_NR(audioframes, audio_noise);
+						mono_to_left_right(audio_noise, audio_stereo);
+						break;
+					default:
+						mono_to_left_right(audioframes, audio_stereo);
+						break;
+					}
 					audio_output->write(audio_stereo);
 					audioframes.clear();
 				}
@@ -212,6 +233,7 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	calc_if_level(filter1);
 	if (gsetup.get_cw())
 		pMDecoder->decode(filter1);
+
 	for (auto col : filter1)
 	{
 		float v;

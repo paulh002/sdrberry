@@ -153,7 +153,7 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	{
 		complex<float> f;	
 		ampmodem_modulate(modAM, col, &f);
-		//printf("%f;%f;%f \n", col, f.real(), f.imag());
+		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);
 	}
 	double if_rms = rms_level_approx(buf_mod);
@@ -169,9 +169,10 @@ void AMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 		complex<float> f;
 		int16_t i, q;
 
-		i = (int16_t)round(col.real() * 16384.0f);
-		q = (int16_t)round(col.imag() * 16384.0f);
+		i = (int16_t)round(col.real() * 16384.0f) *10;
+		q = (int16_t)round(col.imag() * 16384.0f) *10;
 		IQSample16 s16 {i, q};
+		//printf("i %d q %d\n",i, q);
 		buf_out16.push_back(s16);
 	}
 	mix_up_fft(buf_filter, buf_mod);

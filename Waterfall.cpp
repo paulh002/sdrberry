@@ -62,7 +62,7 @@ void	Fft_calculator::process_samples(const IQSampleVector&	input)
 	m_input.insert(m_input.end(), input.begin(), input.end());
 	if (m_input.size() >= nfft)
 	{
-		std::unique_lock<std::mutex> lock(m_mutex); 
+		std::unique_lock<std::mutex> lock(m_mutex);
 		// Apply hamming window
 		for (int i = 0; i < nfft; i++)
 		{
@@ -192,12 +192,12 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 void Waterfall::set_pos(int32_t  offset)
 {
 	uint32_t pos;
-	
+
 	offset = offset - ((m_ifrate.load() / 2) * m_n.load());
 	float div = m_ifrate.load() / nfft_samples;
 	pos = (uint32_t)round(offset / div);
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
-	//printf("offset %d pos: %d ifrate %f div %f\n", offset, pos, m_ifrate.load(), div);
+	//printf("offset %d pos: %d ifrate %f div %f\n",offset, pos, m_ifrate.load(), div);
 }
 
 void Waterfall::set_fft_if_rate(float ifrate, int n)

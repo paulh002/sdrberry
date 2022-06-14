@@ -124,18 +124,37 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 	catinterface.SetFA(vfo_setting.vfo_freq[0]);
 }
 
-void CVfo::vfo_re_init(long ifrate, long pcmrate)
+void CVfo::vfo_re_init(long ifrate, long pcmrate, long bandwidth)
 {	
 	vfo_setting.pcmrate = pcmrate;
+	vfo_setting.bandwidth = bandwidth;
+	if (bandwidth == 0)
+		vfo_setting.bandwidth = pcmrate/2;
 	if (ifrate < 500000.0)
 	{
-		offset_frequency = ifrate / 4;
-		vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
+		if (vfo_setting.bandwidth < ifrate / 4)
+		{
+			offset_frequency = vfo_setting.bandwidth / 2;
+			vfo_setting.m_max_offset = vfo_setting.bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
+		}
+		else
+		{
+			offset_frequency = ifrate / 4;
+			vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
+		}
 	}
 	else
 	{
-		offset_frequency = ifrate / 8; 
-		vfo_setting.m_max_offset = ifrate / 4; // Max offset is 1/2 samplefrequency (Nyquist limit)
+		if (bandwidth < ifrate / 4)
+		{
+			offset_frequency = vfo_setting.bandwidth / 2;
+			vfo_setting.m_max_offset = vfo_setting.bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
+		}
+		else
+		{
+			offset_frequency = ifrate / 8;
+			vfo_setting.m_max_offset = ifrate / 4; // Max offset is 1/2 samplefrequency (Nyquist limit)
+		}
 	}
 	vfo_setting.vfo_freq_sdr[0] = vfo_setting.vfo_freq[0] - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 	vfo_setting.m_offset[0] = vfo_setting.vfo_freq[0] - vfo_setting.vfo_freq_sdr[0]; // 

@@ -17,12 +17,15 @@ public:
 	static	void	destroy_rx_streaming_thread();
 	void	operator()();
 	atomic_bool		stop_flag {false};
-
+	
   private:
 	std::string				radio;
 	int						channel;
 	DataBuffer<IQSample>	*m_source_buffer;
 };
+
+extern atomic_bool pause_flag;
+
 
 extern std::thread					rx_thread;
 extern shared_ptr<RX_Stream>		ptr_rx_stream;
@@ -34,13 +37,11 @@ public:
 	static  bool	create_tx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer, double ifrate);
 	static	void	destroy_tx_streaming_thread();
 	void	operator()();
-	void	set_if_rate(double ifrate) {m_ifrate = ifrate;} 
 	atomic<bool>		stop_flag {false};
 	
 private:
 	std::string				radio;
 	int						channel;
-	double					m_ifrate;
 	DataBuffer<IQSample16> *m_source_buffer;
 };
 

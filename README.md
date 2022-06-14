@@ -18,16 +18,22 @@ a compiled executable and soapyradioberry library is available in executable dir
 installation instruction in install_guide.txt
 install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
 
+Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction 
+adapted for raspberry pi
+
 ToDo:
 - Support for Midi contoler
 - Setup screen for Network and Wifi
 - waterfall display
+- Different noise reduction schemas like lms etc.
+- Support for audio sdr using Tal
 
 Done:
 - Adalm Pluto
 - Rtlsdr support
 - SDRPlay support
 - Radioberry support
+- Hackrf support
 - FM broadband (only receive)
 - FM Narrowband
 - SSB support
@@ -43,6 +49,7 @@ Done:
 - Morse code decoder
 - Support for Contour Shuttle Express
 - Receive FT8
+- Noise reduction (spectral noise reduction)
 
 Installation of libraries is necessary:
 - Liquid DSP

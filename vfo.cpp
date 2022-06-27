@@ -22,7 +22,7 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 	bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 
-void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel,int ftx_channel)
+void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel,int ftx_channel)
 {
 	SdrDevices = fSdrDevices;
 	radio = fradio;
@@ -30,6 +30,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 	tx_channel = frx_channel;
 		
 	vfo_setting.active_vfo = 0;
+	vfo_setting.span = span;
 	string s = Settings_file.find_vfo1("freq");
 	long long freq = strtoll((const char *)s.c_str(), NULL, 0);
 	string ham = Settings_file.find_radio("band");
@@ -86,16 +87,9 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 			check_band(0, freq);
 	}
 	
-	//if (ifrate < 500000.0)
-	//{
-		offset_frequency = ifrate / 4;
-		vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
-	//}
-	//else
-	//{
-	//	offset_frequency = ifrate / 8; 
-	//	vfo_setting.m_max_offset = ifrate / 4; // Max offset is 1/2 samplefrequency (Nyquist limit)
-	//}
+	offset_frequency = ifrate / 4; // to center initial spectrum view
+	vfo_setting.m_max_offset = ifrate /2; // Max offset is 1/2 samplefrequency (Nyquist limit)
+
 	vfo_setting.pcmrate = pcmrate;
 	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
 	vfo_setting.vfo_freq_sdr[0] = freq - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
@@ -124,37 +118,22 @@ void CVfo::vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std
 	catinterface.SetFA(vfo_setting.vfo_freq[0]);
 }
 
-void CVfo::vfo_re_init(long ifrate, long pcmrate, long bandwidth)
+void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
 {	
 	vfo_setting.pcmrate = pcmrate;
 	vfo_setting.bandwidth = bandwidth;
+	vfo_setting.span = span;
 	if (bandwidth == 0)
-		vfo_setting.bandwidth = pcmrate/2;
-	if (ifrate < 500000.0)
+		vfo_setting.bandwidth = pcmrate;
+	if (bandwidth < ifrate / 2)
 	{
-		if (vfo_setting.bandwidth < ifrate / 4)
-		{
-			offset_frequency = vfo_setting.bandwidth / 2;
-			vfo_setting.m_max_offset = vfo_setting.bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
-		}
-		else
-		{
-			offset_frequency = ifrate / 4;
-			vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency (Nyquist limit)
-		}
+		offset_frequency = vfo_setting.bandwidth / 2;
+		vfo_setting.m_max_offset = vfo_setting.bandwidth; // Max offset is 1/2 samplefrequency 
 	}
 	else
 	{
-		if (bandwidth < ifrate / 4)
-		{
-			offset_frequency = vfo_setting.bandwidth / 2;
-			vfo_setting.m_max_offset = vfo_setting.bandwidth; // Max offset is 1/2 samplefrequency (Nyquist limit)
-		}
-		else
-		{
-			offset_frequency = ifrate / 8;
-			vfo_setting.m_max_offset = ifrate / 4; // Max offset is 1/2 samplefrequency (Nyquist limit)
-		}
+		offset_frequency = ifrate / 4;
+		vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency 
 	}
 	vfo_setting.vfo_freq_sdr[0] = vfo_setting.vfo_freq[0] - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 	vfo_setting.m_offset[0] = vfo_setting.vfo_freq[0] - vfo_setting.vfo_freq_sdr[0]; // 
@@ -162,6 +141,19 @@ void CVfo::vfo_re_init(long ifrate, long pcmrate, long bandwidth)
 	vfo_setting.vfo_freq_sdr[1] = vfo_setting.vfo_freq[1] - offset_frequency;
 	vfo_setting.m_offset[1] = vfo_setting.vfo_freq[1] - vfo_setting.vfo_freq_sdr[1]; // 
 }
+
+void CVfo::set_span(long span)
+{
+	vfo_setting.span = span;
+}
+
+bool CVfo::compare_span()
+{
+	if ((ifrate - (double)vfo_setting.span) < 0.1)
+		return false;
+	return true;
+}
+ 
 
 void CVfo::set_freq_to_sdr()
 {
@@ -256,14 +248,24 @@ int CVfo::set_vfo(long long freq, bool lock)
 			}
 		}
 		else
-		{
-			// if ferquency increase is lower than 1/2 sample frequency calculate new center
-			// frequency decrease		
-			vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] -= vfo_setting.m_max_offset / 2;										// decrease sdr with 1/4 sample frequency
-			vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]; 					// offset is freq - sdr frequency
-			if (vfo_setting.rx) rx_set_sdr_freq();
-			if (vfo_setting.tx) tx_set_sdr_freq(); 
-			tune_flag = true;
+		{  /*add negative*/
+			if (abs((freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo])) > vfo_setting.m_max_offset || vfo.compare_span())
+			{
+				// if ferquency increase is lower than 1/2 sample frequency calculate new center
+				// frequency decrease
+				vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] -= vfo_setting.m_max_offset / 2;						// decrease sdr with 1/4 sample frequency
+				vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]; // offset is freq - sdr frequency
+				if (vfo_setting.rx)
+					rx_set_sdr_freq();
+				if (vfo_setting.tx)
+					tx_set_sdr_freq();
+				tune_flag = true;
+			}
+			else
+			{
+				vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
+				tune_flag = true;
+			}
 			//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 		}
 	}

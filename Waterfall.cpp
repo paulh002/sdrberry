@@ -71,7 +71,6 @@ void	Fft_calculator::process_samples(const IQSampleVector&	input)
 		}
 		plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
 		fft_execute(plan);
-		//std::rotate(fft_output.begin(), fft_output.begin() + nfft / 2, fft_output.end());
 		fft_destroy_plan(plan);
 		m_input.clear();
 	}
@@ -141,23 +140,27 @@ static void draw_event_cb(lv_event_t * e)
 		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
 		{
 			string str[vert_lines];
-			long long f = vfo.get_sdr_frequency();
 			int span = gsetup.get_span();
+			long long f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
+			int ii;
 
-			//int ii = (int)floor((ifrate / 2.0) / (float)hor_lines / (float)(nfft_samples / 2));
-			//int ii = (int)floor((ifrate / 2.0) / (float)(vert_lines -1));
-			int ii = span / (vert_lines - 1);
+			if (!vfo.compare_span())
+				ii = span / (vert_lines - 1);
+			else
+				ii = (2*span) / (vert_lines - 1);
 
 			for (int i = 0; i < vert_lines; i++)
-			{
-				char str1[20];
-				double l = (double)((f / 10ULL) % 1000ULL) / 100.0;
-				sprintf(str1, "%4.2f", l);
-				str[i] = string(str1);
-				size_t pos = str[i].length();
-				f += ii;
-			}
-			lv_snprintf(dsc->text, sizeof(dsc->text), "%s", str[dsc->value].c_str());
+				{
+					char str1[20];
+					//double l = (double)((f / 10ULL) % 1000000ULL) / 100.0;
+					long l = (long)(f / 100ULL);
+					sprintf(str1, "%ld", l);
+					str[i] = string(str1);
+					size_t pos = str[i].length();
+					f += ii;
+				}
+			//sizeof(dsc->text)
+			lv_snprintf(dsc->text, str[dsc->value].length(), "%s", str[dsc->value].c_str());
 		}
 	}
 }
@@ -179,7 +182,7 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	
 	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 6, 1, true, 80);
 	lv_chart_set_div_line_count(chart, hor_lines, vert_lines); 
-	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 50);
+	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
 	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE),  LV_DIR_BOTTOM);
 
@@ -191,13 +194,27 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 
 void Waterfall::set_pos(int32_t  offset)
 {
-	uint32_t pos;
+	int pos;
+	float d;
+	int span = gsetup.get_span();
 
-	offset = offset - ((m_ifrate.load() / 2) * m_n.load());
-	float div = m_ifrate.load() / nfft_samples;
-	pos = (uint32_t)round(offset / div);
+	if (vfo.compare_span())
+	{
+		offset = offset - ((m_ifrate.load() / 2) * m_n.load());
+		float div = m_ifrate.load() / nfft_samples ;
+		pos = (uint32_t)round(offset / div) - 1;
+	}
+	else
+	{
+		// currenlty nog negative offset still need to change
+		//d = ((float)offset + (float)m_ifrate.load() / 2.0) / (float)m_ifrate.load();
+		d = ((float)offset + (float)span / 2.0) / (float)span;
+		pos = (d * (float)nfft_samples) - 1;
+	}
+	if (pos < 0)
+		pos = 0;
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
-	//printf("offset %d pos: %d ifrate %f div %f\n",offset, pos, m_ifrate.load(), div);
+	printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
 }
 
 void Waterfall::set_fft_if_rate(float ifrate, int n)
@@ -223,19 +240,41 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
 	int i = 0, av = 0, value, avg{0};
-	data_set.resize(fft_output.size()/2);
-	int start = fft_output.size() / 2;
-		
-	for (auto &col : fft_output)
-	{
-		if (i == (fft_output.size() / 2))
-			break;
-		std::complex f = std::conj(col) * col;
-		value = noise_floor + (lv_coord_t)(20.0 * log10(f.real()));
-		data_set[i] = avg_filter[i](value);
 
-		//data_set[i] = noise_floor + (lv_coord_t)20 * log10((col.real() * col.real() + col.imag() * col.imag()));
-		i++;
+	if (vfo.compare_span())
+	{
+		data_set.resize(fft_output.size()/2);
+		for (auto &col : fft_output)
+		{
+			if (i == (fft_output.size() / 2))
+				break;
+			std::complex f = std::conj(col) * col;
+			value = noise_floor + (lv_coord_t)(20.0 * log10(f.real()));
+			data_set[i] = avg_filter[i](value);
+			i++;
+		}
+	}
+	else
+	{
+		data_set.resize(fft_output.size());
+		for (int i = 0; i < fft_output.size(); i++)
+		{
+			std::complex<float> f, g;
+			int ii;
+
+			if (i < fft_output.size() / 2)
+			{
+				ii = fft_output.size() / 2 + i;
+			}
+			else
+			{
+				ii = i - fft_output.size() / 2;
+			}
+			f = std::conj(fft_output[ii]) * fft_output[ii];
+			g = f / v_window[ii];
+			value = noise_floor + (lv_coord_t)(20.0 * log10(g.real()));
+			data_set[i] = avg_filter[i](value);
+		}
 	}
 }
 

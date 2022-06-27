@@ -462,6 +462,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
 	lv_group_add_obj(button_group, vol_slider);
+	lv_group_add_obj(button_group, if_slider);
 	lv_group_add_obj(button_group, gain_slider);
 
 	try

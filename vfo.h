@@ -49,6 +49,7 @@ struct vfo_settings_struct
 	long				m_offset[2];
 	vector<bands>		m_bands;
 	long				pcmrate;
+	long				span;
 	long				bandwidth;
 };
 
@@ -57,8 +58,10 @@ class CVfo
 public:
 	CVfo();
 	
-	void vfo_init(long ifrate, long pcmrate, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel, int ftx_channel);
-	void vfo_re_init(long ifrate, long pcmrate, long bandwidth);
+	void vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel, int ftx_channel);
+	void vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth);
+	void set_span(long span);
+	bool compare_span();
 	int	 set_vfo(long long freq, bool lock);
 	void set_freq_to_sdr();
 	void step_vfo(long icount, bool lock);
@@ -79,6 +82,7 @@ public:
 	bool get_rx() {return vfo_setting.rx;}
 	bool get_tx() {return vfo_setting.tx;}
 	int get_active_vfo() { return vfo_setting.active_vfo; }
+	long get_maxoffset() { return vfo_setting.m_max_offset; }
 	long long get_sdr_frequency()
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];

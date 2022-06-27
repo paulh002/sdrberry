@@ -9,6 +9,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
+#include <fftw3.h>
 #include <liquid.h>
 #include <unistd.h>
 #include <thread>

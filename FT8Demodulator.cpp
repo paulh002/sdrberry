@@ -94,11 +94,11 @@ void FT8Message::display()
 				  msg.c_str());
 }
 
-bool FT8Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+bool FT8Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {
 	if (sp_ft8demod != nullptr)
 		return false;
-	sp_ft8demod = make_shared<FT8Demodulator>(mode, ifrate, pcmrate, source_buffer, audio_output);
+	sp_ft8demod = make_shared<FT8Demodulator>(mode, ifrate, pcmrate, dc, source_buffer, audio_output);
 	sp_ft8demod->amdemod_thread = std::thread(&FT8Demodulator::operator(), sp_ft8demod);
 	return true;
 }
@@ -118,8 +118,8 @@ void FT8Demodulator::destroy_demodulator()
 	cout << "Stoptime FT8Demodulator:" << timePassed.count() << endl;
 }
 
-FT8Demodulator::FT8Demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
+FT8Demodulator::FT8Demodulator(int mode, double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+	: Demodulator(ifrate, pcmrate, dc, source_buffer, audio_output)
 {
 	float mod_index = 0.03125f;
 	int suppressed_carrier;

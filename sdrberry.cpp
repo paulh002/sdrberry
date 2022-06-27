@@ -279,8 +279,8 @@ int main(int argc, char *argv[])
 			default_tx_channel = -1;
 		else
 			default_tx_channel = 0;
-		vfo.set_vfo_range(r.minimum(),r.maximum());	
-		vfo.vfo_init((long)ifrate, pcmrate, &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.set_vfo_range(r.minimum(),r.maximum());
+		vfo.vfo_init((long)ifrate, pcmrate, gsetup.get_span() ,&SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
 		{
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, 0);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init(ifrate, pcmrate, bw);
+			vfo.vfo_re_init(ifrate, pcmrate, gsetup.get_span(),bw);
 			printf("setBandwidth %ld \n", bw);
 		}
 		gsetup.init_bandwidth();
@@ -427,10 +427,12 @@ extern std::chrono::high_resolution_clock::time_point starttime1;
 
 void select_mode(int s_mode, bool bvfo)
 {
-	bool stereo{false};
-	
+	bool stereo{false}, dc{false};
+
 	if (!SdrDevices.isValid(default_radio))
 		return;
+	if (Settings_file.get_int(default_radio, "dc"))
+		dc = true;
 	catinterface.Pause_Cat(true);
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
@@ -450,7 +452,7 @@ void select_mode(int s_mode, bool bvfo)
 	switch (mode)
 	{
 	case mode_narrowband_fm:
-		FMDemodulator::create_demodulator(ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
+		FMDemodulator::create_demodulator(ifrate, audio_output->get_samplerate(), dc, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	
@@ -473,7 +475,7 @@ void select_mode(int s_mode, bool bvfo)
 			gsetup.set_cw(false);
 		vfo.set_step(10, 0);
 		printf("Start AMDemodulator\n");
-		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
+		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), dc, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
 		{
 			RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
@@ -485,7 +487,7 @@ void select_mode(int s_mode, bool bvfo)
 	case mode_ft8:
 		vfo.set_step(10, 0);
 		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))), false);
-		FT8Demodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
+		FT8Demodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), dc, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_echo:
@@ -583,7 +585,7 @@ void	switch_sdrreceiver(std::string receiver)
 		else
 			default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());
-		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), gsetup.get_span(),&SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)

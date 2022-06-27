@@ -52,7 +52,7 @@ static void span_slider_event_cb(lv_event_t * e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
 
-	int i = lv_slider_get_value(obj) * 50;
+	int i = lv_slider_get_value(obj) * 48;
 	if (i > 0)
 	{		
 		gsetup.set_span_value(i * 1000);
@@ -90,6 +90,8 @@ static void samplerate_button_handler(lv_event_t * e)
 		int rate = lv_dropdown_get_selected(obj);
 		ifrate = gsetup.get_sample_rate(rate);
 		gsetup.m_ifrate = ifrate;
+		gsetup.set_span_range(ifrate / 2);
+		gsetup.set_span_value(ifrate / 2);
 
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0) > 0)
 		{
@@ -98,11 +100,11 @@ static void samplerate_button_handler(lv_event_t * e)
 			int sel = gsetup.get_bandwidth_sel();
 			bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, sel);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init((long)ifrate, audio_output->get_samplerate(), bw);
+			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), bw);
 			printf("setBandwidth %ld \n", bw);
 		}
 		else
-			vfo.vfo_re_init((long)ifrate, audio_output->get_samplerate(), 0L);
+			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), 0L);
 
 		destroy_demodulators(true);
 		try
@@ -114,8 +116,6 @@ static void samplerate_button_handler(lv_event_t * e)
 			std::cout << e.what() << endl;
 			return;
 		}
-		gsetup.set_span_range(ifrate/2);
-		gsetup.set_span_value(ifrate/2);
 		select_mode(mode);
 	}
 }
@@ -154,7 +154,7 @@ static void bandwidth_button_handler(lv_event_t *e)
 		{
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, sel);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init((long)ifrate, audio_output->get_samplerate(), bw);
+			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), bw);
 			printf("setBandwidth %ld \n", bw);
 		}
 	}
@@ -358,12 +358,11 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	
 
-	string span = Settings_file.find_radio("span");
-	int i = atoi(span.c_str());
-	if (((i * 1000) > (ifrate / 2)) || i == 0)
-		i = ifrate / 2000;
-	set_span_range(ifrate/2);
-	set_span_value(i * 1000);
+	int span = Settings_file.get_int(default_radio,"span");
+	if (((span * 1000) > (ifrate / 1)) || span == 0)
+		span = ifrate / 1000;
+	set_span_range(ifrate);
+	set_span_value(span * 1000);
 
 	//lv_obj_t *contour_slider_label, *contour_slider;
 	//lv_obj_t *floor_slider_label, *floor_slider;
@@ -417,24 +416,24 @@ void gui_setup::set_span_value(int span)
 	char	buf[30];
 	
 	int maxv = lv_slider_get_max_value(span_slider);
-	int v = span / 50000;
+	int v = span / 48000;
 	
 	if(v < 0 || v > maxv)
 		span = maxv;
 	if (v > 0)
 	{	// the highest span is limited by ifrate/2
-		if (((m_ifrate / 2) - (double)span) < 0.1)
+		if ((m_ifrate - (double)span) < 0.1)
 		{
 			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);
-			span = m_ifrate / 2;
+			span = m_ifrate;
 			sprintf(buf, "span %d Khz", span / 1000);
 			gui_vfo_inst.set_span(span / 1000);			
 		}
 		else
 		{
 			lv_slider_set_value(span_slider, v, LV_ANIM_ON);
-			sprintf(buf, "span %d Khz", v * 50);
-			gui_vfo_inst.set_span(v * 50);
+			sprintf(buf, "span %d Khz", v * 48);
+			gui_vfo_inst.set_span(v * 48);
 		}
 	}
 	else
@@ -445,6 +444,7 @@ void gui_setup::set_span_value(int span)
 	}
 	lv_label_set_text(span_slider_label, buf);
 	// store in atomic<int> so demodulator thread can request it
+	vfo.set_span(span);
 	m_span.store(span);	
 }
 
@@ -452,8 +452,8 @@ void gui_setup::set_span_range(int span)
 {
 	char	buf[30];
 	
-	int v = span / 50000;
-	int m = span % 50000;
+	int v = span / 48000;
+	int m = span % 48000;
 	if (v < 0 || v > 80)
 		span = 80;
 	if (v == 0)

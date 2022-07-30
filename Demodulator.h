@@ -18,7 +18,7 @@ public:
 	
 protected:
 	~Demodulator();
-	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	Demodulator(double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
 	Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input);
 	void			mono_to_left_right(const SampleVector& samples_mono, SampleVector& audio);
@@ -44,8 +44,9 @@ protected:
 	void			calc_af_level(const SampleVector &samples_in);
 	void			set_bandpass_filter(float high, float mid_high, float mid_low, float low);
 	void			exec_bandpass_filter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void			dc_filter(const IQSampleVector &filter_in,IQSampleVector &filter_out);
 
-	double                      m_audio_mean, m_audio_rms, m_audio_level;
+	double m_audio_mean, m_audio_rms, m_audio_level;
 	DataBuffer<IQSample>		*m_source_buffer {nullptr};
 	AudioOutput					*m_audio_output {nullptr};
 	double						m_ifrate;
@@ -56,8 +57,8 @@ protected:
 	double						m_if_level {0};
 	double						m_af_level {0};
 	int							m_span {0};
-	
-private:
+
+  private:
 	nco_crcf					m_upnco {nullptr};
 	msresamp_crcf 				m_q {nullptr};
 	long						m_offset;
@@ -73,6 +74,7 @@ private:
 	iirfilt_crcf q_bandpass{nullptr};
 	iirfilt_crcf q_lowpass{nullptr};
 	iirfilt_crcf q_highpass{nullptr};
+	firfilt_crcf q_dcblock{nullptr};
 
 	const liquid_iirdes_filtertype ftype{LIQUID_IIRDES_BUTTER};
 	const liquid_iirdes_bandtype btype{LIQUID_IIRDES_BANDPASS};

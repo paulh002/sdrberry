@@ -35,7 +35,7 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *sou
 }
 
 // Receive mode contructor
-Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+Demodulator::Demodulator(double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {	//  Receive constructor
 	m_ifrate = ifrate;
 	m_pcmrate = pcmrate;
@@ -46,13 +46,17 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	tune_offset(vfo.get_vfo_offset());
 	set_span(gsetup.get_span());
+	if (dc)
+		q_dcblock = firfilt_crcf_create_dc_blocker(25, 30);
+	else
+		q_dcblock = nullptr;
 }
 
 // decrease the span of the fft display by downmixing the bandwidth of the receiver
 // Chop the bandwith in parts en display correct part 
 void Demodulator::set_span(int span)
 {
-	if (span < (m_ifrate/2) && span > 0)
+	if ((span < m_ifrate) && span > 0)
 	{
 		if (m_span != span)
 		{
@@ -68,6 +72,7 @@ void Demodulator::set_span(int span)
 	else
 	{
 		m_span = span;
+		//set_fft_resample_rate(m_ifrate * 2);
 		set_fft_mixer(0);
 		Wf.set_fft_if_rate(m_ifrate, 0);
 		Wf.set_pos(vfo.get_vfo_offset());
@@ -100,6 +105,8 @@ Demodulator::~Demodulator()
 		iirfilt_crcf_destroy(q_lowpass);
 	if (q_highpass)
 		iirfilt_crcf_destroy(q_highpass);
+	if (q_dcblock)
+		firfilt_crcf_destroy(q_dcblock);
 	q_bandpass = nullptr;
 	q_lowpass = nullptr;
 	q_highpass = nullptr;
@@ -248,8 +255,28 @@ void Demodulator::filter(const IQSampleVector& filter_in,
 {	
 	for (auto& col : filter_in)
 	{
-		complex<float> v;
+		complex<float> v, z;
+
 		iirfilt_crcf_execute(m_lowpass, col, &v);
+		filter_out.insert(filter_out.end(), v);
+	}
+}
+
+void Demodulator::dc_filter(const IQSampleVector &filter_in,
+						 IQSampleVector &filter_out)
+{
+	if (q_dcblock == nullptr)
+	{
+		filter_out = filter_in;
+		return;
+	}
+	
+	for (auto &col : filter_in)
+	{
+		complex<float> v;
+
+		firfilt_crcf_push(q_dcblock, col);
+		firfilt_crcf_execute(q_dcblock, &v);
 		filter_out.insert(filter_out.end(), v);
 	}
 }
@@ -349,17 +376,15 @@ void Demodulator::set_filter(int band_width)
 void Demodulator::perform_fft(const IQSampleVector& iqsamples)
 {
 	IQSampleVector	iqsamples_filter, iqsamples_resample;
-	
-	if (m_span < (ifrate/2))
+
+	if (m_span < ifrate)
 	{
 		fft_mix(0, iqsamples, iqsamples_filter);
 		fft_resample(iqsamples_filter, iqsamples_resample);
-		Fft_calc.process_samples(iqsamples_resample);
 	}
 	else
-	{
-		Fft_calc.process_samples(iqsamples);
-	}
+		fft_resample(iqsamples, iqsamples_resample);
+	Fft_calc.process_samples(iqsamples_resample);
 }
 
 void Demodulator::set_bandpass_filter(float high, float mid_high, float mid_low, float low)
@@ -403,7 +428,8 @@ void Demodulator::exec_bandpass_filter(const IQSampleVector &filter_in,
 	float treble_gain = dB2mag(gspeech.get_treble());
 	for (auto &col : filter_in)
 	{
-		complex<float> v, w, u;
+		complex<float> v, w, u, z;
+		
 		iirfilt_crcf_execute(q_bandpass, col, &v);
 		iirfilt_crcf_execute(q_lowpass, col, &w);
 		iirfilt_crcf_execute(q_highpass, col, &u);

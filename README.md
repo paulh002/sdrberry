@@ -49,7 +49,7 @@ Done:
 - Morse code decoder
 - Support for Contour Shuttle Express
 - Receive FT8
-- Noise reduction (spectral noise reduction)
+- Noise reduction (spectral noise reduction, Kim)
 
 Installation of libraries is necessary:
 - Liquid DSP

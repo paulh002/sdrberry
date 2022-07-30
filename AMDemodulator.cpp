@@ -9,8 +9,8 @@ std::mutex amdemod_mutex;
 
 static std::chrono::high_resolution_clock::time_point starttime1 {};
 
-AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
+AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate,bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+	: Demodulator(ifrate, pcmrate, dc, source_buffer, audio_output)
 {
 	float					mod_index  = 0.03125f; 
 	int						suppressed_carrier;
@@ -88,7 +88,8 @@ void AMDemodulator::operator()()
 	int						ifilter {-1}, span, rcount {0}, dropped_frames {0};
 	SampleVector            audiosamples, audioframes;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
-	IQSampleVector			iqsamples;
+	IQSampleVector			dc_iqsamples, iqsamples;
+	IQSample s;
 	long long pr_time{0};
 	int vsize, passes{0};
 
@@ -118,18 +119,21 @@ void AMDemodulator::operator()()
 			printf("set filter %d\n", ifilter);
 			set_filter(m_pcmrate, ifilter);
 		}
-						
-		iqsamples = m_source_buffer->pull();	
-		if (iqsamples.empty())
+
+		dc_iqsamples = m_source_buffer->pull();
+		if (dc_iqsamples.empty())
 		{
 			printf("No samples queued 2\n");
 			usleep(500);
 			continue;
 		}
+		dc_filter(dc_iqsamples,iqsamples);
 		int nosamples = iqsamples.size();
 		passes++;
 		adjust_gain(iqsamples, gbar.get_if());
+		s = iqsamples[0];
 		perform_fft(iqsamples);
+		
 		process(iqsamples, audiosamples);
 		Fft_calc.set_signal_strength(get_if_level());
 		samples_mean_rms(audiosamples, m_audio_mean, m_audio_rms);
@@ -183,6 +187,7 @@ void AMDemodulator::operator()()
 				}
 			}
 		}
+		dc_iqsamples.clear();
 		iqsamples.clear();
 		audiosamples.clear();
 		now = std::chrono::high_resolution_clock::now();
@@ -195,7 +200,7 @@ void AMDemodulator::operator()()
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", m_source_buffer->size(),nosamples, noaudiosamples, passes, audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
-			printf("mean %f rms %f \n", m_audio_mean, m_audio_rms);
+			printf("mean %f rms %f I %f, Q %f\n", m_audio_mean, m_audio_rms, s.real(), s.imag());
 			pr_time = 0;
 			passes = 0;
 			if (rcount > 10 && audio_output->get_underrun() == 0 &&  dropped_frames > 15) 
@@ -245,11 +250,11 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter2.clear();
 }
 	
-bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, bool dc,DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {	
 	if (sp_amdemod != nullptr)
 		return false;
-	sp_amdemod = make_shared<AMDemodulator>(mode, ifrate, pcmrate, source_buffer, audio_output);
+	sp_amdemod = make_shared<AMDemodulator>(mode, ifrate, pcmrate, dc, source_buffer, audio_output);
 	sp_amdemod->amdemod_thread = std::thread(&AMDemodulator::operator(), sp_amdemod);
 	return true;
 }

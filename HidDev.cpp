@@ -101,7 +101,7 @@ bool HidDev::read_event()
 			return false;
 		if (bytes == sizeof(struct input_event) )
 		{
-			printf("%s type %d code %d, value %d\n", HidName.c_str(),in_event.type, in_event.code, in_event.value);
+			//printf("%s type %d code %d, value %d\n", HidName.c_str(),in_event.type, in_event.code, in_event.value);
 			return true;
 		}
 	}
@@ -112,7 +112,7 @@ bool HidDev::read_event()
 			return false;
 		if (bytes == sizeof(struct hiddev_event))
 		{
-			printf("%s hid %d, value %d\n", HidName.c_str(), hid_event.hid, hid_event.value);
+			//printf("%s hid %d, value %d\n", HidName.c_str(), hid_event.hid, hid_event.value);
 			return true;
 		}
 	}

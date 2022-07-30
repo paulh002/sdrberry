@@ -2,8 +2,8 @@
 #include "FMDemodulator.h"
 #include <thread>
 
-FMDemodulator::FMDemodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
+FMDemodulator::FMDemodulator(double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+	: Demodulator(ifrate, pcmrate, dc, source_buffer, audio_output)
 {
 	m_bandwidth = 12500; // Narrowband FM
 	Demodulator::set_resample_rate(pcmrate / ifrate); // down sample to pcmrate
@@ -103,11 +103,11 @@ FMDemodulator::~FMDemodulator()
 static	std::thread				fmdemod_thread;
 shared_ptr<FMDemodulator>		sp_fmdemod;
 
-bool FMDemodulator::create_demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+bool FMDemodulator::create_demodulator(double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {	
 	if (sp_fmdemod != nullptr)
 		return false;
-	sp_fmdemod = make_shared<FMDemodulator>(ifrate, pcmrate, source_buffer, audio_output);
+	sp_fmdemod = make_shared<FMDemodulator>(ifrate, pcmrate, dc, source_buffer, audio_output);
 	fmdemod_thread = std::thread(&FMDemodulator::operator(), sp_fmdemod);
 	return true;
 }

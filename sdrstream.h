@@ -33,8 +33,8 @@ extern shared_ptr<RX_Stream>		ptr_rx_stream;
 class TX_Stream
 {
 public:
-	TX_Stream(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer);
-	static  bool	create_tx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer, double ifrate);
+	TX_Stream(std::string sradio, int chan, DataBuffer<IQSample> *source_buffer);
+	static  bool	create_tx_streaming_thread(std::string sradio, int chan, DataBuffer<IQSample> *source_buffer, double ifrate);
 	static	void	destroy_tx_streaming_thread();
 	void	operator()();
 	atomic<bool>		stop_flag {false};
@@ -42,7 +42,7 @@ public:
 private:
 	std::string				radio;
 	int						channel;
-	DataBuffer<IQSample16> *m_source_buffer;
+	DataBuffer<IQSample> *m_source_buffer;
 };
 
 extern std::thread					tx_thread;

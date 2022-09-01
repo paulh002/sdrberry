@@ -4,7 +4,7 @@
 
 static shared_ptr<FMModulator> sp_fmmod;
 
-bool FMModulator::create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
+bool FMModulator::create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	
 	if (sp_fmmod != nullptr)
 		return false;
@@ -28,7 +28,7 @@ FMModulator::~FMModulator()
 		freqmod_destroy(modFM);
 }
 
-FMModulator::FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
+FMModulator::FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 	: Demodulator(ifrate, pcmrate, source_buffer, audio_input)
 {
 	float kf          = 0.1f; // modulation factor
@@ -75,7 +75,6 @@ void FMModulator::operator()()
 void FMModulator::process(const IQSampleVector& samples_in, SampleVector& samples)
 {
 	IQSampleVector				buf_mod, buf_filter, buf_out;
-	IQSampleVector16			buf_out16;
 	unsigned int				num_written;
 	
 	// Modulate audio to USB, LSB or DSB
@@ -97,20 +96,8 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();
 	mix_up(buf_out, buf_filter); // Mix up to vfo freq	
-	buf_out16.clear();
-	for (auto& col : buf_filter)
-	{
-		complex<float> f;
-		int16_t i, q;
-
-		i = (int16_t)round(col.real() * 16384.0f);
-		q = (int16_t)round(col.imag() * 16384.0f);
-		IQSample16 s16 {i, q};
-		buf_out16.push_back(s16);
-	}
 	Fft_calc.process_samples(buf_filter);
-	m_transmit_buffer->push(move(buf_out16));
-
+	m_transmit_buffer->push(move(buf_filter));
 	buf_mod.clear();
 	buf_out.clear();
 	buf_filter.clear();

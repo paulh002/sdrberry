@@ -213,27 +213,24 @@ void TX_Stream::operator()()
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
 	
-	IQSampleVector16		iqsamples;
+	IQSampleVector			iqsamples;
 	SoapySDR::Stream		*tx_stream;
 	int ret;
-	complex<int16_t> *f{nullptr};
+	
 	//unique_lock<mutex> lock_rx(rxstream_mutex);
 	
 	try
 	{
 		//SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
 		//SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
-
-		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CS16);
+		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CF32);
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
 		SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
-		//SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_RX, 0, (double)vfo.get_sdr_frequency());
 		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
-		//SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, 0, gbar.get_rf_gain());
 	}
 	catch (const std::exception& e)
 	{
-		printf("Failed create receive stream\n");
+		printf("Failed create transmit stream\n");
 		std::cout << e.what();
 		return;
 	}
@@ -251,10 +248,15 @@ void TX_Stream::operator()()
 			continue;
 		//printf("samples %d %d %d \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		samples_transmit = iqsamples.size();
-		int16_t *buffs[5] {};
-		buffs[0] = (int16_t *)iqsamples.data();
+		complex<float> *buffs[5] {};
+		buffs[0] = (complex<float> *)iqsamples.data();
 		//do
 		//{
+		/*	for (auto con : iqsamples)
+		{
+			printf("I %f Q %f\n", con.real(), con.imag());
+		}
+		*/
 		ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, samples_transmit, flags, time_ns, 1e5);
 		//printf("send samples %d %d\n", ret, samples_transmit);
 		/*if (ret > 0)
@@ -314,14 +316,14 @@ void TX_Stream::operator()()
 	}			
 }
 
-TX_Stream::TX_Stream(std::string sradio, int chan, DataBuffer<IQSample16> *source_buffer)
+TX_Stream::TX_Stream(std::string sradio, int chan, DataBuffer<IQSample> *source_buffer)
 {
 	radio = sradio;
 	channel = chan;
 	m_source_buffer = source_buffer;
 }
 
-bool TX_Stream::create_tx_streaming_thread(std::string radio, int chan, DataBuffer<IQSample16> *source_buffer,  double ifrate)
+bool TX_Stream::create_tx_streaming_thread(std::string radio, int chan, DataBuffer<IQSample> *source_buffer,  double ifrate)
 {	
 	if (ptr_tx_stream != nullptr)
 		return false;

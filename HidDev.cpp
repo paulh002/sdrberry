@@ -182,6 +182,20 @@ void HidDev::step_vfo()
 				enc_pressed = false;
 			break;
 		case 263:
+			if (in_event.value == 1 && SdrDevices.get_tx_channels(default_radio))
+			{
+				if (!txstate)
+				{
+					txstate = true;
+					select_mode_tx(mode, 1);
+				}
+				else
+				{
+					txstate = false;
+					select_mode(mode);
+				}
+				gbar.set_tx(txstate);
+			}
 			break;
 		case 264:
 			// Txset_tx_state

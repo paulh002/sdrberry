@@ -23,7 +23,7 @@ Demodulator::Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *aud
 }
 
 // Transmit mode contructor
-Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
+Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	//  Transmit constructor
 	m_ifrate = ifrate;
 	m_pcmrate = pcmrate;

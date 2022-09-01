@@ -14,7 +14,7 @@
 AudioOutput *audio_output;
 AudioInput *audio_input;
 DataBuffer<IQSample>	source_buffer_rx;
-DataBuffer<IQSample16>	source_buffer_tx;
+DataBuffer<IQSample>	source_buffer_tx;
 DataBuffer<Sample>		audiooutput_buffer;
 DataBuffer<Sample>		audioinput_buffer;
 

@@ -5,17 +5,19 @@ class AMModulator :
     public Demodulator
 {
 public:
-	AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
+	AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	~AMModulator();
-	
-	void	process(const IQSampleVector& samples_in, SampleVector& samples);
-	void	operator()();
+
+	void process(const IQSampleVector &samples_in, SampleVector &samples);
+	void process_tx(const SampleVector &samples, IQSampleVector &samples_out);
+
+	void operator()();
 	double get_if_level() const
 	{
 		return m_if_level;
 	}
 	static void destroy_modulator();
-	static bool create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
+	static bool create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	atomic<bool>			stop_flag {false};	
 	std::thread				ammod_thread;
 

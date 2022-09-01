@@ -19,7 +19,7 @@ public:
 protected:
 	~Demodulator();
 	Demodulator(double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input);
+	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input);
 	void			mono_to_left_right(const SampleVector& samples_mono, SampleVector& audio);
 	void			adjust_gain(IQSampleVector& samples_in, float vol);
@@ -52,7 +52,7 @@ protected:
 	double						m_ifrate;
 	int							m_pcmrate;
 	atomic<int>					m_fcutoff;
-	DataBuffer<IQSample16>		*m_transmit_buffer {nullptr};
+	DataBuffer<IQSample>		*m_transmit_buffer {nullptr};
 	AudioInput					*m_audio_input {nullptr};
 	double						m_if_level {0};
 	double						m_af_level {0};

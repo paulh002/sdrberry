@@ -141,13 +141,19 @@ static void draw_event_cb(lv_event_t * e)
 		{
 			string str[vert_lines];
 			int span = gsetup.get_span();
-			long long f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
+			long long f ;
 			int ii;
 
 			if (!vfo.compare_span())
+			{
+				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
 				ii = span / (vert_lines - 1);
+			}
 			else
-				ii = (2*span) / (vert_lines - 1);
+			{
+				f = vfo.get_sdr_frequency();
+				ii = span / (vert_lines - 1);
+			}
 
 			for (int i = 0; i < vert_lines; i++)
 				{
@@ -214,7 +220,7 @@ void Waterfall::set_pos(int32_t  offset)
 	if (pos < 0)
 		pos = 0;
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
-	printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
+	//printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
 }
 
 void Waterfall::set_fft_if_rate(float ifrate, int n)

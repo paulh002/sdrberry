@@ -6,7 +6,7 @@
 
 static shared_ptr<AMModulator> sp_ammod;
 
-bool AMModulator::create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
+bool AMModulator::create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	
 	if (sp_ammod != nullptr)
 		return false;
@@ -33,7 +33,7 @@ AMModulator::~AMModulator()
 	audio_input->set_tone(0);
 }
 
-AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample16> *source_buffer, AudioInput *audio_input)
+AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 	: Demodulator(ifrate, pcmrate, source_buffer, audio_input)
 {
 	float					mod_index = 0.99f; // modulation index (bandwidth)
@@ -92,7 +92,7 @@ void AMModulator::operator()()
 	unsigned int            fft_block = 0;
 	bool                    inbuf_length_warning = false;
 	SampleVector            audiosamples;
-	IQSampleVector			dummy;
+	IQSampleVector			samples_out;
 	AudioProcessor			Speech;
 
 	Speech.prepareToPlay(audio_output->get_samplerate());
@@ -124,8 +124,8 @@ void AMModulator::operator()()
 
 		calc_af_level(audiosamples);
 		Fft_calc.set_signal_strength(get_af_level());
-		process(dummy, audiosamples);
-		
+		process_tx(audiosamples, samples_out);
+		m_transmit_buffer->push(move(samples_out));
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
@@ -142,42 +142,33 @@ void AMModulator::operator()()
 	printf("exit am_mod_thread\n");
 }
 
-void AMModulator::process(const IQSampleVector& samples_in, SampleVector& samples)
+void AMModulator::process(const IQSampleVector& samples_out, SampleVector& samples)
 {
-	IQSampleVector				buf_mod, buf_filter, buf_out;
-	IQSampleVector16			buf_out16;
-	unsigned int				num_written;
-	
-	// Modulate audio to USB, LSB or DSB; 
-	for (auto& col : samples)
+}
+
+void AMModulator::process_tx(const SampleVector &samples, IQSampleVector &samples_out)
+{
+	IQSampleVector buf_mod, buf_filter, buf_out;
+	unsigned int num_written;
+
+	// Modulate audio to USB, LSB or DSB;
+	for (auto &col : samples)
 	{
-		complex<float> f;	
+		complex<float> f;
 		ampmodem_modulate(modAM, col, &f);
 		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);
 	}
 	double if_rms = rms_level_approx(buf_mod);
 	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
-	
+
 	exec_bandpass_filter(buf_mod, buf_filter);
 	buf_mod.clear();
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();
-	mix_up(buf_out, buf_filter); // Mix up to vfo freq	
-	for (auto& col : buf_filter)
-	{
-		complex<float> f;
-		int16_t i, q;
-
-		i = (int16_t)round(col.real() * 16384.0f) *10;
-		q = (int16_t)round(col.imag() * 16384.0f) *10;
-		IQSample16 s16 {i, q};
-		//printf("i %d q %d\n",i, q);
-		buf_out16.push_back(s16);
-	}
-	mix_up_fft(buf_filter, buf_mod);
+	mix_up(buf_out, samples_out); // Mix up to vfo freq
+	mix_up_fft(samples_out, buf_mod);
 	Fft_calc.process_samples(buf_mod);
-	m_transmit_buffer->push(move(buf_out16));
 }
 
 void AMModulator::mix_up_fft(const IQSampleVector& filter_in,

@@ -72,7 +72,7 @@ void Demodulator::set_span(int span)
 	else
 	{
 		m_span = span;
-		//set_fft_resample_rate(m_ifrate * 2);
+		set_fft_resample_rate(0.0);
 		set_fft_mixer(0);
 		Wf.set_fft_if_rate(m_ifrate, 0);
 		Wf.set_pos(vfo.get_vfo_offset());
@@ -137,9 +137,12 @@ void Demodulator::set_fft_resample_rate(float resample_rate)
 		m_fft_resample = nullptr;
 	}
 	printf("resampe rate %f\n", resample_rate);
-	m_fft_resample_rate = resample_rate / m_ifrate;
-	m_fft_resample = msresamp_crcf_create(m_fft_resample_rate, As);
-	msresamp_crcf_print(m_fft_resample);	
+	if (resample_rate > 0.0)
+	{
+		m_fft_resample_rate = resample_rate / m_ifrate;
+		m_fft_resample = msresamp_crcf_create(m_fft_resample_rate, As);
+		msresamp_crcf_print(m_fft_resample);
+	}
 }
 
 void Demodulator::fft_resample(const IQSampleVector& filter_in,

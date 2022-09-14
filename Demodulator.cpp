@@ -136,9 +136,9 @@ void Demodulator::set_fft_resample_rate(float resample_rate)
 		msresamp_crcf_destroy(m_fft_resample);
 		m_fft_resample = nullptr;
 	}
-	printf("resampe rate %f\n", resample_rate);
 	if (resample_rate > 0.0)
 	{
+		printf("fft resample rate %f\n", resample_rate);
 		m_fft_resample_rate = resample_rate / m_ifrate;
 		m_fft_resample = msresamp_crcf_create(m_fft_resample_rate, As);
 		msresamp_crcf_print(m_fft_resample);

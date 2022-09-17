@@ -46,7 +46,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
@@ -56,7 +56,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -74,7 +74,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />

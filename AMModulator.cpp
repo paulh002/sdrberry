@@ -53,6 +53,11 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 		am_mode = LIQUID_AMPMODEM_LSB;
 		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);		
 		break;
+	case mode_cw:
+		suppressed_carrier = 1;
+		am_mode = LIQUID_AMPMODEM_LSB;
+		printf("mode CW LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
+		break;
 	case mode_am:
 		suppressed_carrier = 0;
 		am_mode = LIQUID_AMPMODEM_DSB;

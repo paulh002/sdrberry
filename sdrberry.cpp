@@ -11,6 +11,15 @@
 #include "gui_speech.h"
 #include "EchoAudio.h"
 
+#define BACKWARD_HAS_BFD 1
+#include "backward.hpp"
+
+namespace backward
+{
+	backward::SignalHandling sh;
+
+} // namespace backward
+
 AudioOutput *audio_output;
 AudioInput *audio_input;
 DataBuffer<IQSample>	source_buffer_rx;

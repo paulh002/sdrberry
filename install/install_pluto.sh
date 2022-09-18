@@ -27,6 +27,15 @@ make -j4
 sudo make install
 sudo ldconfig
 cd ~
+git clone https://github.com/paulh002/rtaudio
+cd rtaudio
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig
+cd ~
 wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.60.tar.xz
 tar xvf bluez-5.60.tar.xz
 sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev libdbus-1-dev libical-dev

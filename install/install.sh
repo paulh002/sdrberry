@@ -17,6 +17,15 @@ make -j4
 sudo make install
 sudo ldconfig
 cd ~
+#git clone https://github.com/paulh002/rtaudio
+#cd rtaudio
+#mkdir build
+#cd build
+#cmake .. -DRTAUDIO_API_ALSA=1
+#make
+#sudo make install
+#sudo ldconfig
+#cd ~
 sudo apt-get install -y fftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 git checkout v1.4.0

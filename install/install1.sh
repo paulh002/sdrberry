@@ -2,6 +2,7 @@
 #if false; then
 sudo apt update
 sudo apt install build-essential git cmake swig -y
+sudo apt-get install binutils-dev
 sudo apt-get -y install git
 sudo apt-get install -y\
     cmake g++ \

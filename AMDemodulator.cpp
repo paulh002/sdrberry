@@ -155,7 +155,7 @@ void AMDemodulator::operator()()
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == audio_output->get_framesize())
 			{
-				if ((audio_output->queued_samples() / 2) < 4096)
+				if ((audio_output->queued_samples() / 2) < get_audioBufferSize())
 				{
 					SampleVector		audio_stereo, audio_noise;
 
@@ -201,18 +201,22 @@ void AMDemodulator::operator()()
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", m_source_buffer->size(),nosamples, noaudiosamples, passes, audio_output->queued_samples() / 2, dropped_frames, audio_output->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("mean %f rms %f I %f, Q %f\n", m_audio_mean, m_audio_rms, s.real(), s.imag());
+			std::cout << "SoapySDR sample rate " << get_rxsamplerate() << " ratio " << (double)m_pcmrate / get_rxsamplerate() << "\n";
+			
 			pr_time = 0;
 			passes = 0;
-			if (rcount > 10 && audio_output->get_underrun() == 0 &&  dropped_frames > 15) 
+			//if (rcount > 10 && audio_output->get_underrun() == 0 &&  dropped_frames > 15)
+			if (rcount > 1 &&  dropped_frames > 15)
 			{
-				sample_ratio = sample_ratio / 1.01 ;
-				Demodulator::set_resample_rate(sample_ratio);
+				Demodulator::set_resample_rate((double)m_pcmrate / get_rxsamplerate());
 				rcount = 0;
 			}
 			if (rcount > 5 && audio_output->get_underrun() > 0 && dropped_frames == 0)
 			{
-				sample_ratio = 1.01 * sample_ratio;
-				Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
+				Demodulator::set_resample_rate((double)m_pcmrate / get_rxsamplerate());
+				
+				//sample_ratio = 1.01 * sample_ratio;
+				//Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
 				rcount = 0;
 			}
 			rcount++;

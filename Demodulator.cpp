@@ -17,7 +17,10 @@ Demodulator::Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *aud
 	m_transmit_buffer = nullptr;
 	m_audio_input = audio_input;
 	m_audio_output = audio_output;
-	
+	audioBuffer_size = Settings_file.get_int(default_radio, "audiobuffersize");
+	if (!audioBuffer_size)
+		audioBuffer_size = 4096;
+
 	// resampler and band filter assume pcmfrequency on the low side
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 }
@@ -29,6 +32,9 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 	m_pcmrate = pcmrate;
 	m_transmit_buffer = source_buffer;
 	m_audio_input = audio_input;
+	audioBuffer_size = Settings_file.get_int(default_radio, "audiobuffersize");
+	if (!audioBuffer_size)
+		audioBuffer_size = 4096;
 
 	// resampler and band filter assume pcmfrequency on the low side
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
@@ -41,6 +47,9 @@ Demodulator::Demodulator(double ifrate, int pcmrate, bool dc, DataBuffer<IQSampl
 	m_pcmrate = pcmrate;
 	m_source_buffer = source_buffer;
 	m_audio_output = audio_output;
+	audioBuffer_size = Settings_file.get_int(default_radio, "audiobuffersize");
+	if (!audioBuffer_size)
+		audioBuffer_size = 4096;
 
 	// resampler and band filter assume pcmfrequency on the low side
 	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;

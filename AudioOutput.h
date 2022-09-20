@@ -26,8 +26,8 @@ public:
   int  get_underrun() { return underrun.load(); }
   int get_channels() { return info.outputChannels; }
   unsigned int get_samplerate() { return m_sampleRate; }
-  unsigned int getDevices();
   unsigned int get_device() { return parameters.deviceId;}
+  unsigned int find_device(std::string name);
 
 protected:
 	void samplesToInt16(const SampleVector& samples,

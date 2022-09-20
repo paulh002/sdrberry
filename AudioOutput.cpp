@@ -106,22 +106,13 @@ bool AudioOutput::open(std::string device)
 	StreamOptions option{{0}, {0}, {0}, {0}};
 	option.flags = RTAUDIO_MINIMIZE_LATENCY;
 
-	getDevices();
 	parameters.deviceId = 0;
 	parameters.firstChannel = 0;
 	parameters.nChannels = 2;
 	if (device == "default")
 		parameters.deviceId = this->getDefaultInputDevice();
 	else
-	{
-		for (auto const &it : device_map)
-		{
-			if (it.second.find(device) != std::string::npos)
-			{
-				parameters.deviceId = it.first;
-			}
-		}
-	}
+		parameters.deviceId = find_device(device);
 	info = this->getDeviceInfo(parameters.deviceId);
 	if (info.preferredSampleRate)
 		m_sampleRate = info.preferredSampleRate;
@@ -194,62 +185,21 @@ int	 AudioOutput::queued_samples()
  *
  **/
 
-unsigned int AudioOutput::getDevices()
+
+unsigned int AudioOutput::find_device(std::string name)
 {
-	unsigned nDevices = 0;
-	int result, subdevice, card;
-	char name[64];
-	snd_ctl_t *handle = 0;
-
-	strcpy(name, "default");
-	result = snd_ctl_open(&handle, "default", 0);
-	if (result == 0)
+	int devices = getDeviceCount();
+	unsigned int device = 0;
+	
+	RtAudio::DeviceInfo info;
+	for (int i = 1; i <= devices; i++)
 	{
-		nDevices++;
-		snd_ctl_close(handle);
+		info = getDeviceInfo(i);
+		// Print, for example, the maximum number of output channels for each device
+		std::cout << "device = " << i << " device name " << info.name;
+		std::cout << ": maximum output channels = " << info.outputChannels << "\n";
+		if (std::string(info.name).find(name) != string::npos && info.outputChannels > 1)
+			device = i;
 	}
-
-	// Count cards and devices
-	card = -1;
-	snd_card_next(&card);
-	while (card >= 0)
-	{
-		sprintf(name, "hw:%d", card);
-		result = snd_ctl_open(&handle, name, 0);
-		if (result < 0)
-		{
-			handle = 0;
-			cout << "AudioOutput::getDevices: control open, card = " << card << ", " << snd_strerror(result) << "." << endl;
-			goto nextcard;
-		}
-		subdevice = -1;
-		// Get the device name
-		if (strncmp(name, "default", 7) != 0)
-		{
-			char *cardname;
-			result = snd_card_get_name(card, &cardname);
-			if (result >= 0)
-			{
-				device_map[card+1] = string(cardname);
-				free(cardname);
-			}
-		}
-		while (1)
-		{
-			result = snd_ctl_pcm_next_device(handle, &subdevice);
-			if (result < 0)
-			{
-				cout << "AudioOutput::getDevices: control next device, card = " << card << ", " << snd_strerror(result) << "." << endl;
-				break;
-			}
-			if (subdevice < 0)
-				break;
-			nDevices++;
-		}
-	nextcard:
-		if (handle)
-			snd_ctl_close(handle);
-		snd_card_next(&card);
-	}
-	return nDevices;
+	return device;
 }

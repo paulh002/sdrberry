@@ -45,6 +45,7 @@ protected:
 	void			set_bandpass_filter(float high, float mid_high, float mid_low, float low);
 	void			exec_bandpass_filter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void			dc_filter(const IQSampleVector &filter_in,IQSampleVector &filter_out);
+	int				get_audioBufferSize() { return audioBuffer_size; }
 
 	double m_audio_mean, m_audio_rms, m_audio_level;
 	DataBuffer<IQSample>		*m_source_buffer {nullptr};
@@ -70,6 +71,7 @@ protected:
 	int							m_order {6};
 	float						alpha {0.1};
 	float						accuf {0};
+	int							audioBuffer_size;
 
 	iirfilt_crcf q_bandpass{nullptr};
 	iirfilt_crcf q_lowpass{nullptr};

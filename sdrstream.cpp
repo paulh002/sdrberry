@@ -22,12 +22,12 @@
 
 using namespace std;
 
-double	rx_sampleRate = 0;
-double	tx_sampleRate = 0;
+atomic<double> rx_sampleRate{0.0};
+atomic<double> tx_sampleRate{0};
 
 double get_rxsamplerate()
 {
-	return rx_sampleRate;
+	return rx_sampleRate.load();
 }
 
 double get_txsamplerate()
@@ -35,6 +35,7 @@ double get_txsamplerate()
 	return tx_sampleRate;
 
 }
+
 std::thread					rx_thread;
 std::thread					tx_thread;
 shared_ptr<RX_Stream>		ptr_rx_stream;
@@ -48,6 +49,10 @@ void RX_Stream::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastSpin = std::chrono::high_resolution_clock::now();
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
+	std::chrono::time_point<std::chrono::high_resolution_clock> startReadTime, stoptReadTime;
+	std::chrono::microseconds timePassed{};
+	uint64_t timePassed_avg{}, samples_read{};
+
 	unsigned long long		totalSamples(0);
 	unique_lock<mutex>		lock_rx(rxstream_mutex);
 	
@@ -61,8 +66,9 @@ void RX_Stream::operator()()
 	if ((ifrate < 384001) && (ifrate > 192000))
 		default_block_length = 8192;
 	if (ifrate > 384001)
-		default_block_length = 32768;
+		default_block_length = 65536; //32768;
 	rx_sampleRate = ifrate / 1000000.0;
+
 	
 	printf("default block length is set to %d ifrate %f\n", default_block_length, ifrate);
 	try
@@ -76,7 +82,13 @@ void RX_Stream::operator()()
 		stop_flag = true;
 		return;
 	}
+	size_t mtu = SdrDevices.SdrDevices.at(radio)->getStreamMTU(rx_stream);
+	cout << "mtu " << mtu << endl;
+	if (mtu > default_block_length)
+		default_block_length = mtu;
+
 	stop_flag = false;
+	startReadTime = std::chrono::high_resolution_clock::now();
 	while (!stop_flag.load())
 	{
 		unsigned int				overflows(0);
@@ -90,7 +102,14 @@ void RX_Stream::operator()()
 		//SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		try 
 		{
-			ret = SdrDevices.SdrDevices.at(radio)->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e5);
+			ret = SdrDevices.SdrDevices.at(radio)->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e6);
+			stoptReadTime = std::chrono::high_resolution_clock::now();
+			timePassed = std::chrono::duration_cast<std::chrono::microseconds>(stoptReadTime - startReadTime);
+			timePassed_avg += timePassed.count() ;
+			timePassed_avg = timePassed_avg / 2;
+			samples_read = (ret + samples_read) /2;
+			rx_sampleRate = ((double)samples_read / (double)timePassed_avg) * 1000000.0;
+			startReadTime = std::chrono::high_resolution_clock::now();
 		}
 		catch (const std::exception& e)
 		{
@@ -155,9 +174,6 @@ void RX_Stream::operator()()
 			}
 		}
 		timeLastPrint = now;
-		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-		const auto sampleRate = double(totalSamples) / timePassed.count();
-		rx_sampleRate = sampleRate;
 	}
 	m_source_buffer->clear();
 	m_source_buffer->push_end();

@@ -1,0 +1,12 @@
+// To select the correct soundcard edit alsa.conf
+Use aplay -l to check device number
+change alsa.conf acordingly
+
+//for device 1:
+sudo nano /usr/share/alsa/alsa.conf
+# then replace:
+#defaults.ctl.card 0
+#defaults.pcm.card 0
+# with:
+defaults.ctl.card 1
+defaults.pcm.card 1

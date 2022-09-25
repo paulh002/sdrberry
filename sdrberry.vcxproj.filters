@@ -1171,6 +1171,12 @@
     <ClCompile Include="RtAudio.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Limiter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnergyCalculator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1572,6 +1578,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="RtAudio.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Limiter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnergyCalculator.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

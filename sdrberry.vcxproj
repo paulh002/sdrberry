@@ -93,6 +93,7 @@
     <ClCompile Include="configoption.cpp" />
     <ClCompile Include="Demodulator.cpp" />
     <ClCompile Include="EchoAudio.cpp" />
+    <ClCompile Include="EnergyCalculator.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
@@ -126,6 +127,7 @@
     <ClCompile Include="HidDev.cpp" />
     <ClCompile Include="img_lvgl_logo.c" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Limiter.cpp" />
     <ClCompile Include="LMSNoisereducer.cpp" />
     <ClCompile Include="lvgl\src\core\lv_disp.c" />
     <ClCompile Include="lvgl\src\core\lv_event.c" />
@@ -332,6 +334,7 @@
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="Demodulator.h" />
     <ClInclude Include="EchoAudio.h" />
+    <ClInclude Include="EnergyCalculator.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
@@ -361,6 +364,7 @@
     <ClInclude Include="gui_vfo.h" />
     <ClInclude Include="HidDev.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Limiter.h" />
     <ClInclude Include="liquid.h" />
     <ClInclude Include="liquid.internal.h" />
     <ClInclude Include="LMSNoisereducer.h" />

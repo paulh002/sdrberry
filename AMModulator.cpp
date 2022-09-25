@@ -26,8 +26,8 @@ void AMModulator::destroy_modulator()
 
 AMModulator::~AMModulator()
 {
-	if (modAM)
-		ampmodem_destroy(modAM);
+	if (AMmodulatorHandle)
+		ampmodem_destroy(AMmodulatorHandle);
 	if (m_fft != nullptr)
 		nco_crcf_destroy(m_fft);
 	audio_input->set_tone(0);
@@ -73,7 +73,7 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 		return;
 	}
 	audio_input->set_tone(tone);
-	m_fcutoff = 2500;
+	setLowPassAudioFilterCutOffFrequency(2500);
 	if ((ifrate - pcmrate) > 0.1)
 	{
 		// only resample and tune if ifrate > pcmrate
@@ -84,8 +84,8 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	{	// mix the transmid signal to the mid of the fft display
 		//fft_offset(ifrate / 4);
 	}
-	set_bandpass_filter(2700.0f, 2000.0f, 500.0f, 150.0f);
-	modAM = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
+	setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+	AMmodulatorHandle = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
 }
 
@@ -104,9 +104,9 @@ void AMModulator::operator()()
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
 	Fft_calc.plan_fft(nfft_samples);
-	m_audio_input->clear();
+	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
-		m_audio_input->set_gain(0);
+		audioInputBuffer->set_gain(0);
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag.load())
@@ -114,7 +114,7 @@ void AMModulator::operator()()
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
 		}
-		if (!m_audio_input->read(audiosamples))
+		if (!audioInputBuffer->read(audiosamples))
 			continue;
 		if (gspeech.get_speech_mode())
 		{
@@ -125,12 +125,12 @@ void AMModulator::operator()()
 			Speech.processBlock(audiosamples);
 		}
 		else
-			m_audio_input->set_gain(0);
+			audioInputBuffer->set_gain(0);
 
 		calc_af_level(audiosamples);
 		Fft_calc.set_signal_strength(get_af_level());
 		process_tx(audiosamples, samples_out);
-		m_transmit_buffer->push(move(samples_out));
+		transmitIQBuffer->push(move(samples_out));
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
@@ -138,12 +138,12 @@ void AMModulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("Queued transmitbuffer Samples %d\n", m_transmit_buffer->queued_samples());
+			printf("Queued transmitbuffer Samples %d\n", transmitIQBuffer->queued_samples());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
 	}
-	m_transmit_buffer->clear();
-	m_transmit_buffer->push_end();
+	transmitIQBuffer->clear();
+	transmitIQBuffer->push_end();
 	printf("exit am_mod_thread\n");
 }
 
@@ -160,14 +160,12 @@ void AMModulator::process_tx(const SampleVector &samples, IQSampleVector &sample
 	for (auto &col : samples)
 	{
 		complex<float> f;
-		ampmodem_modulate(modAM, col, &f);
+		ampmodem_modulate(AMmodulatorHandle, col, &f);
 		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);
 	}
-	double if_rms = rms_level_approx(buf_mod);
-	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
-
-	exec_bandpass_filter(buf_mod, buf_filter);
+	
+	executeBandpassFilter(buf_mod, buf_filter);
 	buf_mod.clear();
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();
@@ -200,7 +198,7 @@ void AMModulator::fft_offset(long offset)
 {
 	if (m_fft != nullptr)
 		nco_crcf_destroy(m_fft);
-	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(offset)) / (float)m_ifrate);
+	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(offset)) / (float)ifSampleRate);
 	m_fft = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(m_fft, 0.0f);
 	nco_crcf_set_frequency(m_fft, rad_per_sample);

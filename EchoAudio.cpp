@@ -63,24 +63,24 @@ void EchoAudio::operator()()
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
 	Fft_calc.plan_fft(nfft_samples);
-	m_audio_input->clear();
+	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
-		m_audio_input->set_gain(20);
+		audioInputBuffer->set_gain(20);
 
 	float mod_index = 0.99f; // modulation index (bandwidth)
 	ampmodem modAM = ampmodem_create(mod_index, am_mode, 1);
 	ampmodem demod = ampmodem_create(mod_index, am_mode, 1);
 
-	set_bandpass_filter(2700.0f, 2000.0f, 500.0f, 150.0f);
+	setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 
 	while (!stop_flag.load())
 	{
-		if (!m_audio_input->read(audiosamples))
+		if (!audioInputBuffer->read(audiosamples))
 			continue;
 
 		if (gspeech.get_speech_mode())
 		{
-			m_audio_input->set_gain(20);
+			audioInputBuffer->set_gain(20);
 			Speech.setRelease(gspeech.get_release());
 			Speech.setRatio(gspeech.get_ratio());
 			Speech.setAtack(gspeech.get_atack());
@@ -88,7 +88,7 @@ void EchoAudio::operator()()
 			Speech.processBlock(audiosamples);
 		}
 		else
-			m_audio_input->set_gain(0);
+			audioInputBuffer->set_gain(0);
 
 		for (auto &col : audiosamples)
 		{
@@ -98,7 +98,7 @@ void EchoAudio::operator()()
 			buf_mod.push_back(f);
 		}
 		audiosamples.clear();
-		exec_bandpass_filter(buf_mod, buf_filter);
+		executeBandpassFilter(buf_mod, buf_filter);
 		buf_mod.clear();
 		for (auto col : buf_filter)
 		{
@@ -137,7 +137,7 @@ void EchoAudio::operator()()
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
-			printf("mean %f rms %f \n", m_audio_mean, m_audio_rms);
+			printf("rms %f \n", get_if_level());
 		}
 	}
 

@@ -143,7 +143,7 @@ void RX_Stream::operator()()
 			if (!pause_flag)
 			{
 				buf.resize(ret);
-				m_source_buffer->push(move(buf));
+				receiveIQBuffer->push(move(buf));
 			}
 			else
 			{
@@ -175,8 +175,8 @@ void RX_Stream::operator()()
 		}
 		timeLastPrint = now;
 	}
-	m_source_buffer->clear();
-	m_source_buffer->push_end();
+	receiveIQBuffer->clear();
+	receiveIQBuffer->push_end();
 	try
 	{
 		SdrDevices.SdrDevices.at(radio)->deactivateStream(rx_stream);
@@ -192,7 +192,7 @@ RX_Stream::RX_Stream(std::string sradio, int chan, DataBuffer<IQSample> *source_
 {
 	radio = sradio;
 	channel = chan;
-	m_source_buffer = source_buffer;
+	receiveIQBuffer = source_buffer;
 }
 
 bool RX_Stream::create_rx_streaming_thread(std::string radio, int chan, DataBuffer<IQSample> *source_buffer)
@@ -250,7 +250,7 @@ void TX_Stream::operator()()
 		std::cout << e.what();
 		return;
 	}
-	m_source_buffer->clear();
+	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
 		unsigned int				overflows(0);
@@ -259,7 +259,7 @@ void TX_Stream::operator()()
 		long long					time_ns(0);
 		int							samples_transmit;
 
-		iqsamples = m_source_buffer->pull();
+		iqsamples = receiveIQBuffer->pull();
 		if (iqsamples.empty())
 			continue;
 		//printf("samples %d %d %d \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
@@ -336,7 +336,7 @@ TX_Stream::TX_Stream(std::string sradio, int chan, DataBuffer<IQSample> *source_
 {
 	radio = sradio;
 	channel = chan;
-	m_source_buffer = source_buffer;
+	receiveIQBuffer = source_buffer;
 }
 
 bool TX_Stream::create_tx_streaming_thread(std::string radio, int chan, DataBuffer<IQSample> *source_buffer,  double ifrate)

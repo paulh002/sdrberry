@@ -7,8 +7,9 @@
 #include <vector>
 #include <tuple>
 #include <array>
+#include <cstring>
 #include "DataBuffer.h"
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 
 #define NR_FFT_L 1024 //256
 #define PI 3.14159265358979323846
@@ -16,7 +17,7 @@
 class SpectralNoiseReduction
 {
   public:
-	SpectralNoiseReduction(float pcmrate, tuple<float, float> bandwidth);
+	SpectralNoiseReduction(float pcmrate, std::tuple<float, float> bandwidth);
 	void Process(const SampleVector &samples_in, SampleVector &samples_out);
 	void Process_Kim1_NR(const SampleVector &samples_in, SampleVector &samples_out);
 	void SpectralNoiseReductionInit();
@@ -64,24 +65,24 @@ class SpectralNoiseReduction
 	float NR_T;
 	uint8_t NR_use_X = 0;
 	uint8_t NR_Kim;
-	tuple<float, float> bandwidth;
+	std::tuple<float, float> bandwidth;
 
-	array<float, NR_FFT_L / 2> NR_last_sample_buffer_R;
-	array<float, NR_FFT_L / 2> NR_last_sample_buffer_L;
-	array<float, NR_FFT_L / 2> NR_G;
-	array<float, NR_FFT_L / 2> NR_Hk_old;
-	array<float, NR_FFT_L> NR_last_iFFT_result;
-	array<float, NR_FFT_L / 2> NR_SNR_prio;
-	array<float, NR_FFT_L / 2> NR_SNR_post;
-	array<float, NR_FFT_L / 2> NR_long_tone_gain;
-	array<float, NR_FFT_L / 2> NR_lambda;
-	array<float, NR_FFT_L / 2> NR_M;
+	std::array<float, NR_FFT_L / 2> NR_last_sample_buffer_R;
+	std::array<float, NR_FFT_L / 2> NR_last_sample_buffer_L;
+	std::array<float, NR_FFT_L / 2> NR_G;
+	std::array<float, NR_FFT_L / 2> NR_Hk_old;
+	std::array<float, NR_FFT_L> NR_last_iFFT_result;
+	std::array<float, NR_FFT_L / 2> NR_SNR_prio;
+	std::array<float, NR_FFT_L / 2> NR_SNR_post;
+	std::array<float, NR_FFT_L / 2> NR_long_tone_gain;
+	std::array<float, NR_FFT_L / 2> NR_lambda;
+	std::array<float, NR_FFT_L / 2> NR_M;
 
-	array<array<float, 15>,NR_FFT_L / 2> NR_E;
-	array<array<float, 3>, NR_FFT_L / 2> NR_X;
-	array<array<float, 2>, NR_FFT_L / 2> NR_Nest;
-	array<array<float, 2>, NR_FFT_L / 2> NR_Gts;
+	std::array<std::array<float, 15>,NR_FFT_L / 2> NR_E;
+	std::array<std::array<float, 3>, NR_FFT_L / 2> NR_X;
+	std::array<std::array<float, 2>, NR_FFT_L / 2> NR_Nest;
+	std::array<std::array<float, 2>, NR_FFT_L / 2> NR_Gts;
 
-	array<complex<float>, NR_FFT_L> NR_FFT_buffer;
-	array<complex<float>, NR_FFT_L> NR_FFT_buffer1;
+	std::array<std::complex<float>, NR_FFT_L> NR_FFT_buffer;
+	std::array<std::complex<float>, NR_FFT_L> NR_FFT_buffer1;
 };

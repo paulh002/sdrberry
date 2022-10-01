@@ -1,9 +1,10 @@
 #pragma once
-#include "RtAudio.h"
-#include "Audiodefs.h"
-#include "DataBuffer.h"
 #include <map>
 #include <string>
+#include "SdrberryTypeDefs.h"
+#include "RtAudio.h"
+#include "DataBuffer.h"
+#include "Settings.h"
 
 class AudioOutput :
     public RtAudio
@@ -28,6 +29,8 @@ public:
   unsigned int get_samplerate() { return m_sampleRate; }
   unsigned int get_device() { return parameters.deviceId;}
   unsigned int find_device(std::string name);
+
+  static bool createAudioDevice(int Samplerate);
 
 protected:
 	void samplesToInt16(const SampleVector& samples,

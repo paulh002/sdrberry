@@ -2,7 +2,7 @@
 #include <cmath>
 #include <string>
 #include "RtAudio.h"
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 #include "DataBuffer.h"
 
 const float DEFAULT_THRESHOLD = 0.f;
@@ -78,6 +78,6 @@ class AudioProcessor
 	float gainDb;
 	float thresholdDb;
 	
-	unique_ptr<PeakLevelDetector> LevelDetector;
-	unique_ptr<GainDynamics> gainDymanics;
+	std::unique_ptr<PeakLevelDetector> LevelDetector;
+	std::unique_ptr<GainDynamics> gainDymanics;
 };

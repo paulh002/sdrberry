@@ -1,5 +1,5 @@
 #pragma once
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 
 class EnergyCalculator
 {

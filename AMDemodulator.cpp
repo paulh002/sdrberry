@@ -1,6 +1,7 @@
-#include "sdrberry.h"
-#include "AMDemodulator.h"
 #include <thread>
+#include "AMDemodulator.h"
+#include "gui_bar.h"
+#include "gui_agc.h"
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 
@@ -9,15 +10,15 @@ std::mutex amdemod_mutex;
 
 static std::chrono::high_resolution_clock::time_point starttime1 {};
 
-AMDemodulator::AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
-	: Demodulator(ifrate, pcmrate, source_buffer, audioOutputBuffer)
+AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
+	: Demodulator(ifrate, source_buffer, audioOutputBuffer)
 {
 	float					modulationIndex  = 0.03125f; 
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 	float bandwidth{2500}; // SSB
 
-	float sample_ratio = (1.05 * (float)pcmrate) / ifrate;
+	float sample_ratio = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
 	switch (mode)
 	{
@@ -253,11 +254,11 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter2.clear();
 }
 	
-bool AMDemodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
+bool AMDemodulator::create_demodulator(int mode, double ifrate,  DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
 {	
 	if (sp_amdemod != nullptr)
 		return false;
-	sp_amdemod = make_shared<AMDemodulator>(mode, ifrate, pcmrate, source_buffer, audioOutputBuffer);
+	sp_amdemod = make_shared<AMDemodulator>(mode, ifrate, source_buffer, audioOutputBuffer);
 	sp_amdemod->amdemod_thread = std::thread(&AMDemodulator::operator(), sp_amdemod);
 	return true;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <cmath>
 #include <complex>
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 
 class EnvelopeFollower
 {

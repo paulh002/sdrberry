@@ -17,21 +17,6 @@ const int	noise_floor {20};
 const int	hor_lines {8};
 const int	vert_lines {9};
 
-IQSample::value_type rms_level_approx(const IQSampleVector& samples)
-{
-	unsigned int n = samples.size();
-	n = (n + 63) / 64;
-
-	IQSample::value_type level = 0;
-	for (unsigned int i = 0; i < n; i++) {
-		const IQSample& s = samples[i];
-		IQSample::value_type re = s.real(), im = s.imag();
-		level += re * re + im * im;
-	}
-
-	return sqrt(level / n);
-}
-
 
 Fft_calculator	Fft_calc;
 Waterfall		Wf;

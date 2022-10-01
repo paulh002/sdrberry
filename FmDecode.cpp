@@ -4,7 +4,7 @@
 #include <cmath>
 #include <unistd.h>
 #include "DataBuffer.h"
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 #include "AudioOutput.h"
 #include "Filter.h"
 #include "FmDecode.h"
@@ -43,6 +43,22 @@ inline void samples_mean_rms(const SampleVector &samples,
 
 	mean = vsum / n;
 	rms = sqrt(vsumsq / n);
+}
+
+IQSample::value_type rms_level_approx(const IQSampleVector &samples)
+{
+	unsigned int n = samples.size();
+	n = (n + 63) / 64;
+
+	IQSample::value_type level = 0;
+	for (unsigned int i = 0; i < n; i++)
+	{
+		const IQSample &s = samples[i];
+		IQSample::value_type re = s.real(), im = s.imag();
+		level += re * re + im * im;
+	}
+
+	return sqrt(level / n);
 }
 
 /** Fast approximation of atan function. */

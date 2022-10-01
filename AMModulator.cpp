@@ -1,16 +1,15 @@
 #include "AMModulator.h"
 #include "Waterfall.h"
-#include "Audiodefs.h"
 #include "gui_speech.h"
 #include "PeakLevelDetector.h"
 
 static shared_ptr<AMModulator> sp_ammod;
 
-bool AMModulator::create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+bool AMModulator::create_modulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	
 	if (sp_ammod != nullptr)
 		return false;
-	sp_ammod = make_shared<AMModulator>(mode, ifrate, pcmrate, tone, source_buffer, audio_input);
+	sp_ammod = make_shared<AMModulator>(mode, ifrate, tone, source_buffer, audio_input);
 	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
 	return true;
 }
@@ -33,8 +32,8 @@ AMModulator::~AMModulator()
 	audio_input->set_tone(0);
 }
 
-AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
-	: Demodulator(ifrate, pcmrate, source_buffer, audio_input)
+AMModulator::AMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+	: Demodulator(ifrate, source_buffer, audio_input)
 {
 	float					mod_index = 0.99f; // modulation index (bandwidth)
 	float					As = 60.0f; // resampling filter stop-band attenuation [dB]
@@ -74,11 +73,11 @@ AMModulator::AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	}
 	audio_input->set_tone(tone);
 	setLowPassAudioFilterCutOffFrequency(2500);
-	if ((ifrate - pcmrate) > 0.1)
+	if ((ifrate - audio_input->get_samplerate()) > 0.1)
 	{
 		// only resample and tune if ifrate > pcmrate
 		tune_offset(vfo.get_vfo_offset());
-		set_resample_rate(ifrate / pcmrate); // UP sample to ifrate		
+		set_resample_rate(ifrate / audio_input->get_samplerate()); // UP sample to ifrate		
 	}
 	else
 	{	// mix the transmid signal to the mid of the fft display

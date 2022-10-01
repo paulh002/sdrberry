@@ -9,7 +9,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <chrono>
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 #include "DataBuffer.h"
 
 #define HIGH 1

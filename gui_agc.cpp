@@ -1,4 +1,7 @@
 #include "gui_agc.h"
+#include "Settings.h"
+#include "vfo.h"
+#include "gui_vfo.h"
 
 Gui_agc gagc;
 

@@ -4,8 +4,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 #include "DataBuffer.h"
+#include "Settings.h"
 
 class AudioInput : public RtAudio
 {
@@ -31,6 +32,8 @@ public:
   std::vector<RtAudio::Api> listApis();
   bool open(unsigned int device);
   void set_gain(int g) { gaindb = g; }
+  unsigned int get_samplerate() { return sampleRate; }
+  static bool createAudioInputDevice(int Samplerate, int deviceNumber);
 
 private:
 	RtAudio::StreamParameters	parameters;

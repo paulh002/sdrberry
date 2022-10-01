@@ -1,6 +1,23 @@
 #include "AudioInput.h"
 
+AudioInput *audio_input;
+DataBuffer<Sample> audioinput_buffer;
+
 #define dB2mag(x) pow(10.0, (x) / 20.0)
+
+bool AudioInput::createAudioInputDevice(int SampleRate, int deviceNumber)
+{
+	auto RtApi = RtAudio::LINUX_ALSA;
+	audio_input = new AudioInput(SampleRate, false, &audioinput_buffer, RtApi);
+	if (audio_input)
+	{
+		audio_input->open(deviceNumber);
+		audio_input->set_volume(Settings_file.micgain());
+		return true;
+	}
+	fprintf(stderr, "ERROR: Cannot create AudioInputDevice\n");
+	return false;
+}
 
 int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
 {

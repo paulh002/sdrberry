@@ -1,4 +1,4 @@
-#include "sdrberry.h"
+#include "AudioOutput.h"
 /*
  * Audioout fills the audio output buffer.
  * If there are no samples available (underrun) mutted sound is send
@@ -6,6 +6,24 @@
  * A underrun counter is increased for adjusting samplerate of the radio
  **/
 
+AudioOutput *audio_output;
+DataBuffer<Sample> audiooutput_buffer;
+
+bool AudioOutput::createAudioDevice(int SampleRate)
+{
+	auto RtApi = RtAudio::LINUX_ALSA;
+
+	string s = Settings_file.find_audio("device");
+	audio_output = new AudioOutput(SampleRate, &audiooutput_buffer, RtApi);
+	if (audio_output)
+	{
+		audio_output->set_volume(50);
+		audio_output->open(s);
+		return true;
+	}
+	fprintf(stderr, "ERROR: AudioOutput\n");
+	return false;
+}
 
 int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
 {

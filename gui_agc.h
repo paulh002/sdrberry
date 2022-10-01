@@ -1,11 +1,5 @@
 #pragma once
-
-#include "AudioInput.h"
 #include "lvgl/lvgl.h"
-#include "Settings.h"
-#include "sdrberry.h"
-#include "vfo.h"
-#include "gui_vfo.h"
 
 extern const int screenWidth;
 extern const int screenHeight;

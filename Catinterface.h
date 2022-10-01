@@ -46,7 +46,7 @@ public:
 	Comm			comm_port;
 	bool			bcomm_port;
 	int				m_mode;
-	atomic<bool> bpause_cat{false};
+	std::atomic<bool> bpause_cat{false};
 };
 
 

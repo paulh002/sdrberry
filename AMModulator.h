@@ -1,11 +1,10 @@
 #pragma once
 #include "Demodulator.h"
 
-class AMModulator :
-    public Demodulator
+class AMModulator : public Demodulator
 {
-public:
-	AMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
+  public:
+	AMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	~AMModulator();
 
 	void process(const IQSampleVector &samples_in, SampleVector &samples);
@@ -13,16 +12,15 @@ public:
 
 	void operator()();
 	static void destroy_modulator();
-	static bool create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
-	atomic<bool>			stop_flag {false};	
-	std::thread				ammod_thread;
+	static bool create_modulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
+	atomic<bool> stop_flag{false};
+	std::thread ammod_thread;
 
-private:
-	ampmodem 				AMmodulatorHandle {nullptr};
-	nco_crcf				m_fft {nullptr};
-	void					fft_offset(long offset);
-	void					mix_up_fft(const IQSampleVector& filter_in, IQSampleVector& filter_out);
-	SampleVector			audioframes;
-	void					audio_feedback(const SampleVector &audiosamples);
+  private:
+	ampmodem AMmodulatorHandle{nullptr};
+	nco_crcf m_fft{nullptr};
+	void fft_offset(long offset);
+	void mix_up_fft(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	SampleVector audioframes;
+	void audio_feedback(const SampleVector &audiosamples);
 };
-

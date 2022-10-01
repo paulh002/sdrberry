@@ -3,9 +3,6 @@
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
 #include <tinyb.hpp>
-#include "lvgl/lvgl.h"
-#include <tinyb.hpp>
-
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -18,14 +15,14 @@
 #include <atomic>
 #include <csignal>
 #include <signal.h>
-#include "vfo.h"
-#include "RtAudio.h"
-#include "Audiodefs.h"
-#include "DataBuffer.h"
-#include "AudioOutput.h"
-#include "AudioInput.h"
-#include "sdrberry.h"
 #include <stdexcept>
+#include <string>
+
+inline void to_upper(std::string &str)
+{
+	for (auto &i : str)
+		i = toupper(i);
+};
 
 class ble_class
 {
@@ -35,7 +32,7 @@ public:
 	int		setup_ble();	
 	std::unique_ptr <BluetoothDevice>					sensor_tag;
 	int		connect();
-	void	set_mac_address(string mac) {to_upper(mac); m_mac_address = mac; }
+	void	set_mac_address(std::string mac) {to_upper(mac); m_mac_address = mac; }
 	bool	is_connected() {return m_connected;}
 	void	operator()();
 	
@@ -49,4 +46,4 @@ private:
 };
 
 extern ble_class	Ble_instance;
-int create_ble_thread(string mac_addres);
+int create_ble_thread(std::string mac_addres);

@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <complex>
 #include <vector>
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 #include "DataBuffer.h"
 
 

@@ -1,6 +1,5 @@
 #include "Demodulator.h"
 #include "gui_speech.h"
-#include "sdrberry.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -11,10 +10,10 @@
  **/
 atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
 
-Demodulator::Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input)
+Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
 	ifSampleRate = 0;
-	audioSampleRate = pcmrate;
+	audioSampleRate = audio_output->get_samplerate();
 	transmitIQBuffer = nullptr;
 	audioInputBuffer = audio_input;
 	audioOutputBuffer = audio_output;
@@ -26,10 +25,10 @@ Demodulator::Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *aud
 }
 
 // Transmit mode contructor
-Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 { //  Transmit constructor
 	ifSampleRate = ifrate;
-	audioSampleRate = pcmrate;
+	audioSampleRate = audio_input->get_samplerate();
 	transmitIQBuffer = source_buffer;
 	audioInputBuffer = audio_input;
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
@@ -40,10 +39,10 @@ Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *sourc
 }
 
 // Receive mode contructor
-Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 { //  Receive constructor
 	ifSampleRate = ifrate;
-	audioSampleRate = pcmrate;
+	audioSampleRate = audio_output->get_samplerate();
 	receiveIQBuffer = source_buffer;
 	audioOutputBuffer = audio_output;
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");

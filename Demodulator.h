@@ -6,10 +6,10 @@
 #include <liquid.h>
 #include <thread>
 #include <vector>
-#include "EnergyCalculator.h"
-#include "Agc_class.h"
 #include "AudioInput.h"
 #include "AudioOutput.h"
+#include "EnergyCalculator.h"
+#include "Agc_class.h"
 #include "DataBuffer.h"
 
 enum mode_enum
@@ -41,9 +41,9 @@ class Demodulator
 	
   protected:
 	~Demodulator();
-	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-	Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
-	Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input);
+	Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	Demodulator(double ifrate,  DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
+	Demodulator(AudioOutput *audio_output, AudioInput *audio_input);
 	void mono_to_left_right(const SampleVector &samples_mono, SampleVector &audio);
 	void adjust_gain(IQSampleVector &samples_in, float vol);
 	void tune_offset(long offset);

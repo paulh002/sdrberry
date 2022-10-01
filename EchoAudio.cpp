@@ -5,7 +5,6 @@
 #include "liquid.h"
 #include "EchoAudio.h"
 #include "Waterfall.h"
-#include "Audiodefs.h"
 #include "gui_speech.h"
 #include "PeakLevelDetector.h"
 
@@ -13,11 +12,11 @@ static shared_ptr<EchoAudio> sp_echo;
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
-bool EchoAudio::create_modulator(int pcmrate, AudioOutput *audio_ouput, AudioInput *audio_input)
+bool EchoAudio::create_modulator(AudioOutput *audio_ouput, AudioInput *audio_input)
 {
 	if (sp_echo != nullptr)
 		return false;
-	sp_echo = make_shared<EchoAudio>(pcmrate, audio_ouput, audio_input);
+	sp_echo = make_shared<EchoAudio>(audio_ouput, audio_input);
 	sp_echo->echo_thread = std::thread(&EchoAudio::operator(), sp_echo);
 	return true;
 }
@@ -31,8 +30,8 @@ void EchoAudio::destroy_modulator()
 	sp_echo.reset();
 }
 
-EchoAudio::EchoAudio(int pcmrate, AudioOutput *audio_ouput, AudioInput *audio_input)
-	: Demodulator(pcmrate, audio_ouput, audio_input)
+EchoAudio::EchoAudio(AudioOutput *audio_ouput, AudioInput *audio_input)
+	: Demodulator( audio_ouput, audio_input)
 {
 	
 }

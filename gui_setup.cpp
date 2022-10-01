@@ -258,7 +258,7 @@ void gui_setup::init_bandwidth()
 	}
 }
 
-void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w)
+void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 {
 
 	const lv_coord_t x_margin  = 10;

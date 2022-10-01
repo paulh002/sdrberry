@@ -565,9 +565,6 @@
     <ClCompile Include="Waterfall.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="Setup.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="AMDemodulator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1349,9 +1346,6 @@
     <ClInclude Include="Waterfall.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="Setup.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="AMDemodulator.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -1365,9 +1359,6 @@
       <Filter>Header files\RtMidi</Filter>
     </ClInclude>
     <ClInclude Include="AudioInput.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="Audiodefs.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_tx.h">
@@ -1584,6 +1575,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="EnergyCalculator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Modes.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SdrberryTypeDefs.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

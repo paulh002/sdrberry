@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <memory>
-#include "sdrberry.h"
 #include "vfo.h"
 #include "Settings.h"
 #include "PCF8574.h"

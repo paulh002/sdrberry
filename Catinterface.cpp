@@ -1,4 +1,3 @@
-#include "sdrberry.h"
 #include "Catinterface.h"
 #include "vfo.h"
 

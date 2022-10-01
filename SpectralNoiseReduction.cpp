@@ -12,8 +12,7 @@
    STAND: UHSDR github 14.1.2018
 ************************************************************************************/
 
-
-SpectralNoiseReduction::SpectralNoiseReduction(float pcmrate, tuple<float,float> bw)
+SpectralNoiseReduction::SpectralNoiseReduction(float pcmrate, std::tuple<float,float> bw)
 {
 	SampleRate = pcmrate;
 	NR_first_time_2 = 1;

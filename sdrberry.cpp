@@ -20,12 +20,9 @@ namespace backward
 
 } // namespace backward
 
-AudioOutput *audio_output;
-AudioInput *audio_input;
+
 DataBuffer<IQSample>	source_buffer_rx;
 DataBuffer<IQSample>	source_buffer_tx;
-DataBuffer<Sample>		audiooutput_buffer;
-DataBuffer<Sample>		audioinput_buffer;
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
@@ -118,7 +115,7 @@ static void tabview_event_cb(lv_event_t *e)
 
 int main(int argc, char *argv[])
 {
-	const int pcmrate {48000};
+	const int defaultAudioSampleRate{48000};
 
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
@@ -128,26 +125,9 @@ int main(int argc, char *argv[])
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
 
-	auto RtApi = RtAudio::LINUX_ALSA;
-
-	string s = Settings_file.find_audio("device");
-	audio_output = new AudioOutput(pcmrate, &audiooutput_buffer, RtApi);
-	if (!audio_output) 
-	{
-		fprintf(stderr, "ERROR: AudioOutput\n");
-		exit(1);
-	}
+	if (AudioOutput::createAudioDevice(defaultAudioSampleRate))
+		AudioInput::createAudioInputDevice(audio_output->get_samplerate(), audio_output->get_device());
 	
-	audio_output->set_volume(50);
-	audio_output->open(s);
-
-	audio_input = new AudioInput(audio_output->get_samplerate(), false, &audioinput_buffer, RtApi);
-	if (!(*audio_input))
-	{
-		fprintf(stderr, "ERROR: AudioInput\n");
-	}
-	audio_input->open(audio_output->get_device());
-	audio_input->set_volume(Settings_file.micgain());
 	bpf.initFilter();
 	
 	std::string smode = Settings_file.find_vfo1("Mode");
@@ -243,7 +223,7 @@ int main(int argc, char *argv[])
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
-	gsetup.init(tab["settings"], LV_HOR_RES - 3);
+	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 	if (Settings_file.get_mac_address() != std::string(""))
@@ -289,7 +269,7 @@ int main(int argc, char *argv[])
 		else
 			default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(),r.maximum());
-		vfo.vfo_init((long)ifrate, pcmrate, gsetup.get_span() ,&SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, gsetup.get_span() ,&SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -342,7 +322,7 @@ int main(int argc, char *argv[])
 		{
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, 0);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init(ifrate, pcmrate, gsetup.get_span(),bw);
+			vfo.vfo_re_init(ifrate, defaultAudioSampleRate, gsetup.get_span(),bw);
 			printf("setBandwidth %ld \n", bw);
 		}
 		gsetup.init_bandwidth();
@@ -459,7 +439,7 @@ void select_mode(int s_mode, bool bvfo)
 	switch (mode)
 	{
 	case mode_narrowband_fm:
-		FMDemodulator::create_demodulator(ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
+		FMDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	
@@ -482,7 +462,7 @@ void select_mode(int s_mode, bool bvfo)
 			gsetup.set_cw(false);
 		vfo.set_step(10, 0);
 		printf("Start AMDemodulator\n");
-		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
+		AMDemodulator::create_demodulator(mode, ifrate,  &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
 		{
 			RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
@@ -494,7 +474,7 @@ void select_mode(int s_mode, bool bvfo)
 	case mode_ft8:
 		vfo.set_step(10, 0);
 		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))), false);
-		FT8Demodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
+		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_echo:
@@ -530,7 +510,7 @@ void select_mode_tx(int s_mode, int tone)
 		break;
 	
 	case mode_narrowband_fm:
-		FMModulator::create_modulator(mode, ifrate_tx, audio_output->get_samplerate(), tone, &source_buffer_tx, audio_input);
+		FMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 		
@@ -539,7 +519,7 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		AMModulator::create_modulator(mode, ifrate_tx, audio_output->get_samplerate(), tone, &source_buffer_tx, audio_input);
+		AMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 	}

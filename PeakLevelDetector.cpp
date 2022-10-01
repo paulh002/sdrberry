@@ -1,5 +1,3 @@
-#include "DataBuffer.h"
-#include "Audiodefs.h"
 #include "PeakLevelDetector.h"
 
 
@@ -103,7 +101,7 @@ void AudioProcessor::prepareToPlay(double sampleRate)
 
 	if (LevelDetector == nullptr)
 	{
-		LevelDetector = make_unique<PeakLevelDetector>(sampleRate);
+		LevelDetector = std::make_unique<PeakLevelDetector>(sampleRate);
 	}
 	else
 	{
@@ -112,7 +110,7 @@ void AudioProcessor::prepareToPlay(double sampleRate)
 
 	if (gainDymanics == nullptr)
 	{
-		gainDymanics = make_unique<GainDynamics>(sampleRate, attackTime, releaseTime);
+		gainDymanics = std::make_unique<GainDynamics>(sampleRate, attackTime, releaseTime);
 	}
 	else
 	{

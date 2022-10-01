@@ -4,8 +4,10 @@
 #include <iterator>
 #include <string>
 #include <map>
+#include <algorithm>
+#include <ctype.h>
 #include "configfile.h"
-#include "sdrberry.h"
+#include "Modes.h"
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 #ifndef SOFTFM_FMDECODE_H
 #define SOFTFM_FMDECODE_H
 
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 #include "Filter.h"
 #include "DataBuffer.h"
 

@@ -12,11 +12,11 @@
 class FMDemodulator : public Demodulator
 {
 public:
-	static bool create_demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	static bool create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	static void destroy_demodulator();
 	static std::string getName() { return "FMDemodulator";}
 	
-	FMDemodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~FMDemodulator();
 	void	process(const IQSampleVector&	samples_in, SampleVector& audio) override;
 	void	operator()() override;

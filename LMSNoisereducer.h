@@ -9,7 +9,7 @@
 #include <array>
 #include <list>
 #include "DataBuffer.h"
-#include "Audiodefs.h"
+#include "SdrberryTypeDefs.h"
 
 
 class LMSNoisereducer
@@ -25,7 +25,7 @@ class LMSNoisereducer
 	unsigned int p = 10; // equalizer order
 	float mu = 0.500f;   // LMS learning rate
 	bool first;
-	std::list<complex<float>> samples_training;
+	std::list<std::complex<float>> samples_training;
 };
 
 class LMSNoiseReduction

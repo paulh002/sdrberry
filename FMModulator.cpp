@@ -1,14 +1,13 @@
 #include "FMModulator.h"
 #include "Waterfall.h"
-#include "Audiodefs.h"
 
 static shared_ptr<FMModulator> sp_fmmod;
 
-bool FMModulator::create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+bool FMModulator::create_modulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	
 	if (sp_fmmod != nullptr)
 		return false;
-	sp_fmmod = make_shared<FMModulator>(mode, ifrate, pcmrate, tone, source_buffer, audio_input);
+	sp_fmmod = make_shared<FMModulator>(mode, ifrate, tone, source_buffer, audio_input);
 	sp_fmmod->fmmod_thread = std::thread(&FMModulator::operator(), sp_fmmod);
 	return true;
 }
@@ -28,15 +27,15 @@ FMModulator::~FMModulator()
 		freqmod_destroy(modFM);
 }
 
-FMModulator::FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
-	: Demodulator(ifrate, pcmrate, source_buffer, audio_input)
+FMModulator::FMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+	: Demodulator(ifrate, source_buffer, audio_input)
 {
 	float kf          = 0.1f; // modulation factor
 	
 	audio_input->set_tone(tone);
 	setLowPassAudioFilterCutOffFrequency(5000);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, 5000);
-	Demodulator::set_resample_rate(ifrate / pcmrate); // UP sample to ifrate
+	Demodulator::set_resample_rate(ifrate / audio_input->get_samplerate()); // UP sample to ifrate
 	modFM = freqmod_create(kf); 
 	source_buffer->restart_queue();
 }

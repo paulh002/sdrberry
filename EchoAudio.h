@@ -4,10 +4,10 @@
 class EchoAudio : public Demodulator
 {
   public:
-	static bool create_modulator(int pcmrate, AudioOutput *audio_ouput, AudioInput *audio_input);
+	static bool create_modulator(AudioOutput *audio_ouput, AudioInput *audio_input);
 	static void destroy_modulator();
 
-	EchoAudio(int pcmrate, AudioOutput *audio_ouput, AudioInput *audio_input);
+	EchoAudio(AudioOutput *audio_ouput, AudioInput *audio_input);
 	~EchoAudio();
 
 	void operator()() override;

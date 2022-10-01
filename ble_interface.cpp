@@ -1,5 +1,12 @@
 #include "ble_interface.h"
 
+#include "RtAudio.h"
+#include "SdrberryTypeDefs.h"
+#include "DataBuffer.h"
+#include "AudioOutput.h"
+#include "AudioInput.h"
+#include "vfo.h"
+
 using namespace tinyb;
 
 //std::condition_variable cv;

@@ -591,8 +591,8 @@ int Settings::getspeech(std::string key)
 int Settings::convert_mode(string s)
 {
 	int mode = mode_lsb;
-	
-	to_upper(s);
+
+	std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 	if (s == "FM")
 		mode = mode_narrowband_fm;
 	if (s == "BFM")

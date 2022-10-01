@@ -15,11 +15,11 @@
 class AMDemodulator : public Demodulator
 {
 public:
-	static bool		create_demodulator(int mode, double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	static bool		create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	static void		destroy_demodulator();
 	static std::string getName() { return "AMDemodulator";}
 	
-	AMDemodulator(int mode, double ifrate, int pcmrate, bool dc,DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	AMDemodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~AMDemodulator();
 	void	process(const IQSampleVector&	samples_in, SampleVector& audio) override;
 	void	operator()() override;
@@ -27,16 +27,14 @@ public:
 	atomic<bool>		stop_flag {false};
 	std::thread			amdemod_thread;
 	
-private:
-	ampmodem		m_demod {nullptr};
-	float			m_bandwidth;
-	float			sample_ratio;
+	static void setLowPassAudioFilterCutOffFrequency(int ifilter);
+
+  private:
+	ampmodem		demodulatorHandle {nullptr};
 	Agc_class		agc;
-	int				m_iagc = 0;
 	unique_ptr<MorseDecoder> pMDecoder;
 	unique_ptr<LMSNoisereducer> pLMS;
 	unique_ptr<Xanr> pXanr;
 	unique_ptr<SpectralNoiseReduction> pNoisesp;
 };
 
-void select_filter(int ifilter);

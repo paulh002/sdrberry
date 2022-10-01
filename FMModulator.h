@@ -10,10 +10,6 @@ public:
 	
 	void	process(const IQSampleVector& samples_in, SampleVector& samples);
 	void	operator()();
-	double get_if_level() const
-	{
-		return m_if_level;
-	}
 	static void destroy_modulator();
 	static bool create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	atomic<bool>			stop_flag {false};	

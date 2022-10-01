@@ -11,6 +11,15 @@
 #include "gui_speech.h"
 #include "EchoAudio.h"
 
+#define BACKWARD_HAS_BFD 1
+#include "backward.hpp"
+
+namespace backward
+{
+	backward::SignalHandling sh;
+
+} // namespace backward
+
 AudioOutput *audio_output;
 AudioInput *audio_input;
 DataBuffer<IQSample>	source_buffer_rx;
@@ -431,8 +440,6 @@ void select_mode(int s_mode, bool bvfo)
 
 	if (!SdrDevices.isValid(default_radio))
 		return;
-	if (Settings_file.get_int(default_radio, "dc"))
-		dc = true;
 	catinterface.Pause_Cat(true);
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
@@ -452,7 +459,7 @@ void select_mode(int s_mode, bool bvfo)
 	switch (mode)
 	{
 	case mode_narrowband_fm:
-		FMDemodulator::create_demodulator(ifrate, audio_output->get_samplerate(), dc, &source_buffer_rx, audio_output);
+		FMDemodulator::create_demodulator(ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	
@@ -475,7 +482,7 @@ void select_mode(int s_mode, bool bvfo)
 			gsetup.set_cw(false);
 		vfo.set_step(10, 0);
 		printf("Start AMDemodulator\n");
-		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), dc, &source_buffer_rx, audio_output);
+		AMDemodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
 		{
 			RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
@@ -487,7 +494,7 @@ void select_mode(int s_mode, bool bvfo)
 	case mode_ft8:
 		vfo.set_step(10, 0);
 		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))), false);
-		FT8Demodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), dc, &source_buffer_rx, audio_output);
+		FT8Demodulator::create_demodulator(mode, ifrate, audio_output->get_samplerate(), &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_echo:

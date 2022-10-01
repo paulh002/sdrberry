@@ -21,7 +21,7 @@ public:
   private:
 	std::string				radio;
 	int						channel;
-	DataBuffer<IQSample>	*m_source_buffer;
+	DataBuffer<IQSample>	*receiveIQBuffer;
 };
 
 extern atomic_bool pause_flag;
@@ -42,7 +42,7 @@ public:
 private:
 	std::string				radio;
 	int						channel;
-	DataBuffer<IQSample> *m_source_buffer;
+	DataBuffer<IQSample> *receiveIQBuffer;
 };
 
 extern std::thread					tx_thread;

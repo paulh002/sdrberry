@@ -1141,9 +1141,6 @@
     <ClCompile Include="PeakLevelDetector.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="RtAudio.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="gui_speech.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1169,6 +1166,15 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="LMSNoisereducer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="RtAudio.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Limiter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnergyCalculator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1538,9 +1544,6 @@
     <ClInclude Include="PeakLevelDetector.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="RtAudio.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="gui_speech.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -1572,6 +1575,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="LMSNoisereducer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Limiter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnergyCalculator.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

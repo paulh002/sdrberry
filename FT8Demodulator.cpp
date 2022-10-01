@@ -94,11 +94,11 @@ void FT8Message::display()
 				  msg.c_str());
 }
 
-bool FT8Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+bool FT8Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {
 	if (sp_ft8demod != nullptr)
 		return false;
-	sp_ft8demod = make_shared<FT8Demodulator>(mode, ifrate, pcmrate, dc, source_buffer, audio_output);
+	sp_ft8demod = make_shared<FT8Demodulator>(mode, ifrate, pcmrate, source_buffer, audio_output);
 	sp_ft8demod->amdemod_thread = std::thread(&FT8Demodulator::operator(), sp_ft8demod);
 	return true;
 }
@@ -118,8 +118,8 @@ void FT8Demodulator::destroy_demodulator()
 	cout << "Stoptime FT8Demodulator:" << timePassed.count() << endl;
 }
 
-FT8Demodulator::FT8Demodulator(int mode, double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-	: Demodulator(ifrate, pcmrate, dc, source_buffer, audio_output)
+FT8Demodulator::FT8Demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+	: Demodulator(ifrate, pcmrate, source_buffer, audio_output)
 {
 	float mod_index = 0.03125f;
 	int suppressed_carrier;
@@ -132,8 +132,8 @@ FT8Demodulator::FT8Demodulator(int mode, double ifrate, int pcmrate, bool dc, Da
 	printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
 
 	const auto startTime = std::chrono::high_resolution_clock::now();
-	m_fcutoff = m_bandwidth;
-	Demodulator::set_filter(m_pcmrate, m_bandwidth);
+	setLowPassAudioFilterCutOffFrequency(m_bandwidth);
+	Demodulator::setLowPassAudioFilter(audioSampleRate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
@@ -165,7 +165,7 @@ void FT8Demodulator::operator()()
 	double ttt_start;
 
 	Fft_calc.plan_fft(nfft_samples);
-	m_source_buffer->clear();
+	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
 		span = gsetup.get_span();
@@ -176,14 +176,14 @@ void FT8Demodulator::operator()()
 			set_span(span);
 		}
 
-		if (ifilter != m_fcutoff.load())
+		if (ifilter != get_lowPassAudioFilterCutOffFrequency())
 		{
-			ifilter = m_fcutoff.load();
+			ifilter = get_lowPassAudioFilterCutOffFrequency();
 			printf("set filter %d\n", ifilter);
-			set_filter(m_pcmrate, ifilter);
+			setLowPassAudioFilter(audioSampleRate, ifilter);
 		}
 
-		IQSampleVector iqsamples = m_source_buffer->pull();
+		IQSampleVector iqsamples = receiveIQBuffer->pull();
 		if (iqsamples.empty())
 		{
 			usleep(500);
@@ -254,7 +254,7 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();
-	filter(filter2, filter1);
+	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
 	for (auto col : filter1)

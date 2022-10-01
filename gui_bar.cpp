@@ -250,7 +250,7 @@ static void filter_slider_event_cb(lv_event_t * e)
 		int sel = lv_dropdown_get_selected(obj);
 		int bandwidth = gbar.get_ifilters(sel);
 		catinterface.SetSH(bandwidth);
-		select_filter(bandwidth);
+		Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 	}	 
 }
 
@@ -310,6 +310,13 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
+
+	lv_style_init(&ifGainStyleKnob);
+	lv_style_set_bg_color(&ifGainStyleKnob, lv_palette_main(LV_PALETTE_RED));
+
+	lv_style_init(&ifGainStyleIndicator);
+	lv_style_set_bg_opa(&ifGainStyleIndicator, LV_OPA_COVER);
+	lv_style_set_bg_color(&ifGainStyleIndicator, lv_palette_main(LV_PALETTE_RED));
 	
 	lv_obj_set_style_pad_hor(o_parent, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(o_parent, 0, LV_PART_MAIN);
@@ -450,7 +457,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_obj_align(if_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
 	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	lv_slider_set_value(if_slider, 60, LV_ANIM_OFF);
-	
+		
 	gain_y += (button_height_margin);
 	gain_slider_label = lv_label_create(o_parent);
 	lv_label_set_text(gain_slider_label, "gain");
@@ -558,26 +565,49 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			lv_obj_clear_flag(cw_message, LV_OBJ_FLAG_HIDDEN);
 		}
 	}
+
+void gui_bar::setIfGainOverflow(bool state)
+{
+	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
+	if (state)
+	{
+		if (ifStyleState == false)
+		{
+			ifStyleState = true;
+			lv_obj_add_style(if_slider, &ifGainStyleKnob, LV_PART_KNOB);
+			lv_obj_add_style(if_slider, &ifGainStyleIndicator, LV_PART_INDICATOR);
+		}
+	}
+	else
+	{
+		if (ifStyleState == true)
+		{
+			ifStyleState = false;
+			lv_obj_remove_style(if_slider, &ifGainStyleKnob, LV_PART_KNOB);
+			lv_obj_remove_style(if_slider, &ifGainStyleIndicator, LV_PART_INDICATOR);
+		}
+	}
+}
 	
 void gui_bar::check_agc()
 {
-	try
-	{
-		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(default_rx_channel)->get_agc())
+		try
 		{
-			bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, default_rx_channel);
-			if (bAgc)
-				lv_obj_add_state(button[7], LV_STATE_CHECKED);
+			if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(default_rx_channel)->get_agc())
+			{
+				bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, default_rx_channel);
+				if (bAgc)
+					lv_obj_add_state(button[7], LV_STATE_CHECKED);
+				else
+					lv_obj_clear_state(button[7], LV_STATE_CHECKED);
+			}
 			else
 				lv_obj_clear_state(button[7], LV_STATE_CHECKED);
 		}
-		else
-			lv_obj_clear_state(button[7], LV_STATE_CHECKED);			
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << e.what();
-	}
+		catch (const std::exception &e)
+		{
+			std::cout << e.what();
+		}
 }
 
 void gui_bar::set_cw_message(std::string message)
@@ -701,7 +731,7 @@ void gui_bar::set_filter_slider(int ifilter)
 		filter = 6;
 	
 	lv_dropdown_set_selected(button[number_of_buttons-1], filter);
-	select_filter(ifilters[filter]);
+	Demodulator::setLowPassAudioFilterCutOffFrequency(ifilters[filter]);
 }
 
 void gui_bar::get_gain_range(int &max_gain, int &min_gain)

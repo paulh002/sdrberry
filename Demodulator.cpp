@@ -1,6 +1,6 @@
 #include "Demodulator.h"
-#include "sdrberry.h"
 #include "gui_speech.h"
+#include "sdrberry.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -9,72 +9,79 @@
  ** Basic class for processing radio data for bith RX and TX
  **
  **/
+atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
 
 Demodulator::Demodulator(int pcmrate, AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
-	m_ifrate = 0;
-	m_pcmrate = pcmrate;
-	m_transmit_buffer = nullptr;
-	m_audio_input = audio_input;
-	m_audio_output = audio_output;
-	
-	// resampler and band filter assume pcmfrequency on the low side
-	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
+	ifSampleRate = 0;
+	audioSampleRate = pcmrate;
+	transmitIQBuffer = nullptr;
+	audioInputBuffer = audio_input;
+	audioOutputBuffer = audio_output;
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
+	if (!audioBufferSize)
+		audioBufferSize = 4096;
+
+	// resampler and band filter assume pcmfrequency on the low side;
 }
 
 // Transmit mode contructor
 Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
-{	//  Transmit constructor
-	m_ifrate = ifrate;
-	m_pcmrate = pcmrate;
-	m_transmit_buffer = source_buffer;
-	m_audio_input = audio_input;
+{ //  Transmit constructor
+	ifSampleRate = ifrate;
+	audioSampleRate = pcmrate;
+	transmitIQBuffer = source_buffer;
+	audioInputBuffer = audio_input;
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
+	if (!audioBufferSize)
+		audioBufferSize = 4096;
 
 	// resampler and band filter assume pcmfrequency on the low side
-	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 }
 
 // Receive mode contructor
-Demodulator::Demodulator(double ifrate, int pcmrate, bool dc, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-{	//  Receive constructor
-	m_ifrate = ifrate;
-	m_pcmrate = pcmrate;
-	m_source_buffer = source_buffer;
-	m_audio_output = audio_output;
+Demodulator::Demodulator(double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+{ //  Receive constructor
+	ifSampleRate = ifrate;
+	audioSampleRate = pcmrate;
+	receiveIQBuffer = source_buffer;
+	audioOutputBuffer = audio_output;
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
+	if (!audioBufferSize)
+		audioBufferSize = 4096;
 
 	// resampler and band filter assume pcmfrequency on the low side
-	m_audio_mean = m_audio_rms = m_audio_level = m_if_level = 0.0;
 	tune_offset(vfo.get_vfo_offset());
 	set_span(gsetup.get_span());
-	if (dc)
-		q_dcblock = firfilt_crcf_create_dc_blocker(25, 30);
+	if (get_dc_filter())
+		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	else
-		q_dcblock = nullptr;
+		dcBlockHandle = nullptr;
 }
 
 // decrease the span of the fft display by downmixing the bandwidth of the receiver
-// Chop the bandwith in parts en display correct part 
+// Chop the bandwith in parts en display correct part
 void Demodulator::set_span(int span)
 {
-	if ((span < m_ifrate) && span > 0)
+	if ((span < ifSampleRate) && span > 0)
 	{
 		if (m_span != span)
 		{
 			set_fft_resample_rate((float)span * 2);
 		}
 		m_span = span;
-		int n =  (vfo.get_vfo_offset() / m_span);
+		int n = (vfo.get_vfo_offset() / m_span);
 		//printf("window: %d  offset %d\n", n, m_span * n);
 		set_fft_mixer(m_span * n);
-		Wf.set_fft_if_rate(2*m_span, n); 
+		Wf.set_fft_if_rate(2 * m_span, n);
 		Wf.set_pos(vfo.get_vfo_offset());
 	}
 	else
 	{
 		m_span = span;
-		//set_fft_resample_rate(m_ifrate * 2);
+		set_fft_resample_rate(0.0);
 		set_fft_mixer(0);
-		Wf.set_fft_if_rate(m_ifrate, 0);
+		Wf.set_fft_if_rate(ifSampleRate, 0);
 		Wf.set_pos(vfo.get_vfo_offset());
 	}
 }
@@ -83,34 +90,34 @@ Demodulator::~Demodulator()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
 	printf("destructor demod called\n");
-	if (m_q)
-		msresamp_crcf_destroy(m_q);
-	m_q = nullptr;
-	if (m_fft_resample)
-		msresamp_crcf_destroy(m_fft_resample);
-	m_fft_resample = nullptr;
-	if (m_upnco != nullptr)
-		nco_crcf_destroy(m_upnco);
-	m_upnco = nullptr;
-	if (m_lowpass)
-		iirfilt_crcf_destroy(m_lowpass);
-	m_lowpass = nullptr;
-	if (m_fftmix)
-		nco_crcf_destroy(m_fftmix);
-	m_fftmix = nullptr;
-	
-	if (q_bandpass)
-		iirfilt_crcf_destroy(q_bandpass);
-	if (q_lowpass)
-		iirfilt_crcf_destroy(q_lowpass);
-	if (q_highpass)
-		iirfilt_crcf_destroy(q_highpass);
-	if (q_dcblock)
-		firfilt_crcf_destroy(q_dcblock);
-	q_bandpass = nullptr;
-	q_lowpass = nullptr;
-	q_highpass = nullptr;
-	
+	if (resampleHandle)
+		msresamp_crcf_destroy(resampleHandle);
+	resampleHandle = nullptr;
+	if (fftResampleHandle)
+		msresamp_crcf_destroy(fftResampleHandle);
+	fftResampleHandle = nullptr;
+	if (tuneNCO != nullptr)
+		nco_crcf_destroy(tuneNCO);
+	tuneNCO = nullptr;
+	if (lowPassAudioFilterHandle)
+		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
+	lowPassAudioFilterHandle = nullptr;
+	if (fftNCOHandle)
+		nco_crcf_destroy(fftNCOHandle);
+	fftNCOHandle = nullptr;
+
+	if (bandPassHandle)
+		iirfilt_crcf_destroy(bandPassHandle);
+	if (lowPassHandle)
+		iirfilt_crcf_destroy(lowPassHandle);
+	if (highPassHandle)
+		iirfilt_crcf_destroy(highPassHandle);
+	if (dcBlockHandle)
+		firfilt_crcf_destroy(dcBlockHandle);
+	bandPassHandle = nullptr;
+	lowPassHandle = nullptr;
+	highPassHandle = nullptr;
+
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime demodulator:" << timePassed.count() << endl;
@@ -118,41 +125,44 @@ Demodulator::~Demodulator()
 
 void Demodulator::set_resample_rate(float resample_rate)
 {
-	float As {60.0f};
-		
-	if (m_q)
-		msresamp_crcf_destroy(m_q);
-	m_resample_rate = resample_rate;
-	m_q = msresamp_crcf_create(m_resample_rate, As);
-	msresamp_crcf_print(m_q);	
+	float As{60.0f};
+
+	if (resampleHandle)
+		msresamp_crcf_destroy(resampleHandle);
+	resampleRate = resample_rate;
+	resampleHandle = msresamp_crcf_create(resampleRate, As);
+	msresamp_crcf_print(resampleHandle);
 }
 
 void Demodulator::set_fft_resample_rate(float resample_rate)
 {
-	float As {60.0f};
-		
-	if (m_fft_resample)
+	float As{60.0f};
+
+	if (fftResampleHandle)
 	{
-		msresamp_crcf_destroy(m_fft_resample);
-		m_fft_resample = nullptr;
+		msresamp_crcf_destroy(fftResampleHandle);
+		fftResampleHandle = nullptr;
 	}
-	printf("resampe rate %f\n", resample_rate);
-	m_fft_resample_rate = resample_rate / m_ifrate;
-	m_fft_resample = msresamp_crcf_create(m_fft_resample_rate, As);
-	msresamp_crcf_print(m_fft_resample);	
+	if (resample_rate > 0.0)
+	{
+		printf("fft resample rate %f\n", resample_rate);
+		fftResampleRate = resample_rate / ifSampleRate;
+		fftResampleHandle = msresamp_crcf_create(fftResampleRate, As);
+		msresamp_crcf_print(fftResampleHandle);
+	}
 }
 
-void Demodulator::fft_resample(const IQSampleVector& filter_in,
-	IQSampleVector& filter_out)
-{	
+void Demodulator::fft_resample(const IQSampleVector &filter_in,
+							   IQSampleVector &filter_out)
+{
 	unsigned int num_written;
-	
-	if (m_fft_resample)
+
+	if (fftResampleHandle)
 	{
-		float nx = (float)filter_in.size() * m_fft_resample_rate + 500;
+		float nx = (float)filter_in.size() * fftResampleRate + 500;
 		filter_out.reserve((int)ceilf(nx));
 		filter_out.resize((int)ceilf(nx));
-		msresamp_crcf_execute(m_fft_resample, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);	
+		msresamp_crcf_execute(fftResampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
 		filter_out.resize(num_written);
 	}
 	else
@@ -161,31 +171,14 @@ void Demodulator::fft_resample(const IQSampleVector& filter_in,
 	}
 }
 
-void Demodulator::calc_if_level(const IQSampleVector& samples_in)
+void Demodulator::calc_if_level(const IQSampleVector &samples_in)
 {
-	float y2 = 0.0;
-	for (auto& con : samples_in)
-	{
-		y2 += std::real(con * std::conj(con));
-	}
-	// smooth energy estimate using single-pole low-pass filter
-	y2 = y2 / samples_in.size();
-	accuf = (1.0 - alpha)* accuf + alpha*y2;
-	m_if_level = accuf;
+	ifEnergy.calculateEnergyLevel(samples_in);
 }
 
 void Demodulator::calc_af_level(const SampleVector &samples_in)
 {
-	float y2 = 0.0;
-	for (auto &con : samples_in)
-	{
-		y2 += con * con;
-	}
-	// smooth energy estimate using single-pole low-pass filter
-	y2 = y2 / samples_in.size();
-	accuf = (1.0 - alpha) * accuf + alpha * y2;
-	m_af_level = accuf;
-	//printf("af %f\n", m_af_level);
+	afEnergy.calculateEnergyLevel(samples_in);
 }
 
 // The vfo class calculates an offset within the bandwidth of the sdr radio
@@ -193,18 +186,18 @@ void Demodulator::calc_af_level(const SampleVector &samples_in)
 // use mix_down() to mix down to baseband during receive,mix_up() for transmit to mixup from baseband
 void Demodulator::tune_offset(long offset)
 {
-	if (m_upnco != nullptr)
-		nco_crcf_destroy(m_upnco);
-	m_offset = offset;
-	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)m_ifrate);
-	m_upnco = nco_crcf_create(LIQUID_NCO);
-	nco_crcf_set_phase(m_upnco, 0.0f);
-	nco_crcf_set_frequency(m_upnco, rad_per_sample);
+	if (tuneNCO != nullptr)
+		nco_crcf_destroy(tuneNCO);
+	tuneOffsetFrequency = offset;
+	float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifSampleRate);
+	tuneNCO = nco_crcf_create(LIQUID_NCO);
+	nco_crcf_set_phase(tuneNCO, 0.0f);
+	nco_crcf_set_frequency(tuneNCO, rad_per_sample);
 }
 
-void Demodulator::adjust_gain(IQSampleVector& samples_in, float vol)
+void Demodulator::adjust_gain(IQSampleVector &samples_in, float vol)
 {
-	for (auto& col : samples_in)
+	for (auto &col : samples_in)
 	{
 		col.real(col.real() * vol);
 		col.imag(col.imag() * vol);
@@ -212,8 +205,8 @@ void Demodulator::adjust_gain(IQSampleVector& samples_in, float vol)
 }
 
 // copy mono signal to both sereo channels
-void Demodulator::mono_to_left_right(const SampleVector& samples_mono,
-	SampleVector& audio)
+void Demodulator::mono_to_left_right(const SampleVector &samples_mono,
+									 SampleVector &audio)
 {
 	unsigned int n = samples_mono.size();
 
@@ -223,75 +216,97 @@ void Demodulator::mono_to_left_right(const SampleVector& samples_mono,
 		return;
 	}
 	audio.resize(2 * n);
-	for (unsigned int i = 0; i < n; i++) {
+	for (unsigned int i = 0; i < n; i++)
+	{
 		Sample m = samples_mono[i];
-		audio[2*i]   = m;
-		audio[2*i + 1] = m;
+		audio[2 * i] = m;
+		audio[2 * i + 1] = m;
 	}
 }
 
-void Demodulator::Resample(const IQSampleVector& filter_in,
-	IQSampleVector& filter_out)
-{	
+void Demodulator::Resample(const IQSampleVector &filter_in,
+						   IQSampleVector &filter_out)
+{
 	unsigned int num_written;
-	
-	if (m_q)
+
+	if (resampleHandle)
 	{
-		float nx = (float)filter_in.size() * m_resample_rate + 500;
+		float nx = (float)filter_in.size() * resampleRate + 500;
 		filter_out.reserve((int)ceilf(nx));
 		filter_out.resize((int)ceilf(nx));
-		msresamp_crcf_execute(m_q, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);	
+		msresamp_crcf_execute(resampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
 		filter_out.resize(num_written);
 	}
 	else
 	{
 		filter_out = filter_in;
 	}
-}	
+}
 
 // audio filter 500 hz - 4.0 Khz
-void Demodulator::filter(const IQSampleVector& filter_in,
-	IQSampleVector& filter_out)
-{	
-	for (auto& col : filter_in)
+void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
+									 IQSampleVector &filter_out)
+{
+	for (auto &col : filter_in)
 	{
 		complex<float> v, z;
 
-		iirfilt_crcf_execute(m_lowpass, col, &v);
+		iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
 		filter_out.insert(filter_out.end(), v);
 	}
 }
 
 void Demodulator::dc_filter(const IQSampleVector &filter_in,
+							IQSampleVector &filter_out)
+{
+	if (dcBlockHandle)
+	{
+		for (auto &col : filter_in)
+		{
+			complex<float> v;
+
+			firfilt_crcf_push(dcBlockHandle, col);
+			firfilt_crcf_execute(dcBlockHandle, &v);
+			filter_out.insert(filter_out.end(), v);
+		}
+	}
+	else
+	{
+		filter_out = filter_in;
+	}
+}
+
+void Demodulator::mix_down(const IQSampleVector &filter_in,
+						   IQSampleVector &filter_out)
+{
+	if (tuneNCO)
+	{
+		for (auto &col : filter_in)
+		{
+			complex<float> v;
+
+			nco_crcf_step(tuneNCO);
+			nco_crcf_mix_down(tuneNCO, col, &v);
+			filter_out.push_back(v);
+		}
+	}
+	else
+	{
+		filter_out = filter_in;
+	}
+}
+
+void Demodulator::mix_up(const IQSampleVector &filter_in,
 						 IQSampleVector &filter_out)
 {
-	if (q_dcblock == nullptr)
+	if (tuneNCO)
 	{
-		filter_out = filter_in;
-		return;
-	}
-	
-	for (auto &col : filter_in)
-	{
-		complex<float> v;
-
-		firfilt_crcf_push(q_dcblock, col);
-		firfilt_crcf_execute(q_dcblock, &v);
-		filter_out.insert(filter_out.end(), v);
-	}
-}
-
-void Demodulator::mix_down(const IQSampleVector& filter_in,
-	IQSampleVector& filter_out)
-{	
-	if (m_upnco)
-	{
-		for (auto& col : filter_in)
+		for (auto &col : filter_in)
 		{
 			complex<float> v;
-		
-			nco_crcf_step(m_upnco);
-			nco_crcf_mix_down(m_upnco, col, &v);
+
+			nco_crcf_step(tuneNCO);
+			nco_crcf_mix_up(tuneNCO, col, &v);
 			filter_out.push_back(v);
 		}
 	}
@@ -301,81 +316,61 @@ void Demodulator::mix_down(const IQSampleVector& filter_in,
 	}
 }
 
-void Demodulator::mix_up(const IQSampleVector& filter_in,
-	IQSampleVector& filter_out)
-{	
-	if (m_upnco)
-	{
-		for (auto& col : filter_in)
-		{
-			complex<float> v;
-		
-			nco_crcf_step(m_upnco);
-			nco_crcf_mix_up(m_upnco, col, &v);
-			filter_out.push_back(v);
-		}
-	}
-	else
-	{
-		filter_out = filter_in;
-	}
-}
-
-void Demodulator::fft_mix(int dir, const IQSampleVector& filter_in,
-	IQSampleVector& filter_out)
-{	
-	if (m_fftmix)
-	{
-		for (auto& col : filter_in)
-		{
-			complex<float> v;
-		
-			nco_crcf_step(m_fftmix);
-			if (dir)
-				nco_crcf_mix_up(m_fftmix, col, &v);
-			else
-				nco_crcf_mix_down(m_fftmix, col, &v);				
-			filter_out.push_back(v);
-		}
-	}
-	else
-	{
-		filter_out = filter_in;
-	}
-}
-
-void	Demodulator::set_fft_mixer(float offset)
+void Demodulator::fft_mix(int dir, const IQSampleVector &filter_in,
+						  IQSampleVector &filter_out)
 {
-	if (m_fftmix != nullptr)
+	if (fftNCOHandle)
 	{
-		nco_crcf_destroy(m_fftmix);
-		m_fftmix = nullptr;
+		for (auto &col : filter_in)
+		{
+			complex<float> v;
+
+			nco_crcf_step(fftNCOHandle);
+			if (dir)
+				nco_crcf_mix_up(fftNCOHandle, col, &v);
+			else
+				nco_crcf_mix_down(fftNCOHandle, col, &v);
+			filter_out.push_back(v);
+		}
+	}
+	else
+	{
+		filter_out = filter_in;
+	}
+}
+
+void Demodulator::set_fft_mixer(float offset)
+{
+	if (fftNCOHandle != nullptr)
+	{
+		nco_crcf_destroy(fftNCOHandle);
+		fftNCOHandle = nullptr;
 	}
 	if (!offset)
 		return;
-	float rad_per_sample   = ((2.0f * (float)M_PI * (float)offset) / (float)m_ifrate);
-	m_fftmix = nco_crcf_create(LIQUID_NCO);
-	nco_crcf_set_phase(m_fftmix, 0.0f);
-	nco_crcf_set_frequency(m_fftmix, rad_per_sample);
+	float rad_per_sample = ((2.0f * (float)M_PI * (float)offset) / (float)ifSampleRate);
+	fftNCOHandle = nco_crcf_create(LIQUID_NCO);
+	nco_crcf_set_phase(fftNCOHandle, 0.0f);
+	nco_crcf_set_frequency(fftNCOHandle, rad_per_sample);
 }
 
-void	Demodulator::set_filter(float samplerate, float band_width)
+void Demodulator::setLowPassAudioFilter(float samplerate, float band_width)
 {
-	if (m_lowpass)
-		iirfilt_crcf_destroy(m_lowpass);
-	float factor =  band_width / samplerate;
-	m_lowpass = iirfilt_crcf_create_lowpass(m_order, factor);
-	iirfilt_crcf_print(m_lowpass);
+	if (lowPassAudioFilterHandle)
+		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
+	float factor = band_width / samplerate;
+	lowPassAudioFilterHandle = iirfilt_crcf_create_lowpass(lowPassFilterOrder, factor);
+	iirfilt_crcf_print(lowPassAudioFilterHandle);
 }
 
-void Demodulator::set_filter(int band_width)
+void Demodulator::setLowPassAudioFilterCutOffFrequency(int fc)
 {
-	m_fcutoff = band_width;
+	lowPassAudioFilterCutOffFrequency = fc;
 }
 
-void Demodulator::perform_fft(const IQSampleVector& iqsamples)
+void Demodulator::perform_fft(const IQSampleVector &iqsamples)
 {
-	IQSampleVector	iqsamples_filter, iqsamples_resample;
+	IQSampleVector iqsamples_filter, iqsamples_resample;
 
 	if (m_span < ifrate)
 	{
@@ -387,39 +382,39 @@ void Demodulator::perform_fft(const IQSampleVector& iqsamples)
 	Fft_calc.process_samples(iqsamples_resample);
 }
 
-void Demodulator::set_bandpass_filter(float high, float mid_high, float mid_low, float low)
+void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, float low)
 {
-	float fc = mid_low / (float)m_pcmrate;  // cutoff frequency
-	float f0 = mid_high / (float)m_pcmrate; // center frequency
-	Ap = 1.0f;						// pass-band ripple
-	As = 40.0f;						// stop-band attenuation
-	order = 4;
-	
-	if (q_bandpass)
-		iirfilt_crcf_destroy(q_bandpass);
-	if (q_lowpass)
-		iirfilt_crcf_destroy(q_lowpass);
-	if (q_highpass)
-		iirfilt_crcf_destroy(q_highpass);	
-	
-	q_bandpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
-	iirfilt_crcf_print(q_bandpass);
+	cutOffFrequency = mid_low / (float)audioSampleRate;  // cutoff frequency
+	centerFrequency = mid_high / (float)audioSampleRate; // center frequency
+	passBandRipple = 1.0f;								 // pass-band ripple
+	StopBandAttenuation = 40.0f;						 // stop-band attenuation
+	filterOrder = 4;
 
-	fc = low / (float)m_pcmrate; // cutoff frequency
-	f0 = mid_low / (float)m_pcmrate; // center frequency
-	q_lowpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
-	iirfilt_crcf_print(q_lowpass);
+	if (bandPassHandle)
+		iirfilt_crcf_destroy(bandPassHandle);
+	if (lowPassHandle)
+		iirfilt_crcf_destroy(lowPassHandle);
+	if (highPassHandle)
+		iirfilt_crcf_destroy(highPassHandle);
 
-	fc = mid_high / (float)m_pcmrate; // cutoff frequency
-	f0 = high / (float)m_pcmrate; // center frequency
-	q_highpass = iirfilt_crcf_create_prototype(ftype, btype, format, order, fc, f0, Ap, As);
-	iirfilt_crcf_print(q_highpass);
+	bandPassHandle = iirfilt_crcf_create_prototype(butterwurthType, bandFilterType, sosFormat, filterOrder, cutOffFrequency, centerFrequency, passBandRipple, StopBandAttenuation);
+	iirfilt_crcf_print(bandPassHandle);
+
+	cutOffFrequency = low / (float)audioSampleRate;		// cutoff frequency
+	centerFrequency = mid_low / (float)audioSampleRate; // center frequency
+	lowPassHandle = iirfilt_crcf_create_prototype(butterwurthType, bandFilterType, sosFormat, filterOrder, cutOffFrequency, centerFrequency, passBandRipple, StopBandAttenuation);
+	iirfilt_crcf_print(lowPassHandle);
+
+	cutOffFrequency = mid_high / (float)audioSampleRate; // cutoff frequency
+	centerFrequency = high / (float)audioSampleRate;	 // center frequency
+	highPassHandle = iirfilt_crcf_create_prototype(butterwurthType, bandFilterType, sosFormat, filterOrder, cutOffFrequency, centerFrequency, passBandRipple, StopBandAttenuation);
+	iirfilt_crcf_print(highPassHandle);
 }
 
-void Demodulator::exec_bandpass_filter(const IQSampleVector &filter_in,
-									   IQSampleVector &filter_out)
+void Demodulator::executeBandpassFilter(const IQSampleVector &filter_in,
+										IQSampleVector &filter_out)
 {
-	if (q_bandpass == nullptr || q_lowpass == nullptr || q_highpass == nullptr)
+	if (bandPassHandle == nullptr || lowPassHandle == nullptr || highPassHandle == nullptr)
 	{
 		filter_out = filter_in;
 		return;
@@ -429,11 +424,48 @@ void Demodulator::exec_bandpass_filter(const IQSampleVector &filter_in,
 	for (auto &col : filter_in)
 	{
 		complex<float> v, w, u, z;
-		
-		iirfilt_crcf_execute(q_bandpass, col, &v);
-		iirfilt_crcf_execute(q_lowpass, col, &w);
-		iirfilt_crcf_execute(q_highpass, col, &u);
+
+		iirfilt_crcf_execute(bandPassHandle, col, &v);
+		iirfilt_crcf_execute(lowPassHandle, col, &w);
+		iirfilt_crcf_execute(highPassHandle, col, &u);
 		v = v + w * bass_gain + u * treble_gain;
 		filter_out.insert(filter_out.end(), v);
 	}
 }
+
+bool Demodulator::get_dc_filter()
+{
+	if (Settings_file.get_int(default_radio, "dc"))
+		return true;
+	else
+		return false;
+}
+
+/*
+static shared_ptr<Demodulator> sp_demod;
+std::mutex demod_mutex;
+
+bool Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+{
+	if (sp_demod != nullptr)
+		return false;
+	sp_demod = make_shared<Demodulator>(mode, ifrate, pcmrate, source_buffer, audio_output);
+	sp_demod->demod_thread = std::thread(&Demodulator::operator(), sp_demod);
+	return true;
+}
+
+void Demodulator::destroy_demodulator()
+{
+	auto startTime = std::chrono::high_resolution_clock::now();
+
+	if (sp_demod == nullptr)
+		return;
+	sp_demod->stop_flag = true;
+	sp_demod->demod_thread.join();
+	sp_demod.reset();
+	sp_demod = nullptr;
+	auto now = std::chrono::high_resolution_clock::now();
+	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;
+}
+*/

@@ -74,6 +74,11 @@ public:
 	int			get_bandwith_count(int channel) { return rx_channels[channel]->get_bandwith_count(); }
 	long		get_bandwith(int channel, int no) { return rx_channels[channel]->get_bandwith(no); }
 
+	size_t getStreamMTU(SoapySDR::Stream *stream)
+	{
+		return soapyDevice->getStreamMTU(stream);
+	}
+	
 	void setFrequency(const int direction, const size_t channel, const double frequency)
 	{
 		if (direction == SOAPY_SDR_TX && numTxChans < 1)

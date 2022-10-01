@@ -34,8 +34,8 @@ FMModulator::FMModulator(int mode, double ifrate, int pcmrate, int tone, DataBuf
 	float kf          = 0.1f; // modulation factor
 	
 	audio_input->set_tone(tone);
-	m_fcutoff = 5000;
-	Demodulator::set_filter(m_pcmrate, m_fcutoff);
+	setLowPassAudioFilterCutOffFrequency(5000);
+	Demodulator::setLowPassAudioFilter(audioSampleRate, 5000);
 	Demodulator::set_resample_rate(ifrate / pcmrate); // UP sample to ifrate
 	modFM = freqmod_create(kf); 
 	source_buffer->restart_queue();
@@ -57,7 +57,7 @@ void FMModulator::operator()()
 			tune_offset(vfo.get_vfo_offset());
 		}
 		
-		if (m_audio_input->read(audiosamples) == false)
+		if (audioInputBuffer->read(audiosamples) == false)
 		{
 			printf("wait for input\n");
 			usleep(1000); // wait 1024 audio sample time
@@ -68,7 +68,7 @@ void FMModulator::operator()()
 		process(dummy, audiosamples);
 		audiosamples.clear();
 	}
-	m_transmit_buffer->push_end();
+	transmitIQBuffer->push_end();
 	printf("exit am_mod_thread\n");
 }
 
@@ -86,18 +86,15 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 		//printf("%f;%f;%f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);
 	}
-	double if_rms = rms_level_approx(buf_mod);
-	m_if_level = 0.95 * m_if_level + 0.05 * if_rms;
-	
 	// Low pass filter 5 Khz for NB FM
-	buf_filter.clear(); 
-	filter(buf_mod, buf_filter);	
+	buf_filter.clear();
+	lowPassAudioFilter(buf_mod, buf_filter);	
 	buf_out.clear();
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();
 	mix_up(buf_out, buf_filter); // Mix up to vfo freq	
 	Fft_calc.process_samples(buf_filter);
-	m_transmit_buffer->push(move(buf_filter));
+	transmitIQBuffer->push(move(buf_filter));
 	buf_mod.clear();
 	buf_out.clear();
 	buf_filter.clear();

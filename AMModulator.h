@@ -12,17 +12,13 @@ public:
 	void process_tx(const SampleVector &samples, IQSampleVector &samples_out);
 
 	void operator()();
-	double get_if_level() const
-	{
-		return m_if_level;
-	}
 	static void destroy_modulator();
 	static bool create_modulator(int mode, double ifrate, int pcmrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	atomic<bool>			stop_flag {false};	
 	std::thread				ammod_thread;
 
 private:
-	ampmodem 				modAM {nullptr};
+	ampmodem 				AMmodulatorHandle {nullptr};
 	nco_crcf				m_fft {nullptr};
 	void					fft_offset(long offset);
 	void					mix_up_fft(const IQSampleVector& filter_in, IQSampleVector& filter_out);

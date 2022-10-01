@@ -2,6 +2,8 @@
 #if false; then
 sudo apt update
 sudo apt install build-essential git cmake swig -y
+sudo apt-get install binutils-dev
+sudo apt-get install libdw-dev
 sudo apt-get -y install git
 sudo apt-get install -y\
     cmake g++ \
@@ -13,6 +15,15 @@ mkdir build
 cd build
 cmake ..
 make -j4
+sudo make install
+sudo ldconfig
+cd ~
+git clone https://github.com/paulh002/rtaudio
+cd rtaudio
+mkdir build
+cd build
+cmake ..
+make
 sudo make install
 sudo ldconfig
 cd ~

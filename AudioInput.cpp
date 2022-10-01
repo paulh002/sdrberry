@@ -188,7 +188,7 @@ double AudioInput::Nexttone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 48000) asteps = 0;
-	return sin(angle) / 1.0;
+	return sin(angle) / 400.0;
 }
 
 void AudioInput::ToneBuffer()

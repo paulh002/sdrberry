@@ -11,7 +11,7 @@ class EnvelopeFollower
 	void Setup(double attackMs, double releaseMs, double sampleRate);
 	void Process(const IQSample &src);
 	float getEnvelope() { return envelope; }
-
+	
 	float envelope;
 
   protected:
@@ -32,6 +32,7 @@ struct Limiter
 	void Setup(double attackMs, double releaseMs, double sampleRate);
 	void Process(IQSampleVector &dest);
 	float getEnvelope() { return e.getEnvelope(); }
+	static const std::string getsetting() { return "Radio"; }
 
   private:
 	EnvelopeFollower e;

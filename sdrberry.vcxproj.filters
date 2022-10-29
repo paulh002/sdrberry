@@ -1583,5 +1583,8 @@
     <ClInclude Include="SdrberryTypeDefs.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="backward.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

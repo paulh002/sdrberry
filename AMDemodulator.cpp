@@ -86,19 +86,22 @@ void AMDemodulator::operator()()
 	std::chrono::high_resolution_clock::time_point now, start1;
 	
 	AudioProcessor Agc;
-	Limiter limiter(10.0f, 5000.0f, ifSampleRate);
-
+	
 	int lowPassAudioFilterCutOffFrequency {-1}, span, rcount {0}, droppedFrames {0};
 	SampleVector            audioSamples, audioFrames;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			dc_iqsamples, iqsamples;
 	long long pr_time{0};
-	int vsize, passes{0};
+	int vsize, passes{0}, thresholdUnderrun{0};
 
+	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
+	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
+	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
+	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 15);
+	
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
 	pXanr = make_unique<Xanr>();
-	
 	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
@@ -197,24 +200,24 @@ void AMDemodulator::operator()()
 		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
 		if (pr_time < process_time1.count())
 			pr_time = process_time1.count();
-		if (timeLastPrint + std::chrono::seconds(10) < now)
+		if (timeLastPrint + std::chrono::seconds(1) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(),nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
+			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("rms %f envelope %f\n", get_if_level(), limiter.getEnvelope());
 			std::cout << "SoapySDR sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			
 			pr_time = 0;
 			passes = 0;
-	
-			if (rcount > 1 && droppedFrames > 15)
+
+			if (rcount > 1 && droppedFrames > thresholdDroppedFrames)
 			{
 				Demodulator::set_resample_rate((double)audioSampleRate / get_rxsamplerate());
 				rcount = 0;
 			}
-			if (rcount > 5 && audioOutputBuffer->get_underrun() > 0 && droppedFrames == 0)
+			if (rcount > 1 && audioOutputBuffer->get_underrun() > thresholdUnderrun && droppedFrames == 0)
 			{
 				Demodulator::set_resample_rate((double)audioSampleRate / get_rxsamplerate());			
 				rcount = 0;

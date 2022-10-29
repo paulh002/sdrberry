@@ -323,6 +323,7 @@
     <ClInclude Include="AMModulator.h" />
     <ClInclude Include="AudioInput.h" />
     <ClInclude Include="AudioOutput.h" />
+    <ClInclude Include="backward.hpp" />
     <ClInclude Include="BandFilter.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="ble_interface.h" />

@@ -83,6 +83,7 @@ void AMDemodulator::operator()()
 {	
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	auto timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1;
 	
 	AudioProcessor Agc;
@@ -106,6 +107,7 @@ void AMDemodulator::operator()()
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
 	Fft_calc.plan_fft(nfft_samples);
+	set_span(gsetup.get_span());
 	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
@@ -137,11 +139,6 @@ void AMDemodulator::operator()()
 		passes++;
 		adjust_gain(iqsamples, gbar.get_if());
 		limiter.Process(iqsamples);
-		if (limiter.getEnvelope() > 0.99)
-			gbar.setIfGainOverflow(true);
-		else
-			gbar.setIfGainOverflow(false);
-
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
 		Fft_calc.set_signal_strength(get_if_level());
@@ -200,6 +197,16 @@ void AMDemodulator::operator()()
 		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
 		if (pr_time < process_time1.count())
 			pr_time = process_time1.count();
+
+		if (timeLastFlashGainSlider + std::chrono::milliseconds(500) < now)
+		{// toggle collor of gain slider when signal is limitted
+			if (limiter.getEnvelope() > 0.99)
+				gbar.setIfGainOverflow(true);
+			else
+				gbar.setIfGainOverflow(false);
+			timeLastFlashGainSlider = now;
+		}
+		
 		if (timeLastPrint + std::chrono::seconds(1) < now)
 		{
 			timeLastPrint = now;

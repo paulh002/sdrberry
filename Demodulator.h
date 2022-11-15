@@ -47,7 +47,7 @@ class Demodulator
 	void mono_to_left_right(const SampleVector &samples_mono, SampleVector &audio);
 	void adjust_gain(IQSampleVector &samples_in, float vol);
 	void tune_offset(long offset);
-	virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
+	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
 	void Resample(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	virtual void operator()() = 0;
 	void lowPassAudioFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);

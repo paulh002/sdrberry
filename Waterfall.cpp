@@ -183,7 +183,7 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	m_ifrate = ifrate;
 }
 
-void Waterfall::set_pos(int32_t  offset)
+void Waterfall::set_pos(int32_t  offset, bool lock)
 {
 	int pos;
 	float d;
@@ -204,6 +204,8 @@ void Waterfall::set_pos(int32_t  offset)
 	}
 	if (pos < 0)
 		pos = 0;
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
 	//printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
 }
@@ -241,6 +243,8 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 				break;
 			std::complex f = std::conj(col) * col;
 			value = noise_floor + (lv_coord_t)(20.0 * log10(f.real()));
+			if (value > 99.0)
+				value = 99.0;
 			data_set[i] = avg_filter[i](value);
 			i++;
 		}
@@ -264,6 +268,8 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 			f = std::conj(fft_output[ii]) * fft_output[ii];
 			g = f / v_window[ii];
 			value = noise_floor + (lv_coord_t)(20.0 * log10(g.real()));
+			if (value > 99.0)
+				value = 99.0;
 			data_set[i] = avg_filter[i](value);
 		}
 	}

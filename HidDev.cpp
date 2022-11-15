@@ -1,7 +1,6 @@
 #include "HidDev.h"
 #include "gui_setup.h"
 
-
 /* Jabra Vendor Id */
 #define JABRA_VID ((__u16)0x0B0E)
 #define TelephonyUsagePage ((__u16)0x000B)
@@ -273,7 +272,7 @@ void HidDev::step_vfo()
 		}
 		if (timePassed.count() > 1 && value == 4)
 		{
-			vfo.step_vfo(1.5*step, false);
+			vfo.step_vfo(1.5 * step, false);
 			last_time = now;
 		}
 		if (timePassed.count() > 20 && value == -1)

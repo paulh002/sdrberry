@@ -30,14 +30,20 @@ bool Comm::begin()
 	return true;
 }
 
-void Comm::Send(std::string s) 
+void Comm::Send(std::string s)
 {
 	serialPuts(serialport, (const char *)s.c_str());
 }
 
-int Comm::Read(char c, std::string& s)
+bool Comm::IsCommuncationPortOpen()
 {
-	int chr; int i = 0;
+	return serialport > 0;
+}
+
+int Comm::Read(char c, std::string &s)
+{
+	int chr;
+	int i = 0;
 	s.clear();
 	do
 	{
@@ -50,7 +56,7 @@ int Comm::Read(char c, std::string& s)
 			if (chr == '\n' || chr == '\r')
 				continue;
 			s.push_back((char)chr);
-		}		
+		}
 		i++;
 	} while (chr != c && i < 80);
 	return s.length();
@@ -76,27 +82,27 @@ void Comm::SendInformation(int info)
 			char str[20];
 			int range = gbar.get_vol_range();
 			sprintf(str, "GT0%d", range);
-			Send((std::string) str);
+			Send((std::string)str);
 		}
 		break;
 	case 1:
 		// Gain
 		{
 			char str[20];
-			int  max_gain, min_gain;
-			
+			int max_gain, min_gain;
+
 			gbar.get_gain_range(max_gain, min_gain);
 			sprintf(str, "GT1%2d,%2d", max_gain, min_gain);
-			Send((std::string) str);
+			Send((std::string)str);
 		}
 		break;
 	case 2:
 		// Band
 		{
-			char			str[20];
-			vector<int>		bands;
-			string			s;
-			
+			char str[20];
+			vector<int> bands;
+			string s;
+
 			strcpy(str, "GT2");
 			s = str;
 			vfo.return_bands(bands);
@@ -106,16 +112,16 @@ void Comm::SendInformation(int info)
 				s.append(str);
 			}
 			s.push_back(';');
-			Send((std::string) s);
+			Send((std::string)s);
 		}
 		break;
 	case 3:
 		// Filter
 		{
-			char			str[20];
-			vector<string>	filters;
-			string			s;
-			
+			char str[20];
+			vector<string> filters;
+			string s;
+
 			strcpy(str, "GT3");
 			s = str;
 			gbar.get_filter_range(filters);
@@ -125,25 +131,25 @@ void Comm::SendInformation(int info)
 				s.append(it);
 			}
 			s.push_back(';');
-			Send((std::string) s);
+			Send((std::string)s);
 		}
 		break;
 	}
 }
 
-void	Catinterface::begin()
+void Catinterface::begin()
 {
-	bcomm_port = comm_port.begin();
-	cat_message.begin(true, &comm_port, true);	
+	cat_message.begin(true, &comm_port, true);
+	channel = cat_message.OpenCatChannel();
 	m_mode = 0;
 }
 
-void	Catinterface::checkCAT()
+void Catinterface::checkCAT()
 {
-	if (!bcomm_port)
+	if (!comm_port.IsCommuncationPortOpen())
 		return;
 	int ret = cat_message.CheckCAT(false);
-	if(ret < 0)
+	if (ret < 0)
 	{
 		comm_port.Close();
 		usleep(1000000);
@@ -159,7 +165,7 @@ void	Catinterface::checkCAT()
 		int count = cat_message.GetFT();
 		if (count)
 		{
-			vfo.step_vfo(count, true);	
+			vfo.step_vfo(count, true);
 			cat_message.SetFA(vfo.get_active_vfo_freq());
 		}
 		count = cat_message.GetAG();
@@ -186,12 +192,12 @@ void	Catinterface::checkCAT()
 			}
 		}
 		count = cat_message.GetSH();
-		gbar.set_filter_slider(count);	
+		gbar.set_filter_slider(count);
 		count = cat_message.GetBand();
 		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
 		{
 			gui_band_instance.set_gui(count);
-			int index  = getIndex(Settings_file.meters, count);
+			int index = getIndex(Settings_file.meters, count);
 			if (index >= 0)
 			{
 				long f_low = Settings_file.f_low.at(index);
@@ -207,26 +213,26 @@ void Catinterface::operator()()
 {
 	while (1)
 	{
-		checkCAT();	
+		checkCAT();
 	}
 }
 
-void Catinterface::SetBand(uint16_t band)	
+void Catinterface::SetBand(uint16_t band)
 {
 	cat_message.SetBand(band);
 }
 
-void Catinterface::SetAG(uint8_t volume)	
+void Catinterface::SetAG(uint8_t volume)
 {
 	cat_message.SetAG(volume);
-}	
+}
 
-void Catinterface::SetSH(int bandwidth)	
+void Catinterface::SetSH(int bandwidth)
 {
-	cat_message.SetSH(0,bandwidth);
-}	
+	cat_message.SetSH(0, bandwidth);
+}
 
-void Catinterface::SetFA(uint32_t freq)	
+void Catinterface::SetFA(uint32_t freq)
 {
 	cat_message.SetFA(freq);
-}	
+}

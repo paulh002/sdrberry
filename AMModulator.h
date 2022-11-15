@@ -7,8 +7,7 @@ class AMModulator : public Demodulator
 	AMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	~AMModulator();
 
-	void process(const IQSampleVector &samples_in, SampleVector &samples);
-	void process_tx(const SampleVector &samples, IQSampleVector &samples_out);
+	void process(const SampleVector &samples, IQSampleVector &samples_out);
 
 	void operator()();
 	static void destroy_modulator();

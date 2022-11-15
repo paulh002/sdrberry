@@ -128,7 +128,7 @@ void AMModulator::operator()()
 
 		calc_af_level(audiosamples);
 		Fft_calc.set_signal_strength(get_af_level());
-		process_tx(audiosamples, samples_out);
+		process(audiosamples, samples_out);
 		transmitIQBuffer->push(move(samples_out));
 		audiosamples.clear();
 		
@@ -146,11 +146,7 @@ void AMModulator::operator()()
 	printf("exit am_mod_thread\n");
 }
 
-void AMModulator::process(const IQSampleVector& samples_out, SampleVector& samples)
-{
-}
-
-void AMModulator::process_tx(const SampleVector &samples, IQSampleVector &samples_out)
+void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_out)
 {
 	IQSampleVector buf_mod, buf_filter, buf_out;
 	unsigned int num_written;

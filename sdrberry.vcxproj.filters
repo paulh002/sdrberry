@@ -1174,6 +1174,21 @@
     <ClCompile Include="EnergyCalculator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_dither.c">
+      <Filter>Source files\lvgl</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_layer.c">
+      <Filter>Source files\lvgl</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_transform.c">
+      <Filter>Source files\lvgl</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_transform.c">
+      <Filter>Source files\lvgl</Filter>
+    </ClCompile>
+    <ClCompile Include="lvgl\src\draw\lv_draw_layer.c">
+      <Filter>Source files\lvgl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1584,6 +1599,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="backward.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="HidThread.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -45,7 +45,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -55,9 +55,9 @@
       </DumpStackUsage>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
       <VerboseMode>false</VerboseMode>
@@ -65,7 +65,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -75,7 +75,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -148,9 +148,11 @@
     <ClCompile Include="lvgl\src\draw\lv_draw_arc.c" />
     <ClCompile Include="lvgl\src\draw\lv_draw_img.c" />
     <ClCompile Include="lvgl\src\draw\lv_draw_label.c" />
+    <ClCompile Include="lvgl\src\draw\lv_draw_layer.c" />
     <ClCompile Include="lvgl\src\draw\lv_draw_line.c" />
     <ClCompile Include="lvgl\src\draw\lv_draw_mask.c" />
     <ClCompile Include="lvgl\src\draw\lv_draw_rect.c" />
+    <ClCompile Include="lvgl\src\draw\lv_draw_transform.c" />
     <ClCompile Include="lvgl\src\draw\lv_draw_triangle.c" />
     <ClCompile Include="lvgl\src\draw\lv_img_buf.c" />
     <ClCompile Include="lvgl\src\draw\lv_img_cache.c" />
@@ -165,12 +167,15 @@
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_arc.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_blend.c" />
+    <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_dither.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_gradient.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_img.c" />
+    <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_layer.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_letter.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_line.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_polygon.c" />
     <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_rect.c" />
+    <ClCompile Include="lvgl\src\draw\sw\lv_draw_sw_transform.c" />
     <ClCompile Include="lvgl\src\extra\layouts\flex\lv_flex.c" />
     <ClCompile Include="lvgl\src\extra\layouts\grid\lv_grid.c" />
     <ClCompile Include="lvgl\src\extra\libs\bmp\lv_bmp.c" />
@@ -362,6 +367,7 @@
     <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />
     <ClInclude Include="HidDev.h" />
+    <ClInclude Include="HidThread.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="liquid.h" />

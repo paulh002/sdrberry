@@ -568,12 +568,12 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 
 void gui_bar::setIfGainOverflow(bool state)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
 	if (state)
 	{
 		if (ifStyleState == false)
 		{
 			ifStyleState = true;
+			unique_lock<mutex> gui_lock(gui_mutex);
 			lv_obj_add_style(if_slider, &ifGainStyleKnob, LV_PART_KNOB);
 			lv_obj_add_style(if_slider, &ifGainStyleIndicator, LV_PART_INDICATOR);
 		}
@@ -583,6 +583,7 @@ void gui_bar::setIfGainOverflow(bool state)
 		if (ifStyleState == true)
 		{
 			ifStyleState = false;
+			unique_lock<mutex> gui_lock(gui_mutex);
 			lv_obj_remove_style(if_slider, &ifGainStyleKnob, LV_PART_KNOB);
 			lv_obj_remove_style(if_slider, &ifGainStyleIndicator, LV_PART_INDICATOR);
 		}

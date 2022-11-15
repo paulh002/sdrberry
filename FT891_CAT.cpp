@@ -224,6 +224,21 @@ int FT891_CAT::CheckCAT (bool bwait)
 	return newCmd;							// Done!
 }
 
+void FT891_CAT::SendCatMessage(int fd, std::string message)
+{
+	if (fd < inputStreams.size())
+	{
+		inputStreams.at(fd) << message;
+	}
+}
+
+int FT891_CAT::OpenCatChannel()
+{
+	std::stringstream ss;
+	
+	inputStreams.push_back(std::move(ss));
+	return inputStreams.size() - 1;
+}
 
 /*
  *	"GetMessage()" reads a command from the Serial port if there is anything to read.
@@ -235,21 +250,41 @@ int FT891_CAT::CheckCAT (bool bwait)
 int FT891_CAT::GetMessage(bool bwait)
 {
 	int	i;										// Loop counter
-	std::string s;
-	if (bwait)
+	std::string catMessage;
+
+	/*if (inputStreams.size() > 0)
 	{
-		if (!catcommunicator_->available())		// Anything in the input buffer?
-		return 0; 								// If not, no message yet
+		// use a stream
+		for (auto &con : inputStreams)
+		{
+			if (!con.eof())
+			{
+				std::getline(con, catMessage, ';');
+				break;
+			}
+		}
+	}
+*/
+	if (catMessage.size() == 0)
+	{
+		if (bwait)
+		{
+			if (!catcommunicator_->available()) // Anything in the input buffer?
+				return 0;						// If not, no message yet
+		}
+		if (catcommunicator_->Read(TERM_CH, catMessage) < 0)
+			return -1;
 	}
 
-	if (catcommunicator_->Read(TERM_CH, s) < 0)
-		return -1;
-
-	
-	strcpy(rxBuff, s.c_str());
-	for ( i = 0; i < strlen ( rxBuff ); i++ )	// Translate incoming message
-		rxBuff[i] = toupper ( rxBuff[i] );		// to all upper case
-	return 1;								// There is a new message
+	if (catMessage.size() > 0)
+	{
+		// There is a new message
+		strcpy(rxBuff, catMessage.c_str());
+		for (i = 0; i < strlen(rxBuff); i++) // Translate incoming message
+			rxBuff[i] = toupper(rxBuff[i]);  // to all upper case
+		return 1;
+	}
+	return 0;
 }
 
 

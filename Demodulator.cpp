@@ -51,7 +51,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 
 	// resampler and band filter assume pcmfrequency on the low side
 	tune_offset(vfo.get_vfo_offset());
-	set_span(gsetup.get_span());
+	//set_span(gsetup.get_span());
 	if (get_dc_filter())
 		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	else

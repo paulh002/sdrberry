@@ -10,8 +10,10 @@
 #include "FT8Demodulator.h"
 #include "gui_speech.h"
 #include "EchoAudio.h"
+//#include "HidThread.h"
 
 #define BACKWARD_HAS_BFD 1
+#define BACKWARD_HAS_DW 1
 #include "backward.hpp"
 
 namespace backward
@@ -66,9 +68,9 @@ double				freq = 89800000;
 //double	tuner_offset = freq - tuner_freq;
 
 mutex			fm_finish;
-Mouse			Mouse_dev;
-HidDev			HidDev_dev, HidDev_dev1;
 Catinterface	catinterface;
+Mouse Mouse_dev;
+HidDev HidDev_dev, HidDev_dev1;
 BandFilter		bpf;
 
 MidiControle	*midicontrole = nullptr;
@@ -82,8 +84,8 @@ int					default_tx_channel = 0;
 
 void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
-	data->enc_diff = HidDev_dev.encoder_rotate();
-	data->state = HidDev_dev.encoder_key_press();
+	//data->enc_diff = HidDev_dev.encoder_rotate();
+	//data->state = HidDev_dev.encoder_key_press();
 }
 
 std::map<string, lv_obj_t *> tab;
@@ -121,6 +123,7 @@ int main(int argc, char *argv[])
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
 	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
 	HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
+	
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();

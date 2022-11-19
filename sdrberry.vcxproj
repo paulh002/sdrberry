@@ -45,7 +45,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;/user/include/lvgl;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -56,7 +56,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;lvgl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -65,7 +65,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;/user/include/lvgl;/usr/local/include/lvgl;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -75,7 +75,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;lvgl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -375,6 +375,11 @@
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings" />
     <None Include="sdrberry-Release.vgdbsettings" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lvgl\lvgl.vcxproj">
+      <Project>{9412cba7-ecd1-44c5-b03e-e05b251e7a98}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

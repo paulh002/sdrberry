@@ -1,0 +1,17 @@
+remove installation
+xargs rm < install_manifest.txt
+
+#compile debug
+mkdir Debug
+cd Debug
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+make
+
+#compile release
+mkdir Release
+cd Release
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+
+
+/tmp/VisualGDB/c/Users/paulh/OneDrive/source/sdrberry

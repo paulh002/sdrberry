@@ -7,7 +7,7 @@
 #include <SoapySDR/ConverterRegistry.hpp>
 #include <SoapySDR/Types.hpp>
 #include <SoapySDR/Formats.hpp>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 #define MAX_BAND_BUTTONS	100
 

@@ -26,7 +26,7 @@
 #include "gui_vfo.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "sdrstream.h"
 #include "vfo.h"
 #include <cmath>

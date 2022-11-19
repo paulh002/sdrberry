@@ -3,7 +3,7 @@
 #include "AudioOutput.h"
 #include "Settings.h"
 #include "gui_vfo.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "sdrberry.h"
 #include "vfo.h"
 

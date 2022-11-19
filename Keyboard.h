@@ -1,5 +1,5 @@
 #pragma once
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 class Keyboard
 {

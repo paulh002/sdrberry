@@ -8,7 +8,7 @@
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "sdrberry.h"
 #include "sma.h"
 

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <ctime>
 #include <string>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "gui_top_bar.h"
 
 lv_obj_t* bg_top;

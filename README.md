@@ -78,7 +78,8 @@ chmod +x ./sdrberry/install/install.sh
 ```
 git clone https://github.com/paulh002/sdrberry  
 cd sdrberry  
-mkdir build  
+mkdir build
+cmake ..  
 make
 sudo make install  
 ```

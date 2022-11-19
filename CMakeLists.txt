@@ -15,6 +15,6 @@ target_compile_definitions(sdrberry PRIVATE RELEASE=1 __LINUX_ALSA__ LV_LVGL_H_I
 target_compile_options(sdrberry PRIVATE -O3 -ggdb -Wno-deprecated -Wno-deprecated-declarations -I "." -I"/usr/include/arm-linux-gnueabihf/c++/10" -I"/usr/include/c++/10")
 target_compile_options(sdrberry PRIVATE )
 target_include_directories(sdrberry PRIVATE /usr/local/include/liquid)
-target_link_libraries(sdrberry "${LIBRARIES_FROM_REFERENCES}")
+target_link_libraries(sdrberry PRIVATE "${LIBRARIES_FROM_REFERENCES}")
 target_link_libraries(sdrberry PRIVATE lvgl::lvgl)
 install(TARGETS sdrberry DESTINATION /usr/local/bin)

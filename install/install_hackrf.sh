@@ -79,8 +79,7 @@ cd sdrberry
 git checkout Dev
 mkdir build
 cd build
-chmod +x ../do_cmake.sh
-../do_cmake.sh
+cmake ..
 make
 sudo make install
 cd ~

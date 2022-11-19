@@ -87,8 +87,7 @@ git clone https://github.com/paulh002/sdrberry
 cd sdrberry
 mkdir build
 cd build
-chmod +x ../do_cmake.sh
-../do_cmake.sh
+cmake ..
 make
 sudo make install
 cd ~

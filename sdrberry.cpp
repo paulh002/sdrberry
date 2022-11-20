@@ -229,18 +229,6 @@ int main(int argc, char *argv[])
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
-	if (Settings_file.get_mac_address() != std::string(""))
-	{
-		//create_ble_thread(Settings_file.get_mac_address());
-		
-		Ble_instance.set_mac_address(Settings_file.get_mac_address());
-		std::thread thread_ble(std::ref(Ble_instance));
-		thread_ble.detach();
-	}
-	
-	
-	//Ble_instance.set_mac_address(Settings_file.get_mac_address());
-	//Ble_instance.setup_ble();	
 
 	//keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	

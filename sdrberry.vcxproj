@@ -75,7 +75,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -87,7 +87,6 @@
     <ClCompile Include="AudioInput.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="BandFilter.cpp" />
-    <ClCompile Include="ble_interface.cpp" />
     <ClCompile Include="Catinterface.cpp" />
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
@@ -170,12 +169,9 @@
     <ClInclude Include="backward.hpp" />
     <ClInclude Include="BandFilter.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
-    <ClInclude Include="ble_interface.h" />
     <ClInclude Include="Catinterface.h" />
     <ClInclude Include="configfile.h" />
     <ClInclude Include="configoption.h" />
-    <ClInclude Include="D:\test\sdrberry\lv_conf.h" />
-    <ClInclude Include="D:\test\sdrberry\lv_drv_conf.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="Demodulator.h" />
     <ClInclude Include="EchoAudio.h" />
@@ -319,6 +315,7 @@
     <ClInclude Include="lvgl\src\widgets\lv_switch.h" />
     <ClInclude Include="lvgl\src\widgets\lv_table.h" />
     <ClInclude Include="lvgl\src\widgets\lv_textarea.h" />
+    <ClInclude Include="lv_conf.h" />
     <ClInclude Include="lv_drivers\display\drm.h" />
     <ClInclude Include="lv_drivers\display\fbdev.h" />
     <ClInclude Include="lv_drivers\display\GC9A01.h" />
@@ -337,6 +334,7 @@
     <ClInclude Include="lv_drivers\indev\mouse.h" />
     <ClInclude Include="lv_drivers\indev\mousewheel.h" />
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
+    <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="MidiControle.h" />
     <ClInclude Include="Modes.h" />
     <ClInclude Include="MorseDecoder.h" />

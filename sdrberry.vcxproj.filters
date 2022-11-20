@@ -469,9 +469,6 @@
     <ClCompile Include="FreeSansOblique42.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="ble_interface.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="lv_drivers\indev\AD_touch.c">
       <Filter>Source files\lv_drivers</Filter>
     </ClCompile>
@@ -830,9 +827,6 @@
     <ClInclude Include="DataBuffer.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="ble_interface.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="Settings.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -1016,10 +1010,10 @@
     <ClInclude Include="HidThread.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\test\sdrberry\lv_conf.h">
+    <ClInclude Include="lv_conf.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\test\sdrberry\lv_drv_conf.h">
+    <ClInclude Include="lv_drv_conf.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

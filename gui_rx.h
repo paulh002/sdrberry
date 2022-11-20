@@ -14,6 +14,9 @@ class gui_rx
 	void set_freq(lv_obj_t * obj, long long freq);
 	void get_buttons(vector<long> &array);
 	int get_noise();
+	bool get_cw();
+	void set_cw(bool bcw);
+	void toggle_cw();
 	
   private:
 	lv_group_t *m_button_group{nullptr};
@@ -21,6 +24,7 @@ class gui_rx
 	vector<pair<lv_obj_t *, long long>> buttons;
 	const int number_of_buttons{5};
 	lv_obj_t *drp_noise;
+	lv_obj_t *check_cw;
 };
 
 extern gui_rx guirx;

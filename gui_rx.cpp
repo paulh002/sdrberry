@@ -2,6 +2,62 @@
 
 gui_rx guirx;
 
+static void event_handler_morse(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
+			gbar.hide_cw(false);
+			lv_obj_set_height(bar_view, barHeight + MorseHeight);
+			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight + MorseHeight);
+			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight - MorseHeight);
+		}
+		else
+		{
+			gbar.hide_cw(true);
+			lv_obj_set_height(bar_view, barHeight);
+			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
+			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight);
+		}
+	}
+}
+
+void gui_rx::toggle_cw()
+{
+	if (lv_obj_get_state(check_cw) & LV_STATE_CHECKED)
+	{
+		int bandwidth{2500};
+		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
+		gbar.set_filter_slider(bandwidth);
+		catinterface.SetSH(bandwidth);
+	}
+	else
+	{
+		int bandwidth{500};
+		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
+		gbar.set_filter_slider(bandwidth);
+		catinterface.SetSH(bandwidth);
+	}
+	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
+void gui_rx::set_cw(bool bcw)
+{
+	if (bcw)
+		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
+	else
+		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
+	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
+bool gui_rx::get_cw()
+{
+	return lv_obj_get_state(check_cw) & LV_STATE_CHECKED;
+}
+
 static void rx_button_handler(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -176,6 +232,13 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	int noise = Settings_file.get_int("Radio", "noise");
 	lv_dropdown_set_selected(drp_noise, noise);
 	lv_obj_add_event_cb(drp_noise, noise_handler, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, NULL);
+
+	check_cw = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, check_cw);
+	lv_checkbox_set_text(check_cw, "Morse Decoder");
+	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, NULL);
+	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, 1 * button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_group_add_obj(m_button_group, check_cw);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }

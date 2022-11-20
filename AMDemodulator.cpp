@@ -250,7 +250,7 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
-	if (gsetup.get_cw())
+	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 
 	for (auto col : filter1)

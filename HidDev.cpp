@@ -170,7 +170,7 @@ void HidDev::step_vfo()
 			// 2nd key hotkey for CW decoding
 			if (in_event.value == 1)
 			{
-				gsetup.toggle_cw();
+				guirx.toggle_cw();
 			}
 			break;
 		case 262:

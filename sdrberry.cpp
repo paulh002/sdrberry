@@ -444,13 +444,13 @@ void select_mode(int s_mode, bool bvfo)
 		break;
 
 	case mode_cw:
-		gsetup.set_cw(true);
+		guirx.set_cw(true);
 	case mode_am:
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		if (mode != mode_cw) 
-			gsetup.set_cw(false);
+		if (mode != mode_cw)
+			guirx.set_cw(false);
 		vfo.set_step(10, 0);
 		printf("Start AMDemodulator\n");
 		AMDemodulator::create_demodulator(mode, ifrate,  &source_buffer_rx, audio_output);

@@ -22,7 +22,8 @@ Fft_calculator	Fft_calc;
 Waterfall		Wf;
 
 Fft_calculator::Fft_calculator()
-	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0} {
+	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0}, noisefloor{noise_floor}
+{
 	avg_filter.resize(nfft_samples);
 	ema_filter.resize(nfft_samples);
 }
@@ -63,6 +64,7 @@ void	Fft_calculator::process_samples(const IQSampleVector&	input)
 
 void	Fft_calculator::plan_fft(int size)
 {
+	noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
 	nfft = size;
 	fft_output.reserve(nfft); 
 	m_input.reserve(nfft);
@@ -242,7 +244,7 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 			if (i == (fft_output.size() / 2))
 				break;
 			std::complex f = std::conj(col) * col;
-			value = noise_floor + (lv_coord_t)(20.0 * log10(f.real()));
+			value = noisefloor + (lv_coord_t)(20.0 * log10(f.real()));
 			if (value > 99.0)
 				value = 99.0;
 			data_set[i] = avg_filter[i](value);
@@ -267,7 +269,7 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 			}
 			f = std::conj(fft_output[ii]) * fft_output[ii];
 			g = f / v_window[ii];
-			value = noise_floor + (lv_coord_t)(20.0 * log10(g.real()));
+			value = noisefloor + (lv_coord_t)(20.0 * log10(g.real()));
 			if (value > 99.0)
 				value = 99.0;
 			data_set[i] = avg_filter[i](value);

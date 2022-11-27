@@ -76,6 +76,7 @@
     <ProjectFile>sdrberry.vcxproj</ProjectFile>
     <RemoteBuildEnvironment>
       <Records />
+      <EnvironmentSetupFiles />
     </RemoteBuildEnvironment>
     <ParallelJobCount>1</ParallelJobCount>
     <SuppressDirectoryChangeMessages>true</SuppressDirectoryChangeMessages>
@@ -113,6 +114,7 @@
     </CodeAnalyzerSettings>
   </CodeSense>
   <Configurations />
+  <CommonSettingsFile>sdrberry.vgdbsettings</CommonSettingsFile>
   <ProgramArgumentsSuggestions />
   <Debug xsi:type="com.visualgdb.debug.remote">
     <AdditionalStartupCommands />

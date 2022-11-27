@@ -29,15 +29,6 @@ make
 sudo make install
 sudo ldconfig
 cd ~
-#git clone https://github.com/paulh002/rtaudio
-#cd rtaudio
-#mkdir build
-#cd build
-#cmake .. -DRTAUDIO_API_ALSA=1
-#make
-#sudo make install
-#sudo ldconfig
-#cd ~
 sudo apt-get install -y fftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 git checkout v1.4.0
@@ -48,24 +39,6 @@ cd liquid-dsp
 make -j4
 sudo make install
 sudo ldconfig
-cd ~
-wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.60.tar.xz
-tar xvf bluez-5.60.tar.xz
-sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev libdbus-1-dev libical-dev
-sudo apt-get install -y docutils-common
-cd bluez-5.60
-./configure --enable-library
-make -j4
-sudo make install
-cd ~
-git clone https://github.com/intel-iot-devkit/tinyb
-cd tinyb
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
-sudo ldconfig 
 cd ~
 sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
 sudo apt-get install -y libboost1.62-all-dev

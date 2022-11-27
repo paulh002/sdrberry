@@ -131,7 +131,53 @@ void Demodulator::set_resample_rate(float resample_rate)
 	resampleRate = resample_rate;
 	resampleHandle = msresamp_crcf_create(resampleRate, As);
 	msresamp_crcf_print(resampleHandle);
+
 }
+
+void Demodulator::adjust_resample_rate(float resample_rate)
+{
+	struct msresamp_rrrf_s
+	{
+		// user-defined parameters
+		float rate; // re-sampling rate
+		float As;   // filter stop-band attenuation [dB]
+
+		// type: interpolator or decimator
+		int type; // run half-band resamplers as interp or decim
+
+		// half-band resampler parameters
+		unsigned int num_halfband_stages; // number of halfband stages
+		msresamp2_rrrf halfband_resamp;	 // multi-stage halfband resampler
+		float rate_halfband; // halfband rate
+
+		// arbitrary resampler parameters
+		resamp_rrrf		arbitrary_resamp;	 // arbitrary resampling object
+		float rate_arbitrary; // clean-up resampling rate, in (0.5, 2.0)
+
+		// internal buffers (ping-pong)
+		unsigned int buffer_len;   // length of each buffer
+		float *buffer;				   // buffer[0]
+		unsigned int buffer_index; // index of buffer
+	};
+
+	msresamp_rrrf_s *_q = (msresamp_rrrf_s *)resampleHandle;
+	if (_q != nullptr)
+	{
+		if (_q->type == LIQUID_RESAMP_DECIM)
+		{			
+			float fraction = resample_rate / _q->rate , arbitraryRate;
+			resamp_rrrf_adjust_rate(_q->arbitrary_resamp, fraction);
+			_q->rate = resample_rate;
+			arbitraryRate = resample_rate;
+			for (int i = 0; i < _q->num_halfband_stages; i++)
+				arbitraryRate *=  2.0;
+			_q->rate_arbitrary = arbitraryRate;
+		}
+		msresamp_crcf_print(resampleHandle);
+	}
+}
+
+
 
 void Demodulator::set_fft_resample_rate(float resample_rate)
 {

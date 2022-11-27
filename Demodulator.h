@@ -71,7 +71,7 @@ class Demodulator
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();
 	int get_lowPassAudioFilterCutOffFrequency() { return lowPassAudioFilterCutOffFrequency.load(); }
-
+	void adjust_resample_rate(float resample_rate);
 	DataBuffer<IQSample> *receiveIQBuffer{nullptr};
 	AudioOutput *audioOutputBuffer{nullptr};
 	double ifSampleRate;

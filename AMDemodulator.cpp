@@ -84,7 +84,7 @@ void AMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point now, start1;
+	std::chrono::high_resolution_clock::time_point now, start1, start2;
 	
 	AudioProcessor Agc;
 	
@@ -221,12 +221,12 @@ void AMDemodulator::operator()()
 
 			if (rcount > 1 && droppedFrames > thresholdDroppedFrames)
 			{
-				Demodulator::set_resample_rate((double)audioSampleRate / get_rxsamplerate());
+				Demodulator::adjust_resample_rate((double)audioSampleRate / get_rxsamplerate());
 				rcount = 0;
 			}
 			if (rcount > 1 && audioOutputBuffer->get_underrun() > thresholdUnderrun && droppedFrames == 0)
 			{
-				Demodulator::set_resample_rate((double)audioSampleRate / get_rxsamplerate());			
+				Demodulator::adjust_resample_rate((double)audioSampleRate / get_rxsamplerate());
 				rcount = 0;
 			}
 			rcount++;

@@ -34,6 +34,7 @@
     <GNUCompilerType>GCC</GNUCompilerType>
     <RemoteBuildTool>Ninja</RemoteBuildTool>
     <EnableAddressSanitizer>false</EnableAddressSanitizer>
+    <TestFrameworkPropertyListFile>$(ProjectDir)TestFramework.props</TestFrameworkPropertyListFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <RemoteBuildHost>192.168.88.41</RemoteBuildHost>

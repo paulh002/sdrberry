@@ -156,7 +156,7 @@ static void if_slider_event_cb(lv_event_t *e)
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	int sl = lv_slider_get_value(slider);
-	gbar.m_if = std::pow(10.0, (float)sl / 20.0);
+	gbar.ifgain = std::pow(10.0, (float)sl / 20.0);
 	Settings_file.save_ifgain(lv_slider_get_value(slider));
 }
 
@@ -188,7 +188,7 @@ void gui_bar::step_gain_slider(int step)
 }
 
 gui_bar::gui_bar()
-	: m_if{1000}
+	: ifgain{1000}
 {
 
 }
@@ -680,12 +680,12 @@ int gui_bar::get_vol_range()
 
 float gui_bar::get_if()
 {
-	return m_if.load();
+	return ifgain.load();
 }
 
 void gui_bar::set_if(int rf)
 {
-	m_if = std::pow(10.0, (float)rf / 20.0);
+	ifgain.store(std::pow(10.0, (float)rf / 20.0));
 	lv_slider_set_value(if_slider, rf, LV_ANIM_ON);
 	lv_label_set_text_fmt(if_slider_label, "if %d db", rf);
 	Settings_file.save_ifgain(rf);

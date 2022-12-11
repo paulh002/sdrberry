@@ -59,7 +59,7 @@ class gui_bar
 		return ifilters[sel];
 	}
 
-	atomic<float> m_if;
+	atomic<float> ifgain;
 
   private:
 	lv_style_t style_btn;

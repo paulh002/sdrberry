@@ -22,6 +22,7 @@ sudo apt-get install -y fftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp
+git checkout v1.5.0
 ./bootstrap.sh
 ./configure
 make -j4

@@ -139,6 +139,7 @@ void Comm::SendInformation(int info)
 
 void Catinterface::begin()
 {
+	comm_port.begin();
 	cat_message.begin(true, &comm_port, true);
 	channel = cat_message.OpenCatChannel();
 	m_mode = 0;

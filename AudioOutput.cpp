@@ -153,7 +153,7 @@ void AudioOutput::set_volume(int vol)
 {
 	// log volume
 	m_volume.store(exp(((double)vol * 6.908) / 100.0) / 1000);
-	printf("vol %f\n", (float)m_volume.load());
+	//printf("vol %f\n", (float)m_volume.load());
 } 
 
 void AudioOutput::adjust_gain(SampleVector& samples)

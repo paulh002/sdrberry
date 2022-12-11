@@ -3,7 +3,7 @@
 #include <cmath>
 #include <complex>
 #include <cstdio>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <thread>
 #include <vector>
 #include "AudioInput.h"

@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include <cstdio>
 #include <fftw3.h>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <mutex>
 #include <vector>
 

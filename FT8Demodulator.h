@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <vector>
 #include "DataBuffer.h"
 #include "AudioOutput.h"

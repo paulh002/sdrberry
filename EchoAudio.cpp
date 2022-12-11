@@ -2,7 +2,7 @@
 #include <math.h>
 #include <complex.h>
 
-#include "liquid.h"
+#include <liquid/liquid.h>
 #include "EchoAudio.h"
 #include "Waterfall.h"
 #include "gui_speech.h"

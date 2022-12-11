@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cmath>
 #include <complex>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <vector>
 #include <atomic>
 #include <mutex>

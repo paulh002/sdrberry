@@ -33,7 +33,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fftw3.h>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <memory>
 #include <mutex>
 #include <stdint.h>

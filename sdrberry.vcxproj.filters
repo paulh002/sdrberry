@@ -806,12 +806,6 @@
     <ClInclude Include="gui_vfo.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="liquid.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="liquid.internal.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="AudioOutput.h">
       <Filter>Header files</Filter>
     </ClInclude>

@@ -208,8 +208,6 @@
     <ClInclude Include="HidThread.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Limiter.h" />
-    <ClInclude Include="liquid.h" />
-    <ClInclude Include="liquid.internal.h" />
     <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h" />
     <ClInclude Include="lvgl\src\core\lv_disp.h" />

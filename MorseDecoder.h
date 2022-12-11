@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <vector>
 #include <time.h>
 #include <sys/time.h>

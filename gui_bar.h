@@ -12,6 +12,7 @@ extern const int screenHeight;
 extern const int bottomHeight;
 extern const int topHeight;
 extern const int tunerHeight;
+const int maxifgain = 100;
 
 class gui_bar
 {
@@ -19,9 +20,9 @@ class gui_bar
 	gui_bar();
 	~gui_bar();
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
-	void set_vol_slider(int volume);
+	void set_vol_slider(int volume, bool lock = false);
 	void set_focus();
-	void set_filter_slider(int filter);
+	void set_filter_slider(int filter, bool lock = false);
 	void step_vol_slider(int step);
 	void step_gain_slider(int step);
 	void select_option(int option);
@@ -30,12 +31,11 @@ class gui_bar
 	lv_obj_t *get_if_slider_label() { return if_slider_label; }
 	int get_vol_range();
 	float get_if();
-	void set_if(int rf);
+	void set_if(int rf, bool lock = false);
 	void set_gain_range();
-	void update_gain_slider(int gain);
-	void set_gain_slider(int gain);
+	void set_gain_slider(int gain, bool lock = false);
 	int getbuttons() { return ibuttons; }
-	void set_mode(int mode);
+	void set_mode(int mode, bool lock = false);
 	void check_agc();
 	void set_cw_message(std::string message);
 	void set_cw_wpm(int wpm);

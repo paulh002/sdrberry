@@ -346,6 +346,7 @@ int main(int argc, char *argv[])
 			Wf.load_data();
 			double s = Fft_calc.get_signal_strength();
 			set_s_meter(s);
+			catinterface.SetSM((uint8_t)s);
 		}
 		while (FT8Queue.pull(msg))
 		{			

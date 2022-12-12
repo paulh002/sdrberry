@@ -26,7 +26,7 @@ public:
 			return nullptr;
 		return button[i];
 	}
-	void		set_gui(int band);
+	void		set_gui(int band, bool lock = false);
 	void		set_group();
 	
   private:

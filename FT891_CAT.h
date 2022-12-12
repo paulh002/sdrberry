@@ -104,6 +104,7 @@ struct msg // Keeps everything together
 #define MSG_AG 22  // Set or request volume
 #define MSG_RG 23  // Set or request rf gain
 #define MSG_GT 24  // Get information command
+#define MSG_IG 25  // Get and set if command
 
 /*
  *	Miscellaneous definitions:
@@ -175,6 +176,8 @@ class FT891_CAT // Class name
 	void SetAG(uint8_t ag);
 	void SetRG(uint8_t rg);
 	void SetSH(int status, int bandwidth);
+	void SetSM(uint8_t sm);
+	void SetIG(uint8_t ig);
 
 	uint32_t GetFA();   // Get VFO-A frequency
 	uint32_t GetFB();   // Get VFO-B frequency
@@ -187,7 +190,8 @@ class FT891_CAT // Class name
 	uint8_t GetAG();
 	uint8_t GetRG();
 	int GetSH();
-
+	uint8_t GetIG();
+	
 	void SendInformation(int info);
 	void SendCatMessage(int fd, std::string message);
 	int OpenCatChannel();

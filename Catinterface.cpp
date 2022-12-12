@@ -169,12 +169,15 @@ void Catinterface::checkCAT()
 			vfo.step_vfo(count, true);
 			cat_message.SetFA(vfo.get_active_vfo_freq());
 		}
+		count = cat_message.GetIG();
+		if (count)
+			gbar.set_if(count, true);
 		count = cat_message.GetAG();
 		if (count)
-			gbar.set_vol_slider(count);
+			gbar.set_vol_slider(count, true);
 		count = cat_message.GetRG();
 		if (count)
-			gbar.set_gain_slider(count);
+			gbar.set_gain_slider(count, true);
 		count = cat_message.GetTX();
 		if (m_mode != count)
 		{
@@ -193,18 +196,18 @@ void Catinterface::checkCAT()
 			}
 		}
 		count = cat_message.GetSH();
-		gbar.set_filter_slider(count);
+		gbar.set_filter_slider(count, true);
 		count = cat_message.GetBand();
 		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
 		{
-			gui_band_instance.set_gui(count);
+			gui_band_instance.set_gui(count, true);
 			int index = getIndex(Settings_file.meters, count);
 			if (index >= 0)
 			{
 				long f_low = Settings_file.f_low.at(index);
 				int f_band = Settings_file.meters.at(index);
 				vfo.set_band(f_band, f_low);
-				gbar.set_mode(mode);
+				gbar.set_mode(mode, true);
 			}
 		}
 	}
@@ -236,4 +239,29 @@ void Catinterface::SetSH(int bandwidth)
 void Catinterface::SetFA(uint32_t freq)
 {
 	cat_message.SetFA(freq);
+}
+
+void Catinterface::SetSM(uint8_t sm)
+{
+	cat_message.SetSM(sm);
+}
+
+uint8_t Catinterface::GetIG()
+{
+	return cat_message.GetIG();
+}
+
+void Catinterface::SetIG(int ig)
+{
+	cat_message.SetIG((uint8_t)ig);
+}
+
+void Catinterface::SetRG(int rg)
+{
+	cat_message.SetRG((uint8_t)rg);
+}
+
+uint8_t Catinterface::GetRG()
+{
+	return cat_message.GetRG();
 }

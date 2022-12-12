@@ -19,8 +19,10 @@ void gui_bar::set_tx(bool tx)
 		lv_obj_clear_state(button[0], LV_STATE_CHECKED);
 }
 
-void gui_bar::set_mode(int mode)
+void gui_bar::set_mode(int mode, bool lock)
 {
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
 	for (int i = 1; i < 8; i++)
 		lv_obj_clear_state(button[i], LV_STATE_CHECKED);
 
@@ -157,6 +159,7 @@ static void if_slider_event_cb(lv_event_t *e)
 	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	int sl = lv_slider_get_value(slider);
 	gbar.ifgain = std::pow(10.0, (float)sl / 20.0);
+	catinterface.SetIG(lv_slider_get_value(slider));
 	Settings_file.save_ifgain(lv_slider_get_value(slider));
 }
 
@@ -165,6 +168,7 @@ static void gain_slider_event_cb(lv_event_t * e)
 	lv_obj_t * slider = lv_event_get_target(e);
 
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
+	catinterface.SetRG(lv_slider_get_value(slider));
 	Settings_file.save_rf(lv_slider_get_value(slider));
 	try 
 	{
@@ -174,12 +178,6 @@ static void gain_slider_event_cb(lv_event_t * e)
 	{
 		std::cout << e.what();
 	}
-}
-
-void gui_bar::update_gain_slider(int gain)
-{	
-	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
-	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
 }
 
 void gui_bar::step_gain_slider(int step)
@@ -206,7 +204,7 @@ gui_bar::~gui_bar()
 	lv_obj_del(gain_slider_label);
 }
 
-void gui_bar::set_gain_slider(int gain)
+void gui_bar::set_gain_slider(int gain, bool lock)
 {
 	double	max_gain {0.0};
 	double min_gain{0.0};
@@ -226,10 +224,12 @@ void gui_bar::set_gain_slider(int gain)
 		gain = max_gain;
 	if (gain < min_gain)
 		gain = min_gain;
-
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
 	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
 	Settings_file.save_rf(gain);
+	catinterface.SetRG(gain);
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, default_rx_channel, (double)gain);
@@ -452,7 +452,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_label_set_text(if_slider_label, "if 60 db");
 	lv_obj_align(if_slider_label, LV_ALIGN_TOP_LEFT, vol_x + vol_width + 5, gain_y);
 	if_slider = lv_slider_create(o_parent);
-	lv_slider_set_range(if_slider, 0, 100);
+	lv_slider_set_range(if_slider, 0, maxifgain);
 	lv_obj_set_width(if_slider, vol_width);
 	lv_obj_align(if_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
 	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
@@ -661,8 +661,10 @@ void gui_bar::step_vol_slider(int step)
 	set_vol_slider(lv_slider_get_value(vol_slider) + step);
 }
 
-void gui_bar::set_vol_slider(int volume)
+void gui_bar::set_vol_slider(int volume, bool lock)
 {
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
 	if (volume < 0)
 		volume = 0;
 	if (volume > max_volume)
@@ -670,6 +672,7 @@ void gui_bar::set_vol_slider(int volume)
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);	
 	lv_label_set_text_fmt(vol_slider_label, "vol %d", volume);
 	audio_output->set_volume(volume);
+	catinterface.SetAG(volume);
 	Settings_file.save_vol(volume);
 }
 
@@ -683,12 +686,17 @@ float gui_bar::get_if()
 	return ifgain.load();
 }
 
-void gui_bar::set_if(int rf)
+void gui_bar::set_if(int ifg, bool lock)
 {
-	ifgain.store(std::pow(10.0, (float)rf / 20.0));
-	lv_slider_set_value(if_slider, rf, LV_ANIM_ON);
-	lv_label_set_text_fmt(if_slider_label, "if %d db", rf);
-	Settings_file.save_ifgain(rf);
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
+	if (ifg > maxifgain)
+		ifg = maxifgain;
+	ifgain.store(std::pow(10.0, (float)ifg / 20.0));
+	lv_slider_set_value(if_slider, ifg, LV_ANIM_ON);
+	lv_label_set_text_fmt(if_slider_label, "if %d db", ifg);
+	catinterface.SetIG(ifg);
+	Settings_file.save_ifgain(ifg);
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)
@@ -705,8 +713,11 @@ void gui_bar::get_filter_range(vector<string> &filters)
 
 
 
-void gui_bar::set_filter_slider(int ifilter)
+void gui_bar::set_filter_slider(int ifilter, bool lock)
 {
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
+	
 	if (!button[number_of_buttons - 1])
 		return;
 	int filter = 6;

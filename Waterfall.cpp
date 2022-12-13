@@ -183,6 +183,10 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
 	m_ifrate = ifrate;
+	for (int i; i < nfft_samples/2; i++)
+		data_set.push_back(0);
+	lv_chart_set_point_count(chart, data_set.size());
+	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
 }
 
 void Waterfall::set_pos(int32_t  offset, bool lock)
@@ -206,6 +210,8 @@ void Waterfall::set_pos(int32_t  offset, bool lock)
 	}
 	if (pos < 0)
 		pos = 0;
+	if (pos >= nfft_samples/2)
+		pos = (nfft_samples/2) - 1;
 	if (lock)
 		unique_lock<mutex> gui_lock(gui_mutex);
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);

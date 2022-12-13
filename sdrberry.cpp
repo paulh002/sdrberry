@@ -119,6 +119,8 @@ int main(int argc, char *argv[])
 {
 	const int defaultAudioSampleRate{48000};
 
+	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
+	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
 	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
@@ -327,6 +329,8 @@ int main(int argc, char *argv[])
 	}
 
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+
+	gui_mutex.unlock(); // Start GUI updates
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	while (1)

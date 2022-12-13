@@ -204,7 +204,7 @@ void Demodulator::fft_resample(const IQSampleVector &filter_in,
 
 	if (fftResampleHandle)
 	{
-		float nx = (float)filter_in.size() * fftResampleRate + 500;
+		float nx = (float)filter_in.size() * fftResampleRate * 2;
 		filter_out.reserve((int)ceilf(nx));
 		filter_out.resize((int)ceilf(nx));
 		msresamp_crcf_execute(fftResampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
@@ -276,7 +276,7 @@ void Demodulator::Resample(const IQSampleVector &filter_in,
 
 	if (resampleHandle)
 	{
-		float nx = (float)filter_in.size() * resampleRate + 500;
+		float nx = (float)filter_in.size() * resampleRate * 2;
 		filter_out.reserve((int)ceilf(nx));
 		filter_out.resize((int)ceilf(nx));
 		msresamp_crcf_execute(resampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);

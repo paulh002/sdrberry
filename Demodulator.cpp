@@ -73,7 +73,7 @@ void Demodulator::set_span(int span)
 		//printf("window: %d  offset %d\n", n, m_span * n);
 		set_fft_mixer(m_span * n);
 		Wf.set_fft_if_rate(2 * m_span, n);
-		Wf.set_pos(vfo.get_vfo_offset());
+		Wf.set_pos(vfo.get_vfo_offset(), true);
 	}
 	else
 	{
@@ -81,7 +81,7 @@ void Demodulator::set_span(int span)
 		set_fft_resample_rate(0.0);
 		set_fft_mixer(0);
 		Wf.set_fft_if_rate(ifSampleRate, 0);
-		Wf.set_pos(vfo.get_vfo_offset());
+		Wf.set_pos(vfo.get_vfo_offset(), true);
 	}
 }
 
@@ -134,8 +134,9 @@ void Demodulator::set_resample_rate(float resample_rate)
 
 }
 
-void Demodulator::adjust_resample_rate(float resample_rate)
+void Demodulator::adjust_resample_rate(float rateAjustFraction)
 {
+	resampleRate = resampleRate + resampleRate * rateAjustFraction;
 	struct msresamp_rrrf_s
 	{
 		// user-defined parameters
@@ -164,11 +165,11 @@ void Demodulator::adjust_resample_rate(float resample_rate)
 	if (_q != nullptr)
 	{
 		if (_q->type == LIQUID_RESAMP_DECIM)
-		{			
-			float fraction = resample_rate / _q->rate , arbitraryRate;
+		{
+			float fraction = resampleRate / _q->rate , arbitraryRate;
 			resamp_rrrf_adjust_rate(_q->arbitrary_resamp, fraction);
-			_q->rate = resample_rate;
-			arbitraryRate = resample_rate;
+			_q->rate = resampleRate;
+			arbitraryRate = resampleRate;
 			for (int i = 0; i < _q->num_halfband_stages; i++)
 				arbitraryRate *=  2.0;
 			_q->rate_arbitrary = arbitraryRate;
@@ -485,32 +486,3 @@ bool Demodulator::get_dc_filter()
 	else
 		return false;
 }
-
-/*
-static shared_ptr<Demodulator> sp_demod;
-std::mutex demod_mutex;
-
-bool Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-{
-	if (sp_demod != nullptr)
-		return false;
-	sp_demod = make_shared<Demodulator>(mode, ifrate, pcmrate, source_buffer, audio_output);
-	sp_demod->demod_thread = std::thread(&Demodulator::operator(), sp_demod);
-	return true;
-}
-
-void Demodulator::destroy_demodulator()
-{
-	auto startTime = std::chrono::high_resolution_clock::now();
-
-	if (sp_demod == nullptr)
-		return;
-	sp_demod->stop_flag = true;
-	sp_demod->demod_thread.join();
-	sp_demod.reset();
-	sp_demod = nullptr;
-	auto now = std::chrono::high_resolution_clock::now();
-	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;
-}
-*/

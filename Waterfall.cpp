@@ -45,6 +45,7 @@ Fft_calculator::~Fft_calculator()
 
 void	Fft_calculator::process_samples(const IQSampleVector&	input)
 {
+	unique_lock<mutex> gui_lock(gui_mutex);
 	m_input.insert(m_input.end(), input.begin(), input.end());
 	if (m_input.size() >= nfft)
 	{
@@ -210,8 +211,8 @@ void Waterfall::set_pos(int32_t  offset, bool lock)
 	}
 	if (pos < 0)
 		pos = 0;
-	if (pos >= nfft_samples/2)
-		pos = (nfft_samples/2) - 1;
+	if (pos >= data_set.size())
+		pos = data_set.size() -1;
 	if (lock)
 		unique_lock<mutex> gui_lock(gui_mutex);
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);

@@ -88,18 +88,19 @@ void AMDemodulator::operator()()
 	
 	AudioProcessor Agc;
 	
-	int lowPassAudioFilterCutOffFrequency {-1}, span, rcount {0}, droppedFrames {0};
+	int lowPassAudioFilterCutOffFrequency {-1}, span, droppedFrames {0};
 	SampleVector            audioSamples, audioFrames;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			dc_iqsamples, iqsamples;
 	long long pr_time{0};
-	int vsize, passes{0}, thresholdUnderrun{0};
+	int vsize, passes{0};
 
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
 	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
 	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 15);
-	
+	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
+
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
 	pXanr = make_unique<Xanr>();
@@ -214,24 +215,18 @@ void AMDemodulator::operator()()
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("rms %f envelope %f\n", get_if_level(), limiter.getEnvelope());
-			std::cout << "SoapySDR sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
-			
+			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;
 			passes = 0;
 
-			if (rcount > 1 && droppedFrames > thresholdDroppedFrames)
+			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
-				Demodulator::adjust_resample_rate((double)audioSampleRate / get_rxsamplerate());
-				rcount = 0;
+				Demodulator::adjust_resample_rate(-0.01 * droppedFrames);
 			}
-			if (rcount > 1 && audioOutputBuffer->get_underrun() > thresholdUnderrun && droppedFrames == 0)
+			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				Demodulator::adjust_resample_rate((double)audioSampleRate / get_rxsamplerate());
-				rcount = 0;
+				Demodulator::adjust_resample_rate(0.01 * audioOutputBuffer->get_underrun());
 			}
-			rcount++;
-			if (rcount > 11)
-				rcount = 0;
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;
 		}

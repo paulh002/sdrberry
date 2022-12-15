@@ -294,7 +294,10 @@ void CVfo::sync_rx_vfo()
 void CVfo::step_vfo(long icount, bool lock)
 {
 	long long freq;
-
+	
+	if (lock)
+		unique_lock<mutex> gui_lock(gui_mutex);
+	
 	if (m_delay)
 	{
 		m_delay_counter += abs(icount);
@@ -311,7 +314,7 @@ void CVfo::step_vfo(long icount, bool lock)
 	{
 		if (vfo.limit_ham_band)
 			check_band(icount, freq);
-		int i = set_vfo(freq, lock);
+		int i = set_vfo(freq, false);
 		if (vfo.limit_ham_band && i == 1)
 		{	// check if we need to swtich mode
 			int index = getBandIndex(vfo_setting.band[vfo_setting.active_vfo]);

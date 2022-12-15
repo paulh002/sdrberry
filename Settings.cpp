@@ -711,13 +711,10 @@ int Settings::get_int(string sdrdevice, string key, int defaultValue)
 	auto option = config->getSection(sdrdevice);
 	auto s = option.find(key);
 	if (s == option.end())
-		return 0;
+		return defaultValue;
 	string st = s->second;
 	int value = atoi((const char *)st.c_str());
-	if (value)
-		return value;
-	else
-		return defaultValue;
+	return value;
 }
 
 void Settings::save_int(string section, string key, int value)

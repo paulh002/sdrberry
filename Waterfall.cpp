@@ -45,7 +45,6 @@ Fft_calculator::~Fft_calculator()
 
 void	Fft_calculator::process_samples(const IQSampleVector&	input)
 {
-	unique_lock<mutex> gui_lock(gui_mutex);
 	m_input.insert(m_input.end(), input.begin(), input.end());
 	if (m_input.size() >= nfft)
 	{

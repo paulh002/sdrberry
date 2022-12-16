@@ -110,6 +110,7 @@ void AMDemodulator::operator()()
 	Fft_calc.plan_fft(nfft_samples);
 	set_span(gsetup.get_span());
 	receiveIQBuffer->clear();
+	audioOutputBuffer->clear_underrun();
 	while (!stop_flag.load())
 	{
 		start1 = std::chrono::high_resolution_clock::now();
@@ -218,7 +219,7 @@ void AMDemodulator::operator()()
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;
 			passes = 0;
-
+			
 			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
 				Demodulator::adjust_resample_rate(-0.01 * droppedFrames);

@@ -62,9 +62,9 @@ public:
 	void vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth);
 	void set_span(long span);
 	bool compare_span();
-	int	 set_vfo(long long freq, bool lock);
+	int	 set_vfo(long long freq);
 	void set_freq_to_sdr();
-	void step_vfo(long icount, bool lock);
+	void step_vfo(long icount);
 	long get_active_vfo_freq();
 	std::string get_vfo_str();
 	void set_tuner_offset(double offset);

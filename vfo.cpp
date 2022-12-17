@@ -197,7 +197,7 @@ long CVfo::get_vfo_offset()
  * So it need to tuned differently than the receiver.
  **/
 
-int CVfo::set_vfo(long long freq, bool lock)
+int CVfo::set_vfo(long long freq)
 {
 	unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
 	int retval{0};
@@ -270,10 +270,8 @@ int CVfo::set_vfo(long long freq, bool lock)
 		}
 	}
 	//printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
-	Wf.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo], false);
+	Wf.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo))
 	{ // Band Change?
 		catinterface.SetBand(get_band_in_meters());
@@ -291,12 +289,9 @@ void CVfo::sync_rx_vfo()
 	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1]);
 }
 	
-void CVfo::step_vfo(long icount, bool lock)
+void CVfo::step_vfo(long icount)
 {
 	long long freq;
-	
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	
 	if (m_delay)
 	{
@@ -314,7 +309,7 @@ void CVfo::step_vfo(long icount, bool lock)
 	{
 		if (vfo.limit_ham_band)
 			check_band(icount, freq);
-		int i = set_vfo(freq, false);
+		int i = set_vfo(freq);
 		if (vfo.limit_ham_band && i == 1)
 		{	// check if we need to swtich mode
 			int index = getBandIndex(vfo_setting.band[vfo_setting.active_vfo]);
@@ -369,7 +364,7 @@ void CVfo::set_tuner_offset(double offset)
 void CVfo::set_active_vfo(int active_vfo)
 {
 	vfo_setting.active_vfo = min(active_vfo,1);
-	set_vfo(vfo_setting.vfo_freq[vfo_setting.active_vfo], false);
+	set_vfo(vfo_setting.vfo_freq[vfo_setting.active_vfo]);
 }
 
 void CVfo::set_vfo_range(long long low, long long high)
@@ -386,12 +381,12 @@ void CVfo::set_band(int band, long long freq)
 		if (vfo_setting.mode[vfo_setting.active_vfo] != vfo_setting.m_bands[index].f_mode)
 		{
 			vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.m_bands[index].f_mode;
-			set_vfo(freq, false);
+			set_vfo(freq);
 			select_mode(vfo_setting.mode[vfo_setting.active_vfo], false);
 			return;
 		}
 	}
-	set_vfo(freq, false);
+	set_vfo(freq);
 }
 
 // return 1 if band has changed

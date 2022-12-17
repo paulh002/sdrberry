@@ -1010,5 +1010,8 @@
     <ClInclude Include="lv_drv_conf.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="SharedQueue.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

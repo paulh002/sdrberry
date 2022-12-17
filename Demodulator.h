@@ -11,6 +11,7 @@
 #include "EnergyCalculator.h"
 #include "Agc_class.h"
 #include "DataBuffer.h"
+#include "SharedQueue.h"
 
 enum mode_enum
 {

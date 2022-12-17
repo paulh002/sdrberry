@@ -26,7 +26,7 @@ class Waterfall
   public:
 	void init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate);
 	void load_data();
-	void set_pos(int32_t offset, bool lock = true);
+	void set_pos(int32_t offset);
 	std::vector<lv_coord_t> data_set;
 	lv_chart_cursor_t *get_cursor() { return m_cursor; }
 	void set_fft_if_rate(float ifrate, int n);

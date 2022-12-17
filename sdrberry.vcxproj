@@ -346,6 +346,7 @@
     <ClInclude Include="SdrDevice.h" />
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="SharedQueue.h" />
     <ClInclude Include="sma.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
     <ClInclude Include="SoapySDR\Constants.h" />

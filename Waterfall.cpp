@@ -189,7 +189,7 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
 }
 
-void Waterfall::set_pos(int32_t  offset, bool lock)
+void Waterfall::set_pos(int32_t  offset)
 {
 	int pos;
 	float d;
@@ -212,8 +212,6 @@ void Waterfall::set_pos(int32_t  offset, bool lock)
 		pos = 0;
 	if (pos >= data_set.size())
 		pos = data_set.size() -1;
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
 	//printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
 }

@@ -4,6 +4,7 @@
 #include "gui_agc.h"
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
+#include "SharedQueue.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -203,9 +204,9 @@ void AMDemodulator::operator()()
 		if (timeLastFlashGainSlider + std::chrono::milliseconds(500) < now)
 		{// toggle collor of gain slider when signal is limitted
 			if (limiter.getEnvelope() > 0.99)
-				gbar.setIfGainOverflow(true);
+				guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 1));
 			else
-				gbar.setIfGainOverflow(false);
+				guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 0));
 			timeLastFlashGainSlider = now;
 		}
 		

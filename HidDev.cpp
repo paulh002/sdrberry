@@ -257,42 +257,42 @@ void HidDev::step_vfo()
 		const auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time);
 		if (timePassed.count() > 20 && value == 1)
 		{
-			vfo.step_vfo(step, false);
+			vfo.step_vfo(step);
 			last_time = now;
 		}
 		if (timePassed.count() > 10 && value == 2)
 		{
-			vfo.step_vfo(step, false);
+			vfo.step_vfo(step);
 			last_time = now;
 		}
 		if (timePassed.count() > 1 && value == 3)
 		{
-			vfo.step_vfo(step, false);
+			vfo.step_vfo(step);
 			last_time = now;
 		}
 		if (timePassed.count() > 1 && value == 4)
 		{
-			vfo.step_vfo(1.5 * step, false);
+			vfo.step_vfo(1.5 * step);
 			last_time = now;
 		}
 		if (timePassed.count() > 20 && value == -1)
 		{
-			vfo.step_vfo(-1 * step, false);
+			vfo.step_vfo(-1 * step);
 			last_time = now;
 		}
 		if (timePassed.count() > 10 && value == -2)
 		{
-			vfo.step_vfo(-1 * step, false);
+			vfo.step_vfo(-1 * step);
 			last_time = now;
 		}
 		if (timePassed.count() > 1 && value == -3)
 		{
-			vfo.step_vfo(-1 * step, false);
+			vfo.step_vfo(-1 * step);
 			last_time = now;
 		}
 		if (timePassed.count() > 1 && value == -4)
 		{
-			vfo.step_vfo(-1.5 * step, false);
+			vfo.step_vfo(-1.5 * step);
 			last_time = now;
 		}
 		return;
@@ -309,9 +309,9 @@ void HidDev::step_vfo()
 void HidDev::rotate_vfo()
 {
 	if (enc_moved > 0)
-		vfo.step_vfo(step, false);
+		vfo.step_vfo(step);
 	if (enc_moved < 0)
-		vfo.step_vfo(-1 * step, false);
+		vfo.step_vfo(-1 * step);
 	enc_moved = 0;
 }
 

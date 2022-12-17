@@ -94,7 +94,7 @@ void Mouse::step_vfo()
 		bstep = false;
 	
 	if (i > 0)
-		vfo.step_vfo(step, true);
+		vfo.step_vfo(step);
 	if (i < 0)
-		vfo.step_vfo(-1 * step, true);
+		vfo.step_vfo(-1 * step);
 }

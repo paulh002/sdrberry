@@ -1,5 +1,8 @@
 #include "Catinterface.h"
 #include "vfo.h"
+#include "SharedQueue.h"
+
+extern SharedQueue<GuiMessage> guiQueue;
 
 Comm::~Comm()
 {
@@ -166,7 +169,8 @@ void Catinterface::checkCAT()
 		int count = cat_message.GetFT();
 		if (count)
 		{
-			vfo.step_vfo(count, true);
+			//vfo.step_vfo(count, true);
+			guiQueue.push_back(GuiMessage(GuiMessage::action::step,count));
 			cat_message.SetFA(vfo.get_active_vfo_freq());
 		}
 		count = cat_message.GetIG();
@@ -200,15 +204,7 @@ void Catinterface::checkCAT()
 		count = cat_message.GetBand();
 		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
 		{
-			gui_band_instance.set_gui(count, true);
-			int index = getIndex(Settings_file.meters, count);
-			if (index >= 0)
-			{
-				long f_low = Settings_file.f_low.at(index);
-				int f_band = Settings_file.meters.at(index);
-				vfo.set_band(f_band, f_low);
-				gbar.set_mode(mode, true);
-			}
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setband, count));
 		}
 	}
 }

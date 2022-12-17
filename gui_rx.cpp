@@ -69,7 +69,7 @@ static void rx_button_handler(lv_event_t *e)
 			if (con.first == obj)
 			{
 				if (con.second > 0L)
-					vfo.set_vfo(con.second, false);
+					vfo.set_vfo(con.second);
 			}
 			else
 			{

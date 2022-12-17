@@ -50,14 +50,14 @@ static void ta_event_cb(lv_event_t * e)
 		if (ptr[0] == '+' || ptr[0] == '-')
 		{
 			remove_aplha(ptr, str);
-			vfo.step_vfo(atol(str), false);
+			vfo.step_vfo(atol(str));
 		}
 		if (isdigit(ptr[0]))
 		{
 			remove_aplha(ptr, str);
 			freq = atoll(str);	
 		}
-		if (vfo.set_vfo(freq, false) != 0)
+		if (vfo.set_vfo(freq) != 0)
 			return ; // error
 		//sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 		lv_textarea_set_text(ta, "");
@@ -75,12 +75,12 @@ static void kb_event_cb(lv_event_t * e)
 		uint16_t btn_id   = lv_btnmatrix_get_selected_btn(kb);
 		if (btn_id == 15) //'>'
 		{
-			vfo.step_vfo(1,false);
+			vfo.step_vfo(1);
 		}
 		
 		if (btn_id == 16) //'<'
 		{
-			vfo.step_vfo(-1, false);
+			vfo.step_vfo(-1);
 		}
 		return;
 	}

@@ -73,7 +73,8 @@ void Demodulator::set_span(int span)
 		//printf("window: %d  offset %d\n", n, m_span * n);
 		set_fft_mixer(m_span * n);
 		Wf.set_fft_if_rate(2 * m_span, n);
-		Wf.set_pos(vfo.get_vfo_offset(), true);
+		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
+		//Wf.set_pos(vfo.get_vfo_offset(), true);
 	}
 	else
 	{
@@ -81,7 +82,8 @@ void Demodulator::set_span(int span)
 		set_fft_resample_rate(0.0);
 		set_fft_mixer(0);
 		Wf.set_fft_if_rate(ifSampleRate, 0);
-		Wf.set_pos(vfo.get_vfo_offset(), true);
+		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
+		//Wf.set_pos(vfo.get_vfo_offset(), true);
 	}
 }
 

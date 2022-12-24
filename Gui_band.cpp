@@ -226,10 +226,8 @@ void band_button(lv_event_t * e)
 	}
 }
 
-void Gui_band::set_gui(int band, bool lock)
+void Gui_band::set_gui(int band)
 {
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	for (int i = 0; i < gui_band_instance.getbuttons(); i++)
 	{
 		lv_obj_t *obj = gui_band_instance.get_button_obj(i);

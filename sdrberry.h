@@ -55,7 +55,6 @@ extern volatile int filter;
 extern std::mutex fm_finish;
 extern std::mutex amdemod_mutex;
 extern std::mutex rxstream_mutex;
-extern mutex gui_mutex;
 
 extern double ifrate;
 extern double ifrate_tx;

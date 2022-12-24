@@ -146,6 +146,9 @@ void Catinterface::begin()
 	cat_message.begin(true, &comm_port, true);
 	channel = cat_message.OpenCatChannel();
 	m_mode = 0;
+	ifgain = 0;
+	volume = 0;
+	rfgain = 0;
 }
 
 void Catinterface::checkCAT()
@@ -174,14 +177,23 @@ void Catinterface::checkCAT()
 			cat_message.SetFA(vfo.get_active_vfo_freq());
 		}
 		count = cat_message.GetIG();
-		if (count)
-			gbar.set_if(count, true);
+		if (count && ifgain != count)
+		{
+			ifgain = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setifgain, count));
+		}
 		count = cat_message.GetAG();
-		if (count)
-			gbar.set_vol_slider(count, true);
+		if (count && volume != count)
+		{
+			volume = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setvol, count));
+		}
 		count = cat_message.GetRG();
-		if (count)
-			gbar.set_gain_slider(count, true);
+		if (count && rfgain)
+		{
+			rfgain = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setifgain, count));
+		}
 		count = cat_message.GetTX();
 		if (m_mode != count)
 		{
@@ -200,7 +212,7 @@ void Catinterface::checkCAT()
 			}
 		}
 		count = cat_message.GetSH();
-		gbar.set_filter_slider(count, true);
+		guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
 		count = cat_message.GetBand();
 		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
 		{

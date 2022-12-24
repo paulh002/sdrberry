@@ -88,13 +88,24 @@ class GuiMessage
 		step,
 		blink,
 		setpos,
-		setband
+		setband,
+		setgain,
+		setvol,
+		setifgain,
+		setled,
+		setwpm,
+		displayline,
+		filter
 	} ;
 
 	GuiMessage(action guiaction, int guiData)
 		: message (guiaction), data (guiData) {}
 
+	GuiMessage(action guiaction, std::string guiData)
+		: message(guiaction), text(guiData), data{} {}
+
 	int data;
+	std::string text;
 	action message;
 };
 

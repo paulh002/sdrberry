@@ -375,15 +375,39 @@ int main(int argc, char *argv[])
 				Wf.set_pos(vfo.get_vfo_offset());
 				break;
 			case GuiMessage::setband:
-				gui_band_instance.set_gui(msg.data, true);
-				int index = getIndex(Settings_file.meters, msg.data);
-				if (index >= 0)
 				{
-					long f_low = Settings_file.f_low.at(index);
-					int f_band = Settings_file.meters.at(index);
-					vfo.set_band(f_band, f_low);
-					gbar.set_mode(mode, true);
+					gui_band_instance.set_gui(msg.data);
+					int index = getIndex(Settings_file.meters, msg.data);
+					if (index >= 0)
+					{
+						long f_low = Settings_file.f_low.at(index);
+						int f_band = Settings_file.meters.at(index);
+						vfo.set_band(f_band, f_low);
+						gbar.set_mode(mode);
+					}
 				}
+				break;
+			case GuiMessage::setifgain:
+				gbar.set_if(msg.data);
+				break;
+			case GuiMessage::setvol:
+				gbar.set_vol_slider(msg.data);
+				break;
+			case GuiMessage::setgain:
+				gbar.set_gain_slider(msg.data);
+				break;
+			case GuiMessage::setled:
+				gbar.set_led(msg.data);
+				break;
+			case GuiMessage::setwpm:
+				gbar.set_cw_wpm(msg.data);
+				break;
+			case GuiMessage::displayline:
+				gbar.set_cw_message(msg.text);
+				break;
+			case GuiMessage::filter:
+				gbar.set_filter_slider(msg.data);
+				break;
 			}
 			guiQueue.pop_front();
 		}

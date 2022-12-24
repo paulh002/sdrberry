@@ -49,6 +49,9 @@ class Catinterface
 	bool f_rxtx;
 	Comm comm_port;
 	int m_mode;
+	int ifgain;
+	int volume;
+	int rfgain;
 	std::atomic<bool> bpause_cat{false};
 	int channel{};
 };

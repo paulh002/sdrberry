@@ -19,10 +19,8 @@ void gui_bar::set_tx(bool tx)
 		lv_obj_clear_state(button[0], LV_STATE_CHECKED);
 }
 
-void gui_bar::set_mode(int mode, bool lock)
+void gui_bar::set_mode(int mode)
 {
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	for (int i = 1; i < 8; i++)
 		lv_obj_clear_state(button[i], LV_STATE_CHECKED);
 
@@ -204,7 +202,7 @@ gui_bar::~gui_bar()
 	lv_obj_del(gain_slider_label);
 }
 
-void gui_bar::set_gain_slider(int gain, bool lock)
+void gui_bar::set_gain_slider(int gain)
 {
 	double	max_gain {0.0};
 	double min_gain{0.0};
@@ -224,8 +222,6 @@ void gui_bar::set_gain_slider(int gain, bool lock)
 		gain = max_gain;
 	if (gain < min_gain)
 		gain = min_gain;
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
 	Settings_file.save_rf(gain);
@@ -573,7 +569,6 @@ void gui_bar::setIfGainOverflow(bool state)
 		if (ifStyleState == false)
 		{
 			ifStyleState = true;
-			//unique_lock<mutex> gui_lock(gui_mutex);
 			lv_obj_add_style(if_slider, &ifGainStyleKnob, LV_PART_KNOB);
 			lv_obj_add_style(if_slider, &ifGainStyleIndicator, LV_PART_INDICATOR);
 		}
@@ -583,7 +578,6 @@ void gui_bar::setIfGainOverflow(bool state)
 		if (ifStyleState == true)
 		{
 			ifStyleState = false;
-			//unique_lock<mutex> gui_lock(gui_mutex);
 			lv_obj_remove_style(if_slider, &ifGainStyleKnob, LV_PART_KNOB);
 			lv_obj_remove_style(if_slider, &ifGainStyleIndicator, LV_PART_INDICATOR);
 		}
@@ -613,43 +607,16 @@ void gui_bar::check_agc()
 
 void gui_bar::set_cw_message(std::string message)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
-	gui_lock.try_lock();
-	if (!gui_lock.owns_lock())
-	{
-		usleep(1000);
-		gui_lock.try_lock();
-		if (!gui_lock.owns_lock())
-			return;
-	}
 	lv_label_set_text(cw_message,message.c_str());
 }
 
 void gui_bar::set_cw_wpm(int wpm)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
-	gui_lock.try_lock();
-	if (!gui_lock.owns_lock())
-	{
-		usleep(1000);
-		gui_lock.try_lock();
-		if (!gui_lock.owns_lock())
-			return;
-	}
 	lv_label_set_text_fmt(cw_wpm, "wpm: %d", wpm);
 }
 
 void gui_bar::set_led(bool status)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
-	gui_lock.try_lock();
-	if (!gui_lock.owns_lock())
-	{
-		usleep(1000);
-		gui_lock.try_lock();
-		if (!gui_lock.owns_lock())
-			return;
-	}
 	if (status)
 		lv_led_on(cw_led);
 	else
@@ -661,10 +628,8 @@ void gui_bar::step_vol_slider(int step)
 	set_vol_slider(lv_slider_get_value(vol_slider) + step);
 }
 
-void gui_bar::set_vol_slider(int volume, bool lock)
+void gui_bar::set_vol_slider(int volume)
 {
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	if (volume < 0)
 		volume = 0;
 	if (volume > max_volume)
@@ -686,10 +651,8 @@ float gui_bar::get_if()
 	return ifgain.load();
 }
 
-void gui_bar::set_if(int ifg, bool lock)
+void gui_bar::set_if(int ifg)
 {
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
 	if (ifg > maxifgain)
 		ifg = maxifgain;
 	ifgain.store(std::pow(10.0, (float)ifg / 20.0));
@@ -713,11 +676,8 @@ void gui_bar::get_filter_range(vector<string> &filters)
 
 
 
-void gui_bar::set_filter_slider(int ifilter, bool lock)
+void gui_bar::set_filter_slider(int ifilter)
 {
-	if (lock)
-		unique_lock<mutex> gui_lock(gui_mutex);
-	
 	if (!button[number_of_buttons - 1])
 		return;
 	int filter = 6;

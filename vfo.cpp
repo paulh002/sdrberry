@@ -3,7 +3,6 @@
 #include "BandFilter.h"
 #include "sdrstream.h"
 
-extern mutex	gui_mutex;
 CVfo	vfo;
 
 CVfo::CVfo()

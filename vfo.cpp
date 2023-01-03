@@ -109,7 +109,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	get_band(1);
 	gui_band_instance.set_gui(vfo_setting.band[vfo_setting.active_vfo]);
 	rx_set_sdr_freq();
-	tx_set_sdr_freq();	
+	//tx_set_sdr_freq();	
 	bpf.SetBand(vfo_setting.band[0], vfo_setting.rx);
 	gui_vfo_inst.set_vfo_gui(0, vfo_setting.vfo_freq[0]);
 	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1]);

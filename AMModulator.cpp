@@ -3,6 +3,7 @@
 #include "gui_speech.h"
 #include "PeakLevelDetector.h"
 
+
 static shared_ptr<AMModulator> sp_ammod;
 
 bool AMModulator::create_modulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
@@ -72,6 +73,7 @@ AMModulator::AMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample>
 		return;
 	}
 	audio_input->set_tone(tone);
+	printf("tone %d \n", tone);
 	setLowPassAudioFilterCutOffFrequency(2500);
 	if ((ifrate - audio_input->get_samplerate()) > 0.1)
 	{
@@ -103,6 +105,7 @@ void AMModulator::operator()()
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
 	Fft_calc.plan_fft(nfft_samples);
+	tune_offset(vfo.get_vfo_offset());
 	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
 		audioInputBuffer->set_gain(0);

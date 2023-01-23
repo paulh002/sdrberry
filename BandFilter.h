@@ -20,7 +20,6 @@ public:
 
   private:
 	std::vector<PCF8574>	pcf8574;
-	bool	connected;
 	bool	bandfilter_pass_trough{false};
 };
 

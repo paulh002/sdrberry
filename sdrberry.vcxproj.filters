@@ -697,6 +697,9 @@
     <ClCompile Include="EnergyCalculator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="BandPassFilter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1011,6 +1014,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="SharedQueue.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="BandPassFilter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mixer.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -58,6 +58,8 @@ class Demodulator
 	void calc_if_level(const IQSampleVector &samples_in);
 	double get_if_level() { return ifEnergy.getEnergyLevel(); }
 	double get_af_level() { return afEnergy.getEnergyLevel(); }
+	double get_if_levelI() { return ifEnergy.getEnergyLevelI(); }
+	double get_if_levelQ() { return ifEnergy.getEnergyLevelQ(); }
 	void set_fft_mixer(float offset);
 	void setLowPassAudioFilter(float samplerate, float band_width);
 	void fft_mix(int dir, const IQSampleVector &filter_in, IQSampleVector &filter_out);

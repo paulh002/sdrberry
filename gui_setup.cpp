@@ -90,8 +90,8 @@ static void samplerate_button_handler(lv_event_t * e)
 		int rate = lv_dropdown_get_selected(obj);
 		ifrate = gsetup.get_sample_rate(rate);
 		gsetup.m_ifrate = ifrate;
-		gsetup.set_span_range(ifrate / 2);
-		gsetup.set_span_value(ifrate / 2);
+		gsetup.set_span_range(ifrate);
+		gsetup.set_span_value(ifrate);
 
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0) > 0)
 		{

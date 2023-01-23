@@ -27,7 +27,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	radio = fradio;
 	rx_channel = frx_channel;
 	tx_channel = frx_channel;
-		
+
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
 	string s = Settings_file.find_vfo1("freq");
@@ -87,7 +87,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	}
 	
 	offset_frequency = ifrate / 4; // to center initial spectrum view
-	vfo_setting.m_max_offset = ifrate /2; // Max offset is 1/2 samplefrequency (Nyquist limit)
+	vfo_setting.m_max_offset = ifrate / 2 ; // Max offset is 1/2 samplefrequency (Nyquist limit)
 
 	vfo_setting.pcmrate = pcmrate;
 	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
@@ -132,7 +132,7 @@ void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
 	else
 	{
 		offset_frequency = ifrate / 4;
-		vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency 
+		vfo_setting.m_max_offset = ifrate /2; // Max offset is 1/2 samplefrequency 
 	}
 	vfo_setting.vfo_freq_sdr[0] = vfo_setting.vfo_freq[0] - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 	vfo_setting.m_offset[0] = vfo_setting.vfo_freq[0] - vfo_setting.vfo_freq_sdr[0]; // 
@@ -268,7 +268,7 @@ int CVfo::set_vfo(long long freq)
 			//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 		}
 	}
-	//printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
+	printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	Wf.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo))

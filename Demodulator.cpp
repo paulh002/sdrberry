@@ -353,8 +353,8 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 		{
 			complex<float> v;
 
-			nco_crcf_step(tuneNCO);
 			nco_crcf_mix_up(tuneNCO, col, &v);
+			nco_crcf_step(tuneNCO);
 			filter_out.push_back(v);
 		}
 	}

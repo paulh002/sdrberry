@@ -309,10 +309,7 @@ void gui_tx::set_drv_slider(int drive)
 
 int gui_tx::get_drv_pos()
 {
-	if (drv_slider)
-		return lv_slider_get_value(drv_slider);
-	else
-		return 0;
+	return Settings_file.drive();
 }
 
 void gui_tx::set_tx_state(bool state)

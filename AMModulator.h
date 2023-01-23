@@ -1,6 +1,7 @@
 #pragma once
 #include "Demodulator.h"
 
+
 class AMModulator : public Demodulator
 {
   public:

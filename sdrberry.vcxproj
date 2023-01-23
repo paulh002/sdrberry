@@ -88,6 +88,7 @@
     <ClCompile Include="AudioInput.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="BandFilter.cpp" />
+    <ClCompile Include="BandPassFilter.cpp" />
     <ClCompile Include="Catinterface.cpp" />
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="AudioOutput.h" />
     <ClInclude Include="backward.hpp" />
     <ClInclude Include="BandFilter.h" />
+    <ClInclude Include="BandPassFilter.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="Catinterface.h" />
     <ClInclude Include="configfile.h" />
@@ -335,6 +337,7 @@
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
     <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="MidiControle.h" />
+    <ClInclude Include="Mixer.h" />
     <ClInclude Include="Modes.h" />
     <ClInclude Include="MorseDecoder.h" />
     <ClInclude Include="Mouse.h" />

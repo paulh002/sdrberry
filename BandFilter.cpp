@@ -2,18 +2,18 @@
 
 void BandFilter::initFilter()
 {
-	connected = false;
 	for (auto& col : Settings_file.address)
 	{
 		PCF8574 i2cdevice(col);
 		if (i2cdevice.begin(0))
 		{
 			pcf8574.push_back(i2cdevice);
-			connected = true;
+			printf("Connected to %d \n", (int)i2cdevice.getAddress());
 		}
 		else
 		{
-			connected = false;
+			pcf8574.push_back(i2cdevice);
+			printf("Cannot connect to %d \n", (int)i2cdevice.getAddress());
 		}
 	}
 }
@@ -22,7 +22,7 @@ void BandFilter::SetBand(int band, bool rx)
 {
 	int index = vfo.getBandIndex(band);
 	int i = pcf8574.size();
-	if (i > 0 && connected && !bandfilter_pass_trough)
+	if (i > 0 && !bandfilter_pass_trough)
 	{
 		int ii = 0;
 		printf("i2c ");
@@ -32,13 +32,15 @@ void BandFilter::SetBand(int band, bool rx)
 			if (rx && Settings_file.command_rx.size() >= (i * index + ii))
 			{
 				cc = Settings_file.command_rx[i * index + ii];
-				col.write8(cc);
+				if (col.getConnected())
+					col.write8(cc);
 				printf("%d ", cc);
 			}
 			if (!rx && Settings_file.command_tx.size() >= (i * index + ii))
 			{
 				cc = Settings_file.command_tx[i * index + ii];
-				col.write8(cc);
+				if (col.getConnected())
+					col.write8(cc);
 				printf("%d ", cc);
 			}
 			ii++;
@@ -46,7 +48,7 @@ void BandFilter::SetBand(int band, bool rx)
 		printf("\n");
 		return;
 	}
-	if (i > 0 && connected && bandfilter_pass_trough)
+	if (i > 0 && bandfilter_pass_trough)
 	{
 		int ii = 0;
 		printf("i2c ");
@@ -56,14 +58,16 @@ void BandFilter::SetBand(int band, bool rx)
 			if (rx && Settings_file.passthrough_rx.size() >= i)
 			{
 				cc = Settings_file.passthrough_rx[ii];
-				col.write8(cc);
+				if (col.getConnected())
+					col.write8(cc);
 				printf("%d ", cc);
 			}
-	
+
 			if (!rx && Settings_file.passthrough_tx.size() >= i)
 			{
 				cc = Settings_file.passthrough_tx[ii];
-				col.write8(cc);
+				if (col.getConnected())
+					col.write8(cc);
 				printf("%d ", cc);
 			}
 			ii++;

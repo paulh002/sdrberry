@@ -89,17 +89,14 @@ static void click_event_cb(lv_event_t *e)
 		lv_indev_get_point(indev, &p);
 
 		long long f;
-		int ii;
 		int span = gsetup.get_span();
 		if (!vfo.compare_span())
 		{
 			f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
-			ii = span / (vert_lines - 1);
 		}
 		else
 		{
 			f = vfo.get_sdr_frequency();
-			ii = span / (vert_lines - 1);
 		}
 		vfo.set_vfo(p.x * (span / screenWidth) + f);
 	}

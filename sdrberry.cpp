@@ -56,6 +56,7 @@ lv_obj_t *bar_view;
 lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
+extern lv_img_dsc_t mouse_cursor_icon;
 
 using namespace std;
 std::mutex gui_mutex;
@@ -81,6 +82,25 @@ SdrDeviceVector SdrDevices;
 std::string default_radio;
 int default_rx_channel = 0;
 int default_tx_channel = 0;
+
+void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
+{
+	MouseState state;
+	/*Get the current x and y coordinates*/
+	state = Mouse_dev.GetMouseState();
+	data->point.x = state.x;
+	data->point.y = state.y;
+
+	/*Get whether the mouse button is pressed or released*/
+	if (state.pressed)
+	{
+		data->state = LV_INDEV_STATE_PR;
+	}
+	else
+	{
+		data->state = LV_INDEV_STATE_REL;
+	}
+}
 
 void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
@@ -172,19 +192,33 @@ int main(int argc, char *argv[])
 	lv_disp_drv_register(&disp_drv);
 
 	// Initialize and register a pointer device driver
-	lv_indev_drv_t indev_drv;
+	static lv_indev_drv_t indev_drv;	
 	lv_indev_drv_init(&indev_drv);
 	indev_drv.type = LV_INDEV_TYPE_POINTER;
 	indev_drv.read_cb = evdev_read; // defined in lv_drivers/indev/evdev.h
 	lv_indev_drv_register(&indev_drv);
 
-	lv_indev_drv_t indev_drv_enc;
+	static lv_indev_drv_t indev_drv_enc;
 	lv_indev_drv_init(&indev_drv_enc);
 	indev_drv_enc.type = LV_INDEV_TYPE_ENCODER;
 	indev_drv_enc.read_cb = encoder_read;
 	encoder_indev_t = lv_indev_drv_register(&indev_drv_enc);
 	button_group = lv_group_create();
 	lv_indev_set_group(encoder_indev_t, button_group);
+
+	static lv_indev_drv_t indev_drv_mouse;
+	lv_indev_t *indev_mouse;
+	if (Mouse_dev.GetMouseAttached())
+	{
+		lv_indev_drv_init(&indev_drv_mouse);
+		indev_drv_mouse.type = LV_INDEV_TYPE_POINTER;
+		indev_drv_mouse.read_cb = mouse_read;
+		indev_mouse = lv_indev_drv_register(&indev_drv_mouse);
+		//Set cursor. For simplicity set a HOME symbol now.
+		lv_obj_t *mouse_cursor = lv_img_create(lv_scr_act());
+		lv_img_set_src(mouse_cursor, &mouse_cursor_icon);
+		lv_indev_set_cursor(indev_mouse, mouse_cursor);
+	}
 
 	lv_theme_t *th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
 	lv_disp_set_theme(NULL, th);
@@ -339,7 +373,7 @@ int main(int argc, char *argv[])
 
 		gui_mutex.lock();
 		lv_task_handler();
-		Mouse_dev.step_vfo();
+		//Mouse_dev.step_vfo();
 		HidDev_dev.step_vfo();
 		HidDev_dev1.step_vfo();
 		const auto now = std::chrono::high_resolution_clock::now();

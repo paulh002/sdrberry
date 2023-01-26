@@ -150,6 +150,7 @@
     <ClCompile Include="MidiControle.cpp" />
     <ClCompile Include="MorseDecoder.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="mouse_cursor_icon.c" />
     <ClCompile Include="PCF8574.cpp" />
     <ClCompile Include="PeakLevelDetector.cpp" />
     <ClCompile Include="RtAudio.cpp" />

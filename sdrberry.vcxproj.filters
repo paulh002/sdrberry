@@ -700,6 +700,9 @@
     <ClCompile Include="BandPassFilter.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="mouse_cursor_icon.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">

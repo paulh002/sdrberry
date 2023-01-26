@@ -76,6 +76,35 @@ void	Fft_calculator::plan_fft(int size)
 	}
 }
 
+static void click_event_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+
+	lv_indev_t *indev = lv_indev_get_act();
+	lv_indev_type_t indev_type = lv_indev_get_type(indev);
+	if (indev_type == LV_INDEV_TYPE_POINTER)
+	{
+		lv_point_t p;
+		lv_indev_get_point(indev, &p);
+
+		long long f;
+		int ii;
+		int span = gsetup.get_span();
+		if (!vfo.compare_span())
+		{
+			f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
+			ii = span / (vert_lines - 1);
+		}
+		else
+		{
+			f = vfo.get_sdr_frequency();
+			ii = span / (vert_lines - 1);
+		}
+		vfo.set_vfo(p.x * (span / screenWidth) + f);
+	}
+}
+
 static void draw_event_cb(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -177,6 +206,7 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_chart_set_div_line_count(chart, hor_lines, vert_lines); 
 	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+	lv_obj_add_event_cb(chart, click_event_cb, LV_EVENT_CLICKED, NULL);
 	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE),  LV_DIR_BOTTOM);
 
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);

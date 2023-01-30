@@ -210,7 +210,7 @@ void AMDemodulator::operator()()
 			timeLastFlashGainSlider = now;
 		}
 		
-		if (timeLastPrint + std::chrono::seconds(1) < now)
+		if (timeLastPrint + std::chrono::seconds(5) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);

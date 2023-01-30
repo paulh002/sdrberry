@@ -1,121 +1,150 @@
-#include <unistd.h>
-#include <pthread.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdint.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "lvgl.h"
-#include "vfo.h"
-#include "Gui_band.h"
-#include "Settings.h"
-#include <string>
-#include <algorithm>
 #include "Keyboard.h"
+#include <linux/input.h>
+#include <libevdev-1.0/libevdev/libevdev.h>
+//#include "SDL_keyboard_c.h"
+//#include "SDL_scancode_tables_c.h"
 
+#define EV_KEY 0x01
+#define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
+#define NBITS(x) ((((x)-1) / (sizeof(long) * 8)) + 1)
 
-LV_FONT_DECLARE(FreeSansOblique42);
-LV_FONT_DECLARE(FreeSans42);
-
-Keyboard	keyb;
-
-static void remove_aplha(char *p, char *s)
+void Keyboard::init_keyboard()
 {
-	int loop;
-	for (loop = 0; loop < strlen(p); loop++)
-	{	char ss[10];
-		
-		if (p[loop] >= '0' || p[loop] <= '9')
+	Index = 0;
+	do
+	{
+		sprintf(KeyboardName, "/dev/input/event%d", Index);
+		fd = open(KeyboardName, O_RDONLY | O_NONBLOCK);
+		if (fd > 0)
 		{
-			sprintf(ss, "%c", p[loop]);                  // printing the non numeric characters
-			strcat(s, ss);
+			int keyBitmask[KEY_MAX / (sizeof(int) * 8) + 1];
+			unsigned long ev_bits[NBITS(EV_MAX)];
+
+			char name[256] = "Unknown";
+			ioctl(fd, EVIOCGNAME(sizeof(name)), name);
+			printf("Input device name: \"%s\"\n", name);
+
+			if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyBitmask)), keyBitmask) == -1)
+			{
+				printf("ioctl error\n");
+				close(fd);
+				Index++;
+				fd = -1;
+			}
+
+			if (keyBitmask[KEY_A / (sizeof(int) * 8)] & (1 << (KEY_A % (sizeof(int) * 8))))
+			{
+				printf("Device is a keyboard\n");
+				ioctl(fd, EVIOCGRAB, 1);
+
+				if (ioctl(fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits) == -1)
+				{
+					printf("ioctl error\n");
+					close(fd);
+					Index++;
+					fd = -1;
+				}
+				if (test_bit(EV_KEY, ev_bits) && test_bit(EV_REL, ev_bits))
+				{
+					printf("Keyboard also has a mouse\n");
+					mouse = make_unique<Mouse>(fd);
+				}
+			}
+			else
+			{
+				printf("Device is not a keyboard\n");
+				close(fd);
+				Index++;
+				fd = -1;
+			}
 		}
+		else
+			Index++;
+	} while (Index < 30 && fd == -1);
+
+	int rc = libevdev_new_from_fd(fd, &dev);
+	if (rc < 0)
+		printf("cannot open evdev \n");
+
+	//SDL_InitKeyboard();
+	printf("end keyboard \n");
+}
+
+Keyboard::Keyboard()
+{
+	fd = -1;
+}
+
+Keyboard::~Keyboard()
+{
+	if (fd != -1)
+	{
+		ioctl(fd, EVIOCGRAB, 1);
+		close(fd);
+		fd = -1;
 	}
 }
 
-
-static void ta_event_cb(lv_event_t * e)
-{	long long freq;
-	
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t * ta = (lv_obj_t *)lv_event_get_target(e);
-	lv_obj_t * kb = (lv_obj_t *)lv_event_get_user_data(e);
-	
-	if (code == LV_EVENT_READY) {
-		char	str[80];
-		char *ptr = (char *)lv_textarea_get_text(ta);
-		
-		memset(str, 0, 80*sizeof(char));
-		if (ptr[0] == '+' || ptr[0] == '-')
-		{
-			remove_aplha(ptr, str);
-			vfo.step_vfo(atol(str));
-		}
-		if (isdigit(ptr[0]))
-		{
-			remove_aplha(ptr, str);
-			freq = atoll(str);	
-		}
-		if (vfo.set_vfo(freq) != 0)
-			return ; // error
-		//sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
-		lv_textarea_set_text(ta, "");
-	}
+bool Keyboard::Attached()
+{
+	if (fd != -1)
+		return true;
+	return false;
 }
 
-static void kb_event_cb(lv_event_t * e)
+MouseState Keyboard::GetMouseState()
 {
-	long long freq;
-	
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t * kb = (lv_obj_t *)lv_event_get_target(e);
-		
-	if (code == LV_EVENT_VALUE_CHANGED) {
-		uint16_t btn_id   = lv_btnmatrix_get_selected_btn(kb);
-		if (btn_id == 15) //'>'
-		{
-			vfo.step_vfo(1);
-		}
-		
-		if (btn_id == 16) //'<'
-		{
-			vfo.step_vfo(-1);
-		}
-		return;
-	}
+	MouseState m{0,0,false, false};
+	if (mouse != nullptr)
+		return mouse->GetMouseState();
+	else
+		return m;
 }
-	
-void Keyboard::init_keyboard(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
-{
-	lv_style_init(&text_style);
 
-	/*Set a background color and a radius*/
-	lv_style_set_radius(&text_style, 5);
-	lv_style_set_bg_opa(&text_style, LV_OPA_COVER);
-	lv_style_set_bg_color(&text_style, lv_color_black());
-	lv_style_set_text_align(&text_style, LV_ALIGN_CENTER);
-	lv_style_set_text_font(&text_style, &FreeSans42);
+
+std::string Keyboard::GetKeys()
+{
+	int bytes;
+	std::string keys;
+	SDL_KeyboardEvent sdl_keyboard_event;
+
+	if (fd > 0)
+	{
+		struct input_event keyboard_event;
 	
-	/*Create a keyboard to use it with an of the text areas*/
-	lv_obj_t *kb = lv_keyboard_create(o_tab);
-	lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_NUMBER);
-	lv_obj_set_size(kb, w - 40, h - 150);
-	lv_obj_align(kb, LV_ALIGN_RIGHT_MID, 0, 0);
-	lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL, NULL);
-	
-	/*Create a text area. The keyboard will write here*/
-	lv_obj_t * ta;
-	ta = lv_textarea_create(o_tab);
-	lv_obj_align(ta, LV_ALIGN_TOP_LEFT, 10, 10);
-	lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, kb);
-	lv_obj_set_size(ta, w-40, 60);
-	lv_obj_add_style(ta, &text_style, 0);
-	lv_textarea_set_one_line(ta, true);
-		
-	string s = vfo.get_vfo_str();
-	lv_textarea_set_placeholder_text(ta, (char *)s.c_str());
-	lv_keyboard_set_textarea(kb, ta);
-	lv_obj_clear_flag(ta, LV_OBJ_FLAG_SCROLLABLE);
-	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
+		bytes = read(fd, (void *)&keyboard_event, sizeof(struct input_event));
+		while (bytes != -1)
+		{
+			if (keyboard_event.type == EV_KEY) // && keyboard_event.value == 1
+			{
+				SDL_Scancode scancode = kbTranslator.GetScancodeFromTable(SDL_SCANCODE_TABLE_LINUX, keyboard_event.code);
+				//printf("type %d code %d value %d scancode %d\n", keyboard_event.type, keyboard_event.code, keyboard_event.value, scancode);
+
+				if (scancode != SDL_SCANCODE_UNKNOWN)
+				{
+					auto KeyPresstime = std::chrono::high_resolution_clock::now();
+
+					if (keyboard_event.value == 0)
+					{
+						kbTranslator.SendKeyboardKey(KeyPresstime.time_since_epoch(), SDL_RELEASED, scancode, sdl_keyboard_event);
+						//printf("SDL_RELEASED char %c, scancode %s \n", sdl_keyboard_event.keysym.key, kbTranslator.GetScancodeName(scancode));
+					}
+					else if (keyboard_event.value == 1 || keyboard_event.value == 2 )
+					{
+						kbTranslator.SendKeyboardKey(KeyPresstime.time_since_epoch(), SDL_PRESSED, scancode, sdl_keyboard_event);
+						//if (sdl_keyboard_event.keysym.mod & SDL_KMOD_CAPS)
+						//	printf("CAPS_LOCK ");
+						//if (sdl_keyboard_event.keysym.mod & SDL_KMOD_RSHIFT || sdl_keyboard_event.keysym.mod & SDL_KMOD_LSHIFT)
+						//	printf("SHIFT ");
+
+						//printf("SDL_PRESSED char %c, scancode %s \n", sdl_keyboard_event.keysym.key, kbTranslator.GetScancodeName(scancode));
+						if (scancode > 3 && scancode < 57)
+							keys.push_back((char)sdl_keyboard_event.keysym.key);
+					}
+				} 
+			}
+		bytes = read(fd, (void *)&keyboard_event, sizeof(struct input_event));
+		}
+	}
+	return keys;
 }

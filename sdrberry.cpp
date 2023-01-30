@@ -11,6 +11,8 @@
 #include "Mouse.h"
 #include "SharedQueue.h"
 #include "gui_speech.h"
+#include "GuiFt8Setting.h"
+#include "Keyboard.h"
 //#include "HidThread.h"
 
 #define BACKWARD_HAS_BFD 1
@@ -56,6 +58,7 @@ lv_obj_t *bar_view;
 lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
+lv_group_t *keyboard_group;
 extern lv_img_dsc_t mouse_cursor_icon;
 
 using namespace std;
@@ -70,6 +73,7 @@ double freq = 89800000;
 
 mutex fm_finish;
 Catinterface catinterface;
+Keyboard KeyboardDevice;
 Mouse Mouse_dev;
 HidDev HidDev_dev, HidDev_dev1;
 BandFilter bpf;
@@ -82,6 +86,31 @@ SdrDeviceVector SdrDevices;
 std::string default_radio;
 int default_rx_channel = 0;
 int default_tx_channel = 0;
+
+static std::string keysRed;
+
+void keyboard_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
+{
+	static bool dummy_read = false;
+
+	keysRed += KeyboardDevice.GetKeys();
+	/*Send a release manually*/
+	if (dummy_read)
+	{
+		dummy_read = false;
+		data->state = LV_INDEV_STATE_RELEASED;
+		data->continue_reading = keysRed.length() > 0;
+	}
+	/*Send the pressed character*/
+	else if (keysRed.length() > 0)
+	{
+		dummy_read = true;
+		data->state = LV_INDEV_STATE_PRESSED;
+		data->key = keysRed.at(0);
+		keysRed.erase(0, 1);
+		data->continue_reading = true;
+	}
+}
 
 void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 {
@@ -142,6 +171,7 @@ int main(int argc, char *argv[])
 	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
 
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
+	KeyboardDevice.init_keyboard();
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
 	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
 	HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
@@ -219,7 +249,18 @@ int main(int argc, char *argv[])
 		lv_img_set_src(mouse_cursor, &mouse_cursor_icon);
 		lv_indev_set_cursor(indev_mouse, mouse_cursor);
 	}
-
+	
+	static lv_indev_drv_t indev_drv_keyboard;
+	if (KeyboardDevice.Attached())
+	{
+		lv_indev_drv_init(&indev_drv_keyboard); /*Basic initialization*/
+		indev_drv_keyboard.type = LV_INDEV_TYPE_KEYPAD;
+		indev_drv_keyboard.read_cb = keyboard_read;
+		lv_indev_t *kb_indev = lv_indev_drv_register(&indev_drv_keyboard);
+		keyboard_group = lv_group_create();
+		lv_indev_set_group(kb_indev, keyboard_group);
+	}
+	
 	lv_theme_t *th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
 	lv_disp_set_theme(NULL, th);
 	scr = lv_scr_act();
@@ -253,6 +294,7 @@ int main(int argc, char *argv[])
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
+	tab["ft8settings"] = (lv_tabview_add_tab(tabview_mid, (std::string("FT8 ") + std::string(LV_SYMBOL_SETTINGS)).c_str()));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
 
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
@@ -264,6 +306,7 @@ int main(int argc, char *argv[])
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
+	guift8setting.init(tab["ft8settings"], keyboard_group);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 
 	//keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);

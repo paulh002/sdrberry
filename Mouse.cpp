@@ -1,8 +1,20 @@
 #include "Mouse.h"
 
+#define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
+#define NBITS(x) ((((x)-1) / (sizeof(long) * 8)) + 1)
+
 Mouse::Mouse()
 {
 	m_fd = -1;
+	numMouseIndex = 2;
+	step = 10;
+	bstep = false;
+	MouseActivity = false;
+}
+
+Mouse::Mouse(int mousefd)
+{
+	m_fd = mousefd;
 	numMouseIndex = 2;
 	step = 10;
 	bstep = false;
@@ -20,10 +32,9 @@ void strupr(char *str)
 void Mouse::init_mouse(string mouse_name)
 {
 	// first find a mouse
-	if (mouse_name.size() == 0)
-		mouse_name = "MOUSE";
+	//if (mouse_name.size() == 0)
+	//	mouse_name = "MOUSE";
 	transform(mouse_name.begin(), mouse_name.end(), mouse_name.begin(), ::toupper);
-
 	numMouseIndex = 0;
 	do
 	{
@@ -31,13 +42,35 @@ void Mouse::init_mouse(string mouse_name)
 		m_fd = open(mouseDev, O_RDONLY | O_NONBLOCK);
 		if (m_fd > 0)
 		{
+			unsigned long ev_bits[NBITS(EV_MAX)];
+
 			char name[256] = "Unknown";
 			ioctl(m_fd, EVIOCGNAME(sizeof(name)), name);
 			printf("Input device name: \"%s\"\n", name);
 			strupr(name);
 			char *ptr = strstr(name, mouse_name.c_str());
-			if (ptr == NULL)
+
+			if (ioctl(m_fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits) == -1)
 			{
+				printf("ioctl error\n");
+				close(m_fd);
+				numMouseIndex++;
+				m_fd = -1;
+			}
+			
+			if (test_bit(EV_KEY, ev_bits) && test_bit(EV_REL, ev_bits))
+			{
+				printf("Input device is a mouse\n");
+				if (ptr == NULL && mouse_name.length() > 0)
+				{
+					close(m_fd);
+					numMouseIndex++;
+					m_fd = -1;
+				}
+			}
+			else
+			{
+				printf("Input device is not a mouse\n");
 				close(m_fd);
 				numMouseIndex++;
 				m_fd = -1;
@@ -45,7 +78,8 @@ void Mouse::init_mouse(string mouse_name)
 		}
 		else
 			numMouseIndex++;
-	} while (numMouseIndex < 4 && m_fd == -1);
+	} while (numMouseIndex < 30 && m_fd == -1);
+	printf("end mouse \n");
 }
 
 bool Mouse::GetMouseAttached()

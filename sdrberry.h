@@ -8,7 +8,6 @@
 #include "Filter.h"
 #include "FmDecode.h"
 #include "Gui_band.h"
-#include "Keyboard.h"
 #include "MidiControle.h"
 #include "Modes.h"
 #include "RtAudio.h"

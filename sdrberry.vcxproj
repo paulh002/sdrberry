@@ -76,7 +76,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;evdev;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -115,6 +115,7 @@
     <ClCompile Include="ft8\text.c" />
     <ClCompile Include="ft8\unpack.cpp" />
     <ClCompile Include="ft8\util.cpp" />
+    <ClCompile Include="GuiFt8Setting.cpp" />
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
@@ -126,7 +127,9 @@
     <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
     <ClCompile Include="HidDev.cpp" />
+    <ClCompile Include="imKStoUCS.c" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="KeyboardTranslator.cpp" />
     <ClCompile Include="Limiter.cpp" />
     <ClCompile Include="LMSNoisereducer.cpp" />
     <ClCompile Include="lv_drivers\display\drm.c" />
@@ -197,6 +200,7 @@
     <ClInclude Include="ft8\text.h" />
     <ClInclude Include="ft8\unpack.h" />
     <ClInclude Include="ft8\util.h" />
+    <ClInclude Include="GuiFt8Setting.h" />
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_bar.h" />
@@ -209,7 +213,9 @@
     <ClInclude Include="gui_vfo.h" />
     <ClInclude Include="HidDev.h" />
     <ClInclude Include="HidThread.h" />
+    <ClInclude Include="imKStoUCS.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="KeyboardTranslator.h" />
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h" />
@@ -346,6 +352,9 @@
     <ClInclude Include="PeakLevelDetector.h" />
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />
+    <ClInclude Include="scancodes_linux.h" />
+    <ClInclude Include="SDL_keycode.h" />
+    <ClInclude Include="SDL_scancode.h" />
     <ClInclude Include="SdrberryTypeDefs.h" />
     <ClInclude Include="SdrDevice.h" />
     <ClInclude Include="sdrstream.h" />

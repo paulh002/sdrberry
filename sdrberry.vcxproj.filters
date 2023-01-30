@@ -703,6 +703,15 @@
     <ClCompile Include="mouse_cursor_icon.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="GuiFt8Setting.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyboardTranslator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="imKStoUCS.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1023,6 +1032,24 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Mixer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiFt8Setting.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyboardTranslator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="scancodes_linux.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SDL_scancode.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SDL_keycode.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="imKStoUCS.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

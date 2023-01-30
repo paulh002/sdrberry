@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<SysprogsProfilerSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Linux>
+    <Mode>DebugAndPrepareProfiling</Mode>
+    <SeparateCallers>0</SeparateCallers>
+    <GDBPort>2000</GDBPort>
+  </Linux>
+  <SessionFileDirectory>C:\Users\paulh\OneDrive\source\sdrberry\ProfilingReports\sdrberry</SessionFileDirectory>
+  <SessionName>27-11-2022 00:39:03</SessionName>
+</SysprogsProfilerSettings>

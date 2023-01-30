@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cmath>
 #include <complex>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <vector>
 #include <atomic>
 #include <mutex>
@@ -22,7 +22,8 @@ Fft_calculator	Fft_calc;
 Waterfall		Wf;
 
 Fft_calculator::Fft_calculator()
-	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0} {
+	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0}, noisefloor{noise_floor}
+{
 	avg_filter.resize(nfft_samples);
 	ema_filter.resize(nfft_samples);
 }
@@ -63,6 +64,7 @@ void	Fft_calculator::process_samples(const IQSampleVector&	input)
 
 void	Fft_calculator::plan_fft(int size)
 {
+	noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
 	nfft = size;
 	fft_output.reserve(nfft); 
 	m_input.reserve(nfft);
@@ -71,6 +73,32 @@ void	Fft_calculator::plan_fft(int size)
 	for (int i = 0; i < nfft; i++)
 	{
 		v_window.insert(v_window.end(), liquid_windowf(LIQUID_WINDOW_HAMMING, i, nfft, 0)) ;		
+	}
+}
+
+static void click_event_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+
+	lv_indev_t *indev = lv_indev_get_act();
+	lv_indev_type_t indev_type = lv_indev_get_type(indev);
+	if (indev_type == LV_INDEV_TYPE_POINTER)
+	{
+		lv_point_t p;
+		lv_indev_get_point(indev, &p);
+
+		long long f;
+		int span = gsetup.get_span();
+		if (!vfo.compare_span())
+		{
+			f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
+		}
+		else
+		{
+			f = vfo.get_sdr_frequency();
+		}
+		vfo.set_vfo(p.x * (span / screenWidth) + f);
 	}
 }
 
@@ -175,12 +203,17 @@ void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_chart_set_div_line_count(chart, hor_lines, vert_lines); 
 	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+	lv_obj_add_event_cb(chart, click_event_cb, LV_EVENT_CLICKED, NULL);
 	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE),  LV_DIR_BOTTOM);
 
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
 	m_ifrate = ifrate;
+	for (int i; i < nfft_samples/2; i++)
+		data_set.push_back(0);
+	lv_chart_set_point_count(chart, data_set.size());
+	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
 }
 
 void Waterfall::set_pos(int32_t  offset)
@@ -204,6 +237,8 @@ void Waterfall::set_pos(int32_t  offset)
 	}
 	if (pos < 0)
 		pos = 0;
+	if (pos >= data_set.size())
+		pos = data_set.size() -1;
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
 	//printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
 }
@@ -240,7 +275,9 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 			if (i == (fft_output.size() / 2))
 				break;
 			std::complex f = std::conj(col) * col;
-			value = noise_floor + (lv_coord_t)(20.0 * log10(f.real()));
+			value = noisefloor + (lv_coord_t)(20.0 * log10(f.real()));
+			if (value > 99.0)
+				value = 99.0;
 			data_set[i] = avg_filter[i](value);
 			i++;
 		}
@@ -263,7 +300,9 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
 			}
 			f = std::conj(fft_output[ii]) * fft_output[ii];
 			g = f / v_window[ii];
-			value = noise_floor + (lv_coord_t)(20.0 * log10(g.real()));
+			value = noisefloor + (lv_coord_t)(20.0 * log10(g.real()));
+			if (value > 99.0)
+				value = 99.0;
 			data_set[i] = avg_filter[i](value);
 		}
 	}

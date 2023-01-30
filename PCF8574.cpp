@@ -54,6 +54,7 @@ PCF8574::PCF8574(const uint8_t deviceAddress)
   _dataOut    = 0xFF;
   _buttonMask = 0xFF;
   _error      = PCF8574_OK;
+  _connected = false;
 }
 
 bool PCF8574::begin(uint8_t val)
@@ -63,6 +64,7 @@ bool PCF8574::begin(uint8_t val)
 
     if (! isConnected()) return false;
     PCF8574::write8(val);
+	_connected = true;
     return true;
 }
 

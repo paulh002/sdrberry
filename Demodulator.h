@@ -3,7 +3,7 @@
 #include <cmath>
 #include <complex>
 #include <cstdio>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <thread>
 #include <vector>
 #include "AudioInput.h"
@@ -11,6 +11,7 @@
 #include "EnergyCalculator.h"
 #include "Agc_class.h"
 #include "DataBuffer.h"
+#include "SharedQueue.h"
 
 enum mode_enum
 {
@@ -47,7 +48,7 @@ class Demodulator
 	void mono_to_left_right(const SampleVector &samples_mono, SampleVector &audio);
 	void adjust_gain(IQSampleVector &samples_in, float vol);
 	void tune_offset(long offset);
-	virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
+	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
 	void Resample(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	virtual void operator()() = 0;
 	void lowPassAudioFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
@@ -57,6 +58,8 @@ class Demodulator
 	void calc_if_level(const IQSampleVector &samples_in);
 	double get_if_level() { return ifEnergy.getEnergyLevel(); }
 	double get_af_level() { return afEnergy.getEnergyLevel(); }
+	double get_if_levelI() { return ifEnergy.getEnergyLevelI(); }
+	double get_if_levelQ() { return ifEnergy.getEnergyLevelQ(); }
 	void set_fft_mixer(float offset);
 	void setLowPassAudioFilter(float samplerate, float band_width);
 	void fft_mix(int dir, const IQSampleVector &filter_in, IQSampleVector &filter_out);
@@ -71,7 +74,7 @@ class Demodulator
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();
 	int get_lowPassAudioFilterCutOffFrequency() { return lowPassAudioFilterCutOffFrequency.load(); }
-
+	void adjust_resample_rate(float rateAjustFraction);
 	DataBuffer<IQSample> *receiveIQBuffer{nullptr};
 	AudioOutput *audioOutputBuffer{nullptr};
 	double ifSampleRate;

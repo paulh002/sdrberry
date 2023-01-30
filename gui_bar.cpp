@@ -156,7 +156,8 @@ static void if_slider_event_cb(lv_event_t *e)
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	int sl = lv_slider_get_value(slider);
-	gbar.m_if = std::pow(10.0, (float)sl / 20.0);
+	gbar.ifgain = std::pow(10.0, (float)sl / 20.0);
+	catinterface.SetIG(lv_slider_get_value(slider));
 	Settings_file.save_ifgain(lv_slider_get_value(slider));
 }
 
@@ -165,6 +166,7 @@ static void gain_slider_event_cb(lv_event_t * e)
 	lv_obj_t * slider = lv_event_get_target(e);
 
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
+	catinterface.SetRG(lv_slider_get_value(slider));
 	Settings_file.save_rf(lv_slider_get_value(slider));
 	try 
 	{
@@ -176,19 +178,13 @@ static void gain_slider_event_cb(lv_event_t * e)
 	}
 }
 
-void gui_bar::update_gain_slider(int gain)
-{	
-	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
-	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON); 
-}
-
 void gui_bar::step_gain_slider(int step)
 {
 	set_gain_slider(lv_slider_get_value(gain_slider) + step);
 }
 
 gui_bar::gui_bar()
-	: m_if{1000}
+	: ifgain{1000}
 {
 
 }
@@ -226,10 +222,10 @@ void gui_bar::set_gain_slider(int gain)
 		gain = max_gain;
 	if (gain < min_gain)
 		gain = min_gain;
-
 	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
 	Settings_file.save_rf(gain);
+	catinterface.SetRG(gain);
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, default_rx_channel, (double)gain);
@@ -452,7 +448,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_label_set_text(if_slider_label, "if 60 db");
 	lv_obj_align(if_slider_label, LV_ALIGN_TOP_LEFT, vol_x + vol_width + 5, gain_y);
 	if_slider = lv_slider_create(o_parent);
-	lv_slider_set_range(if_slider, 0, 100);
+	lv_slider_set_range(if_slider, 0, maxifgain);
 	lv_obj_set_width(if_slider, vol_width);
 	lv_obj_align(if_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
 	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
@@ -568,7 +564,6 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 
 void gui_bar::setIfGainOverflow(bool state)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
 	if (state)
 	{
 		if (ifStyleState == false)
@@ -612,43 +607,16 @@ void gui_bar::check_agc()
 
 void gui_bar::set_cw_message(std::string message)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
-	gui_lock.try_lock();
-	if (!gui_lock.owns_lock())
-	{
-		usleep(1000);
-		gui_lock.try_lock();
-		if (!gui_lock.owns_lock())
-			return;
-	}
 	lv_label_set_text(cw_message,message.c_str());
 }
 
 void gui_bar::set_cw_wpm(int wpm)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
-	gui_lock.try_lock();
-	if (!gui_lock.owns_lock())
-	{
-		usleep(1000);
-		gui_lock.try_lock();
-		if (!gui_lock.owns_lock())
-			return;
-	}
 	lv_label_set_text_fmt(cw_wpm, "wpm: %d", wpm);
 }
 
 void gui_bar::set_led(bool status)
 {
-	unique_lock<mutex> gui_lock(gui_mutex, std::defer_lock);
-	gui_lock.try_lock();
-	if (!gui_lock.owns_lock())
-	{
-		usleep(1000);
-		gui_lock.try_lock();
-		if (!gui_lock.owns_lock())
-			return;
-	}
 	if (status)
 		lv_led_on(cw_led);
 	else
@@ -669,6 +637,7 @@ void gui_bar::set_vol_slider(int volume)
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);	
 	lv_label_set_text_fmt(vol_slider_label, "vol %d", volume);
 	audio_output->set_volume(volume);
+	catinterface.SetAG(volume);
 	Settings_file.save_vol(volume);
 }
 
@@ -679,15 +648,18 @@ int gui_bar::get_vol_range()
 
 float gui_bar::get_if()
 {
-	return m_if.load();
+	return ifgain.load();
 }
 
-void gui_bar::set_if(int rf)
+void gui_bar::set_if(int ifg)
 {
-	m_if = std::pow(10.0, (float)rf / 20.0);
-	lv_slider_set_value(if_slider, rf, LV_ANIM_ON);
-	lv_label_set_text_fmt(if_slider_label, "if %d db", rf);
-	Settings_file.save_ifgain(rf);
+	if (ifg > maxifgain)
+		ifg = maxifgain;
+	ifgain.store(std::pow(10.0, (float)ifg / 20.0));
+	lv_slider_set_value(if_slider, ifg, LV_ANIM_ON);
+	lv_label_set_text_fmt(if_slider_label, "if %d db", ifg);
+	catinterface.SetIG(ifg);
+	Settings_file.save_ifgain(ifg);
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)

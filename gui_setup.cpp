@@ -90,8 +90,8 @@ static void samplerate_button_handler(lv_event_t * e)
 		int rate = lv_dropdown_get_selected(obj);
 		ifrate = gsetup.get_sample_rate(rate);
 		gsetup.m_ifrate = ifrate;
-		gsetup.set_span_range(ifrate / 2);
-		gsetup.set_span_value(ifrate / 2);
+		gsetup.set_span_range(ifrate);
+		gsetup.set_span_value(ifrate);
 
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0) > 0)
 		{
@@ -120,29 +120,6 @@ static void samplerate_button_handler(lv_event_t * e)
 	}
 }
 
-static void event_handler_morse(lv_event_t *e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-	if (code == LV_EVENT_VALUE_CHANGED)
-	{
-		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-		{
-			gbar.hide_cw(false);
-			lv_obj_set_height(bar_view, barHeight + MorseHeight);
-			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight + MorseHeight);
-			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight - MorseHeight);
-		}
-		else
-		{
-			gbar.hide_cw(true);
-			lv_obj_set_height(bar_view, barHeight);
-			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
-			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight);
-		}
-	}
-}
-
 static void bandwidth_button_handler(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -158,39 +135,6 @@ static void bandwidth_button_handler(lv_event_t *e)
 			printf("setBandwidth %ld \n", bw);
 		}
 	}
-}
-
-void gui_setup::toggle_cw()
-{
-	if (lv_obj_get_state(check_cw) & LV_STATE_CHECKED)
-	{
-		int bandwidth{2500};
-		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
-		gbar.set_filter_slider(bandwidth);
-		catinterface.SetSH(bandwidth);
-	}
-	else
-	{
-		int bandwidth{500};
-		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
-		gbar.set_filter_slider(bandwidth);
-		catinterface.SetSH(bandwidth);
-	}
-	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
-}
-
-void gui_setup::set_cw(bool bcw)
-{
-	if (bcw)
-		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
-	else
-		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
-	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
-}
-
-bool gui_setup::get_cw()
-{
-	return lv_obj_get_state(check_cw) & LV_STATE_CHECKED;
 }
 
 static void audio_button_handler(lv_event_t * e)
@@ -332,13 +276,6 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	lv_obj_set_width(d_bandwitdth, button_width); // 2*
 	lv_dropdown_clear_options(d_bandwitdth);
 	lv_obj_add_event_cb(d_bandwitdth, bandwidth_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
-
-	
-	check_cw = lv_checkbox_create(o_tab);
-	lv_group_add_obj(m_button_group, check_cw);
-	lv_checkbox_set_text(check_cw, "Morse Decoder");
-	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, NULL);
-	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, 4 * button_width_margin, y_margin + ibutton_y * button_height_margin);
 
 	ibutton_y++;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin /2;

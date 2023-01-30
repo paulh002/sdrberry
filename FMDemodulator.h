@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <vector>
 #include "DataBuffer.h"
 #include "AudioOutput.h"
@@ -18,7 +18,7 @@ public:
 	
 	FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~FMDemodulator();
-	void	process(const IQSampleVector&	samples_in, SampleVector& audio) override;
+	void	process(const IQSampleVector&	samples_in, SampleVector& audio) ;
 	void	operator()() override;
 	atomic<bool> stop_flag{false};		
 	

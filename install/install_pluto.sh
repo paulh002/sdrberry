@@ -22,6 +22,7 @@ sudo apt-get install -y fftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp
+git checkout v1.5.0
 ./bootstrap.sh
 ./configure
 make -j4
@@ -87,8 +88,7 @@ git clone https://github.com/paulh002/sdrberry
 cd sdrberry
 mkdir build
 cd build
-chmod +x ../do_cmake.sh
-../do_cmake.sh
+cmake ..
 make
 sudo make install
 cd ~

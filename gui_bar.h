@@ -3,7 +3,7 @@
 #include "AudioInput.h"
 #include "Settings.h"
 #include "gui_vfo.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "sdrberry.h"
 #include "vfo.h"
 
@@ -12,6 +12,7 @@ extern const int screenHeight;
 extern const int bottomHeight;
 extern const int topHeight;
 extern const int tunerHeight;
+const int maxifgain = 100;
 
 class gui_bar
 {
@@ -32,7 +33,6 @@ class gui_bar
 	float get_if();
 	void set_if(int rf);
 	void set_gain_range();
-	void update_gain_slider(int gain);
 	void set_gain_slider(int gain);
 	int getbuttons() { return ibuttons; }
 	void set_mode(int mode);
@@ -59,7 +59,7 @@ class gui_bar
 		return ifilters[sel];
 	}
 
-	atomic<float> m_if;
+	atomic<float> ifgain;
 
   private:
 	lv_style_t style_btn;

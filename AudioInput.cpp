@@ -198,14 +198,14 @@ AudioInput::~AudioInput()
 }
 
 #define TWOPIOVERSAMPLERATE 0.0001308996938995747;  // 2 Pi / 48000
-const double cw_keyer_sidetone_frequency {750.0};
-const double cw_keyer_sidetone_frequency2 {1500.0};
+const double cw_keyer_sidetone_frequency {1500.0};
+const double cw_keyer_sidetone_frequency2 {750.0};
 
 double AudioInput::Nexttone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
-	if (++asteps >= 48000) asteps = 0;
-	return sin(angle) / 400.0;
+	if (++asteps >= 64) asteps = 0;
+	return sin(angle) / 200.0;
 }
 
 void AudioInput::ToneBuffer()
@@ -235,8 +235,8 @@ double AudioInput::NextTwotone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	double angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
-	if (++asteps >= 48000) asteps = 0;
-	return (sin(angle) + sin(angle)) /200.0;
+	if (++asteps >= 64) asteps = 0;
+	return (0.5 * sin(angle) + 0.5 * sin(angle2)) / 400.0;
 }
 
 int	 AudioInput::queued_samples()

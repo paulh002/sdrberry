@@ -1,6 +1,6 @@
 #pragma once
 #include "AudioInput.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "Settings.h"
 #include "sdrberry.h"
 

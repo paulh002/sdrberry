@@ -8,7 +8,7 @@
 #include "AudioOutput.h"
 #include "Filter.h"
 #include "FmDecode.h"
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <complex>
 #include <vector>
 #include <mutex>

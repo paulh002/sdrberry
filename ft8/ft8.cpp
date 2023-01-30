@@ -229,158 +229,190 @@ check_crc(const int a91[91])
 // 4: similar to 3.
 // 5: laplace
 //
-class Stats {
-public:
-  std::vector<double> a_;
-  double sum_;
-  bool finalized_;
-  double mean_; // cached
-  double stddev_; // cached
-  double b_; // cached
-  int how_;
-  
-public:
-  Stats(int how) : sum_(0), finalized_(false), how_(how) { }
+class Stats
+{
+  public:
+	std::vector<double> a_;
+	double sum_;
+	bool finalized_;
+	double mean_;   // cached
+	double stddev_; // cached
+	double b_;		// cached
+	int how_;
 
-  void add(double x) {
-    a_.push_back(x);
-    sum_ += x;
-    finalized_ = false;
-  }
+  public:
+	Stats(int how) : sum_(0), finalized_(false), how_(how) {}
 
-  void finalize() {
-    finalized_ = true;
-    
-    int n = a_.size();
-    mean_ = sum_ / n;
+	void add(double x)
+	{
+		a_.push_back(x);
+		sum_ += x;
+		finalized_ = false;
+	}
 
-    double var = 0;
-    double bsum = 0;
-    for(int i = 0; i < n; i++){
-      double y = a_[i] - mean_;
-      var += y * y;
-      bsum += fabs(y);
-    }
-    var /= n;
-    stddev_ = sqrt(var);
-    b_ = bsum / n;
+	void finalize()
+	{
+		finalized_ = true;
 
-    // prepare for binary search to find where values lie
-    // in the distribution.
-    if(how_ != 0 && how_ != 5)
-      std::sort(a_.begin(), a_.end());
-  }
+		int n = a_.size();
+		mean_ = sum_ / n;
 
-  double mean() {
-    if(!finalized_)
-      finalize();
-    return mean_;
-  }
+		double var = 0;
+		double bsum = 0;
+		for (int i = 0; i < n; i++)
+		{
+			double y = a_[i] - mean_;
+			var += y * y;
+			bsum += fabs(y);
+		}
+		var /= n;
+		stddev_ = sqrt(var);
+		b_ = bsum / n;
 
-  double stddev() {
-    if(!finalized_)
-      finalize();
-    return stddev_;
-  }
+		// prepare for binary search to find where values lie
+		// in the distribution.
+		if (how_ != 0 && how_ != 5)
+			std::sort(a_.begin(), a_.end());
+	}
 
-  // fraction of distribution that's less than x.
-  // assumes normal distribution.
-  // this is PHI(x), or the CDF at x,
-  // or the integral from -infinity
-  // to x of the PDF.
-  double gaussian_problt(double x) {
-    double SDs = (x - mean()) / stddev();
-    double frac = 0.5 * (1.0 + erf(SDs / sqrt(2.0)));
-    return frac;
-  }
+	double mean()
+	{
+		if (!finalized_)
+			finalize();
+		return mean_;
+	}
 
-  // https://en.wikipedia.org/wiki/Laplace_distribution
-  // m and b from page 116 of Mark Owen's Practical Signal Processing.
-  double laplace_problt(double x) {
-    double m = mean();
+	double stddev()
+	{
+		if (!finalized_)
+			finalize();
+		return stddev_;
+	}
 
-    double cdf;
-    if(x < m){
-      cdf = 0.5 * exp((x - m) / b_);
-    } else {
-      cdf = 1.0 - 0.5 * exp(-(x - m) / b_);
-    }
-    
-    return cdf;
-  }
+	// fraction of distribution that's less than x.
+	// assumes normal distribution.
+	// this is PHI(x), or the CDF at x,
+	// or the integral from -infinity
+	// to x of the PDF.
+	double gaussian_problt(double x)
+	{
+		double SDs = (x - mean()) / stddev();
+		double frac = 0.5 * (1.0 + erf(SDs / sqrt(2.0)));
+		return frac;
+	}
 
-  // look into the actual distribution.
-  double problt(double x) {
-    if(!finalized_)
-      finalize();
+	// https://en.wikipedia.org/wiki/Laplace_distribution
+	// m and b from page 116 of Mark Owen's Practical Signal Processing.
+	double laplace_problt(double x)
+	{
+		double m = mean();
 
-    if(how_ == 0){
-      return gaussian_problt(x);
-    }
+		double cdf;
+		if (x < m)
+		{
+			cdf = 0.5 * exp((x - m) / b_);
+		}
+		else
+		{
+			cdf = 1.0 - 0.5 * exp(-(x - m) / b_);
+		}
 
-    if(how_ == 5){
-      return laplace_problt(x);
-    }
+		return cdf;
+	}
 
-    // binary search.
-    auto it = std::lower_bound(a_.begin(), a_.end(), x);
-    int i = it - a_.begin();
-    int n = a_.size();
+	// look into the actual distribution.
+	double problt(double x)
+	{
+		if (!finalized_)
+			finalize();
 
-    if(how_ == 1){
-      // index into the distribution.
-      // works poorly for values that are off the ends
-      // of the distribution, since those are all
-      // mapped to 0.0 or 1.0, regardless of magnitude.
-      return i / (double) n;
-    }
+		if (how_ == 0)
+		{
+			return gaussian_problt(x);
+		}
 
-    if(how_ == 2){
-      // use a kind of logistic regression for
-      // values near the edges of the distribution.
-      if(i < log_tail * n){
-        double x0 = a_[(int)(log_tail * n)];
-        double y = 1.0 / (1.0 + exp(-log_rate*(x-x0)));
-        // y is 0..0.5
-        y /= 5;
-        return y;
-      } else if(i > (1-log_tail) * n){
-        double x0 = a_[(int)((1-log_tail) * n)];
-        double y = 1.0 / (1.0 + exp(-log_rate*(x-x0)));
-        // y is 0.5..1
-        // we want (1-log_tail)..1
-        y -= 0.5;
-        y *= 2;
-        y *= log_tail;
-        y += (1-log_tail);
-        return y;
-      } else {
-        return i / (double) n;
-      }
-    }
+		if (how_ == 5)
+		{
+			return laplace_problt(x);
+		}
 
-    if(how_ == 3){
-      // gaussian for values near the edge of the distribution.
-      if(i < log_tail * n){
-        return gaussian_problt(x);
-      } else if(i > (1-log_tail) * n){
-        return gaussian_problt(x);
-      } else {
-        return i / (double) n;
-      }
-    }
+		// binary search.
+		auto it = std::lower_bound(a_.begin(), a_.end(), x);
+		int i = it - a_.begin();
+		int n = a_.size();
 
-    if(how_ == 4){
-      // gaussian for values outside the distribution.
-      if(x < a_[0] || x > a_.back()){
-        return gaussian_problt(x);
-      } else {
-        return i / (double) n;
-      }
-    }
+		if (how_ == 1)
+		{
+			// index into the distribution.
+			// works poorly for values that are off the ends
+			// of the distribution, since those are all
+			// mapped to 0.0 or 1.0, regardless of magnitude.
+			return i / (double)n;
+		}
 
-    assert(0);
-  }
+		if (how_ == 2)
+		{
+			// use a kind of logistic regression for
+			// values near the edges of the distribution.
+			if (i < log_tail * n)
+			{
+				double x0 = a_[(int)(log_tail * n)];
+				double y = 1.0 / (1.0 + exp(-log_rate * (x - x0)));
+				// y is 0..0.5
+				y /= 5;
+				return y;
+			}
+			else if (i > (1 - log_tail) * n)
+			{
+				double x0 = a_[(int)((1 - log_tail) * n)];
+				double y = 1.0 / (1.0 + exp(-log_rate * (x - x0)));
+				// y is 0.5..1
+				// we want (1-log_tail)..1
+				y -= 0.5;
+				y *= 2;
+				y *= log_tail;
+				y += (1 - log_tail);
+				return y;
+			}
+			else
+			{
+				return i / (double)n;
+			}
+		}
+
+		if (how_ == 3)
+		{
+			// gaussian for values near the edge of the distribution.
+			if (i < log_tail * n)
+			{
+				return gaussian_problt(x);
+			}
+			else if (i > (1 - log_tail) * n)
+			{
+				return gaussian_problt(x);
+			}
+			else
+			{
+				return i / (double)n;
+			}
+		}
+
+		if (how_ == 4)
+		{
+			// gaussian for values outside the distribution.
+			if (x < a_[0] || x > a_.back())
+			{
+				return gaussian_problt(x);
+			}
+			else
+			{
+				return i / (double)n;
+			}
+		}
+
+		assert(0);
+		return 0.0;
+	}
 };
 
 // a-priori probability of each of the 174 LDPC codeword
@@ -556,6 +588,7 @@ one_coarse_strength(const ffts_t &bins, int bi0, int si0)
   } else {
     assert(0);
   }
+  return 0.0;
 }
 
 // return symbol length in samples at the given rate.
@@ -977,6 +1010,7 @@ one_strength(const std::vector<double> &samples200, double hz, int off)
   } else {
     assert(0);
   }
+  return 0.0;
 }
 
 //
@@ -1041,6 +1075,7 @@ one_strength_known(const std::vector<double> &samples,
   } else {
     assert(0);
   }
+  return 0.0;
 }
 
 int

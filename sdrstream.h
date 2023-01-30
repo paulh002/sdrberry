@@ -8,6 +8,7 @@
 
 extern double get_rxsamplerate();
 extern double get_txsamplerate();
+extern int gettxNoSamples();
 
 class RX_Stream
 {

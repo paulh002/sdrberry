@@ -15,7 +15,6 @@
 #include "SdrDevice.h"
 #include "Settings.h"
 #include "Waterfall.h"
-#include "ble_interface.h"
 #include "gui_agc.h"
 #include "gui_bar.h"
 #include "gui_ft8.h"
@@ -26,7 +25,7 @@
 #include "gui_vfo.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "sdrstream.h"
 #include "vfo.h"
 #include <cmath>
@@ -34,7 +33,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fftw3.h>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <memory>
 #include <mutex>
 #include <stdint.h>
@@ -56,8 +55,6 @@ extern volatile int filter;
 extern std::mutex fm_finish;
 extern std::mutex amdemod_mutex;
 extern std::mutex rxstream_mutex;
-
-extern mutex gui_mutex;
 
 extern double ifrate;
 extern double ifrate_tx;

@@ -11,7 +11,7 @@ class EchoAudio : public Demodulator
 	~EchoAudio();
 
 	void operator()() override;
-	void process(const IQSampleVector &samples_in, SampleVector &audio) override;
+	void process(const IQSampleVector &samples_in, SampleVector &audio) ;
 
 	atomic<bool> stop_flag{false};
 	std::thread echo_thread;

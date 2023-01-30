@@ -4,6 +4,7 @@
 #include "gui_agc.h"
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
+#include "SharedQueue.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -83,22 +84,24 @@ void AMDemodulator::operator()()
 {	
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point now, start1;
+	auto timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point now, start1, start2;
 	
 	AudioProcessor Agc;
 	
-	int lowPassAudioFilterCutOffFrequency {-1}, span, rcount {0}, droppedFrames {0};
+	int lowPassAudioFilterCutOffFrequency {-1}, span, droppedFrames {0};
 	SampleVector            audioSamples, audioFrames;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			dc_iqsamples, iqsamples;
 	long long pr_time{0};
-	int vsize, passes{0}, thresholdUnderrun{0};
+	int vsize, passes{0};
 
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
 	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
 	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 15);
-	
+	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
+
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
 	pXanr = make_unique<Xanr>();
@@ -106,7 +109,9 @@ void AMDemodulator::operator()()
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
 	Fft_calc.plan_fft(nfft_samples);
+	set_span(gsetup.get_span());
 	receiveIQBuffer->clear();
+	audioOutputBuffer->clear_underrun();
 	while (!stop_flag.load())
 	{
 		start1 = std::chrono::high_resolution_clock::now();
@@ -137,11 +142,6 @@ void AMDemodulator::operator()()
 		passes++;
 		adjust_gain(iqsamples, gbar.get_if());
 		limiter.Process(iqsamples);
-		if (limiter.getEnvelope() > 0.99)
-			gbar.setIfGainOverflow(true);
-		else
-			gbar.setIfGainOverflow(false);
-
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
 		Fft_calc.set_signal_strength(get_if_level());
@@ -200,6 +200,16 @@ void AMDemodulator::operator()()
 		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
 		if (pr_time < process_time1.count())
 			pr_time = process_time1.count();
+
+		if (timeLastFlashGainSlider + std::chrono::milliseconds(500) < now)
+		{// toggle collor of gain slider when signal is limitted
+			if (limiter.getEnvelope() > 0.99)
+				guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 1));
+			else
+				guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 0));
+			timeLastFlashGainSlider = now;
+		}
+		
 		if (timeLastPrint + std::chrono::seconds(1) < now)
 		{
 			timeLastPrint = now;
@@ -207,24 +217,20 @@ void AMDemodulator::operator()()
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("rms %f envelope %f\n", get_if_level(), limiter.getEnvelope());
-			std::cout << "SoapySDR sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
-			
+			printf("IQ Balance I %f Q %f\n", get_if_levelI(), get_if_levelQ());
+
+			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;
 			passes = 0;
-
-			if (rcount > 1 && droppedFrames > thresholdDroppedFrames)
+			
+			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
-				Demodulator::set_resample_rate((double)audioSampleRate / get_rxsamplerate());
-				rcount = 0;
+				Demodulator::adjust_resample_rate(-0.01 * droppedFrames);
 			}
-			if (rcount > 1 && audioOutputBuffer->get_underrun() > thresholdUnderrun && droppedFrames == 0)
+			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				Demodulator::set_resample_rate((double)audioSampleRate / get_rxsamplerate());			
-				rcount = 0;
+				Demodulator::adjust_resample_rate(0.01 * audioOutputBuffer->get_underrun());
 			}
-			rcount++;
-			if (rcount > 11)
-				rcount = 0;
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;
 		}
@@ -243,7 +249,7 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
-	if (gsetup.get_cw())
+	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 
 	for (auto col : filter1)

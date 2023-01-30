@@ -3,7 +3,7 @@
 #include "AudioOutput.h"
 #include "Settings.h"
 #include "gui_vfo.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "sdrberry.h"
 #include "vfo.h"
 
@@ -28,9 +28,7 @@ class gui_setup
 	void set_span_value(int span);
 	void set_brightness(int brightness);
 	int get_brightness();
-	bool get_cw();
-	void set_cw(bool bcw);
-	void toggle_cw();
+
 	void set_group();
 	void set_contour_value(int speed);
 	void set_floor_value(int floor);
@@ -46,7 +44,7 @@ class gui_setup
 	lv_obj_t *d_receivers;
 	lv_obj_t *span_slider_label, *span_slider;
 	lv_obj_t *brightness_slider_label, *brightness_slider;
-	lv_obj_t *d_audio, *check_cw, *d_bandwitdth;
+	lv_obj_t *d_audio, *d_bandwitdth;
 	atomic<int> m_span;
 	lv_group_t *m_button_group{nullptr};
 	lv_obj_t *contour_slider_label, *contour_slider;

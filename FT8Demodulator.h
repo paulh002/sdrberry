@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
-#include <liquid.h>
+#include <liquid/liquid.h>
 #include <vector>
 #include "DataBuffer.h"
 #include "AudioOutput.h"
@@ -43,7 +43,7 @@ class FT8Demodulator : public Demodulator
 
 	FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~FT8Demodulator();
-	void process(const IQSampleVector &samples_in, SampleVector &audio) override;
+	void process(const IQSampleVector &samples_in, SampleVector &audio) ;
 	void operator()() override;
 
 	atomic<bool> stop_flag{false};

@@ -2,7 +2,7 @@
 
 EnvelopeFollower::EnvelopeFollower()
 {
-	envelope = 0;
+	envelope = 1;
 }
 
 void EnvelopeFollower::Setup(double attackMs, double releaseMs, double sampleRate)

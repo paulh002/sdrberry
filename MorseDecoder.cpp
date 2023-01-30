@@ -80,11 +80,11 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 
 	if (filteredstate) 
 	{
-		gbar.set_led(true);
+		guiQueue.push_back(GuiMessage(GuiMessage::action::setled, 1));
 	}
 	else
 	{
-		gbar.set_led(false);
+		guiQueue.push_back(GuiMessage(GuiMessage::action::setled, 0));
 	}
 	
 	if (filteredstate != filteredstatebefore)
@@ -129,7 +129,7 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 				strcat(CodeBuffer, "-");
 				//printf("- ");
 				wpm = (wpm + (1200000 / ((highduration.count()) / 3))) / 2; //// the most precise we can do ;o)
-				gbar.set_cw_wpm(wpm);
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setwpm, wpm));
 				}
 		}
 
@@ -302,5 +302,5 @@ void MorseDecoder::AddCharacter(char newchar)
 	DisplayLine.push_back(newchar) ;
 	if (DisplayLine.size() > 40)
 		DisplayLine.erase(0,1);
-	gbar.set_cw_message(DisplayLine);
+	guiQueue.push_back(GuiMessage(GuiMessage::action::displayline, DisplayLine));
 }

@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <complex.h>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
 #include "sdrstream.h"
@@ -24,6 +24,7 @@ using namespace std;
 
 atomic<double> rx_sampleRate{0.0};
 atomic<double> tx_sampleRate{0};
+atomic<int> rx_nosample{0};
 
 double get_rxsamplerate()
 {
@@ -34,6 +35,11 @@ double get_txsamplerate()
 {
 	return tx_sampleRate;
 
+}
+
+int gettxNoSamples()
+{
+	return rx_nosample;
 }
 
 std::thread					rx_thread;
@@ -66,7 +72,7 @@ void RX_Stream::operator()()
 	if ((ifrate < 384001) && (ifrate > 192000))
 		default_block_length = 8192;
 	if (ifrate > 384001)
-		default_block_length = 65536; //32768;
+		default_block_length = 65536;
 	rx_sampleRate = ifrate / 1000000.0;
 
 	
@@ -105,10 +111,11 @@ void RX_Stream::operator()()
 			ret = SdrDevices.SdrDevices.at(radio)->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e6);
 			stoptReadTime = std::chrono::high_resolution_clock::now();
 			timePassed = std::chrono::duration_cast<std::chrono::microseconds>(stoptReadTime - startReadTime);
-			timePassed_avg += timePassed.count() ;
-			timePassed_avg = timePassed_avg / 2;
-			samples_read = (ret + samples_read) /2;
-			rx_sampleRate = ((double)samples_read / (double)timePassed_avg) * 1000000.0;
+			//timePassed_avg += timePassed.count() ;
+			//timePassed_avg = timePassed_avg / 2;
+			samples_read = ret; //(ret + samples_read) / 2;
+			rx_nosample = ret;
+			rx_sampleRate = ((double)samples_read / (double)timePassed.count()) * 1000000.0;
 			startReadTime = std::chrono::high_resolution_clock::now();
 		}
 		catch (const std::exception& e)

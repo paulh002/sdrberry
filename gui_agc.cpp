@@ -58,6 +58,7 @@ static void threshold_slider_event_cb(lv_event_t * e)
 	lv_obj_t *slider = lv_event_get_target(e); 
 	
 	char	str[80];
+	gagc.set_threshold(lv_slider_get_value(slider));
 	sprintf(str, "threshold %d db", (lv_slider_get_value(slider) - 100)/5);
 	lv_label_set_text(gagc.get_threshold_slider_label(), str);
 }
@@ -68,6 +69,7 @@ static void atack_slider_event_cb(lv_event_t * e)
 	lv_obj_t *slider = lv_event_get_target(e); 
 	
 	char	str[80];
+	gagc.set_atack(lv_slider_get_value(slider));
 	sprintf(str, "atack %d ms", lv_slider_get_value(slider));
 	lv_label_set_text(gagc.get_atack_slider_label(), str);
 }
@@ -78,6 +80,7 @@ static void release_slider_event_cb(lv_event_t * e)
 	lv_obj_t *slider = lv_event_get_target(e); 
 	
 	char	str[80];
+	gagc.set_release(lv_slider_get_value(slider));
 	sprintf(str, "release %d ms", lv_slider_get_value(slider));
 	lv_label_set_text(gagc.get_release_slider_label(), str);
 }
@@ -86,6 +89,7 @@ static void ratio_slider_event_cb(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
 	char buf[20];
+	gagc.set_ratio(lv_slider_get_value(slider));
 	sprintf(buf, "ratio %d", lv_slider_get_value(slider));
 	lv_label_set_text(gagc.get_ratio_slider_label(), buf);
 }
@@ -181,6 +185,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_label_set_text(ratio_slider_label, "ratio 10");
 	lv_obj_align_to(ratio_slider_label, ratio_slider, LV_ALIGN_TOP_MID, 0,-20);
 	set_ratio_slider(Settings_file.getagc("ratio"));
+	ratio = Settings_file.getagc("ratio");
 
 	//lv_obj_align_to(threshold_slider_label, o_tab, LV_ALIGN_CENTER, 0, -40);
 	threshold_slider_label = lv_label_create(o_tab);
@@ -195,9 +200,11 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_group_add_obj(m_button_group, threshold_slider);
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
 
-	int atack, release;
-	Settings_file.getagc_preset("fast", atack, release);
-	
+	int a, b;
+	Settings_file.getagc_preset("fast", a, b);
+	atack = a;
+	release = b;
+
 	atack_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(atack_slider_label, "atack ");
 	lv_obj_align_to(atack_slider_label, ratio_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
@@ -236,7 +243,8 @@ void Gui_agc::set_atack_slider(int t)
 	
 	lv_slider_set_value(atack_slider, t, LV_ANIM_ON);
 	sprintf(str, "atack %d ms", t);
-	lv_label_set_text(atack_slider_label, str);		
+	lv_label_set_text(atack_slider_label, str);
+	atack = t;
 }
 
 void Gui_agc::set_threshold_slider(int t)
@@ -245,7 +253,8 @@ void Gui_agc::set_threshold_slider(int t)
 	int t1 = (t*5) + 100;
 	lv_slider_set_value(threshold_slider, abs(t1), LV_ANIM_ON);
 	sprintf(str, "threshold -%d db", t);
-	lv_label_set_text(threshold_slider_label, str);	
+	lv_label_set_text(threshold_slider_label, str);
+	threshold = t;
 }
 
 void Gui_agc::set_release_slider(int t)
@@ -254,7 +263,8 @@ void Gui_agc::set_release_slider(int t)
 	
 	lv_slider_set_value(release_slider, t, LV_ANIM_ON);
 	sprintf(str, "release %d ms", t);
-	lv_label_set_text(release_slider_label, str);	
+	lv_label_set_text(release_slider_label, str);
+	release = t;
 }
 
 void Gui_agc::set_ratio_range(int min, int max)
@@ -262,31 +272,32 @@ void Gui_agc::set_ratio_range(int min, int max)
 	lv_slider_set_range(ratio_slider, min, max);
 }
 
-void Gui_agc::set_ratio_slider(int gain)
+void Gui_agc::set_ratio_slider(int t)
 {
 	char buf[80];
 	
-	sprintf(buf, "ratio %d", gain);
+	sprintf(buf, "ratio %d", t);
 	lv_label_set_text(ratio_slider_label, buf);		
-	lv_slider_set_value(ratio_slider, gain, LV_ANIM_ON); 
+	lv_slider_set_value(ratio_slider, t, LV_ANIM_ON);
+	ratio = t;
 }
 
 int Gui_agc::get_threshold()
 {
-	return (lv_slider_get_value(threshold_slider) - 100) / 5; // - max_threshold;
+	return (threshold - 100) / 5; // - max_threshold;
 }
 
 float Gui_agc::get_atack()
 {
-	return (float)lv_slider_get_value(atack_slider) / 1000.f;
+	return (float)atack / 1000.f;
 }
 
 float Gui_agc::get_release()
 {
-	return (float)lv_slider_get_value(release_slider) / 1000.f;
+	return (float)release / 1000.f;
 }
 
 float Gui_agc::get_ratio()
 {
-	return (float)lv_slider_get_value(ratio_slider);
+	return (float)ratio;
 }

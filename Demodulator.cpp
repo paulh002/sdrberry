@@ -51,7 +51,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 
 	// resampler and band filter assume pcmfrequency on the low side
 	tune_offset(vfo.get_vfo_offset());
-	set_span(gsetup.get_span());
+	//set_span(gsetup.get_span());
 	if (get_dc_filter())
 		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	else
@@ -73,7 +73,8 @@ void Demodulator::set_span(int span)
 		//printf("window: %d  offset %d\n", n, m_span * n);
 		set_fft_mixer(m_span * n);
 		Wf.set_fft_if_rate(2 * m_span, n);
-		Wf.set_pos(vfo.get_vfo_offset());
+		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
+		//Wf.set_pos(vfo.get_vfo_offset(), true);
 	}
 	else
 	{
@@ -81,7 +82,8 @@ void Demodulator::set_span(int span)
 		set_fft_resample_rate(0.0);
 		set_fft_mixer(0);
 		Wf.set_fft_if_rate(ifSampleRate, 0);
-		Wf.set_pos(vfo.get_vfo_offset());
+		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
+		//Wf.set_pos(vfo.get_vfo_offset(), true);
 	}
 }
 
@@ -131,7 +133,54 @@ void Demodulator::set_resample_rate(float resample_rate)
 	resampleRate = resample_rate;
 	resampleHandle = msresamp_crcf_create(resampleRate, As);
 	msresamp_crcf_print(resampleHandle);
+
 }
+
+void Demodulator::adjust_resample_rate(float rateAjustFraction)
+{
+	resampleRate = resampleRate + resampleRate * rateAjustFraction;
+	struct msresamp_rrrf_s
+	{
+		// user-defined parameters
+		float rate; // re-sampling rate
+		float As;   // filter stop-band attenuation [dB]
+
+		// type: interpolator or decimator
+		int type; // run half-band resamplers as interp or decim
+
+		// half-band resampler parameters
+		unsigned int num_halfband_stages; // number of halfband stages
+		msresamp2_rrrf halfband_resamp;	 // multi-stage halfband resampler
+		float rate_halfband; // halfband rate
+
+		// arbitrary resampler parameters
+		resamp_rrrf		arbitrary_resamp;	 // arbitrary resampling object
+		float rate_arbitrary; // clean-up resampling rate, in (0.5, 2.0)
+
+		// internal buffers (ping-pong)
+		unsigned int buffer_len;   // length of each buffer
+		float *buffer;				   // buffer[0]
+		unsigned int buffer_index; // index of buffer
+	};
+
+	msresamp_rrrf_s *_q = (msresamp_rrrf_s *)resampleHandle;
+	if (_q != nullptr)
+	{
+		if (_q->type == LIQUID_RESAMP_DECIM)
+		{
+			float fraction = resampleRate / _q->rate , arbitraryRate;
+			resamp_rrrf_adjust_rate(_q->arbitrary_resamp, fraction);
+			_q->rate = resampleRate;
+			arbitraryRate = resampleRate;
+			for (int i = 0; i < _q->num_halfband_stages; i++)
+				arbitraryRate *=  2.0;
+			_q->rate_arbitrary = arbitraryRate;
+		}
+		msresamp_crcf_print(resampleHandle);
+	}
+}
+
+
 
 void Demodulator::set_fft_resample_rate(float resample_rate)
 {
@@ -158,7 +207,7 @@ void Demodulator::fft_resample(const IQSampleVector &filter_in,
 
 	if (fftResampleHandle)
 	{
-		float nx = (float)filter_in.size() * fftResampleRate + 500;
+		float nx = (float)filter_in.size() * fftResampleRate * 2;
 		filter_out.reserve((int)ceilf(nx));
 		filter_out.resize((int)ceilf(nx));
 		msresamp_crcf_execute(fftResampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
@@ -230,7 +279,7 @@ void Demodulator::Resample(const IQSampleVector &filter_in,
 
 	if (resampleHandle)
 	{
-		float nx = (float)filter_in.size() * resampleRate + 500;
+		float nx = (float)filter_in.size() * resampleRate * 2;
 		filter_out.reserve((int)ceilf(nx));
 		filter_out.resize((int)ceilf(nx));
 		msresamp_crcf_execute(resampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
@@ -304,8 +353,8 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 		{
 			complex<float> v;
 
-			nco_crcf_step(tuneNCO);
 			nco_crcf_mix_up(tuneNCO, col, &v);
+			nco_crcf_step(tuneNCO);
 			filter_out.push_back(v);
 		}
 	}
@@ -439,32 +488,3 @@ bool Demodulator::get_dc_filter()
 	else
 		return false;
 }
-
-/*
-static shared_ptr<Demodulator> sp_demod;
-std::mutex demod_mutex;
-
-bool Demodulator::create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
-{
-	if (sp_demod != nullptr)
-		return false;
-	sp_demod = make_shared<Demodulator>(mode, ifrate, pcmrate, source_buffer, audio_output);
-	sp_demod->demod_thread = std::thread(&Demodulator::operator(), sp_demod);
-	return true;
-}
-
-void Demodulator::destroy_demodulator()
-{
-	auto startTime = std::chrono::high_resolution_clock::now();
-
-	if (sp_demod == nullptr)
-		return;
-	sp_demod->stop_flag = true;
-	sp_demod->demod_thread.join();
-	sp_demod.reset();
-	sp_demod = nullptr;
-	auto now = std::chrono::high_resolution_clock::now();
-	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;
-}
-*/

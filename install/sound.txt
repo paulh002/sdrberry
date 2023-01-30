@@ -10,3 +10,17 @@ sudo nano /usr/share/alsa/alsa.conf
 # with:
 defaults.ctl.card 1
 defaults.pcm.card 1
+
+Check sound level from CLI
+arecord -V stereo -r 192000 -c 2 /dev/null
+Recording WAVE '/dev/null' : Signed 16 bit Little Endian, Rate 16000 Hz, Stereo
++################# 52%|68%#######################+
+
+// generate tone
+ffplay -ar 192000 -f lavfi -i "sine=frequency=1000" -nodisp
+
+ffplay -f lavfi -i "sine=frequency=1000" -nodisp
+
+sudo apt-get install sox
+export AUDIODEV=hw:0,0
+play -r 192k -n synth sine 1000

@@ -79,6 +79,7 @@ struct	status {
 	uint8_t			AG		 = 0;				// AF Gain
 	int				FT		 = 0;				// Step frequency
 	uint8_t			RG		 = 0;				// RF Gain
+	uint8_t			IG		 = 0;
 } radioStatus;
 
 
@@ -98,33 +99,34 @@ struct	status {
  *	it easier to separate the data in "ParseMsg()".
  */
 
-	msg	msgTable[] =
+msg msgTable[] =
 	{
-		{ "",    MSG_NONE, 0 },				// Command not found in the list
-		{ "AB",  MSG_AB, MSG_CMD  },		// Copy VFO-A to VFO-B
-		{ "AI",  MSG_AI, MSG_BOTH },		// ( 0 or 1) Turn auto-information on or off
-		{ "BA",  MSG_BA, MSG_CMD  },		// Copy VFO-B to VFO-A
-		{ "BS",  MSG_BS, MSG_BOTH },		// Band select
-		{ "EX",  MSG_EX, MSG_BOTH },		// Menu commands (ignored)
-		{ "FA",  MSG_FA, MSG_BOTH },		// Set or request VFO-A frequency
-		{ "FB",  MSG_FB, MSG_BOTH },		// Set or request VFO-B frequency
-		{ "ID",  MSG_ID, MSG_STS  },		// Request radio's ID (0650 for the FT-891)
-		{ "IF",  MSG_IF, MSG_BOTH },		// Information request/answer
-		{ "IS0", MSG_IS, MSG_STS  },		// Set or request IF shift
-		{ "MD0", MSG_MD, MSG_BOTH },		// Set or request mode (USB, LSB, CW, etc.)
-		{ "NA0", MSG_NA, MSG_STS  },		// Request narrow IF shift
-		{ "OI",  MSG_OI, MSG_BOTH },		// Opposite Band Information request/answer
-		{ "RIC", MSG_RI, MSG_STS  },		// Alternate way of asking for split status
-		{ "RM",  MSG_RM, MSG_STS  },		// Read meter
-		{ "SH0", MSG_SH, MSG_BOTH },		// Set or request IF bandwidth
-		{ "SM0", MSG_SM, MSG_STS  },		// Read S-meter
-		{ "ST",  MSG_ST, MSG_BOTH },		// ( 0 - 2) Split mode off, on or on +5KHz up
-		{ "SV",  MSG_SV, MSG_CMD  },		// Swap VFOs
-		{ "TX",  MSG_TX, MSG_BOTH },		// Set or request transmit/receive status
-		{ "FT",  MSG_FT, MSG_BOTH },		// Frequency Tune step frequency + or - X  (It is assumed tranceiver will respond with FA or FB command
-		{ "AG",  MSG_AG, MSG_BOTH },		// Set Volume
-		{ "RG",  MSG_RG, MSG_BOTH },		// Set rf gain 
-		{ "GT",  MSG_GT, MSG_BOTH }			// Get command 0 = Max Volume, 1 Max Gain, 2 List bands, 3 List Filter 			
+		{"", MSG_NONE, 0},		   // Command not found in the list
+		{"AB", MSG_AB, MSG_CMD},   // Copy VFO-A to VFO-B
+		{"AI", MSG_AI, MSG_BOTH},  // ( 0 or 1) Turn auto-information on or off
+		{"BA", MSG_BA, MSG_CMD},   // Copy VFO-B to VFO-A
+		{"BS", MSG_BS, MSG_BOTH},  // Band select
+		{"EX", MSG_EX, MSG_BOTH},  // Menu commands (ignored)
+		{"FA", MSG_FA, MSG_BOTH},  // Set or request VFO-A frequency
+		{"FB", MSG_FB, MSG_BOTH},  // Set or request VFO-B frequency
+		{"ID", MSG_ID, MSG_STS},   // Request radio's ID (0650 for the FT-891)
+		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
+		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
+		{"MD0", MSG_MD, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
+		{"NA0", MSG_NA, MSG_STS},  // Request narrow IF shift
+		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
+		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status
+		{"RM", MSG_RM, MSG_STS},   // Read meter
+		{"SH0", MSG_SH, MSG_BOTH}, // Set or request IF bandwidth
+		{"SM0", MSG_SM, MSG_STS},  // Read S-meter
+		{"ST", MSG_ST, MSG_BOTH},  // ( 0 - 2) Split mode off, on or on +5KHz up
+		{"SV", MSG_SV, MSG_CMD},   // Swap VFOs
+		{"TX", MSG_TX, MSG_BOTH},  // Set or request transmit/receive status
+		{"FT", MSG_FT, MSG_BOTH},  // Frequency Tune step frequency + or - X  (It is assumed tranceiver will respond with FA or FB command
+		{"AG", MSG_AG, MSG_BOTH},  // Set Volume
+		{"RG", MSG_RG, MSG_BOTH},  // Set rf gain
+		{"GT", MSG_GT, MSG_BOTH},  // Get command 0 = Max Volume, 1 Max Gain, 2 List bands, 3 List Filter
+		{"IG", MSG_IG, MSG_BOTH}
 	};
 
 
@@ -224,6 +226,21 @@ int FT891_CAT::CheckCAT (bool bwait)
 	return newCmd;							// Done!
 }
 
+void FT891_CAT::SendCatMessage(int fd, std::string message)
+{
+	if (fd < inputStreams.size())
+	{
+		inputStreams.at(fd) << message;
+	}
+}
+
+int FT891_CAT::OpenCatChannel()
+{
+	std::stringstream ss;
+	
+	inputStreams.push_back(std::move(ss));
+	return inputStreams.size() - 1;
+}
 
 /*
  *	"GetMessage()" reads a command from the Serial port if there is anything to read.
@@ -235,21 +252,41 @@ int FT891_CAT::CheckCAT (bool bwait)
 int FT891_CAT::GetMessage(bool bwait)
 {
 	int	i;										// Loop counter
-	std::string s;
-	if (bwait)
+	std::string catMessage;
+
+	/*if (inputStreams.size() > 0)
 	{
-		if (!catcommunicator_->available())		// Anything in the input buffer?
-		return 0; 								// If not, no message yet
+		// use a stream
+		for (auto &con : inputStreams)
+		{
+			if (!con.eof())
+			{
+				std::getline(con, catMessage, ';');
+				break;
+			}
+		}
+	}
+*/
+	if (catMessage.size() == 0)
+	{
+		if (bwait)
+		{
+			if (!catcommunicator_->available()) // Anything in the input buffer?
+				return 0;						// If not, no message yet
+		}
+		if (catcommunicator_->Read(TERM_CH, catMessage) < 0)
+			return -1;
 	}
 
-	if (catcommunicator_->Read(TERM_CH, s) < 0)
-		return -1;
-
-	
-	strcpy(rxBuff, s.c_str());
-	for ( i = 0; i < strlen ( rxBuff ); i++ )	// Translate incoming message
-		rxBuff[i] = toupper ( rxBuff[i] );		// to all upper case
-	return 1;								// There is a new message
+	if (catMessage.size() > 0)
+	{
+		// There is a new message
+		strcpy(rxBuff, catMessage.c_str());
+		for (i = 0; i < strlen(rxBuff); i++) // Translate incoming message
+			rxBuff[i] = toupper(rxBuff[i]);  // to all upper case
+		return 1;
+	}
+	return 0;
 }
 
 
@@ -418,6 +455,12 @@ bool FT891_CAT::ProcessCmd ()
 			cmdProcessed = true;
 			break;
 		
+		case MSG_IG:									// Set IG IF Gain
+			tempFT = atoi(dataBuff);					// Convert into temporary place
+			radioStatus.IG = tempFT;
+			cmdProcessed = true;
+			break;
+			
 		case MSG_RG:									// Set RG RF Gain
 			tempFT = atoi(dataBuff);					// Convert into temporary place
 			radioStatus.RG = tempFT;
@@ -603,6 +646,11 @@ void FT891_CAT::ProcessStatus ()
 				"AG%03u;", radioStatus.AG);
 			break;
 
+		case MSG_IG:									// Get RG RF Gain
+			sprintf(tempBuff,							// Format message
+					"IG0%03u;", radioStatus.IG);
+			break;
+		
 		case MSG_RG:									// Get RG RF Gain
 			sprintf(tempBuff,							// Format message
 				"RG0%03u;", radioStatus.RG);
@@ -937,4 +985,30 @@ void FT891_CAT::SetSH(int status, int bandwidth)			// Set IF Bandwidth
 	for (int i = 0; i < strlen(str); i++)
 		s.push_back(str[i]);
 	catcommunicator_->Send(s);
+}
+
+void FT891_CAT::SetSM(uint8_t sm)
+{
+	radioStatus.SM = sm;
+}
+
+void FT891_CAT::SetIG(uint8_t ig) // Set and send encoder step
+{
+	char str[20];
+	std::string s;
+
+	if (ig > 255)
+		ig = 255;
+	sprintf(str, "%s%d;", msgTable[MSG_IG].Name, ig);
+	for (int i = 0; i < strlen(str); i++)
+		s.push_back(str[i]);
+	catcommunicator_->Send(s);
+	radioStatus.IG = ig; // Done!
+}
+
+uint8_t FT891_CAT::GetIG() // Get if gain
+{
+	if (!bVFOmode)
+		catcommunicator_->Send("IG;"); // Send IG command
+	return radioStatus.IG;
 }

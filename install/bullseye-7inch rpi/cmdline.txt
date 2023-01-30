@@ -1,1 +1,1 @@
-console=serial0,115200 console=tty1 root=PARTUUID=b1b44fb0-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles vt.global_cursor_default=0 video=DSI-1:800x480@60,rotate=180
+console=serial0,115200 console=tty1 root=PARTUUID=b1b44fb0-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles vt.global_cursor_default=0

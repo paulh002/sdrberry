@@ -46,6 +46,7 @@ class gui_bar
 	int get_rf_gain() { return lv_slider_get_value(gain_slider); }
 	int get_noise();
 	void setIfGainOverflow(bool state);
+	void hide(bool hide);
 
 	lv_obj_t *get_button_obj(int i)
 	{
@@ -62,6 +63,7 @@ class gui_bar
 	atomic<float> ifgain;
 
   private:
+	lv_obj_t *barview;
 	lv_style_t style_btn;
 	lv_style_t ifGainStyleKnob, ifGainStyleIndicator;
 	lv_obj_t *button[20]{nullptr};

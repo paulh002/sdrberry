@@ -39,10 +39,12 @@ class Catinterface
 	void SetSH(int bandwidth);
 	void SetFA(uint32_t freq);
 	void Pause_Cat(bool pause) { bpause_cat = pause; }
+	void MuteFA(bool pause) { muteFA = pause; }
 	void SetSM(uint8_t sm);
 	uint8_t GetIG();
 	void SetIG(int ig);
 	void SetRG(int rg);
+
 
   private:
 	FT891_CAT cat_message;
@@ -53,6 +55,7 @@ class Catinterface
 	int volume;
 	int rfgain;
 	std::atomic<bool> bpause_cat{false};
+	std::atomic<bool> muteFA{false};
 	int channel{};
 };
 

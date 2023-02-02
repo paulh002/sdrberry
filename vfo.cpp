@@ -291,7 +291,8 @@ void CVfo::sync_rx_vfo()
 void CVfo::step_vfo(long icount)
 {
 	long long freq;
-	
+	if (pausevfo)
+		return;
 	if (m_delay)
 	{
 		m_delay_counter += abs(icount);

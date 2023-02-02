@@ -31,6 +31,11 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 		audioinput->ToneBuffer();
 		return 0;
 	}
+	if (audioinput->IsdigitalMode())
+	{
+		audioinput->doDigitalMode();
+		return 0;
+	}
 
 	// Do something with the data in the "inputBuffer" buffer.
 	//printf("frames %u \n", nBufferFrames);
@@ -98,6 +103,8 @@ AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *Au
 	sampleRate = pcmrate;
 	bufferFrames = 2048;
 	gaindb = 0;
+	digitalmode = false;
+	digitalmodepointer = 0;
 }
 
 std::vector<RtAudio::Api> AudioInput::listApis()
@@ -229,6 +236,41 @@ void AudioInput::ToneBuffer()
 			buf.push_back(f);
 	}
 	databuffer->push(move(buf));
+}
+
+void AudioInput::StartDigitalMode(vector<float> &signal)
+{
+	if (digitalmode != false)
+		return;
+	digitalmode = true;
+	digitalmodesignal = std::move(signal);
+}
+
+bool AudioInput::IsdigitalMode()
+{
+
+	return digitalmode;
+}
+
+void AudioInput::doDigitalMode()
+{
+	SampleVector buf;
+	Sample f;
+
+	if (digitalmode == false)
+		return ;
+
+	for (int i = 0; i < bufferFrames; i++)
+	{
+		digitalmodepointer++;
+		buf.push_back(f);
+	}
+	databuffer->push(move(buf));
+	if (digitalmodepointer == digitalmodesignal.size())
+	{
+		digitalmodepointer = 0;
+		digitalmode = false;
+	}
 }
 
 double AudioInput::NextTwotone()

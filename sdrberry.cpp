@@ -12,7 +12,9 @@
 #include "SharedQueue.h"
 #include "gui_speech.h"
 #include "GuiFt8Setting.h"
+#include "gui_ft8bar.h"
 #include "Keyboard.h"
+
 //#include "HidThread.h"
 
 #define BACKWARD_HAS_BFD 1
@@ -54,11 +56,11 @@ lv_obj_t *bg_middle;
 lv_obj_t *vfo1_button;
 lv_obj_t *vfo2_button;
 lv_obj_t *tabview_mid;
-lv_obj_t *bar_view;
+lv_obj_t *bar_view, *ft8bar_view;
 lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
-lv_group_t *keyboard_group;
+lv_group_t *keyboard_group{nullptr};
 extern lv_img_dsc_t mouse_cursor_icon;
 
 using namespace std;
@@ -147,18 +149,43 @@ static void tabview_event_cb(lv_event_t *e)
 	switch (i)
 	{
 	case 0:
+		gbar.hide(false);
+		guift8bar.hide(true);
 		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
 	case 1:
+		gbar.hide(false);
+		guift8bar.hide(true);
 		gui_band_instance.set_group();
 		break;
 	case 3:
+		gbar.hide(false);
+		guift8bar.hide(true);
 		gagc.set_group();
 		break;
 	case 4:
+		gbar.hide(false);
+		guift8bar.hide(true);
 		Gui_tx.set_group();
 		break;
 	case 5:
+		gbar.hide(false);
+		guift8bar.hide(true);
+		gspeech.set_group();
+		break;
+	case 6:
+		gbar.hide(true);
+		guift8bar.hide(false);
+		gft8.set_group();
+		break;
+	case 7:
+		gbar.hide(true);
+		guift8bar.hide(false);
+		guift8setting.set_group();
+		break;
+	case 8:
+		gbar.hide(false);
+		guift8bar.hide(true);
 		gsetup.set_group();
 		break;
 	}
@@ -182,7 +209,7 @@ int main(int argc, char *argv[])
 
 	if (AudioOutput::createAudioDevice(defaultAudioSampleRate))
 		AudioInput::createAudioInputDevice(audio_output->get_samplerate(), audio_output->get_device());
-
+	
 	bpf.initFilter();
 
 	std::string smode = Settings_file.find_vfo1("Mode");
@@ -280,6 +307,13 @@ int main(int argc, char *argv[])
 	lv_obj_set_pos(bar_view, 0, topHeight + tunerHeight);
 	lv_obj_set_size(bar_view, LV_HOR_RES - 3, barHeight);
 
+	ft8bar_view = lv_obj_create(lv_scr_act());
+	lv_obj_set_style_radius(ft8bar_view, 0, 0);
+	lv_obj_set_pos(ft8bar_view, 0, topHeight + tunerHeight);
+	lv_obj_set_size(ft8bar_view, LV_HOR_RES - 3, barHeight);
+	lv_obj_add_flag(ft8bar_view, LV_OBJ_FLAG_HIDDEN);
+	guift8bar.init(ft8bar_view, button_group, keyboard_group,mode, LV_HOR_RES - 3, barHeight);
+
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, 40);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
@@ -294,7 +328,7 @@ int main(int argc, char *argv[])
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
-	tab["ft8settings"] = (lv_tabview_add_tab(tabview_mid, (std::string("FT8 ") + std::string(LV_SYMBOL_SETTINGS)).c_str()));
+	//tab["ft8settings"] = (lv_tabview_add_tab(tabview_mid, (std::string("FT8 ") + std::string(LV_SYMBOL_SETTINGS)).c_str()));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
 
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
@@ -306,7 +340,7 @@ int main(int argc, char *argv[])
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
-	guift8setting.init(tab["ft8settings"], keyboard_group);
+	//guift8setting.init(tab["ft8settings"], keyboard_group);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 
 	//keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
@@ -548,6 +582,8 @@ void select_mode(int s_mode, bool bvfo)
 	if (!SdrDevices.isValid(default_radio))
 		return;
 	catinterface.Pause_Cat(true);
+	catinterface.MuteFA(false);
+	vfo.pause_step(false);
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
 	// stop transmit
@@ -566,11 +602,13 @@ void select_mode(int s_mode, bool bvfo)
 	switch (mode)
 	{
 	case mode_narrowband_fm:
+		guift8bar.setmonitor(false);
 		FMDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 
 	case mode_broadband_fm:
+		guift8bar.setmonitor(false);
 		if (audio_output->get_channels() > 1)
 			stereo = true;
 		else
@@ -587,6 +625,7 @@ void select_mode(int s_mode, bool bvfo)
 	case mode_lsb:
 		if (mode != mode_cw)
 			guirx.set_cw(false);
+		guift8bar.setmonitor(false);
 		vfo.set_step(10, 0);
 		printf("Start AMDemodulator\n");
 		AMDemodulator::create_demodulator(mode, ifrate, &source_buffer_rx, audio_output);
@@ -599,6 +638,9 @@ void select_mode(int s_mode, bool bvfo)
 			pause_flag = false;
 		break;
 	case mode_ft8:
+		catinterface.MuteFA(true);
+		vfo.pause_step(true);
+		guift8bar.setmonitor(true);
 		vfo.set_step(10, 0);
 		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))));
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
@@ -618,6 +660,8 @@ void select_mode_tx(int s_mode, int tone)
 	if (!SdrDevices.isValid(default_radio))
 		return;
 	catinterface.Pause_Cat(true);
+	catinterface.MuteFA(false);
+	vfo.pause_step(false);
 	startTime = std::chrono::high_resolution_clock::now();
 	auto now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> timePassed = now - startTime;
@@ -646,6 +690,14 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
+		AMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
+		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
+		break;
+	
+	case mode_ft8:
+		catinterface.MuteFA(true);
+		vfo.pause_step(true);
+		
 		AMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;

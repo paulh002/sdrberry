@@ -71,6 +71,7 @@ class CVfo
 	void set_band(int band, long long freq);
 	void sync_rx_vfo();
 	void vfo_rxtx(bool brx, bool btx);
+	void pause_step(bool pause) {pausevfo = pause;}
 	void set_step(int step, int delay)
 	{
 		vfo_setting.frq_step = step;
@@ -130,6 +131,7 @@ class CVfo
 	std::string radio;
 	int rx_channel, tx_channel;
 	long offset_frequency;
+	bool pausevfo{false};
 
 	int get_band(int active_vfo);
 	void rx_set_sdr_freq();

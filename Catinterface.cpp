@@ -173,8 +173,11 @@ void Catinterface::checkCAT()
 		if (count)
 		{
 			//vfo.step_vfo(count, true);
-			guiQueue.push_back(GuiMessage(GuiMessage::action::step,count));
-			cat_message.SetFA(vfo.get_active_vfo_freq());
+			if (!muteFA.load())
+			{
+				guiQueue.push_back(GuiMessage(GuiMessage::action::step, count));
+				cat_message.SetFA(vfo.get_active_vfo_freq());
+			}
 		}
 		count = cat_message.GetIG();
 		if (count && ifgain != count)

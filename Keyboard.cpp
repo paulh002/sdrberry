@@ -1,8 +1,4 @@
 #include "Keyboard.h"
-#include <linux/input.h>
-#include <libevdev-1.0/libevdev/libevdev.h>
-//#include "SDL_keyboard_c.h"
-//#include "SDL_scancode_tables_c.h"
 
 #define EV_KEY 0x01
 #define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
@@ -61,12 +57,6 @@ void Keyboard::init_keyboard()
 		else
 			Index++;
 	} while (Index < 30 && fd == -1);
-
-	int rc = libevdev_new_from_fd(fd, &dev);
-	if (rc < 0)
-		printf("cannot open evdev \n");
-
-	//SDL_InitKeyboard();
 	printf("end keyboard \n");
 }
 

@@ -225,11 +225,11 @@ void AMDemodulator::operator()()
 			
 			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
-				Demodulator::adjust_resample_rate(-0.01 * droppedFrames);
+				//Demodulator::adjust_resample_rate(-0.01 * droppedFrames);
 			}
 			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				Demodulator::adjust_resample_rate(0.01 * audioOutputBuffer->get_underrun());
+				//Demodulator::adjust_resample_rate(0.01 * audioOutputBuffer->get_underrun());
 			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;

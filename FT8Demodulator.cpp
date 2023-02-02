@@ -220,7 +220,8 @@ void FT8Demodulator::operator()()
 			timeLastPrint = std::chrono::high_resolution_clock::now();
 			tm local_tm = *localtime(&tt);
 			printf("end cycle %d:%d:%d Size %d start %lld\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec, audiosamples.size(), nominal_start);
-			
+			printf("Buffer queue %d Audio Samples %ld \n", receiveIQBuffer->size(), audiosamples.size());
+
 			capture = false;
 
 			audiosamples.resize(15 * ft8_rate, 0.0);

@@ -72,8 +72,8 @@ void ft8_encode(const uint8_t* payload, uint8_t* tones)
 
     uint8_t codeword[FTX_LDPC_N_BYTES];
     encode174(a91, codeword);
-
-    // Message structure: S7 D29 S7 D29 S7
+	
+	// Message structure: S7 D29 S7 D29 S7
     // Total symbols: 79 (FT8_NN)
 
     uint8_t mask = 0x80u; // Mask to extract 1 bit from codeword

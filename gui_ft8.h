@@ -22,6 +22,7 @@ class gui_ft8
 	void init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
 	void add_line(int hh, int min, int sec, int snr, int correct_bits, double off, double hz0, std::string msg);
 	void clear();
+	void set_group();
 
   private:
 	lv_obj_t *table, *table_label;

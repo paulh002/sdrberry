@@ -27,4 +27,7 @@ void GuiFt8Setting::init(lv_obj_t *o_tab, lv_group_t *keyboard_group)
 	lv_group_add_obj(keyboard_group, Textfield);
 }
 
-
+void GuiFt8Setting::set_group()
+{
+	
+}

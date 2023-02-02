@@ -76,7 +76,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;evdev;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -105,14 +105,16 @@
     <ClCompile Include="FreeSansOblique42.c" />
     <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="FT8Demodulator.cpp" />
-    <ClCompile Include="ft8\crc.c" />
-    <ClCompile Include="ft8\encode.c" />
+    <ClCompile Include="FT8Generator.cpp" />
+    <ClCompile Include="ft8\constants.cpp" />
+    <ClCompile Include="ft8\crc.cpp" />
+    <ClCompile Include="ft8\encode.cpp" />
     <ClCompile Include="ft8\fft.cpp" />
     <ClCompile Include="ft8\ft8.cpp" />
     <ClCompile Include="ft8\libldpc.cpp" />
     <ClCompile Include="ft8\osd.cpp" />
-    <ClCompile Include="ft8\pack.c" />
-    <ClCompile Include="ft8\text.c" />
+    <ClCompile Include="ft8\pack.cpp" />
+    <ClCompile Include="ft8\text.cpp" />
     <ClCompile Include="ft8\unpack.cpp" />
     <ClCompile Include="ft8\util.cpp" />
     <ClCompile Include="GuiFt8Setting.cpp" />
@@ -120,6 +122,7 @@
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
     <ClCompile Include="gui_ft8.cpp" />
+    <ClCompile Include="gui_ft8bar.cpp" />
     <ClCompile Include="gui_rx.cpp" />
     <ClCompile Include="gui_setup.cpp" />
     <ClCompile Include="gui_speech.cpp" />
@@ -189,9 +192,12 @@
     <ClInclude Include="FMModulator.h" />
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="FT8Demodulator.h" />
+    <ClInclude Include="FT8Generator.h" />
     <ClInclude Include="ft8\arrays.h" />
+    <ClInclude Include="ft8\common.h" />
     <ClInclude Include="ft8\constants.h" />
     <ClInclude Include="ft8\crc.h" />
+    <ClInclude Include="ft8\debug.h" />
     <ClInclude Include="ft8\encode.h" />
     <ClInclude Include="ft8\fft.h" />
     <ClInclude Include="ft8\ft8.h" />
@@ -200,11 +206,13 @@
     <ClInclude Include="ft8\text.h" />
     <ClInclude Include="ft8\unpack.h" />
     <ClInclude Include="ft8\util.h" />
+    <ClInclude Include="ft8\wave.h" />
     <ClInclude Include="GuiFt8Setting.h" />
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_bar.h" />
     <ClInclude Include="gui_ft8.h" />
+    <ClInclude Include="gui_ft8bar.h" />
     <ClInclude Include="gui_rx.h" />
     <ClInclude Include="gui_setup.h" />
     <ClInclude Include="gui_speech.h" />

@@ -294,7 +294,8 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	ifilters.push_back(4000);
 	ifilters.push_back(4500);
 	ifilters.push_back(5000);
-
+	
+	barview = o_parent;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -674,7 +675,17 @@ void gui_bar::get_filter_range(vector<string> &filters)
 	filters.push_back("4 Khz");
 }
 
-
+void gui_bar::hide(bool hide)
+{
+	if (hide)
+	{
+		lv_obj_add_flag(barview, LV_OBJ_FLAG_HIDDEN);
+	}
+	else
+	{
+		lv_obj_clear_flag(barview, LV_OBJ_FLAG_HIDDEN);
+	}
+}
 
 void gui_bar::set_filter_slider(int ifilter)
 {

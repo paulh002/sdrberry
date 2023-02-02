@@ -667,18 +667,6 @@
     <ClCompile Include="EchoAudio.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="ft8\crc.c">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\encode.c">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\pack.c">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\text.c">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
     <ClCompile Include="gui_rx.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -710,6 +698,27 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="imKStoUCS.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_ft8bar.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\constants.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\crc.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\encode.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\pack.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="ft8\text.cpp">
+      <Filter>Source files\ft8</Filter>
+    </ClCompile>
+    <ClCompile Include="FT8Generator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1051,6 +1060,21 @@
     </ClInclude>
     <ClInclude Include="imKStoUCS.h">
       <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_ft8bar.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FT8Generator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\common.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\debug.h">
+      <Filter>Header files\ft8</Filter>
+    </ClInclude>
+    <ClInclude Include="ft8\wave.h">
+      <Filter>Header files\ft8</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

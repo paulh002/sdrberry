@@ -32,6 +32,7 @@ void gui_ft8bar::setMessage(std::string callsign, int db)
 
 	s = callsign + " " + call + " " + locator;
 	lv_table_set_cell_value(table, 1, 1, s.c_str());
+	SetTxMessage(s);
 
 	s = callsign + " " + call + " " + std::to_string(db);
 	lv_table_set_cell_value(table, 2, 1, s.c_str());
@@ -111,22 +112,49 @@ static void ft8bar_button_handler(lv_event_t *e)
 			break;
 		case 4:
 			//CQ
-			guift8bar.SetCQMessage("");
+			guift8bar.SetTxMessage();
+			guift8bar.SetFilterCall();
+			guift8bar.Transmit();
+			break;
+		case 5:
+			guift8bar.ClearMessage();
 			break;
 		}
 	}
 }
 
-void gui_ft8bar::SetCQMessage(std::string msg)
+void gui_ft8bar::ClearMessage()
+{
+	lv_table_set_cell_value(table, 1, 0, "1");
+	lv_table_set_cell_value(table, 1, 1, "");
+	lv_table_set_cell_value(table, 2, 0, "2");
+	lv_table_set_cell_value(table, 2, 1, "");
+	lv_table_set_cell_value(table, 3, 0, "3");
+	lv_table_set_cell_value(table, 3, 1, "");
+	lv_table_set_cell_value(table, 4, 0, "4");
+	lv_table_set_cell_value(table, 4, 1, "");
+	lv_table_set_cell_value(table, 5, 0, "5");
+	lv_table_set_cell_value(table, 5, 1, "");
+	SetTxMessage();
+	SetFilterCall();
+}
+
+void gui_ft8bar::SetTxMessage(std::string msg)
 {
 	if (msg.length() > 0)
 		lv_textarea_set_text(Textfield, msg.c_str());
-	lv_textarea_set_text(Textfield, cq.c_str());
+	else
+		lv_textarea_set_text(Textfield, cq.c_str());
 }
 
 void gui_ft8bar::SetFilter(std::string msg)
 {
 	lv_textarea_set_text(FilterField, msg.c_str());
+}
+
+void gui_ft8bar::SetFilterCall()
+{
+	lv_textarea_set_text(FilterField, call.c_str());
 }
 
 std::string gui_ft8bar::GetFilter()
@@ -136,28 +164,39 @@ std::string gui_ft8bar::GetFilter()
 	return s;
 }
 
+static int messageToSend = 1;
+
+static void press_part_event_cb(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	uint16_t row, col;
+	char *ptr;
+	
+	lv_table_get_selected_cell(obj, &row, &col);
+	if (row == 0)
+		return;
+	ptr = (char *)lv_table_get_cell_value(obj, row, col);
+	guift8bar.SetTxMessage(std::string(ptr));
+	messageToSend = row;
+}
+
+
 static void message_part_event_cb(lv_event_t *e)
 {
 	lv_obj_t *obj = lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
 	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	
 	/*If the cells are drawn...*/
 	if (dsc->part == LV_PART_ITEMS)
 	{
 		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
 		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
-
-		/*Make the texts in the first cell center aligned*/
-
-		/*MAke every 2nd row grayish*/
-		if (col == 5)
+		if (row == messageToSend)
 		{
-			char *ptr = table->cell_data[((col + 1) * (row + 1)) - 1] + 1;
-			if (strstr(ptr, "CQ") != NULL)
-			{
-				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
-				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
-			}
+			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
+			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
 		}
 	}
 }
@@ -213,12 +252,12 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	const lv_coord_t x_margin_dropdown = 0;
 	const lv_coord_t x_margin = 2;
 	const lv_coord_t y_margin = 2; //5;
-	const int x_number_buttons = 5;
+	const int x_number_buttons = 6;
 	const int y_number_buttons = 4;
 	const int max_rows = 3;
 	const lv_coord_t tab_margin = w / 3;
 	const int cw_margin = 20;
-	const int number_of_pushbuttons = 5;
+	const int number_of_pushbuttons = 6;
 
 	int button_width_margin = ((w - tab_margin) / (x_number_buttons + 1));
 	int button_width = ((w - tab_margin) / (x_number_buttons + 1)) - x_margin;
@@ -282,12 +321,19 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 			case 3:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)3);
-				strcpy(str, "Enable TX");
+				strcpy(str, "TX");
+				txbutton = i;
 				break;
 			case 4:
-				//lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)4);
 				strcpy(str, "CQ");
+				rxbutton = i;
+				break;
+			case 5:
+				//lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[i], (void *)5);
+				strcpy(str, "Clear");
 				break;
 			}
 			lv_label_set_text(lv_label, str);
@@ -306,7 +352,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_add_style(button[i], &style_btn, 0);
 	lv_obj_add_event_cb(button[i], ft8bar_button_handler, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin + button_width_margin / 2 + 8, y_margin + ibutton_y * button_height_margin);
-	lv_obj_set_size(button[i], button_width - button_width/4, button_height);
+	lv_obj_set_size(button[i], button_width , button_height);
 	lv_group_add_obj(button_group, button[i]);
 	lv_obj_set_style_pad_hor(button[i], 15, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(button[i], 3, LV_PART_MAIN);
@@ -316,7 +362,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 
 	button[i + 1] = lv_btn_create(o_parent);
 	lv_obj_add_style(button[i + 1], &style_btn, 0);
-	lv_obj_set_size(button[i+1], button_width/2 - 3, button_height);
+	lv_obj_set_size(button[i + 1], button_width / 2 - 3, button_height);
 	lv_obj_align_to(button[i + 1], button[i], LV_ALIGN_OUT_RIGHT_MID, 5, 0);
 	lv_obj_set_style_bg_img_src(button[i+1], LV_SYMBOL_MINUS, 0);
 	lv_obj_add_event_cb(button[i+1], lv_spinbox_decrement_event_cb_tx, LV_EVENT_ALL, NULL);
@@ -338,7 +384,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_add_style(button[i + 3], &style_btn, 0);
 	lv_obj_add_event_cb(button[i + 3], ft8bar_button_handler, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(button[i + 3], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin + button_width_margin / 2 + 8, y_margin + ibutton_y * button_height_margin);
-	lv_obj_set_size(button[i + 3], button_width - button_width / 4, button_height);
+	lv_obj_set_size(button[i + 3], button_width, button_height);
 	lv_group_add_obj(button_group, button[i + 3]);
 	lv_obj_set_style_pad_hor(button[i + 3], 15, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(button[i + 3], 3, LV_PART_MAIN);
@@ -365,8 +411,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	frequence = lv_dropdown_create(o_parent);
 	lv_group_add_obj(buttonGroup, frequence);
 	lv_obj_add_style(frequence, &style_btn, 0);
-	lv_obj_align(frequence, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
-	lv_obj_set_size(frequence, 1.5 * button_width, button_height);
+	lv_obj_align(frequence, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin + button_width_margin / 2 , y_margin + ibutton_y * button_height_margin);
+	lv_obj_set_size(frequence, 2 * button_width, button_height);
 	lv_dropdown_clear_options(frequence);
 	lv_obj_add_event_cb(frequence, freq_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 	lv_obj_set_style_pad_ver(frequence, 4, LV_PART_MAIN);
@@ -384,7 +430,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 
 	table = lv_table_create(o_parent);
 	lv_obj_add_event_cb(table, message_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
-
+	lv_obj_add_event_cb(table, press_part_event_cb, LV_EVENT_PRESSED, NULL);
+	
 	lv_obj_add_style(table, &ft8_style, 0);
 	lv_obj_align(table, LV_ALIGN_TOP_RIGHT, 0, 0);
 	lv_obj_set_size(table, w/3, h);
@@ -407,10 +454,10 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	Textfield = lv_textarea_create(o_parent);
 	lv_obj_add_style(Textfield, &ft8_style, 0);
 	lv_textarea_set_one_line(Textfield, true);
-	lv_obj_align(Textfield, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(Textfield, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin + button_width_margin / 2, y_margin + ibutton_y * button_height_margin);
 	lv_obj_add_event_cb(Textfield, textarea_event_handler, LV_EVENT_ALL, Textfield);
 	lv_obj_add_state(Textfield, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
-	lv_obj_set_size(Textfield, 2 * button_width, button_height);
+	lv_obj_set_size(Textfield, 3 * button_width, button_height);
 	lv_obj_set_style_pad_top(Textfield, 4, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(Textfield, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_left(Textfield, 2, LV_PART_MAIN);
@@ -422,6 +469,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	cq = "CQ " + call + " " + locator;
 	lv_textarea_add_text(Textfield, cq.c_str());
 
+	ibutton_x++;
 	ibutton_x++;
 	ibutton_x++;
 	FilterField = lv_textarea_create(o_parent);
@@ -463,14 +511,31 @@ void gui_ft8bar::hide(bool hide)
 	}
 }
 
+extern void StartDigitalTransmission(ModulatorParameters &param);
+
 void gui_ft8bar::Transmit()
 {
 	int frequency;
-	
-	if (transmitting)
+	std::string message;
+
+	const char *ptr = lv_textarea_get_text(Textfield);
+	message = std::string(ptr);
+	if (transmitting || mode != mode_ft8 || message.size() == 0)
 		return;
 	transmitting = true;
 	frequency = lv_spinbox_get_value(getspintx());
-	char *ptr = (char *)lv_table_get_cell_value(table, messageToSend, 1);
-	ft8generator->generate(frequency, FT8, std::string(ptr));
+	param.mode = mode;
+	param.tone = 0;
+	param.ifrate = ifrate_tx;
+	param.even = true;
+	param.timeslot = 15;
+	param.ft8signal = ft8generator->generate(frequency, FT8, message);
+	StartDigitalTransmission(param);
+}
+
+void gui_ft8bar::ClearTransmit() 
+{
+	lv_obj_clear_state(button[txbutton], LV_STATE_CHECKED);
+	lv_obj_clear_state(button[rxbutton], LV_STATE_CHECKED);
+	transmitting = false; 
 }

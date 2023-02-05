@@ -35,9 +35,11 @@ class AudioInput : public RtAudio
 	unsigned int get_samplerate() { return sampleRate; }
 	static bool createAudioInputDevice(int Samplerate, int deviceNumber);
 	bool IsdigitalMode();
+	bool IsBufferEmpty();
 	void doDigitalMode();
 	void StartDigitalMode(vector<float> &signal);
-
+	void StopDigitalMode();
+	
   private:
 	RtAudio::StreamParameters parameters;
 	RtAudio::DeviceInfo info;
@@ -52,9 +54,9 @@ class AudioInput : public RtAudio
 	double NextTwotone();
 	int tune_tone;
 	int gaindb;
-	int digitalmodepointer;
-	bool digitalmode;
-	vector<float> digitalmodesignal;
+	int bufferFramesSend;
+	std::atomic<bool> digitalmode, bufferempty;
+	std::vector<float> digitalmodesignal;
 };
 
 extern AudioInput *audio_input;

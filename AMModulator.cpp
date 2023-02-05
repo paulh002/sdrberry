@@ -2,15 +2,65 @@
 #include "Waterfall.h"
 #include "gui_speech.h"
 #include "PeakLevelDetector.h"
-
+#include "gui_ft8bar.h"
+#include <chrono>
+#include <ctime>
 
 static shared_ptr<AMModulator> sp_ammod;
 
-bool AMModulator::create_modulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+DigitalTransmission::DigitalTransmission(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer_tx, DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input)
+{
+	printf("Stop RX stream \n");
+	RX_Stream::destroy_rx_streaming_thread();
+	if (sp_ammod != nullptr)
+		return ;
+	auto start = std::chrono::system_clock::now();
+	std::time_t the_time = std::chrono::system_clock::to_time_t(start);
+	cout << "Start TX stream running. Number of samples " << param.ft8signal.size() << std::ctime(&the_time) << endl;
+	vfo.vfo_rxtx(false, true);
+	Source_buffer_rx = source_buffer_rx;
+	sp_ammod = make_shared<AMModulator>(param, source_buffer_tx, audio_input);
+	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
+	TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, source_buffer_tx, ifrate_tx);
+
+	start = std::chrono::system_clock::now();
+	the_time = std::chrono::system_clock::to_time_t(start);
+	cout << "Start TX stream running" << std::ctime(&the_time) << endl;
+	return ;
+}
+
+void DigitalTransmission::operator()()
+{
+	auto start = std::chrono::system_clock::now();
+	std::time_t the_time = std::chrono::system_clock::to_time_t(start);
+	cout << "Wait for TX stream finished running " << std::ctime(&the_time) << endl;
+	
+	sp_ammod->ammod_thread.join();
+	sp_ammod.reset();
+	TX_Stream::destroy_tx_streaming_thread();
+	
+	auto end = std::chrono::system_clock::now();
+	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	
+	std::cout << "finished sending at " << std::ctime(&end_time)
+			  << "elapsed time: " << elapsed_seconds.count() << "s"
+			  << std::endl;
+	RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, Source_buffer_rx);
+	guift8bar.ClearTransmit();
+	vfo.vfo_rxtx(true, false);
+}
+
+void AMModulator::setft8signal(vector<float> &signal)
+{
+	ft8signal = std::move(signal);
+}
+
+bool AMModulator::create_modulator(ModulatorParameters param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	
 	if (sp_ammod != nullptr)
 		return false;
-	sp_ammod = make_shared<AMModulator>(mode, ifrate, tone, source_buffer, audio_input);
+	sp_ammod = make_shared<AMModulator>(param, source_buffer, audio_input);
 	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
 	return true;
 }
@@ -33,20 +83,26 @@ AMModulator::~AMModulator()
 	audio_input->set_tone(0);
 }
 
-AMModulator::AMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
-	: Demodulator(ifrate, source_buffer, audio_input)
+AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+	: Demodulator(param.ifrate, source_buffer, audio_input)
 {
 	float					mod_index = 0.99f; // modulation index (bandwidth)
 	float					As = 60.0f; // resampling filter stop-band attenuation [dB]
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
-		
-	switch (mode)
+
+	even = param.even;
+	digitalmode = false;
+	ft8signal = std::move(param.ft8signal);
+	switch (param.mode)
 	{
+	case mode_ft4:
+	case mode_ft8:
 	case mode_usb:
 		suppressed_carrier = 1;
+		digitalmode = true;
 		am_mode = LIQUID_AMPMODEM_USB;
-		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
+		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
 		break;
 	case mode_lsb:
 		suppressed_carrier = 1;
@@ -72,8 +128,8 @@ AMModulator::AMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample>
 		printf("Mode not correct\n");		
 		return;
 	}
-	audio_input->set_tone(tone);
-	printf("tone %d \n", tone);
+	audio_input->set_tone(param.tone);
+	printf("tone %d \n", param.tone);
 	setLowPassAudioFilterCutOffFrequency(2500);
 	if ((ifrate - audio_input->get_samplerate()) > 0.1)
 	{
@@ -109,6 +165,14 @@ void AMModulator::operator()()
 	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
 		audioInputBuffer->set_gain(0);
+	if (digitalmode)
+	{
+		cout << "Wait for Timeslot \n";
+		WaitForTimeSlot();
+		audioInputBuffer->clear();
+		audioInputBuffer->StartDigitalMode(ft8signal);
+		cout << "Start digital transmit \n";
+	}
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag.load())
@@ -116,8 +180,16 @@ void AMModulator::operator()()
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
 		}
-		if (!audioInputBuffer->read(audiosamples))
-			continue;
+
+		if (audioInputBuffer->IsBufferEmpty() && digitalmode)
+		{
+			stop_flag = true;
+			cout << "Stop digital transmit \n";
+			audioInputBuffer->StopDigitalMode();
+		}
+
+		audioInputBuffer->read(audiosamples);
+		
 		if (gspeech.get_speech_mode())
 		{
 			Speech.setRelease(gspeech.get_release());
@@ -140,7 +212,7 @@ void AMModulator::operator()()
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("Queued transmitbuffer Samples %d\n", transmitIQBuffer->queued_samples());
+			printf("Queued transmitbuffer Samples %lu\n", transmitIQBuffer->queued_samples());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
 	}
@@ -218,4 +290,42 @@ void AMModulator::audio_feedback(const SampleVector &audiosamples)
 			audioframes.clear();
 		}
 	}
+}
+
+void AMModulator::WaitForTimeSlot()
+{
+	int quarter = 0, checkQuarter = 0;
+
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	time_t tt = std::chrono::system_clock::to_time_t(now);
+	int sec = ((long long)tt % 60);
+	if (sec < 15)
+		quarter = 0;
+	if (sec >= 15 && sec < 30)
+		quarter = 1;
+	if (sec < 30 && sec < 45)
+		quarter = 0;
+	if (sec > 45)
+		quarter = 1;
+	if (!even)
+		checkQuarter = 1;
+
+	while (quarter == checkQuarter)
+	{
+		usleep(100000);
+		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+		time_t tt = std::chrono::system_clock::to_time_t(now);
+		sec = ((long long)tt % 60);
+		if (sec < 15)
+			quarter = 0;
+		if (sec >= 15 && sec < 30)
+			quarter = 1;
+		if (sec < 30 && sec < 45)
+			quarter = 0;
+		if (sec > 45)
+			quarter = 1;
+	}
+
+	tm local_tm = *localtime(&tt);
+	printf("start tx cycle %d:%d:%d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 }

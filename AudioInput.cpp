@@ -1,4 +1,5 @@
 #include "AudioInput.h"
+#include "AudioOutput.h"
 
 AudioInput *audio_input;
 DataBuffer<Sample> audioinput_buffer;
@@ -104,7 +105,8 @@ AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *Au
 	bufferFrames = 2048;
 	gaindb = 0;
 	digitalmode = false;
-	digitalmodepointer = 0;
+	bufferempty = false;
+	bufferFramesSend = 0;
 }
 
 std::vector<RtAudio::Api> AudioInput::listApis()
@@ -241,35 +243,57 @@ void AudioInput::ToneBuffer()
 void AudioInput::StartDigitalMode(vector<float> &signal)
 {
 	if (digitalmode != false)
+	{
+		cout << "Digital mode already started \n";
 		return;
+	}
 	digitalmode = true;
+	bufferempty = false;
 	digitalmodesignal = std::move(signal);
 }
 
 bool AudioInput::IsdigitalMode()
 {
-
 	return digitalmode;
+}
+
+bool AudioInput::IsBufferEmpty()
+{
+	return bufferempty;
+}
+
+void AudioInput::StopDigitalMode()
+{
+	digitalmode = false;
+	bufferempty = false;
+	bufferFramesSend = 0;
+	digitalmodesignal.clear();
 }
 
 void AudioInput::doDigitalMode()
 {
 	SampleVector buf;
-	Sample f;
 
-	if (digitalmode == false)
+	if (digitalmode == false || bufferempty)
 		return ;
 
 	for (int i = 0; i < bufferFrames; i++)
 	{
-		digitalmodepointer++;
-		buf.push_back(f);
+		if ((i + bufferFramesSend * bufferFrames) < digitalmodesignal.size())
+			buf.push_back((Sample)digitalmodesignal.at(i + bufferFramesSend * bufferFrames));
+		else
+			buf.push_back(0.0);
+		//printf("sample %f \n", (Sample)digitalmodesignal.at(i + bufferFramesSend));
 	}
+	bufferFramesSend++;
+	//cout << "bufferframes send " << bufferFramesSend << endl;
+	audio_output->writeSamples(buf);
 	databuffer->push(move(buf));
-	if (digitalmodepointer == digitalmodesignal.size())
+	if ((bufferFramesSend * bufferFrames) >= digitalmodesignal.size())
 	{
-		digitalmodepointer = 0;
-		digitalmode = false;
+		cout << "all ft8 audio samples streamed\n";
+		bufferFramesSend = 0;
+		bufferempty = true;
 	}
 }
 

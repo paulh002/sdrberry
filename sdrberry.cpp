@@ -656,6 +656,8 @@ void select_mode(int s_mode, bool bvfo)
 
 void select_mode_tx(int s_mode, int tone)
 {
+	ModulatorParameters param{};
+	
 	// Stop all threads
 	if (!SdrDevices.isValid(default_radio))
 		return;
@@ -690,20 +692,34 @@ void select_mode_tx(int s_mode, int tone)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
-		AMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
+		param.mode = mode;
+		param.tone = tone;
+		param.ifrate = ifrate_tx;
+		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
 		break;
 	
-	case mode_ft8:
-		catinterface.MuteFA(true);
-		vfo.pause_step(true);
-		
-		AMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
+	default:
 		break;
 	}
 	catinterface.Pause_Cat(false);
 }
+
+
+static shared_ptr<DigitalTransmission> StartDigitaltransmissionthread;
+
+void StartDigitalTransmission(ModulatorParameters &param)
+{
+	if (StartDigitaltransmissionthread != nullptr)
+	{
+		StartDigitaltransmissionthread->DTthread.join();
+		StartDigitaltransmissionthread.reset();
+		StartDigitaltransmissionthread = nullptr;
+	}
+	StartDigitaltransmissionthread = make_shared<DigitalTransmission>(param, &source_buffer_tx, &source_buffer_rx, audio_input);
+	StartDigitaltransmissionthread->DTthread = std::thread(&DigitalTransmission::operator(), StartDigitaltransmissionthread);
+}
+
 
 /*
  * To switch from SDR receiver we have to do a few things:

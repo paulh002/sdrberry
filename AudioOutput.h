@@ -28,9 +28,12 @@ class AudioOutput : public RtAudio
 	unsigned int get_samplerate() { return m_sampleRate; }
 	unsigned int get_device() { return parameters.deviceId; }
 	unsigned int find_device(std::string name);
+	void writeSamples(const SampleVector &audiosamples);
+	void mono_to_left_right(const SampleVector &samples_mono,
+					   SampleVector &audio);
 
 	static bool createAudioDevice(int Samplerate);
-
+	
   protected:
 	void samplesToInt16(const SampleVector &samples,
 						std::vector<std::uint8_t> &bytes);
@@ -45,6 +48,7 @@ class AudioOutput : public RtAudio
 	string m_error;
 	atomic<int> underrun;
 	map<int, std::string> device_map;
+	SampleVector audioFrames;
 };
 
 extern AudioOutput *audio_output;

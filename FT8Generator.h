@@ -27,12 +27,11 @@ class FT8Generator
 {
   public:
 	FT8Generator(AudioInput *input) { audioinput = input; }
-	int generate(int frequency, encoding code,std::string message);
+	vector<float> generate(int frequency, encoding code,std::string message);
 
   private:
 	SampleVector audioSamples;
 	AudioInput *audioinput;
 	void gfsk_pulse(int n_spsym, float symbol_bt, float *pulse);
 	void synth_gfsk(const uint8_t *symbols, int n_sym, float f0, float symbol_bt, float symbol_period, int signal_rate, float *signal);
-	vector<float> signal;
 };

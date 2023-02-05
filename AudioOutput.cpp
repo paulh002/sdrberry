@@ -45,6 +45,7 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 		return 0;
 	}
 	SampleVector samples = ((DataBuffer<Sample> *)userData)->pull();
+	//cout << "nBufferFrames " << nBufferFrames << " nSamples " << samples.size() << endl;
 	int i = 0;
 	for (auto& col : samples)
 	{
@@ -221,4 +222,48 @@ unsigned int AudioOutput::find_device(std::string name)
 			device = i;
 	}
 	return device;
+}
+
+void AudioOutput::writeSamples(const SampleVector &audioSamples)
+{
+	for (auto &col : audioSamples)
+	{
+		// split the stream in blocks of samples of the size framesize
+		audioFrames.insert(audioFrames.end(), col);
+		if (audioFrames.size() == get_framesize())
+		{
+			if ((queued_samples() / 2) < 2048)
+			{
+				SampleVector audioStereoSamples;
+
+				mono_to_left_right(audioFrames, audioStereoSamples);
+				write(audioStereoSamples);
+				audioFrames.clear();
+			}
+			else
+			{
+				audioFrames.clear();
+			}
+		}
+	}
+}
+
+// copy mono signal to both sereo channels
+void AudioOutput::mono_to_left_right(const SampleVector &samples_mono,
+									 SampleVector &audio)
+{
+	unsigned int n = samples_mono.size();
+
+	if (audio_output->get_channels() < 2)
+	{
+		audio = samples_mono;
+		return;
+	}
+	audio.resize(2 * n);
+	for (unsigned int i = 0; i < n; i++)
+	{
+		Sample m = samples_mono[i];
+		audio[2 * i] = m;
+		audio[2 * i + 1] = m;
+	}
 }

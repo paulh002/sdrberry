@@ -133,8 +133,8 @@ void AMDemodulator::operator()()
 		dc_iqsamples = receiveIQBuffer->pull();
 		if (dc_iqsamples.empty())
 		{
-			printf("No samples queued 2\n");
-			usleep(500);
+			//printf("No samples queued 2\n");
+			usleep(5000);
 			continue;
 		}
 		dc_filter(dc_iqsamples,iqsamples);

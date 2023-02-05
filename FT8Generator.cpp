@@ -83,10 +83,11 @@ void FT8Generator::synth_gfsk(const uint8_t *symbols, int n_sym, float f0, float
 	}
 }
 
-int FT8Generator::generate(int frequency, encoding code, std::string message)
+vector<float> FT8Generator::generate(int frequency, encoding code, std::string message)
 {
 	bool is_ft4{false};
-
+	vector<float> signal;
+	
 	if (code == FT4)
 		is_ft4 = true;
 
@@ -97,7 +98,7 @@ int FT8Generator::generate(int frequency, encoding code, std::string message)
 	{
 		printf("Cannot parse message!\n");
 		printf("RC = %d\n", rc);
-		return -2;
+		return signal;
 	}
 
 	printf("Packed data: ");
@@ -135,6 +136,7 @@ int FT8Generator::generate(int frequency, encoding code, std::string message)
 	int num_samples = (int)(0.5f + num_tones * symbol_period * sample_rate); // Number of samples in the data signal
 	int num_silence = (slot_time * sample_rate - num_samples) / 2;			 // Silence padding at both ends to make 15 seconds
 	int num_total_samples = num_silence + num_samples + num_silence;		 // Number of samples in the padded signal
+	
 	signal.clear();
 	signal.resize(num_total_samples);
 	printf("number of samples %d, bufferframes %d\n", num_total_samples, num_total_samples / 2048);
@@ -145,6 +147,8 @@ int FT8Generator::generate(int frequency, encoding code, std::string message)
 	}
 
 	// Synthesize waveform data (signal) and save it as WAV file
+	printf("frequency %d number of tones %d, samplerate %d\n", frequency,num_tones, sample_rate);
 	synth_gfsk(tones, num_tones, frequency, symbol_bt, symbol_period, sample_rate, signal.data() + num_silence);
-	return 0;
+	save_wav(signal.data(), num_total_samples, sample_rate, "./wave.wav");
+	return signal;
 }

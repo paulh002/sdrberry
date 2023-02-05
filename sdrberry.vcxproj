@@ -117,6 +117,7 @@
     <ClCompile Include="ft8\text.cpp" />
     <ClCompile Include="ft8\unpack.cpp" />
     <ClCompile Include="ft8\util.cpp" />
+    <ClCompile Include="ft8\wave.cpp" />
     <ClCompile Include="GuiFt8Setting.cpp" />
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />

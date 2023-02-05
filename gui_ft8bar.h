@@ -2,6 +2,7 @@
 #include "lvgl.h"
 #include "Settings.h"
 #include "FT8Generator.h"
+#include "AMModulator.h"
 
 class gui_ft8bar
 {
@@ -17,24 +18,28 @@ class gui_ft8bar
 	void setMessage(std::string callsign, int db);
 	void SetFrequency();
 	void Transmit();
-	void SetCQMessage(std::string msg);
+	void SetTxMessage(std::string msg = "");
 	void SetFilter(std::string msg);
 	std::string GetFilter();
+	void ClearTransmit();
+	void SetFilterCall();
+	void ClearMessage();
 
   private:
 	lv_obj_t *barview, *frequence, *table, *Textfield,*FilterField;
 	lv_style_t style_btn, ft8_style;
 	lv_group_t *buttonGroup{}, *keyboardgroup;
-	const int number_of_buttons{5};
+	int txbutton, rxbutton;
+	const int number_of_buttons{6};
 	lv_obj_t *button[20]{nullptr};
 	int ibuttons{0};
 	std::string call;
 	std::string locator;
 	std::string cq;
 	std::string encodedMessage;
-	int messageToSend{1};
-	bool transmitting{false};
+	atomic<bool> transmitting{false};
 	unique_ptr<FT8Generator> ft8generator;
+	ModulatorParameters param;
 };
 
 extern gui_ft8bar guift8bar;

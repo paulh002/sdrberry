@@ -43,7 +43,7 @@
 // total transmission time is 12.64 seconds
 
 // tunable parameters
-int nthreads = 4; // number of parallel threads, for multi-core
+int nthreads = 8; // number of parallel threads, for multi-core
 int npasses_one = 3;  // number of spectral subtraction passes
 int npasses_two = 3;  // number of spectral subtraction passes
 int ldpc_iters = 25; // how hard LDPC decoding should work

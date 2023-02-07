@@ -48,18 +48,22 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 
-	even = param.even;
 	digitalmode = false;
-	ft8signal = std::move(param.ft8signal);
 	switch (param.mode)
 	{
 	case mode_ft4:
 	case mode_ft8:
+		even = param.even;
+		ft8signal = std::move(param.ft8signal);
+		digitalmode = true;
+		suppressed_carrier = 1;
+		am_mode = LIQUID_AMPMODEM_USB;
+		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
+
 	case mode_usb:
 		suppressed_carrier = 1;
-		digitalmode = true;
 		am_mode = LIQUID_AMPMODEM_USB;
-		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
 		break;
 	case mode_lsb:
 		suppressed_carrier = 1;

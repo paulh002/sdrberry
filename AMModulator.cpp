@@ -59,6 +59,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
 		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
+		break;
 
 	case mode_usb:
 		suppressed_carrier = 1;

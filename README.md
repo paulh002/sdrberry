@@ -26,7 +26,6 @@ ToDo:
 - Setup screen for Network and Wifi
 - waterfall display
 - Different noise reduction schemas like lms etc.
-- Support for audio sdr using Tal
 
 Done:
 - Adalm Pluto
@@ -49,6 +48,7 @@ Done:
 - Support for Contour Shuttle Express
 - Receive FT8
 - Noise reduction (spectral noise reduction, Kim)
+- Support for audio sdr using Tayloe directsdr (Hifiberry)
 
 Installation of libraries is necessary:
 - Liquid DSP
@@ -59,8 +59,6 @@ Installation of libraries is necessary:
 - SoapyRadioBerry (support radioberry)
 - libiio (support for Adalm Pluto SDR)
 - libad9361-iio (support for Adalm Pluto SDR)
-- bluez-5.60
-- tinyb
 - pthread
 
 # Installation

@@ -21,6 +21,7 @@ class gui_ft8bar
 	void SetTxMessage(std::string msg = "");
 	void SetFilter(std::string msg);
 	std::string GetFilter();
+	std::string GetCall() { return call; }
 	void ClearTransmit();
 	void SetFilterCall();
 	void ClearMessage();

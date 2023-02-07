@@ -136,7 +136,7 @@ void gui_ft8bar::ClearMessage()
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	SetTxMessage();
-	SetFilterCall();
+	SetFilter("");
 }
 
 void gui_ft8bar::SetTxMessage(std::string msg)

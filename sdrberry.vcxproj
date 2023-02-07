@@ -93,6 +93,7 @@
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
     <ClCompile Include="Demodulator.cpp" />
+    <ClCompile Include="DigitalTransmission.cpp" />
     <ClCompile Include="EchoAudio.cpp" />
     <ClCompile Include="EnergyCalculator.cpp" />
     <ClCompile Include="Filter.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="Demodulator.h" />
+    <ClInclude Include="DigitalTransmission.h" />
     <ClInclude Include="EchoAudio.h" />
     <ClInclude Include="EnergyCalculator.h" />
     <ClInclude Include="Filter.h" />

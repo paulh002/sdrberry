@@ -1,26 +1,6 @@
 #pragma once
 #include "Demodulator.h"
-
-struct ModulatorParameters
-{
-	int mode;
-	double ifrate;
-	int tone;
-	bool even;
-	int timeslot;
-	vector<float> ft8signal;
-};
-
-class DigitalTransmission
-{
-  public:
-	DigitalTransmission(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer_tx, DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input);
-	void operator()();
-	std::thread DTthread;
-	
-  private:
-	DataBuffer<IQSample> *Source_buffer_rx;
-}; 
+#include "DigitalTransmission.h"
 
 class AMModulator : public Demodulator
 {
@@ -50,3 +30,5 @@ class AMModulator : public Demodulator
 	void WaitForTimeSlot();
 	vector<float> ft8signal;
 };
+
+extern shared_ptr<AMModulator> sp_ammod;

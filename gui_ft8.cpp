@@ -143,7 +143,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 
 	if (guift8bar.GetFilter().length() > 0)
 	{
-		if (msg.find(guift8bar.GetFilter()) == std::string::npos)
+		if (msg.find(guift8bar.GetFilter()) == std::string::npos && msg.find(guift8bar.GetCall()))
 			return;
 	}
 

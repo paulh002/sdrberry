@@ -6,50 +6,7 @@
 #include <chrono>
 #include <ctime>
 
-static shared_ptr<AMModulator> sp_ammod;
-
-DigitalTransmission::DigitalTransmission(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer_tx, DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input)
-{
-	printf("Stop RX stream \n");
-	RX_Stream::destroy_rx_streaming_thread();
-	if (sp_ammod != nullptr)
-		return ;
-	auto start = std::chrono::system_clock::now();
-	std::time_t the_time = std::chrono::system_clock::to_time_t(start);
-	cout << "Start TX stream running. Number of samples " << param.ft8signal.size() << std::ctime(&the_time) << endl;
-	vfo.vfo_rxtx(false, true);
-	Source_buffer_rx = source_buffer_rx;
-	sp_ammod = make_shared<AMModulator>(param, source_buffer_tx, audio_input);
-	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
-	TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, source_buffer_tx, ifrate_tx);
-
-	start = std::chrono::system_clock::now();
-	the_time = std::chrono::system_clock::to_time_t(start);
-	cout << "Start TX stream running" << std::ctime(&the_time) << endl;
-	return ;
-}
-
-void DigitalTransmission::operator()()
-{
-	auto start = std::chrono::system_clock::now();
-	std::time_t the_time = std::chrono::system_clock::to_time_t(start);
-	cout << "Wait for TX stream finished running " << std::ctime(&the_time) << endl;
-	
-	sp_ammod->ammod_thread.join();
-	sp_ammod.reset();
-	TX_Stream::destroy_tx_streaming_thread();
-	
-	auto end = std::chrono::system_clock::now();
-	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-	std::chrono::duration<double> elapsed_seconds = end - start;
-	
-	std::cout << "finished sending at " << std::ctime(&end_time)
-			  << "elapsed time: " << elapsed_seconds.count() << "s"
-			  << std::endl;
-	RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, Source_buffer_rx);
-	guift8bar.ClearTransmit();
-	vfo.vfo_rxtx(true, false);
-}
+shared_ptr<AMModulator> sp_ammod;
 
 void AMModulator::setft8signal(vector<float> &signal)
 {
@@ -188,7 +145,8 @@ void AMModulator::operator()()
 			audioInputBuffer->StopDigitalMode();
 		}
 
-		audioInputBuffer->read(audiosamples);
+		if (!audioInputBuffer->read(audiosamples))
+			continue;
 		
 		if (gspeech.get_speech_mode())
 		{
@@ -218,7 +176,11 @@ void AMModulator::operator()()
 	}
 	transmitIQBuffer->clear();
 	transmitIQBuffer->push_end();
-	printf("exit am_mod_thread\n");
+	
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	time_t tt = std::chrono::system_clock::to_time_t(now);
+	tm local_tm = *localtime(&tt);
+	printf("exit am_mod_thread %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 }
 
 void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_out)
@@ -294,38 +256,19 @@ void AMModulator::audio_feedback(const SampleVector &audiosamples)
 
 void AMModulator::WaitForTimeSlot()
 {
-	int quarter = 0, checkQuarter = 0;
-
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	time_t tt = std::chrono::system_clock::to_time_t(now);
-	int sec = ((long long)tt % 60);
-	if (sec < 15)
-		quarter = 0;
-	if (sec >= 15 && sec < 30)
-		quarter = 1;
-	if (sec < 30 && sec < 45)
-		quarter = 0;
-	if (sec > 45)
-		quarter = 1;
-	if (!even)
-		checkQuarter = 1;
-
-	while (quarter == checkQuarter)
+	int sec = ((long long)tt % 15);
+	while (sec != 0)
 	{
-		usleep(100000);
-		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-		time_t tt = std::chrono::system_clock::to_time_t(now);
-		sec = ((long long)tt % 60);
-		if (sec < 15)
-			quarter = 0;
-		if (sec >= 15 && sec < 30)
-			quarter = 1;
-		if (sec < 30 && sec < 45)
-			quarter = 0;
-		if (sec > 45)
-			quarter = 1;
+		usleep(1000);
+		now = std::chrono::system_clock::now();
+		tt = std::chrono::system_clock::to_time_t(now);
+		sec = ((long long)tt % 15);
 	}
 
+	now = std::chrono::system_clock::now();
+	tt = std::chrono::system_clock::to_time_t(now);
 	tm local_tm = *localtime(&tt);
-	printf("start tx cycle %d:%d:%d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+	printf("start tx cycle %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 }

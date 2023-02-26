@@ -66,7 +66,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;../lvgl;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -75,9 +75,9 @@
       <VerboseMode>false</VerboseMode>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -232,110 +232,6 @@
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h" />
-    <ClInclude Include="lvgl\src\core\lv_disp.h" />
-    <ClInclude Include="lvgl\src\core\lv_event.h" />
-    <ClInclude Include="lvgl\src\core\lv_group.h" />
-    <ClInclude Include="lvgl\src\core\lv_indev.h" />
-    <ClInclude Include="lvgl\src\core\lv_indev_scroll.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj_class.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj_draw.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj_pos.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj_scroll.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj_style.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj_style_gen.h" />
-    <ClInclude Include="lvgl\src\core\lv_obj_tree.h" />
-    <ClInclude Include="lvgl\src\core\lv_refr.h" />
-    <ClInclude Include="lvgl\src\core\lv_theme.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_arc.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_blend.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_img.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_label.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_line.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_mask.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_rect.h" />
-    <ClInclude Include="lvgl\src\draw\lv_draw_triangle.h" />
-    <ClInclude Include="lvgl\src\draw\lv_img_buf.h" />
-    <ClInclude Include="lvgl\src\draw\lv_img_cache.h" />
-    <ClInclude Include="lvgl\src\draw\lv_img_decoder.h" />
-    <ClInclude Include="lvgl\src\extra\lv_extra.h" />
-    <ClInclude Include="lvgl\src\extra\layouts\lv_layouts.h" />
-    <ClInclude Include="lvgl\src\extra\layouts\flex\lv_flex.h" />
-    <ClInclude Include="lvgl\src\extra\layouts\grid\lv_grid.h" />
-    <ClInclude Include="lvgl\src\extra\themes\lv_themes.h" />
-    <ClInclude Include="lvgl\src\extra\themes\basic\lv_theme_basic.h" />
-    <ClInclude Include="lvgl\src\extra\themes\default\lv_theme_default.h" />
-    <ClInclude Include="lvgl\src\extra\themes\mono\lv_theme_mono.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\lv_widgets.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\animimg\lv_animimg.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\calendar\lv_calendar.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\calendar\lv_calendar_header_arrow.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\calendar\lv_calendar_header_dropdown.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\chart\lv_chart.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\colorwheel\lv_colorwheel.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\imgbtn\lv_imgbtn.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\keyboard\lv_keyboard.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\led\lv_led.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\list\lv_list.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\meter\lv_meter.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\msgbox\lv_msgbox.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\span\lv_span.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\spinbox\lv_spinbox.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\spinner\lv_spinner.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\tabview\lv_tabview.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\tileview\lv_tileview.h" />
-    <ClInclude Include="lvgl\src\extra\widgets\win\lv_win.h" />
-    <ClInclude Include="lvgl\src\font\lv_font.h" />
-    <ClInclude Include="lvgl\src\font\lv_font_fmt_txt.h" />
-    <ClInclude Include="lvgl\src\font\lv_font_loader.h" />
-    <ClInclude Include="lvgl\src\font\lv_symbol_def.h" />
-    <ClInclude Include="lvgl\src\gpu\lv_gpu_nxp_pxp.h" />
-    <ClInclude Include="lvgl\src\gpu\lv_gpu_nxp_pxp_osa.h" />
-    <ClInclude Include="lvgl\src\gpu\lv_gpu_nxp_vglite.h" />
-    <ClInclude Include="lvgl\src\gpu\lv_gpu_stm32_dma2d.h" />
-    <ClInclude Include="lvgl\src\hal\lv_hal.h" />
-    <ClInclude Include="lvgl\src\hal\lv_hal_disp.h" />
-    <ClInclude Include="lvgl\src\hal\lv_hal_indev.h" />
-    <ClInclude Include="lvgl\src\hal\lv_hal_tick.h" />
-    <ClInclude Include="lvgl\src\misc\lv_anim.h" />
-    <ClInclude Include="lvgl\src\misc\lv_area.h" />
-    <ClInclude Include="lvgl\src\misc\lv_assert.h" />
-    <ClInclude Include="lvgl\src\misc\lv_async.h" />
-    <ClInclude Include="lvgl\src\misc\lv_bidi.h" />
-    <ClInclude Include="lvgl\src\misc\lv_color.h" />
-    <ClInclude Include="lvgl\src\misc\lv_fs.h" />
-    <ClInclude Include="lvgl\src\misc\lv_gc.h" />
-    <ClInclude Include="lvgl\src\misc\lv_ll.h" />
-    <ClInclude Include="lvgl\src\misc\lv_log.h" />
-    <ClInclude Include="lvgl\src\misc\lv_math.h" />
-    <ClInclude Include="lvgl\src\misc\lv_mem.h" />
-    <ClInclude Include="lvgl\src\misc\lv_printf.h" />
-    <ClInclude Include="lvgl\src\misc\lv_style.h" />
-    <ClInclude Include="lvgl\src\misc\lv_style_gen.h" />
-    <ClInclude Include="lvgl\src\misc\lv_templ.h" />
-    <ClInclude Include="lvgl\src\misc\lv_timer.h" />
-    <ClInclude Include="lvgl\src\misc\lv_tlsf.h" />
-    <ClInclude Include="lvgl\src\misc\lv_txt.h" />
-    <ClInclude Include="lvgl\src\misc\lv_txt_ap.h" />
-    <ClInclude Include="lvgl\src\misc\lv_types.h" />
-    <ClInclude Include="lvgl\src\misc\lv_utils.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_arc.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_bar.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_btn.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_btnmatrix.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_canvas.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_checkbox.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_dropdown.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_img.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_label.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_line.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_objx_templ.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_roller.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_slider.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_switch.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_table.h" />
-    <ClInclude Include="lvgl\src\widgets\lv_textarea.h" />
     <ClInclude Include="lv_conf.h" />
     <ClInclude Include="lv_drivers\display\drm.h" />
     <ClInclude Include="lv_drivers\display\fbdev.h" />

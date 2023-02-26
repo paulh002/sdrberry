@@ -8,31 +8,8 @@
 #include "DataBuffer.h"
 #include "AudioOutput.h"
 #include "Demodulator.h"
+#include "FT8Processor.h"
 
-class FT8Message
-{
-  public:
-	FT8Message(int chh, int cmm, int css, int csnr, int cc, double coff, double chz0, std::string cmsg)
-		: hh{chh}, min{cmm}, sec{css}, snr{csnr}, correct_bits{cc},
-		  off{coff}, hz0{chz0}, msg{cmsg} {};
-	
-	FT8Message()
-		: hh{0}, min{0}, sec{0}, snr{0}, correct_bits{0},
-		  off{0.0}, hz0{0.0}, msg{""} {};
-	
-	void display();
-
-  private:
-	int hh;
-	int min;
-	int sec;
-	int snr;
-	int correct_bits;
-	double off;
-	double hz0;
-	std::string msg;
-
-};
 
 class FT8Demodulator : public Demodulator
 {
@@ -53,6 +30,5 @@ class FT8Demodulator : public Demodulator
 	ampmodem m_demod{nullptr};
 	float m_bandwidth;
 	float ft8_rate{12000.0};
+	std::shared_ptr<FT8Processor> ft8processor;
 };
-
-extern DataQueue<FT8Message> FT8Queue;

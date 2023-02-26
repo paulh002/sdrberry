@@ -8,91 +8,13 @@
 #include <string.h>
 #include <mutex>
 #include <map>
-
-#include "sdrberry.h"
 #include "FT8Demodulator.h"
-#include "unpack.h"
-#include "ft8.h"
+#include "sdrberry.h"
+
 
 static shared_ptr<FT8Demodulator>	sp_ft8demod;
 std::mutex							ft8demod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1{};
-DataQueue<FT8Message> FT8Queue;
-
-std::mutex cycle_mu;
-volatile int cycle_count;
-time_t saved_cycle_start;
-
-std::map<std::string, bool> cycle_already;
-
-int hcb(int *a91, double hz0, double hz1, double off,
-		const char *comment, double snr, int pass,
-		int correct_bits)
-{
-	std::string msg = unpack(a91);
-
-	cycle_mu.lock();
-
-	if (cycle_already.count(msg) > 0)
-	{
-		// already decoded this message on this cycle
-		cycle_mu.unlock();
-		return 1; // 1 => already seen, don't subtract.
-	}
-
-	cycle_already[msg] = true;
-	cycle_count += 1;
-
-	cycle_mu.unlock();
-
-	struct tm result;
-	gmtime_r(&saved_cycle_start, &result);
-
-	/*printf("%02d%02d%02d %3d %3d %5.2f %6.1f %s\n",
-		   result.tm_hour,
-		   result.tm_min,
-		   result.tm_sec,
-		   (int)snr,
-		   correct_bits,
-		   off - 0.5,
-		   hz0,
-		   msg.c_str());
-	fflush(stdout);
-	*/
-	
-	/* gft8.add_line(result.tm_hour,
-				  result.tm_min,
-				  result.tm_sec,
-				  (int)snr,
-				  correct_bits,
-				  off - 0.5,
-				  hz0,
-				  msg.c_str());
-	*/
-
-	FT8Queue.push(FT8Message(result.tm_hour,
-							 result.tm_min,
-							 result.tm_sec,
-							 (int)snr,
-							 correct_bits,
-							 off - 0.5,
-							 hz0,
-							 msg));
-
-	return 2; // 2 => new decode, do subtract.
-}
-
-void FT8Message::display()
-{
-	gft8.add_line(hh,
-				  min,
-				  sec,
-				  snr,
-				  correct_bits,
-				  off - 0.5,
-				  hz0,
-				  msg.c_str());
-}
 
 bool FT8Demodulator::create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {
@@ -164,6 +86,8 @@ void FT8Demodulator::operator()()
 	bool capture{false};
 	double ttt_start;
 
+	FT8Processor::create_modulator(ft8processor);
+
 	Fft_calc.plan_fft(nfft_samples);
 	receiveIQBuffer->clear();
 	while (!stop_flag.load())
@@ -201,7 +125,7 @@ void FT8Demodulator::operator()()
 		{
 			capture = true;
 			tm local_tm = *localtime(&tt);
-			printf("start cycle %d:%d:%d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+			printf("start cycle %02d:%02d:%02d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 			audiosamples.clear();
 			// drop all captured data
 			startTime = std::chrono::high_resolution_clock::now();
@@ -211,38 +135,13 @@ void FT8Demodulator::operator()()
 		auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime);
 		if ((timePassed.count() > 15000) && (capture))
 		{
-			int hints[2] = {2, 0}; // CQ
-			double budget = 5;
-			double ttt_end = ttt_start + audiosamples.size() / ft8_rate;
-			long long nominal_start = audiosamples.size() - ft8_rate * (ttt_end - cycle_start - 0.5);
-			
-			// 15 seconds has passed
-			timeLastPrint = std::chrono::high_resolution_clock::now();
-			tm local_tm = *localtime(&tt);
-			printf("end cycle %d:%d:%d Size %d start %lld\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec, audiosamples.size(), nominal_start);
-			//printf("Buffer queue %d Audio Samples %ld \n", receiveIQBuffer->size(), audiosamples.size());
-
 			capture = false;
-
-			audiosamples.resize(15 * ft8_rate, 0.0);
-
-			cycle_mu.lock();
-			cycle_count = 0;
-			saved_cycle_start = cycle_start; // for hcb() callback
-			cycle_already.clear();
-			gft8.clear();
-			cycle_mu.unlock();
-
-			entry(audiosamples.data(), audiosamples.size(), nominal_start, ft8_rate,
-				  150,
-				  3600, // 2900,
-				  hints, hints, budget, budget, hcb,
-				  0, (struct cdecode *)0);
-			
+			ft8processor->AddaudioSample(audiosamples, ttt_start);
 			audiosamples.clear();
 		}
 		iqsamples.clear();
 	}
+	FT8Processor::destroy_modulator(ft8processor);
 	starttime1 = std::chrono::high_resolution_clock::now();
 }
 

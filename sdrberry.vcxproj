@@ -107,6 +107,7 @@
     <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="FT8Demodulator.cpp" />
     <ClCompile Include="FT8Generator.cpp" />
+    <ClCompile Include="FT8Processor.cpp" />
     <ClCompile Include="ft8\constants.cpp" />
     <ClCompile Include="ft8\crc.cpp" />
     <ClCompile Include="ft8\encode.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="FT8Demodulator.h" />
     <ClInclude Include="FT8Generator.h" />
+    <ClInclude Include="FT8Processor.h" />
     <ClInclude Include="ft8\arrays.h" />
     <ClInclude Include="ft8\common.h" />
     <ClInclude Include="ft8\constants.h" />

@@ -23,6 +23,8 @@ class gui_ft8
 	void add_line(int hh, int min, int sec, int snr, int correct_bits, double off, double hz0, std::string msg);
 	void clear();
 	void set_group();
+	void reset();
+	void ScrollLatestItem();
 
   private:
 	lv_obj_t *table, *table_label;

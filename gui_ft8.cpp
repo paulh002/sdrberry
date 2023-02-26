@@ -166,6 +166,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	lv_table_set_cell_value(table, m_cycle_count, 5, msg.c_str());
 
 	m_cycle_count++;
+	ScrollLatestItem();
 }
 
 void gui_ft8::clear()
@@ -177,4 +178,36 @@ void gui_ft8::clear()
 void gui_ft8::set_group()
 {
 
+}
+
+void gui_ft8::reset()
+{
+	lv_table_set_row_cnt(table, 1);
+	m_cycle_count = 1;
+	bclear = true;
+}
+
+void gui_ft8::ScrollLatestItem()
+{
+	lv_coord_t y = lv_obj_get_self_height(table);
+
+	//If the object content is big enough to scroll
+	if (y > lv_obj_get_height(table))
+	{
+		//Calculate the "out of view" y size
+		lv_coord_t outOfView = y - lv_obj_get_height(table);
+
+		lv_coord_t currScrollPos = lv_obj_get_scroll_y(table);
+
+		if (outOfView > currScrollPos)
+		{
+			//Calculate the difference between the required scroll pos and the current scroll pos
+			lv_coord_t differenceToScroll = -(outOfView - currScrollPos);
+
+			//this will bring the bottom of the table into view
+			lv_obj_scroll_by(table, 0, differenceToScroll, LV_ANIM_ON);
+		}
+	}
+
+	return;
 }

@@ -727,6 +727,9 @@
     <ClCompile Include="DigitalTransmission.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="FT8Processor.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -1083,6 +1086,9 @@
       <Filter>Header files\ft8</Filter>
     </ClInclude>
     <ClInclude Include="DigitalTransmission.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FT8Processor.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

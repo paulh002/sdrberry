@@ -581,6 +581,7 @@ void select_mode(int s_mode, bool bvfo)
 
 	if (!SdrDevices.isValid(default_radio))
 		return;
+	catinterface.SetTX(TX_OFF);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
 	vfo.pause_step(false);
@@ -654,13 +655,14 @@ void select_mode(int s_mode, bool bvfo)
 	catinterface.Pause_Cat(false);
 }
 
-void select_mode_tx(int s_mode, int tone)
+void select_mode_tx(int s_mode, int tone, int cattx)
 {
 	ModulatorParameters param{};
 	
 	// Stop all threads
 	if (!SdrDevices.isValid(default_radio))
 		return;
+	catinterface.SetTX(cattx);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
 	vfo.pause_step(false);

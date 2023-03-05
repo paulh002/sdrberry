@@ -159,26 +159,27 @@ void Settings::default_settings()
 	(*config)("freq").push(cfg::makeOption(28074));
 
 	config->useSection("filter");
-	(*config)("address").push(cfg::makeOption(56));
-	(*config)("address").push(cfg::makeOption(57));
+	(*config)("address").push(cfg::makeOption(32));
+	(*config)("address").push(cfg::makeOption(33));
+	(*config)("address").push(cfg::makeOption(63));
 
-	vector<int> command1{21, 137, 22, 133, 21, 137, 25, 133, 21, 137, 37, 133, 21, 134, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137, 21, 137};
+	vector<int> command1{21, 137, 24, 20, 133, 144, 21, 137, 48, 25, 133, 48, 37, 133, 20, 21, 134, 20, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18};
 	for (auto con : command1)
 	{
 		(*config)("command_rx").push(cfg::makeOption(con));
 	}
-	vector<int> command2{21, 73, 22, 69, 21, 73, 25, 69, 21, 73, 37, 69, 21, 70, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73, 21, 73};
+	vector<int> command2{21, 73, 8, 22, 69, 128, 21, 73, 32, 25, 69, 32, 21, 73, 4, 21, 70, 2, 21, 70, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2};
 	for (auto con : command2)
 	{
 		(*config)("command_tx").push(cfg::makeOption(con));
 	}
 
-	vector<int> command3{21, 137};
+	vector<int> command3{21, 137, 18};
 	for (auto con : command3)
 	{
 		(*config)("passthrough_rx").push(cfg::makeOption(con));
 	}
-	vector<int> command4{21, 73};
+	vector<int> command4{21, 73, 2};
 	for (auto con : command4)
 	{
 		(*config)("passthrough_tx").push(cfg::makeOption(con));

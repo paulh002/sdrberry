@@ -25,7 +25,6 @@ Fft_calculator::Fft_calculator()
 	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0}, noisefloor{noise_floor}
 {
 	avg_filter.resize(nfft_samples);
-	ema_filter.resize(nfft_samples);
 }
 
 Fft_calculator::~Fft_calculator()

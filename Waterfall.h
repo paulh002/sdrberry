@@ -64,9 +64,8 @@ class Fft_calculator
 	IQSampleVector m_input;
 	std::vector<float> v_window;
 	int fft_avg;
-	std::vector<SMA<2>> avg_filter;
-	std::vector<EMA<2>> ema_filter;
 	int noisefloor;
+	std::vector<SMA<2>> avg_filter;
 };
 
 template <typename _Real>

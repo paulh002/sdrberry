@@ -197,21 +197,24 @@ void Catinterface::checkCAT()
 			rfgain = count;
 			guiQueue.push_back(GuiMessage(GuiMessage::action::setifgain, count));
 		}
-		count = cat_message.GetTX();
-		if (m_mode != count)
+		if (!(mode == mode_ft8 || mode == mode_ft4))
 		{
-			m_mode = count;
-			switch (m_mode)
+			int rxtxCatMessage = cat_message.GetTX();
+			if (m_mode != rxtxCatMessage)
 			{
-			case 0:
-				select_mode(mode);
-				break;
-			case 1:
-				select_mode_tx(mode);
-				break;
-			case 2:
-				select_mode_tx(mode, 1);
-				break;
+				m_mode = rxtxCatMessage;
+				switch (m_mode)
+				{
+				case TX_OFF:
+					select_mode(mode);
+					break;
+				case TX_CAT:
+					select_mode_tx(mode, TX_NOTONE, TX_CAT);
+					break;
+				case TX_TUNE_CAT:
+					select_mode_tx(mode, TX_TONE, TX_TUNE_CAT);
+					break;
+				}
 			}
 		}
 		count = cat_message.GetSH();
@@ -275,4 +278,9 @@ void Catinterface::SetRG(int rg)
 uint8_t Catinterface::GetRG()
 {
 	return cat_message.GetRG();
+}
+
+void Catinterface::SetTX(int tx)
+{
+	cat_message.SetTX((uint8_t)tx);
 }

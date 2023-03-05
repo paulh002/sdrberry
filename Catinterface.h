@@ -44,7 +44,7 @@ class Catinterface
 	uint8_t GetIG();
 	void SetIG(int ig);
 	void SetRG(int rg);
-
+	void SetTX(int tx);
 
   private:
 	FT891_CAT cat_message;

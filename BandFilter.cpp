@@ -24,6 +24,7 @@ void BandFilter::SetBand(int band, bool rx)
 	int i = pcf8574.size();
 	if (i > 0 && !bandfilter_pass_trough)
 	{
+		const auto startTime = std::chrono::high_resolution_clock::now();
 		int ii = 0;
 		printf("i2c ");
 		for (auto& col : pcf8574)
@@ -34,18 +35,21 @@ void BandFilter::SetBand(int band, bool rx)
 				cc = Settings_file.command_rx[i * index + ii];
 				if (col.getConnected())
 					col.write8(cc);
-				printf("%d ", cc);
+				printf("rx %d ", cc);
 			}
 			if (!rx && Settings_file.command_tx.size() >= (i * index + ii))
 			{
 				cc = Settings_file.command_tx[i * index + ii];
 				if (col.getConnected())
 					col.write8(cc);
-				printf("%d ", cc);
+				printf("tx %d ", cc);
 			}
 			ii++;
 		}
-		printf("\n");
+		auto now = std::chrono::high_resolution_clock::now();
+		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+
+		printf(" I2C time %ld\n", timePassed.count());
 		return;
 	}
 	if (i > 0 && bandfilter_pass_trough)
@@ -60,7 +64,7 @@ void BandFilter::SetBand(int band, bool rx)
 				cc = Settings_file.passthrough_rx[ii];
 				if (col.getConnected())
 					col.write8(cc);
-				printf("%d ", cc);
+				printf("rx %d ", cc);
 			}
 
 			if (!rx && Settings_file.passthrough_tx.size() >= i)
@@ -68,7 +72,7 @@ void BandFilter::SetBand(int band, bool rx)
 				cc = Settings_file.passthrough_tx[ii];
 				if (col.getConnected())
 					col.write8(cc);
-				printf("%d ", cc);
+				printf("tx %d ", cc);
 			}
 			ii++;
 		}

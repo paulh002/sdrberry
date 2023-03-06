@@ -314,12 +314,14 @@ int main(int argc, char *argv[])
 	lv_obj_add_flag(ft8bar_view, LV_OBJ_FLAG_HIDDEN);
 	guift8bar.init(ft8bar_view, button_group, keyboard_group,mode, LV_HOR_RES - 3, barHeight);
 
-	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, 40);
+	int buttonHeight = 40;
+	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, buttonHeight);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
+	int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
-	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight - barHeight);
-
+	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, tabHeight);
+	
 	tab["spectrum"] = (lv_tabview_add_tab(tabview_mid, "Spectrum"));
 	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
@@ -333,8 +335,8 @@ int main(int argc, char *argv[])
 
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	Wf.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight, ifrate);
-	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, screenHeight - topHeight - tunerHeight);
+	Wf.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
+	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);

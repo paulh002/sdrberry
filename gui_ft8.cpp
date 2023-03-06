@@ -106,7 +106,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_add_style(table, &ft8_style, 0);
 	//lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
 	lv_obj_set_pos(table, x, y);
-	lv_obj_set_size(table, w, h-130);
+	lv_obj_set_size(table, w, h);
 
 	lv_obj_set_style_pad_top(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(table, 2, LV_PART_MAIN);
@@ -137,6 +137,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	if (bclear)
 	{
 		lv_table_set_row_cnt(table, 1);
+		ScrollFirstItem();
 		m_cycle_count = 1;
 		bclear = false;
 	}
@@ -166,7 +167,6 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	lv_table_set_cell_value(table, m_cycle_count, 5, msg.c_str());
 
 	m_cycle_count++;
-	ScrollLatestItem();
 }
 
 void gui_ft8::clear()
@@ -189,6 +189,18 @@ void gui_ft8::reset()
 
 void gui_ft8::ScrollLatestItem()
 {
+	lv_coord_t currScrollPos = lv_obj_get_scroll_y(table);
+	Scroll(currScrollPos);
+}
+
+void gui_ft8::ScrollFirstItem()
+{
+	lv_coord_t currScrollPos{};
+	lv_obj_scroll_to(table, 0, currScrollPos, LV_ANIM_OFF);
+}
+
+void gui_ft8::Scroll(lv_coord_t currScrollPos)
+{
 	lv_coord_t y = lv_obj_get_self_height(table);
 
 	//If the object content is big enough to scroll
@@ -196,8 +208,6 @@ void gui_ft8::ScrollLatestItem()
 	{
 		//Calculate the "out of view" y size
 		lv_coord_t outOfView = y - lv_obj_get_height(table);
-
-		lv_coord_t currScrollPos = lv_obj_get_scroll_y(table);
 
 		if (outOfView > currScrollPos)
 		{
@@ -208,6 +218,5 @@ void gui_ft8::ScrollLatestItem()
 			lv_obj_scroll_by(table, 0, differenceToScroll, LV_ANIM_ON);
 		}
 	}
-
 	return;
 }

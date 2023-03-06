@@ -25,6 +25,7 @@ class gui_ft8
 	void set_group();
 	void reset();
 	void ScrollLatestItem();
+	void ScrollFirstItem();
 
   private:
 	lv_obj_t *table, *table_label;
@@ -32,6 +33,7 @@ class gui_ft8
 	std::vector<message> messages;
 	int m_cycle_count{0};
 	bool bclear{false};
+	void Scroll(lv_coord_t currScrollPos);
 };
 
 extern gui_ft8 gft8;

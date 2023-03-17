@@ -112,7 +112,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_set_style_pad_bottom(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_left(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_right(table, 2, LV_PART_MAIN);
-	lv_obj_set_style_pad_ver(table, 1, LV_PART_ITEMS);
+	lv_obj_set_style_pad_ver(table, 0, LV_PART_ITEMS);
 	
 	lv_table_set_cell_value(table, 0, 0, "Time");
 	lv_table_set_col_width(table, 0, w/8);

@@ -1,5 +1,5 @@
 #include "AMModulator.h"
-#include "Waterfall.h"
+#include "Spectrum.h"
 #include "gui_speech.h"
 #include "PeakLevelDetector.h"
 #include "gui_ft8bar.h"

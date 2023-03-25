@@ -14,6 +14,7 @@
 #include "GuiFt8Setting.h"
 #include "gui_ft8bar.h"
 #include "Keyboard.h"
+#include "Spectrum.h"
 
 //#include "HidThread.h"
 
@@ -335,7 +336,7 @@ int main(int argc, char *argv[])
 
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	Wf.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
+	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
@@ -459,8 +460,8 @@ int main(int argc, char *argv[])
 		if (timeLastStatus + std::chrono::milliseconds(100) < now)
 		{
 			timeLastStatus = now;
-			Fft_calc.upload_fft(Wf.data_set);
-			Wf.load_data();
+			Fft_calc.upload_fft(SpectrumGraph.data_set);
+			SpectrumGraph.load_data();
 			double s = Fft_calc.get_signal_strength();
 			set_s_meter(s);
 			catinterface.SetSM((uint8_t)s);
@@ -485,7 +486,7 @@ int main(int argc, char *argv[])
 				else
 					gbar.setIfGainOverflow(false);
 			case GuiMessage::setpos:
-				Wf.set_pos(vfo.get_vfo_offset());
+				SpectrumGraph.set_pos(vfo.get_vfo_offset());
 				break;
 			case GuiMessage::setband:
 				{

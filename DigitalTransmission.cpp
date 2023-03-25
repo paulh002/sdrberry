@@ -1,7 +1,6 @@
 #include "DigitalTransmission.h"
 #include "AMModulator.h"
 #include "PeakLevelDetector.h"
-#include "Waterfall.h"
 #include "gui_ft8bar.h"
 #include "gui_speech.h"
 #include <chrono>

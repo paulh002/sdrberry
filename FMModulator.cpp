@@ -1,5 +1,5 @@
 #include "FMModulator.h"
-#include "Waterfall.h"
+#include "Spectrum.h"
 
 static shared_ptr<FMModulator> sp_fmmod;
 

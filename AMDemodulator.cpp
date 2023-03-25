@@ -5,6 +5,7 @@
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 #include "SharedQueue.h"
+#include "Spectrum.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;

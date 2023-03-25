@@ -2,6 +2,7 @@
 #include "Catinterface.h"
 #include "BandFilter.h"
 #include "sdrstream.h"
+#include "Spectrum.h"
 
 CVfo	vfo;
 
@@ -270,7 +271,7 @@ int CVfo::set_vfo(long long freq)
 	}
 	printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
-	Wf.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
+	SpectrumGraph.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo))
 	{ // Band Change?
 		catinterface.SetBand(get_band_in_meters());

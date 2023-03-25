@@ -169,6 +169,7 @@
     <ClCompile Include="sdrstream.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SpectralNoiseReduction.cpp" />
+    <ClCompile Include="Spectrum.cpp" />
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
@@ -284,6 +285,7 @@
     <ClInclude Include="SoapySDR\Version.hpp" />
     <ClInclude Include="sdrberry.h" />
     <ClInclude Include="SpectralNoiseReduction.h" />
+    <ClInclude Include="Spectrum.h" />
     <ClInclude Include="StartTx.h" />
     <ClInclude Include="strlib.h" />
     <ClInclude Include="vfo.h" />

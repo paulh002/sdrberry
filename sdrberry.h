@@ -13,7 +13,6 @@
 #include "RtAudio.h"
 #include "SdrDevice.h"
 #include "Settings.h"
-#include "Waterfall.h"
 #include "gui_agc.h"
 #include "gui_bar.h"
 #include "gui_ft8.h"

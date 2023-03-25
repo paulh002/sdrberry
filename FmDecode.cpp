@@ -12,7 +12,7 @@
 #include <complex>
 #include <vector>
 #include <mutex>
-#include "Waterfall.h"
+#include "Spectrum.h"
 #include "vfo.h"
 
 using namespace std;

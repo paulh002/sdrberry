@@ -1,5 +1,6 @@
 #include "Demodulator.h"
 #include "gui_speech.h"
+#include "Spectrum.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -72,18 +73,18 @@ void Demodulator::set_span(int span)
 		int n = (vfo.get_vfo_offset() / m_span);
 		//printf("window: %d  offset %d\n", n, m_span * n);
 		set_fft_mixer(m_span * n);
-		Wf.set_fft_if_rate(2 * m_span, n);
+		SpectrumGraph.set_fft_if_rate(2 * m_span, n);
 		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//Wf.set_pos(vfo.get_vfo_offset(), true);
+		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
 	}
 	else
 	{
 		m_span = span;
 		set_fft_resample_rate(0.0);
 		set_fft_mixer(0);
-		Wf.set_fft_if_rate(ifSampleRate, 0);
+		SpectrumGraph.set_fft_if_rate(ifSampleRate, 0);
 		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//Wf.set_pos(vfo.get_vfo_offset(), true);
+		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
 	}
 }
 

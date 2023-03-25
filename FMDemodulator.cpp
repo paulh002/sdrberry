@@ -1,5 +1,6 @@
 #include "sdrberry.h"
 #include "FMDemodulator.h"
+#include "Spectrum.h"
 #include <thread>
 
 FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)

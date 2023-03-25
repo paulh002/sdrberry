@@ -4,7 +4,7 @@
 
 #include <liquid/liquid.h>
 #include "EchoAudio.h"
-#include "Waterfall.h"
+#include "Spectrum.h"
 #include "gui_speech.h"
 #include "PeakLevelDetector.h"
 

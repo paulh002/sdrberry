@@ -10,7 +10,7 @@
 #include <map>
 #include "FT8Demodulator.h"
 #include "sdrberry.h"
-
+#include "Spectrum.h"
 
 static shared_ptr<FT8Demodulator>	sp_ft8demod;
 std::mutex							ft8demod_mutex;

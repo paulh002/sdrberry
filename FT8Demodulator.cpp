@@ -49,12 +49,14 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	liquid_ampmodem_type am_mode;
 
 	Demodulator::set_resample_rate(ft8_rate / ifrate); // down sample to ft8_rate
-	m_bandwidth = 4500; // SSB
 	suppressed_carrier = 1;
 	am_mode = LIQUID_AMPMODEM_USB;
 	printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
 
 	const auto startTime = std::chrono::high_resolution_clock::now();
+	
+	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
+	gbar.set_filter_slider(m_bandwidth);
 	setLowPassAudioFilterCutOffFrequency(m_bandwidth);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);

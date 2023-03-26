@@ -30,6 +30,7 @@ Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
 	lv_obj_set_pos(canvas,x,y);
 	fft = std::make_unique<FastFourier>(width, resampleRate);
+	waterfallfloor = Settings_file.get_int("Waterfall", "floor", 60);
 }
 
 Waterfall::~Waterfall()
@@ -54,7 +55,7 @@ void Waterfall::Process(const IQSampleVector &input)
 void Waterfall::Draw()
 {
 	std::unique_lock<std::mutex> lock(mutexSingleEntry);
-	//lv_canvas_copy_buf(canvas, cbuf.data(), 0, 0, width, height);
+	
 	std::vector<uint8_t> buf;
 	buf.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height -1));
 	memcpy(buf.data(), cbuf.data() + LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, 1), LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height - 1));
@@ -73,7 +74,7 @@ void Waterfall::Draw()
 			zz = (width / 2) + i;
 		else
 			zz = i - (width / 2);
-		lv_color_t c = heatmap(80.0 + 20 * log10(f.at(zz)), 0.0, 50.0);
+		lv_color_t c = heatmap((float)waterfallfloor + 20.0 * log10(f.at(zz)), 0.0, 50.0);
 		lv_canvas_set_px_color(canvas, i, height - 1, c);
 		//printf("%f\n",  20 * log10(f.at(zz)));
 	}

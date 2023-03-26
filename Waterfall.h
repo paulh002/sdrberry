@@ -35,4 +35,5 @@ class Waterfall
 	std::mutex mutexSingleEntry;
 	lv_color_t heatmap(float val, float min, float max);
 	lv_coord_t width, height;
+	int waterfallfloor;
 };

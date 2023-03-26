@@ -201,7 +201,8 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);
 	}
-	
+	if (digitalmode)
+		gft8.Process(buf_mod);
 	executeBandpassFilter(buf_mod, buf_filter);
 	buf_mod.clear();
 	Resample(buf_filter, buf_out);

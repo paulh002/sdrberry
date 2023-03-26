@@ -121,14 +121,15 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_cell_value(table, 0, 0, "Time");
 	lv_table_set_col_width(table, 0, w/12);
 	lv_table_set_cell_value(table, 0, 1, "db");
-	lv_table_set_col_width(table, 1, w/14);
+	lv_table_set_col_width(table, 1, w/16);
 	lv_table_set_cell_value(table, 0, 2, "Freq");
 	lv_table_set_col_width(table, 2, w/12);
 	lv_table_set_cell_value(table, 0, 3, "Message");
-	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 14 + w / 12));
+	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12));
 	m_cycle_count++;
-
-	float resampleRate = 4000.0 / ft8_rate;
+	
+	float bandwidth = Settings_file.get_int("ft8", "bandwidth", 4500);
+	float resampleRate = bandwidth / ft8_rate;
 	waterfall = std::make_unique<Waterfall>(o_tab, w / 2, y, w / 2, h, resampleRate);
 }
 

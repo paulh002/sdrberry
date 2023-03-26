@@ -6,6 +6,7 @@
 #include "Limiter.h"
 #include "SharedQueue.h"
 #include "Spectrum.h"
+#include "FreeDVTab.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -13,7 +14,7 @@ std::mutex amdemod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1 {};
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
-	: Demodulator(ifrate, source_buffer, audioOutputBuffer)
+	: Demodulator(ifrate, source_buffer, audioOutputBuffer), receiverMode(mode) 
 {
 	float					modulationIndex  = 0.03125f; 
 	int						suppressed_carrier;
@@ -22,6 +23,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 
 	float sample_ratio = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
+	
 	switch (mode)
 	{
 	case mode_usb:
@@ -67,6 +69,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
+	freeDVTab.SetMode(mode);
 	//catinterface.SetSH(m_bandwidth);
 }
 
@@ -252,7 +255,7 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	calc_if_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
-
+	freeDVTab.Process(filter1);
 	for (auto col : filter1)
 	{
 		float v;

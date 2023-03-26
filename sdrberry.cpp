@@ -15,6 +15,7 @@
 #include "gui_ft8bar.h"
 #include "Keyboard.h"
 #include "Spectrum.h"
+#include "FreeDVTab.h"
 
 //#include "HidThread.h"
 
@@ -180,14 +181,14 @@ static void tabview_event_cb(lv_event_t *e)
 		gft8.set_group();
 		break;
 	case 7:
-		gbar.hide(true);
-		guift8bar.hide(false);
-		guift8setting.set_group();
+		gbar.hide(false);
+		guift8bar.hide(true);
+		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
 	case 8:
 		gbar.hide(false);
 		guift8bar.hide(true);
-		gsetup.set_group();
+		guift8setting.set_group();
 		break;
 	}
 }
@@ -331,6 +332,7 @@ int main(int argc, char *argv[])
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
+	tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	//tab["ft8settings"] = (lv_tabview_add_tab(tabview_mid, (std::string("FT8 ") + std::string(LV_SYMBOL_SETTINGS)).c_str()));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
 
@@ -343,6 +345,7 @@ int main(int argc, char *argv[])
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
+	freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//guift8setting.init(tab["ft8settings"], keyboard_group);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 
@@ -465,6 +468,10 @@ int main(int argc, char *argv[])
 			double s = Fft_calc.get_signal_strength();
 			set_s_meter(s);
 			catinterface.SetSM((uint8_t)s);
+			if (mode == mode_freedv)
+				freeDVTab.DrawWaterfall();
+			if (mode == mode_ft8)
+				gft8.DrawWaterfall();
 		}
 		
 		while (FT8Queue.pull(msg))

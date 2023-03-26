@@ -1,6 +1,7 @@
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
 
+
 extern const int screenWidth;
 extern const int screenHeight;
 extern const int bottomHeight;
@@ -52,7 +53,7 @@ static void draw_part_event_cb(lv_event_t *e)
 		/*Make the texts in the first cell center aligned*/
 
 		/*MAke every 2nd row grayish*/
-		if (col == 5)
+		if (col == 3)
 		{
 			char *ptr = table->cell_data[((col+1) * (row+1))-1] + 1;
 			if (strstr(ptr, "CQ ") != NULL)
@@ -106,27 +107,29 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_add_style(table, &ft8_style, 0);
 	//lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
 	lv_obj_set_pos(table, x, y);
-	lv_obj_set_size(table, w, h);
+	lv_obj_set_size(table, w/2, h);
 
 	lv_obj_set_style_pad_top(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_left(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_right(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(table, 0, LV_PART_ITEMS);
-	
+
+	lv_obj_set_style_pad_left(table, 0, LV_PART_ITEMS);
+	lv_obj_set_style_pad_right(table, 0, LV_PART_ITEMS);
+
 	lv_table_set_cell_value(table, 0, 0, "Time");
-	lv_table_set_col_width(table, 0, w/8);
+	lv_table_set_col_width(table, 0, w/12);
 	lv_table_set_cell_value(table, 0, 1, "db");
-	lv_table_set_col_width(table, 1, w/12);
-	lv_table_set_cell_value(table, 0, 2, "Time");
-	lv_table_set_col_width(table, 2, w/10);
-	lv_table_set_cell_value(table, 0, 3, "Offset");
-	lv_table_set_col_width(table, 3, w/9);
-	lv_table_set_cell_value(table, 0, 4, "Freq");
-	lv_table_set_col_width(table, 4, w/8);
-	lv_table_set_cell_value(table, 0, 5, "Message");
-	lv_table_set_col_width(table, 5, (int)((float)w/2.3));
+	lv_table_set_col_width(table, 1, w/14);
+	lv_table_set_cell_value(table, 0, 2, "Freq");
+	lv_table_set_col_width(table, 2, w/12);
+	lv_table_set_cell_value(table, 0, 3, "Message");
+	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 14 + w / 12));
 	m_cycle_count++;
+
+	float resampleRate = 4000.0 / ft8_rate;
+	waterfall = std::make_unique<Waterfall>(o_tab, w / 2, y, w / 2, h, resampleRate);
 }
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,double hz0, string msg)
@@ -154,17 +157,11 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	sprintf(str,"%3d",snr);
 	lv_table_set_cell_value(table, m_cycle_count, 1, str);
 
-	sprintf(str, "%3d", correct_bits);
+	sprintf(str, "%6.1f", hz0);
 	lv_table_set_cell_value(table, m_cycle_count, 2, str);
 
-	sprintf(str, "%5.2f", off);
-	lv_table_set_cell_value(table, m_cycle_count, 3, str);
-
 	sprintf(str, "%6.1f", hz0);
-	lv_table_set_cell_value(table, m_cycle_count, 4, str);
-
-	sprintf(str, "%6.1f", hz0);
-	lv_table_set_cell_value(table, m_cycle_count, 5, msg.c_str());
+	lv_table_set_cell_value(table, m_cycle_count, 3, msg.c_str());
 
 	m_cycle_count++;
 }
@@ -219,4 +216,14 @@ void gui_ft8::Scroll(lv_coord_t currScrollPos)
 		}
 	}
 	return;
+}
+
+void gui_ft8::Process(const IQSampleVector &input)
+{
+	waterfall->Process(input);
+}
+
+void gui_ft8::DrawWaterfall()
+{
+	waterfall->Draw();
 }

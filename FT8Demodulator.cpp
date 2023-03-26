@@ -11,6 +11,7 @@
 #include "FT8Demodulator.h"
 #include "sdrberry.h"
 #include "Spectrum.h"
+#include "FreeDVTab.h"
 
 static shared_ptr<FT8Demodulator>	sp_ft8demod;
 std::mutex							ft8demod_mutex;
@@ -48,7 +49,7 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	liquid_ampmodem_type am_mode;
 
 	Demodulator::set_resample_rate(ft8_rate / ifrate); // down sample to ft8_rate
-	m_bandwidth = 2500; // SSB
+	m_bandwidth = 4500; // SSB
 	suppressed_carrier = 1;
 	am_mode = LIQUID_AMPMODEM_USB;
 	printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
@@ -60,7 +61,6 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
-
 }
 
 FT8Demodulator::~FT8Demodulator()
@@ -157,6 +157,7 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
+	gft8.Process(filter1);
 	for (auto col : filter1)
 	{
 		float v;

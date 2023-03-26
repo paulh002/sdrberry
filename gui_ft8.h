@@ -3,6 +3,7 @@
 #include "lvgl.h"
 #include "Settings.h"
 #include "sdrberry.h"
+#include "Waterfall.h"
 
 struct message
 {
@@ -26,6 +27,8 @@ class gui_ft8
 	void reset();
 	void ScrollLatestItem();
 	void ScrollFirstItem();
+	void Process(const IQSampleVector &input);
+	void DrawWaterfall();
 
   private:
 	lv_obj_t *table, *table_label;
@@ -34,6 +37,8 @@ class gui_ft8
 	int m_cycle_count{0};
 	bool bclear{false};
 	void Scroll(lv_coord_t currScrollPos);
+	std::unique_ptr<Waterfall> waterfall;
+	float ft8_rate{12000.0};
 };
 
 extern gui_ft8 gft8;

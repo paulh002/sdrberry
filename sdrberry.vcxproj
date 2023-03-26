@@ -96,10 +96,12 @@
     <ClCompile Include="DigitalTransmission.cpp" />
     <ClCompile Include="EchoAudio.cpp" />
     <ClCompile Include="EnergyCalculator.cpp" />
+    <ClCompile Include="FastFourier.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
     <ClCompile Include="FMModulator.cpp" />
+    <ClCompile Include="FreeDVTab.cpp" />
     <ClCompile Include="FreeSans42.c" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -191,10 +193,12 @@
     <ClInclude Include="DigitalTransmission.h" />
     <ClInclude Include="EchoAudio.h" />
     <ClInclude Include="EnergyCalculator.h" />
+    <ClInclude Include="FastFourier.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="FMModulator.h" />
+    <ClInclude Include="FreeDVTab.h" />
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="FT8Demodulator.h" />
     <ClInclude Include="FT8Generator.h" />

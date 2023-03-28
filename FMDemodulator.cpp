@@ -73,6 +73,7 @@ void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	IQSampleVector		filter1, filter2;
 		
 	// mix to correct frequency
+	SpectrumGraph.ProcessWaterfall(samples_in);
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();

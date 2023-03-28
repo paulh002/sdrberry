@@ -183,22 +183,43 @@ static void draw_event_cb(lv_event_t *e)
 
 void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
+
+	int heightChart, fontsize = 20, heightWaterfall;
+	int waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
+
+	if (waterfallsize < 0 || waterfallsize > 10 || waterfallsize == 1)
+		waterfallsize = 0;
+
 	lv_style_init(&Spectrum_style);
 	lv_style_set_radius(&Spectrum_style, 0);
 	lv_style_set_bg_color(&Spectrum_style, lv_color_black());
 
 	chart = lv_chart_create(scr);
 	lv_obj_add_style(chart, &Spectrum_style, 0);
-	lv_obj_set_pos(chart, x, y);
-	lv_obj_set_size(chart, w, h); // (h - 170)
+	heightChart = h;
+	heightWaterfall = 0;
+	if (waterfallsize)
+	{
+		lv_obj_set_pos(chart, x, y + fontsize);
+		heightChart = h - (h * waterfallsize) / 10;
+		heightWaterfall = (h * waterfallsize) / 10;
+		lv_obj_set_size(chart, w, heightChart);
+		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_SECONDARY_X, 0, 0, vert_lines, 1, true, 100);
+	}
+	else
+	{
+		lv_obj_set_pos(chart, x, y);
+		lv_obj_set_size(chart, w, h - fontsize);
+		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
+	}
 	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
 	lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
-
+	//LV_CHART_AXIS_PRIMARY_X
 	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 6, 1, true, 80);
 	lv_chart_set_div_line_count(chart, hor_lines, vert_lines);
-	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
+	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
 	lv_obj_add_event_cb(chart, click_event_cb, LV_EVENT_CLICKED, NULL);
 	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM);
@@ -211,6 +232,24 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 		data_set.push_back(0);
 	lv_chart_set_point_count(chart, data_set.size());
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
+
+	if (waterfallsize > 0)
+	{
+		int waterfallfloor = Settings_file.get_int("Radio", "waterfallfloor", 10);
+		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, waterfallfloor, down, lowerpart);
+	}
+}
+
+void Spectrum::DrawWaterfall()
+{
+	if (waterfall)
+		waterfall->Draw();
+}
+
+void Spectrum::ProcessWaterfall(const IQSampleVector &input)
+{
+	if (waterfall)
+		waterfall->Process(input);
 }
 
 void Spectrum::set_pos(int32_t offset)

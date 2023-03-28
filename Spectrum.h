@@ -30,6 +30,8 @@ class Spectrum
 	std::vector<lv_coord_t> data_set;
 	lv_chart_cursor_t *get_cursor() { return m_cursor; }
 	void set_fft_if_rate(float ifrate, int n);
+	void DrawWaterfall();
+	void ProcessWaterfall(const IQSampleVector &input);
 
   private:
 	lv_obj_t *chart;
@@ -38,6 +40,7 @@ class Spectrum
 	lv_chart_cursor_t *m_cursor;
 	atomic<float> m_ifrate;
 	atomic<int> m_n;
+	std::unique_ptr<Waterfall> waterfall;
 };
 
 class Fft_calculator

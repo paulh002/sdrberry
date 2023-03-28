@@ -472,6 +472,7 @@ int main(int argc, char *argv[])
 				freeDVTab.DrawWaterfall();
 			if (mode == mode_ft8)
 				gft8.DrawWaterfall();
+			SpectrumGraph.DrawWaterfall();
 		}
 		
 		while (FT8Queue.pull(msg))

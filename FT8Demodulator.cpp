@@ -153,6 +153,7 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	SampleVector audio_mono;
 
 	// mix to correct frequency
+	SpectrumGraph.ProcessWaterfall(samples_in);
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();

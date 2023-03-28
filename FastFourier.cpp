@@ -11,12 +11,14 @@ FastFourier::FastFourier(int nbins, float rs)
 	{
 		hammingWindow.insert(hammingWindow.end(), liquid_windowf(LIQUID_WINDOW_HAMMING, i, numberOffBins, 0));
 	}
-	resampleHandle = msresamp_crcf_create(resampleRate, As);
+	if (resampleRate > 0.0)
+		resampleHandle = msresamp_crcf_create(resampleRate, As);
 }
 
 FastFourier::~FastFourier()
 {
-	msresamp_crcf_destroy(resampleHandle);
+	if (resampleHandle)
+		msresamp_crcf_destroy(resampleHandle);
 }
 
 void FastFourier::Process(const IQSampleVector &input)
@@ -31,16 +33,18 @@ void FastFourier::Process(const IQSampleVector &input)
 	}
 	else
 		inputData.insert(inputData.end(), input.begin(), input.end());
-	msresamp_crcf_execute(resampleHandle, (std::complex<float> *)inputData.data(), inputData.size(), (std::complex<float> *)inputData.data(), &num_written);
-	inputData.resize(num_written);
-
+	if (resampleHandle)
+	{
+		msresamp_crcf_execute(resampleHandle, (std::complex<float> *)inputData.data(), inputData.size(), (std::complex<float> *)inputData.data(), &num_written);
+		inputData.resize(num_written);
+	}
 	for (int i = 0; i < numberOffBins; i++)
 	{
 		inputData[i].real(inputData[i].real() * hammingWindow[i]);
 		if (invert)
 			inputData[i].imag(inputData[i].imag() * -1.0);
 		inputData[i].imag(inputData[i].imag() * hammingWindow[i]);
-	}
+		}
 	fftplan plan = fft_create_plan(numberOffBins, inputData.data(), fftBins.data(), type, flags);
 	fft_execute(plan);
 	fft_destroy_plan(plan);

@@ -247,6 +247,7 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	IQSampleVector		filter1, filter2;
 		
 	// mix to correct frequency
+	SpectrumGraph.ProcessWaterfall(samples_in);
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();
@@ -255,7 +256,6 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	calc_if_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
-	freeDVTab.Process(filter1);
 	for (auto col : filter1)
 	{
 		float v;

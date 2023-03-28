@@ -19,14 +19,27 @@ extern const int topHeight;
 extern const int tunerHeight;
 extern const int rightWidth;
 
+enum waterfallFlow
+{
+	up, down
+};
+
+enum partialspectrum
+{
+	allparts,
+	upperpart,
+	lowerpart
+};
+
 class Waterfall
 {
   public:
-	Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float resampleRate);
+	Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float resampleRate, int wfloor ,waterfallFlow flow = up, partialspectrum = allparts);
 	~Waterfall();
 	void Process(const IQSampleVector &input);
 	void Draw();
 	void SetMode(int mode);
+	void SetPartial(partialspectrum p) { partialSpectrum = p; }
 
   private:
 	lv_obj_t *canvas{};
@@ -36,4 +49,7 @@ class Waterfall
 	lv_color_t heatmap(float val, float min, float max);
 	lv_coord_t width, height;
 	int waterfallfloor;
+	waterfallFlow waterfallflow;
+	partialspectrum partialSpectrum;
+	int NumberOfBins;
 };

@@ -90,7 +90,7 @@ void FT8Demodulator::operator()()
 
 	FT8Processor::create_modulator(ft8processor);
 
-	Fft_calc.plan_fft(nfft_samples);
+	//Fft_calc.plan_fft(nfft_samples);
 	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
@@ -117,7 +117,7 @@ void FT8Demodulator::operator()()
 		}
 		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());
+		set_signal_strength();
 		process(iqsamples, audiosamples);
 		// Check for 15 seconds
 		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -153,7 +153,6 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	SampleVector audio_mono;
 
 	// mix to correct frequency
-	SpectrumGraph.ProcessWaterfall(samples_in);
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();

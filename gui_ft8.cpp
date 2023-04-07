@@ -131,7 +131,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	float bandwidth = Settings_file.get_int("ft8", "bandwidth", 4500);
 	int waterfallfloor = Settings_file.get_int("ft8", "waterfallfloor", 60);
 	float resampleRate = bandwidth / ft8_rate;
-	waterfall = std::make_unique<Waterfall>(o_tab, w / 2, y, w / 2, h, resampleRate, waterfallfloor);
+	waterfall = std::make_unique<Waterfall>(o_tab, w / 2, y, w / 2, h, resampleRate, waterfallfloor, up, allparts);
 }
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,double hz0, string msg)

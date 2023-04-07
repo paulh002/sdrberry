@@ -21,7 +21,6 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
-
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -57,6 +56,11 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	else
 		dcBlockHandle = nullptr;
+}
+
+void Demodulator::set_signal_strength()
+{
+	SpectrumGraph.set_signal_strength(get_if_level());
 }
 
 // decrease the span of the fft display by downmixing the bandwidth of the receiver
@@ -354,8 +358,8 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 		{
 			complex<float> v;
 
-			nco_crcf_mix_up(tuneNCO, col, &v);
 			nco_crcf_step(tuneNCO);
+			nco_crcf_mix_up(tuneNCO, col, &v);
 			filter_out.push_back(v);
 		}
 	}
@@ -428,7 +432,7 @@ void Demodulator::perform_fft(const IQSampleVector &iqsamples)
 	}
 	else
 		fft_resample(iqsamples, iqsamples_resample);
-	Fft_calc.process_samples(iqsamples_resample);
+	SpectrumGraph.ProcessWaterfall(iqsamples_resample);
 }
 
 void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, float low)

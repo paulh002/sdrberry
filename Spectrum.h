@@ -19,7 +19,7 @@ extern const int topHeight;
 extern const int tunerHeight;
 extern const int rightWidth;
 
-const int nfft_samples{1024};
+const int nfft_samples{800};
 
 class Spectrum
 {
@@ -32,6 +32,9 @@ class Spectrum
 	void set_fft_if_rate(float ifrate, int n);
 	void DrawWaterfall();
 	void ProcessWaterfall(const IQSampleVector &input);
+	void set_signal_strength(double strength);
+	double get_signal_strength() { return signal_strength; }
+	void SetSpan(int span);
 
   private:
 	lv_obj_t *chart;
@@ -41,35 +44,13 @@ class Spectrum
 	atomic<float> m_ifrate;
 	atomic<int> m_n;
 	std::unique_ptr<Waterfall> waterfall;
-};
-
-class Fft_calculator
-{
-  public:
-	void process_samples(const IQSampleVector &input);
-	void plan_fft(int size);
-	void upload_fft(std::vector<lv_coord_t> &data_set);
-	void set_signal_strength(double strength);
-	double get_signal_strength();
-
-	Fft_calculator();
-	~Fft_calculator();
-
-  private:
-	const int type = LIQUID_FFT_FORWARD;
-	int flags = 0; // FFT flags (typically ignored)
-	int nfft = 0;  // transform size
-	std::vector<std::complex<float>> fft_output;
-	fftplan plan{0};
-	std::mutex m_mutex;
-	std::condition_variable m_cond;
-	double signal_strength{0};
-	IQSampleVector m_input;
-	std::vector<float> v_window;
-	int fft_avg;
-	int noisefloor;
+	atomic<double> signal_strength{0};
 	std::vector<SMA<2>> avg_filter;
+	void upload_fft();
+	std::unique_ptr<FastFourier> fft;
 };
+
+
 
 template <typename _Real>
 static inline void rotshift(complex<_Real> *complexVector, const size_t count)
@@ -91,7 +72,6 @@ static inline void irotshift(complex<_Real> *complexVector, const size_t count)
 	std::rotate(complexVector, complexVector + center, complexVector + count);
 }
 
-extern Fft_calculator Fft_calc;
 extern Spectrum SpectrumGraph;
 
 IQSample::value_type rms_level_approx(const IQSampleVector &samples);

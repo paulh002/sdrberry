@@ -116,6 +116,9 @@ void keyboard_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 	}
 }
 
+int rotary_rotation{};
+bool rotations = false;
+
 void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 {
 	MouseState state;
@@ -123,7 +126,8 @@ void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 	state = Mouse_dev.GetMouseState();
 	data->point.x = state.x;
 	data->point.y = state.y;
-
+	rotary_rotation = state.Rotated;
+	
 	/*Get whether the mouse button is pressed or released*/
 	if (state.pressed)
 	{
@@ -135,10 +139,14 @@ void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 	}
 }
 
-void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
-{
+void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data){
 	//data->enc_diff = HidDev_dev.encoder_rotate();
 	//data->state = HidDev_dev.encoder_key_press();
+
+	if (rotations)
+		data->enc_diff = rotary_rotation;
+	//data->state = HidDev_dev.encoder_key_press();
+	rotary_rotation = 0;
 }
 
 std::map<string, lv_obj_t *> tab;
@@ -338,12 +346,12 @@ int main(int argc, char *argv[])
 
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
+	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
-	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//guift8setting.init(tab["ft8settings"], keyboard_group);
@@ -463,9 +471,8 @@ int main(int argc, char *argv[])
 		if (timeLastStatus + std::chrono::milliseconds(100) < now)
 		{
 			timeLastStatus = now;
-			Fft_calc.upload_fft(SpectrumGraph.data_set);
 			SpectrumGraph.load_data();
-			double s = Fft_calc.get_signal_strength();
+			double s = SpectrumGraph.get_signal_strength();
 			set_s_meter(s);
 			catinterface.SetSM((uint8_t)s);
 			if (mode == mode_freedv)
@@ -659,7 +666,7 @@ void select_mode(int s_mode, bool bvfo)
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_echo:
-		//EchoAudio::create_modulator(audio_output->get_samplerate(), audio_output,audio_input);
+		EchoAudio::create_modulator(audio_output,audio_input);
 		break;
 	}
 	vfo.set_freq_to_sdr();
@@ -710,6 +717,10 @@ void select_mode_tx(int s_mode, int tone, int cattx)
 		param.ifrate = ifrate_tx;
 		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
+		break;
+	
+	case mode_echo:
+		EchoAudio::create_modulator(audio_output, audio_input);
 		break;
 	
 	default:

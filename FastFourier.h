@@ -16,6 +16,7 @@ class FastFourier
 	int Size();
 	void SetBins(int bins);
 	std::vector<float> GetSquaredBins();
+	std::vector<float> GetLineatSquaredBins();
 	void SetInvert(bool inv);
 
   private:
@@ -25,7 +26,7 @@ class FastFourier
 	std::vector<std::complex<float>> fftBins;
 	std::vector<float> hammingWindow;
 	std::vector<std::complex<float>> inputData;
-	msresamp_crcf resampleHandle;
+	msresamp_crcf resampleHandle{0};
 	bool invert{false};
 	float resampleRate{};
 };

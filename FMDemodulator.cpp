@@ -1,6 +1,5 @@
 #include "sdrberry.h"
 #include "FMDemodulator.h"
-#include "Spectrum.h"
 #include <thread>
 
 FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
@@ -20,7 +19,6 @@ void FMDemodulator::operator()()
 	int						ifilter {-1}, span;
 	SampleVector            audiosamples, audioframes;
 	
-	Fft_calc.plan_fft(nfft_samples); //
 	while (!stop_flag.load())
 	{
 		span = gsetup.get_span();
@@ -39,7 +37,7 @@ void FMDemodulator::operator()()
 		}
 		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());
+		set_signal_strength();
 		process(iqsamples, audiosamples);
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
@@ -73,7 +71,6 @@ void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	IQSampleVector		filter1, filter2;
 		
 	// mix to correct frequency
-	SpectrumGraph.ProcessWaterfall(samples_in);
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();

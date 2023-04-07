@@ -5,8 +5,6 @@
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 #include "SharedQueue.h"
-#include "Spectrum.h"
-#include "FreeDVTab.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -69,7 +67,6 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
-	freeDVTab.SetMode(mode);
 	//catinterface.SetSH(m_bandwidth);
 }
 
@@ -112,7 +109,6 @@ void AMDemodulator::operator()()
 	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
-	Fft_calc.plan_fft(nfft_samples);
 	set_span(gsetup.get_span());
 	receiveIQBuffer->clear();
 	audioOutputBuffer->clear_underrun();
@@ -148,7 +144,7 @@ void AMDemodulator::operator()()
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
-		Fft_calc.set_signal_strength(get_if_level());
+		set_signal_strength();
 		if (gagc.get_agc_mode())
 		{
 			Agc.setRelease(gagc.get_release());
@@ -229,11 +225,11 @@ void AMDemodulator::operator()()
 			
 			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
-				//Demodulator::adjust_resample_rate(-0.01 * droppedFrames);
+				Demodulator::adjust_resample_rate(-0.002 * droppedFrames);
 			}
 			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				//Demodulator::adjust_resample_rate(0.01 * audioOutputBuffer->get_underrun());
+				//Demodulator::adjust_resample_rate(0.002 * audioOutputBuffer->get_underrun());
 			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;
@@ -247,7 +243,6 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	IQSampleVector		filter1, filter2;
 		
 	// mix to correct frequency
-	SpectrumGraph.ProcessWaterfall(samples_in);
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();

@@ -39,9 +39,11 @@ class Waterfall
 	void Process(const IQSampleVector &input);
 	void Draw();
 	void SetMode(int mode);
-	void SetPartial(partialspectrum p) { partialSpectrum = p; }
+	void SetSpan(int span);
 
   private:
+	void SetPartial(partialspectrum p);
+	
 	lv_obj_t *canvas{};
 	std::vector<uint8_t> cbuf;
 	std::unique_ptr<FastFourier> fft;
@@ -52,4 +54,5 @@ class Waterfall
 	waterfallFlow waterfallflow;
 	partialspectrum partialSpectrum;
 	int NumberOfBins;
+	float resampleRate;
 };

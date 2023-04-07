@@ -520,8 +520,6 @@ void* rx_fm_thread(void* fm_ptr)
 	upnco = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(upnco, 0.0f);
 	nco_crcf_set_frequency(upnco, rad_per_sample);
-	
-	Fft_calc.plan_fft(nfft_samples); 
 	while (!stop_flag.load())
 	{		
 		if (vfo.tune_flag == true)
@@ -553,9 +551,9 @@ void* rx_fm_thread(void* fm_ptr)
 		
 		if (fft_block == 5)
 		{
-			fft_block = 0;			
-			Fft_calc.process_samples(buf_mix);
-			Fft_calc.set_signal_strength(pfm->get_if_level()); 
+			fft_block = 0;
+			SpectrumGraph.ProcessWaterfall(buf_mix);
+			SpectrumGraph.set_signal_strength(pfm->get_if_level()); 
 		}
 		fft_block++;			
 		

@@ -61,7 +61,6 @@ void EchoAudio::operator()()
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
-	Fft_calc.plan_fft(nfft_samples);
 	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
 		audioInputBuffer->set_gain(20);
@@ -108,7 +107,7 @@ void EchoAudio::operator()()
 		buf_filter.clear();
 
 		calc_af_level(audiosamples);
-		Fft_calc.set_signal_strength(get_af_level());
+		set_signal_strength();
 		audio_output->adjust_gain(audiosamples);
 		for (auto &col : audiosamples)
 		{

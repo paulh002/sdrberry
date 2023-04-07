@@ -122,7 +122,6 @@ void AMModulator::operator()()
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
-	Fft_calc.plan_fft(nfft_samples);
 	tune_offset(vfo.get_vfo_offset());
 	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
@@ -165,7 +164,7 @@ void AMModulator::operator()()
 			audioInputBuffer->set_gain(0);
 
 		calc_af_level(audiosamples);
-		Fft_calc.set_signal_strength(get_af_level());
+		set_signal_strength();
 		process(audiosamples, samples_out);
 		transmitIQBuffer->push(move(samples_out));
 		audiosamples.clear();
@@ -209,7 +208,7 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 	buf_filter.clear();
 	mix_up(buf_out, samples_out); // Mix up to vfo freq
 	mix_up_fft(samples_out, buf_mod);
-	Fft_calc.process_samples(buf_mod);
+	SpectrumGraph.ProcessWaterfall(buf_mod);
 }
 
 void AMModulator::mix_up_fft(const IQSampleVector& filter_in,

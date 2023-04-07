@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "Spectrum.h"
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
@@ -358,7 +359,7 @@ void gui_setup::set_span_value(int span)
 	if(v < 0 || v > maxv)
 		span = maxv;
 	if (v > 0)
-	{	// the highest span is limited by ifrate/2
+	{
 		if ((m_ifrate - (double)span) < 0.1)
 		{
 			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);
@@ -382,7 +383,8 @@ void gui_setup::set_span_value(int span)
 	lv_label_set_text(span_slider_label, buf);
 	// store in atomic<int> so demodulator thread can request it
 	vfo.set_span(span);
-	m_span.store(span);	
+	m_span.store(span);
+	SpectrumGraph.SetSpan(span);
 }
 
 void gui_setup::set_span_range(int span)

@@ -57,10 +57,15 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 				b.meters = *it_band;
 			if (it_mode != Settings_file.mode.end())
 			{
+				
 				if (*it_mode == "usb")
 					b.f_mode = mode_usb;
 				if (*it_mode == "lsb")
 					b.f_mode = mode_lsb;
+				if (*it_mode == "ft8")
+					b.f_mode = mode_ft8;
+				if (*it_mode == "fm")
+					b.f_mode = mode_narrowband_fm;
 				if (*it_mode == "bfm")
 					b.f_mode = mode_broadband_fm;
 				if (*it_mode == "am")
@@ -88,7 +93,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	}
 	
 	offset_frequency = ifrate / 4; // to center initial spectrum view
-	vfo_setting.m_max_offset = ifrate / 2 ; // Max offset is 1/2 samplefrequency (Nyquist limit)
+	vfo_setting.m_max_offset = ifrate / 2;
 
 	vfo_setting.pcmrate = pcmrate;
 	vfo_setting.vfo_freq[0] = freq;						// initialize the frequency to user default
@@ -133,7 +138,7 @@ void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
 	else
 	{
 		offset_frequency = ifrate / 4;
-		vfo_setting.m_max_offset = ifrate /2; // Max offset is 1/2 samplefrequency 
+		vfo_setting.m_max_offset = ifrate / 2; // Max offset is 1/2 samplefrequency
 	}
 	vfo_setting.vfo_freq_sdr[0] = vfo_setting.vfo_freq[0] - offset_frequency; // position sdr frequency 1/4 of samplerate lower -> user frequency will be in center of fft display
 	vfo_setting.m_offset[0] = vfo_setting.vfo_freq[0] - vfo_setting.vfo_freq_sdr[0]; // 
@@ -172,7 +177,8 @@ void	CVfo::rx_set_sdr_freq()
 void	CVfo::tx_set_sdr_freq()
 {
 	if (SdrDevices && tx_channel >= 0)
-	{	
+	{
+		printf("TX Freq %lld\n", vfo.get_tx_frequency());
 		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
 	}
 }
@@ -204,7 +210,11 @@ int CVfo::set_vfo(long long freq)
 	
 	if (freq == 0L)
 	{
-		freq = vfo_setting.vfo_freq[vfo_setting.active_vfo];		
+		freq = vfo_setting.vfo_freq[vfo_setting.active_vfo];
+		if (vfo_setting.rx)
+			rx_set_sdr_freq();
+		if (vfo_setting.tx)
+			tx_set_sdr_freq();
 	}
 	if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
 		return -1;
@@ -231,7 +241,7 @@ int CVfo::set_vfo(long long freq)
 			// frequency increase
 			if ((freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) > vfo_setting.m_max_offset)
 			{
-				// if ferquency increase is larger than 1/2 sample frequency calculate new center
+				// if frequency increase is larger than 1/2 sample frequency calculate new center
 				// set a new center frequency
 				vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] += vfo_setting.m_max_offset / 2;										// increase sdr with 1/4 sample frequency
 				vfo_setting.m_offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]; 					// 

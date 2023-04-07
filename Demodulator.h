@@ -60,6 +60,7 @@ class Demodulator
 	double get_af_level() { return afEnergy.getEnergyLevel(); }
 	double get_if_levelI() { return ifEnergy.getEnergyLevelI(); }
 	double get_if_levelQ() { return ifEnergy.getEnergyLevelQ(); }
+	void set_signal_strength();
 	void set_fft_mixer(float offset);
 	void setLowPassAudioFilter(float samplerate, float band_width);
 	void fft_mix(int dir, const IQSampleVector &filter_in, IQSampleVector &filter_out);

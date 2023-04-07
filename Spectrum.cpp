@@ -17,61 +17,7 @@ const int noise_floor{20};
 const int hor_lines{8};
 const int vert_lines{9};
 
-Fft_calculator Fft_calc;
 Spectrum SpectrumGraph;
-
-Fft_calculator::Fft_calculator()
-	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0}, noisefloor{noise_floor}
-{
-	avg_filter.resize(nfft_samples);
-}
-
-Fft_calculator::~Fft_calculator()
-{
-}
-
-/*
- *	Output of fft is:
- *	x[0] = DC component
- *	x[1] to x[n/2] +ve frequencies
- *  x[n/2] to x[n] -ve frequencies
- *  
- *	x[n/2] Nyquist frequency
- *
- **/
-
-void Fft_calculator::process_samples(const IQSampleVector &input)
-{
-	m_input.insert(m_input.end(), input.begin(), input.end());
-	if (m_input.size() >= nfft)
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		// Apply hamming window
-		for (int i = 0; i < nfft; i++)
-		{
-			m_input[i].real(m_input[i].real() * v_window[i]);
-			m_input[i].imag(m_input[i].imag() * v_window[i]);
-		}
-		plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
-		fft_execute(plan);
-		fft_destroy_plan(plan);
-		m_input.clear();
-	}
-}
-
-void Fft_calculator::plan_fft(int size)
-{
-	noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
-	nfft = size;
-	fft_output.reserve(nfft);
-	m_input.reserve(nfft);
-	fft_output.resize(nfft);
-	v_window.clear();
-	for (int i = 0; i < nfft; i++)
-	{
-		v_window.insert(v_window.end(), liquid_windowf(LIQUID_WINDOW_HAMMING, i, nfft, 0));
-	}
-}
 
 static void click_event_cb(lv_event_t *e)
 {
@@ -232,22 +178,39 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 		data_set.push_back(0);
 	lv_chart_set_point_count(chart, data_set.size());
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
-
+	avg_filter.resize(nfft_samples);
+	fft = std::make_unique<FastFourier>(nfft_samples, 0.0);
 	if (waterfallsize > 0)
-	{
+	{	
 		int waterfallfloor = Settings_file.get_int("Radio", "waterfallfloor", 10);
-		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, waterfallfloor, down, lowerpart);
+		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, waterfallfloor, down, allparts);
+		int span = gsetup.get_span();
+		if ((ifrate - (float)span) > 0.1)
+			waterfall->SetSpan(span);
 	}
 }
 
 void Spectrum::DrawWaterfall()
 {
+	upload_fft();
 	if (waterfall)
 		waterfall->Draw();
 }
 
+void Spectrum::SetSpan(int span)
+{
+	if (waterfall)
+		waterfall->SetSpan(span);
+}
+
+void Spectrum::set_signal_strength(double strength)
+{
+	signal_strength = 20 * log10(strength) + 120;
+}
+
 void Spectrum::ProcessWaterfall(const IQSampleVector &input)
 {
+	fft->Process(input);
 	if (waterfall)
 		waterfall->Process(input);
 }
@@ -269,7 +232,7 @@ void Spectrum::set_pos(int32_t offset)
 		// currenlty nog negative offset still need to change
 		//d = ((float)offset + (float)m_ifrate.load() / 2.0) / (float)m_ifrate.load();
 		d = ((float)offset + (float)span / 2.0) / (float)span;
-		pos = (d * (float)nfft_samples) - 1;
+		pos = (d * (float)data_set.size()) - 1;
 	}
 	if (pos < 0)
 		pos = 0;
@@ -296,20 +259,20 @@ void Spectrum::load_data()
 	}
 }
 
-void Fft_calculator::upload_fft(std::vector<lv_coord_t> &data_set)
+void Spectrum::upload_fft()
 {
-	std::unique_lock<std::mutex> lock(m_mutex);
-	int i = 0, av = 0, value, avg{0};
+	int i{}, value{};
 
+	int noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
 	if (vfo.compare_span())
 	{
+		std::vector<float> fft_output = fft->GetSquaredBins();
 		data_set.resize(fft_output.size() / 2);
 		for (auto &col : fft_output)
 		{
 			if (i == (fft_output.size() / 2))
 				break;
-			std::complex f = std::conj(col) * col;
-			value = noisefloor + (lv_coord_t)(20.0 * log10(f.real()));
+			value = noisefloor + (lv_coord_t)(20.0 * log10(col));
 			if (value > 99.0)
 				value = 99.0;
 			data_set[i] = avg_filter[i](value);
@@ -318,39 +281,22 @@ void Fft_calculator::upload_fft(std::vector<lv_coord_t> &data_set)
 	}
 	else
 	{
-		data_set.resize(fft_output.size());
-		for (int i = 0; i < fft_output.size(); i++)
+		int ii = 0;
+		std::vector<float> fft_output = fft->GetLineatSquaredBins();
+		data_set.resize(fft_output.size()/2);
+		for (auto &col : fft_output)
 		{
-			std::complex<float> f, g;
-			int ii;
-
-			if (i < fft_output.size() / 2)
-			{
-				ii = fft_output.size() / 2 + i;
-			}
-			else
-			{
-				ii = i - fft_output.size() / 2;
-			}
-			f = std::conj(fft_output[ii]) * fft_output[ii];
-			g = f / v_window[ii];
-			value = noisefloor + (lv_coord_t)(20.0 * log10(g.real()));
+			value = noisefloor + (lv_coord_t)(20.0 * log10(col));
 			if (value > 99.0)
 				value = 99.0;
-			data_set[i] = avg_filter[i](value);
+			if (i % 2)
+			{
+				data_set[ii] = avg_filter[ii](value);
+				ii++;
+			}
+			i++;
 		}
 	}
 }
 
-void Fft_calculator::set_signal_strength(double strength)
-{
-	std::unique_lock<std::mutex> lock(m_mutex);
-	signal_strength = 20 * log10(strength) + 120;
-	//printf(" signal_strength %f \n", signal_strength);
-}
 
-double Fft_calculator::get_signal_strength()
-{
-	std::unique_lock<std::mutex> lock(m_mutex);
-	return signal_strength;
-}

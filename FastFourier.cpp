@@ -70,10 +70,28 @@ std::vector<float> FastFourier::GetSquaredBins()
 	std::vector<float> outputArray(numberOffBins);
 	for (int i = 0; i < numberOffBins; i ++)
 	{
-		std::complex<float> f;
+		outputArray[i] = std::norm(fftBins.at(i));
+	}
+	return outputArray;
+}
+
+std::vector<float> FastFourier::GetLineatSquaredBins()
+{
+	int ii = numberOffBins / 2;
+	bool highrange = true;
 	
-		f = std::conj(fftBins.at(i)) * fftBins.at(i);
-		outputArray[i] = f.real();
+	std::vector<float> outputArray(numberOffBins);
+
+	ii = numberOffBins / 2;
+	for (int i = 0; i < numberOffBins/2; i++)
+	{
+		outputArray[ii++] = std::norm(fftBins.at(i));
+	}
+
+	ii = 0;
+	for (int i = numberOffBins / 2; i < numberOffBins ; i++)
+	{
+		outputArray[ii++] = std::norm(fftBins.at(i));
 	}
 	return outputArray;
 }

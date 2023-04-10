@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "Spectrum.h"
+#include "gui_cal.h"
+#include "gui_ft8bar.h"
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
@@ -22,6 +25,30 @@ static void receivers_button_handler(lv_event_t * e)
 		switch_sdrreceiver(std::string(buf));
 	}
 }
+
+static void calbox_event_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
+			gbar.hide(true);
+			guift8bar.hide(true);
+			gcal.hide(false);
+		}
+		else
+		{
+			Settings_file.save();
+			gbar.hide(false);
+			guift8bar.hide(true);
+			gcal.hide(true);
+		}
+	}
+}
+
+
 
 static void contour_slider_event_cb(lv_event_t *e)
 {
@@ -306,7 +333,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 
 	contour_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, contour_slider);
-	lv_obj_set_width(contour_slider, w / 2 - 50);
+	lv_obj_set_width(contour_slider, w / 4 - 50);
 	lv_obj_align_to(contour_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, y_span);
 	lv_slider_set_range(contour_slider, 1, 10);
 	
@@ -329,15 +356,19 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 
 	floor_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, floor_slider);
-	lv_obj_set_width(floor_slider, w / 2 - 50);
-	lv_obj_align_to(floor_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, w / 2, 40);
+	lv_obj_set_width(floor_slider, w / 4 - 50);
+	lv_obj_align_to(floor_slider, span_slider, LV_ALIGN_OUT_BOTTOM_LEFT, w / 2, 40);
 	lv_slider_set_range(floor_slider, 1, 20);
 
 	lv_obj_add_event_cb(floor_slider, floor_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	floor_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(floor_slider_label, "Noise floor 1");
 	lv_obj_align_to(floor_slider_label, floor_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-	
+
+	calbox = lv_checkbox_create(o_tab);
+	lv_obj_align_to(calbox, o_tab, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
+	lv_checkbox_set_text(calbox, "calibration");
+	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
@@ -358,7 +389,7 @@ void gui_setup::set_span_value(int span)
 	if(v < 0 || v > maxv)
 		span = maxv;
 	if (v > 0)
-	{	// the highest span is limited by ifrate/2
+	{
 		if ((m_ifrate - (double)span) < 0.1)
 		{
 			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);
@@ -382,7 +413,8 @@ void gui_setup::set_span_value(int span)
 	lv_label_set_text(span_slider_label, buf);
 	// store in atomic<int> so demodulator thread can request it
 	vfo.set_span(span);
-	m_span.store(span);	
+	m_span.store(span);
+	SpectrumGraph.SetSpan(span);
 }
 
 void gui_setup::set_span_range(int span)

@@ -14,6 +14,9 @@
 #include "GuiFt8Setting.h"
 #include "gui_ft8bar.h"
 #include "Keyboard.h"
+#include "Spectrum.h"
+#include "FreeDVTab.h"
+#include "gui_cal.h"
 
 //#include "HidThread.h"
 
@@ -56,7 +59,7 @@ lv_obj_t *bg_middle;
 lv_obj_t *vfo1_button;
 lv_obj_t *vfo2_button;
 lv_obj_t *tabview_mid;
-lv_obj_t *bar_view, *ft8bar_view;
+lv_obj_t *bar_view, *ft8bar_view, *calbar_view;
 lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
@@ -114,6 +117,9 @@ void keyboard_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 	}
 }
 
+int rotary_rotation{};
+bool rotations = false;
+
 void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 {
 	MouseState state;
@@ -121,7 +127,8 @@ void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 	state = Mouse_dev.GetMouseState();
 	data->point.x = state.x;
 	data->point.y = state.y;
-
+	rotary_rotation = state.Rotated;
+	
 	/*Get whether the mouse button is pressed or released*/
 	if (state.pressed)
 	{
@@ -133,10 +140,14 @@ void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 	}
 }
 
-void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
-{
+void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data){
 	//data->enc_diff = HidDev_dev.encoder_rotate();
 	//data->state = HidDev_dev.encoder_key_press();
+
+	if (rotations)
+		data->enc_diff = rotary_rotation;
+	//data->state = HidDev_dev.encoder_key_press();
+	rotary_rotation = 0;
 }
 
 std::map<string, lv_obj_t *> tab;
@@ -149,44 +160,58 @@ static void tabview_event_cb(lv_event_t *e)
 	switch (i)
 	{
 	case 0:
-		gbar.hide(false);
-		guift8bar.hide(true);
+		if (gsetup.get_calibration())
+		{
+			gcal.hide(false);
+		}
+		else
+		{
+			gbar.hide(false);
+			guift8bar.hide(true);
+		}		
 		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
 	case 1:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gui_band_instance.set_group();
 		break;
 	case 3:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gagc.set_group();
 		break;
 	case 4:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		Gui_tx.set_group();
 		break;
 	case 5:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gspeech.set_group();
 		break;
 	case 6:
+		gcal.hide(true);
 		gbar.hide(true);
 		guift8bar.hide(false);
 		gft8.set_group();
 		break;
 	case 7:
-		gbar.hide(true);
-		guift8bar.hide(false);
-		guift8setting.set_group();
-		break;
-	case 8:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
-		gsetup.set_group();
+		lv_indev_set_group(encoder_indev_t, button_group);
+		break;
+	case 8:
+		gcal.hide(true);
+		gbar.hide(false);
+		guift8bar.hide(true);
+		guift8setting.set_group();
 		break;
 	}
 }
@@ -314,6 +339,13 @@ int main(int argc, char *argv[])
 	lv_obj_add_flag(ft8bar_view, LV_OBJ_FLAG_HIDDEN);
 	guift8bar.init(ft8bar_view, button_group, keyboard_group,mode, LV_HOR_RES - 3, barHeight);
 
+	calbar_view = lv_obj_create(lv_scr_act());
+	lv_obj_set_style_radius(calbar_view, 0, 0);
+	lv_obj_set_pos(calbar_view, 0, topHeight + tunerHeight);
+	lv_obj_set_size(calbar_view, LV_HOR_RES - 3, barHeight);
+	lv_obj_add_flag(calbar_view, LV_OBJ_FLAG_HIDDEN);
+	gcal.init(calbar_view, button_group, keyboard_group, LV_HOR_RES - 3, barHeight);
+
 	int buttonHeight = 40;
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, buttonHeight);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
@@ -330,18 +362,20 @@ int main(int argc, char *argv[])
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
+	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	//tab["ft8settings"] = (lv_tabview_add_tab(tabview_mid, (std::string("FT8 ") + std::string(LV_SYMBOL_SETTINGS)).c_str()));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
-
+	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	Wf.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
+	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
+	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
-	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
+	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//guift8setting.init(tab["ft8settings"], keyboard_group);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 
@@ -361,7 +395,7 @@ int main(int argc, char *argv[])
 		std::string probe = Settings_file.find_probe((char *)con.c_str());
 		SdrDevices.AddDevice(con, probe);
 	}
-
+	
 	if (SdrDevices.MakeDevice(default_radio))
 	{
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
@@ -459,11 +493,15 @@ int main(int argc, char *argv[])
 		if (timeLastStatus + std::chrono::milliseconds(100) < now)
 		{
 			timeLastStatus = now;
-			Fft_calc.upload_fft(Wf.data_set);
-			Wf.load_data();
-			double s = Fft_calc.get_signal_strength();
+			SpectrumGraph.load_data();
+			double s = SpectrumGraph.get_signal_strength();
 			set_s_meter(s);
 			catinterface.SetSM((uint8_t)s);
+			if (mode == mode_freedv)
+				freeDVTab.DrawWaterfall();
+			if (mode == mode_ft8)
+				gft8.DrawWaterfall();
+			SpectrumGraph.DrawWaterfall();
 		}
 		
 		while (FT8Queue.pull(msg))
@@ -485,7 +523,7 @@ int main(int argc, char *argv[])
 				else
 					gbar.setIfGainOverflow(false);
 			case GuiMessage::setpos:
-				Wf.set_pos(vfo.get_vfo_offset());
+				SpectrumGraph.set_pos(vfo.get_vfo_offset());
 				break;
 			case GuiMessage::setband:
 				{
@@ -650,7 +688,7 @@ void select_mode(int s_mode, bool bvfo)
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_echo:
-		//EchoAudio::create_modulator(audio_output->get_samplerate(), audio_output,audio_input);
+		EchoAudio::create_modulator(audio_output,audio_input);
 		break;
 	}
 	vfo.set_freq_to_sdr();
@@ -701,6 +739,10 @@ void select_mode_tx(int s_mode, int tone, int cattx)
 		param.ifrate = ifrate_tx;
 		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, &source_buffer_tx, ifrate_tx);
+		break;
+	
+	case mode_echo:
+		EchoAudio::create_modulator(audio_output, audio_input);
 		break;
 	
 	default:

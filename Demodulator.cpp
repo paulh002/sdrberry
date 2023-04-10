@@ -1,5 +1,7 @@
 #include "Demodulator.h"
 #include "gui_speech.h"
+#include "gui_cal.h"
+#include "Spectrum.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -20,7 +22,6 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
-
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -58,6 +59,11 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 		dcBlockHandle = nullptr;
 }
 
+void Demodulator::set_signal_strength()
+{
+	SpectrumGraph.set_signal_strength(get_if_level());
+}
+
 // decrease the span of the fft display by downmixing the bandwidth of the receiver
 // Chop the bandwith in parts en display correct part
 void Demodulator::set_span(int span)
@@ -72,18 +78,18 @@ void Demodulator::set_span(int span)
 		int n = (vfo.get_vfo_offset() / m_span);
 		//printf("window: %d  offset %d\n", n, m_span * n);
 		set_fft_mixer(m_span * n);
-		Wf.set_fft_if_rate(2 * m_span, n);
+		SpectrumGraph.set_fft_if_rate(2 * m_span, n);
 		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//Wf.set_pos(vfo.get_vfo_offset(), true);
+		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
 	}
 	else
 	{
 		m_span = span;
 		set_fft_resample_rate(0.0);
 		set_fft_mixer(0);
-		Wf.set_fft_if_rate(ifSampleRate, 0);
+		SpectrumGraph.set_fft_if_rate(ifSampleRate, 0);
 		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//Wf.set_pos(vfo.get_vfo_offset(), true);
+		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
 	}
 }
 
@@ -245,10 +251,20 @@ void Demodulator::tune_offset(long offset)
 
 void Demodulator::adjust_gain(IQSampleVector &samples_in, float vol)
 {
+	float gain = (float)gcal.getRxGain();
 	for (auto &col : samples_in)
 	{
-		col.real(col.real() * vol);
+		col.real(col.real() * vol * gain);
 		col.imag(col.imag() * vol);
+	}
+}
+
+void Demodulator::adjust_calibration(IQSampleVector &samples_in)
+{
+	float gain = (float)gcal.getRxGain();
+	for (auto &col : samples_in)
+	{
+		col.real(col.real() * gain);
 	}
 }
 
@@ -353,8 +369,8 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 		{
 			complex<float> v;
 
-			nco_crcf_mix_up(tuneNCO, col, &v);
 			nco_crcf_step(tuneNCO);
+			nco_crcf_mix_up(tuneNCO, col, &v);
 			filter_out.push_back(v);
 		}
 	}
@@ -427,7 +443,7 @@ void Demodulator::perform_fft(const IQSampleVector &iqsamples)
 	}
 	else
 		fft_resample(iqsamples, iqsamples_resample);
-	Fft_calc.process_samples(iqsamples_resample);
+	SpectrumGraph.ProcessWaterfall(iqsamples_resample);
 }
 
 void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, float low)

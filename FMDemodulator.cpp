@@ -19,7 +19,6 @@ void FMDemodulator::operator()()
 	int						ifilter {-1}, span;
 	SampleVector            audiosamples, audioframes;
 	
-	Fft_calc.plan_fft(nfft_samples); //
 	while (!stop_flag.load())
 	{
 		span = gsetup.get_span();
@@ -38,7 +37,7 @@ void FMDemodulator::operator()()
 		}
 		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());
+		set_signal_strength();
 		process(iqsamples, audiosamples);
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);

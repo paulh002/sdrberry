@@ -12,7 +12,7 @@ std::mutex amdemod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1 {};
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
-	: Demodulator(ifrate, source_buffer, audioOutputBuffer)
+	: Demodulator(ifrate, source_buffer, audioOutputBuffer), receiverMode(mode) 
 {
 	float					modulationIndex  = 0.03125f; 
 	int						suppressed_carrier;
@@ -21,6 +21,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 
 	float sample_ratio = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
+	
 	switch (mode)
 	{
 	case mode_usb:
@@ -100,7 +101,7 @@ void AMDemodulator::operator()()
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
 	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
 	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 15);
-	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
+	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 5);
 
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
@@ -108,7 +109,6 @@ void AMDemodulator::operator()()
 	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
-	Fft_calc.plan_fft(nfft_samples);
 	set_span(gsetup.get_span());
 	receiveIQBuffer->clear();
 	audioOutputBuffer->clear_underrun();
@@ -144,7 +144,7 @@ void AMDemodulator::operator()()
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
-		Fft_calc.set_signal_strength(get_if_level());
+		set_signal_strength();
 		if (gagc.get_agc_mode())
 		{
 			Agc.setRelease(gagc.get_release());
@@ -225,11 +225,11 @@ void AMDemodulator::operator()()
 			
 			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
-				//Demodulator::adjust_resample_rate(-0.01 * droppedFrames);
+				Demodulator::adjust_resample_rate(-0.002 * droppedFrames);
 			}
 			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				//Demodulator::adjust_resample_rate(0.01 * audioOutputBuffer->get_underrun());
+				Demodulator::adjust_resample_rate(0.002 * audioOutputBuffer->get_underrun());
 			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;
@@ -251,7 +251,6 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	calc_if_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
-
 	for (auto col : filter1)
 	{
 		float v;

@@ -1,4 +1,3 @@
-
 #include <cstdio>
 #include <cmath>
 #include <complex>
@@ -10,312 +9,157 @@
 #include "Waterfall.h"
 #include "sdrberry.h"
 #include "sma.h"
+#include "Modes.h"
 
-using namespace std;
+extern const int screenWidth;
+extern const int screenHeight;
+extern const int bottomHeight;
+extern const int topHeight;
+extern const int tunerHeight;
+extern const int rightWidth;
 
-const int	noise_floor {20};
-const int	hor_lines {8};
-const int	vert_lines {9};
-
-
-Fft_calculator	Fft_calc;
-Waterfall		Wf;
-
-Fft_calculator::Fft_calculator()
-	: flags{0}, nfft{0}, signal_strength{0}, fft_avg{0}, noisefloor{noise_floor}
+Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
+					 float r, int wfloor, waterfallFlow flow, partialspectrum p)
+	: width(w), height(h), resampleRate(r), waterfallfloor(wfloor), waterfallflow(flow), partialSpectrum(p) 
 {
-	avg_filter.resize(nfft_samples);
-}
-
-Fft_calculator::~Fft_calculator()
-{
-
-}
-
-/*
- *	Output of fft is:
- *	x[0] = DC component
- *	x[1] to x[n/2] +ve frequencies
- *  x[n/2] to x[n] -ve frequencies
- *  
- *	x[n/2] Nyquist frequency
- *
- **/
-
-void	Fft_calculator::process_samples(const IQSampleVector&	input)
-{
-	m_input.insert(m_input.end(), input.begin(), input.end());
-	if (m_input.size() >= nfft)
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		// Apply hamming window
-		for (int i = 0; i < nfft; i++)
-		{
-			m_input[i].real(m_input[i].real() * v_window[i]);
-			m_input[i].imag(m_input[i].imag() * v_window[i]);
-		}
-		plan = fft_create_plan(nfft, m_input.data(), fft_output.data(), type, flags);
-		fft_execute(plan);
-		fft_destroy_plan(plan);
-		m_input.clear();
-	}
-}
-
-void	Fft_calculator::plan_fft(int size)
-{
-	noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
-	nfft = size;
-	fft_output.reserve(nfft); 
-	m_input.reserve(nfft);
-	fft_output.resize(nfft); 
-	v_window.clear();
-	for (int i = 0; i < nfft; i++)
-	{
-		v_window.insert(v_window.end(), liquid_windowf(LIQUID_WINDOW_HAMMING, i, nfft, 0)) ;		
-	}
-}
-
-static void click_event_cb(lv_event_t *e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-
-	lv_indev_t *indev = lv_indev_get_act();
-	lv_indev_type_t indev_type = lv_indev_get_type(indev);
-	if (indev_type == LV_INDEV_TYPE_POINTER)
-	{
-		lv_point_t p;
-		lv_indev_get_point(indev, &p);
-
-		long long f;
-		int span = gsetup.get_span();
-		if (!vfo.compare_span())
-		{
-			f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
-		}
-		else
-		{
-			f = vfo.get_sdr_frequency();
-		}
-		vfo.set_vfo(p.x * (span / screenWidth) + f);
-	}
-}
-
-static void draw_event_cb(lv_event_t * e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t * obj = lv_event_get_target(e);
-
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
-	
-	if (dsc->part == LV_PART_ITEMS)
-	{
-		if (!dsc->p1 || !dsc->p2)
-			return;
-
-		/*Add a line mask that keeps the area below the line*/
-		lv_draw_mask_line_param_t line_mask_param;
-		lv_draw_mask_line_points_init(&line_mask_param, dsc->p1->x, dsc->p1->y, dsc->p2->x, dsc->p2->y,
-									  LV_DRAW_MASK_LINE_SIDE_BOTTOM);
-		int16_t line_mask_id = lv_draw_mask_add(&line_mask_param, NULL);
-
-		/*Add a fade effect: transparent bottom covering top*/
-		lv_coord_t h = lv_obj_get_height(obj);
-		lv_draw_mask_fade_param_t fade_mask_param;
-		lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_50,
-							   obj->coords.y2);
-		int16_t fade_mask_id = lv_draw_mask_add(&fade_mask_param, NULL);
-
-		/*Draw a rectangle that will be affected by the mask*/
-		lv_draw_rect_dsc_t draw_rect_dsc;
-		lv_draw_rect_dsc_init(&draw_rect_dsc);
-		draw_rect_dsc.bg_opa = LV_OPA_40;
-		draw_rect_dsc.bg_color = dsc->line_dsc->color;
-
-		lv_area_t a;
-		a.x1 = dsc->p1->x;
-		a.x2 = dsc->p2->x - 1;
-		a.y1 = LV_MIN(dsc->p1->y, dsc->p2->y);
-		a.y2 = obj->coords.y2;
-		lv_draw_rect(dsc->draw_ctx, &draw_rect_dsc, &a);
-
-		/*Remove the masks*/
-		lv_draw_mask_free_param(&line_mask_param);
-		lv_draw_mask_free_param(&fade_mask_param);
-		lv_draw_mask_remove_id(line_mask_id);
-		lv_draw_mask_remove_id(fade_mask_id);
-		}
-	
-	if (code == LV_EVENT_DRAW_PART_BEGIN)
-	{	
-		/*Set the markers' text*/
-		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
-		{
-			string str[vert_lines];
-			int span = gsetup.get_span();
-			long long f ;
-			int ii;
-
-			if (!vfo.compare_span())
-			{
-				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
-				ii = span / (vert_lines - 1);
-			}
-			else
-			{
-				f = vfo.get_sdr_frequency();
-				ii = span / (vert_lines - 1);
-			}
-
-			for (int i = 0; i < vert_lines; i++)
-				{
-					char str1[20];
-					//double l = (double)((f / 10ULL) % 1000000ULL) / 100.0;
-					long l = (long)(f / 100ULL);
-					sprintf(str1, "%ld", l);
-					str[i] = string(str1);
-					size_t pos = str[i].length();
-					f += ii;
-				}
-			//sizeof(dsc->text)
-			lv_snprintf(dsc->text, str[dsc->value].length(), "%s", str[dsc->value].c_str());
-		}
-	}
-}
-
-void Waterfall::init(lv_obj_t* scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
-{
-	lv_style_init(&waterfall_style);
-	lv_style_set_radius(&waterfall_style, 0);
-	lv_style_set_bg_color(&waterfall_style, lv_color_black());
-	
-	chart = lv_chart_create(scr);
-	lv_obj_add_style(chart, &waterfall_style, 0); 
-	lv_obj_set_pos(chart, x, y);
-	lv_obj_set_size(chart, w, h); // (h - 170)
-	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
-	lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
 	
-	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 6, 1, true, 80);
-	lv_chart_set_div_line_count(chart, hor_lines, vert_lines); 
-	lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
-	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
-	lv_obj_add_event_cb(chart, click_event_cb, LV_EVENT_CLICKED, NULL);
-	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE),  LV_DIR_BOTTOM);
-
-	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
-	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
-	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
-	m_ifrate = ifrate;
-	for (int i; i < nfft_samples/2; i++)
-		data_set.push_back(0);
-	lv_chart_set_point_count(chart, data_set.size());
-	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
+	cbuf.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(w, h));
+	canvas = lv_canvas_create(scr);
+	lv_canvas_set_buffer(canvas, cbuf.data(), w, h, LV_IMG_CF_TRUE_COLOR);
+	lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
+	lv_obj_set_pos(canvas,x,y);
+	NumberOfBins = width;
+	SetPartial(partialSpectrum);
 }
 
-void Waterfall::set_pos(int32_t  offset)
+void Waterfall::SetSpan(int span)
 {
-	int pos;
-	float d;
-	int span = gsetup.get_span();
+	partialspectrum part;
+	if ((ifrate - (float)span) > 0.1)
+		part = lowerpart;
+	else
+		part = allparts;
+	SetPartial(part);		
+}
 
-	if (vfo.compare_span())
+void Waterfall::SetPartial(partialspectrum p) 
+{
+	std::unique_lock<std::mutex> lock(mutexSingleEntry);
+	partialSpectrum = p;
+	
+	if (p == allparts)
+		NumberOfBins = width;
+	else
+		NumberOfBins = width * 2;
+	fft.reset();
+	fft = std::make_unique<FastFourier>(NumberOfBins, resampleRate);
+}
+
+Waterfall::~Waterfall()
+{
+	lv_obj_del(canvas);
+}
+
+void Waterfall::SetMode(int mode)
+{
+	if (mode == mode_lsb)
+		fft->SetInvert(true);
+	else
+		fft->SetInvert(false);
+}
+
+void Waterfall::Process(const IQSampleVector &input)
+{
+	std::unique_lock<std::mutex> lock(mutexSingleEntry);
+	fft->Process(input);
+}
+
+void Waterfall::Draw()
+{
+	std::unique_lock<std::mutex> lock(mutexSingleEntry);
+	
+	std::vector<uint8_t> buf;
+	lv_img_dsc_t img;
+
+	buf.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height -1));
+	if (waterfallflow == up)
 	{
-		offset = offset - ((m_ifrate.load() / 2) * m_n.load());
-		float div = m_ifrate.load() / nfft_samples ;
-		pos = (uint32_t)round(offset / div) - 1;
+		memcpy(buf.data(), cbuf.data() + LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, 1), LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height - 1));
+		img.data = (uint8_t *)buf.data();
+		img.header.cf = LV_IMG_CF_TRUE_COLOR;
+		img.header.w = width;
+		img.header.h = height - 1;
+		lv_canvas_transform(canvas, &img, 0, LV_IMG_ZOOM_NONE, 0, 0, width, height - 1, true);
 	}
 	else
 	{
-		// currenlty nog negative offset still need to change
-		//d = ((float)offset + (float)m_ifrate.load() / 2.0) / (float)m_ifrate.load();
-		d = ((float)offset + (float)span / 2.0) / (float)span;
-		pos = (d * (float)nfft_samples) - 1;
+		memcpy(buf.data(), cbuf.data(), LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height - 1));
+		img.data = (uint8_t *)buf.data();
+		img.header.cf = LV_IMG_CF_TRUE_COLOR;
+		img.header.w = width;
+		img.header.h = height - 1;
+		lv_canvas_transform(canvas, &img, 0, LV_IMG_ZOOM_NONE, 0, 1, width, height - 1, true);
 	}
-	if (pos < 0)
-		pos = 0;
-	if (pos >= data_set.size())
-		pos = data_set.size() -1;
-	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
-	//printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
-}
 
-void Waterfall::set_fft_if_rate(float ifrate, int n)
-{
-	m_ifrate.store(ifrate);
-	m_n.store(n);
-}
-
-void Waterfall::load_data()
-{
-	int i = data_set.size();
-	if (i > 0)
-	{
-		lv_chart_set_point_count(chart, i);
-		lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());	
-		lv_chart_refresh(chart);
-	}
-}
-
-
-
-void Fft_calculator::upload_fft(std::vector<lv_coord_t>& data_set)
-{
-	std::unique_lock<std::mutex> lock(m_mutex);
-	int i = 0, av = 0, value, avg{0};
-
-	if (vfo.compare_span())
-	{
-		data_set.resize(fft_output.size()/2);
-		for (auto &col : fft_output)
-		{
-			if (i == (fft_output.size() / 2))
-				break;
-			std::complex f = std::conj(col) * col;
-			value = noisefloor + (lv_coord_t)(20.0 * log10(f.real()));
-			if (value > 99.0)
-				value = 99.0;
-			data_set[i] = avg_filter[i](value);
-			i++;
-		}
-	}
+	std::vector<float> frequencySpectrum;
+	if (partialSpectrum == allparts)
+		frequencySpectrum = fft->GetLineatSquaredBins();
 	else
-	{
-		data_set.resize(fft_output.size());
-		for (int i = 0; i < fft_output.size(); i++)
-		{
-			std::complex<float> f, g;
-			int ii;
+		frequencySpectrum = fft->GetSquaredBins();
 
-			if (i < fft_output.size() / 2)
-			{
-				ii = fft_output.size() / 2 + i;
-			}
-			else
-			{
-				ii = i - fft_output.size() / 2;
-			}
-			f = std::conj(fft_output[ii]) * fft_output[ii];
-			g = f / v_window[ii];
-			value = noisefloor + (lv_coord_t)(20.0 * log10(g.real()));
-			if (value > 99.0)
-				value = 99.0;
-			data_set[i] = avg_filter[i](value);
+	int zz = 0;
+	for (lv_coord_t i = 0; i < width; i++)
+	{
+		switch(partialSpectrum)
+		{
+		case upperpart:
+				zz = (width / 2) + i;
+			break;
+		case allparts:
+		case lowerpart:
+				zz = i;
+			break;
 		}
+		lv_color_t c = heatmap((float)waterfallfloor + 20.0 * log10(frequencySpectrum.at(zz)), 0.0, 50.0);
+		if (waterfallflow == up)
+			lv_canvas_set_px_color(canvas, i, height - 1, c);
+		else
+			lv_canvas_set_px_color(canvas, i, 0, c);
+		//printf("%f\n",  20 * log10(f.at(zz)));
 	}
 }
 
-void Fft_calculator::set_signal_strength(double strength)
+lv_color_t Waterfall::heatmap(float val, float min, float max)
 {
-	std::unique_lock<std::mutex> lock(m_mutex);
-	signal_strength =  20* log10(strength) + 120;
-	//printf(" signal_strength %f \n", signal_strength);
+	unsigned r = 0;
+	unsigned g = 0;
+	unsigned b = 0;
+
+	val = (val - min) / (max - min);
+	if (val <= 0.2)
+	{
+		b = (unsigned)((val / 0.2) * 255);
+	}
+	else if (val > 0.2 && val <= 0.7)
+	{
+		b = (unsigned)((1.0 - ((val - 0.2) / 0.5)) * 255);
+	}
+	if (val >= 0.2 && val <= 0.6)
+	{
+		g = (unsigned)(((val - 0.2) / 0.4) * 255);
+	}
+	else if (val > 0.6 && val <= 0.9)
+	{
+		g = (unsigned)((1.0 - ((val - 0.6) / 0.3)) * 255);
+	}
+	if (val >= 0.5)
+	{
+		r = (unsigned)(((val - 0.5) / 0.5) * 255);
+	}
+	//printf("%f %x %x %x\n", val, r, g, b);
+	return lv_color_make(r, g, b);
 }
 
-double Fft_calculator::get_signal_strength()
-{
-	std::unique_lock<std::mutex> lock(m_mutex);
-	return signal_strength ;
-}
+

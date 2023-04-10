@@ -319,6 +319,18 @@
     <ClCompile Include="FT8Processor.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="FreeDVTab.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Spectrum.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FastFourier.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_cal.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -678,6 +690,18 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="FT8Processor.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeDVTab.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Spectrum.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FastFourier.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_cal.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

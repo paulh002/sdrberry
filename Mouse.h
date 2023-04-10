@@ -17,6 +17,7 @@ struct MouseState
 	lv_coord_t y;
 	bool pressed;
 	bool MouseActivity;
+	int Rotated;
 };
 
 class Mouse

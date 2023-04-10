@@ -38,5 +38,6 @@ public:
 	unique_ptr<LMSNoisereducer> pLMS;
 	unique_ptr<Xanr> pXanr;
 	unique_ptr<SpectralNoiseReduction> pNoisesp;
+	int receiverMode;
 };
 

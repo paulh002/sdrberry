@@ -28,6 +28,7 @@ class gui_setup
 	void set_span_value(int span);
 	void set_brightness(int brightness);
 	int get_brightness();
+	bool get_calibration() { return (lv_obj_get_state(calbox) & LV_STATE_CHECKED); }
 
 	void set_group();
 	void set_contour_value(int speed);
@@ -49,6 +50,7 @@ class gui_setup
 	lv_group_t *m_button_group{nullptr};
 	lv_obj_t *contour_slider_label, *contour_slider;
 	lv_obj_t *floor_slider_label, *floor_slider;
+	lv_obj_t *calbox;
 };
 
 extern gui_setup gsetup;

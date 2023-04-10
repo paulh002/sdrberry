@@ -389,8 +389,8 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			case 7:
 				strcpy(str, "bFM");
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[i], (void *)mode_broadband_fm);
-				if (mode == mode_broadband_fm)
+				lv_obj_set_user_data(button[i], (void *)mode_echo);
+				if (mode == mode_echo)
 					lv_obj_add_state(button[i], LV_STATE_CHECKED);
 				break;
 			case 8:

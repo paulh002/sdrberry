@@ -1,5 +1,5 @@
 #include "FMModulator.h"
-#include "Waterfall.h"
+#include "Spectrum.h"
 
 static shared_ptr<FMModulator> sp_fmmod;
 
@@ -47,7 +47,6 @@ void FMModulator::operator()()
 	SampleVector            audiosamples;
 	IQSampleVector			dummy;
 		
-	Fft_calc.plan_fft(nfft_samples); 
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag)
@@ -63,7 +62,7 @@ void FMModulator::operator()()
 			continue;
 		}
 		calc_af_level(audiosamples);
-		Fft_calc.set_signal_strength(get_af_level());
+		set_signal_strength();
 		process(dummy, audiosamples);
 		audiosamples.clear();
 	}
@@ -91,8 +90,8 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	buf_out.clear();
 	Resample(buf_filter, buf_out);
 	buf_filter.clear();
-	mix_up(buf_out, buf_filter); // Mix up to vfo freq	
-	Fft_calc.process_samples(buf_filter);
+	mix_up(buf_out, buf_filter); // Mix up to vfo freq
+	SpectrumGraph.ProcessWaterfall(buf_filter);
 	transmitIQBuffer->push(move(buf_filter));
 	buf_mod.clear();
 	buf_out.clear();

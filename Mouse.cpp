@@ -119,6 +119,7 @@ MouseState Mouse::GetMouseState()
 	int bytes;
 
 	state.MouseActivity = false;
+	state.Rotated = 0;
 	if (m_fd > 0)
 	{
 		bytes = read(m_fd, (void *)&mouse_event, sizeof(struct input_event));
@@ -127,6 +128,7 @@ MouseState Mouse::GetMouseState()
 			if (mouse_event.type == EV_REL && mouse_event.code == REL_WHEEL)
 			{
 				vfo.step_vfo(step * mouse_event.value);
+				state.Rotated = mouse_event.value;
 			}
 
 			if (mouse_event.type == EV_REL && mouse_event.code == REL_X)

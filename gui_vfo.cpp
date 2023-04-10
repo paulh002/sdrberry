@@ -268,6 +268,7 @@ void set_smeter_img(lv_obj_t* box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_meter_set_indicator_value(meter, smeter_indic, 0);
 }
 
+
 void set_s_meter(double value)
 {
 	//printf("value %f\n", value);
@@ -276,6 +277,7 @@ void set_s_meter(double value)
 	//printf(" value s%f \n", value);
 	lv_meter_set_indicator_value(meter, smeter_indic, value);
 }
+
 
 void gui_vfo::set_span(int span)
 {

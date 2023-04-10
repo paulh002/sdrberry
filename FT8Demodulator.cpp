@@ -10,7 +10,8 @@
 #include <map>
 #include "FT8Demodulator.h"
 #include "sdrberry.h"
-
+#include "Spectrum.h"
+#include "FreeDVTab.h"
 
 static shared_ptr<FT8Demodulator>	sp_ft8demod;
 std::mutex							ft8demod_mutex;
@@ -48,19 +49,20 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	liquid_ampmodem_type am_mode;
 
 	Demodulator::set_resample_rate(ft8_rate / ifrate); // down sample to ft8_rate
-	m_bandwidth = 2500; // SSB
 	suppressed_carrier = 1;
 	am_mode = LIQUID_AMPMODEM_USB;
 	printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
 
 	const auto startTime = std::chrono::high_resolution_clock::now();
+	
+	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
+	gbar.set_filter_slider(m_bandwidth);
 	setLowPassAudioFilterCutOffFrequency(m_bandwidth);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
-
 }
 
 FT8Demodulator::~FT8Demodulator()
@@ -88,7 +90,7 @@ void FT8Demodulator::operator()()
 
 	FT8Processor::create_modulator(ft8processor);
 
-	Fft_calc.plan_fft(nfft_samples);
+	//Fft_calc.plan_fft(nfft_samples);
 	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
@@ -115,7 +117,7 @@ void FT8Demodulator::operator()()
 		}
 		adjust_gain(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		Fft_calc.set_signal_strength(get_if_level());
+		set_signal_strength();
 		process(iqsamples, audiosamples);
 		// Check for 15 seconds
 		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -157,6 +159,7 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
+	gft8.Process(filter1);
 	for (auto col : filter1)
 	{
 		float v;

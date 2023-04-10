@@ -96,10 +96,12 @@
     <ClCompile Include="DigitalTransmission.cpp" />
     <ClCompile Include="EchoAudio.cpp" />
     <ClCompile Include="EnergyCalculator.cpp" />
+    <ClCompile Include="FastFourier.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
     <ClCompile Include="FMModulator.cpp" />
+    <ClCompile Include="FreeDVTab.cpp" />
     <ClCompile Include="FreeSans42.c" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -124,6 +126,7 @@
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
+    <ClCompile Include="gui_cal.cpp" />
     <ClCompile Include="gui_ft8.cpp" />
     <ClCompile Include="gui_ft8bar.cpp" />
     <ClCompile Include="gui_rx.cpp" />
@@ -169,6 +172,7 @@
     <ClCompile Include="sdrstream.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SpectralNoiseReduction.cpp" />
+    <ClCompile Include="Spectrum.cpp" />
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
@@ -190,10 +194,12 @@
     <ClInclude Include="DigitalTransmission.h" />
     <ClInclude Include="EchoAudio.h" />
     <ClInclude Include="EnergyCalculator.h" />
+    <ClInclude Include="FastFourier.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="FMModulator.h" />
+    <ClInclude Include="FreeDVTab.h" />
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="FT8Demodulator.h" />
     <ClInclude Include="FT8Generator.h" />
@@ -216,6 +222,7 @@
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_bar.h" />
+    <ClInclude Include="gui_cal.h" />
     <ClInclude Include="gui_ft8.h" />
     <ClInclude Include="gui_ft8bar.h" />
     <ClInclude Include="gui_rx.h" />
@@ -284,6 +291,7 @@
     <ClInclude Include="SoapySDR\Version.hpp" />
     <ClInclude Include="sdrberry.h" />
     <ClInclude Include="SpectralNoiseReduction.h" />
+    <ClInclude Include="Spectrum.h" />
     <ClInclude Include="StartTx.h" />
     <ClInclude Include="strlib.h" />
     <ClInclude Include="vfo.h" />

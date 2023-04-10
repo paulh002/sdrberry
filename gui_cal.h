@@ -14,9 +14,9 @@ class gui_cal
 	lv_obj_t *get_txphase_slider_label() { return txphaselabel; }
 	lv_obj_t *get_rxgain_slider_label() { return rxgainlabel; }
 	lv_obj_t *get_rxphase_slider_label() { return rxphaselabel; }
-	float getRxPhase() { return 1.0 + (float)calRxPhase / 100.0; }
+	float getRxPhase() { return (float)calRxPhase / 1000.0; }
 	float getRxGain() { return 1.0 + (float)calRxGain / 500.0; }
-	float getTxPhase() { return 1.0 + (float)calTxPhase / 100.0; }
+	float getTxPhase() { return (float)calTxPhase / 1000.0; }
 	float getTxGain() { return 1.0 + (float)calTxGain / 500.0; }
 
 	void setRxPhase(int p) { calRxPhase = p; };

@@ -251,20 +251,40 @@ void Demodulator::tune_offset(long offset)
 
 void Demodulator::adjust_gain(IQSampleVector &samples_in, float vol)
 {
+	float phase = (float)gcal.getRxPhase();
 	float gain = (float)gcal.getRxGain();
 	for (auto &col : samples_in)
 	{
 		col.real(col.real() * vol * gain);
 		col.imag(col.imag() * vol);
+		if (phase < 0.0)
+			col.real(col.real() + col.imag() * phase);
+		if (phase > 0.0)
+			col.real(col.imag() + col.real() * phase);
 	}
 }
 
 void Demodulator::adjust_calibration(IQSampleVector &samples_in)
 {
-	float gain = (float)gcal.getRxGain();
+	float gain = (float)gcal.getTxGain();
 	for (auto &col : samples_in)
 	{
 		col.real(col.real() * gain);
+	}
+	float phase = (float)gcal.getTxPhase();
+	if (phase < 0.0)
+	{
+		for (auto &col : samples_in)
+		{
+			col.real(col.real() + col.imag() * phase);
+		}
+	}
+	if (phase > 0.0)
+	{
+		for (auto &col : samples_in)
+		{
+			col.real(col.imag() + col.real() * phase);
+		}
 	}
 }
 

@@ -1,5 +1,6 @@
 #include "Demodulator.h"
 #include "gui_speech.h"
+#include "gui_cal.h"
 #include "Spectrum.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
@@ -250,10 +251,20 @@ void Demodulator::tune_offset(long offset)
 
 void Demodulator::adjust_gain(IQSampleVector &samples_in, float vol)
 {
+	float gain = (float)gcal.getRxGain();
 	for (auto &col : samples_in)
 	{
-		col.real(col.real() * vol);
+		col.real(col.real() * vol * gain);
 		col.imag(col.imag() * vol);
+	}
+}
+
+void Demodulator::adjust_calibration(IQSampleVector &samples_in)
+{
+	float gain = (float)gcal.getRxGain();
+	for (auto &col : samples_in)
+	{
+		col.real(col.real() * gain);
 	}
 }
 

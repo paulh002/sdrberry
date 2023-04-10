@@ -16,6 +16,7 @@
 #include "Keyboard.h"
 #include "Spectrum.h"
 #include "FreeDVTab.h"
+#include "gui_cal.h"
 
 //#include "HidThread.h"
 
@@ -58,7 +59,7 @@ lv_obj_t *bg_middle;
 lv_obj_t *vfo1_button;
 lv_obj_t *vfo2_button;
 lv_obj_t *tabview_mid;
-lv_obj_t *bar_view, *ft8bar_view;
+lv_obj_t *bar_view, *ft8bar_view, *calbar_view;
 lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
@@ -159,41 +160,55 @@ static void tabview_event_cb(lv_event_t *e)
 	switch (i)
 	{
 	case 0:
-		gbar.hide(false);
-		guift8bar.hide(true);
+		if (gsetup.get_calibration())
+		{
+			gcal.hide(false);
+		}
+		else
+		{
+			gbar.hide(false);
+			guift8bar.hide(true);
+		}		
 		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
 	case 1:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gui_band_instance.set_group();
 		break;
 	case 3:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gagc.set_group();
 		break;
 	case 4:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		Gui_tx.set_group();
 		break;
 	case 5:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gspeech.set_group();
 		break;
 	case 6:
+		gcal.hide(true);
 		gbar.hide(true);
 		guift8bar.hide(false);
 		gft8.set_group();
 		break;
 	case 7:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
 	case 8:
+		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		guift8setting.set_group();
@@ -324,6 +339,13 @@ int main(int argc, char *argv[])
 	lv_obj_add_flag(ft8bar_view, LV_OBJ_FLAG_HIDDEN);
 	guift8bar.init(ft8bar_view, button_group, keyboard_group,mode, LV_HOR_RES - 3, barHeight);
 
+	calbar_view = lv_obj_create(lv_scr_act());
+	lv_obj_set_style_radius(calbar_view, 0, 0);
+	lv_obj_set_pos(calbar_view, 0, topHeight + tunerHeight);
+	lv_obj_set_size(calbar_view, LV_HOR_RES - 3, barHeight);
+	lv_obj_add_flag(calbar_view, LV_OBJ_FLAG_HIDDEN);
+	gcal.init(calbar_view, button_group, keyboard_group, LV_HOR_RES - 3, barHeight);
+
 	int buttonHeight = 40;
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, buttonHeight);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
@@ -343,7 +365,7 @@ int main(int argc, char *argv[])
 	tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	//tab["ft8settings"] = (lv_tabview_add_tab(tabview_mid, (std::string("FT8 ") + std::string(LV_SYMBOL_SETTINGS)).c_str()));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
-
+	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
@@ -373,7 +395,7 @@ int main(int argc, char *argv[])
 		std::string probe = Settings_file.find_probe((char *)con.c_str());
 		SdrDevices.AddDevice(con, probe);
 	}
-
+	
 	if (SdrDevices.MakeDevice(default_radio))
 	{
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);

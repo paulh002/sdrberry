@@ -47,6 +47,7 @@ class Demodulator
 	Demodulator(AudioOutput *audio_output, AudioInput *audio_input);
 	void mono_to_left_right(const SampleVector &samples_mono, SampleVector &audio);
 	void adjust_gain(IQSampleVector &samples_in, float vol);
+	void adjust_calibration(IQSampleVector &samples_in);
 	void tune_offset(long offset);
 	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
 	void Resample(const IQSampleVector &filter_in, IQSampleVector &filter_out);

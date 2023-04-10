@@ -101,7 +101,7 @@ void AMDemodulator::operator()()
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
 	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
 	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 15);
-	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
+	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 5);
 
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
@@ -229,7 +229,7 @@ void AMDemodulator::operator()()
 			}
 			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				//Demodulator::adjust_resample_rate(0.002 * audioOutputBuffer->get_underrun());
+				Demodulator::adjust_resample_rate(0.002 * audioOutputBuffer->get_underrun());
 			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;

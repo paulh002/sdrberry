@@ -126,6 +126,7 @@
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
+    <ClCompile Include="gui_cal.cpp" />
     <ClCompile Include="gui_ft8.cpp" />
     <ClCompile Include="gui_ft8bar.cpp" />
     <ClCompile Include="gui_rx.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_bar.h" />
+    <ClInclude Include="gui_cal.h" />
     <ClInclude Include="gui_ft8.h" />
     <ClInclude Include="gui_ft8bar.h" />
     <ClInclude Include="gui_rx.h" />

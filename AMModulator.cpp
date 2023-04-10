@@ -166,6 +166,7 @@ void AMModulator::operator()()
 		calc_af_level(audiosamples);
 		set_signal_strength();
 		process(audiosamples, samples_out);
+		adjust_calibration(samples_out);
 		transmitIQBuffer->push(move(samples_out));
 		audiosamples.clear();
 		

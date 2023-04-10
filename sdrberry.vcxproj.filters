@@ -328,6 +328,9 @@
     <ClCompile Include="FastFourier.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_cal.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -696,6 +699,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="FastFourier.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_cal.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

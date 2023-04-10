@@ -91,7 +91,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 		if (vfo.limit_ham_band)
 			check_band(0, freq);
 	}
-	
+
 	offset_frequency = ifrate / 4; // to center initial spectrum view
 	vfo_setting.m_max_offset = ifrate / 2;
 

@@ -19,8 +19,9 @@ extern const int tunerHeight;
 extern const int rightWidth;
 
 Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
-					 float r, int wfloor, waterfallFlow flow, partialspectrum p)
-	: width(w), height(h), resampleRate(r), waterfallfloor(wfloor), waterfallflow(flow), partialSpectrum(p) 
+					 float r, int wfloor, waterfallFlow flow, partialspectrum p, int margin)
+	: width(w), height(h), resampleRate(r), waterfallfloor(wfloor), waterfallflow(flow), partialSpectrum(p),
+	  excludeMargin(margin)
 {
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
@@ -30,7 +31,7 @@ Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_canvas_set_buffer(canvas, cbuf.data(), w, h, LV_IMG_CF_TRUE_COLOR);
 	lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
 	lv_obj_set_pos(canvas,x,y);
-	NumberOfBins = width;
+	NumberOfBins = width - 2 * excludeMargin;
 	SetPartial(partialSpectrum);
 }
 
@@ -50,9 +51,9 @@ void Waterfall::SetPartial(partialspectrum p)
 	partialSpectrum = p;
 	
 	if (p == allparts)
-		NumberOfBins = width;
+		NumberOfBins = width - 2 * excludeMargin;
 	else
-		NumberOfBins = width * 2;
+		NumberOfBins = (width - 2 * excludeMargin) * 2;
 	fft.reset();
 	fft = std::make_unique<FastFourier>(NumberOfBins, resampleRate);
 }
@@ -110,16 +111,16 @@ void Waterfall::Draw()
 		frequencySpectrum = fft->GetSquaredBins();
 
 	int zz = 0;
-	for (lv_coord_t i = 0; i < width; i++)
+	for (lv_coord_t i = excludeMargin; i < width - excludeMargin ; i++)
 	{
 		switch(partialSpectrum)
 		{
 		case upperpart:
-				zz = (width / 2) + i;
+			zz = (width / 2) + i - excludeMargin ;
 			break;
 		case allparts:
 		case lowerpart:
-				zz = i;
+			zz = i - excludeMargin;
 			break;
 		}
 		lv_color_t c = heatmap((float)waterfallfloor + 20.0 * log10(frequencySpectrum.at(zz)), 0.0, 50.0);

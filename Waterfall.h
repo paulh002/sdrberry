@@ -34,7 +34,7 @@ enum partialspectrum
 class Waterfall
 {
   public:
-	Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float resampleRate, int wfloor ,waterfallFlow flow = up, partialspectrum = allparts);
+	Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float resampleRate, int wfloor ,waterfallFlow flow = up, partialspectrum = allparts, int margin = 0);
 	~Waterfall();
 	void Process(const IQSampleVector &input);
 	void Draw();
@@ -55,4 +55,5 @@ class Waterfall
 	partialspectrum partialSpectrum;
 	int NumberOfBins;
 	float resampleRate;
+	int excludeMargin;
 };

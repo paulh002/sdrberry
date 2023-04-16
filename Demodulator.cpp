@@ -240,11 +240,10 @@ void Demodulator::calc_af_level(const SampleVector &samples_in)
 // use mix_down() to mix down to baseband during receive,mix_up() for transmit to mixup from baseband
 void Demodulator::tune_offset(long offset)
 {
-	if (tuneNCO != nullptr)
-		nco_crcf_destroy(tuneNCO);
 	tuneOffsetFrequency = offset;
 	float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifSampleRate);
-	tuneNCO = nco_crcf_create(LIQUID_NCO);
+	if (tuneNCO == nullptr)
+		tuneNCO = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(tuneNCO, 0.0f);
 	nco_crcf_set_frequency(tuneNCO, rad_per_sample);
 }

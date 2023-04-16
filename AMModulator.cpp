@@ -152,7 +152,7 @@ void AMModulator::operator()()
 		if (!audioInputBuffer->read(audiosamples))
 			continue;
 		
-		if (gspeech.get_speech_mode())
+		if (gspeech.get_speech_mode() && !digitalmode)
 		{
 			Speech.setRelease(gspeech.get_release());
 			Speech.setRatio(gspeech.get_ratio());

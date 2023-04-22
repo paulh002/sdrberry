@@ -59,6 +59,7 @@ static void press_part_event_cb(lv_event_t *e)
 		else
 			guift8bar.setMessage(str.substr(3), db);
 		gft8.cpy_qso(row);
+		gft8.QsoScrollLatestItem();
 	}
 }
 
@@ -212,7 +213,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 
 	call = Settings_file.get_string("ft8", "call");
 
-	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH DK7ZT -06"};
+	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH DK7ZT /P -06"};
 	//add_qso(m);
 }
 
@@ -293,6 +294,30 @@ void gui_ft8::cpy_qso(int row)
 	ptr = (char *)lv_table_get_cell_value(table, row, 3);
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, ptr);
 	qsoRowCount++;
+}
+
+int gui_ft8::getQsoLogRows(){
+	return lv_table_get_row_cnt(qsoTable);
+}
+
+std::string gui_ft8::getQso(int row)
+{
+	char *ptr;
+	std::string s;
+
+	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 0);
+	s = std::string(ptr);
+	s += ",";
+	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 1);
+	s += std::string(ptr);
+	s += ",";
+	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 2);
+	s += std::string(ptr);
+	s += ",";
+	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 3);
+	s += std::string(ptr);
+
+	return s;
 }
 
 void gui_ft8::clr_qso()

@@ -33,6 +33,8 @@ class gui_ft8
 	void cpy_qso(int row);
 	void clr_qso();
 	std::string getcall() { return call; }
+	int getQsoLogRows();
+	std::string getQso(int row);
 
   private:
 	lv_obj_t *table, *table_label, *qsoTable, *qsoLabel;

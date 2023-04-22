@@ -2,6 +2,7 @@
 #include "vfo.h"
 #include "Modes.h"
 #include "FT8Generator.h"
+#include <fstream>
 
 extern const int tunerHeight;
 extern const int barHeight;
@@ -45,6 +46,7 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 {
 	std::string s;
 
+	lv_obj_invalidate(table);
 	s = callsign + " " + call + " " + locator;
 	lv_table_set_cell_value(table, 1, 1, s.c_str());
 	if (row == 1)
@@ -131,6 +133,22 @@ static void ft8bar_button_handler(lv_event_t *e)
 			}
 			break;
 		case 2:
+			// log
+			{
+				std::ofstream outfile;
+
+				outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
+				if (outfile.fail())
+					return;
+				int rows = gft8.getQsoLogRows();
+				for (int i = 0; i < rows; i++)
+				{
+					std::string line = gft8.getQso(i);
+					outfile << line << std::endl;
+				}
+				outfile.close();
+				guift8bar.ClearMessage();
+			}
 			break;
 		case 3:
 			// Execute the QSO

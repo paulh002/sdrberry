@@ -212,8 +212,8 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 
 	call = Settings_file.get_string("ft8", "call");
 
-	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH DK7ZT -06"};
-	add_qso(m);
+	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH DK7ZT -06"};
+	//add_qso(m);
 }
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,double hz0, string msg)

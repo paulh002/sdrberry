@@ -3,10 +3,10 @@
 #include "lvgl.h"
 #include "Settings.h"
 #include "sdrberry.h"
-#include "Waterfall.h"
 
-struct message
+class message
 {
+  public:
 	int hh;
 	int min;
 	int sec;
@@ -27,18 +27,21 @@ class gui_ft8
 	void reset();
 	void ScrollLatestItem();
 	void ScrollFirstItem();
-	void Process(const IQSampleVector &input);
-	void DrawWaterfall();
+	void QsoScrollLatestItem();
+	void QsoScrollFirstItem();
+	void add_qso(struct message msg);
+	void cpy_qso(int row);
+	void clr_qso();
+	std::string getcall() { return call; }
 
   private:
-	lv_obj_t *table, *table_label;
+	lv_obj_t *table, *table_label, *qsoTable, *qsoLabel;
 	lv_style_t style_btn, ft8_style;
-	std::vector<message> messages;
-	int m_cycle_count{0};
+	std::vector<message> messages, qsoMessages;
+	int m_cycle_count{0}, qsoRowCount{0};
 	bool bclear{false};
-	void Scroll(lv_coord_t currScrollPos);
-	std::unique_ptr<Waterfall> waterfall;
-	float ft8_rate{12000.0};
+	void Scroll(lv_obj_t *table, lv_coord_t currScrollPos);
+	std::string call;
 };
 
 extern gui_ft8 gft8;

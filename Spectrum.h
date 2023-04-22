@@ -11,6 +11,7 @@
 #include <liquid/liquid.h>
 #include <mutex>
 #include <vector>
+#include "Waterfall.h"
 
 extern const int screenWidth;
 extern const int screenHeight;

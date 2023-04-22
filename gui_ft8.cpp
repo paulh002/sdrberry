@@ -10,6 +10,23 @@ extern const int tunerHeight;
 
 gui_ft8 gft8;
 
+static void qso_press_part_event_cb(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	uint16_t row, col;
+	char *ptr;
+	int db, length;
+
+	lv_table_get_selected_cell(obj, &row, &col);
+	ptr = (char *)lv_table_get_cell_value(obj, row, 1);
+	if (ptr != nullptr)
+		db = atoi(ptr);
+	ptr = (char *)lv_table_get_cell_value(obj, row, col);
+	std::string str(ptr);
+
+}
+
 static void press_part_event_cb(lv_event_t *e)
 {
 	lv_obj_t *obj = lv_event_get_target(e);
@@ -36,6 +53,33 @@ static void press_part_event_cb(lv_event_t *e)
 			guift8bar.setMessage(str.substr(3, i), db);
 		else
 			guift8bar.setMessage(str.substr(3), db);
+		gft8.cpy_qso(row);
+	}
+}
+
+static void qso_draw_part_event_cb(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	/*If the cells are drawn...*/
+	if (dsc->part == LV_PART_ITEMS)
+	{
+		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
+		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+
+		/*Make the texts in the first cell center aligned*/
+
+		/*MAke every 2nd row grayish*/
+		if (col == 3)
+		{
+			char *ptr = table->cell_data[((col + 1) * (row + 1)) - 1] + 1;
+//			if (strstr(ptr, "CQ ") != NULL)
+//			{
+//				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
+//				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+//			}
+		}
 	}
 }
 
@@ -59,6 +103,11 @@ static void draw_part_event_cb(lv_event_t *e)
 			if (strstr(ptr, "CQ ") != NULL)
 			{
 				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
+				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			}
+			if (strstr(ptr, gft8.getcall().c_str()) != NULL)
+			{
+				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
 				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
 			}
 		}
@@ -127,11 +176,36 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_cell_value(table, 0, 3, "Message");
 	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12));
 	m_cycle_count++;
-	
-	float bandwidth = Settings_file.get_int("ft8", "bandwidth", 4500);
-	int waterfallfloor = Settings_file.get_int("ft8", "waterfallfloor", 60);
-	float resampleRate = bandwidth / ft8_rate;
-	waterfall = std::make_unique<Waterfall>(o_tab, w / 2, y, w / 2, h, resampleRate, waterfallfloor, up, allparts);
+
+	qsoTable = lv_table_create(o_tab);
+	lv_obj_add_event_cb(qsoTable, qso_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+	lv_obj_add_event_cb(qsoTable, qso_press_part_event_cb, LV_EVENT_PRESSED, NULL);
+
+	lv_obj_add_style(qsoTable, &ft8_style, 0);
+	//lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
+	lv_obj_set_pos(qsoTable, w / 2, y);
+	lv_obj_set_size(qsoTable, w / 2, h);
+
+	lv_obj_set_style_pad_top(qsoTable, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_bottom(qsoTable, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_left(qsoTable, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_right(qsoTable, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_ver(qsoTable, 0, LV_PART_ITEMS);
+
+	lv_obj_set_style_pad_left(qsoTable, 0, LV_PART_ITEMS);
+	lv_obj_set_style_pad_right(qsoTable, 0, LV_PART_ITEMS);
+
+	lv_table_set_cell_value(qsoTable, 0, 0, "Time");
+	lv_table_set_col_width(qsoTable, 0, w / 12);
+	lv_table_set_cell_value(qsoTable, 0, 1, "db");
+	lv_table_set_col_width(qsoTable, 1, w / 16);
+	lv_table_set_cell_value(qsoTable, 0, 2, "Freq");
+	lv_table_set_col_width(qsoTable, 2, w / 12);
+	lv_table_set_cell_value(qsoTable, 0, 3, "Message");
+	lv_table_set_col_width(qsoTable, 3, w / 2 - (w / 12 + w / 16 + w / 12));
+	qsoRowCount++;
+
+	call = Settings_file.get_string("ft8", "call");
 }
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,double hz0, string msg)
@@ -149,8 +223,19 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 
 	if (guift8bar.GetFilter().length() > 0)
 	{
-		if (msg.find(guift8bar.GetFilter()) == std::string::npos && msg.find(guift8bar.GetCall()))
-			return;
+		if (msg.find(call) != std::string::npos)
+		{
+			message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
+			add_qso(m);
+		}
+		else
+		{
+			if (msg.find(guift8bar.GetFilter()) != std::string::npos)
+			{
+				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
+				add_qso(m);
+			}
+		}
 	}
 
 	sprintf(str,"%02d:%02d:%02d", hh, min, sec);
@@ -168,9 +253,49 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	m_cycle_count++;
 }
 
+void gui_ft8::add_qso(struct message msg)
+{
+	char str[128];
+
+	sprintf(str, "%02d:%02d:%02d", msg.hh, msg.min, msg.sec);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 0, str);
+
+	sprintf(str, "%3d", msg.snr);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 1, str);
+
+	sprintf(str, "%6.1f", msg.hz0);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 2, str);
+
+	sprintf(str, "%6.1f", msg.hz0);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, msg.msg.c_str());
+
+	qsoRowCount++;
+}
+
+void gui_ft8::cpy_qso(int row)
+{
+	char *ptr;
+
+	ptr = (char *)lv_table_get_cell_value(table, row, 0);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 0,ptr);
+	ptr = (char *)lv_table_get_cell_value(table, row, 1);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 1, ptr);
+	ptr = (char *)lv_table_get_cell_value(table, row, 2);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 2, ptr);
+	ptr = (char *)lv_table_get_cell_value(table, row, 3);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, ptr);
+	qsoRowCount++;
+}
+
+void gui_ft8::clr_qso()
+{
+	lv_table_set_row_cnt(qsoTable, 1);
+	QsoScrollFirstItem();
+	qsoRowCount = 1;
+}
+
 void gui_ft8::clear()
 {
-	
 	bclear = true;
 }
 
@@ -189,7 +314,7 @@ void gui_ft8::reset()
 void gui_ft8::ScrollLatestItem()
 {
 	lv_coord_t currScrollPos = lv_obj_get_scroll_y(table);
-	Scroll(currScrollPos);
+	Scroll(table,currScrollPos);
 }
 
 void gui_ft8::ScrollFirstItem()
@@ -198,7 +323,19 @@ void gui_ft8::ScrollFirstItem()
 	lv_obj_scroll_to(table, 0, currScrollPos, LV_ANIM_OFF);
 }
 
-void gui_ft8::Scroll(lv_coord_t currScrollPos)
+void gui_ft8::QsoScrollLatestItem()
+{
+	lv_coord_t currScrollPos = lv_obj_get_scroll_y(qsoTable);
+	Scroll(qsoTable, currScrollPos);
+}
+
+void gui_ft8::QsoScrollFirstItem()
+{
+	lv_coord_t currScrollPos{};
+	lv_obj_scroll_to(qsoTable, 0, currScrollPos, LV_ANIM_OFF);
+}
+
+void gui_ft8::Scroll(lv_obj_t *table, lv_coord_t currScrollPos)
 {
 	lv_coord_t y = lv_obj_get_self_height(table);
 
@@ -220,12 +357,3 @@ void gui_ft8::Scroll(lv_coord_t currScrollPos)
 	return;
 }
 
-void gui_ft8::Process(const IQSampleVector &input)
-{
-	waterfall->Process(input);
-}
-
-void gui_ft8::DrawWaterfall()
-{
-	waterfall->Draw();
-}

@@ -12,6 +12,7 @@
 #include "sdrberry.h"
 #include "Spectrum.h"
 #include "FreeDVTab.h"
+#include "gui_ft8bar.h"
 
 static shared_ptr<FT8Demodulator>	sp_ft8demod;
 std::mutex							ft8demod_mutex;
@@ -159,7 +160,7 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
 	calc_if_level(filter1);
-	gft8.Process(filter1);
+	guift8bar.Process(filter1);
 	for (auto col : filter1)
 	{
 		float v;

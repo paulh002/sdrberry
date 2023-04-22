@@ -350,8 +350,8 @@ int main(int argc, char *argv[])
 
 	ft8bar_view = lv_obj_create(lv_scr_act());
 	lv_obj_set_style_radius(ft8bar_view, 0, 0);
-	lv_obj_set_pos(ft8bar_view, 0, topHeight + tunerHeight);
-	lv_obj_set_size(ft8bar_view, LV_HOR_RES - 3, barHeight);
+	lv_obj_set_pos(ft8bar_view, 0, topHeight);
+	lv_obj_set_size(ft8bar_view, LV_HOR_RES - 3, barHeight + tunerHeight);
 	lv_obj_add_flag(ft8bar_view, LV_OBJ_FLAG_HIDDEN);
 	guift8bar.init(ft8bar_view, button_group, keyboard_group,mode, LV_HOR_RES - 3, barHeight);
 
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
 			if (mode == mode_freedv)
 				freeDVTab.DrawWaterfall();
 			if (mode == mode_ft8)
-				gft8.DrawWaterfall();
+				guift8bar.DrawWaterfall();
 			SpectrumGraph.DrawWaterfall();
 		}
 		

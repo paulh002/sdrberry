@@ -19,12 +19,17 @@ static void qso_press_part_event_cb(lv_event_t *e)
 	int db, length;
 
 	lv_table_get_selected_cell(obj, &row, &col);
+	if (lv_table_get_row_cnt(obj) < row+1)
+		return;
 	ptr = (char *)lv_table_get_cell_value(obj, row, 1);
 	if (ptr != nullptr)
 		db = atoi(ptr);
 	ptr = (char *)lv_table_get_cell_value(obj, row, col);
 	std::string str(ptr);
-
+	size_t i = str.find(' ');
+	size_t q = str.rfind(' ');
+	if (i != string::npos && q != string::npos && (q-i-1) > 0)
+		guift8bar.setMessage(str.substr(i+1, q -i - 1), db, 2);
 }
 
 static void press_part_event_cb(lv_event_t *e)
@@ -206,6 +211,9 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	qsoRowCount++;
 
 	call = Settings_file.get_string("ft8", "call");
+
+	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH DK7ZT -06"};
+	add_qso(m);
 }
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,double hz0, string msg)

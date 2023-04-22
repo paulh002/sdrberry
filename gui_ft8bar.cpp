@@ -8,6 +8,8 @@ extern const int barHeight;
 
 gui_ft8bar guift8bar;
 
+static int messageToSend = 1;
+
 gui_ft8bar::gui_ft8bar()
 {
 }
@@ -39,26 +41,37 @@ void gui_ft8bar::setmonitor(bool mon)
 		lv_obj_clear_state(button[1], LV_STATE_CHECKED);
 }
 
-void gui_ft8bar::setMessage(std::string callsign, int db)
+void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 {
 	std::string s;
 
 	s = callsign + " " + call + " " + locator;
 	lv_table_set_cell_value(table, 1, 1, s.c_str());
-	SetTxMessage(s);
+	if (row == 1)
+		SetTxMessage(s);
 
 	s = callsign + " " + call + " " + std::to_string(db);
 	lv_table_set_cell_value(table, 2, 1, s.c_str());
+	if (row == 2)
+		SetTxMessage(s);
 
 	s = callsign + " " + call + " R " + std::to_string(db);
 	lv_table_set_cell_value(table, 3, 1, s.c_str());
+	if (row == 3)
+		SetTxMessage(s);
+	
 	s = callsign + " " + call + " RRR";
 	lv_table_set_cell_value(table, 4, 1, s.c_str());
+	if (row == 4)
+		SetTxMessage(s);
 
 	s = callsign + " " + call + " 73";
 	lv_table_set_cell_value(table, 5, 1, s.c_str());
+	if (row == 5)
+		SetTxMessage(s);
 
 	SetFilter(callsign);
+	messageToSend = row ;
 }
 
 void gui_ft8bar::SetFrequency()
@@ -148,6 +161,7 @@ void gui_ft8bar::ClearMessage()
 	lv_table_set_cell_value(table, 4, 1, "");
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
+	messageToSend = 1;
 	SetTxMessage();
 	SetFilter("");
 	gft8.clr_qso();
@@ -178,7 +192,7 @@ std::string gui_ft8bar::GetFilter()
 	return s;
 }
 
-static int messageToSend = 1;
+
 
 static void press_part_event_cb(lv_event_t *e)
 {
@@ -476,7 +490,7 @@ void gui_ft8bar::Transmit()
 	if (transmitting || mode != mode_ft8 || message.size() == 0)
 		return;
 	transmitting = true;
-	frequency = 0;
+	frequency = lv_slider_get_value(tx_slider) * 50;
 	param.mode = mode;
 	param.tone = 0;
 	param.ifrate = ifrate_tx;

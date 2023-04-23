@@ -42,7 +42,6 @@ class gui_ft8bar
 	std::string encodedMessage;
 	atomic<bool> transmitting{false};
 	unique_ptr<FT8Generator> ft8generator;
-	ModulatorParameters param;
 	std::unique_ptr<Waterfall> waterfall;
 	float ft8_rate{12000.0};
 };

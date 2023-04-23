@@ -7,8 +7,16 @@
 #include <ctime>
 
 
+extern DataBuffer<IQSample> source_buffer_rx;
+extern DataBuffer<IQSample> source_buffer_tx;
+
+static std::atomic<bool> startTX = false;
+static ModulatorParameters param;
+static shared_ptr<DigitalTransmission> StartDigitaltransmissionthread;
+
 DigitalTransmission::DigitalTransmission(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer_tx, DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input)
 {
+
 	printf("Stop RX stream \n");
 	RX_Stream::destroy_rx_streaming_thread();
 	if (sp_ammod != nullptr)
@@ -35,6 +43,7 @@ void DigitalTransmission::operator()()
 	cout << "Wait for TX stream finished running " << std::ctime(&the_time) << endl;
 
 	sp_ammod->ammod_thread.join();
+	startTX = false;
 	sp_ammod.reset();
 	TX_Stream::destroy_tx_streaming_thread();
 
@@ -48,4 +57,45 @@ void DigitalTransmission::operator()()
 	RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, Source_buffer_rx);
 	guift8bar.ClearTransmit();
 	vfo.vfo_rxtx(true, false);
+}
+
+void DigitalTransmission::WaitForTimeSlot()
+{
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	time_t tt = std::chrono::system_clock::to_time_t(now);
+	int sec = ((long long)tt % 15);
+	if (sec == 0 && startTX & sp_ammod == nullptr)
+	{
+		now = std::chrono::system_clock::now();
+		tt = std::chrono::system_clock::to_time_t(now);
+		tm local_tm = *localtime(&tt);
+		printf("start tx cycle %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+		if (StartDigitaltransmissionthread != nullptr)
+		{
+			StartDigitaltransmissionthread->DTthread.join();
+			StartDigitaltransmissionthread.reset();
+			StartDigitaltransmissionthread = nullptr;
+		}
+		StartDigitaltransmissionthread = make_shared<DigitalTransmission>(param, &source_buffer_tx, &source_buffer_rx, audio_input);
+		StartDigitaltransmissionthread->DTthread = std::thread(&DigitalTransmission::operator(), StartDigitaltransmissionthread);
+		}
+}
+
+void DigitalTransmission::StartDigitalTransmission(ModulatorParameters param)
+{
+	if (!startTX)
+	{
+		::param = std::move(param);
+		startTX = true;
+	}
+}
+
+bool DigitalTransmission::CancelDigitalTransmission()
+{
+	if (startTX && StartDigitaltransmissionthread == nullptr)
+	{
+		startTX = false;
+		return true;
+	}
+	return false;
 }

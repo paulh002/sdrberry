@@ -23,6 +23,10 @@ class DigitalTransmission
 	void operator()();
 	std::thread DTthread;
 
+	static void WaitForTimeSlot();
+	static void StartDigitalTransmission(ModulatorParameters param);
+	static bool CancelDigitalTransmission();
+
   private:
 	DataBuffer<IQSample> *Source_buffer_rx;
 };

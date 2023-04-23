@@ -505,6 +505,8 @@ int main(int argc, char *argv[])
 		//Mouse_dev.step_vfo();
 		HidDev_dev.step_vfo();
 		HidDev_dev1.step_vfo();
+		if (mode == mode_ft8)
+			DigitalTransmission::WaitForTimeSlot();
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastStatus + std::chrono::milliseconds(100) < now)
 		{
@@ -765,21 +767,6 @@ void select_mode_tx(int s_mode, int tone, int cattx)
 		break;
 	}
 	catinterface.Pause_Cat(false);
-}
-
-
-static shared_ptr<DigitalTransmission> StartDigitaltransmissionthread;
-
-void StartDigitalTransmission(ModulatorParameters &param)
-{
-	if (StartDigitaltransmissionthread != nullptr)
-	{
-		StartDigitaltransmissionthread->DTthread.join();
-		StartDigitaltransmissionthread.reset();
-		StartDigitaltransmissionthread = nullptr;
-	}
-	StartDigitaltransmissionthread = make_shared<DigitalTransmission>(param, &source_buffer_tx, &source_buffer_rx, audio_input);
-	StartDigitaltransmissionthread->DTthread = std::thread(&DigitalTransmission::operator(), StartDigitaltransmissionthread);
 }
 
 

@@ -1,7 +1,6 @@
 #include "gui_ft8bar.h"
 #include "vfo.h"
 #include "Modes.h"
-#include "FT8Generator.h"
 #include <fstream>
 
 extern const int tunerHeight;
@@ -496,17 +495,29 @@ void gui_ft8bar::hide(bool hide)
 	}
 }
 
-extern void StartDigitalTransmission(ModulatorParameters &param);
-
 void gui_ft8bar::Transmit()
 {
+	ModulatorParameters param;
 	int frequency;
 	std::string message;
 
 	const char *ptr = lv_textarea_get_text(Textfield);
 	message = std::string(ptr);
 	if (transmitting || mode != mode_ft8 || message.size() == 0)
+	{
+		printf("Cancel tx mode\n");
+		if (DigitalTransmission::CancelDigitalTransmission())
+		{
+			printf("tx mode canceld\n");
+			transmitting = false;
+		}
+		else
+		{
+			lv_obj_add_state(button[3], LV_STATE_CHECKED);
+			printf("Cannot cancel tx mode\n");
+		}
 		return;
+	}
 	transmitting = true;
 	frequency = lv_slider_get_value(tx_slider) * 50;
 	param.mode = mode;
@@ -515,7 +526,7 @@ void gui_ft8bar::Transmit()
 	param.even = true;
 	param.timeslot = 15;
 	param.ft8signal = ft8generator->generate(frequency, FT8, message);
-	StartDigitalTransmission(param);
+	DigitalTransmission::StartDigitalTransmission(std::move(param));
 }
 
 void gui_ft8bar::ClearTransmit() 

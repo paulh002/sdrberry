@@ -128,8 +128,8 @@ void AMModulator::operator()()
 		audioInputBuffer->set_gain(0);
 	if (digitalmode)
 	{
-		cout << "Wait for Timeslot \n";
-		WaitForTimeSlot();
+		//cout << "Wait for Timeslot \n";
+		//WaitForTimeSlot();
 		audioInputBuffer->clear();
 		audioInputBuffer->StartDigitalMode(ft8signal);
 		cout << "Start digital transmit \n";

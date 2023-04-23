@@ -80,11 +80,11 @@ static void qso_draw_part_event_cb(lv_event_t *e)
 		if (col == 3)
 		{
 			char *ptr = table->cell_data[((col + 1) * (row + 1)) - 1] + 1;
-//			if (strstr(ptr, "CQ ") != NULL)
-//			{
-//				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
-//				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
-//			}
+			if (strstr(ptr, gft8.getcall().c_str()) != NULL)
+			{
+				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
+				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			}
 		}
 	}
 }
@@ -239,7 +239,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		}
 		else
 		{
-			if (msg.find(guift8bar.GetFilter()) != std::string::npos)
+			if (msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ") != std::string::npos)
 			{
 				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 				add_qso(m);

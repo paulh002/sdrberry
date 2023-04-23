@@ -16,7 +16,7 @@ class gui_ft8bar
 	void setmonitor(bool mon);
 	void setMessage(std::string callsign, int db, int row = 1);
 	void SetFrequency();
-	void Transmit();
+	void Transmit(lv_obj_t * obj);
 	void SetTxMessage(std::string msg = "");
 	void SetFilter(std::string msg);
 	std::string GetFilter();

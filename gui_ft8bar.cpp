@@ -151,13 +151,13 @@ static void ft8bar_button_handler(lv_event_t *e)
 			break;
 		case 3:
 			// Execute the QSO
-			guift8bar.Transmit();
+			guift8bar.Transmit(obj);
 			break;
 		case 4:
 			//CQ
 			guift8bar.SetTxMessage();
 			guift8bar.SetFilterCall();
-			guift8bar.Transmit();
+			guift8bar.Transmit(obj);
 			break;
 		case 5:
 			guift8bar.ClearMessage();
@@ -495,7 +495,7 @@ void gui_ft8bar::hide(bool hide)
 	}
 }
 
-void gui_ft8bar::Transmit()
+void gui_ft8bar::Transmit(lv_obj_t *obj)
 {
 	ModulatorParameters param;
 	int frequency;
@@ -513,7 +513,7 @@ void gui_ft8bar::Transmit()
 		}
 		else
 		{
-			lv_obj_add_state(button[3], LV_STATE_CHECKED);
+			lv_obj_add_state(obj, LV_STATE_CHECKED);
 			printf("Cannot cancel tx mode\n");
 		}
 		return;

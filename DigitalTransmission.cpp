@@ -64,6 +64,13 @@ void DigitalTransmission::WaitForTimeSlot()
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	time_t tt = std::chrono::system_clock::to_time_t(now);
 	int sec = ((long long)tt % 15);
+	if (StartDigitaltransmissionthread != nullptr && !startTX)
+	{
+		StartDigitaltransmissionthread->DTthread.join();
+		StartDigitaltransmissionthread.reset();
+		StartDigitaltransmissionthread = nullptr;
+	}
+
 	if (sec == 0 && startTX & sp_ammod == nullptr)
 	{
 		now = std::chrono::system_clock::now();

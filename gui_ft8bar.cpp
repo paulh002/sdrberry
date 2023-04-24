@@ -505,16 +505,19 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 	message = std::string(ptr);
 	if (transmitting || mode != mode_ft8 || message.size() == 0)
 	{
-		printf("Cancel tx mode\n");
-		if (DigitalTransmission::CancelDigitalTransmission())
+		if (transmitting)
 		{
-			printf("tx mode canceld\n");
-			transmitting = false;
-		}
-		else
-		{
-			lv_obj_add_state(obj, LV_STATE_CHECKED);
-			printf("Cannot cancel tx mode\n");
+			printf("Cancel tx mode\n");
+			if (DigitalTransmission::CancelDigitalTransmission())
+			{
+				printf("tx mode canceld\n");
+				transmitting = false;
+			}
+			else
+			{
+				lv_obj_add_state(obj, LV_STATE_CHECKED);
+				printf("Cannot cancel tx mode\n");
+			}
 		}
 		return;
 	}

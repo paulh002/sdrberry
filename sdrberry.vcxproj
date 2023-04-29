@@ -56,8 +56,8 @@
       </DumpStackUsage>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjt_fort_omp;wsjt_fort;wsjt_cxx;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -75,9 +75,9 @@
       <VerboseMode>false</VerboseMode>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjt_fort_omp;wsjt_fort;wsjt_cxx;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -299,6 +299,7 @@
     <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />
     <ClInclude Include="wstring.h" />
+    <ClInclude Include="wsjtx.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings" />

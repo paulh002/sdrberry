@@ -44,6 +44,9 @@
     <Filter Include="Header files\ft8">
       <UniqueIdentifier>{8730a9af-6f58-4c84-98a3-3ba617b86327}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header files\lib">
+      <UniqueIdentifier>{3b3e935e-88ab-41fc-9a32-515339a2f65f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdrberry.cpp">
@@ -703,6 +706,9 @@
     </ClInclude>
     <ClInclude Include="gui_cal.h">
       <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="wsjtx.h">
+      <Filter>Header files\lib</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

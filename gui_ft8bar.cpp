@@ -43,36 +43,88 @@ void gui_ft8bar::setmonitor(bool mon)
 
 void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 {
-	std::string s;
+	std::string s73 = Settings_file.get_string("ft8", "73");
+	std::string Message;
 
-	lv_obj_invalidate(table);
-	s = callsign + " " + call + " " + locator;
-	lv_table_set_cell_value(table, 1, 1, s.c_str());
-	if (row == 1)
-		SetTxMessage(s);
+	bool bMyCall = stdCall(call);
+	bool bHisCall = stdCall(callsign);
+	bool b73 = false;
 
-	s = callsign + " " + call + " " + std::to_string(db);
-	lv_table_set_cell_value(table, 2, 1, s.c_str());
-	if (row == 2)
-		SetTxMessage(s);
-
-	s = callsign + " " + call + " R " + std::to_string(db);
-	lv_table_set_cell_value(table, 3, 1, s.c_str());
-	if (row == 3)
-		SetTxMessage(s);
+	if (s73.length() == 0 || s73 == "73")
+		b73 = true;
 	
-	s = callsign + " " + call + " RRR";
-	lv_table_set_cell_value(table, 4, 1, s.c_str());
+	printf("Mycall: %s %s Hiscall: %s %s\n", call.c_str(), bMyCall ? "true" : "false", callsign.c_str(), bHisCall ? "true" : "false");
+	
+	Message = callsign + " " + call + " ";
+	if (!bMyCall)
+		Message = callsign + " <" + call + "> ";
+	if (!bHisCall)
+		Message = "<" + callsign + "> " + call + " ";
+	lv_obj_invalidate(table);
+	Message += locator;
+	lv_table_set_cell_value(table, 1, 1, Message.c_str());
+	if (row == 1)
+		SetTxMessage(Message);
+
+	Message = callsign + " " + call + " ";
+	if (!bMyCall)
+		Message = callsign + " <" + call + "> ";
+	if (!bHisCall)
+		Message = "<" + callsign + "> " + call + " ";
+	if (db > 0)
+		Message += "+";
+	Message += std::to_string(db);
+	lv_table_set_cell_value(table, 2, 1, Message.c_str());
+	if (row == 2)
+		SetTxMessage(Message);
+
+	Message = callsign + " " + call + " R";
+	if (!bHisCall and bMyCall)
+		Message = "<" + callsign + "> " + call + " R";
+	if (bHisCall and !bMyCall)
+		Message = callsign + " <" + call + "> R";
+	
+	if (db > 0)
+		Message += "+";
+	Message += std::to_string(db);
+	lv_table_set_cell_value(table, 3, 1, Message.c_str());
+	if (row == 3)
+		SetTxMessage(Message);
+
+	if (b73)
+	{
+		Message = callsign + " " + call + " RRR";
+		if (!bHisCall and bMyCall)
+			Message = callsign + " <" + call + "> RRR";
+		if (bHisCall and !bMyCall)
+			Message = "<" + callsign + "> " + call + " RRR";
+		lv_table_set_cell_value(table, 4, 1, Message.c_str());
+	}
+	else
+	{
+		Message = callsign + " " + call + " RR73";
+		if (!bHisCall and bMyCall)
+			Message = callsign + " <" + call + "> RR73";
+		if (bHisCall and !bMyCall)
+			Message = "<" + callsign + "> " + call + " RR73";
+		lv_table_set_cell_value(table, 4, 1, Message.c_str());
+	}
 	if (row == 4)
-		SetTxMessage(s);
+		SetTxMessage(Message);
 
-	s = callsign + " " + call + " 73";
-	lv_table_set_cell_value(table, 5, 1, s.c_str());
-	if (row == 5)
-		SetTxMessage(s);
-
+	if (b73)
+	{
+		Message = callsign + " " + call + " 73";
+		if (!bHisCall and bMyCall)
+			Message = callsign + " <" + call + "> 73";
+		if (bHisCall and !bMyCall)
+			Message = "<" + callsign + "> " + call + " RR73";
+		lv_table_set_cell_value(table, 5, 1, Message.c_str());
+		if (row == 5)
+			SetTxMessage(Message);
+	}
 	SetFilter(callsign);
-	messageToSend = row ;
+	messageToSend = row;
 }
 
 void gui_ft8bar::SetFrequency()
@@ -326,7 +378,6 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 			switch (i)
 			{
 			case 0:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)0);
 				strcpy(str, "Stop");
 				break;
@@ -336,7 +387,6 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 				strcpy(str, "Monitor");
 				break;
 			case 2:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)2);
 				strcpy(str, "Log");
 				break;
@@ -503,6 +553,7 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 
 	const char *ptr = lv_textarea_get_text(Textfield);
 	message = std::string(ptr);
+	printf("ft8 message %s\n", message.c_str());
 	if (transmitting || mode != mode_ft8 || message.size() == 0)
 	{
 		if (transmitting)

@@ -116,6 +116,11 @@ static void draw_part_event_cb(lv_event_t *e)
 				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
 				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
 			}
+			if (strstr(ptr, guift8bar.GetFilter().c_str()) != NULL) 
+			{
+				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_YELLOW), dsc->rect_dsc->bg_color, LV_OPA_30);
+				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			}
 		}
 	}
 }
@@ -212,8 +217,8 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	qsoRowCount++;
 
 	call = Settings_file.get_string("ft8", "call");
-
-	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH DK7ZT /P -06"};
+	//DK7ZT
+	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	//add_qso(m);
 }
 
@@ -232,7 +237,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 
 	if (guift8bar.GetFilter().length() > 0)
 	{
-		if (msg.find(call) != std::string::npos)
+		if (msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0)
 		{
 			message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 			add_qso(m);

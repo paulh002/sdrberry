@@ -15,8 +15,10 @@
 
 #define FT8_SYMBOL_BT 2.0f ///< symbol smoothing filter bandwidth factor (BT)
 #define FT4_SYMBOL_BT 1.0f ///< symbol smoothing filter bandwidth factor (BT)
-
+#define MAX_NUM_SYMBOLS 250
 #define GFSK_CONST_K 5.336446f ///< == pi * sqrt(2 / log(2))
+
+bool stdCall(std::string const &w);
 
 enum encoding
 {
@@ -28,8 +30,9 @@ class FT8Generator
   public:
 	FT8Generator(AudioInput *input) { audioinput = input; }
 	vector<float> generate(int frequency, encoding code,std::string message);
-
+	
   private:
+	int itone[MAX_NUM_SYMBOLS] = {0};
 	SampleVector audioSamples;
 	AudioInput *audioinput;
 	void gfsk_pulse(int n_spsym, float symbol_bt, float *pulse);

@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
 	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
-	Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
+	//Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//guift8setting.init(tab["ft8settings"], keyboard_group);
@@ -414,6 +414,7 @@ int main(int argc, char *argv[])
 	
 	if (SdrDevices.MakeDevice(default_radio))
 	{
+		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		SoapySDR::Range r = SdrDevices.get_full_frequency_range(default_radio, default_rx_channel);
 		std::string start_freq = std::to_string(r.minimum() / 1.0e6);

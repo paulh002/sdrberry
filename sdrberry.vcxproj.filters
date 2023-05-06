@@ -710,5 +710,8 @@
     <ClInclude Include="wsjtx.h">
       <Filter>Header files\lib</Filter>
     </ClInclude>
+    <ClInclude Include="lib\commons.h">
+      <Filter>Header files\lib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

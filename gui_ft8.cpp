@@ -116,7 +116,7 @@ static void draw_part_event_cb(lv_event_t *e)
 				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
 				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
 			}
-			if (strstr(ptr, guift8bar.GetFilter().c_str()) != NULL) 
+			if (strstr(ptr, guift8bar.GetFilter().c_str()) != NULL && guift8bar.GetFilter().length() > 0) 
 			{
 				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_YELLOW), dsc->rect_dsc->bg_color, LV_OPA_30);
 				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
@@ -235,15 +235,21 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		bclear = false;
 	}
 
-	if (guift8bar.GetFilter().length() > 0)
+	if (msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0)
 	{
-		if (msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0)
+		message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
+		add_qso(m);
+	}
+	else
+	{
+		if (guift8bar.GetFilter().length() > 0)
 		{
-			message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
-			add_qso(m);
-		}
-		else
-		{
+			if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()))
+			{
+				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
+				add_qso(m);
+			}
+
 			if (msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ") != std::string::npos)
 			{
 				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};

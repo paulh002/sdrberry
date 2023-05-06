@@ -236,6 +236,7 @@
     <ClInclude Include="imKStoUCS.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="KeyboardTranslator.h" />
+    <ClInclude Include="lib\commons.h" />
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h" />

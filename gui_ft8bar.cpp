@@ -208,7 +208,7 @@ static void ft8bar_button_handler(lv_event_t *e)
 		case 4:
 			//CQ
 			guift8bar.SetTxMessage();
-			guift8bar.SetFilterCall();
+			//guift8bar.SetFilterCall();
 			guift8bar.Transmit(obj);
 			break;
 		case 5:

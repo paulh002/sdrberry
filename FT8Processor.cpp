@@ -2,8 +2,11 @@
 #include "ft8.h"
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
-#include "unpack.h"
+//#include "unpack.h"
+#include "wsjtx.h"
 #include <map>
+#include <regex>
+#include <string>
 
 std::mutex cycle_mu;
 int cycle_count;
@@ -12,11 +15,33 @@ std::map<std::string, bool> cycle_already;
 
 DataQueue<FT8Message> FT8Queue;
 
+
+
+std::string remove_trailing_whitespace(const std::string &str)
+{
+	static const std::regex pattern("\\s+$"); // matches one or more whitespace characters at the end of the string
+	return std::regex_replace(str, pattern, "");
+}
+
 int hcb(int *a91, double hz0, double hz1, double off,
 		const char *comment, double snr, int pass,
 		int correct_bits)
 {
-	std::string msg = unpack(a91);
+	//std::string msg = unpack(a91);
+	int nrx = 1;
+	int unpk77_success = 0;
+	char c77[78];
+	char msg1[38];
+
+	for (int i = 0; i < 77; i++)
+	{
+		c77[i] = a91[i] + '0';
+	}
+
+	__packjt77_MOD_unpack77(c77, &nrx, msg1, &unpk77_success, 77, 37);
+
+	std::string msg = std::string(msg1);
+	msg = remove_trailing_whitespace(msg);
 	cycle_mu.lock();
 	if (cycle_already.count(msg) > 0)
 	{

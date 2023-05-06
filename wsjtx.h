@@ -95,5 +95,6 @@ void get_ft4msg_(int *idecode, char *line, int len);
 
 void chk_samples_(int *m_ihsym, int *k, int *m_hsymStop);
 
-void pack77_(char *msg0, int *i3, int *n3, char *c77);
+void __packjt77_MOD_unpack77(char *c77, int *nrx, char *msg, int *unpk77_success, fortran_charlen_t, fortran_charlen_t);
+void __packjt77_MOD_pack77(char *msg, int *i3, int *n3, char *c77, fortran_charlen_t, fortran_charlen_t);
 }

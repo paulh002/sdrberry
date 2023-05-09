@@ -5,6 +5,8 @@
 
 extern const int tunerHeight;
 extern const int barHeight;
+extern int barHeightft8;
+
 
 gui_ft8bar guift8bar;
 
@@ -36,9 +38,9 @@ void gui_ft8bar::DrawWaterfall()
 void gui_ft8bar::setmonitor(bool mon)
 {
 	if (mon)
-		lv_obj_add_state(button[1], LV_STATE_CHECKED);
+		lv_obj_add_state(button[0], LV_STATE_CHECKED);
 	else
-		lv_obj_clear_state(button[1], LV_STATE_CHECKED);
+		lv_obj_clear_state(button[0], LV_STATE_CHECKED);
 }
 
 void gui_ft8bar::setMessage(std::string callsign, int db, int row)
@@ -157,7 +159,6 @@ static void filter_event_handler(lv_event_t *e)
 	}
 }
 
-
 static void ft8bar_button_handler(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -170,8 +171,6 @@ static void ft8bar_button_handler(lv_event_t *e)
 		switch (i)
 		{
 		case 0:
-			break;
-		case 1:
 			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
 				select_mode(mode_ft8);
@@ -183,7 +182,7 @@ static void ft8bar_button_handler(lv_event_t *e)
 				gbar.set_mode(mode_usb);
 			}
 			break;
-		case 2:
+		case 1:
 			// log
 			{
 				std::ofstream outfile;
@@ -201,17 +200,17 @@ static void ft8bar_button_handler(lv_event_t *e)
 				guift8bar.ClearMessage();
 			}
 			break;
-		case 3:
+		case 2:
 			// Execute the QSO
 			guift8bar.Transmit(obj);
 			break;
-		case 4:
+		case 3:
 			//CQ
 			guift8bar.SetTxMessage();
 			//guift8bar.SetFilterCall();
 			guift8bar.Transmit(obj);
 			break;
-		case 5:
+		case 4:
 			guift8bar.ClearMessage();
 			break;
 		}
@@ -320,6 +319,24 @@ static void tx_slider_event_cb(lv_event_t *e)
 	}
 }
 
+static void if_slider_event_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *slider = lv_event_get_target(e);
+
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		lv_obj_t *if_slider_label = (lv_obj_t *)lv_event_get_user_data(e);
+		lv_label_set_text_fmt(if_slider_label, "if %d db", lv_slider_get_value(slider));
+		gbar.set_if(lv_slider_get_value(slider));
+	}
+}
+
+void gui_ft8bar::set_if(int ifgain)
+{
+	lv_slider_set_value(if_slider, ifgain, LV_ANIM_ON);
+	lv_label_set_text_fmt(if_slider_label, "if %d db", ifgain);
+}
 
 void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *keyboard_group, int mode, lv_coord_t w, lv_coord_t h)
 {
@@ -328,10 +345,10 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	const lv_coord_t y_margin = 2; //5;
 	const int x_number_buttons = 6;
 	const int y_number_buttons = 4;
-	const int max_rows = 3;
+	const int max_rows = 4;
 	const lv_coord_t tab_margin = w / 3;
 	const int cw_margin = 20;
-	const int number_of_pushbuttons = 6;
+	const int number_of_pushbuttons = 5;
 
 	int button_width_margin = ((w - tab_margin) / (x_number_buttons + 1));
 	int button_width = ((w - tab_margin) / (x_number_buttons + 1)) - x_margin;
@@ -378,33 +395,29 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 			switch (i)
 			{
 			case 0:
-				lv_obj_set_user_data(button[i], (void *)0);
-				strcpy(str, "Stop");
-				break;
-			case 1:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[i], (void *)1);
+				lv_obj_set_user_data(button[i], (void *)0);
 				strcpy(str, "Monitor");
 				break;
-			case 2:
-				lv_obj_set_user_data(button[i], (void *)2);
+			case 1:
+				lv_obj_set_user_data(button[i], (void *)1);
 				strcpy(str, "Log");
+				break;
+			case 2:
+				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[i], (void *)2);
+				strcpy(str, "TX");
+				txbutton = i;
 				break;
 			case 3:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)3);
-				strcpy(str, "TX");
-				txbutton = i;
-				break;
-			case 4:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[i], (void *)4);
 				strcpy(str, "CQ");
 				rxbutton = i;
 				break;
-			case 5:
+			case 4:
 				//lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[i], (void *)5);
+				lv_obj_set_user_data(button[i], (void *)4);
 				strcpy(str, "Clear");
 				break;
 			}
@@ -501,16 +514,27 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 		lv_group_add_obj(keyboard_group, FilterField);
 
 	ibutton_y++;
+	int if_width = ibutton_x * button_width_margin - 20; //	-30;
+	int if_y = button_height / 4 + 2 * y_margin + ibutton_y * button_height_margin;
+	if_slider_label = lv_label_create(o_parent);
+	lv_obj_align(if_slider_label, LV_ALIGN_TOP_LEFT, if_width + 15, if_y);
+	if_slider = lv_slider_create(o_parent);
+	lv_slider_set_range(if_slider, 0, maxifgain);
+	lv_obj_set_width(if_slider, if_width);
+	lv_obj_align(if_slider, LV_ALIGN_TOP_LEFT, 10, if_y);
+	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)if_slider_label);
+
+	ibutton_y++;
 	int freq = Settings_file.get_int("ft8", "tx", 0);
-	int tx_width = ibutton_x * button_width_margin; //	-30;
-	int tx_y = button_height / 4 + y_margin + ibutton_y * button_height_margin;
+	int tx_width = ibutton_x * button_width_margin - 20; //	-30;
+	int tx_y = button_height / 4 + 2 * y_margin + ibutton_y * button_height_margin;
 	tx_slider_label = lv_label_create(o_parent);
 	lv_label_set_text_fmt(tx_slider_label, "tx %d Hz", freq);
-	lv_obj_align(tx_slider_label, LV_ALIGN_TOP_LEFT, tx_width + 5, tx_y);
+	lv_obj_align(tx_slider_label, LV_ALIGN_TOP_LEFT, tx_width + 15, tx_y);
 	tx_slider = lv_slider_create(o_parent);
 	lv_slider_set_range(tx_slider, 0, 80);
 	lv_obj_set_width(tx_slider, tx_width);
-	lv_obj_align(tx_slider, LV_ALIGN_TOP_LEFT, 0, tx_y);
+	lv_obj_align(tx_slider, LV_ALIGN_TOP_LEFT, 10, tx_y);
 	lv_obj_add_event_cb(tx_slider, tx_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)tx_slider_label);
 	lv_slider_set_value(tx_slider, freq / 50, LV_ANIM_ON);
 	
@@ -529,7 +553,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	float bandwidth = Settings_file.get_int("ft8", "bandwidth", 4500);
 	int waterfallfloor = Settings_file.get_int("ft8", "waterfallfloor", 60);
 	float resampleRate = bandwidth / ft8_rate;
-	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeight, w, tunerHeight, resampleRate, waterfallfloor, down, allparts);
+	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, waterfallfloor, down, allparts);
 }
 
 void gui_ft8bar::hide(bool hide)

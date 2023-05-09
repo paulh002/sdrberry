@@ -49,6 +49,7 @@ const int bottomHeight = 40;
 const int topHeight = 35;
 const int tunerHeight = 100;
 const int barHeight = 110; //90;
+int barHeightft8 = 125; //90;
 const int MorseHeight = 30;
 const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
@@ -353,7 +354,7 @@ int main(int argc, char *argv[])
 	lv_obj_set_pos(ft8bar_view, 0, topHeight);
 	lv_obj_set_size(ft8bar_view, LV_HOR_RES - 3, barHeight + tunerHeight);
 	lv_obj_add_flag(ft8bar_view, LV_OBJ_FLAG_HIDDEN);
-	guift8bar.init(ft8bar_view, button_group, keyboard_group,mode, LV_HOR_RES - 3, barHeight);
+	guift8bar.init(ft8bar_view, button_group, keyboard_group, mode, LV_HOR_RES - 3, barHeightft8);
 
 	calbar_view = lv_obj_create(lv_scr_act());
 	lv_obj_set_style_radius(calbar_view, 0, 0);

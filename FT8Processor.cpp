@@ -3,7 +3,7 @@
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
 //#include "unpack.h"
-#include "wsjtx.h"
+#include "lib/wsjtx.h"
 #include <map>
 #include <regex>
 #include <string>

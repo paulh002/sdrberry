@@ -707,10 +707,10 @@
     <ClInclude Include="gui_cal.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="wsjtx.h">
+    <ClInclude Include="lib\commons.h">
       <Filter>Header files\lib</Filter>
     </ClInclude>
-    <ClInclude Include="lib\commons.h">
+    <ClInclude Include="lib\wsjtx.h">
       <Filter>Header files\lib</Filter>
     </ClInclude>
   </ItemGroup>

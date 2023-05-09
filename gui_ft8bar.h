@@ -26,10 +26,11 @@ class gui_ft8bar
 	void ClearMessage();
 	void Process(const IQSampleVector &input);
 	void DrawWaterfall();
+	void set_if(int ifgain);
 
   private:
 	lv_obj_t *barview, *frequence, *table, *Textfield,*FilterField;
-	lv_obj_t *tx_slider_label, *tx_slider;
+	lv_obj_t *tx_slider_label, *tx_slider, *if_slider, *if_slider_label;
 	lv_style_t style_btn, ft8_style;
 	lv_group_t *buttonGroup{}, *keyboardgroup;
 	int txbutton, rxbutton;

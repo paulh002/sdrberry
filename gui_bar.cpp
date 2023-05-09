@@ -1,4 +1,5 @@
 #include "gui_bar.h"
+#include "gui_ft8bar.h"
 
 static const char * opts = "0.5 Khz\n"
 						   "1.0 Khz\n"
@@ -159,6 +160,7 @@ static void if_slider_event_cb(lv_event_t *e)
 	gbar.ifgain = std::pow(10.0, (float)sl / 20.0);
 	catinterface.SetIG(lv_slider_get_value(slider));
 	Settings_file.save_ifgain(lv_slider_get_value(slider));
+	guift8bar.set_if(sl);
 }
 
 static void gain_slider_event_cb(lv_event_t * e)
@@ -652,6 +654,11 @@ float gui_bar::get_if()
 	return ifgain.load();
 }
 
+int gui_bar::get_if_slider()
+{
+	return lv_slider_get_value(if_slider);
+}
+
 void gui_bar::set_if(int ifg)
 {
 	if (ifg > maxifgain)
@@ -661,6 +668,7 @@ void gui_bar::set_if(int ifg)
 	lv_label_set_text_fmt(if_slider_label, "if %d db", ifg);
 	catinterface.SetIG(ifg);
 	Settings_file.save_ifgain(ifg);
+	guift8bar.set_if(ifg);
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)

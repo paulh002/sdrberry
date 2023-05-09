@@ -1,5 +1,5 @@
 #include "FT8Generator.h"
-#include "wsjtx.h"
+#include "lib/wsjtx.h"
 #include <regex>
 
 /*R"(
@@ -15,10 +15,10 @@ bool stdCall(std::string const &w)
 	return std::regex_match(w, standard_call_re);
 }
 
-vector<float> FT8Generator::generate(int frequency, encoding code, std::string message)
+std::vector<float> FT8Generator::generate(int frequency, encoding code, std::string message)
 {
 	bool is_ft4{false};
-	vector<float> signal;
+	std::vector<float> signal;
 	int nsym = (is_ft4) ? FT4_NN : FT8_NN;
 	
 	int i3 = 0;

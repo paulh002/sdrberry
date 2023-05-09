@@ -31,6 +31,7 @@ class gui_bar
 	lv_obj_t *get_if_slider_label() { return if_slider_label; }
 	int get_vol_range();
 	float get_if();
+	int get_if_slider();
 	void set_if(int rf);
 	void set_gain_range();
 	void set_gain_slider(int gain);

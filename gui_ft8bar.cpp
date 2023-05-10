@@ -619,7 +619,7 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 	param.ifrate = ifrate_tx;
 	param.even = true;
 	param.timeslot = 15;
-	param.ft8signal = wsjtx->encode(FT8, frequency, message);
+	param.ft8signal = wsjtx->encode(wsjtxMode::FT8, frequency, message);
 	DigitalTransmission::StartDigitalTransmission(std::move(param));
 }
 

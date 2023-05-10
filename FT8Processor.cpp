@@ -2,8 +2,7 @@
 #include "ft8.h"
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
-//#include "unpack.h"
-#include "lib/wsjtx.h"
+#include <wsjtx_lib.h>
 #include <map>
 #include <regex>
 #include <string>
@@ -12,10 +11,7 @@ std::mutex cycle_mu;
 int cycle_count;
 time_t saved_cycle_start;
 std::map<std::string, bool> cycle_already;
-
-DataQueue<FT8Message> FT8Queue;
-
-
+extern unique_ptr<wsjtx_lib> wsjtx;
 
 std::string remove_trailing_whitespace(const std::string &str)
 {
@@ -23,73 +19,7 @@ std::string remove_trailing_whitespace(const std::string &str)
 	return std::regex_replace(str, pattern, "");
 }
 
-int hcb(int *a91, double hz0, double hz1, double off,
-		const char *comment, double snr, int pass,
-		int correct_bits)
-{
-	//std::string msg = unpack(a91);
-	int nrx = 1;
-	int unpk77_success = 0;
-	char c77[78];
-	char msg1[38];
 
-	for (int i = 0; i < 77; i++)
-	{
-		c77[i] = a91[i] + '0';
-	}
-
-	__packjt77_MOD_unpack77(c77, &nrx, msg1, &unpk77_success, 77, 37);
-
-	std::string msg = std::string(msg1);
-	msg = remove_trailing_whitespace(msg);
-	cycle_mu.lock();
-	if (cycle_already.count(msg) > 0)
-	{
-		// already decoded this message on this cycle
-		cycle_mu.unlock();
-		return 1; // 1 => already seen, don't subtract.
-	}
-	cycle_already[msg] = true;
-	cycle_count += 1;
-	cycle_mu.unlock();
-
-	struct tm result;
-	gmtime_r(&saved_cycle_start, &result);
-/*
-	printf("%02d%02d%02d %3d %3d %5.2f %6.1f %s\n",
-		   result.tm_hour,
-		   result.tm_min,
-		   result.tm_sec,
-		   (int)snr,
-		   correct_bits,
-		   off - 0.5,
-		   hz0,
-		   msg.c_str());
-	fflush(stdout);
-*/
-	FT8Queue.push(FT8Message(result.tm_hour,
-							 result.tm_min,
-							 result.tm_sec,
-							 (int)snr,
-							 correct_bits,
-							 off - 0.5,
-							 hz0,
-							 msg));
-
-	return 2; // 2 => new decode, do subtract.
-}
-
-void FT8Message::display()
-{
-	gft8.add_line(hh,
-				  min,
-				  sec,
-				  snr,
-				  correct_bits,
-				  off - 0.5,
-				  hz0,
-				  msg.c_str());
-}
 
 bool FT8Processor::create_modulator(std::shared_ptr<FT8Processor> &ft8processor)
 {
@@ -130,44 +60,25 @@ void FT8Processor::operator()()
 		SampleVector audiosamples = samplebuffer.pull();
 		if (!audiosamples.size())
 			continue;
-
-		time_t cyclestart = cycletimes.front();
-		cycletimes.pop();
-		// do something with it
-
-		int hints[2] = {2, 0}; // CQ
-		double budget = 5;
-		//double ttt_end = ttt_start + audiosamples.size() / ft8_rate;
-		long long nominal_start = 0; //audiosamples.size() - ft8_rate * (ttt_end - cycle_start - 0.5);
-
 		// 15 seconds has passed
 		timeLastPrint = std::chrono::high_resolution_clock::now();
 		time_t tt = std::chrono::system_clock::to_time_t(timeLastPrint);
 		tm local_tm = *localtime(&tt);
-		printf("end cycle %d:%d:%d Size %ld start %lld\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec, audiosamples.size(), nominal_start);
 		audiosamples.resize(15 * ft8_rate, 0.0);
-
-		cycle_mu.lock();
-		cycle_count = 0;
-		saved_cycle_start = cyclestart; // for hcb() callback
-		cycle_already.clear();
-		//if (guift8bar.GetFilter().length() > 0)
-			gft8.clear();
-		cycle_mu.unlock();
-
-		entry(audiosamples.data(), audiosamples.size(), nominal_start, ft8_rate,
-			  150,
-			  3600, // 2900,
-			  hints, hints, budget, budget, hcb,
-			  0, (struct cdecode *)0);
-
+		IntWsjTxVector samples;
+		for (int i = 0; i < audiosamples.size(); i++)
+		{
+			samples.push_back((audiosamples[i] * 32768.0f));
+		}
+		guiQueue.push_back(GuiMessage(GuiMessage::action::clearWsjtx,0));
+		wsjtx->decode(FT8, samples, 1000, 4);
 		audiosamples.clear();
 	}
 }
 
 void FT8Processor::AddaudioSample(SampleVector &audiosamples, time_t cycletime)
 {
-	cycletimes.push(cycletime);
+	//cycletimes.push(cycletime);
 	samplebuffer.push(move(audiosamples));
 }
 

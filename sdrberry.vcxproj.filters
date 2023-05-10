@@ -44,9 +44,6 @@
     <Filter Include="Header files\ft8">
       <UniqueIdentifier>{8730a9af-6f58-4c84-98a3-3ba617b86327}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header files\lib">
-      <UniqueIdentifier>{3b3e935e-88ab-41fc-9a32-515339a2f65f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdrberry.cpp">
@@ -309,9 +306,6 @@
     </ClCompile>
     <ClCompile Include="ft8\text.cpp">
       <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="FT8Generator.cpp">
-      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="ft8\wave.cpp">
       <Filter>Source files</Filter>
@@ -706,12 +700,6 @@
     </ClInclude>
     <ClInclude Include="gui_cal.h">
       <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\commons.h">
-      <Filter>Header files\lib</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\wsjtx.h">
-      <Filter>Header files\lib</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

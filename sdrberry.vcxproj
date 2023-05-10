@@ -76,8 +76,8 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjt_fort_omp;wsjt_fort;wsjt_cxx;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;pthread;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
     </Link>
@@ -108,7 +108,6 @@
     <ClCompile Include="FreeSansOblique42.c" />
     <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="FT8Demodulator.cpp" />
-    <ClCompile Include="FT8Generator.cpp" />
     <ClCompile Include="FT8Processor.cpp" />
     <ClCompile Include="ft8\constants.cpp" />
     <ClCompile Include="ft8\crc.cpp" />
@@ -236,8 +235,6 @@
     <ClInclude Include="imKStoUCS.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="KeyboardTranslator.h" />
-    <ClInclude Include="lib\commons.h" />
-    <ClInclude Include="lib\wsjtx.h" />
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h" />

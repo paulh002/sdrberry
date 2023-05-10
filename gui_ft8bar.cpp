@@ -1,12 +1,28 @@
 #include "gui_ft8bar.h"
+#include "wsjtx_lib.h"
 #include "vfo.h"
 #include "Modes.h"
 #include <fstream>
+#include <regex>
 
 extern const int tunerHeight;
 extern const int barHeight;
 extern int barHeightft8;
+extern unique_ptr<wsjtx_lib> wsjtx;
 
+
+/*R"(
+        ^\s*                                      # optional leading spaces
+        ( [A-Z]{0,2} | [A-Z][0-9] | [0-9][A-Z] )  # part 1
+        ( [0-9][A-Z]{0,3} )                       # part 2
+        (/R | /P)?                                # optional suffix
+        \s*$                                      # optional trailing spaces
+*/
+bool stdCall(std::string const &w)
+{
+	std::regex standard_call_re{R"(^\s*([A-Z]{0,2}|[A-Z][0-9]|[0-9][A-Z])([0-9][A-Z]{0,3})(/R|/P)?\s*$)", std::regex::icase};
+	return std::regex_match(w, standard_call_re);
+}
 
 gui_ft8bar guift8bar;
 
@@ -358,7 +374,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	int i = 0;
 
 	keyboardgroup = keyboard_group;
-	ft8generator = make_unique<FT8Generator>(audio_input);
+	
 	barview = o_parent;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
@@ -603,7 +619,7 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 	param.ifrate = ifrate_tx;
 	param.even = true;
 	param.timeslot = 15;
-	param.ft8signal = ft8generator->generate(frequency, FT8, message);
+	param.ft8signal = wsjtx->encode(FT8, frequency, message);
 	DigitalTransmission::StartDigitalTransmission(std::move(param));
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 #include "lvgl.h"
 #include "Settings.h"
-#include "FT8Generator.h"
 #include "AMModulator.h"
 #include "Waterfall.h"
 
@@ -42,7 +41,6 @@ class gui_ft8bar
 	std::string cq;
 	std::string encodedMessage;
 	atomic<bool> transmitting{false};
-	unique_ptr<FT8Generator> ft8generator;
 	std::unique_ptr<Waterfall> waterfall;
 	float ft8_rate{12000.0};
 };

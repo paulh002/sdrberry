@@ -222,7 +222,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	//add_qso(m);
 }
 
-void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,double hz0, string msg)
+void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,int hz0, string msg)
 {
 	char str[128];
 	
@@ -264,10 +264,9 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	sprintf(str,"%3d",snr);
 	lv_table_set_cell_value(table, m_cycle_count, 1, str);
 
-	sprintf(str, "%6.1f", hz0);
+	sprintf(str, "%6d", hz0);
 	lv_table_set_cell_value(table, m_cycle_count, 2, str);
 
-	sprintf(str, "%6.1f", hz0);
 	lv_table_set_cell_value(table, m_cycle_count, 3, msg.c_str());
 
 	m_cycle_count++;
@@ -283,10 +282,9 @@ void gui_ft8::add_qso(struct message msg)
 	sprintf(str, "%3d", msg.snr);
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 1, str);
 
-	sprintf(str, "%6.1f", msg.hz0);
+	sprintf(str, "%6d", msg.hz0);
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 2, str);
 
-	sprintf(str, "%6.1f", msg.hz0);
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, msg.msg.c_str());
 
 	qsoRowCount++;

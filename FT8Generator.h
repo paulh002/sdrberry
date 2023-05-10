@@ -20,10 +20,7 @@
 
 bool stdCall(std::string const &w);
 
-enum encoding
-{
-	FT8, FT4
-};
+
 
 class FT8Generator
 {

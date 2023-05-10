@@ -17,6 +17,7 @@
 #include "Spectrum.h"
 #include "FreeDVTab.h"
 #include "gui_cal.h"
+#include "wsjtx_lib.h"
 
 //#include "HidThread.h"
 
@@ -84,6 +85,7 @@ Mouse Mouse_dev;
 HidDev HidDev_dev, HidDev_dev1;
 BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
+unique_ptr<wsjtx_lib> wsjtx;
 
 MidiControle *midicontrole = nullptr;
 auto startTime = std::chrono::high_resolution_clock::now();
@@ -238,6 +240,8 @@ int main(int argc, char *argv[])
 	const int defaultAudioSampleRate{48000};
 
 	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
+
+	wsjtx = make_unique<wsjtx_lib>();
 
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	KeyboardDevice.init_keyboard();
@@ -500,7 +504,7 @@ int main(int argc, char *argv[])
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	while (1)
 	{
-		FT8Message msg;
+		WsjtxMessage msg;
 
 		gui_mutex.lock();
 		lv_task_handler();
@@ -523,10 +527,17 @@ int main(int argc, char *argv[])
 				guift8bar.DrawWaterfall();
 			SpectrumGraph.DrawWaterfall();
 		}
-		
-		while (FT8Queue.pull(msg))
+
+		while (wsjtx->pullMessage(msg))
 		{
-			msg.display();
+			gft8.add_line(msg.hh,
+						  msg.min,
+						  msg.sec,
+						  msg.snr,
+						  0,
+						  msg.dt,
+						  msg.freq,
+						  msg.msg.c_str());
 		}
 		set_time_label();
 		while (guiQueue.size() > 0)
@@ -578,6 +589,9 @@ int main(int argc, char *argv[])
 				break;
 			case GuiMessage::filter:
 				gbar.set_filter_slider(msg.data);
+				break;
+			case GuiMessage::clearWsjtx:
+				gft8.clear();
 				break;
 			}
 			guiQueue.pop_front();

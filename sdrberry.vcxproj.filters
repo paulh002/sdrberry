@@ -38,12 +38,6 @@
     <Filter Include="Source files\config">
       <UniqueIdentifier>{5acfd74a-f56e-4735-9dec-f3752ff1d4f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source files\ft8">
-      <UniqueIdentifier>{b7ec8bbd-dfff-4ff9-81eb-90732b9a22f3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header files\ft8">
-      <UniqueIdentifier>{8730a9af-6f58-4c84-98a3-3ba617b86327}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdrberry.cpp">
@@ -220,26 +214,8 @@
     <ClCompile Include="HidDev.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="ft8\fft.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\ft8.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\util.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
     <ClCompile Include="FT8Demodulator.cpp">
       <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\unpack.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\osd.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\libldpc.cpp">
-      <Filter>Source files\ft8</Filter>
     </ClCompile>
     <ClCompile Include="gui_ft8.cpp">
       <Filter>Source files</Filter>
@@ -291,21 +267,6 @@
     </ClCompile>
     <ClCompile Include="gui_ft8bar.cpp">
       <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\constants.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\crc.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\encode.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\pack.cpp">
-      <Filter>Source files\ft8</Filter>
-    </ClCompile>
-    <ClCompile Include="ft8\text.cpp">
-      <Filter>Source files\ft8</Filter>
     </ClCompile>
     <ClCompile Include="ft8\wave.cpp">
       <Filter>Source files</Filter>
@@ -554,26 +515,8 @@
     <ClInclude Include="HidDev.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="ft8\fft.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\ft8.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\util.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
     <ClInclude Include="FT8Demodulator.h">
       <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\unpack.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\int128.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\arrays.h">
-      <Filter>Header files\ft8</Filter>
     </ClInclude>
     <ClInclude Include="gui_ft8.h">
       <Filter>Header files</Filter>
@@ -589,21 +532,6 @@
     </ClInclude>
     <ClInclude Include="sma.h">
       <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\constants.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\crc.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\encode.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\pack.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\text.h">
-      <Filter>Header files\ft8</Filter>
     </ClInclude>
     <ClInclude Include="gui_rx.h">
       <Filter>Header files</Filter>
@@ -673,15 +601,6 @@
     </ClInclude>
     <ClInclude Include="FT8Generator.h">
       <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\common.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\debug.h">
-      <Filter>Header files\ft8</Filter>
-    </ClInclude>
-    <ClInclude Include="ft8\wave.h">
-      <Filter>Header files\ft8</Filter>
     </ClInclude>
     <ClInclude Include="DigitalTransmission.h">
       <Filter>Header files</Filter>

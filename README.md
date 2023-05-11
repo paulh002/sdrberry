@@ -7,8 +7,8 @@ Functionalit is in beta currently
 This source code is still in development.  
 Goal is to support Adalm pluto SDR, Radioberry, RTL-SDR, SDRPlay etc but it should also support other SDR receivers based on SoapySDR.
 Also the goal is to support optical encoder and support I2C / serial interface for bandpass filtering
-I use a ESP32 as CAT controler with a service for an optical encoder.
-Alternative a Contour Shuttle express can be used as rotary controler. 
+I use an ESP32 as CAT controler with a service for an optical encoder.
+Alternative a Contour Shuttle express can be used as rotary controler and or a mouse. 
 
 To install you need to configure rasberry pi OS in text only mode, (switch off the GUI)
 Compiled using VisualGDB or cmake, gcc and gfortran (for wsjtx_lib which includes the wsjtx fortran code of Joe Taylor)

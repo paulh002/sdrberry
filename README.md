@@ -11,15 +11,18 @@ I use a ESP32 as CAT controler with a service for an optical encoder.
 Alternative a Contour Shuttle express can be used as rotary controler. 
 
 To install you need to configure rasberry pi OS in text only mode, (switch off the GUI)
-Compiled using VisualGDB or cmake and gcc
+Compiled using VisualGDB or cmake, gcc and gfortran (for wsjtx_lib which includes the wsjtx fortran code of Joe Taylor)
 copy the cfg file (in install directory) to the home dir
 
-a compiled executable and soapyradioberry library is available in executable directory
 installation instruction in install_guide.txt
 install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
 
-Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction 
-adapted for raspberry pi
+This software makes use of opensource libraries like:
+- Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction  adapted for raspberry pi
+- WSJTX fortran library of Joe Taylor K1JT
+- Liquid-dsp of Joseph D. Gaeddert
+- Lvgl of Gabor Kiss-Vamosi
+- and others
 
 ToDo:
 - Support for Midi contoler
@@ -33,6 +36,7 @@ Done:
 - SDRPlay support
 - Radioberry support
 - Hackrf support
+- QSD / QSE support with hifiberry board
 - FM broadband (only receive)
 - FM Narrowband
 - SSB support
@@ -46,9 +50,11 @@ Done:
 - CMake compilation
 - Morse code decoder
 - Support for Contour Shuttle Express
-- Receive FT8
+- Receive, transmit FT8
 - Noise reduction (spectral noise reduction, Kim)
 - Support for audio sdr using Tayloe directsdr (Hifiberry)
+- Mouse support
+- Keyboard for FT8
 
 Installation of libraries is necessary:
 - Liquid DSP

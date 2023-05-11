@@ -35,7 +35,7 @@ void FMDemodulator::operator()()
 			usleep(500);
 			continue;
 		}
-		adjust_gain(iqsamples, gbar.get_if());
+		adjust_gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		set_signal_strength();
 		process(iqsamples, audiosamples);

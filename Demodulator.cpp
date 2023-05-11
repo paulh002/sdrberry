@@ -248,7 +248,7 @@ void Demodulator::tune_offset(long offset)
 	nco_crcf_set_frequency(tuneNCO, rad_per_sample);
 }
 
-void Demodulator::adjust_gain(IQSampleVector &samples_in, float vol)
+void Demodulator::adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
 {
 	float phase = (float)gcal.getRxPhase();
 	float gain = (float)gcal.getRxGain();
@@ -259,7 +259,7 @@ void Demodulator::adjust_gain(IQSampleVector &samples_in, float vol)
 		if (phase < 0.0)
 			col.real(col.real() + col.imag() * phase);
 		if (phase > 0.0)
-			col.real(col.imag() + col.real() * phase);
+			col.imag(col.imag() + col.real() * phase);
 	}
 }
 

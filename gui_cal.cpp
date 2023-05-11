@@ -77,6 +77,11 @@ void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *key
 	int rxgaincorrection = Settings_file.get_int(default_radio, "rx-gain-correction", 0);
 	int rxphasecorrection = Settings_file.get_int(default_radio, "rx-phase-correction", 0);
 
+	calRxPhase = rxphasecorrection;
+	calRxGain = rxgaincorrection;
+	calTxPhase = txphasecorrection;
+	calTxGain = txgaincorrection;
+
 	int gainx = 10 ;
 	int gainwidth = (w / 3); //	-30;
 	txgainlabel = lv_label_create(o_parent);

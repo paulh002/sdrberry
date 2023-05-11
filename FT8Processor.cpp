@@ -1,5 +1,4 @@
 #include "FT8Processor.h"
-#include "ft8.h"
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
 #include <wsjtx_lib.h>

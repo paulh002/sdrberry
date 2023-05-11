@@ -109,7 +109,6 @@
     <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="FT8Demodulator.cpp" />
     <ClCompile Include="FT8Processor.cpp" />
-    <ClCompile Include="ft8\wave.cpp" />
     <ClCompile Include="GuiFt8Setting.cpp" />
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />

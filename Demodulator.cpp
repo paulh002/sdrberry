@@ -282,7 +282,7 @@ void Demodulator::adjust_calibration(IQSampleVector &samples_in)
 	{
 		for (auto &col : samples_in)
 		{
-			col.real(col.imag() + col.real() * phase);
+			col.imag(col.imag() + col.real() * phase);
 		}
 	}
 }

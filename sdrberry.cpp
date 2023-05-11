@@ -55,6 +55,8 @@ const int MorseHeight = 30;
 const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
+const int buttonHeight = 40;
+const int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 
 lv_obj_t *scr;
 lv_obj_t *bg_middle;
@@ -367,11 +369,10 @@ int main(int argc, char *argv[])
 	lv_obj_add_flag(calbar_view, LV_OBJ_FLAG_HIDDEN);
 	gcal.init(calbar_view, button_group, keyboard_group, LV_HOR_RES - 3, barHeight);
 
-	int buttonHeight = 40;
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, buttonHeight);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
-	int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+	//int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
 	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, tabHeight);
 	
@@ -473,7 +474,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
+		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.if_gain(default_radio));
@@ -875,7 +876,7 @@ void switch_sdrreceiver(std::string receiver)
 		{
 			std::cout << e.what();
 		}
-		gui_band_instance.init_button_gui(nullptr, LV_HOR_RES - 3, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
+		gui_band_instance.init_button_gui(nullptr, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, default_rx_channel));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_gain_range();

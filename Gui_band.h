@@ -15,7 +15,7 @@
 class Gui_band
 {
 public:
-	void init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeList);
+  void init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, SoapySDR::RangeList);
 	int getbuttons()
 	{
 		return ibuttons;

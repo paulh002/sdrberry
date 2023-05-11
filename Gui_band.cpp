@@ -1,14 +1,6 @@
 #include "sdrberry.h"
 #include "BandFilter.h"
 
-using namespace std;
-
-
-const lv_coord_t x_margin  = 10;
-const lv_coord_t y_margin  = 10;
-const int x_number_buttons = 5;
-const int y_number_buttons = 4;
-const lv_coord_t tab_margin  = 20;
 Gui_band	gui_band_instance;
 
 
@@ -16,7 +8,7 @@ void band_button(lv_event_t * e);
 
 string RemoveChar(string str, char c) 
 {
-	string result;
+	std::string result;
 	for (size_t i = 0; i < str.size(); i++) 
 	{
 		char currentChar = str[i];
@@ -52,11 +44,10 @@ static void band_event_handler(lv_event_t *e)
 	}
 }
 
-	
-void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeList r)
+void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, SoapySDR::RangeList r)
 {
 	int		band;
-	string	label;
+	std::string	label;
 	int		i = 0;
 	
 	if (!o_tab)
@@ -89,10 +80,17 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	//lv_coord_t w = lv_obj_get_width(o_tab);	
 	long f_min = r.front().minimum();
 	long f_max = r.front().maximum();
-		
+
+	const int max_rows = 4;
+	const lv_coord_t x_margin = 10;
+	const lv_coord_t y_margin = 10;
+	const int x_number_buttons = 5;
+	const int y_number_buttons = 4;
+	const lv_coord_t tab_margin = 20;
+	
 	button_width_margin = ((w - tab_margin) / x_number_buttons);
 	button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	button_height = 40;
+	button_height = h / max_rows - y_margin - y_margin; //40;
 	button_height_margin = button_height + y_margin;
 	
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
@@ -143,19 +141,20 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, SoapySDR::RangeLis
 	lv_obj_t * cb;
 	cb = lv_checkbox_create(o_tab);
 	lv_group_add_obj(m_button_group, cb);
-	lv_checkbox_set_text(cb, "limit vfo to bands1");
+	lv_checkbox_set_text(cb, "limit vfo to band");
 	lv_obj_add_event_cb(cb, ham_event_handler, LV_EVENT_ALL, NULL);
-	ibutton_y++;
+	if (ibutton_x)
+		ibutton_y++;
 	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin);
 	
 	if (vfo.limit_ham_band)
 		lv_obj_add_state(cb, LV_STATE_CHECKED);
 
-	cb = lv_checkbox_create(o_tab);
-	lv_group_add_obj(m_button_group, cb);
-	lv_checkbox_set_text(cb, "band filter off");
-	lv_obj_add_event_cb(cb, band_event_handler, LV_EVENT_ALL, NULL);
-	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin + button_height_margin/2);
+	lv_obj_t *cb1 = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, cb1);
+	lv_checkbox_set_text(cb1, "band filter off");
+	lv_obj_add_event_cb(cb1, band_event_handler, LV_EVENT_ALL, NULL);
+	lv_obj_align(cb1, LV_ALIGN_TOP_LEFT, tab_margin + lv_obj_get_width(cb) + button_width_margin, ibutton_y * button_height_margin);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
@@ -187,20 +186,20 @@ void band_button(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e); 
 	lv_obj_t *label = lv_obj_get_child(obj, 0L);
 	char *ptr = lv_label_get_text(label);
-	string s(ptr);
+	std::string s(ptr);
 	
 	if (code == LV_EVENT_CLICKED) 
 	{	int			i, ii = 1;
 		size_t		n;
 		
 		n = s.find("c");
-		if (n != string::npos)
+		if (n != std::string::npos)
 		{
 			s.erase(n);
 			i = stoi(s);
 		}
 		n = s.find("m");
-		if (n != string::npos)
+		if (n != std::string::npos)
 		{
 			s.erase(n);
 			i = stoi(s);

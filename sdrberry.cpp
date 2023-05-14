@@ -507,7 +507,7 @@ int main(int argc, char *argv[])
 		//Mouse_dev.step_vfo();
 		HidDev_dev.step_vfo();
 		HidDev_dev1.step_vfo();
-		if (mode == mode_ft8)
+		if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 			DigitalTransmission::WaitForTimeSlot();
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastStatus + std::chrono::milliseconds(100) < now)

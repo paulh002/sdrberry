@@ -671,41 +671,62 @@ void gui_ft8bar::hide(bool hide)
 
 void gui_ft8bar::Transmit(lv_obj_t *obj)
 {
+	wsjtxMode wstx_mode;
 	ModulatorParameters param;
 	int frequency;
 	std::string message;
 
 	const char *ptr = lv_textarea_get_text(Textfield);
 	message = std::string(ptr);
-	printf("ft8 message %s\n", message.c_str());
-	if (transmitting || mode != mode_ft8 || message.size() == 0)
+	if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 	{
-		if (transmitting)
+		if (transmitting || message.size() == 0)
 		{
-			printf("Cancel tx mode\n");
-			if (DigitalTransmission::CancelDigitalTransmission())
+			if (transmitting)
 			{
-				printf("tx mode canceld\n");
-				transmitting = false;
+				printf("Cancel tx mode\n");
+				if (DigitalTransmission::CancelDigitalTransmission())
+				{
+					printf("tx mode canceld\n");
+					transmitting = false;
+				}
+				else
+				{
+					lv_obj_add_state(obj, LV_STATE_CHECKED);
+					printf("Cannot cancel tx mode\n");
+				}
 			}
-			else
-			{
-				lv_obj_add_state(obj, LV_STATE_CHECKED);
-				printf("Cannot cancel tx mode\n");
-			}
+			return;
 		}
-		return;
+		else
+		{
+			printf("wsjtx message %s\n", message.c_str());
+			transmitting = true;
+			frequency = lv_slider_get_value(tx_slider) * 50;
+			param.tone = 0;
+			param.ifrate = ifrate_tx;
+			param.even = true;
+			int selection = lv_dropdown_get_selected(wsjtxmode);
+			switch (selection)
+			{
+			case 0:
+				wstx_mode = wsjtxMode::FT8;
+				param.timeslotTensofSec = 150;
+				param.mode = mode_ft8;
+				break;
+			case 1:
+				wstx_mode = wsjtxMode::FT4;
+				param.timeslotTensofSec = 75;
+				param.mode = mode_ft4;
+				break;
+			case 2:
+				break;
+			}
+			param.signal = wsjtx->encode(wstx_mode, frequency, message, msgsend);
+			save_wav(param.signal.data(), (int)param.signal.size(), 48000, "./wave.wav");
+			DigitalTransmission::StartDigitalTransmission(std::move(param));
+		}
 	}
-	transmitting = true;
-	frequency = lv_slider_get_value(tx_slider) * 50;
-	param.mode = mode;
-	param.tone = 0;
-	param.ifrate = ifrate_tx;
-	param.even = true;
-	param.timeslot = 15;
-	param.ft8signal = wsjtx->encode(wsjtxMode::FT8, frequency, message, msgsend);
-	save_wav(param.ft8signal.data(), (int)param.ft8signal.size(), 48000, "./wave.wav");
-	DigitalTransmission::StartDigitalTransmission(std::move(param));
 }
 
 void gui_ft8bar::ClearTransmit() 

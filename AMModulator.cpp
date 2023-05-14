@@ -8,9 +8,9 @@
 
 shared_ptr<AMModulator> sp_ammod;
 
-void AMModulator::setft8signal(vector<float> &signal)
+void AMModulator::setsignal(vector<float> &signal)
 {
-	ft8signal = std::move(signal);
+	signal = std::move(signal);
 }
 
 bool AMModulator::create_modulator(ModulatorParameters param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
@@ -54,7 +54,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	case mode_ft4:
 	case mode_ft8:
 		even = param.even;
-		ft8signal = std::move(param.ft8signal);
+		signal = std::move(param.signal);
 		digitalmode = true;
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
@@ -131,7 +131,7 @@ void AMModulator::operator()()
 		//cout << "Wait for Timeslot \n";
 		//WaitForTimeSlot();
 		audioInputBuffer->clear();
-		audioInputBuffer->StartDigitalMode(ft8signal);
+		audioInputBuffer->StartDigitalMode(signal);
 		cout << "Start digital transmit \n";
 	}
 	while (!stop_flag.load())

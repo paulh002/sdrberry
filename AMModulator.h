@@ -9,7 +9,7 @@ class AMModulator : public Demodulator
 	~AMModulator();
 
 	void process(const SampleVector &samples, IQSampleVector &samples_out);
-	void setft8signal(vector<float> &signal);
+	void setsignal(vector<float> &signal);
 
 	void operator()();
 	static void destroy_modulator();
@@ -28,7 +28,7 @@ class AMModulator : public Demodulator
 	SampleVector audioframes;
 	void audio_feedback(const SampleVector &audiosamples);
 	void WaitForTimeSlot();
-	vector<float> ft8signal;
+	vector<float> signal;
 };
 
 extern shared_ptr<AMModulator> sp_ammod;

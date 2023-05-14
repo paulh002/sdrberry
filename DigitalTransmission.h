@@ -12,14 +12,14 @@ struct ModulatorParameters
 	double ifrate;
 	int tone;
 	bool even;
-	int timeslot;
-	std::vector<float> ft8signal;
+	int timeslotTensofSec;
+	std::vector<float> signal;
 };
 
 class DigitalTransmission
 {
   public:
-	DigitalTransmission(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer_tx, DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input);
+	DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx, DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input);
 	void operator()();
 	std::thread DTthread;
 

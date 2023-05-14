@@ -216,7 +216,9 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_col_width(qsoTable, 3, w / 2 - (w / 12 + w / 16 + w / 12));
 	qsoRowCount++;
 
-	call = Settings_file.get_string("ft8", "call");
+	call = Settings_file.get_string("wsjtx", "call");
+	if (call.size() == 0)
+		call = "PA0PHH";
 	//DK7ZT
 	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	//add_qso(m);

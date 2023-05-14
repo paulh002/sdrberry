@@ -4,6 +4,7 @@
 #include "Modes.h"
 #include <fstream>
 #include <regex>
+#include "wave.h"
 
 extern const int tunerHeight;
 extern const int barHeight;
@@ -30,6 +31,7 @@ static int messageToSend = 1;
 
 gui_ft8bar::gui_ft8bar()
 {
+	rxtxmode = mode_ft8;
 }
 
 gui_ft8bar::~gui_ft8bar()
@@ -61,7 +63,7 @@ void gui_ft8bar::setmonitor(bool mon)
 
 void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 {
-	std::string s73 = Settings_file.get_string("ft8", "73");
+	std::string s73 = Settings_file.get_string("wsjtx", "73");
 	std::string Message;
 
 	bool bMyCall = stdCall(call);
@@ -147,8 +149,22 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 
 void gui_ft8bar::SetFrequency()
 {
+	std::vector<long> freqencies;
+	
 	int selection = lv_dropdown_get_selected(frequence);
-	vfo.set_vfo(Settings_file.get_ft8(selection));
+	int modeselection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
+
+	switch (modeselection)
+	{
+	case 0:
+		Settings_file.get_array_long("wsjtx", "freqFT8", freqencies);
+		vfo.set_vfo(freqencies.at(selection)*1000L);
+		break;
+	case 1:
+		Settings_file.get_array_long("wsjtx", "freqFT4", freqencies);
+		vfo.set_vfo(freqencies.at(selection)*1000L);
+		break;
+	}
 }
 
 static void textarea_event_handler(lv_event_t *e)
@@ -163,6 +179,45 @@ static void textarea_event_handler(lv_event_t *e)
 	}
 }
 
+static void mode_event_handler(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *ta = lv_event_get_target(e);
+
+	if (code == LV_EVENT_VALUE_CHANGED && !guift8bar.getmonitorstate())
+	{
+		std::vector<int> ftx_freq;
+		
+		int selection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
+		if (selection == 0)
+		{
+			guift8bar.setrxtxmode(mode_ft8);
+			lv_dropdown_clear_options(guift8bar.getfrequency());
+			Settings_file.get_array_int("wsjtx", "freqFT8", ftx_freq);
+			for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
+			{
+				char str[80];
+				sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
+				lv_dropdown_add_option(guift8bar.getfrequency(), str, LV_DROPDOWN_POS_LAST);
+			}
+		}
+		if (selection == 1)
+		{
+			guift8bar.setrxtxmode(mode_ft4);
+			lv_dropdown_clear_options(guift8bar.getfrequency());
+			Settings_file.get_array_int("wsjtx", "freqFT4", ftx_freq);
+			for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
+			{
+				char str[80];
+				sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
+				lv_dropdown_add_option(guift8bar.getfrequency(), str, LV_DROPDOWN_POS_LAST);
+			}
+		}
+		
+	}
+}
+
+	
 static void filter_event_handler(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -189,11 +244,14 @@ static void ft8bar_button_handler(lv_event_t *e)
 		case 0:
 			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
-				select_mode(mode_ft8);
-				gbar.set_mode(mode_ft8);
+				guift8bar.SetFrequency();
+				select_mode(guift8bar.getrxtxmode());
+				gbar.set_mode(guift8bar.getrxtxmode());
+				guift8bar.setmodeclickable(false);
 			}
 			else
 			{
+				guift8bar.setmodeclickable(true);
 				select_mode(mode_usb);
 				gbar.set_mode(mode_usb);
 			}
@@ -249,6 +307,14 @@ void gui_ft8bar::ClearMessage()
 	SetTxMessage();
 	SetFilter("");
 	gft8.clr_qso();
+}
+
+void gui_ft8bar::setmodeclickable(bool clickable)
+{
+	if (clickable)
+		lv_obj_add_flag(wsjtxmode, LV_OBJ_FLAG_CLICKABLE);
+	else
+		lv_obj_clear_flag(wsjtxmode, LV_OBJ_FLAG_CLICKABLE);
 }
 
 void gui_ft8bar::SetTxMessage(std::string msg)
@@ -331,7 +397,7 @@ static void tx_slider_event_cb(lv_event_t *e)
 	{
 		lv_obj_t *tx_slider_label = (lv_obj_t *)lv_event_get_user_data(e);
 		lv_label_set_text_fmt(tx_slider_label, "tx %d Hz", 50 * lv_slider_get_value(slider));
-		Settings_file.save_int("ft8", "tx", lv_slider_get_value(slider) * 50);
+		Settings_file.save_int("wsjtx", "tx", lv_slider_get_value(slider) * 50);
 	}
 }
 
@@ -359,7 +425,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	const lv_coord_t x_margin_dropdown = 0;
 	const lv_coord_t x_margin = 2;
 	const lv_coord_t y_margin = 2; //5;
-	const int x_number_buttons = 6;
+	const int x_number_buttons = 5;
 	const int y_number_buttons = 4;
 	const int max_rows = 4;
 	const lv_coord_t tab_margin = w / 3;
@@ -447,6 +513,21 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 			ibutton_y++;
 		}
 	}
+	
+	ibutton_x = 5;
+	ibutton_y = 0;
+	wsjtxmode = lv_dropdown_create(o_parent);
+	lv_group_add_obj(buttonGroup, wsjtxmode);
+	lv_obj_add_style(wsjtxmode, &style_btn, 0);
+	lv_obj_align(wsjtxmode, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_set_size(wsjtxmode, button_width, button_height);
+	lv_dropdown_clear_options(wsjtxmode);
+	lv_obj_add_event_cb(wsjtxmode, mode_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_set_style_pad_ver(wsjtxmode, 4, LV_PART_MAIN);
+	lv_dropdown_add_option(wsjtxmode, "FT8", LV_DROPDOWN_POS_LAST);
+	lv_dropdown_add_option(wsjtxmode, "FT4", LV_DROPDOWN_POS_LAST);
+	lv_dropdown_add_option(wsjtxmode, "FTST4", LV_DROPDOWN_POS_LAST);
+	lv_dropdown_add_option(wsjtxmode, "WSPR", LV_DROPDOWN_POS_LAST);
 
 	ibutton_x = 0;
 	ibutton_y = 1;
@@ -459,7 +540,10 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_add_event_cb(frequence, freq_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 	lv_obj_set_style_pad_ver(frequence, 4, LV_PART_MAIN);
 	int ii = 0;
-	for (auto it = begin(Settings_file.ft8_freq); it != end(Settings_file.ft8_freq); ++it)
+
+	std::vector<int> ftx_freq;
+	Settings_file.get_array_int("wsjtx", "freqFT8", ftx_freq);
+	for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
 	{
 		char str[80];
 		sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
@@ -507,8 +591,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_set_style_pad_right(Textfield, 2, LV_PART_MAIN);
 	if (keyboard_group != nullptr)
 		lv_group_add_obj(keyboard_group, Textfield);
-	call = Settings_file.get_string("ft8","call");
-	locator = Settings_file.get_string("ft8", "locator");
+	call = Settings_file.get_string("wsjtx","call");
+	locator = Settings_file.get_string("wsjtx", "locator");
 	cq = "CQ " + call + " " + locator;
 	lv_textarea_add_text(Textfield, cq.c_str());
 
@@ -541,7 +625,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)if_slider_label);
 
 	ibutton_y++;
-	int freq = Settings_file.get_int("ft8", "tx", 0);
+	int freq = Settings_file.get_int("wsjtx", "tx", 0);
 	int tx_width = ibutton_x * button_width_margin - 20; //	-30;
 	int tx_y = button_height / 4 + 2 * y_margin + ibutton_y * button_height_margin;
 	tx_slider_label = lv_label_create(o_parent);
@@ -566,8 +650,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	
-	float bandwidth = Settings_file.get_int("ft8", "bandwidth", 4500);
-	int waterfallfloor = Settings_file.get_int("ft8", "waterfallfloor", 60);
+	float bandwidth = Settings_file.get_int("wsjtx", "bandwidth", 4500);
+	int waterfallfloor = Settings_file.get_int("wsjtx", "waterfallfloor", 60);
 	float resampleRate = bandwidth / ft8_rate;
 	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, waterfallfloor, down, allparts);
 }
@@ -619,7 +703,8 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 	param.ifrate = ifrate_tx;
 	param.even = true;
 	param.timeslot = 15;
-	param.ft8signal = wsjtx->encode(wsjtxMode::FT8, frequency, message);
+	param.ft8signal = wsjtx->encode(wsjtxMode::FT8, frequency, message, msgsend);
+	save_wav(param.ft8signal.data(), (int)param.ft8signal.size(), 48000, "./wave.wav");
 	DigitalTransmission::StartDigitalTransmission(std::move(param));
 }
 

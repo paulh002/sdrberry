@@ -14,11 +14,11 @@
 class FT8Demodulator : public Demodulator
 {
   public:
-	static bool create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	static bool create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode);
 	static void destroy_demodulator();
 	static std::string getName() { return "FT8Demodulator"; }
 
-	FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+	FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode);
 	~FT8Demodulator();
 	void process(const IQSampleVector &samples_in, SampleVector &audio) ;
 	void operator()() override;
@@ -31,4 +31,5 @@ class FT8Demodulator : public Demodulator
 	float m_bandwidth;
 	float ft8_rate{12000.0};
 	std::shared_ptr<FT8Processor> ft8processor;
+	int wsjtxmode;
 };

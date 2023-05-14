@@ -286,6 +286,9 @@
     <ClCompile Include="gui_cal.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="wave.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -615,6 +618,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_cal.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="wave.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="date.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

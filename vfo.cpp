@@ -3,6 +3,7 @@
 #include "BandFilter.h"
 #include "sdrstream.h"
 #include "Spectrum.h"
+#include "gui_cal.h"
 
 CVfo	vfo;
 
@@ -121,6 +122,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1]);
 	catinterface.SetBand(get_band_in_meters());
 	catinterface.SetFA(vfo_setting.vfo_freq[0]);
+	gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
 }
 
 void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
@@ -279,13 +281,14 @@ int CVfo::set_vfo(long long freq)
 			//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 		}
 	}
-	//printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
+	printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	SpectrumGraph.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo))
 	{ // Band Change?
 		catinterface.SetBand(get_band_in_meters());
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
+		gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
 		printf("vfo band change\n");
 		retval = 1;
 	}

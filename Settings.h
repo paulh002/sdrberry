@@ -60,6 +60,8 @@ class Settings
 	void save_string(string section, string key, string value);
 	void get_array_long(std::string section, std::string key, vector<long> &array);
 	void set_array_long(std::string section, std::string key, vector<long> &array);
+	void set_array_int(std::string section, std::string key, vector<int> &array);
+	void get_array_int(string section, std::string key, vector<int> &array);
 
 	vector<int> meters;
 	vector<string> labels;

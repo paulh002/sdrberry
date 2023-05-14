@@ -12,3 +12,22 @@ const int mode_narrowband_fm = 9;
 const int mode_rtty = 10;
 const int mode_echo = 11;
 const int mode_freedv = 12;
+const int mode_wspr = 13;
+const int mode_tune = 14;
+
+enum tranceiverMode
+{
+	modelsb,
+	modeusb,
+	modeam,
+	modedsb,
+	modecw,
+	modeft8,
+	modeft4,
+	modebroadband_fm,
+	modenarrowband_fm,
+	modertty,
+	modeecho,
+	modefreedv,
+	modewspr
+};

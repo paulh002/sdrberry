@@ -371,8 +371,6 @@ int main(int argc, char *argv[])
 
 	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, buttonHeight);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-
-	//int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
 	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, tabHeight);
 	
@@ -383,22 +381,19 @@ int main(int argc, char *argv[])
 	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
-	tab["ft8"] = (lv_tabview_add_tab(tabview_mid, "FT8"));
+	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
 	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
-	//tab["ft8settings"] = (lv_tabview_add_tab(tabview_mid, (std::string("FT8 ") + std::string(LV_SYMBOL_SETTINGS)).c_str()));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
-	gft8.init(tab["ft8"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
+	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
-	//Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
-	//guift8setting.init(tab["ft8settings"], keyboard_group);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, 4, LV_BTNMATRIX_CTRL_HIDDEN);
 
 	//keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
@@ -524,7 +519,7 @@ int main(int argc, char *argv[])
 			catinterface.SetSM((uint8_t)s);
 			if (mode == mode_freedv)
 				freeDVTab.DrawWaterfall();
-			if (mode == mode_ft8)
+			if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 				guift8bar.DrawWaterfall();
 			SpectrumGraph.DrawWaterfall();
 		}
@@ -653,6 +648,7 @@ extern std::chrono::high_resolution_clock::time_point starttime1;
 void select_mode(int s_mode, bool bvfo)
 {
 	bool stereo{false}, dc{false};
+	std::vector<long> ftx_freq;
 
 	if (!SdrDevices.isValid(default_radio))
 		return;
@@ -714,12 +710,13 @@ void select_mode(int s_mode, bool bvfo)
 			pause_flag = false;
 		break;
 	case mode_ft8:
+	case mode_ft4:
+	case mode_wspr:
 		catinterface.MuteFA(true);
 		vfo.pause_step(true);
 		guift8bar.setmonitor(true);
 		vfo.set_step(10, 0);
-		vfo.set_vfo(Settings_file.get_ft8(vfo.getBandIndex(vfo.get_band_no(0))));
-		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
+		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, &source_buffer_rx);
 		break;
 	case mode_echo:

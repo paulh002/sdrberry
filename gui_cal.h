@@ -14,15 +14,20 @@ class gui_cal
 	lv_obj_t *get_txphase_slider_label() { return txphaselabel; }
 	lv_obj_t *get_rxgain_slider_label() { return rxgainlabel; }
 	lv_obj_t *get_rxphase_slider_label() { return rxphaselabel; }
-	float getRxPhase() { return (float)calRxPhase / 1000.0; }
-	float getRxGain() { return 1.0 + (float)calRxGain / 1000.0; }
-	float getTxPhase() { return (float)calTxPhase / 1000.0; }
-	float getTxGain() { return 1.0 + (float)calTxGain / 500.0; }
+	float getRxPhase();
+	float getRxGain();
+	float getTxPhase();
+	float getTxGain(); 
 
 	void setRxPhase(int p) { calRxPhase = p; };
 	void setRxGain(int g) { calRxGain = g; };
 	void setTxPhase(int p) { calTxPhase = p; };
 	void setTxGain(int g) { calTxGain = g; };
+	void SaveCalibrationTxGain();
+	void SaveCalibrationTxPhase();
+	void SaveCalibrationRxGain();
+	void SaveCalibrationRxPhase();
+	void SetCalibrationBand(int bandIndex);
 
   private:
 	lv_obj_t *barview, *txgainslider,*txgainlabel, *txphaseslider, *txphaselabel;
@@ -30,6 +35,7 @@ class gui_cal
 	lv_style_t style_btn;
 	lv_group_t *buttonGroup{};
 	std::atomic<int> calRxPhase, calRxGain, calTxPhase, calTxGain;
+	std::vector<int> calRxPhasePerBand, calRxGainPerBand, calTxPhasePerBand, calTxGainPerBand;
 };
 
 extern gui_cal gcal;

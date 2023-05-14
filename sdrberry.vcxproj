@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjt_fort_omp;wsjt_fort;wsjt_cxx;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>bluetooth;SoapySDR;atomic;tinyb;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;pthread;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions />
@@ -163,6 +163,7 @@
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
+    <ClCompile Include="wave.cpp" />
     <ClCompile Include="wiringPiI2C.c" />
     <ClCompile Include="wiringSerial.c" />
     <ClInclude Include="AMDemodulator.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="configfile.h" />
     <ClInclude Include="configoption.h" />
     <ClInclude Include="DataBuffer.h" />
+    <ClInclude Include="date.h" />
     <ClInclude Include="Demodulator.h" />
     <ClInclude Include="DigitalTransmission.h" />
     <ClInclude Include="EchoAudio.h" />
@@ -269,6 +271,7 @@
     <ClInclude Include="strlib.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="Waterfall.h" />
+    <ClInclude Include="wave.h" />
     <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />
     <ClInclude Include="wstring.h" />

@@ -59,6 +59,7 @@ void DigitalTransmission::operator()()
 	vfo.vfo_rxtx(true, false);
 }
 
+// Called in GUI loop in sdrberry.cpp
 void DigitalTransmission::WaitForTimeSlot()
 {
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();

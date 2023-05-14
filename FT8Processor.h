@@ -7,11 +7,11 @@
 class FT8Processor
 {
   public:
-	FT8Processor();
+	FT8Processor(int wmode);
 	~FT8Processor();
 	static void destroy_modulator(std::shared_ptr<FT8Processor> &ft8processor);
-	static bool create_modulator(std::shared_ptr<FT8Processor> &ft8processor);
-	void AddaudioSample(SampleVector &audiosamples, time_t cycletime);
+	static bool create_modulator(std::shared_ptr<FT8Processor> &ft8processor, int wsjtxmode);
+	void AddaudioSample(SampleVector &audiosamples);
 	
 
 	std::atomic<bool> stop_flag{false};
@@ -23,5 +23,6 @@ class FT8Processor
   private:
 	DataBuffer<Sample> samplebuffer;
 	float ft8_rate{12000.0};
+	int wsjtxmode;
 };
 

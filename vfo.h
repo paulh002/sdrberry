@@ -110,6 +110,7 @@ class CVfo
 	{
 		return vfo_setting.band[vfo_setting.active_vfo];
 	}
+	int getCurrentBandIndex() { return getBandIndex(get_band_in_meters()); }
 	long long get_frequency()
 	{
 		return vfo_setting.vfo_freq[vfo_setting.active_vfo];

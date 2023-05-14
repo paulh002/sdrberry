@@ -23,7 +23,7 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}},
 	{"Speech", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(12)}, {"threshold", cfg::makeOption(0)}, {"bass", cfg::makeOption(0)}, {"treble", cfg::makeOption(0)}}},
 	{"filter", {{"i2cdevice", cfg::makeOption("pcf8574")}}},
-	{"ft8", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}, {"tx", cfg::makeOption("1200")}, {"rx", cfg::makeOption("1200")}}}
+	{"wsjtx", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}, {"tx", cfg::makeOption("1200")}, {"rx", cfg::makeOption("1200")}}}
 };
 
 void Settings::write_settings()
@@ -147,16 +147,26 @@ void Settings::default_settings()
 	(*config)("mode").push(cfg::makeOption("usb"));
 	(*config)("mode").push(cfg::makeOption("usb"));
 
-	config->useSection("ft8");
-	(*config)("freq").push(cfg::makeOption(1840));
-	(*config)("freq").push(cfg::makeOption(3573));
-	(*config)("freq").push(cfg::makeOption(5357));
-	(*config)("freq").push(cfg::makeOption(7073));
-	(*config)("freq").push(cfg::makeOption(10133));
-	(*config)("freq").push(cfg::makeOption(14074));
-	(*config)("freq").push(cfg::makeOption(18100));
-	(*config)("freq").push(cfg::makeOption(21074));
-	(*config)("freq").push(cfg::makeOption(28074));
+	config->useSection("wstx");
+	(*config)("freqFT8").push(cfg::makeOption(1840));
+	(*config)("freqFT8").push(cfg::makeOption(3573));
+	(*config)("freqFT8").push(cfg::makeOption(5357));
+	(*config)("freqFT8").push(cfg::makeOption(7073));
+	(*config)("freqFT8").push(cfg::makeOption(10133));
+	(*config)("freqFT8").push(cfg::makeOption(14074));
+	(*config)("freqFT8").push(cfg::makeOption(18100));
+	(*config)("freqFT8").push(cfg::makeOption(21074));
+	(*config)("freqFT8").push(cfg::makeOption(28074));
+
+	(*config)("freqFT4").push(cfg::makeOption(1840));
+	(*config)("freqFT4").push(cfg::makeOption(3568));
+	(*config)("freqFT4").push(cfg::makeOption(3575));
+	(*config)("freqFT4").push(cfg::makeOption(7047));
+	(*config)("freqFT4").push(cfg::makeOption(10140));
+	(*config)("freqFT4").push(cfg::makeOption(14080));
+	(*config)("freqFT4").push(cfg::makeOption(18104));
+	(*config)("freqFT4").push(cfg::makeOption(21140));
+	(*config)("freqFT4").push(cfg::makeOption(28180));
 
 	config->useSection("filter");
 	(*config)("address").push(cfg::makeOption(32));
@@ -326,13 +336,6 @@ void Settings::read_settings(string settings_file)
 	{
 		if (col.toString().length() > 0L)
 			receivers.push_back(col.toString());
-	}
-
-	config->useSection("ft8");
-	for (auto &col : (*config)("freq"))
-	{
-		if (col.toInt() > 0)
-			ft8_freq.push_back((long)col.toInt());
 	}
 }
 
@@ -611,14 +614,6 @@ int Settings::convert_mode(string s)
 	return mode;
 }
 
-long long Settings::get_ft8(int band)
-{
-	if (ft8_freq.size() > band)
-		return 1000L * ft8_freq[band];
-	else
-		return 0;
-}
-
 void Settings::getagc_preset(std::string key, int &atack, int &release)
 {
 	int i = 0;
@@ -746,13 +741,36 @@ void Settings::get_array_long(std::string section, std::string key, vector<long>
 {
 	config->useSection(section);
 	for (auto &col : (*config)(key))
-	{
-		if (col.toInt() > 0)
-			array.push_back(col.toInt());
-	}
+		array.push_back(col.toInt());
 }
 
 void Settings::set_array_long(std::string section, std::string key, vector<long> &array)
+{
+	int i = 0;
+	config->useSection(section);
+	auto &val = (*config)(key);
+	for (auto col : array)
+	{
+		if (val.size() <= i)
+			val.push(cfg::makeOption(col));
+		else
+			val[i] = col;
+		i++;
+	}
+	write_settings();
+}
+
+void Settings::get_array_int(std::string section, std::string key, vector<int> &array)
+{
+	config->useSection(section);
+	for (auto &col : (*config)(key))
+	{
+	array.push_back(col.toInt());
+	}
+
+}
+
+void Settings::set_array_int(std::string section, std::string key, vector<int> &array)
 {
 	int i = 0;
 	config->useSection(section);

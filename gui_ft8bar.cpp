@@ -5,6 +5,7 @@
 #include <fstream>
 #include <regex>
 #include "wave.h"
+#include "date.h"
 
 extern const int tunerHeight;
 extern const int barHeight;
@@ -264,6 +265,8 @@ static void ft8bar_button_handler(lv_event_t *e)
 				outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
 				if (outfile.fail())
 					return;
+				auto today = date::year_month_weekday{date::floor<date::days>(std::chrono::high_resolution_clock::now())};
+				outfile << today << ",";
 				int rows = gft8.getQsoLogRows();
 				for (int i = 0; i < rows; i++)
 				{

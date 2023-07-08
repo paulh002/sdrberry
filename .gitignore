@@ -33,6 +33,7 @@ bld/
 [Ll]og/
 [Ll]ogs/
 **/.visualgdb/
+**/.vscode/
 **/sdrberry-cppcheck-build-dir
 **/doc
 **/archive

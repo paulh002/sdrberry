@@ -234,8 +234,6 @@ void AudioInput::ToneBuffer()
 			f = (Sample) Nexttone();	
 		}
 		buf.push_back(f);
-		if (m_stereo)
-			buf.push_back(f);
 	}
 	databuffer->push(move(buf));
 }

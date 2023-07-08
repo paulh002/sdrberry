@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
 			guiQueue.pop_front();
 		}
 		gui_mutex.unlock();
-		usleep(1000);
+		usleep(500);
 	}
 	audio_output->close();
 	delete audio_output;

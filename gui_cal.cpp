@@ -185,10 +185,10 @@ void gui_cal::hide(bool hide)
 	}
 }
 
-float gui_cal::getRxPhase() { return (float)calRxPhase / 1000.0; }
-float gui_cal::getRxGain() { return 1.0 + (float)calRxGain / 1000.0; }
-float gui_cal::getTxPhase() { return (float)calTxPhase / 1000.0; }
-float gui_cal::getTxGain() { return 1.0 + (float)calTxGain / 1000.0; }
+float gui_cal::getRxPhase() { return (float)calRxPhase / 2500.0; }
+float gui_cal::getRxGain() { return 1.0 + (float)calRxGain / 2500.0; }
+float gui_cal::getTxPhase() { return (float)calTxPhase / 500.0; }
+float gui_cal::getTxGain() { return 1.0 + (float)calTxGain / 500.0; }
 
 void gui_cal::SetCalibrationBand(int bandIndex)
 {

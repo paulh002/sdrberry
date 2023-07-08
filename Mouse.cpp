@@ -116,14 +116,14 @@ bool Mouse::read_mouse_event()
 
 MouseState Mouse::GetMouseState()
 {
-	int bytes;
+	int bytes, count = 0;
 
 	state.MouseActivity = false;
 	state.Rotated = 0;
 	if (m_fd > 0)
 	{
 		bytes = read(m_fd, (void *)&mouse_event, sizeof(struct input_event));
-		while (bytes != -1)
+		while (bytes > 0)
 		{
 			if (mouse_event.type == EV_REL && mouse_event.code == REL_WHEEL)
 			{
@@ -131,7 +131,7 @@ MouseState Mouse::GetMouseState()
 				state.Rotated = mouse_event.value;
 			}
 
-			if (mouse_event.type == EV_REL && mouse_event.code == REL_X)
+			if (mouse_event.type == EV_REL && mouse_event.code == REL_X )
 			{
 				state.x = state.x + mouse_event.value;
 				if (state.x >= screenWidth)

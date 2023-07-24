@@ -60,7 +60,7 @@ cd ~
 # sudo ldconfig 
 # cd ~
 sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
-sudo apt-get install -y libboost1.62-all-dev
+sudo apt-get install -y -f libboost1-all-dev
 sudo ldconfig
 sudo apt-get remove -y pulseaudio
 #fi

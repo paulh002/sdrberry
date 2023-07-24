@@ -58,7 +58,7 @@ sudo make install
 sudo ldconfig 
 cd ~
 sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
-sudo apt-get install -y libboost1.62-all-dev
+sudo apt-get install -y libboost-all-dev
 sudo ldconfig
 sudo apt-get remove -y pulseaudio
 sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev

@@ -34,7 +34,7 @@ sudo apt-get install -y fftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp
-git checkout v1.5.0
+git checkout v1.6.0
 ./bootstrap.sh
 ./configure
 make -j4
@@ -42,7 +42,7 @@ sudo make install
 sudo ldconfig
 cd ~
 sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
-sudo apt-get install -y libboost1.62-all-dev
+sudo apt-get install -y libboost-all-dev
 sudo ldconfig
 sudo apt-get remove -y pulseaudio
 #fi

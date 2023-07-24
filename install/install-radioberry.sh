@@ -34,7 +34,7 @@ sudo apt-get install -y fftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp
-git checkout v1.5.0
+git checkout v1.6.0
 ./bootstrap.sh
 ./configure
 make -j4
@@ -60,7 +60,7 @@ cd ~
 # sudo ldconfig 
 # cd ~
 sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
-sudo apt-get install -y -f libboost1-all-dev
+sudo apt-get install -y -f libboost-all-dev
 sudo ldconfig
 sudo apt-get remove -y pulseaudio
 #fi
@@ -111,7 +111,8 @@ sudo modinfo radioberry
 echo ""
 echo "Radioberry driver installed."
 #-----------------------------------------------------------------------------
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_radioberry.cfg
+mv sdrberry_settings_radioberry.cfg sdrberry_settings.cfg
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry
 mkdir build

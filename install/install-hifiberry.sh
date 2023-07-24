@@ -7,6 +7,7 @@ sudo apt-get -y install libdw-dev
 sudo apt-get -y install libdwarf-dev
 sudo apt-get -y install libdw-dev 
 sudo apt-get -y install git
+sudo apt-get -y install gfortran
 sudo apt-get install -y\
     cmake g++ \
     libpython-dev python-numpy swig

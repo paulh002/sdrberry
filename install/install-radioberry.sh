@@ -124,4 +124,6 @@ cd ~
 sudo sed -i 's/$/ vt.global_cursor_default=0 usbhid.mousepoll=2/' /boot/cmdline.txt
 sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/config.txt
 crontab ./sdrberry/install/crontab
+cp ./sdrberry/install/sdrstart.sh .
+chmod +x sdrstart.sh
 sudo reboot

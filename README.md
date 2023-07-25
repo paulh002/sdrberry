@@ -10,7 +10,8 @@ Also the goal is to support optical encoder and support I2C / serial interface f
 I use an ESP32 as CAT controler with a service for an optical encoder.
 Alternative a Contour Shuttle express can be used as rotary controler and or a mouse. 
 
-To install you need to configure rasberry pi OS in text only mode, (switch off the GUI)
+To install you need to configure rasberry pi OS in text only mode (64 bit Bullseye), create a sd card or even better a usb stick sd cards tend to fail after a while,
+with 64 bit bullseye inclusive GUI. Configure wifi and use raspi-config to switch on I2C and boot to CLI only with logon. 
 Compiled using VisualGDB or cmake, gcc and gfortran (for wsjtx_lib which includes the wsjtx fortran code of Joe Taylor)
 copy the cfg file (in install directory) to the home dir
 

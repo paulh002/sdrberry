@@ -45,7 +45,8 @@ void FastFourier::Process(const IQSampleVector &input)
 			inputData[i].imag(inputData[i].imag() * -1.0);
 		inputData[i].imag(inputData[i].imag() * hammingWindow[i]);
 		}
-	fftplan plan = fft_create_plan(numberOffBins, inputData.data(), fftBins.data(), type, flags);
+	int i = numberOffBins % 2; // Make sure number of bins is even
+	fftplan plan = fft_create_plan(numberOffBins - i, inputData.data(), fftBins.data(), type, flags);
 	fft_execute(plan);
 	fft_destroy_plan(plan);
 	inputData.clear();

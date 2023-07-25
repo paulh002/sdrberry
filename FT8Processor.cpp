@@ -72,10 +72,11 @@ void FT8Processor::operator()()
 
 	while (!stop_flag.load())
 	{
+		IntWsjTxVector samples;
+
 		SampleVector audiosamples = samplebuffer.pull();
 		if (!audiosamples.size())
 			continue;
-		IntWsjTxVector samples;
 		for (int i = 0; i < audiosamples.size(); i++)
 		{
 			samples.push_back((audiosamples[i] * 32768.0f));
@@ -83,6 +84,7 @@ void FT8Processor::operator()()
 		guiQueue.push_back(GuiMessage(GuiMessage::action::clearWsjtx,0));
 		wsjtx->decode(decodeMode, samples, 1000, nothreads);
 		audiosamples.clear();
+		samples.clear();
 	}
 }
 

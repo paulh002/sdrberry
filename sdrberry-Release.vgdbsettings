@@ -12,11 +12,6 @@
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </BuildHost>
-    <DeploymentHost>
-      <HostName>192.168.88.28</HostName>
-      <Transport>SSH</Transport>
-      <UserName>pi</UserName>
-    </DeploymentHost>
     <MainSourceTransferCommand>
       <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
       <RemoteHost>
@@ -68,6 +63,7 @@
     <ProjectFile>sdrberry.vcxproj</ProjectFile>
     <RemoteBuildEnvironment>
       <Records />
+      <EnvironmentSetupFiles />
     </RemoteBuildEnvironment>
     <ParallelJobCount>1</ParallelJobCount>
     <SuppressDirectoryChangeMessages>true</SuppressDirectoryChangeMessages>

@@ -275,24 +275,24 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	{
 		lv_dropdown_add_option(d_receivers, col.c_str(), LV_DROPDOWN_POS_LAST);
 	}
-	
+
 	d_audio = lv_dropdown_create(o_tab);
 	lv_group_add_obj(m_button_group, d_audio);
-	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, 2*button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, 2 * button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_width(d_audio, 1.5 * button_width); // 2*
 	lv_dropdown_clear_options(d_audio);
 	lv_obj_add_event_cb(d_audio, audio_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
 	std::vector<std::string> devices;
 	audio_output->listDevices(devices);
-	string s = Settings_file.find_audio("device");	
+	string s = Settings_file.find_audio("device");
 	for (int i = 0; i < devices.size(); i++)
 	{
 		if (devices[i].length() > 0)
 		{
 			lv_dropdown_add_option(d_audio, devices[i].c_str(), LV_DROPDOWN_POS_LAST);
-			if (s.length()> 0 && devices[i].find(s) != std::string::npos)
+			if (s.length() > 0 && devices[i].find(s) != std::string::npos)
 			{
-				lv_dropdown_set_selected(d_audio, i);	
+				lv_dropdown_set_selected(d_audio, i);
 			}
 		}
 	}
@@ -305,11 +305,11 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	lv_obj_add_event_cb(d_bandwitdth, bandwidth_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
 	ibutton_y++;
-	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin /2;
+	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	int brightness_y = 15 + y_margin + 2 * button_height_margin;
 	span_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, span_slider);
-	lv_obj_set_width(span_slider, w / 2 - 50); 
+	lv_obj_set_width(span_slider, w / 2 - 50);
 	//lv_obj_center(span_slider);
 	//lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
 	lv_obj_align_to(span_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, y_span);
@@ -320,9 +320,9 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	lv_label_set_text(span_slider_label, "span 500 Khz");
 	//lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
 	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-	
 
-	int span = Settings_file.get_int(default_radio,"span");
+
+	int span = Settings_file.get_int(default_radio, "span");
 	if (((span * 1000) > (ifrate / 1)) || span == 0)
 		span = ifrate / 1000;
 	set_span_range(ifrate);
@@ -336,7 +336,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	lv_obj_set_width(contour_slider, w / 4 - 50);
 	lv_obj_align_to(contour_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, y_span);
 	lv_slider_set_range(contour_slider, 1, 10);
-	
+
 	lv_obj_add_event_cb(contour_slider, contour_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	contour_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(contour_slider_label, "speed 1");
@@ -344,12 +344,12 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 
 	brightness_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, brightness_slider);
-	lv_obj_set_width(brightness_slider, w / 2 - 50); 
+	lv_obj_set_width(brightness_slider, w / 2 - 50);
 	lv_obj_align_to(brightness_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
 	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	lv_slider_set_range(brightness_slider, 0, 255);
 	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
-	
+
 	brightness_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(brightness_slider_label, "brightness");
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
@@ -369,7 +369,10 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	lv_obj_align_to(calbox, o_tab, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
 	lv_checkbox_set_text(calbox, "calibration");
 	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-
+	if (!Settings_file.get_int(default_radio, "correction"))
+	{
+		lv_obj_add_flag(calbox, LV_OBJ_FLAG_HIDDEN);
+	}
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 

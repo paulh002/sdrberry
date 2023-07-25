@@ -22,6 +22,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
+	adjustPhaseGain = get_gain_phase_correction();
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -35,6 +36,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
+	adjustPhaseGain = get_gain_phase_correction();
 
 	// resampler and band filter assume pcmfrequency on the low side
 }
@@ -57,6 +59,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	else
 		dcBlockHandle = nullptr;
+	adjustPhaseGain = get_gain_phase_correction();
 }
 
 void Demodulator::set_signal_strength()
@@ -250,16 +253,27 @@ void Demodulator::tune_offset(long offset)
 
 void Demodulator::adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
 {
-	float phase = (float)gcal.getRxPhase();
-	float gain = (float)gcal.getRxGain();
-	for (auto &col : samples_in)
+	if (adjustPhaseGain)
 	{
-		col.real(col.real() * vol * gain);
-		col.imag(col.imag() * vol);
-		if (phase < 0.0)
-			col.real(col.real() + col.imag() * phase);
-		if (phase > 0.0)
-			col.imag(col.imag() + col.real() * phase);
+		float phase = (float)gcal.getRxPhase();
+		float gain = (float)gcal.getRxGain();
+		for (auto& col : samples_in)
+		{
+			col.real(col.real() * vol * gain);
+			col.imag(col.imag() * vol);
+			if (phase < 0.0)
+				col.real(col.real() + col.imag() * phase);
+			if (phase > 0.0)
+				col.imag(col.imag() + col.real() * phase);
+		}
+	}
+	else
+	{
+		for (auto& col : samples_in)
+		{
+			col.real(col.real() * vol);
+			col.imag(col.imag() * vol);
+		}
 	}
 }
 
@@ -307,7 +321,7 @@ void Demodulator::mono_to_left_right(const SampleVector &samples_mono,
 	}
 }
 
-void Demodulator::Resample(const IQSampleVector &filter_in,
+void Demodulator::Resample(IQSampleVector &filter_in,
 						   IQSampleVector &filter_out)
 {
 	unsigned int num_written;
@@ -322,7 +336,7 @@ void Demodulator::Resample(const IQSampleVector &filter_in,
 	}
 	else
 	{
-		filter_out = filter_in;
+		filter_out = std::move(filter_in);
 	}
 }
 
@@ -339,7 +353,7 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 	}
 }
 
-void Demodulator::dc_filter(const IQSampleVector &filter_in,
+void Demodulator::dc_filter(IQSampleVector &filter_in,
 							IQSampleVector &filter_out)
 {
 	if (dcBlockHandle)
@@ -355,7 +369,7 @@ void Demodulator::dc_filter(const IQSampleVector &filter_in,
 	}
 	else
 	{
-		filter_out = filter_in;
+		filter_out = std::move(filter_in);
 	}
 }
 
@@ -519,6 +533,14 @@ void Demodulator::executeBandpassFilter(const IQSampleVector &filter_in,
 bool Demodulator::get_dc_filter()
 {
 	if (Settings_file.get_int(default_radio, "dc"))
+		return true;
+	else
+		return false;
+}
+
+bool Demodulator::get_gain_phase_correction()
+{
+	if (Settings_file.get_int(default_radio, "correction"))
 		return true;
 	else
 		return false;

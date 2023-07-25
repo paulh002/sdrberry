@@ -50,7 +50,7 @@ class Demodulator
 	void adjust_calibration(IQSampleVector &samples_in);
 	void tune_offset(long offset);
 	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
-	void Resample(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void Resample(IQSampleVector &filter_in, IQSampleVector &filter_out);
 	virtual void operator()() = 0;
 	void lowPassAudioFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void set_resample_rate(float resample_rate);
@@ -72,9 +72,10 @@ class Demodulator
 	void calc_af_level(const SampleVector &samples_in);
 	void setBandPassFilter(float high, float mid_high, float mid_low, float low);
 	void executeBandpassFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
-	void dc_filter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void dc_filter(IQSampleVector &filter_in, IQSampleVector &filter_out);
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();
+	bool get_gain_phase_correction();
 	int get_lowPassAudioFilterCutOffFrequency() { return lowPassAudioFilterCutOffFrequency.load(); }
 	void adjust_resample_rate(float rateAjustFraction);
 	DataBuffer<IQSample> *receiveIQBuffer{nullptr};
@@ -117,4 +118,6 @@ class Demodulator
 	float StopBandAttenuation;
 
 	static atomic<int> lowPassAudioFilterCutOffFrequency;
+
+	bool adjustPhaseGain;
 };

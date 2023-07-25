@@ -74,17 +74,17 @@ Installation of libraries is necessary:
 ## Install and compile with cmake
 Download the repository in pi home directory  
 ```
-git clone https://github.com/paulh002/sdrberry  
-chmod +x ./sdrberry/install/install.sh
-./sdrberry/install/install.sh
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
+chmod +x install.sh
+./install.sh
 ```
 
 ## Install and compile with cmake for radioberry
 Download the repository in pi home directory  
 ```
-git clone https://github.com/paulh002/sdrberry  
-chmod +x ./sdrberry/install/install-radioberry.sh
-./sdrberry/install/install-radioberry.sh
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install-radioberry.sh
+chmod +x install-radioberry.sh
+./install-radioberry.sh
 ```
 There are also scripts for hackrf and pluto available.
 

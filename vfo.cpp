@@ -281,7 +281,7 @@ int CVfo::set_vfo(long long freq)
 			//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 		}
 	}
-	printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
+	//printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	SpectrumGraph.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo))

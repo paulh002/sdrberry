@@ -1,5 +1,5 @@
 #!/bin/bash
 
 sleep 15
-sudo ./sdrberry >sdrlog.log
+sudo /usr/local/bin/sdrberry >/dev/null 2>&1
 

@@ -77,6 +77,16 @@ git clone https://github.com/paulh002/sdrberry
 chmod +x ./sdrberry/install/install.sh
 ./sdrberry/install/install.sh
 ```
+
+## Install and compile with cmake for radioberry
+Download the repository in pi home directory  
+```
+git clone https://github.com/paulh002/sdrberry  
+chmod +x ./sdrberry/install/install-radioberry.sh
+./sdrberry/install/install-radioberry.sh
+```
+There are also scripts for hackrf and pluto available.
+
 ## Compile with cmake (assuming all libraries are available)
 ```
 git clone https://github.com/paulh002/sdrberry  

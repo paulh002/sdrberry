@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdrberry", "sdrberry.vcxproj", "{612A62E0-B1F7-41E4-8AA5-2920B23D28CB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lvgl", "..\lvgl\lvgl.vcxproj", "{9412CBA7-ECD1-44C5-B03E-E05B251E7A98}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lvgl", "lvgl\lvgl.vcxproj", "{9412CBA7-ECD1-44C5-B03E-E05B251E7A98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

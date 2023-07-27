@@ -70,7 +70,7 @@ void RX_Stream::operator()()
 	if ((ifrate < 192001) && (ifrate > 48000))
 		default_block_length = 2048;
 	if ((ifrate < 384001) && (ifrate > 192000))
-		default_block_length = 8192;
+		default_block_length = 32768; // 8192;
 	if (ifrate > 384001)
 		default_block_length = 65536;
 	rx_sampleRate = ifrate / 1000000.0;

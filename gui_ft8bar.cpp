@@ -159,11 +159,11 @@ void gui_ft8bar::SetFrequency()
 	{
 	case 0:
 		Settings_file.get_array_long("wsjtx", "freqFT8", freqencies);
-		vfo.set_vfo(freqencies.at(selection)*1000L);
+		vfo.set_vfo(freqencies.at(selection) * 1000L);
 		break;
 	case 1:
 		Settings_file.get_array_long("wsjtx", "freqFT4", freqencies);
-		vfo.set_vfo(freqencies.at(selection)*1000L);
+		vfo.set_vfo(freqencies.at(selection) * 1000L);
 		break;
 	}
 }

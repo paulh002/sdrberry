@@ -205,11 +205,19 @@ long CVfo::get_vfo_offset()
  * So it need to tuned differently than the receiver.
  **/
 
-int CVfo::set_vfo(long long freq)
+int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 {
 	unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
 	int retval{0};
-	
+	bool changeBandActiveVfo{false};
+
+	if (ActiveVfo != (vfo_activevfo)vfo_setting.active_vfo && ActiveVfo != vfo_activevfo::None)
+	{
+		if (vfo_setting.band[vfo_setting.active_vfo] != ActiveVfo)
+			changeBandActiveVfo = true;
+		vfo_setting.active_vfo = (int)ActiveVfo;
+	}
+
 	if (freq == 0L)
 	{
 		freq = vfo_setting.vfo_freq[vfo_setting.active_vfo];
@@ -284,7 +292,7 @@ int CVfo::set_vfo(long long freq)
 	//printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	SpectrumGraph.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
-	if (get_band(vfo_setting.active_vfo))
+	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)
 	{ // Band Change?
 		catinterface.SetBand(get_band_in_meters());
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
@@ -377,8 +385,7 @@ void CVfo::set_tuner_offset(double offset)
 
 void CVfo::set_active_vfo(int active_vfo)
 {
-	vfo_setting.active_vfo = min(active_vfo,1);
-	set_vfo(vfo_setting.vfo_freq[vfo_setting.active_vfo]);
+	set_vfo(0, (vfo_activevfo)min(active_vfo, 1));
 }
 
 void CVfo::set_vfo_range(long long low, long long high)

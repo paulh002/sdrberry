@@ -19,6 +19,15 @@
 #include <unistd.h>
 
 #define MAX_NUM_BAND 15
+
+enum vfo_activevfo
+{
+	One = 0,
+	Two = 1,
+	None = -1
+} ;
+
+
 struct bands
 {
 	int meters;
@@ -60,7 +69,7 @@ class CVfo
 	void vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth);
 	void set_span(long span);
 	bool compare_span();
-	int set_vfo(long long freq);
+	int set_vfo(long long freq, vfo_activevfo ActiveVfo = vfo_activevfo::None);
 	void set_freq_to_sdr();
 	void step_vfo(long icount);
 	long get_active_vfo_freq();

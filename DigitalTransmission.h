@@ -10,7 +10,7 @@ struct ModulatorParameters
 {
 	int mode;
 	double ifrate;
-	int tone;
+	audioTone tone;
 	bool even;
 	int timeslotTensofSec;
 	std::vector<float> signal;

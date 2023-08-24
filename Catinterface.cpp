@@ -209,10 +209,10 @@ void Catinterface::checkCAT()
 					select_mode(mode);
 					break;
 				case TX_CAT:
-					select_mode_tx(mode, TX_NOTONE, TX_CAT);
+					select_mode_tx(mode, audioTone::NoTone, TX_CAT);
 					break;
 				case TX_TUNE_CAT:
-					select_mode_tx(mode, TX_TONE, TX_TUNE_CAT);
+					select_mode_tx(mode, audioTone::SingleTone, TX_TUNE_CAT);
 					break;
 				}
 			}

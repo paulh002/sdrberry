@@ -27,7 +27,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <GNUConfigurationType>Debug</GNUConfigurationType>
-    <RemoteBuildHost>192.168.88.38</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.41</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;../lvgl;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -124,6 +124,7 @@
     <ClCompile Include="gui_vfo.cpp" />
     <ClCompile Include="HidDev.cpp" />
     <ClCompile Include="imKStoUCS.c" />
+    <ClCompile Include="IQGenerator.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="KeyboardTranslator.cpp" />
     <ClCompile Include="Limiter.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="HidDev.h" />
     <ClInclude Include="HidThread.h" />
     <ClInclude Include="imKStoUCS.h" />
+    <ClInclude Include="IQGenerator.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="KeyboardTranslator.h" />
     <ClInclude Include="Limiter.h" />

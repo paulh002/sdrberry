@@ -5,6 +5,7 @@
 #include "gui_ft8bar.h"
 #include <chrono>
 #include <ctime>
+#include "IQGenerator.h"
 
 shared_ptr<AMModulator> sp_ammod;
 
@@ -37,7 +38,7 @@ AMModulator::~AMModulator()
 		ampmodem_destroy(AMmodulatorHandle);
 	if (m_fft != nullptr)
 		nco_crcf_destroy(m_fft);
-	audio_input->set_tone(0);
+	audio_input->set_tone(audioTone::NoTone);
 }
 
 AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
@@ -118,6 +119,7 @@ void AMModulator::operator()()
 	SampleVector            audiosamples;
 	IQSampleVector			samples_out;
 	AudioProcessor			Speech;
+	IQGenerator IqGenerator(ifrate, audioInputBuffer);
 
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gspeech.get_threshold());
@@ -165,7 +167,14 @@ void AMModulator::operator()()
 
 		calc_af_level(audiosamples);
 		set_signal_strength();
-		process(audiosamples, samples_out);
+		if (audioInputBuffer->get_tone() != audioTone::FourTone)
+			process(audiosamples, samples_out);
+		else
+		{
+			samples_out = IqGenerator.generateIQVectors(4, 45.0f, 1500);
+			SpectrumGraph.ProcessWaterfall(samples_out);
+		}
+
 		adjust_calibration(samples_out);
 		transmitIQBuffer->push(move(samples_out));
 		audiosamples.clear();

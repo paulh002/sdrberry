@@ -95,7 +95,7 @@ int AudioInput::getDevices(std::string device)
 }
 
 AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
-	: RtAudio(api), parameters{}, m_volume{0.5}, asteps{}, tune_tone{0}
+	: RtAudio(api), parameters{}, m_volume{0.5}, asteps{}, tune_tone{audioTone::NoTone}
 {
 	m_stereo = stereo;
 	databuffer = AudioBuffer; 
@@ -225,7 +225,7 @@ void AudioInput::ToneBuffer()
 	{
 		Sample f;
 
-		if (tune_tone == 2)
+		if (tune_tone == TwoTone)
 		{
 			f = (Sample) NextTwotone();
 		}

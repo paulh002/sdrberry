@@ -3,7 +3,7 @@
 
 static shared_ptr<FMModulator> sp_fmmod;
 
-bool FMModulator::create_modulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+bool FMModulator::create_modulator(int mode, double ifrate, audioTone tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	
 	if (sp_fmmod != nullptr)
 		return false;
@@ -27,7 +27,7 @@ FMModulator::~FMModulator()
 		freqmod_destroy(modFM);
 }
 
-FMModulator::FMModulator(int mode, double ifrate, int tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
+FMModulator::FMModulator(int mode, double ifrate, audioTone tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 	: Demodulator(ifrate, source_buffer, audio_input)
 {
 	float kf          = 0.1f; // modulation factor

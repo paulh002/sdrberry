@@ -62,8 +62,5 @@ extern int default_rx_channel;
 extern int default_tx_channel;
 
 void select_mode(int s_mode, bool bvfo = true);
-void select_mode_tx(int s_mode, int tone = 0, int cattx = TX_MAN);
+void select_mode_tx(int s_mode, audioTone tone = audioTone::NoTone, int cattx = TX_MAN);
 void destroy_demodulators(bool all = false);
-
-#define TX_NOTONE 0
-#define TX_TONE 1

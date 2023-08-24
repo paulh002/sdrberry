@@ -289,6 +289,9 @@
     <ClCompile Include="wave.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="IQGenerator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -624,6 +627,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="date.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="IQGenerator.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

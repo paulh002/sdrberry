@@ -11,16 +11,16 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"CAT", {{"USB", cfg::makeOption("/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0")}}},
 	{"samplerate", {{"radioberry", cfg::makeOption(384)}, {"plutosdr", cfg::makeOption(1000)}, {"rtlsdr", cfg::makeOption(1000)}, {"sdrplay", cfg::makeOption(1000)}}},
 	{"samplerate_tx", {{"radioberry", cfg::makeOption(384)}}},
-	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"volume", cfg::makeOption(50)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}, {"noisefloor", cfg::makeOption(30)}, {"waterfallsize", cfg::makeOption(3)}}},
-	{"radioberry", {{"gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("48")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(384)}, {"audiobuffer", cfg::makeOption(4096)}}},	
-	{"hifiberry", {{"gain", cfg::makeOption(35)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"samplerate", cfg::makeOption("192")}, {"samplerate_tx", cfg::makeOption("192")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)},{"audiobuffer", cfg::makeOption(4096)}, {"correction", cfg::makeOption(1)} }},
+	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"volume", cfg::makeOption(50)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}, {"if-gain", cfg::makeOption(30)}, {"noise", cfg::makeOption(4)}, {"noisefloor", cfg::makeOption(30)}, {"waterfallsize", cfg::makeOption(3)}}},
+	{"radioberry", {{"gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("48")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}}},
+	{"hifiberry", {{"gain", cfg::makeOption(0)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("192")}, {"samplerate_tx", cfg::makeOption("192")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"correction", cfg::makeOption(1)}, {"dc", cfg::makeOption(1)}}},
 	{"sdrplay", {{"gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}, {"audiobuffer", cfg::makeOption(4096)}}},
 	{"rtlsdr", {{"gain", cfg::makeOption(40)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(60)}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}}},
 	{"hackrf", {{"gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(3)}, {"samplerate", cfg::makeOption("2000")}, {"samplerate_tx", cfg::makeOption("384")}, {"span", cfg::makeOption(384)}}},
 	{"plutosdr", {{"gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("384")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(384)}, {"audiobuffer", cfg::makeOption(4096)}}},
 	{"VFO1", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"VFO2", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
-	{"Audio", {{"device", cfg::makeOption("default")}}},
+	{"Audio", {{"device", cfg::makeOption("USB Audio Device")}}},
 	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}},
 	{"Speech", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(12)}, {"threshold", cfg::makeOption(0)}, {"bass", cfg::makeOption(0)}, {"treble", cfg::makeOption(0)}}},
 	{"filter", {{"i2cdevice", cfg::makeOption("pcf8574")}}},
@@ -28,13 +28,7 @@ const cfg::File::ConfigMap defaultOptions = {
 };
 
 void Settings::write_settings()
-{
-	for (auto& option : config->getSection("Radio"))
-	{
-		auto s = radio.find(option.first);
-		option.second.setString(s->second);
-	}
-	
+{	
 	config->writeToFile(file.c_str());
 }
 
@@ -45,6 +39,7 @@ void Settings::default_settings()
 	(*config)("receivers").push(cfg::makeOption("plutosdr"));
 	(*config)("receivers").push(cfg::makeOption("rtlsdr"));
 	(*config)("receivers").push(cfg::makeOption("sdrplay"));
+	(*config)("receivers").push(cfg::makeOption("hifiberry"));
 
 	config->useSection("Agc");
 	(*config)("fast").push(cfg::makeOption(10));
@@ -248,16 +243,6 @@ void Settings::read_settings(string settings_file)
 		//cout << "Option name: " << option.first << endl;
 		audio.insert(pair<string, string>(option.first, option.second));
 	}
-	for (auto& option : config->getSection("samplerate"))
-	{
-		//cout << "Option name: " << option.first << endl;
-		samplerate.insert(pair<string, string>(option.first, option.second));
-	}
-	for (auto& option : config->getSection("samplerate_tx"))
-	{
-		//cout << "Option name: " << option.first << endl;
-		samplerate_tx.insert(pair<string, string>(option.first, option.second));
-	}
 	for (auto& option : config->getSection("input"))
 	{
 		//cout << "Option name: " << option.first << endl;
@@ -418,18 +403,6 @@ string Settings::find_vfo2(string key)
 		return string("");
 }
 
-double Settings::find_samplerate(string key)
-{
-	if (samplerate.find(key) != samplerate.end())
-	{
-		auto s = samplerate.find(key);
-		long l= atol((const char *)s->second.c_str());
-		return (double) l * 1000.0;
-	}
-	else 
-		return 0LL;
-}
-
 int Settings::volume()
 {
 	if (radio.find("volume") != radio.end())
@@ -535,18 +508,6 @@ void Settings::set_drive(int drive)
 	}
 	else 
 		return;
-}
-
-double Settings::find_samplerate_tx(string key)
-{
-	if (samplerate_tx.find(key) != samplerate_tx.end())
-	{
-		auto s = samplerate_tx.find(key);
-		long l = atol((const char *)s->second.c_str());
-		return (double) l * 1000.0;
-	}
-	else 
-		return 0LL;
 }
 
 string Settings::find_input(string key)
@@ -763,26 +724,39 @@ void Settings::set_array_long(std::string section, std::string key, vector<long>
 
 void Settings::get_array_int(std::string section, std::string key, vector<int> &array)
 {
-	config->useSection(section);
-	for (auto &col : (*config)(key))
+	if (config->optionExists(key, section))
 	{
-	array.push_back(col.toInt());
+		config->useSection(section);
+		for (auto &col : (*config)(key))
+		{
+			array.push_back(col.toInt());
+		}
 	}
-
 }
 
 void Settings::set_array_int(std::string section, std::string key, vector<int> &array)
 {
 	int i = 0;
-	config->useSection(section);
-	auto &val = (*config)(key);
-	for (auto col : array)
+
+	if (config->optionExists(key,section))
 	{
-		if (val.size() <= i)
-			val.push(cfg::makeOption(col));
-		else
-			val[i] = col;
-		i++;
+		config->useSection(section);
+		auto &val = (*config)(key);
+		for (auto col : array)
+		{
+			if (val.size() <= i)
+				val.push(cfg::makeOption(col));
+			else
+				val[i] = col;
+			i++;
+		}
+	}
+	else
+	{
+		for (auto index : array)
+		{
+			(*config)(key).push(cfg::makeOption(index));
+		}
 	}
 	write_settings();
 }

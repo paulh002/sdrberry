@@ -8,6 +8,14 @@
 #include <iostream>
 #include <string>
 
+enum audioTone
+{
+	NoTone = 0,
+	SingleTone = 1,
+	TwoTone = 2,
+	FourTone = 4
+} ;
+
 class AudioInput : public RtAudio
 {
   public:
@@ -25,8 +33,8 @@ class AudioInput : public RtAudio
 	int queued_samples();
 	int getDevices(std::string device);
 	void listDevices(std::vector<std::string> &devices);
-	void set_tone(int tone) { tune_tone = tone; }
-	int get_tone() { return tune_tone; }
+	void set_tone(audioTone tone) { tune_tone = tone; }
+	audioTone get_tone() { return tune_tone; }
 	operator bool() const { return m_error.empty(); }
 	void clear() { databuffer->clear(); }
 	std::vector<RtAudio::Api> listApis();
@@ -39,7 +47,8 @@ class AudioInput : public RtAudio
 	void doDigitalMode();
 	void StartDigitalMode(vector<float> &signal);
 	void StopDigitalMode();
-	
+	int getbufferFrames() { return bufferFrames; }
+
   private:
 	RtAudio::StreamParameters parameters;
 	RtAudio::DeviceInfo info;
@@ -52,7 +61,7 @@ class AudioInput : public RtAudio
 	bool m_stereo;
 	double Nexttone();
 	double NextTwotone();
-	int tune_tone;
+	audioTone tune_tone;
 	int gaindb;
 	int bufferFramesSend;
 	std::atomic<bool> digitalmode, bufferempty;

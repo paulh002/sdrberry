@@ -48,6 +48,7 @@ class gui_bar
 	int get_noise();
 	void setIfGainOverflow(bool state);
 	void hide(bool hide);
+	void hidetx();
 
 	lv_obj_t *get_button_obj(int i)
 	{

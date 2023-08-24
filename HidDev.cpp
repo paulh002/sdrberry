@@ -186,7 +186,7 @@ void HidDev::step_vfo()
 				if (!txstate)
 				{
 					txstate = true;
-					select_mode_tx(mode, 1);
+					select_mode_tx(mode, audioTone::SingleTone);
 				}
 				else
 				{

@@ -25,8 +25,6 @@ class Settings
 	long long find_vfo1_freq(string key);
 	string find_vfo1(string key);
 	string find_vfo2(string key);
-	double find_samplerate(string key);
-	double find_samplerate_tx(string key);
 	int volume();
 	int gain();
 	int txgain();
@@ -87,8 +85,6 @@ class Settings
 	map<string, string> vfo1;
 	map<string, string> vfo2;
 	map<string, string> audio;
-	map<string, string> samplerate;
-	map<string, string> samplerate_tx;
 	map<string, string> input_dev;
 	map<string, string> cat;
 	map<string, string> agc;

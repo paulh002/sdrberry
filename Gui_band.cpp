@@ -60,6 +60,8 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 			button[i] = nullptr;
 		}
 		ibuttons = 0;
+		lv_obj_del(limitvfocheckbox);
+		lv_obj_del(bandfiltercheckbox);
 	}
 	else
 	{
@@ -138,23 +140,22 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 		}
 	}
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
-	lv_obj_t * cb;
-	cb = lv_checkbox_create(o_tab);
-	lv_group_add_obj(m_button_group, cb);
-	lv_checkbox_set_text(cb, "limit vfo to band");
-	lv_obj_add_event_cb(cb, ham_event_handler, LV_EVENT_ALL, NULL);
+	limitvfocheckbox = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, limitvfocheckbox);
+	lv_checkbox_set_text(limitvfocheckbox, "limit vfo to band");
+	lv_obj_add_event_cb(limitvfocheckbox, ham_event_handler, LV_EVENT_ALL, NULL);
 	if (ibutton_x)
 		ibutton_y++;
-	lv_obj_align(cb, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin);
+	lv_obj_align(limitvfocheckbox, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin);
 	
 	if (vfo.limit_ham_band)
-		lv_obj_add_state(cb, LV_STATE_CHECKED);
+		lv_obj_add_state(limitvfocheckbox, LV_STATE_CHECKED);
 
-	lv_obj_t *cb1 = lv_checkbox_create(o_tab);
-	lv_group_add_obj(m_button_group, cb1);
-	lv_checkbox_set_text(cb1, "band filter off");
-	lv_obj_add_event_cb(cb1, band_event_handler, LV_EVENT_ALL, NULL);
-	lv_obj_align(cb1, LV_ALIGN_TOP_LEFT, tab_margin + lv_obj_get_width(cb) + button_width_margin, ibutton_y * button_height_margin);
+	bandfiltercheckbox = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, bandfiltercheckbox);
+	lv_checkbox_set_text(bandfiltercheckbox, "band filter off");
+	lv_obj_add_event_cb(bandfiltercheckbox, band_event_handler, LV_EVENT_ALL, NULL);
+	lv_obj_align(bandfiltercheckbox, LV_ALIGN_TOP_LEFT, tab_margin + lv_obj_get_width(limitvfocheckbox) + button_width_margin, ibutton_y * button_height_margin);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }

@@ -124,8 +124,8 @@ Option& File::operator()(const std::string& name)
 
 bool File::optionExists(const std::string& name, const std::string& section) const
 {
-    auto sectionFound = options.find(section);
-    return (sectionFound != options.end() && sectionFound->second.find(name) != sectionFound->second.end());
+	auto sectionFound = options.find(section);
+	return (sectionFound != options.end() && sectionFound->second.find(name) != sectionFound->second.end());
 }
 
 bool File::optionExists(const std::string& name) const

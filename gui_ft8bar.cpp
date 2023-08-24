@@ -706,7 +706,7 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 			printf("wsjtx message %s\n", message.c_str());
 			transmitting = true;
 			frequency = lv_slider_get_value(tx_slider) * 50;
-			param.tone = 0;
+			param.tone = audioTone::NoTone;
 			param.ifrate = ifrate_tx;
 			param.even = true;
 			int selection = lv_dropdown_get_selected(wsjtxmode);

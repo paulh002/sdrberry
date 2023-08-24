@@ -32,7 +32,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 {
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 10;
-	const int x_number_buttons = 5;
+	const int x_number_buttons = 6;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin  = 20;
 	
@@ -92,7 +92,11 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
 		case 5:
-			strcpy(str, "Two Tone");
+			strcpy(str, "2 Tone");
+			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
+			break;
+		case 6:
+			strcpy(str, "4 Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
 		}
@@ -201,14 +205,21 @@ static void tx_button_handler(lv_event_t * e)
 	if (s == "Tune") 
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-			select_mode_tx(mode, 1);
+			select_mode_tx(mode, SingleTone);
 		else
 			select_mode(mode);
 	}
-	if (s == "Two Tone")
+	if (s == "2 Tone")
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-			select_mode_tx(mode, 2);
+			select_mode_tx(mode, TwoTone);
+		else
+			select_mode(mode);
+	}
+	if (s == "4 Tone")
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+			select_mode_tx(mode, FourTone);
 		else
 			select_mode(mode);
 	}

@@ -77,7 +77,7 @@ static void bar_button_handler(lv_event_t * e)
 				{
 				case 6:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-						select_mode_tx(mode,true);
+						select_mode_tx(mode, SingleTone);
 					else
 						select_mode(mode);
 					break;
@@ -751,4 +751,13 @@ int gui_bar::get_noise()
 	if (lv_obj_get_state(button[10]) & LV_STATE_CHECKED)
 		return guirx.get_noise() + 1;
 	return 0;
+}
+
+void gui_bar::hidetx()
+{
+	if (SdrDevices.get_tx_channels(default_radio) == 0)
+		lv_obj_add_flag(button[0], LV_OBJ_FLAG_HIDDEN);
+	else
+		lv_obj_clear_flag(button[0], LV_OBJ_FLAG_HIDDEN);
+	return;
 }

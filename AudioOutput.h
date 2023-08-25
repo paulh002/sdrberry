@@ -13,6 +13,7 @@ class AudioOutput : public RtAudio
 	bool open(std::string device);
 	bool write(SampleVector &samples);
 	void adjust_gain(SampleVector &samples);
+	void adjust_gain(SampleVector &samples_in, SampleVector &samples_out);
 	void close();
 	~AudioOutput();
 	double get_volume() { return m_volume; }

@@ -165,6 +165,15 @@ void AudioOutput::adjust_gain(SampleVector& samples)
 	}
 }
 
+void AudioOutput::adjust_gain(SampleVector &samples_in, SampleVector &samples_out)
+{
+	double gain = m_volume.load();
+	for (auto sample  : samples_in)
+	{
+		samples_out.push_back(gain * sample);
+	}
+}
+
 void AudioOutput::close()
 {
 	if (isStreamOpen()) 

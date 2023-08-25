@@ -1,161 +1,84 @@
-To install sdrberry several libraries need to be installed
+Installing sdrberry from source can be challenging because multiple libraries are necessary and most is build from source.
+The software is tested on Raspberry PI Model 4B and the 64 bit version of rasperry pi OS with the GUI switched of.
+The install script will clone the github repository and download and install all components needed.
 
-1) for radioberry install dev version of radioberry
-you need this version when using the preamp board.
-Open a command window and executing the following commands:
-cd /tmp
-wget https://raw.githubusercontent.com/pa3gsb/Radioberry-2.x/master/SBC/rpi-4/releases/dev/radioberry_install.sh
-sudo chmod +x radioberry_install.sh
-./radioberry_install.sh
+## Install and compile with cmake
+Download the install file in pi home directory (there are install files for different SDR's)
+```
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
+chmod +x install.sh
+./install.sh
+```
 
-// disable and stop the radioberry firmware
-// If you want to use radioberry through network you have to start it again
-sudo systemctl disable radioberry
-sudo systemctl stop radioberry
+If you are not sure which install file to use for your SDR device use the plain install.sh file.
+And install the SoapySDR driver of choice manualy.
+To add a SDR device to sdrberry edit the cfg file [SDR receivers] entry and add the name of the device.
+Also add the device configuration (copy the [radioberry] entry and change the entry name. Also add the device probe name at the [probes]
+entry. 
 
+The filter entry is used to send I2C commands to a bandpass filter
 
-3) SoapySDR
-sudo apt-get install -y\
-    cmake g++ \
-    libpython-dev python-numpy swig
-git clone https://github.com/pothosware/SoapySDR.git
-cd SoapySDR
-git pull origin master
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
-sudo ldconfig #needed on debian systems
+[filter]
+address = {"32", "33", "63"}
+command_rx = {"21", "137", "24", "20", "133", "144", "21", "137", "48", "25", "133", "48", "37", "133", "20", "21", "134", "20", "21", "137", "18", "21", "137", "18", "21", "137", "18", "21", "137", "18", "21", "137", "18", "21", "137", "18", "21", "137", "18", "21", "137", "18", "21", "137", "18", "21", "137", "18"}
+command_tx = {"21", "73", "8", "22", "69", "128", "21", "73", "32", "25", "69", "32", "21", "73", "4", "21", "70", "2", "21", "70", "2", "21", "73", "2", "21", "73", "2", "21", "73", "2", "21", "73", "2", "21", "73", "2", "21", "73", "2", "21", "73", "2", "21", "73", "2", "21", "73", "2"}
+i2cdevice = "pcf8574"
+passthrough_rx = {"21", "137", "18"}
+passthrough_tx = {"21", "73", "2"}
 
-3) install libSoapyRadioberrySDR.so
-sudo libSoapyRadioberrySDR.so cp/usr/local/lib/SoapySDR/modules0.8/.
-// source code is located in the repository: https://github.com/paulh002/SoapyRadioberry
+The [address] depicts the I2C address of the filter(2), there can be 1 or more I2C addresses configured.
+One or more I2C commands will be send to the bandpassfilter, in example above 3 commands are send.
+The commands and addressed are entered in decimal.
 
-// to test use SoapySDRUtil
-SoapySDRUtil --info
-SoapySDRUtil --probe
+The [bands] entry configures the bands that can be used. Based on the SoapySDR information the bands supported by the device will be used.
 
-4) Install liquid dsp
-sudo apt-get install -y fftw3-dev
-git clone git://github.com/jgaeddert/liquid-dsp.git
-sudo apt-get install -y automake autoconf
-cd liquid-dsp
-./bootstrap.sh
-./configure
-make -j4
-sudo make install
-sudo ldconfig
+[bands]
+f_high = {"1880000", "3800000", "5450000", "7200000", "10150000", "14350000", "18168000", "21450000", "29000000", "52000000", "70500000", "107000000", "146000000", "436000000", "1300000000", "2400000000"}
+f_low = {"1800000", "3500000", "5350000", "7000000", "10100000", "14000000", "18068000", "21000000", "28000000", "50000000", "70000000", "83000000", "144000000", "430000000", "1240000000", "2320000000"}
+labels = {"m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "m", "cm", "cm", "cm"}
+meters = {"160", "80", "60", "40", "30", "20", "17", "15", "10", "6", "4", "3", "2", "70", "23", "13"}
+mode = {"lsb", "lsb", "lsb", "lsb", "lsb", "usb", "usb", "usb", "usb", "usb", "usb", "usb", "usb", "usb", "usb", "usb"}
 
-5) Install BLE
-wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.60.tar.xz
-tar xvf bluez-5.60.tar.xz
-sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev libdbus-1-dev libical-dev
-sudo apt-get install -y python-docutils
-cd bluez-5.60
-./configure --enable-library
-make -j4
-sudo make install
-//Test
-btmon -v
+The audio device used (for input and output) is configured in the [Audio] section.
+With the cli command aplay -l you can list the device name of the audio device in use.
+Use raspi-config to switch of all internal audio devices of the pi or comment the config #dtparam=audio=on in /boot/config.txt file.
 
-6) Install some common drivers
-sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
-sudo apt-get install -y libboost1.62-all-dev
-sudo ldconfig
+[Audio]
+device = "USB Audio Device"
 
-7) Install tinyb
-git clone https://github.com/intel-iot-devkit/tinyb
-cd tinyb
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig 
+The video display is configured in the software for a 800x480 display. The most common 5 or 7 inch display size
+# Enable DRM VC4 V3D driver
+dtoverlay=vc4-kms-v3d
+max_framebuffers=2
+framebuffer_depth=16
 
-8) Install RtAudio
-git clone https://github.com/thestk/rtaudio
-cd rtaudio
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
-sudo ldconfig 
+Cat interface is supported based on FT891 commands but is adapted for use with an ESP32 remote controle board.
+In principle any RS232 to USB converter can be used. The device is configured in the [CAT] section
 
-9) copy sdrberry and sdrberry_config.cfg
-copy files to home dir of user pi
+[CAT]
+USB = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
 
-//Run sdrberry
-./sdrberry
+Devices are configured in a number of sections, most important are the sample rates and span setting.
+Best to use the ready proposed entries. For direct conversion SDR's a dc filter can be swiched on. dc=1
+dc=0 will switch of the filter. Drive, gain and if-gain are the start up values for GUI sliders.
+
+[hifiberry]
+drive = "100"
+gain = "0"
+if-gain = "40"
+samplerate="192"
+samplerate_tx="192"
+span="96"
+dc=1
 
 
-10) (Optional )Only for Adlam Pluto SDR install pluto drivers
+The audiobuffer is kept as small as possible but for some devices it need to be increased like the hackrf and rtlsdr. 
+This can be done by adding buffersize to the device entry.
+audiobuffersize=4096
 
-// check https://wiki.analog.com/resources/tools-software/linux-software/libiio
-sudo apt install -y libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
-git clone https://github.com/analogdevicesinc/libad9361-iio
-sudo apt-get install doxygen
-sudo apt-get install -y libiio-dev
-sudo apt-get install libiio-utils
-cd libad9361-iio
-cmake ./CMakeLists.txt
-mkdir build
-make
-sudo make install
-sudo ldconfig #needed on debian systems
+Depending on the version of raspberry pi OS version the name if the touchscreen driver need to be specified.
+Mouse is detected automaticly during startup.
+[input]
+mousexx = "Mouse"
+touchscreen = "raspberrypi-ts"
 
-git clone https://github.com/pothosware/SoapyPlutoSDR
-cd SoapyPlutoSDR
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
-
-check usb met: sudo lsusb
-SoapySDRUtil --probe="driver=plutosdr,hostname=192.168.2.1"
-
-
-
-//audio settings incase you use a USB audio dongle
-sudo apt-get remove pulseaudio
-# Edit boot config with:
-
-// soundcard
-sudo apt-get remove pulseaudio
-sudo nano /usr/share/alsa/alsa.conf
-# then replace:
-#defaults.ctl.card 0
-#defaults.pcm.card 0
-# with:
-defaults.ctl.card 1
-defaults.pcm.card 1
-
-cat ~/.asoundrc
-cat << EOF | tee ~/.asoundrc
-
-pcm.!default {
-        type hw
-        card 1
-}
-
-ctl.!default {
-        type hw
-        card 1
-}
-EOF
-
-// test audio with:
-speaker-test -c2 -t sine -f 500
-
-// switch off commandline cursor
-edit: sudo nano /boot/cmdline.txt 
-add vt.global_cursor_default=0
-
-
-
-//Run sdrberry
-./sdrberry

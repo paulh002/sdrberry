@@ -171,7 +171,7 @@ void AMModulator::operator()()
 			process(audiosamples, samples_out);
 		else
 		{
-			samples_out = IqGenerator.generateIQVectors(4, 45.0f, 1500);
+			samples_out = IqGenerator.generateIQVectors(4, 45.0f, 48000);
 			SpectrumGraph.ProcessWaterfall(samples_out);
 		}
 

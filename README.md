@@ -1,5 +1,5 @@
 # sdrberry
-Raspberry pi SDR tranceiver / fronted using lvgl gui
+Raspberry pi SDR tranceiver / fronted using lvgl gui (requires Pi 4 Model B with a 5 or 7 inch 800x480 touchscreen)
 !!! This is an ongoing project code only for information purpose only. 
 The main goal for this project is to learn about c++ programming, liquid dsp, and for most the use of the GUI toolkit LVGL v8
 Functionalit is in beta currently
@@ -27,8 +27,8 @@ This software makes use of opensource libraries like:
 
 ToDo:
 - Support for Midi contoler
+- Optical encoder direct on GPIO (some hardware adaption needed) 
 - Setup screen for Network and Wifi
-- waterfall display
 - Different noise reduction schemas like lms etc.
 
 Done:
@@ -56,6 +56,7 @@ Done:
 - Support for audio sdr using Tayloe directsdr (Hifiberry)
 - Mouse support
 - Keyboard for FT8
+- waterfall display
 
 Installation of libraries is necessary:
 - Liquid DSP
@@ -72,7 +73,7 @@ Installation of libraries is necessary:
 
 
 ## Install and compile with cmake
-Download the repository in pi home directory  
+Download the install file in pi home directory (there are install files for different SDR's)
 ```
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
 chmod +x install.sh

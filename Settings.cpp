@@ -740,6 +740,10 @@ void Settings::set_array_int(std::string section, std::string key, vector<int> &
 
 	config->useSection(section);
 	auto &val = (*config)(key);
+<<<<<<< HEAD
+=======
+	std::cout << "val size = " << val.size() << std::endl;
+>>>>>>> dde8946b272d773bff21252a99e42b83f7e3c140
 
 	for (auto col : array)
 	{

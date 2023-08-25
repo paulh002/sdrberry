@@ -738,6 +738,7 @@ void Settings::set_array_int(std::string section, std::string key, vector<int> &
 {
 	int i = 0;
 
+	// new keys are automaticly created
 	config->useSection(section);
 	auto &val = (*config)(key);
 

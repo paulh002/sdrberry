@@ -738,25 +738,16 @@ void Settings::set_array_int(std::string section, std::string key, vector<int> &
 {
 	int i = 0;
 
-	if (config->optionExists(key,section))
+	config->useSection(section);
+	auto &val = (*config)(key);
+
+	for (auto col : array)
 	{
-		config->useSection(section);
-		auto &val = (*config)(key);
-		for (auto col : array)
-		{
-			if (val.size() <= i)
-				val.push(cfg::makeOption(col));
-			else
-				val[i] = col;
-			i++;
-		}
-	}
-	else
-	{
-		for (auto index : array)
-		{
-			(*config)(key).push(cfg::makeOption(index));
-		}
+		if (val.size() <= i)
+			val.push(cfg::makeOption(col));
+		else
+			val[i] = col;
+		i++;
 	}
 	write_settings();
 }

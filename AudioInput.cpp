@@ -270,7 +270,7 @@ void AudioInput::StopDigitalMode()
 
 void AudioInput::doDigitalMode()
 {
-	SampleVector buf;
+	SampleVector buf, buf_out;
 
 	if (digitalmode == false || bufferempty)
 		return ;
@@ -285,7 +285,8 @@ void AudioInput::doDigitalMode()
 	}
 	bufferFramesSend++;
 	//cout << "bufferframes send " << bufferFramesSend << endl;
-	audio_output->writeSamples(buf);
+	audio_output->adjust_gain(buf, buf_out);
+	audio_output->writeSamples(buf_out);
 	databuffer->push(move(buf));
 	if ((bufferFramesSend * bufferFrames) >= digitalmodesignal.size())
 	{

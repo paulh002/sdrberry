@@ -37,16 +37,6 @@ sudo apt-get install -y ninja-build libiio-dev libiio-dev libiio-utils libasound
 sudo apt-get install -y -f libboost-all-dev
 sudo ldconfig
 sudo apt-get remove -y pulseaudio
-#fi
-#git clone https://github.com/paulh002/SoapyRadioberry
-#cd SoapyRadioberry
-#mkdir build
-#cd build
-#cmake ..
-#make
-#sudo make install
-#sudo ldconfig
-#cd ~
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry

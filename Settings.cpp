@@ -143,7 +143,7 @@ void Settings::default_settings()
 	(*config)("mode").push(cfg::makeOption("usb"));
 	(*config)("mode").push(cfg::makeOption("usb"));
 
-	config->useSection("wstx");
+	config->useSection("wsjtx");
 	(*config)("freqFT8").push(cfg::makeOption(1840));
 	(*config)("freqFT8").push(cfg::makeOption(3573));
 	(*config)("freqFT8").push(cfg::makeOption(5357));

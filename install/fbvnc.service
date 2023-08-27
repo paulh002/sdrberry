@@ -1,0 +1,10 @@
+[Unit]
+Description=Framebuffer VNC Server for 3.5" TFT Display
+
+[Service]
+Type=simple
+PIDFile=/var/run/fbvnc.pid
+ExecStart=/home/pi/framebuffer-vncserver/build/framebuffer-vncserver -f /dev/fb0 -p 5900 -t /dev/input/event1
+
+[Install]
+WantedBy=multi-user.target

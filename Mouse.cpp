@@ -1,7 +1,10 @@
 #include "Mouse.h"
 
+
 #define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
 #define NBITS(x) ((((x)-1) / (sizeof(long) * 8)) + 1)
+
+std::chrono::milliseconds double_click_threshold(300); 
 
 Mouse::Mouse()
 {
@@ -10,6 +13,8 @@ Mouse::Mouse()
 	step = 10;
 	bstep = false;
 	MouseActivity = false;
+	last_click_time = std::chrono::system_clock::now();
+	click_count = 0;
 }
 
 Mouse::Mouse(int mousefd)
@@ -148,17 +153,35 @@ MouseState Mouse::GetMouseState()
 					state.y = screenHeight - 1;
 				if (state.y < 0)
 					state.y = 0;
-				// printf("value %d, y %d\n", mouse_event.value, state.y);
+				//printf("value %d, y %d\n", mouse_event.value, state.y);
 				state.MouseActivity = true;
 			}
 
 			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_LEFT)
 			{
-				//printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
+				printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
+
 				if (mouse_event.value == 1)
 				{
 					state.pressed = LV_INDEV_STATE_PR;
 					state.MouseActivity = true;
+					std::chrono::time_point<std::chrono::system_clock> current_time = std::chrono::system_clock::now();
+					if (current_time - last_click_time < double_click_threshold)
+					{
+						click_count++;
+						if (click_count == 2)
+						{
+							//cout << "Double click detected!" << endl;
+							click_count = 0;
+							state.doubleclick = true;
+						}
+					}
+					else
+					{
+						click_count = 1;
+						state.doubleclick = false;
+					}
+					last_click_time = current_time;
 				}
 				else
 				{

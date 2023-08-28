@@ -72,6 +72,8 @@ void evdev_init(void)
 			ptr = strstr(name, "raspberrypi-ts");
 			if (ptr == NULL) // Bullseye changed driver name
 			    ptr = strstr(name, "ft5x06");
+			if (ptr == NULL) // Bullseye changed driver name
+				ptr = strstr(name, "WS Capacitive TouchScreen");
 			if (ptr == NULL)
 			{
 				close(evdev_fd);

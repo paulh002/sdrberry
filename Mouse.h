@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <chrono>
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -17,6 +18,7 @@ struct MouseState
 	lv_coord_t y;
 	bool pressed;
 	bool MouseActivity;
+	bool doubleclick;
 	int Rotated;
 };
 
@@ -44,4 +46,6 @@ class Mouse
 	string mouse_name;
 	MouseState state{0,0, LV_INDEV_STATE_REL, false};
 	bool MouseActivity;
+	std::chrono::time_point<std::chrono::system_clock> last_click_time;
+	int click_count ;
 };

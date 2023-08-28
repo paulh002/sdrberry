@@ -10,7 +10,7 @@ sudo apt-get -y install git
 sudo apt-get -y install gfortran
 sudo apt-get install -y\
     cmake g++ \
-    libpython-dev python-numpy swig
+    swig
 git clone https://github.com/pothosware/SoapySDR.git
 cd SoapySDR
 git pull origin master
@@ -30,7 +30,7 @@ cd ~
 #sudo make install
 #sudo ldconfig
 #cd ~
-sudo apt-get install -y fftw3-dev
+sudo apt-get install -y libfftw3-dev
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp

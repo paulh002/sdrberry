@@ -15,6 +15,9 @@ with 64 bit bullseye CLI mode. Configure wifi and use raspi-config to switch on 
 Compiled using VisualGDB or cmake, gcc and gfortran (for wsjtx_lib which includes the wsjtx fortran code of Joe Taylor)
 copy the cfg file (in install directory) to the home dir
 
+Remote control is possible with the use of framebuffer-vnc https://github.com/ponty/framebuffer-vncserver a config file is in the install directory.
+Check the event number for the touch and keyboard device and adjust the device number like event1 accordingly
+
 installation instruction in install_guide.txt
 install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
 
@@ -27,9 +30,11 @@ This software makes use of opensource libraries like:
 
 ToDo:
 - Support for Midi contoler
+- Cheap USB Hid controlers
 - Optical encoder direct on GPIO (some hardware adaption needed) 
 - Setup screen for Network and Wifi
 - Different noise reduction schemas like lms etc.
+- codec2 implementation (FreeDV)
 
 Done:
 - Adalm Pluto

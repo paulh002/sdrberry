@@ -1,64 +1,64 @@
 #!/bin/bash
-wrkdir='/usr/src'
-usrdir='/home/sdrberry'
+wrkdir='/home/pi'
+usrdir='/home/pi'
 
-#Set SDR Unit being used Supported: hackfr = HRF / pluto = PLT / HifiBerry = HFB / RadioBerry = RDB
-sdrboard='HRF'
+if [[ $1 = "HRF" ]]; then sdrboard='HRF'
+elif [[ $1 = "HFB" ]]; then sdrboard='HFB'
+elif [[ $1 = "PLT" ]]; then sdrboard='PLT'
+elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
+else
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB"
+   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Waveshare 7 inch 1200x600 WC12"
+   echo "install Device LCD PACKAGE  "
+   echo  "./install.sh RDB DSI Y"
+   exit
+fi
+if [[ $2 = "DSI" ]]; then LCD='DSI'
+elif [[ $2 = "WC12" ]]; then LCD='7c'
+else
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB"
+   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Waveshare 7 inch 1200x600 WC12"
+   echo "install Device LCD PACKAGE  "
+   echo  "./install.sh RDB DSI Y"
+   exit
+fi
 
-#Enable BlueTooth
-BlueZ='YES'
-
-enable LCD 5 / 7 / 7b / 7c
-LCD="7c"
-
-opt to use pre built pkgs
-PACKAGES='YES'
+if [[ $3 = "Y" ]]; then PACKAGES='YES'
+else
+   echo "No packages"
+fi
 
 #if false; then
 sudo apt update
-sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig
-libdw-dev fortran g++ swig hackrf libhackrf-dev libfftw3-dev nala
+sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig 
+binutils-dev libdw-dev fortran g++ swig hackrf libhackrf-dev libfftw3-dev
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
-libboost-all-dev python3 librtaudio-dev soapysdr-tools libfftw3-dev
-libglfw3-dev
+libboost-all-dev python3 libfftw3-dev
+libglfw3-dev vim
+echo "set mouse-=a" >> ~/.vimrc
+sudo ldconfig
+
+#build Liquid-dsp
+git clone https://github.com/jgaeddert/liquid-dsp
+sudo apt-get install -y automake autoconf
+cd liquid-dsp || exit
+git checkout v1.6.0
+./bootstrap.sh
+./configure
+make -j4
+sudo make install
 sudo ldconfig
 
 #cd to work dir . If does not exist exit script
 cd $wrkdir || exit
 
-if [[ $BlueZ == 'YES' ]]; then
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev
-libdbus-1-dev libical-dev docutils-common bluez bluez-asla-utils bluez-test-scripts
-bluez-tools
-else
-wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.60.tar.xz
-tar xvf bluez-5.60.tar.xz
-sudo apt-get install -y libusb-dev libreadline-dev libglib2.0-dev libudev-dev libdbus-1-dev libical-dev
-sudo apt-get install -y ap
-cd bluez-5.60 || exit
-./configure --enable-library
-make -j4
-sudo make install
-fi
-fi
-
-#cd to work dir . If does not exist exit script
-cd $wrkdir || exit
-
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt install libsoapysdr-dev
-else
-git clone https://github.com/pothosware/SoapySDR.git
-cd SoapySDR || exit
-git pull origin master
+#build sdrberry
+git clone https://github.com/paulh002/sdrberry
+cd sdrberry || exit
+git checkout installation-improvement
 mkdir build
-cd build || exit
-cmake ..
-make -j4
+cd build && cmake .. && make -j4
 sudo make install
-sudo ldconfig
-fi
 
 #cd to work dir . If does not exist exit script
 cd $wrkdir || exit
@@ -149,39 +149,6 @@ fi
 #cd to work dir . If does not exist exit script
 cd $wrkdir || exit
 
-#build Liquid-dsp
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt install libliquid-dev libliquid1 1.5.0-2
-else
-git clone https://github.com/jgaeddert/liquid-dsp
-sudo apt-get install -y automake autoconf
-cd liquid-dsp || exit
-git checkout v1.6.0
-./bootstrap.sh
-./configure
-make -j4
-sudo make install
-sudo ldconfig
-fi
-
-#cd to work dir . If does not exist exit script
-cd $wrkdir || exit
-
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt install librtaudio-dev librtaudio6
-else
-git clone https://github.com/paulh002/rtaudio
-cd rtaudio || exit
-mkdir build
-cd build || exit
-cmake ..
-make
-sudo make install
-sudo ldconfig
-fi
-#cd to work dir . If does not exist exit script
-cd $wrkdir || exit
-
 if [[ $sdrboard == PLT ]] ; then
 if [[ $PACKAGES == 'YES' ]]; then
 sudo apt install libad9361-dev libad9361-0 python3-ad9361
@@ -206,6 +173,10 @@ if [[ $sdrboard == 'HRF' ]]; then
 # put sdrberry config in users home dir
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_hackrf.cfg
 mv sdrberry_settings_hackrf.cfg $usrdir/sdrberry_settings.cfg
+elif [[ $sdrboard == 'HFB' ]]; then
+# put sdrberry config in users home dir
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
+mv sdrberry_settings.cfg $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'PLT' ]]; then
 # put sdrberry config in users home dir
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_pluto.cfg
@@ -213,33 +184,18 @@ mv sdrberry_settings_pluto.cfg $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'RDB' ]]; then
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_radioberry.cfg
 mv sdrberry_settings_radioberry.cfg $usrdir/sdrberry_settings.cfg
-elif [[ $sdrboard == 'SDRB' ]]; then
-# put sdrberry config in users home dir
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
-mv sdrberry_settings.cfg $usrdir/sdrberry_settings.cfg
 fi
-
-#build sdrberry
-git clone -b updates --depth 1 https://github.com/richneese/sdrberry
-cd sdrberry || exit
-git checkout Dev
-mkdir build
-cd build && cmake .. && make
-sudo make install
-
-#cd to work dir . If does not exist exit script
-cd $wrkdir || exit
 
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh
 
 #Do LCD Screen Setup
-if [[ $LCD == '5' || $LCD == '7' || $LCD == '7b' ]]; then
+#if [[ $LCD == '5' || $LCD == '7' || $LCD == '7b' ]]; then
 #Enable Waveshare 7inch_DSI_LCD_(5/7/7B) 800x480
-echo dtoverlay=vc4-kms-v3d >> /boot/config.txt
-echo dtoverlay=vc4-kms-dsi-7inch >> /boot/config.txt
-
-fi
+#echo dtoverlay=vc4-kms-v3d >> /boot/config.txt
+#echo dtoverlay=vc4-kms-dsi-7inch >> /boot/config.txt
+#
+#fi
 
 if [[ $LCD == '7c' ]]; then
 #Enable Waveshare 7inch DSI LCD (C) 1024×600 driver：
@@ -256,6 +212,6 @@ sudo sed -i 's/$/ vt.global_cursor_default=0 usbhid.mousepoll=2/' /boot/cmdline.
 sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/config.txt
 
 #Do Cleanup
-rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*
+#rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*
 
 sudo reboot

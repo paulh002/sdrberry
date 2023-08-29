@@ -103,7 +103,7 @@ sudo make install
 sudo ldconfig
 fi
 
-if [[ $sdrboard == SDRB ]] ; then
+if [[ $sdrboard == RDB ]] ; then
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
 git clone --depth=1 https://github.com/pa3gsb/Radioberry-2.x

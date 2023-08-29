@@ -27,14 +27,14 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - It is prefered not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
 - USB Audio adaptor for audio in and output
 
-##This software makes use of opensource libraries like:
+##This software makes use of opensource libraries like
 - Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction  adapted for raspberry pi
 - WSJTX fortran library of Joe Taylor K1JT
 - Liquid-dsp of Joseph D. Gaeddert
 - Lvgl of Gabor Kiss-Vamosi
 - and others
 
-##ToDo:
+##ToDo
 - Support for Midi contoler
 - Cheap USB Hid controlers
 - Optical encoder direct on GPIO (some hardware adaption needed) 
@@ -42,7 +42,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Different noise reduction schemas like lms etc.
 - codec2 implementation (FreeDV)
 
-##Done:
+##Done
 - Adalm Pluto
 - Rtlsdr support
 - SDRPlay support
@@ -69,7 +69,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Keyboard for FT8
 - waterfall display
 
-Installation of libraries is necessary:
+##Installation of libraries is necessary:
 - Liquid DSP
 - Alsa audio
 - SoapySDR

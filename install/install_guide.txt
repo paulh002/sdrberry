@@ -124,4 +124,4 @@ add vt.global_cursor_default=0
 
 
 //Run sdrberry
-./sdrberry
+sdrberry

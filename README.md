@@ -23,7 +23,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 
 ## Hardware requirements
 - Raspberry pi 4 Model B 
-- LCD screen 5 or 7 inch 800x480 touchscreen using DPI connector
+- LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector
 - It is prefered not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
 - USB Audio adaptor for audio in and output
 

@@ -117,9 +117,10 @@ cp sdrberry/sdrberry_settings.cfg .
 sudo sdrberry  
 ```
 
-## DSI display 7inch  
+## DSI display 5inch or 7inch  
 In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline.txt files for rotating the screen
-5 inch DSI screens from waveshare do not need any adjustment
+5 inch DSI screens from waveshare do not need any adjustment. Sdrberry is currently tested for a resolution of 800 x 480. 
+Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for other resolutions. There can be some issues.
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/rb_tranceiver.jpg)
 

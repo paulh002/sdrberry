@@ -1,5 +1,5 @@
 # sdrberry
-Raspberry pi SDR tranceiver / fronted using lvgl gui (requires Pi 4 Model B with a 5 or 7 inch 800x480 touchscreen)
+Raspberry pi SDR tranceiver / fronted using lvgl gui 
 !!! This is an ongoing project code only for information purpose only. 
 The main goal for this project is to learn about c++ programming, liquid dsp, and for most the use of the GUI toolkit LVGL v8
 Functionalit is in beta currently
@@ -21,14 +21,20 @@ Check the event number for the touch and keyboard device and adjust the device n
 installation instruction in install_guide.txt
 install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
 
-This software makes use of opensource libraries like:
+## Hardware requirements
+- Raspberry pi 4 Model B 
+- LCD screen 5 or 7 inch 800x480 touchscreen using DPI connector
+- It is prefered not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
+- USB Audio adaptor for audio in and output
+
+##This software makes use of opensource libraries like:
 - Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction  adapted for raspberry pi
 - WSJTX fortran library of Joe Taylor K1JT
 - Liquid-dsp of Joseph D. Gaeddert
 - Lvgl of Gabor Kiss-Vamosi
 - and others
 
-ToDo:
+##ToDo:
 - Support for Midi contoler
 - Cheap USB Hid controlers
 - Optical encoder direct on GPIO (some hardware adaption needed) 
@@ -36,7 +42,7 @@ ToDo:
 - Different noise reduction schemas like lms etc.
 - codec2 implementation (FreeDV)
 
-Done:
+##Done:
 - Adalm Pluto
 - Rtlsdr support
 - SDRPlay support

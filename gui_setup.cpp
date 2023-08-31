@@ -466,7 +466,7 @@ int gui_setup::get_contour_value()
 
 void gui_setup::set_floor_value(int speed)
 {
-	char buf[20];
+	char buf[30];
 
 	sprintf(buf, " noise floor %d ", speed);
 	lv_label_set_text(floor_slider_label, buf);

@@ -147,6 +147,7 @@ class Cat_communicator
 	virtual bool available() = 0;
 	virtual void SendInformation(int info) = 0;
 	virtual bool IsCommuncationPortOpen() = 0;
+	virtual ~Cat_communicator(){} ;
 };
 
 class FT891_CAT // Class name

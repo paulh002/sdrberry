@@ -105,9 +105,9 @@ class GuiMessage
 	GuiMessage(action guiaction, std::string guiData)
 		: message(guiaction), text(guiData), data{} {}
 
-	int data;
-	std::string text;
 	action message;
+	std::string text;
+	int data;
 };
 
 extern SharedQueue<GuiMessage> guiQueue;

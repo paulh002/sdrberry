@@ -353,7 +353,7 @@ long CVfo::get_active_vfo_freq()
 
 std::string CVfo::get_vfo_str()
 {
-	char	str[20];
+	char	str[30];
 	long	freq;
 	
 	freq = vfo_setting.vfo_freq[vfo_setting.active_vfo];
@@ -439,7 +439,6 @@ void CVfo::check_band(int dir, long long& freq)
 {
 		// this function let the active vfo jump to next or previous band	
 	int i = 0;
-	auto it_band = vfo_setting.m_bands.begin();
 	for (auto& col : vfo_setting.m_bands)
 	{
 		if (vfo_setting.band[vfo_setting.active_vfo] == col.meters)

@@ -1,4 +1,4 @@
-#pragma oncee
+#pragma once
 #include "lvgl.h"
 #include "sdrberry.h"
 #include "sma.h"

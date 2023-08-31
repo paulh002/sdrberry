@@ -73,6 +73,9 @@
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
       <VerboseMode>false</VerboseMode>
+      <WarnOnUnusedParameters>Disabled</WarnOnUnusedParameters>
+      <WarnOnUnusedVariables>Disabled</WarnOnUnusedVariables>
+      <WarnOnMismatchingInitializationOrder>Disabled</WarnOnMismatchingInitializationOrder>
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>

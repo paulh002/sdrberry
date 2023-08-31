@@ -16,7 +16,7 @@ class Comm : public Cat_communicator
 	void SendInformation(int info) override;
 	bool IsCommuncationPortOpen() override;
 
-	~Comm();
+	~Comm() override;
 	void Close();
 
   private:

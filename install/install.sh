@@ -30,10 +30,10 @@ fi
 
 #if false; then
 sudo apt update
-sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig 
-binutils-dev libdw-dev fortran g++ swig hackrf libhackrf-dev libfftw3-dev
-ninja-build libiio-dev libiio-dev libiio-utils libasound-dev
-libboost-all-dev python3 libfftw3-dev
+sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig \
+binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
+ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
+libboost-all-dev python3 libfftw3-dev \
 libglfw3-dev vim
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig

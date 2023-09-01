@@ -38,6 +38,18 @@ libglfw3-dev vim
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 
+cd $wrkdir || exit
+git clone https://github.com/pothosware/SoapySDR.git
+cd SoapySDR
+git pull origin master
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig
+cd $wrkdir || exit
+
 #build Liquid-dsp
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf

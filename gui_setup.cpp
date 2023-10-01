@@ -125,8 +125,8 @@ static void samplerate_button_handler(lv_event_t * e)
 			long bw = 0L;
 
 			int sel = gsetup.get_bandwidth_sel();
-			bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, sel);
-			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
+			bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
+			SdrDevices.SdrDevices.at(default_radio)->setBandwidth(SOAPY_SDR_RX, 0, bw);
 			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), bw);
 			printf("setBandwidth %ld \n", bw);
 		}
@@ -136,7 +136,7 @@ static void samplerate_button_handler(lv_event_t * e)
 		destroy_demodulators(true);
 		try
 		{
-			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, default_rx_channel, ifrate);
+			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), ifrate);
 		}
 		catch (const std::exception& e)
 		{
@@ -154,9 +154,9 @@ static void bandwidth_button_handler(lv_event_t *e)
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int sel = lv_dropdown_get_selected(obj);
-		if (sel <= SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
+		if (sel <= SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0))
 		{
-			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, sel);
+			long bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
 			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), bw);
 			printf("setBandwidth %ld \n", bw);
@@ -217,16 +217,34 @@ void gui_setup::set_radio(std::string name)
 void gui_setup::init_bandwidth()
 {
 	lv_dropdown_clear_options(d_bandwitdth);
-	for (int i = 0; i < SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0); i++)
+	try
 	{
-		char buf[80];
 
-		long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, i);
-		sprintf(buf, "%ld Khz", bw / 1000);
-		lv_dropdown_add_option(d_bandwitdth, buf, LV_DROPDOWN_POS_LAST);
-		if (i == 0)
-			lv_dropdown_set_selected(d_bandwitdth, 0);
+		for (int i = 0; i < SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0); i++)
+		{
+			char buf[80];
+
+			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, i);
+			sprintf(buf, "%ld Khz", bw / 1000);
+			lv_dropdown_add_option(d_bandwitdth, buf, LV_DROPDOWN_POS_LAST);
+			if (i == 0)
+				lv_dropdown_set_selected(d_bandwitdth, 0);
+		}
 	}
+	catch (const std::exception &e)
+	{
+		std::cout << e.what();
+	}
+}
+
+int gui_setup::get_current_rx_channel()
+{
+	return 0;
+}
+
+int gui_setup::get_current_tx_channel()
+{
+	return 0;
 }
 
 void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)

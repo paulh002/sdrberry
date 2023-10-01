@@ -255,7 +255,7 @@ static void drv_slider_event_cb(lv_event_t * e)
 	Settings_file.set_drive(lv_slider_get_value(slider));
 	try
 	{
-		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, default_rx_channel, (double)lv_slider_get_value(slider));
+		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, gsetup.get_current_tx_channel(), (double)lv_slider_get_value(slider));
 	}
 	catch (const std::exception& e)
 	{
@@ -273,8 +273,8 @@ void gui_tx::set_drv_range()
 {	int max_gain, min_gain;
 	try
 	{
-		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[default_tx_channel]->get_full_gain_range().maximum();
-		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[default_tx_channel]->get_full_gain_range().minimum();	
+		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[gsetup.get_current_tx_channel()]->get_full_gain_range().maximum();
+		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[gsetup.get_current_tx_channel()]->get_full_gain_range().minimum();	
 	}
 	catch (const std::exception& e)
 	{
@@ -290,8 +290,8 @@ void gui_tx::set_drv_slider(int drive)
 	int max_gain, min_gain;
 	try
 	{
-		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[default_tx_channel]->get_full_gain_range().maximum();
-		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[default_tx_channel]->get_full_gain_range().minimum();	
+		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[gsetup.get_current_tx_channel()]->get_full_gain_range().maximum();
+		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->tx_channels[gsetup.get_current_tx_channel()]->get_full_gain_range().minimum();	
 	}
 	catch (const std::exception& e)
 	{
@@ -310,7 +310,7 @@ void gui_tx::set_drv_slider(int drive)
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	try
 	{
-		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, default_rx_channel, (double)drive);
+		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, gsetup.get_current_tx_channel(), (double)drive);
 	}
 	catch(const std::exception& e)
 	{

@@ -36,6 +36,7 @@ HidDev::HidDev()
 	value = 0;
 	last_time = std::chrono::high_resolution_clock::now();
 	usb_hid = false;
+	fspeed = 1.5;
 }
 
 HidDev::~HidDev()
@@ -61,11 +62,11 @@ void HidDev::init(string mouse_name)
 		else
 			sprintf(HidDevName, "/dev/input/event%d", numIndex);
 		m_fd = open(HidDevName, O_RDONLY | O_NONBLOCK);
-		if (m_fd > 0 && !usb_hid)
+		if (m_fd > 0 && !usb_hid && HidName.length() > 0)
 		{
 			char name[256] = "Unknown";
 			ioctl(m_fd, EVIOCGNAME(sizeof(name)), name);
-			printf("Input device name: \"%s\"\n", name);
+			//printf("Input device name: \"%s\"\n", name);
 			strupr(name);
 			char *ptr = strstr(name, HidName.c_str());
 			if (ptr == NULL)
@@ -73,8 +74,14 @@ void HidDev::init(string mouse_name)
 				close(m_fd);
 				m_fd = -1;
 			}
+			else
+			{
+				printf("Connect to input device: \"%s\"\n", name);
+				ioctl(m_fd, EVIOCGRAB, 1);
+			}
 		}
-		if (m_fd > 0 && usb_hid)
+		
+		if (m_fd > 0 && usb_hid && HidName.length() > 0)
 		{
 			struct hiddev_devinfo devinfo;
 
@@ -151,6 +158,28 @@ void HidDev::step_vfo()
 		}
 		return;
 	}
+
+	if (bevent && in_event.type == EV_KEY && in_event.value == 1 && (in_event.code == 114 || in_event.code == 115 || in_event.code == 113))
+	{
+		// volume hid
+
+		if (in_event.code == 115)
+			vfo.step_vfo(step  * fspeed);
+
+		if (in_event.code == 114)
+			vfo.step_vfo(-1 * step * fspeed);
+
+		if (in_event.code == 113)
+		{
+			if (fspeed < 1.5)
+				fspeed = 1.5f;
+			else
+				fspeed = 1.0f;
+		}
+
+		return;
+	}
+	
 
 	if (bevent && in_event.type == EV_KEY)
 	{
@@ -248,9 +277,11 @@ void HidDev::step_vfo()
 		}
 	}
 
+	
 	if (bevent && in_event.type == EV_REL && in_event.code == 11 && (in_event.value == 120 || in_event.value == -120))
 		value = 0;
-		
+
+	
 	if (value != 0)
 	{
 		auto now = std::chrono::high_resolution_clock::now();

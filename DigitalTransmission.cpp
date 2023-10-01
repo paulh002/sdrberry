@@ -14,7 +14,7 @@ static std::atomic<bool> startTX = false;
 static ModulatorParameters param;
 static shared_ptr<DigitalTransmission> StartDigitaltransmissionthread;
 
-DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx, DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input)
+DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,  DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input)
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
 	auto today = date::floor<date::days>(startTime);
@@ -29,7 +29,7 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	Source_buffer_rx = source_buffer_rx;
 	sp_ammod = make_shared<AMModulator>(param, source_buffer_tx, audio_input);
 	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
-	TX_Stream::create_tx_streaming_thread(default_radio, default_rx_channel, source_buffer_tx, ifrate_tx);
+	TX_Stream::create_tx_streaming_thread(default_radio, param.txChannel, source_buffer_tx, ifrate_tx);
 
 	now = std::chrono::system_clock::now();
 	cout << "Start TX stream running " << date::make_time(now - today) << endl;
@@ -53,7 +53,7 @@ void DigitalTransmission::operator()()
 	std::cout << "finished sending at " << date::make_time(end - today)
 			  << " elapsed time: " << elapsed_seconds.count() << "s"
 			  << std::endl;
-	RX_Stream::create_rx_streaming_thread(default_radio, default_rx_channel, Source_buffer_rx);
+	RX_Stream::create_rx_streaming_thread(default_radio, param.rxChannel, Source_buffer_rx);
 	guift8bar.ClearTransmit();
 	vfo.vfo_rxtx(true, false);
 }

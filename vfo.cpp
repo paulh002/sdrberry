@@ -25,10 +25,12 @@ void CVfo::vfo_rxtx(bool brx, bool btx)
 
 void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel,int ftx_channel)
 {
+	int channel;
+	
 	SdrDevices = fSdrDevices;
 	radio = fradio;
 	rx_channel = frx_channel;
-	tx_channel = frx_channel;
+	tx_channel = ftx_channel;
 
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
@@ -39,7 +41,11 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 		vfo.limit_ham_band = true;
 	else
 		vfo.limit_ham_band = false;
-	SoapySDR::RangeList r = SdrDevices->get_full_frequency_range_list(radio, rx_channel); 
+
+	channel = rx_channel;
+	if (channel < 0)
+		channel = tx_channel;
+	SoapySDR::RangeList r = SdrDevices->get_full_frequency_range_list(radio, channel); 
 	vfo_setting.vfo_low = r.front().minimum();
 	vfo_setting.vfo_high = r.front().maximum();
 	auto it_band = Settings_file.meters.begin();

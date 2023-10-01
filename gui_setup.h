@@ -37,6 +37,8 @@ class gui_setup
 	void init_bandwidth();
 	int get_bandwidth_sel() { return lv_dropdown_get_selected(d_bandwitdth); }
 	double m_ifrate;
+	int get_current_rx_channel();
+	int get_current_tx_channel();
 
   private:
 	lv_style_t style_btn;

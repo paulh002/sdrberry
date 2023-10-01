@@ -731,8 +731,32 @@ int	SdrDeviceVector::get_tx_channels(std::string name)
 	{ 
 		return SdrDevices[name]->get_txchannels();
 	}
-	return 0;
+	return -1;
 }
+
+int SdrDeviceVector::get_rx_channels(std::string name)
+{
+	auto it = SdrDevices.find(name);
+	if (it != SdrDevices.end())
+	{
+		return SdrDevices[name]->get_rxchannels();
+	}
+	return -1;
+
+}
+
+SoapySDR::RangeList SdrDeviceVector::get_full_frequency_range_list(std::string name, int chan) 
+{
+	SoapySDR::RangeList r;
+
+	if (get_rx_channels(name) > chan)
+		return SdrDevices[name]->rx_channels[chan]->get_full_frequency_range_list();
+
+	if (get_tx_channels(name) > chan)
+		return SdrDevices[name]->tx_channels[chan]->get_full_frequency_range_list();
+	return r;
+}
+
 
 bool SdrDeviceVector::isValid(std::string name)
 {

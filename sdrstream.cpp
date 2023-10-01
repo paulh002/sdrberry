@@ -206,6 +206,8 @@ bool RX_Stream::create_rx_streaming_thread(std::string radio, int chan, DataBuff
 {	
 	if (ptr_rx_stream != nullptr)
 		return false;
+	if (SdrDevices.get_rx_channels(default_radio) < 1)
+		return false;
 	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, chan, ifrate);
 	SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, chan, gbar.get_rf_gain());
 	ptr_rx_stream = make_shared<RX_Stream>(radio, chan, source_buffer);

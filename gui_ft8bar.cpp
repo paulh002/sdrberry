@@ -709,6 +709,8 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 			param.tone = audioTone::NoTone;
 			param.ifrate = ifrate_tx;
 			param.even = true;
+			param.rxChannel = gsetup.get_current_rx_channel();
+			param.txChannel = gsetup.get_current_tx_channel();
 			int selection = lv_dropdown_get_selected(wsjtxmode);
 			switch (selection)
 			{

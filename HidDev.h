@@ -43,5 +43,6 @@ class HidDev
 	string HidName;
 	bool txstate{false};
 	bool usb_hid;
+	float fspeed;
 };
 

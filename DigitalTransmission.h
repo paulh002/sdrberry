@@ -14,6 +14,7 @@ struct ModulatorParameters
 	bool even;
 	int timeslotTensofSec;
 	std::vector<float> signal;
+	int rxChannel, txChannel;
 };
 
 class DigitalTransmission

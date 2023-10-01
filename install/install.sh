@@ -45,7 +45,7 @@ git pull origin master
 mkdir build
 cd build
 cmake ..
-make
+make -j4
 sudo make install
 sudo ldconfig
 cd $wrkdir || exit
@@ -102,6 +102,7 @@ cmake ..
 make
 sudo make install
 sudo ldconfig
+sudo sed -i '/dtoverlay=hifiberry-dacplusadcpro/s/^#//g' /boot/config.txt
 fi
 
 if [[ $sdrboard == PLT ]] ; then

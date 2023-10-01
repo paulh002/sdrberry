@@ -13,7 +13,6 @@ Alternative a Contour Shuttle express can be used as rotary controler and or a m
 To install you need to configure rasberry pi OS in text only mode (64 bit Bullseye), create a sd card or even better a usb stick sd cards tend to fail after a while,
 with 64 bit bullseye CLI mode. Configure wifi and use raspi-config to switch on I2C and boot to CLI only with logon. 
 Compiled using VisualGDB or cmake, gcc and gfortran (for wsjtx_lib which includes the wsjtx fortran code of Joe Taylor)
-copy the cfg file (in install directory) to the home dir
 
 Remote control is possible with the use of framebuffer-vnc https://github.com/ponty/framebuffer-vncserver a config file is in the install directory.
 Check the event number for the touch and keyboard device and adjust the device number like event1 accordingly
@@ -25,7 +24,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Raspberry pi 4 Model B 
 - LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector
 - It is prefered not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
-- USB Audio adaptor for audio in and output
+- Generic USB Audio adaptor for audio in and output
 
 ## This software makes use of opensource libraries like
 - Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction  adapted for raspberry pi
@@ -68,6 +67,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Mouse support
 - Keyboard for FT8
 - waterfall display
+- Cheap USB Hid Volume controlers as tuning controler
 
 ## Installation of libraries is necessary:
 - Liquid DSP
@@ -79,12 +79,13 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - libiio (support for Adalm Pluto SDR)
 - libad9361-iio (support for Adalm Pluto SDR)
 - pthread
+- liquid-dsp
+- fftw
 
 # Installation
 
-
 ## Install and compile with cmake
-Download the install file in pi home directory (there are install files for different SDR's)
+Download the install file in pi home directory (the install script supports different SDR's)
 The install script can install DSI or Waveshare 7 inch display
 SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device
 If you want to install the devices using current packages add Y to the install command
@@ -95,31 +96,15 @@ chmod +x install.sh
 ./install.sh HFB DSI
 ```
 
-## Install and compile with cmake for radioberry
-Download the repository in pi home directory  
-```
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install-radioberry.sh
-chmod +x install-radioberry.sh
-./install-radioberry.sh
-```
-There are also scripts for hackrf and pluto available.
-
-## Compile with cmake (assuming all libraries are available)
-```
-git clone https://github.com/paulh002/sdrberry  
-cd sdrberry  
-mkdir build
-cmake ..  
-make
-sudo make install  
-```
 ## start sdrberry  
+sdrberry can be started in usermode or as root, this depends on the device beeing used for radioberry use sudo
 ```
-first copy config file to pi home dir  
-cd ~  
-cp sdrberry/sdrberry_settings.cfg .  
 sudo sdrberry  
 ```
+
+## Mouse support
+sdrberry supports a mouse, to improve responsiveness the install script will add usbhid.mousepoll=2 to the commandline.txt  
+
 
 ## DSI display 5inch or 7inch  
 In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline.txt files for rotating the screen

@@ -159,7 +159,7 @@ MouseState Mouse::GetMouseState()
 
 			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_LEFT)
 			{
-				printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
+				//printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
 
 				if (mouse_event.value == 1)
 				{

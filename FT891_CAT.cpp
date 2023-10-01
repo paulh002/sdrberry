@@ -197,11 +197,9 @@ void FT891_CAT::Init ( bool debug )
 int FT891_CAT::CheckCAT (bool bwait)
 {
 	int newCmd = 0;							// True if command message processed
+	int ret = -1;
 
-	int ret = GetMessage(bwait);
-	if (ret < 0)
-		return -1;
-	if(ret == 1)							// See if new message
+	if ((ret = GetMessage(bwait)) != -1)							// See if new message
 	{
 		newMessage = FindMsg ();				// If so, look it up in the table
 
@@ -215,15 +213,15 @@ int FT891_CAT::CheckCAT (bool bwait)
 			if ( ProcessCmd ())					// Yes, process it
 				newCmd = 1;						// Indicate command received & processed
 		}
-
-		else									// It's a status request
-			ProcessStatus ();					// Process it
+		else // It's a status request
+		{
+			ProcessStatus(); // Process it
+		}
 
 		memset ( rxBuff, 0, BUF_LEN );			// Clear the receive buffer
-
 		return newCmd;							// Done!
 	}
-	return newCmd;							// Done!
+	return -1;
 }
 
 void FT891_CAT::SendCatMessage(int fd, std::string message)

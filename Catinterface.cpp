@@ -35,7 +35,8 @@ bool Comm::begin()
 
 void Comm::Send(std::string s)
 {
-	serialPuts(serialport, (const char *)s.c_str());
+	if (serialport > 0)
+		serialPuts(serialport, (const char *)s.c_str());
 }
 
 bool Comm::IsCommuncationPortOpen()

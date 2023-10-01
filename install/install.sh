@@ -105,7 +105,7 @@ cmake ..
 make
 sudo make install
 sudo ldconfig
-sudo sed -i '/dtoverlay=hifiberry-dacplusadcpro/s/^#//g' /boot/config.txt
+sudo sed -i '$a\dtoverlay=hifiberry-dacplusadcpro' /boot/config.txt
 fi
 
 if [[ $sdrboard == PLT ]] ; then

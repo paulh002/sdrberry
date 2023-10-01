@@ -6,20 +6,23 @@ if [[ $1 = "HRF" ]]; then sdrboard='HRF'
 elif [[ $1 = "HFB" ]]; then sdrboard='HFB'
 elif [[ $1 = "PLT" ]]; then sdrboard='PLT'
 elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
+elif [[ $1 = "No" ]]; then sdrboard='No'
 else
-   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB"
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Waveshare 7 inch 1200x600 WC12"
-   echo "install Device LCD PACKAGE  "
-   echo  "./install.sh RDB DSI Y"
+   echo "./install.sh Device LCD PACKAGE Y/N "
+   echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
+   echo "If you want to compile from code use ./install.sh RDB DSI"
    exit
 fi
 if [[ $2 = "DSI" ]]; then LCD='DSI'
 elif [[ $2 = "WC12" ]]; then LCD='7c'
 else
-   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB"
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Waveshare 7 inch 1200x600 WC12"
-   echo "install Device LCD PACKAGE  "
-   echo  "./install.sh RDB DSI Y"
+   echo "./install.sh Device LCD PACKAGE Y/N "
+   echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
+   echo "If you want to compile from code use ./install.sh RDB DSI"
    exit
 fi
 

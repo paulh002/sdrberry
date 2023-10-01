@@ -85,10 +85,14 @@ install script install.sh installs all components based on a fresh raspberry pi 
 
 ## Install and compile with cmake
 Download the install file in pi home directory (there are install files for different SDR's)
+The install script can install DSI or Waveshare 7 inch display
+SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device
+If you want to install the devices using current packages add Y to the install command
+install DEVICE LCD PACKAGE Y/N
 ```
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
 chmod +x install.sh
-./install.sh
+./install.sh HFB DSI
 ```
 
 ## Install and compile with cmake for radioberry

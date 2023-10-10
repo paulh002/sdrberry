@@ -70,7 +70,7 @@ cd $wrkdir || exit
 #build sdrberry
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry || exit
-git checkout installation-improvement
+#git checkout installation-improvement
 mkdir build
 cd build && cmake .. && make -j4
 sudo make install

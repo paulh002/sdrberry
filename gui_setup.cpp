@@ -6,6 +6,7 @@
 #include "Spectrum.h"
 #include "gui_cal.h"
 #include "gui_ft8bar.h"
+#include "gui_i2csetup.h"
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
@@ -20,7 +21,6 @@ static void receivers_button_handler(lv_event_t * e)
 		std::string receiver;
 		
 		receiver.reserve(80);
-		int selection = lv_dropdown_get_selected(obj);
 		lv_dropdown_get_selected_str(obj,buf, 79);
 		switch_sdrreceiver(std::string(buf));
 	}
@@ -247,9 +247,10 @@ int gui_setup::get_current_tx_channel()
 	return 0;
 }
 
-void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
+void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice)
 {
 
+	const lv_coord_t x_page_margin = 5;
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 5;
 	const int x_number_buttons = 5;
@@ -262,8 +263,21 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	int button_height_margin = button_height + y_margin;
 	int	ibutton_x = 0, ibutton_y = 0;
 	m_ifrate = ifrate;
-	
+
 	m_button_group = lv_group_create();
+	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
+	lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
+
+	tileview = lv_tileview_create(o_tab);
+	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);	
+
+	settings_main = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);	
+	
+	settings_i2c = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	i2csetup.init(settings_i2c, w, h,m_button_group);
+	
+	
+	
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -275,15 +289,15 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
-	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(settings_main, LV_OBJ_FLAG_SCROLLABLE);
 	
-	d_samplerate = lv_dropdown_create(o_tab);
+	d_samplerate = lv_dropdown_create(settings_main);
 	lv_group_add_obj(m_button_group, d_samplerate);
-	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, x_page_margin, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_samplerate);
 	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
 	
-	d_receivers = lv_dropdown_create(o_tab);
+	d_receivers = lv_dropdown_create(settings_main);
 	lv_group_add_obj(m_button_group, d_receivers);
 	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_receivers);
@@ -294,7 +308,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 		lv_dropdown_add_option(d_receivers, col.c_str(), LV_DROPDOWN_POS_LAST);
 	}
 
-	d_audio = lv_dropdown_create(o_tab);
+	d_audio = lv_dropdown_create(settings_main);
 	lv_group_add_obj(m_button_group, d_audio);
 	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, 2 * button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_width(d_audio, 1.5 * button_width); // 2*
@@ -315,7 +329,7 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 		}
 	}
 
-	d_bandwitdth = lv_dropdown_create(o_tab);
+	d_bandwitdth = lv_dropdown_create(settings_main);
 	lv_group_add_obj(m_button_group, d_bandwitdth);
 	lv_obj_align(d_bandwitdth, LV_ALIGN_TOP_LEFT, 3.5 * button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_width(d_bandwitdth, button_width); // 2*
@@ -325,16 +339,16 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	ibutton_y++;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	int brightness_y = 15 + y_margin + 2 * button_height_margin;
-	span_slider = lv_slider_create(o_tab);
+	span_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(m_button_group, span_slider);
 	lv_obj_set_width(span_slider, w / 2 - 50);
 	//lv_obj_center(span_slider);
 	//lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
-	lv_obj_align_to(span_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, y_span);
+	lv_obj_align_to(span_slider, settings_main, LV_ALIGN_TOP_LEFT, 0, y_span);
 
 	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
-	span_slider_label = lv_label_create(o_tab);
+	span_slider_label = lv_label_create(settings_main);
 	lv_label_set_text(span_slider_label, "span 500 Khz");
 	//lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
 	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
@@ -349,18 +363,18 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	//lv_obj_t *contour_slider_label, *contour_slider;
 	//lv_obj_t *floor_slider_label, *floor_slider;
 
-	contour_slider = lv_slider_create(o_tab);
+	contour_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(m_button_group, contour_slider);
 	lv_obj_set_width(contour_slider, w / 4 - 50);
-	lv_obj_align_to(contour_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, y_span);
+	lv_obj_align_to(contour_slider, settings_main, LV_ALIGN_TOP_LEFT, w / 2, y_span);
 	lv_slider_set_range(contour_slider, 1, 10);
 
 	lv_obj_add_event_cb(contour_slider, contour_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-	contour_slider_label = lv_label_create(o_tab);
+	contour_slider_label = lv_label_create(settings_main);
 	lv_label_set_text(contour_slider_label, "speed 1");
 	lv_obj_align_to(contour_slider_label, contour_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	brightness_slider = lv_slider_create(o_tab);
+	brightness_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(m_button_group, brightness_slider);
 	lv_obj_set_width(brightness_slider, w / 2 - 50);
 	lv_obj_align_to(brightness_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
@@ -368,23 +382,23 @@ void gui_setup::init(lv_obj_t* o_tab, lv_coord_t w, AudioOutput &audioDevice)
 	lv_slider_set_range(brightness_slider, 0, 255);
 	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
 
-	brightness_slider_label = lv_label_create(o_tab);
+	brightness_slider_label = lv_label_create(settings_main);
 	lv_label_set_text(brightness_slider_label, "brightness");
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	floor_slider = lv_slider_create(o_tab);
+	floor_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(m_button_group, floor_slider);
 	lv_obj_set_width(floor_slider, w / 4 - 50);
 	lv_obj_align_to(floor_slider, span_slider, LV_ALIGN_OUT_BOTTOM_LEFT, w / 2, 40);
 	lv_slider_set_range(floor_slider, 1, 20);
 
 	lv_obj_add_event_cb(floor_slider, floor_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-	floor_slider_label = lv_label_create(o_tab);
+	floor_slider_label = lv_label_create(settings_main);
 	lv_label_set_text(floor_slider_label, "Noise floor 1");
 	lv_obj_align_to(floor_slider_label, floor_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	calbox = lv_checkbox_create(o_tab);
-	lv_obj_align_to(calbox, o_tab, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
+	calbox = lv_checkbox_create(settings_main);
+	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
 	lv_checkbox_set_text(calbox, "calibration");
 	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	if (!Settings_file.get_int(default_radio, "correction"))

@@ -22,7 +22,7 @@
       <UserName>pi</UserName>
     </BuildHost>
     <DeploymentHost>
-      <HostName>192.168.88.38</HostName>
+      <HostName>192.168.88.26</HostName>
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </DeploymentHost>

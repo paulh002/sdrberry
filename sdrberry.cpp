@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	gsetup.init(tab["settings"], LV_HOR_RES - 3, *audio_output);
+	gsetup.init(tab["settings"], LV_HOR_RES - 3, tabHeight - buttonHeight,*audio_output);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	gagc.init(tab["agc"], LV_HOR_RES - 3);

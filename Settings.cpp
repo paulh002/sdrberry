@@ -190,6 +190,16 @@ void Settings::default_settings()
 	{
 		(*config)("passthrough_tx").push(cfg::makeOption(con));
 	}
+
+	config->useSection("i2c");
+	(*config)("devices").push(cfg::makeOption("none"));
+	(*config)("devices").push(cfg::makeOption("PCF8574"));
+	(*config)("devices").push(cfg::makeOption("PCF8574A"));
+	(*config)("devices").push(cfg::makeOption("MCP23016"));
+
+	(*config)("address").push(cfg::makeOption("20"));
+	(*config)("address").push(cfg::makeOption("21"));
+	(*config)("address").push(cfg::makeOption("3F"));
 }
 
 void Settings::read_settings(string settings_file)
@@ -751,4 +761,16 @@ void Settings::set_array_int(std::string section, std::string key, vector<int> &
 		i++;
 	}
 	write_settings();
+}
+
+std::vector<std::string> Settings::get_array_string(std::string section, std::string key)
+{
+	std::vector<std::string> result;
+	config->useSection(section);
+	for (auto &col : (*config)(key))
+	{
+		if (col.toString().length() > 0L)
+			result.push_back(col.toString());
+	}
+	return result;
 }

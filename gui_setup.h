@@ -16,7 +16,7 @@ extern const int tunerHeight;
 class gui_setup
 {
   public:
-	void init(lv_obj_t *o_tab, lv_coord_t w, AudioOutput &audioDevice);
+	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice);
 	void add_sample_rate(int samplerate);
 	void set_sample_rate(int rate);
 	int get_sample_rate(int rate);
@@ -41,7 +41,7 @@ class gui_setup
 	int get_current_tx_channel();
 
   private:
-	lv_style_t style_btn;
+	lv_style_t style_btn, style_tile;
 	vector<int> sample_rates;
 	lv_obj_t *d_samplerate;
 	lv_obj_t *d_receivers;
@@ -53,6 +53,7 @@ class gui_setup
 	lv_obj_t *contour_slider_label, *contour_slider;
 	lv_obj_t *floor_slider_label, *floor_slider;
 	lv_obj_t *calbox;
+	lv_obj_t *tileview, *settings_main, *settings_i2c;
 };
 
 extern gui_setup gsetup;

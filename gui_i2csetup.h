@@ -18,19 +18,27 @@ class gui_i2csetup
 	void setDevice(std::string dev);
 	void setAdress(std::string buffer);
 	void setRowSelected(int row) { rowSelected = row;}
+	int getRowSelected() { return rowSelected; }
 	void setBandRowSelected(int row) { bandRowSelected = row; }
+	int getBandRowSelected() { return bandRowSelected; }
 	void updateListAddress(std::string buf);
 	lv_obj_t *GetaddressObj() { return addressObj; }
 	void updateListDevice(std::string buf);
 	void setBand(int band);
-	
+	void AddLine(std::string byteA, std::string byteB);
+	void EditLine(std::string byteA, std::string byteB);
+	void AddDevice(std::string dev, std::string add);
+	void DelDevice();
+	void DelLine();
+	void Save();
+
   private:
 	lv_group_t *buttonGroup{nullptr};
 	lv_obj_t *deviceDropdown, *bandDropdown;
 	lv_obj_t *table, *bandtable;
 	lv_style_t tablestyle, style_btn;
 	lv_obj_t *addressObj;
-	lv_obj_t *SaveObj;
+	lv_obj_t *SaveObj, *addButton, *editButton, *delButton;
 	int RowCount, rowSelected, bandRowSelected;
 	std::vector<std::string> devicesList;
 	std::vector<std::string> devicesAdresses ;

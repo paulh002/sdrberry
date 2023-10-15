@@ -774,3 +774,22 @@ std::vector<std::string> Settings::get_array_string(std::string section, std::st
 	}
 	return result;
 }
+
+void Settings::set_array_string(std::string section, std::string key, const vector<std::string> &array)
+{
+	int i = 0;
+
+	// new keys are automaticly created
+	config->useSection(section);
+	auto &val = (*config)(key);
+
+	for (auto col : array)
+	{
+		if (val.size() <= i)
+			val.push(cfg::makeOption(col));
+		else
+			val[i] = col;
+		i++;
+	}
+	write_settings();
+}

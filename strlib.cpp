@@ -147,4 +147,32 @@ bool strToBool(const std::string& str)
     return (toLower(str) == "true" || fromString<int>(str) != 0);
 }
 
+inline bool not_digit(char ch)
+{
+	return '0' <= ch && ch <= '9';
+}
+
+std::string remove_non_digits(const std::string &input)
+{
+	std::string result;
+	std::copy_if(input.begin(), input.end(),
+				 std::back_inserter(result),
+				 not_digit);
+	return result;
+}
+
+inline bool non_spaces(char ch)
+{
+	return ch != ' ';
+}
+
+std::string remove_spaces(const std::string &input)
+{
+	std::string result;
+	std::copy_if(input.begin(), input.end(),
+				 std::back_inserter(result),
+				 non_spaces);
+	return result;
+}
+
 }

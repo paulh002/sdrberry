@@ -4,13 +4,42 @@
 #include "gui_i2csetup.h"
 #include "Settings.h"
 #include "strlib.h"
+#include "HexKeyboardWindow.h"
 
 gui_i2csetup i2csetup;
 const char *None_opts = "";
 const char *pcf8475_opts = "20\n21\n22\n23\n24\n25\n26\n27";
 const char *pcf8475a_opts = "38\n39\n3A\n3B\n3C\n3D\n3E\n3F";
 const char *mcp22016_opts = "38\n39\n3A\n3B\n3C\n3D\n3E\n3F";
+const char *tca9548_opts = "70\n71\n72\n73\n74\n75\n76\n77";
 
+static void editButton_handler(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+
+	CreateHexKeyboardWindow(lv_scr_act());
+	
+}
+
+static void delButton_handler(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+
+	i2csetup.DelDevice();
+	i2csetup.DelLine();
+}
+
+static void addButton_handler(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+
+	i2csetup.AddDevice("NONE", "00");
+	i2csetup.AddLine("00", "00");
+}
+	
 static void bandtable_press_part_event_cb(lv_event_t *e)
 {
 	lv_obj_t *obj = lv_event_get_target(e);
@@ -64,11 +93,29 @@ static void table_draw_part_event_cb(lv_event_t *e)
 	{
 		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
 		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+		if (row == i2csetup.getRowSelected())
+		{
+			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
+			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+		}
+	}
+}
 
-		/*Make the texts in the first cell center aligned*/
-
-		/*MAke every 2nd row grayish*/
-
+static void bandtable_draw_part_event_cb(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	/*If the cells are drawn...*/
+	if (dsc->part == LV_PART_ITEMS)
+	{
+		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
+		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+		if (row == i2csetup.getBandRowSelected())
+		{
+			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
+			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+		}
 	}
 }
 
@@ -78,6 +125,7 @@ static void bandDropdownHandler(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
+		i2csetup.setBandRowSelected(-1);
 		i2csetup.setBand(lv_dropdown_get_selected(obj));
 	}
 }
@@ -164,6 +212,8 @@ void gui_i2csetup::setAdressList(std::string buffer)
 		lv_roller_set_options(addressObj, pcf8475a_opts, LV_ROLLER_MODE_NORMAL);
 	if (buf == "MCP23016")
 		lv_roller_set_options(addressObj, mcp22016_opts, LV_ROLLER_MODE_NORMAL);
+	if (buf == "TCA9548")
+		lv_roller_set_options(addressObj,tca9548_opts, LV_ROLLER_MODE_NORMAL);
 }
 
 void gui_i2csetup::setDevice(std::string buffer)
@@ -180,31 +230,147 @@ void gui_i2csetup::setDevice(std::string buffer)
 	}
 }
 
-static void button_handler(lv_event_t *e)
+static void msg_txtmessage_handler(void *e, lv_msg_t *m)
 {
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	std::string payload((const char *)lv_msg_get_payload((lv_msg_t *)m));
+	std::string byteA;
+	std::string byteB;
 
-		
-		
+	if (payload.size() == 5)
+	{
+		int pos = payload.find(',');
+		byteA = payload.substr(0, pos);
+		byteB = payload.substr(pos + 1, payload.size());
+		i2csetup.EditLine(byteA, byteB);
+	}
+}
+
+void gui_i2csetup::AddLine(std::string byteA, std::string byteB)
+{
+	
+	int i = lv_table_get_row_cnt(bandtable);
+	lv_table_set_cell_value(bandtable, i, 0, byteA.c_str());
+	lv_table_set_cell_value(bandtable, i, 1, byteB.c_str());
+}
+
+void gui_i2csetup::DelLine()
+{
+	int i = lv_table_get_row_cnt(bandtable);
+	if (i > 1)
+		lv_table_set_row_cnt(bandtable, i - 1);
+}
+
+void gui_i2csetup::AddDevice(std::string dev, std::string add)
+{
+	char str[80];
+	
+	int i = lv_table_get_row_cnt(table);
+	sprintf(str, "%02d", i);
+	lv_table_set_cell_value(table, i, 0, str);
+	lv_table_set_cell_value(table, i, 1, dev.c_str());
+	lv_table_set_cell_value(table, i, 2, add.c_str());
+}
+
+void gui_i2csetup::DelDevice()
+{
+	int i = lv_table_get_row_cnt(table);
+	if (i > 1)
+		lv_table_set_row_cnt(table, i-1);
+}
+
+void gui_i2csetup::EditLine(std::string byteA, std::string byteB)
+{
+	if (bandRowSelected >= 0)
+	{
+		lv_table_set_cell_value(bandtable, bandRowSelected, 0, byteA.c_str());
+		lv_table_set_cell_value(bandtable, bandRowSelected, 1, byteB.c_str());
+		int count = lv_table_get_row_cnt(bandtable);
+		if (bandRowSelected < count)
+		{
+			bandRowSelected++;
+			lv_obj_invalidate(bandtable);
+		}
+	}
 }
 
 void gui_i2csetup::setBand(int band)
 {
 	char str[80];
-	int length;
+	int length, devicesCount;
 
-	sprintf(str, "%d%s", Settings_file.meters.at(band), Settings_file.labels.at(band).c_str());
-	std::vector<std::string> List = Settings_file.get_array_string("i2c", std::string(str));
-	lv_table_set_row_cnt(bandtable, 1);
-	for (int i =0 ; i < List.size() /2; i++)
+	devicesCount = lv_table_get_row_cnt(table) - 1;
+	if (devicesCount > 0)
 	{
-		std::string buf = strlib::toUpper(List.at(i));
-		std::string buf1 = strlib::toUpper(List.at(i+List.size()/2));
+		sprintf(str, "%d%s", Settings_file.meters.at(band), Settings_file.labels.at(band).c_str());
+		std::vector<std::string> List = Settings_file.get_array_string("i2c", std::string(str));
+		lv_table_set_row_cnt(bandtable, 1);
+		for (int i = 0; i < List.size() / 2; i++)
+		{
+			std::string buf = strlib::toUpper(List.at(i));
+			std::string buf1 = strlib::toUpper(List.at(i + List.size() / 2));
 
-		lv_table_set_cell_value(bandtable, i+1, 0, buf.c_str());
-		lv_table_set_cell_value(bandtable, i+1, 1, buf1.c_str());
+			lv_table_set_cell_value(bandtable, i + 1, 0, buf.c_str());
+			lv_table_set_cell_value(bandtable, i + 1, 1, buf1.c_str());
+		}
+		if (List.size() / 2 < devicesCount)
+		{
+			for (int i = 0; i < devicesCount - (List.size() / 2); i++)
+			{
+				lv_table_set_cell_value(bandtable, i + 1, 0, "00");
+				lv_table_set_cell_value(bandtable, i + 1, 1, "00");
+			}
+		}
 	}
+}
+
+static void save_button_handler(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+
+	i2csetup.Save();
+}
+
+void gui_i2csetup::Save()
+{
+	char str[80];
+	int count;
+	std::vector<string> list;
+
+	lv_dropdown_get_selected_str(bandDropdown, str, 79);
+	std::string band(str);
+	band = strlib::remove_spaces(band);
+
+	count = lv_table_get_row_cnt(bandtable);
+	for (int i = 1; i < count; i++)
+	{
+		std::string col(lv_table_get_cell_value(bandtable, i, 0));
+		list.push_back(col);
+	}
+	for (int i = 1; i < count; i++)
+	{
+		std::string col(lv_table_get_cell_value(bandtable, i, 1));
+		list.push_back(col);
+	}
+	Settings_file.set_array_string("i2c", band, list);
+
+	list.clear();
+	count = lv_table_get_row_cnt(table);
+	for (int i = 1; i < count; i++)
+	{
+		std::string col(lv_table_get_cell_value(table, i, 1));
+		list.push_back(col);
+	}
+	Settings_file.set_array_string("i2c", "devices", list);
+
+	list.clear();
+	count = lv_table_get_row_cnt(table);
+	for (int i = 1; i < count; i++)
+	{
+		std::string col(lv_table_get_cell_value(table, i, 2));
+		list.push_back(col);
+	}
+	Settings_file.set_array_string("i2c", "address", list);
 }
 
 void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *bg)
@@ -225,8 +391,9 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	int cWidth = lv_obj_get_content_width(o_tab);
 	float fraction = 21.0f / 80.0f;
 	float fraction1 = 14.0f / 80.0f;
-	
 
+	lv_msg_subscribe(MSG_TEXTMESSAGE, msg_txtmessage_handler,(void *)NULL);
+	
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -241,7 +408,7 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 
 	SaveObj = lv_btn_create(o_tab);
 	lv_obj_add_style(SaveObj, &style_btn, 0);
-	lv_obj_add_event_cb(SaveObj, button_handler, LV_EVENT_CLICKED, NULL);
+	lv_obj_add_event_cb(SaveObj, save_button_handler, LV_EVENT_CLICKED, NULL);
 	lv_obj_align(SaveObj, LV_ALIGN_TOP_LEFT, cWidth - button_width_margin - x_margin, cHeight - button_height_margin );
 	lv_obj_set_size(SaveObj, button_width, button_height);
 	lv_obj_t *lv_label = lv_label_create(SaveObj);
@@ -254,24 +421,26 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	lv_obj_align(deviceDropdown, LV_ALIGN_TOP_LEFT, x_page_margin + x_margin + cWidth * fraction, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(deviceDropdown);
 	lv_obj_add_event_cb(deviceDropdown, deviceDropdownHandler, LV_EVENT_VALUE_CHANGED, NULL);
-
-	std::vector<std::string> devices{"NONE", "PCF8574", "PCF8574A", "MCP23016"};
+	lv_obj_set_size(deviceDropdown, button_width, button_height + y_margin);
+	
+	std::vector<std::string> devices{"NONE", "PCF8574", "PCF8574A", "MCP23016", "TCA9548"};
 	for (auto col : devices)
 	{
 		lv_dropdown_add_option(deviceDropdown, col.c_str(), LV_DROPDOWN_POS_LAST);
 	}
-
+	
 	addressObj = lv_roller_create(o_tab);
 	lv_obj_add_style(addressObj, &style_btn, 0);
 	lv_roller_set_options(addressObj, pcf8475_opts, LV_ROLLER_MODE_NORMAL);
-	lv_roller_set_visible_row_count(addressObj, 3);
+	lv_roller_set_visible_row_count(addressObj, 2);
 	//lv_obj_add_style(addressObj, &style_sel, LV_PART_SELECTED);
 	lv_obj_align(addressObj, LV_ALIGN_TOP_LEFT, x_page_margin + x_margin + cWidth * fraction,
-				 (ibutton_y + 2) * button_height_margin);
+				 (ibutton_y + 3) * button_height);
 
 	lv_obj_add_event_cb(addressObj, AddressHandler, LV_EVENT_ALL, NULL);
 	lv_roller_set_selected(addressObj, 5, LV_ANIM_OFF);
 	lv_group_add_obj(bg, addressObj);
+
 	
 	//ibutton_y++;
 	lv_style_init(&tablestyle);
@@ -316,32 +485,45 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	devicesAdresses = Settings_file.get_array_string("i2c", "address");
 	char str[128];
 	RowCount = 1;
-	for (int i = 0; i < 10; i++)
+	for (auto col: devicesList)
 	{
 		sprintf(str, "%02d", RowCount);
 		lv_table_set_cell_value(table, RowCount, 0, str);
 
-		if (devicesList.size() > i)
-		{
-			std::string buf = strlib::toUpper(devicesList.at(i));
-			lv_table_set_cell_value(table, RowCount, 1, buf.c_str());
-		}
-		else
-			lv_table_set_cell_value(table, RowCount, 1, "NONE");
+		std::string buf = strlib::toUpper(col);
+		lv_table_set_cell_value(table, RowCount, 1, buf.c_str());
 
-		if (devicesAdresses.size() > i)
-			lv_table_set_cell_value(table, RowCount, 2, devicesAdresses.at(i).c_str());
+		if (devicesAdresses.size() > RowCount - 1)
+			lv_table_set_cell_value(table, RowCount, 2, devicesAdresses.at(RowCount - 1).c_str());
 		else
 			lv_table_set_cell_value(table, RowCount, 2, "00");		
 		RowCount++;
 	}
+	
+	addButton = lv_btn_create(o_tab);
+	lv_obj_add_style(addButton, &style_btn, 0);
+	lv_obj_add_event_cb(addButton, addButton_handler, LV_EVENT_CLICKED, NULL);
+	lv_obj_align_to(addButton, table, LV_ALIGN_OUT_RIGHT_TOP, x_margin, y_margin + button_height_margin);
+	lv_obj_set_size(addButton, button_width / 2, button_height);
+	lv_obj_t *lv_label_add = lv_label_create(addButton);
+	lv_label_set_text(lv_label_add, "Add");
+	lv_obj_center(lv_label_add);
 
+	delButton = lv_btn_create(o_tab);
+	lv_obj_add_style(delButton, &style_btn, 0);
+	lv_obj_add_event_cb(delButton, delButton_handler, LV_EVENT_CLICKED, NULL);
+	lv_obj_align_to(delButton, table, LV_ALIGN_OUT_RIGHT_TOP, x_margin / 2 + x_margin + button_width / 2, y_margin + button_height_margin);
+	lv_obj_set_size(delButton, button_width / 2, button_height);
+	lv_obj_t *lv_label_del = lv_label_create(delButton);
+	lv_label_set_text(lv_label_del, "Del");
+	lv_obj_center(lv_label_del);
+	
 	bandtable = lv_table_create(o_tab);
 	lv_obj_add_style(bandtable, &tablestyle, 0);
 	lv_obj_clear_flag(bandtable, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_pos(bandtable, cWidth / 2, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_size(bandtable, cWidth * fraction1, cHeight - (y_margin + ibutton_y * button_height_margin));
-	//lv_obj_add_event_cb(bandtable, table_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+	lv_obj_add_event_cb(bandtable, bandtable_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
 	lv_obj_add_event_cb(bandtable, bandtable_press_part_event_cb, LV_EVENT_PRESSED, NULL);
 
 	lv_obj_set_style_pad_top(bandtable, 2, LV_PART_MAIN);
@@ -365,7 +547,8 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	lv_obj_align_to(bandDropdown, bandtable, LV_ALIGN_OUT_RIGHT_TOP, x_margin , 0);
 	lv_dropdown_clear_options(bandDropdown);
 	lv_obj_add_event_cb(bandDropdown, bandDropdownHandler, LV_EVENT_VALUE_CHANGED, NULL);
-
+	lv_obj_set_size(bandDropdown, button_width, button_height + y_margin);
+	
 	int i = 0;
 	for (auto col : Settings_file.meters)
 	{
@@ -374,6 +557,16 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 		sprintf(str, "%d %s", col, Settings_file.labels.at(i++).c_str());
 		lv_dropdown_add_option(bandDropdown, str, LV_DROPDOWN_POS_LAST);
 	}
+	lv_dropdown_add_option(bandDropdown, "Through", LV_DROPDOWN_POS_LAST);
+	
+	editButton = lv_btn_create(o_tab);
+	lv_obj_add_style(editButton, &style_btn, 0);
+	lv_obj_add_event_cb(editButton, editButton_handler, LV_EVENT_CLICKED, NULL);
+	lv_obj_align_to(editButton, bandtable, LV_ALIGN_OUT_RIGHT_TOP, x_margin, y_margin + button_height_margin);
+	lv_obj_set_size(editButton, button_width, button_height);
+	lv_obj_t *lv_label_edit = lv_label_create(editButton);
+	lv_label_set_text(lv_label_edit, "Edit");
+	lv_obj_center(lv_label_edit);
 	
 }
 

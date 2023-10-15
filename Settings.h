@@ -61,6 +61,7 @@ class Settings
 	void set_array_int(std::string section, std::string key, vector<int> &array);
 	void get_array_int(string section, std::string key, vector<int> &array);
 	std::vector<std::string> get_array_string(std::string section, std::string key);
+	void set_array_string(std::string section, std::string key, const vector<std::string> &array);
 
 	vector<int> meters;
 	vector<string> labels;

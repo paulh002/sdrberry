@@ -275,9 +275,9 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	
 	settings_i2c = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
 	i2csetup.init(settings_i2c, w, h,m_button_group);
-	
-	
-	
+
+	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
+
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));

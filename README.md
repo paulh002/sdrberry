@@ -68,6 +68,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Keyboard for FT8
 - waterfall display
 - Cheap USB Hid Volume controlers as tuning controler
+- Add setup page for I2C configuration
 
 ## Installation of libraries is necessary:
 - Liquid DSP
@@ -121,5 +122,8 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 
 [![Radioberry demo](https://img.youtube.com/vi/BMJiv3YGv-k/0.jpg)](https://youtu.be/PQ_Np5SfcxA)
 
+# I2C configuration
+![sdrberry](https://github.com/paulh002/sdrberry/blob/settings-i2c/setup_it2c.jpg)
+
 # ESP32 Remote control for raspberry pi
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20210903_133827.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/settings-i2c/IMG_20231015_131803.jpg)

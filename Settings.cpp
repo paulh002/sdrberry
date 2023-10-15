@@ -783,6 +783,7 @@ void Settings::set_array_string(std::string section, std::string key, const vect
 	config->useSection(section);
 	auto &val = (*config)(key);
 
+	val.clear();
 	for (auto col : array)
 	{
 		if (val.size() <= i)

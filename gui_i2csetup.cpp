@@ -10,7 +10,7 @@ gui_i2csetup i2csetup;
 const char *None_opts = "";
 const char *pcf8475_opts = "20\n21\n22\n23\n24\n25\n26\n27";
 const char *pcf8475a_opts = "38\n39\n3A\n3B\n3C\n3D\n3E\n3F";
-const char *mcp22016_opts = "38\n39\n3A\n3B\n3C\n3D\n3E\n3F";
+const char *mcp22016_opts = "20\n21\n22\n23\n24\n25\n26\n27";
 const char *tca9548_opts = "70\n71\n72\n73\n74\n75\n76\n77";
 
 static void editButton_handler(lv_event_t *e)
@@ -45,14 +45,11 @@ static void bandtable_press_part_event_cb(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
 	uint16_t row, col;
-	char *ptr;
-	std::string buffer;
 	
 	// Do something
 	lv_table_get_selected_cell(obj, &row, &col);
-	if (lv_table_get_row_cnt(obj) < row + 1)
+	if (lv_table_get_row_cnt(obj) < (row + 1) || row == 0)
 		return;
-	ptr = (char *)lv_table_get_cell_value(obj, row, 1);
 	i2csetup.setBandRowSelected(row);
 }
 
@@ -65,7 +62,7 @@ static void table_press_part_event_cb(lv_event_t *e)
 	std::string buffer;
 
 	lv_table_get_selected_cell(obj, &row, &col);
-	if (lv_table_get_row_cnt(obj) < row + 1)
+	if (lv_table_get_row_cnt(obj) < (row + 1) || row == 0)
 		return;
 	ptr = (char *)lv_table_get_cell_value(obj, row, 1);
 	buffer.resize(80);
@@ -301,10 +298,16 @@ void gui_i2csetup::setBand(int band)
 	devicesCount = lv_table_get_row_cnt(table) - 1;
 	if (devicesCount > 0)
 	{
-		sprintf(str, "%d%s", Settings_file.meters.at(band), Settings_file.labels.at(band).c_str());
+		if (band < Settings_file.meters.size())
+			sprintf(str, "%d%s", Settings_file.meters.at(band), Settings_file.labels.at(band).c_str());
+		else
+			strcpy(str, "Through");
 		std::vector<std::string> List = Settings_file.get_array_string("i2c", std::string(str));
 		lv_table_set_row_cnt(bandtable, 1);
-		for (int i = 0; i < List.size() / 2; i++)
+		int count = List.size() / 2;
+		if (count > devicesCount)
+			count = devicesCount;
+		for (int i = 0; i < count; i++)
 		{
 			std::string buf = strlib::toUpper(List.at(i));
 			std::string buf1 = strlib::toUpper(List.at(i + List.size() / 2));

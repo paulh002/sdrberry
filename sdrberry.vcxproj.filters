@@ -298,6 +298,9 @@
     <ClCompile Include="HexKeyboardWindow.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="TCA9548.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -642,6 +645,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="HexKeyboardWindow.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="TCA9548.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

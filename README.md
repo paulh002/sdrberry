@@ -112,11 +112,11 @@ In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline
 5 inch DSI screens from waveshare do not need any adjustment. Sdrberry is currently tested for a resolution of 800 x 480. 
 Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for other resolutions. There can be some issues.
 
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/rb_tranceiver.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/settings-i2c/rb_tranceiver.jpg)
 
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20220203_ft8.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/settings-i2c/IMG_20220203_ft8.jpg)
 
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/settings-i2c/IMG_20211215_200645.jpg)
 
 [![Radioberry demo](https://img.youtube.com/vi/BMJiv3YGv-k/0.jpg)](https://youtu.be/PQ_Np5SfcxA)
 

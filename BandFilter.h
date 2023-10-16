@@ -22,7 +22,6 @@ public:
 
   private:
 	std::vector<std::variant<PCF8574, TCA9548V2>> i2cDevices;
-	std::vector<PCF8574>	pcf8574;
 	bool	bandfilter_pass_trough{false};
 };
 

@@ -22,7 +22,7 @@ class TCA9548V2
 {
   public:
 	// address = 0x70 .. 0x77
-	TCA9548V2(const char *i2c_device_filepath, const uint8_t deviceAddress = 0x70);
+	TCA9548V2(const uint8_t deviceAddress = 0x70);
 	bool begin(uint8_t mask = 0x00);   // default no channels enabled
 	bool isConnected();				   // find multiplexer on I2C bus
 
@@ -42,7 +42,9 @@ class TCA9548V2
 
 	// TODO improve errorhandling ?
 	int getError();
-
+	uint8_t getAddress() { return _address; }
+	bool getConnected() { return _connected; }
+	
   private:
 	uint8_t _mask = 0x00; // caching mask
 	uint8_t _resetPin = -1;
@@ -50,6 +52,7 @@ class TCA9548V2
 	uint8_t _address;
 	bool _forced;
 	int fd;
+	bool _connected;
 };
 
 // -- END OF FILE --

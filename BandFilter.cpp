@@ -2,81 +2,135 @@
 
 void BandFilter::initFilter()
 {
-	for (auto& col : Settings_file.address)
+	std::vector<std::string> devices;
+	std::vector<std::string> addresses;
+
+	devices = Settings_file.get_array_string("i2c", "devices");
+	addresses = Settings_file.get_array_string("i2c", "address");
+
+	int index = 0;
+	for (auto col : devices)
 	{
-		PCF8574 i2cdevice(col);
-		if (i2cdevice.begin(0))
+		if (col == "PCF8574" || col == "PCF8574A")
 		{
-			pcf8574.push_back(i2cdevice);
-			printf("Connected to %d \n", (int)i2cdevice.getAddress());
+			int I2Caddress;
+			sscanf(addresses.at(index).c_str(),"%x",&I2Caddress);
+			PCF8574 i2cdevice(I2Caddress);
+			if (i2cdevice.begin(0))
+			{
+				i2cDevices.push_back(i2cdevice);
+				printf("Connected to %d \n", (int)i2cdevice.getAddress());
+			}
+			else
+			{
+				i2cDevices.push_back(i2cdevice);
+				printf("Cannot connect to %d \n", (int)i2cdevice.getAddress());
+			}
 		}
-		else
+		if (col == "TCA9548")
 		{
-			pcf8574.push_back(i2cdevice);
-			printf("Cannot connect to %d \n", (int)i2cdevice.getAddress());
+			int I2Caddress;
+			sscanf(addresses.at(index).c_str(), "%x", &I2Caddress);
+			TCA9548V2 i2cdevice(I2Caddress);
+			if (i2cdevice.begin(0))
+			{			
+				i2cDevices.push_back(i2cdevice);
+				printf("Connected to %d \n", (int)i2cdevice.getAddress());
+			}
+			else
+			{
+				i2cDevices.push_back(i2cdevice);
+				printf("Cannot connect to %d \n", (int)i2cdevice.getAddress());
+			}
 		}
-	}
+		if (col == "MCP23008")
+		{
+			int I2Caddress;
+			sscanf(addresses.at(index).c_str(), "%x", &I2Caddress);
+			TCA9548V2 i2cdevice(I2Caddress);
+			//MCP23008 i2cdevice(I2Caddress);
+			//if (i2cdevice.begin(0))
+			//{
+			//	i2cDevices.push_back(i2cdevice);
+			//	printf("Connected to %d \n", (int)i2cdevice.getAddress());
+			//}
+			//else
+			//{
+			//	i2cDevices.push_back(i2cdevice);
+			//	printf("Cannot connect to %d \n", (int)i2cdevice.getAddress());
+			//}
+		}
+		index++;
+	}	
 }
 
 void BandFilter::SetBand(int band, bool rx)
 {
 	int index = vfo.getBandIndex(band);
-	int i = pcf8574.size();
-	if (i > 0 && !bandfilter_pass_trough)
+	char str[80];
+	std::vector<int> I2CCommands_rx, I2CCommands_tx;
+
+	if (!bandfilter_pass_trough)
+		sprintf(str, "%dm", band);
+	else
+		strcpy(str, "Through");
+	std::string bandMeters(str);
+	std::vector<std::string> bandCommands = Settings_file.get_array_string("i2c", bandMeters);
+	int i = 0;
+	for (auto col : bandCommands)
+	{
+		int I2Caddress;
+		sscanf(col.c_str(), "%x", &I2Caddress);
+		if (i < bandCommands.size() / 2)
+			I2CCommands_rx.push_back(I2Caddress);
+		else
+			I2CCommands_tx.push_back(I2Caddress);
+		i++;
+	}
+
+	if (i2cDevices.size() > 0)
 	{
 		const auto startTime = std::chrono::high_resolution_clock::now();
 		int ii = 0;
-		printf("i2c ");
-		for (auto& col : pcf8574)
+		printf("%d m i2c ", band);
+		for (auto &col : i2cDevices)
 		{
-			uint8_t cc = 0;
-			if (rx && Settings_file.command_rx.size() >= (i * index + ii))
+			if (rx)
 			{
-				cc = Settings_file.command_rx[i * index + ii];
-				if (col.getConnected())
-					col.write8(cc);
-				printf("rx %d ", cc);
+				switch (col.index())
+				{
+				case 0:
+					if (std::get<PCF8574>(col).getConnected())
+						std::get<PCF8574>(col).write8(I2CCommands_rx.at(ii));
+					break;
+				case 1:
+					if (std::get<TCA9548V2>(col).getConnected())
+						std::get<TCA9548V2>(col).setChannelMask(I2CCommands_rx.at(ii));
+					break;
+				}
+				printf("rx %d ", I2CCommands_rx.at(ii));
 			}
-			if (!rx && Settings_file.command_tx.size() >= (i * index + ii))
+			else
 			{
-				cc = Settings_file.command_tx[i * index + ii];
-				if (col.getConnected())
-					col.write8(cc);
-				printf("tx %d ", cc);
+				switch (col.index())
+				{
+				case 0:
+					if (std::get<PCF8574>(col).getConnected())
+						std::get<PCF8574>(col).write8(I2CCommands_tx.at(ii));
+					break;
+				case 1:
+					if (std::get<TCA9548V2>(col).getConnected())
+						std::get<TCA9548V2>(col).setChannelMask(I2CCommands_tx.at(ii));
+					break;
+				}
+				printf("tx %d ", I2CCommands_tx.at(ii));
 			}
 			ii++;
 		}
 		auto now = std::chrono::high_resolution_clock::now();
 		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-
 		printf(" I2C time %ld\n", timePassed.count());
 		return;
-	}
-	if (i > 0 && bandfilter_pass_trough)
-	{
-		int ii = 0;
-		printf("i2c ");
-		for (auto &col : pcf8574)
-		{
-			uint8_t cc = 0;
-			if (rx && Settings_file.passthrough_rx.size() >= i)
-			{
-				cc = Settings_file.passthrough_rx[ii];
-				if (col.getConnected())
-					col.write8(cc);
-				printf("rx %d ", cc);
-			}
-
-			if (!rx && Settings_file.passthrough_tx.size() >= i)
-			{
-				cc = Settings_file.passthrough_tx[ii];
-				if (col.getConnected())
-					col.write8(cc);
-				printf("tx %d ", cc);
-			}
-			ii++;
-		}
-		printf("\n");
 	}
 }
 

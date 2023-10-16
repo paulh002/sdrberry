@@ -164,39 +164,11 @@ void Settings::default_settings()
 	(*config)("freqFT4").push(cfg::makeOption(21140));
 	(*config)("freqFT4").push(cfg::makeOption(28180));
 
-	config->useSection("filter");
-	(*config)("address").push(cfg::makeOption(32));
-	(*config)("address").push(cfg::makeOption(33));
-	(*config)("address").push(cfg::makeOption(63));
-
-	vector<int> command1{21, 137, 24, 20, 133, 144, 21, 137, 48, 25, 133, 48, 37, 133, 20, 21, 134, 20, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18, 21, 137, 18};
-	for (auto con : command1)
-	{
-		(*config)("command_rx").push(cfg::makeOption(con));
-	}
-	vector<int> command2{21, 73, 8, 22, 69, 128, 21, 73, 32, 25, 69, 32, 21, 73, 4, 21, 70, 2, 21, 70, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2, 21, 73, 2};
-	for (auto con : command2)
-	{
-		(*config)("command_tx").push(cfg::makeOption(con));
-	}
-
-	vector<int> command3{21, 137, 18};
-	for (auto con : command3)
-	{
-		(*config)("passthrough_rx").push(cfg::makeOption(con));
-	}
-	vector<int> command4{21, 73, 2};
-	for (auto con : command4)
-	{
-		(*config)("passthrough_tx").push(cfg::makeOption(con));
-	}
-
 	config->useSection("i2c");
-	(*config)("devices").push(cfg::makeOption("none"));
+	(*config)("devices").push(cfg::makeOption("PCF8574"));
 	(*config)("devices").push(cfg::makeOption("PCF8574"));
 	(*config)("devices").push(cfg::makeOption("PCF8574A"));
-	(*config)("devices").push(cfg::makeOption("MCP23016"));
-
+	
 	(*config)("address").push(cfg::makeOption("20"));
 	(*config)("address").push(cfg::makeOption("21"));
 	(*config)("address").push(cfg::makeOption("3F"));
@@ -296,35 +268,6 @@ void Settings::read_settings(string settings_file)
 	{
 		if (col.toString().length() > 0L)
 			mode.push_back(col.toString());
-	}
-	
-	config->useSection("filter");
-	
-	for (auto& col : (*config)("address"))
-	{
-		if (col.toInt() > 0)
-			address.push_back(col.toInt());
-	}
-	for (auto& col : (*config)("command_rx"))
-	{
-		if (col.toInt() > 0)
-			command_rx.push_back(col.toInt());
-	}
-	for (auto& col : (*config)("command_tx"))
-	{
-		if (col.toInt() > 0)
-			command_tx.push_back(col.toInt());
-	}
-
-	for (auto &col : (*config)("passthrough_rx"))
-	{
-		if (col.toInt() > 0)
-			passthrough_rx.push_back(col.toInt());
-	}
-	for (auto &col : (*config)("passthrough_tx"))
-	{
-		if (col.toInt() > 0)
-			passthrough_tx.push_back(col.toInt());
 	}
 	
 	config->useSection("SDR Receivers");

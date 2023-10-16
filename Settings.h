@@ -67,11 +67,6 @@ class Settings
 	vector<string> labels;
 	vector<long> f_low;
 	vector<long> f_high;
-	vector<int> address;
-	vector<int> command_rx;
-	vector<int> command_tx;
-	vector<int> passthrough_rx;
-	vector<int> passthrough_tx;
 	vector<long> ft8_freq;
 	vector<string> mode;
 	vector<string> receivers;

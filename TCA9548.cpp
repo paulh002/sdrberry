@@ -9,6 +9,7 @@
 //
 //  HISTORY:
 //  0.1.0   2021-03-16  initial version
+//  Adapted for RPI by PA0PHH 2023-10-16
 
 #include "TCA9548.h"
 #include <stdint.h>
@@ -23,13 +24,14 @@ extern "C" {
 }
 #include <sys/ioctl.h>
 
-TCA9548V2::TCA9548V2(const char *i2c_device_filepath, const uint8_t deviceAddress)
+TCA9548V2::TCA9548V2(const uint8_t deviceAddress)
 	: _address(deviceAddress)
 {
 	_mask = 0x00;
 	_resetPin = -1;
 	_forced = false;
 	fd = -1;
+	_connected = false;
 }
 
 bool TCA9548V2::begin(uint8_t mask)
@@ -41,6 +43,7 @@ bool TCA9548V2::begin(uint8_t mask)
 	if (!isConnected())
 		return false;
 	setChannelMask(mask);
+	_connected = true;
 	return true;
 }
 

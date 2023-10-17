@@ -178,6 +178,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_set_style_pad_left(table, 0, LV_PART_ITEMS);
 	lv_obj_set_style_pad_right(table, 0, LV_PART_ITEMS);
 
+	
 	lv_table_set_cell_value(table, 0, 0, "Time");
 	lv_table_set_col_width(table, 0, w/12);
 	lv_table_set_cell_value(table, 0, 1, "db");
@@ -185,7 +186,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_cell_value(table, 0, 2, "Freq");
 	lv_table_set_col_width(table, 2, w/12);
 	lv_table_set_cell_value(table, 0, 3, "Message");
-	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12));
+	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12) - 10);
 	m_cycle_count++;
 
 	qsoTable = lv_table_create(o_tab);
@@ -213,7 +214,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_cell_value(qsoTable, 0, 2, "Freq");
 	lv_table_set_col_width(qsoTable, 2, w / 12);
 	lv_table_set_cell_value(qsoTable, 0, 3, "Message");
-	lv_table_set_col_width(qsoTable, 3, w / 2 - (w / 12 + w / 16 + w / 12));
+	lv_table_set_col_width(qsoTable, 3, w / 2 - (w / 12 + w / 16 + w / 12) - 10);
 	qsoRowCount++;
 
 	call = Settings_file.get_string("wsjtx", "call");
@@ -335,6 +336,7 @@ void gui_ft8::clr_qso()
 {
 	lv_table_set_row_cnt(qsoTable, 1);
 	QsoScrollFirstItem();
+	lv_obj_invalidate(table);
 	qsoRowCount = 1;
 }
 

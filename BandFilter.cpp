@@ -47,18 +47,18 @@ void BandFilter::initFilter()
 		{
 			int I2Caddress;
 			sscanf(addresses.at(index).c_str(), "%x", &I2Caddress);
-			TCA9548V2 i2cdevice(I2Caddress);
-			//MCP23008 i2cdevice(I2Caddress);
-			//if (i2cdevice.begin(0))
-			//{
-			//	i2cDevices.push_back(i2cdevice);
-			//	printf("Connected to %d \n", (int)i2cdevice.getAddress());
-			//}
-			//else
-			//{
-			//	i2cDevices.push_back(i2cdevice);
-			//	printf("Cannot connect to %d \n", (int)i2cdevice.getAddress());
-			//}
+			MCP23008 i2cdevice(I2Caddress);
+			if (i2cdevice.begin())
+			{
+				i2cdevice.pinMode8(0);
+				i2cDevices.push_back(i2cdevice);
+				printf("Connected to %d \n", (int)i2cdevice.getAddress());
+			}
+			else
+			{
+				i2cDevices.push_back(i2cdevice);
+				printf("Cannot connect to %d \n", (int)i2cdevice.getAddress());
+			}
 		}
 		index++;
 	}	
@@ -107,6 +107,10 @@ void BandFilter::SetBand(int band, bool rx)
 					if (std::get<TCA9548V2>(col).getConnected())
 						std::get<TCA9548V2>(col).setChannelMask(I2CCommands_rx.at(ii));
 					break;
+				case 2:
+					if (std::get<MCP23008>(col).getConnected())
+						std::get<MCP23008>(col).write8(I2CCommands_rx.at(ii));
+					break;
 				}
 				printf("rx %d ", I2CCommands_rx.at(ii));
 			}
@@ -121,6 +125,10 @@ void BandFilter::SetBand(int band, bool rx)
 				case 1:
 					if (std::get<TCA9548V2>(col).getConnected())
 						std::get<TCA9548V2>(col).setChannelMask(I2CCommands_tx.at(ii));
+					break;
+				case 2:
+					if (std::get<MCP23008>(col).getConnected())
+						std::get<MCP23008>(col).write8(I2CCommands_tx.at(ii));
 					break;
 				}
 				printf("tx %d ", I2CCommands_tx.at(ii));

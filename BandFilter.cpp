@@ -51,6 +51,7 @@ void BandFilter::initFilter()
 			if (i2cdevice.begin())
 			{
 				i2cdevice.pinMode8(0);
+				i2cdevice.write8(0x00);
 				i2cDevices.push_back(i2cdevice);
 				printf("Connected to %d \n", (int)i2cdevice.getAddress());
 			}

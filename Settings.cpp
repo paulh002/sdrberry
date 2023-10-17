@@ -23,7 +23,6 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"Audio", {{"device", cfg::makeOption("USB Audio Device")}}},
 	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}},
 	{"Speech", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(12)}, {"threshold", cfg::makeOption(0)}, {"bass", cfg::makeOption(0)}, {"treble", cfg::makeOption(0)}}},
-	{"filter", {{"i2cdevice", cfg::makeOption("pcf8574")}}},
 	{"wsjtx", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}, {"tx", cfg::makeOption("1200")}, {"rx", cfg::makeOption("1200")}}}
 };
 

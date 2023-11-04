@@ -100,7 +100,7 @@ chmod +x install.sh
 ## start sdrberry  
 sdrberry can be started in usermode or as root, this depends on the device beeing used for radioberry use sudo
 ```
-sudo sdrberry  
+sudo sdrberry > sdrberry.log 2>&1
 ```
 
 ## Mouse support

@@ -3,7 +3,7 @@
 #include "AudioInput.h"
 #include "Settings.h"
 #include "gui_vfo.h"
-#include "lvgl.h"
+#include "lvgl_.h"
 #include "sdrberry.h"
 #include "vfo.h"
 
@@ -16,9 +16,39 @@ const int maxifgain = 100;
 
 class gui_bar
 {
+  private:
+	lv_obj_t *barview;
+	lv_style_t style_btn;
+	lv_style_t ifGainStyleKnob, ifGainStyleIndicator;
+	lv_obj_t *button[20]{nullptr};
+	int ibuttons{0};
+	int filter;
+	const int number_of_buttons{12};
+	lv_obj_t *vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
+	lv_obj_t *if_slider_label, *if_slider;
+	const int max_volume{100};
+	vector<int> ifilters;
+	lv_obj_t *cw_wpm, *cw_message, *cw_box, *cw_led;
+	lv_style_t cw_style, style_selected_color;
+	lv_group_t *m_button_group{nullptr};
+	bool ifStyleState{false};
+
+	void bar_button_handler_class(lv_event_t *e);
+	void gain_slider_event_class(lv_event_t *e);
+	void if_slider_event_class(lv_event_t *e);
+	void vol_slider_event_class(lv_event_t *e);
+	void filter_slider_event_class(lv_event_t *e);
+
   public:
 	gui_bar();
 	~gui_bar();
+
+	static constexpr auto bar_button_handler = EventHandler<gui_bar, &gui_bar::bar_button_handler_class>::staticHandler;
+	static constexpr auto gain_slider_event_cb = EventHandler<gui_bar, &gui_bar::gain_slider_event_class>::staticHandler;
+	static constexpr auto if_slider_event_cb = EventHandler<gui_bar, &gui_bar::if_slider_event_class>::staticHandler;
+	static constexpr auto vol_slider_event_cb = EventHandler<gui_bar, &gui_bar::vol_slider_event_class>::staticHandler;
+	static constexpr auto filter_slider_event_cb = EventHandler<gui_bar, &gui_bar::filter_slider_event_class>::staticHandler;
+
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
 	void set_vol_slider(int volume);
 	void set_focus();
@@ -57,29 +87,7 @@ class gui_bar
 		return button[i];
 	}
 	void get_filter_range(vector<string> &filters);
-	int get_ifilters(int sel)
-	{
-		return ifilters[sel];
-	}
-
 	atomic<float> ifgain;
-
-  private:
-	lv_obj_t *barview;
-	lv_style_t style_btn;
-	lv_style_t ifGainStyleKnob, ifGainStyleIndicator;
-	lv_obj_t *button[20]{nullptr};
-	int ibuttons{0};
-	int filter;
-	const int number_of_buttons{12};
-	lv_obj_t *vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
-	lv_obj_t *if_slider_label, *if_slider;
-	const int max_volume{100};
-	vector<int> ifilters;
-	lv_obj_t *cw_wpm, *cw_message, *cw_box, *cw_led;
-	lv_style_t cw_style, style_selected_color;
-	lv_group_t *m_button_group{nullptr};
-	bool ifStyleState{false};
 };
 
 extern gui_bar gbar;

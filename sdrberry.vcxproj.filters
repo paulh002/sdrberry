@@ -656,5 +656,11 @@
     <ClInclude Include="MCP23008.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="lvgl_.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="quick_arg_parser.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

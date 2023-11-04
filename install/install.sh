@@ -120,36 +120,91 @@ sudo ldconfig
 fi
 
 if [[ $sdrboard == RDB ]] ; then
+git clone https://github.com/paulh002/SoapyRadioberry
+cd SoapyRadioberry || exit
+mkdir build
+cd build || exit
+cmake ..
+make
+sudo make install
+sudo ldconfig
+fi
+
+#cd to work dir . If does not exist exit script
+cd $wrkdir || exit
+
+if [[ $sdrboard == RDB ]] ; then
+#-----------------------------------------------------------------------------
+fpgatype=2; #default
+while true; do
+read -p "Install CL016 or CL025 radioberry version: 1 = CL016 or 2 = CL025? " type
+case $type in
+	[1]* ) fpgatype=1; break;;
+	[2]* ) fpgatype=2; break;;
+	* ) echo "Please answer 1 or 2 for the FPGA used in your radioberry.";
+esac
+done
+
+function install_dependency {
+	echo "--- Installing dependency: $1"
+	sudo apt-get -y install $1
+}
+
+install_dependency raspberrypi-kernel-headers
+install_dependency linux-headers-rpi
+install_dependency git
+install_dependency device-tree-compiler
+install_dependency pigpio
+
+git clone  --depth=1 https://github.com/pa3gsb/Radioberry-2.x
+
+#-----------------------------------------------------------------------------
+
+if [[ $fpgatype == 1 ]]; then
+	echo "Installing Radioberry gateware Cyclone 10 CL016..."
+		
+cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL016
+sudo cp ./radioberry.rbf /lib/firmware
+cd ../../../../../..
+	
+echo ""
+echo "Radioberry gateware Cyclone 10 CL016 installed."
+
+fi
+
+if [[ $fpgatype == 2 ]]; then
+	echo "Installing Radioberry gateware Cyclone 10 CL025..."
+	
+cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
+sudo cp ./radioberry.rbf /lib/firmware
+cd ../../../../../..
+	
+echo ""
+echo "Radioberry gateware Cyclone 10 CL025 installed."
+	
+fi
+
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
-git clone --depth=1 https://github.com/pa3gsb/Radioberry-2.x
-
-sudo apt-get -y install raspberrypi-kernel-headers
-sudo apt-get -y install linux-headers-rpi
-sudo apt-get -y install device-tree-compiler
-sudo apt-get -y install pigpio
 
 #unregister radioberry driver
 sudo modprobe -r radioberry
-
+	
 if [ ! -d "/lib/modules/$(uname -r)/kernel/drivers/sdr" ]; then
 	sudo mkdir /lib/modules/$(uname -r)/kernel/drivers/sdr
 fi
-
-#cd Radioberry-2.x/SBC/rpi-4/device_driver/driver
-cd SoapyRadioberry/driver || exit
+	
+cd Radioberry-2.x/SBC/rpi-4/device_driver/driver
 make
-
 sudo cp radioberry.ko /lib/modules/$(uname -r)/kernel/drivers/sdr
+
 sudo dtc -@ -I dts -O dtb -o radioberry.dtbo radioberry.dts
 sudo cp radioberry.dtbo /boot/overlays
 #add driver to config.txt
 sudo grep -Fxq "dtoverlay=radioberry" /boot/config.txt || sudo sed -i '$ a dtoverlay=radioberry' /boot/config.txt
-sudo cp ./radioberry.rbf /lib/firmware/.
 
-#cd to work dir . If does not exist exit script 
-cd  $wrkdir || exit
-
+cd ../../../../..
+	
 sudo depmod	
 #register radioberry driver
 sudo modprobe radioberry
@@ -159,6 +214,7 @@ sudo modinfo radioberry
 
 echo ""
 echo "Radioberry driver installed."
+
 #-----------------------------------------------------------------------------
 fi
 

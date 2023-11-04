@@ -18,8 +18,17 @@
 #include "FreeDVTab.h"
 #include "gui_cal.h"
 #include "wsjtx_lib.h"
+//#include "quick_arg_parser.hpp"
 
 //#include "HidThread.h"
+/*
+struct Args : MainArguments<Args>
+{
+	bool verbose = option("verbose", 'v');
+	std::filesystem::path file = argument(0);
+	std::string sdrRadio = option("SdrRadio", 'r').validator([](std::string sdrRadio) { return sdrRadio == "radioberry" || sdrRadio == "hifiberry" || sdrRadio == "pluto" || sdrRadio == "hackrf" || sdrRadio == "rtlsdr" || sdrRadio == "sdrplay"; });
+};
+*/
 
 #define BACKWARD_HAS_BFD 1
 #define BACKWARD_HAS_DW 1
@@ -242,10 +251,31 @@ static void tabview_event_cb(lv_event_t *e)
 int main(int argc, char *argv[])
 {
 	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
-
-	wsjtx = make_unique<wsjtx_lib>();
-
+	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
+	default_radio = Settings_file.find_sdr("default");
+	
+	//Args args{{argc, argv}}; // Get the arguments from command line
+	/*if (args.sdrRadio.size() > 0)
+	{
+		if (args.sdrRadio == "radioberry")
+			default_radio = "radioberry";
+		if (args.sdrRadio == "hifiberry")
+			default_radio = "hifiberry";
+		if (args.sdrRadio == "pluto")
+			default_radio = "pluto";
+		if (args.sdrRadio == "hackrf")
+			default_radio = "hackrf";
+		if (args.sdrRadio == "rtlsdr")
+			default_radio = "rtlsdr";
+		if (args.sdrRadio == "sdrplay")
+			default_radio = "sdrplay";
+		
+		Settings_file.save_string("SDR Receivers", "default", default_radio);
+		Settings_file.write_settings();
+	}
+*/
+	wsjtx = make_unique<wsjtx_lib>();
 	KeyboardDevice.init_keyboard();
 	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
 	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
@@ -264,7 +294,7 @@ int main(int argc, char *argv[])
 	std::string smode = Settings_file.find_vfo1("Mode");
 	mode = Settings_file.convert_mode(smode);
 
-	default_radio = Settings_file.find_sdr("default");
+	
 	ifrate = Settings_file.get_int(default_radio, "samplerate") * 1000;
 	ifrate_tx = Settings_file.get_int(default_radio, "samplerate_tx") * 1000;
 	if (ifrate_tx == 0)

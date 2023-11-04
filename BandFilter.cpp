@@ -98,41 +98,47 @@ void BandFilter::SetBand(int band, bool rx)
 		{
 			if (rx)
 			{
-				switch (col.index())
+				if (I2CCommands_rx.size() > ii)
 				{
-				case 0:
-					if (std::get<PCF8574>(col).getConnected())
-						std::get<PCF8574>(col).write8(I2CCommands_rx.at(ii));
-					break;
-				case 1:
-					if (std::get<TCA9548V2>(col).getConnected())
-						std::get<TCA9548V2>(col).setChannelMask(I2CCommands_rx.at(ii));
-					break;
-				case 2:
-					if (std::get<MCP23008>(col).getConnected())
-						std::get<MCP23008>(col).write8(I2CCommands_rx.at(ii));
-					break;
+					switch (col.index())
+					{
+					case 0:
+						if (std::get<PCF8574>(col).getConnected())
+							std::get<PCF8574>(col).write8(I2CCommands_rx.at(ii));
+						break;
+					case 1:
+						if (std::get<TCA9548V2>(col).getConnected())
+							std::get<TCA9548V2>(col).setChannelMask(I2CCommands_rx.at(ii));
+						break;
+					case 2:
+						if (std::get<MCP23008>(col).getConnected())
+							std::get<MCP23008>(col).write8(I2CCommands_rx.at(ii));
+						break;
+					}
+					printf("rx %d ", I2CCommands_rx.at(ii));
 				}
-				printf("rx %d ", I2CCommands_rx.at(ii));
 			}
 			else
 			{
-				switch (col.index())
+				if (I2CCommands_tx.size() > ii)
 				{
-				case 0:
-					if (std::get<PCF8574>(col).getConnected())
-						std::get<PCF8574>(col).write8(I2CCommands_tx.at(ii));
-					break;
-				case 1:
-					if (std::get<TCA9548V2>(col).getConnected())
-						std::get<TCA9548V2>(col).setChannelMask(I2CCommands_tx.at(ii));
-					break;
-				case 2:
-					if (std::get<MCP23008>(col).getConnected())
-						std::get<MCP23008>(col).write8(I2CCommands_tx.at(ii));
-					break;
+					switch (col.index())
+					{
+					case 0:
+						if (std::get<PCF8574>(col).getConnected())
+							std::get<PCF8574>(col).write8(I2CCommands_tx.at(ii));
+						break;
+					case 1:
+						if (std::get<TCA9548V2>(col).getConnected())
+							std::get<TCA9548V2>(col).setChannelMask(I2CCommands_tx.at(ii));
+						break;
+					case 2:
+						if (std::get<MCP23008>(col).getConnected())
+							std::get<MCP23008>(col).write8(I2CCommands_tx.at(ii));
+						break;
+					}
+					printf("tx %d ", I2CCommands_tx.at(ii));
 				}
-				printf("tx %d ", I2CCommands_tx.at(ii));
 			}
 			ii++;
 		}

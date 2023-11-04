@@ -55,7 +55,7 @@ void gui_bar::set_mode(int mode)
 	}
 }
 
-static void bar_button_handler(lv_event_t * e)
+void gui_bar::bar_button_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
@@ -148,7 +148,7 @@ static void bar_button_handler(lv_event_t * e)
 	}
 }
 
-static void vol_slider_event_cb(lv_event_t * e)
+void gui_bar::vol_slider_event_class(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_vol_slider_label(), "vol %d", lv_slider_get_value(slider));
@@ -157,7 +157,7 @@ static void vol_slider_event_cb(lv_event_t * e)
 	Settings_file.save_vol(lv_slider_get_value(slider));
 }
 
-static void if_slider_event_cb(lv_event_t *e)
+void gui_bar::if_slider_event_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
@@ -168,7 +168,7 @@ static void if_slider_event_cb(lv_event_t *e)
 	guift8bar.set_if(sl);
 }
 
-static void gain_slider_event_cb(lv_event_t * e)
+void gui_bar::gain_slider_event_class(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
 
@@ -243,7 +243,7 @@ void gui_bar::set_gain_slider(int gain)
 	}
 }
 
-static void filter_slider_event_cb(lv_event_t * e)
+void gui_bar::filter_slider_event_class(lv_event_t * e)
 {
 	lv_obj_t * obj = lv_event_get_target(e);
 	lv_event_code_t code = lv_event_get_code(e);
@@ -251,9 +251,8 @@ static void filter_slider_event_cb(lv_event_t * e)
 	if (code == LV_EVENT_VALUE_CHANGED) 
 	{
 		int sel = lv_dropdown_get_selected(obj);
-		int bandwidth = gbar.get_ifilters(sel);
-		catinterface.SetSH(bandwidth);
-		Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+		catinterface.SetSH(ifilters.at(sel));
+		Demodulator::setLowPassAudioFilterCutOffFrequency(ifilters.at(sel));
 	}	 
 }
 
@@ -336,7 +335,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 		{
 			button[i] = lv_btn_create(o_parent);
 			lv_obj_add_style(button[i], &style_btn, 0); 
-			lv_obj_add_event_cb(button[i], bar_button_handler, LV_EVENT_CLICKED, NULL);
+			lv_obj_add_event_cb(button[i], bar_button_handler, LV_EVENT_CLICKED, (void *)this);
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
 			lv_obj_set_size(button[i], button_width, button_height);
 			lv_group_add_obj(button_group, button[i]);
@@ -425,7 +424,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
 			lv_obj_set_size(button[i], button_width + x_margin_dropdown, button_height);
 			lv_obj_add_style(button[i], &style_btn, 0);
-			lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+			lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 			lv_dropdown_set_selected(button[i], 4);
 			lv_group_add_obj(button_group, button[i]);
 			int bandwidth = ifilters[4];
@@ -449,7 +448,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_slider_set_range(vol_slider, 0, 100);
 	lv_obj_set_width(vol_slider, vol_width); 
 	lv_obj_align(vol_slider, LV_ALIGN_TOP_LEFT, vol_x , 15);
-	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(vol_slider, vol_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 
 	int gain_y = 15 + button_height_margin;
 	if_slider_label = lv_label_create(o_parent);
@@ -459,7 +458,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_slider_set_range(if_slider, 0, maxifgain);
 	lv_obj_set_width(if_slider, vol_width);
 	lv_obj_align(if_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
-	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(if_slider, if_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_slider_set_value(if_slider, 60, LV_ANIM_OFF);
 		
 	gain_y += (button_height_margin);
@@ -470,7 +469,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_slider_set_range(gain_slider, 0, 100);
 	lv_obj_set_width(gain_slider, vol_width); 
 	lv_obj_align(gain_slider, LV_ALIGN_TOP_LEFT, vol_x, gain_y);
-	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(gain_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 
 	lv_group_add_obj(button_group, vol_slider);
 	lv_group_add_obj(button_group, if_slider);

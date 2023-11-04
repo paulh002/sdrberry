@@ -1,10 +1,7 @@
-#include "sdrberry.h"
+#include "vfo.h"
 #include "BandFilter.h"
 
 Gui_band	gui_band_instance;
-
-
-void band_button(lv_event_t * e);
 
 string RemoveChar(string str, char c) 
 {
@@ -18,7 +15,7 @@ string RemoveChar(string str, char c)
 	return result;
 }
 
-static void ham_event_handler(lv_event_t * e)
+void Gui_band::ham_event_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t * obj = lv_event_get_target(e);
@@ -31,7 +28,7 @@ static void ham_event_handler(lv_event_t * e)
 	}
 }
 
-static void band_event_handler(lv_event_t *e)
+void Gui_band::band_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
@@ -44,6 +41,7 @@ static void band_event_handler(lv_event_t *e)
 	}
 }
 
+
 void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, SoapySDR::RangeList r)
 {
 	int		band;
@@ -54,12 +52,9 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 	{
 		//nullptr then reinitialize
 		o_tab = tab;
-		for (int ii = 0; ii < ibuttons; ii++)
-		{
-			lv_obj_del(button[ii]);
-			button[i] = nullptr;
-		}
-		ibuttons = 0;
+		for (auto col : button)
+			lv_obj_del(col);
+		button.clear();
 		lv_obj_del(limitvfocheckbox);
 		lv_obj_del(bandfiltercheckbox);
 	}
@@ -101,10 +96,9 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 	m_button_group = lv_group_create();
 	auto it_m = begin(Settings_file.labels);
 	auto it_f_low = begin(Settings_file.f_low);
-	ibuttons = 0; // count number of buttons
-	for (auto it = begin(Settings_file.meters); it != end(Settings_file.meters); ++it) 
-	{		
-		band = *it;
+	for (auto col : Settings_file.meters)
+	{
+		band = col;
 		label = (string)*it_m;
 		long	f_low = (long)*it_f_low;
 		it_m++;
@@ -113,13 +107,13 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 	// place button
 		if(label.length() && f_low >= f_min && f_low <= f_max)
 		{	
-			button[i] = lv_btn_create(o_tab);
+			button.push_back(lv_btn_create(o_tab));
 			lv_group_add_obj(m_button_group, button[i]);
-			lv_obj_add_style(button[i], &style_btn, 0); 
-			lv_obj_add_event_cb(button[i], band_button, LV_EVENT_CLICKED, NULL);
-			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
-			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);		
-			lv_obj_set_size(button[i], button_width, button_height);
+			lv_obj_add_style(button.back(), &style_btn, 0);
+			lv_obj_add_event_cb(button.back(), band_button, LV_EVENT_CLICKED, (void *)this);
+			lv_obj_align(button.back(), LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
+			lv_obj_add_flag(button.back(), LV_OBJ_FLAG_CHECKABLE);
+			lv_obj_set_size(button.back(), button_width, button_height);
 			lv_obj_t* lv_label = lv_label_create(button[i]);
 		
 			char str[20];
@@ -136,14 +130,13 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 				ibutton_y++;
 			}
 			i++;
-			ibuttons++;
 		}
 	}
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
 	limitvfocheckbox = lv_checkbox_create(o_tab);
 	lv_group_add_obj(m_button_group, limitvfocheckbox);
 	lv_checkbox_set_text(limitvfocheckbox, "limit vfo to band");
-	lv_obj_add_event_cb(limitvfocheckbox, ham_event_handler, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(limitvfocheckbox, ham_event_handler, LV_EVENT_ALL, (void *)this);
 	if (ibutton_x)
 		ibutton_y++;
 	lv_obj_align(limitvfocheckbox, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin);
@@ -154,7 +147,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 	bandfiltercheckbox = lv_checkbox_create(o_tab);
 	lv_group_add_obj(m_button_group, bandfiltercheckbox);
 	lv_checkbox_set_text(bandfiltercheckbox, "band filter off");
-	lv_obj_add_event_cb(bandfiltercheckbox, band_event_handler, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(bandfiltercheckbox, band_event_handler, LV_EVENT_ALL, (void *)this);
 	lv_obj_align(bandfiltercheckbox, LV_ALIGN_TOP_LEFT, tab_margin + lv_obj_get_width(limitvfocheckbox) + button_width_margin, ibutton_y * button_height_margin);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
@@ -181,7 +174,7 @@ int getIndex(vector<int> v, int s)
 	return -1;
 }
 
-void band_button(lv_event_t * e)
+void Gui_band::band_button_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e); 
 	lv_obj_t *obj = lv_event_get_target(e); 
@@ -215,11 +208,11 @@ void band_button(lv_event_t * e)
 			catinterface.SetBand(i);
 		}
 	
-		for (int i = 0; i < gui_band_instance.getbuttons(); i++)
+		for (auto col: button)
 		{
-			if ((obj != gui_band_instance.get_button_obj(i)) && (lv_obj_has_flag(gui_band_instance.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+			if ((obj != col) && (lv_obj_has_flag(col, LV_OBJ_FLAG_CHECKABLE)))
 			{
-				lv_obj_clear_state(gui_band_instance.get_button_obj(i), LV_STATE_CHECKED);
+				lv_obj_clear_state(col, LV_STATE_CHECKED);
 			}
 		}
 		lv_obj_add_state(obj, LV_STATE_CHECKED);
@@ -228,25 +221,25 @@ void band_button(lv_event_t * e)
 
 void Gui_band::set_gui(int band)
 {
-	for (int i = 0; i < gui_band_instance.getbuttons(); i++)
+	for (auto col : button)
 	{
-		lv_obj_t *obj = gui_band_instance.get_button_obj(i);
+		lv_obj_t *obj = col;
 		lv_obj_t *label = lv_obj_get_child(obj, 0L);
 		char *ptr = lv_label_get_text(label);
 		string s(ptr);
 	
 		int n = s.find("m");
 		s.erase(n);
-		int ii = stoi(s);	
-		
-		if ((ii == band) && (lv_obj_has_flag(gui_band_instance.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+		int ii = stoi(s);
+
+		if ((ii == band) && (lv_obj_has_flag(col, LV_OBJ_FLAG_CHECKABLE)))
 		{
-			lv_obj_add_state(gui_band_instance.get_button_obj(i), LV_STATE_CHECKED);		
+			lv_obj_add_state(col, LV_STATE_CHECKED);		
 		}
-		
-		if ((ii != band) && (lv_obj_has_flag(gui_band_instance.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+
+		if ((ii != band) && (lv_obj_has_flag(col, LV_OBJ_FLAG_CHECKABLE)))
 		{
-			lv_obj_clear_state(gui_band_instance.get_button_obj(i), LV_STATE_CHECKED);
+			lv_obj_clear_state(col, LV_STATE_CHECKED);
 		}
 	}
 }

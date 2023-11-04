@@ -225,6 +225,7 @@
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h" />
+    <ClInclude Include="lvgl_.h" />
     <ClInclude Include="lv_conf.h" />
     <ClInclude Include="lv_drivers\display\drm.h" />
     <ClInclude Include="lv_drivers\display\fbdev.h" />
@@ -253,6 +254,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PCF8574.h" />
     <ClInclude Include="PeakLevelDetector.h" />
+    <ClInclude Include="quick_arg_parser.hpp" />
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />
     <ClInclude Include="scancodes_linux.h" />

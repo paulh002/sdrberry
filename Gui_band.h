@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lvgl.h"
+#include "lvgl_.h"
 #include <SoapySDR/ConverterRegistry.hpp>
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
@@ -13,24 +13,10 @@
 
 class Gui_band
 {
-  public:
-	void init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, SoapySDR::RangeList);
-	int getbuttons()
-	{
-		return ibuttons;
-	}
-	lv_obj_t *get_button_obj(int i)
-	{
-		if (i >= ibuttons)
-			return nullptr;
-		return button[i];
-	}
-	void set_gui(int band);
-	void set_group();
-
   private:
 	lv_obj_t *tab;
-	lv_obj_t *button[100];
+	//lv_obj_t *button[100];
+	std::vector<lv_obj_t *> button;
 	lv_obj_t *limitvfocheckbox, *bandfiltercheckbox;
 	lv_style_t style_btn;
 
@@ -38,8 +24,21 @@ class Gui_band
 	int button_height;
 	int button_width_margin;
 	int button_height_margin;
-	int ibuttons;
 	lv_group_t *m_button_group{nullptr};
+
+	void band_event_handler_class(lv_event_t *e);
+	void ham_event_handler_class(lv_event_t *e);
+	void band_button_class(lv_event_t *e);
+
+  public:
+	static constexpr auto band_event_handler = EventHandler<Gui_band, &Gui_band::band_event_handler_class>::staticHandler;
+	static constexpr auto ham_event_handler = EventHandler<Gui_band, &Gui_band::ham_event_handler_class>::staticHandler;
+	static constexpr auto band_button = EventHandler<Gui_band, &Gui_band::band_button_class>::staticHandler;
+
+	void init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, SoapySDR::RangeList);
+
+	void set_gui(int band);
+	void set_group();
 };
 
 int getIndex(vector<int> v, int s);

@@ -146,7 +146,7 @@ void Settings::default_settings()
 	(*config)("freqFT8").push(cfg::makeOption(1840));
 	(*config)("freqFT8").push(cfg::makeOption(3573));
 	(*config)("freqFT8").push(cfg::makeOption(5357));
-	(*config)("freqFT8").push(cfg::makeOption(7073));
+	(*config)("freqFT8").push(cfg::makeOption(7074));
 	(*config)("freqFT8").push(cfg::makeOption(10133));
 	(*config)("freqFT8").push(cfg::makeOption(14074));
 	(*config)("freqFT8").push(cfg::makeOption(18100));

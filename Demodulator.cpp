@@ -145,7 +145,7 @@ void Demodulator::set_resample_rate(float resample_rate)
 
 }
 
-void Demodulator::adjust_resample_rate(float rateAjustFraction)
+float Demodulator::adjust_resample_rate(float rateAjustFraction)
 {
 	resampleRate = resampleRate + resampleRate * rateAjustFraction;
 	struct msresamp_rrrf_s
@@ -187,6 +187,7 @@ void Demodulator::adjust_resample_rate(float rateAjustFraction)
 		}
 		msresamp_crcf_print(resampleHandle);
 	}
+	return resampleRate;
 }
 
 

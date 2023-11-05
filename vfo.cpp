@@ -31,6 +31,9 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	radio = fradio;
 	rx_channel = frx_channel;
 	tx_channel = ftx_channel;
+	vfo_setting.correction_rx = Settings_file.get_int(default_radio, "correction_rx", 0);
+	vfo_setting.correction_tx = Settings_file.get_int(default_radio, "correction_tx", 0);
+	printf("correction rx %d, tx %d\n", vfo_setting.correction_rx, vfo_setting.correction_tx);
 
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
@@ -177,8 +180,8 @@ void CVfo::set_freq_to_sdr()
 void	CVfo::rx_set_sdr_freq()
 {
 	if (SdrDevices && rx_channel >= 0)
-	{	
-		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
+	{
+		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] + vfo_setting.correction_rx);
 	}
 }
 
@@ -187,7 +190,7 @@ void	CVfo::tx_set_sdr_freq()
 	if (SdrDevices && tx_channel >= 0)
 	{
 		printf("TX Freq %lld\n", vfo.get_tx_frequency());
-		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
+		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, vfo.get_tx_frequency() + vfo_setting.correction_tx);
 	}
 }
 

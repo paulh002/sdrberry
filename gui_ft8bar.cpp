@@ -247,7 +247,7 @@ static void ft8bar_button_handler(lv_event_t *e)
 			{
 				guift8bar.SetFrequency();
 				select_mode(guift8bar.getrxtxmode());
-				gbar.set_mode(guift8bar.getrxtxmode());
+				gbar.set_mode(mode_usb);
 				guift8bar.setmodeclickable(false);
 			}
 			else

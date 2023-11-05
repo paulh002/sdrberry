@@ -58,6 +58,8 @@ struct vfo_settings_struct
 	long pcmrate;
 	long span;
 	long bandwidth;
+	int correction_tx;
+	int correction_rx;
 };
 
 class CVfo

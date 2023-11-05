@@ -224,11 +224,17 @@ void AMDemodulator::operator()()
 			
 			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
-				Demodulator::adjust_resample_rate(-0.002 * droppedFrames);
+				float resamplerate = Demodulator::adjust_resample_rate(-0.002 * droppedFrames);
+				std::string str1 = std::to_string(resamplerate);
+				Settings_file.save_string(default_radio, "resamplerate", str1);
+				Settings_file.write_settings();
 			}
 			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				Demodulator::adjust_resample_rate(0.002 * audioOutputBuffer->get_underrun());
+				float resamplerate = Demodulator::adjust_resample_rate(0.002 * audioOutputBuffer->get_underrun());
+				std::string str1 = std::to_string(resamplerate);
+				Settings_file.save_string(default_radio, "resamplerate", str1);
+				Settings_file.write_settings();
 			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;

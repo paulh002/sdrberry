@@ -20,11 +20,9 @@
 #include "DataBuffer.h"
 #include "sdrberry.h"
 
-using namespace std;
-
-atomic<double> rx_sampleRate{0.0};
-atomic<double> tx_sampleRate{0};
-atomic<int> rx_nosample{0};
+std::atomic<double> rx_sampleRate{0.0};
+std::atomic<double> tx_sampleRate{0};
+std::atomic<int> rx_nosample{0};
 
 double get_rxsamplerate()
 {
@@ -60,7 +58,7 @@ void RX_Stream::operator()()
 	uint64_t timePassed_avg{}, samples_read{};
 
 	unsigned long long		totalSamples(0);
-	unique_lock<mutex>		lock_rx(rxstream_mutex);
+	std::unique_lock<mutex>		lock_rx(rxstream_mutex);
 	
 	int						default_block_length;
 	SoapySDR::Stream		*rx_stream;
@@ -70,12 +68,12 @@ void RX_Stream::operator()()
 	if ((ifrate < 192001) && (ifrate > 48000))
 		default_block_length = 2048;
 	if ((ifrate < 384001) && (ifrate > 192000))
-		default_block_length = 65536; //32768; // 8192;
+		default_block_length = 8192;
 	if (ifrate > 384001)
-		default_block_length = 65536;
+		default_block_length = 8192;
 	rx_sampleRate = ifrate / 1000000.0;
+	default_block_length = Settings_file.get_int(default_radio, "buffersize", default_block_length);
 
-	
 	printf("default block length is set to %d ifrate %f\n", default_block_length, ifrate);
 	try
 	{

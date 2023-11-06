@@ -98,7 +98,7 @@ static void draw_event_cb(lv_event_t *e)
 			string str[vert_lines];
 			int span = gsetup.get_span();
 			long long f;
-			int ii;
+			int ii, offset{0};
 
 			if (!vfo.compare_span())
 			{
@@ -107,7 +107,8 @@ static void draw_event_cb(lv_event_t *e)
 			}
 			else
 			{
-				f = vfo.get_sdr_frequency();
+				offset = vfo.get_vfo_offset() / span; // is offset higher than span? 
+				f = vfo.get_sdr_frequency() + offset * span;
 				ii = span / (vert_lines - 1);
 			}
 

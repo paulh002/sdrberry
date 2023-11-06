@@ -102,7 +102,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 			check_band(0, freq);
 	}
 
-	offset_frequency = ifrate / 4; // to center initial spectrum view
+	offset_frequency = span / 2; //ifrate / 4; // to center initial spectrum view
 	vfo_setting.m_max_offset = ifrate / 2;
 
 	vfo_setting.pcmrate = pcmrate;
@@ -298,7 +298,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 			//printf("freq %lld, sdr %lld offset %lld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]);
 		}
 	}
-	//printf("freq %lld, sdr %lld offset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo]);
+	//printf("freq %lld, sdr %lld offset %ld maxoffset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.m_offset[vfo_setting.active_vfo], vfo_setting.m_max_offset);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq);
 	SpectrumGraph.set_pos(vfo.vfo_setting.m_offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)

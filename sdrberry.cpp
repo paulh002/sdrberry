@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
 		gbar.set_if(Settings_file.if_gain(default_radio));
 		gbar.set_gain_range();
 		gbar.set_gain_slider(Settings_file.gain(default_radio));
-		vfo.set_vfo(freq);
+		vfo.set_vfo(freq, vfo_activevfo::One);
 		try
 		{
 			if (SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0))

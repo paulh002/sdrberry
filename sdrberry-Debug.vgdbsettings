@@ -17,7 +17,7 @@
     </CustomSourceDirectories>
     <AutoProgramSPIFFSPartition>true</AutoProgramSPIFFSPartition>
     <BuildHost>
-      <HostName>192.168.88.68</HostName>
+      <HostName>192.168.88.67</HostName>
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </BuildHost>

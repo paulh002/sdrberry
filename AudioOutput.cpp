@@ -55,48 +55,28 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	return 0;
 }
 
-/*
-* List alsa audio devices but skip the Monitor ones 
-*
-**/
-
-void AudioOutput::listDevices(std::vector<std::string> &devices)
-{
-	for (auto const &dev : device_map)
-	{
-		if (dev.second.size() > 0 && dev.second.find("Monitor") == std::string::npos)
-			devices.push_back(dev.second);
-	}
-}
-
-/*
-* Search for device number based on device name
-* Issue -> very slow when user is not allowed to open device
-* 
-*/
-
 int AudioOutput::getDevices(std::string device)
 {
-	RtAudio::DeviceInfo		dev_info;
-	int noDevices = this->getDeviceCount();
-	int retval = 0;
-
-	if (noDevices < 1) {
-		std::cout << "\nNo audio devices found!\n";
-		return -1;
-	}
-	for (int i = 0; i < noDevices; i++)
+	std::vector<unsigned int> ids = getDeviceIds();
+	if (ids.size() == 0)
 	{
-		dev_info = getDeviceInfo(i);
-		printf("%d device: %s input %d output %d\n", i, info.name.c_str(), info.inputChannels, info.outputChannels);
-		if (dev_info.name.find(device) != std::string::npos && dev_info.outputChannels > 0)
-		{
-			printf("audio device = %s Samplerate %d\n", info.name.c_str(), info.preferredSampleRate);
-			info = dev_info;
-			retval = i;
-		}
+		std::cout << "No devices found." << std::endl;
+		return 0;
 	}
-	return retval; // return default device
+
+	RtAudio::DeviceInfo info;
+	for (auto col : ids)
+	{
+		info = getDeviceInfo(col);
+
+		// Print, for example, the name and maximum number of output channels for each device
+		std::cout << "device name = " << info.name << std::endl;
+		std::cout << ": maximum output channels = " << info.outputChannels << std::endl;
+		if (std::string(info.name).find(device) != string::npos && info.outputChannels > 1)
+			return col;
+	}
+	std::cout << "No matching device found." << std::endl;
+	return 0;
 }
 
 AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
@@ -129,21 +109,21 @@ bool AudioOutput::open(std::string device)
 	parameters.firstChannel = 0;
 	parameters.nChannels = 2;
 	if (device == "default")
-		parameters.deviceId = this->getDefaultInputDevice();
+		parameters.deviceId = getDefaultOutputDevice(); //getDefaultOutputDevice(); 
 	else
-		parameters.deviceId = find_device(device);
-	info = this->getDeviceInfo(parameters.deviceId);
+		parameters.deviceId = getDevices(device);
+	info = getDeviceInfo(parameters.deviceId);
 	if (info.preferredSampleRate)
 		m_sampleRate = info.preferredSampleRate;
 	parameters.nChannels = info.outputChannels;
 	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), m_sampleRate, parameters.nChannels);
-	err = this->openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, NULL);
+	err = openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, NULL);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio output stream\n");
 		return false;
 	}
-	this->startStream();
+	startStream();
 	return true;	
 }
 
@@ -206,31 +186,6 @@ int	 AudioOutput::queued_samples()
 	if (databuffer != nullptr)
 		return databuffer->queued_samples();
 	return 0;
-}
-
-/*
- * Code is copied from RTAUDIO to return a list of devices and their ID
- * The ID is card number + 1 
- *
- **/
-
-
-unsigned int AudioOutput::find_device(std::string name)
-{
-	int devices = getDeviceCount();
-	unsigned int device = 0;
-	
-	RtAudio::DeviceInfo info;
-	for (int i = 1; i <= devices; i++)
-	{
-		info = getDeviceInfo(i);
-		// Print, for example, the maximum number of output channels for each device
-		std::cout << "device = " << i << " device name " << info.name;
-		std::cout << ": maximum output channels = " << info.outputChannels << "\n";
-		if (std::string(info.name).find(name) != string::npos && info.outputChannels > 1)
-			device = i;
-	}
-	return device;
 }
 
 void AudioOutput::writeSamples(const SampleVector &audioSamples)

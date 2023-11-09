@@ -20,6 +20,8 @@ class AudioInput : public RtAudio
 {
   public:
 	AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
+	static bool createAudioInputDevice(int Samplerate);
+
 	bool open(std::string device);
 	void adjust_gain(SampleVector &samples);
 	bool read(SampleVector &samples);
@@ -38,10 +40,9 @@ class AudioInput : public RtAudio
 	operator bool() const { return m_error.empty(); }
 	void clear() { databuffer->clear(); }
 	std::vector<RtAudio::Api> listApis();
-	bool open(unsigned int device);
+	bool open(int SampleRate,unsigned int device);
 	void set_gain(int g) { gaindb = g; }
 	unsigned int get_samplerate() { return sampleRate; }
-	static bool createAudioInputDevice(int Samplerate, int deviceNumber);
 	bool IsdigitalMode();
 	bool IsBufferEmpty();
 	void doDigitalMode();

@@ -6,13 +6,14 @@ DataBuffer<Sample> audioinput_buffer;
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
-bool AudioInput::createAudioInputDevice(int SampleRate, int deviceNumber)
+bool AudioInput::createAudioInputDevice(int SampleRate)
 {
 	auto RtApi = RtAudio::LINUX_ALSA;
 	audio_input = new AudioInput(SampleRate, false, &audioinput_buffer, RtApi);
 	if (audio_input)
 	{
-		audio_input->open(deviceNumber);
+		string s = Settings_file.find_audio("device");
+		audio_input->open(s);
 		audio_input->set_volume(Settings_file.micgain());
 		return true;
 	}
@@ -73,24 +74,27 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 
 int AudioInput::getDevices(std::string device)
 {
-	int noDevices = this->getDeviceCount();
-		
-	if (noDevices < 1) {
-		std::cout << "\nNo audio devices found!\n";
-		return -1;
-	}
-	for (int i = 0; i < noDevices; i++)
+	std::vector<unsigned int> ids = getDeviceIds();
+	if (ids.size() == 0)
 	{
-		info = getDeviceInfo(i);
-		printf("%d device: %s input %d output %d\n", i, info.name.c_str(), info.inputChannels, info.outputChannels);
+		std::cout << "No devices found." << std::endl;
+		return 0;
+	}
+
+	RtAudio::DeviceInfo info;
+	for (auto col : ids)
+	{
+		info = getDeviceInfo(col);
+		printf("%d device: %s input %d output %d\n", col, info.name.c_str(), info.inputChannels, info.outputChannels);
 
 		if (info.name.find(device) != std::string::npos && info.inputChannels > 0)
 		{
 			if (info.outputChannels < parameters.nChannels)
 				parameters.nChannels = info.outputChannels;
-			return i;
+			return col;
 		}
 	}
+	std::cout << "No matching device found." << std::endl;
 	return 0; // return default device
 }
 
@@ -134,35 +138,32 @@ bool AudioInput::open(std::string device)
 	if (device != "default")
 		parameters.deviceId = getDevices(device);
 	else
-		parameters.deviceId = this->getDefaultInputDevice();
+		parameters.deviceId = getDefaultInputDevice();
 
-	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
+	err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio input stream\n");
 		return false;
 	}
-	this->startStream();
+	startStream();
 	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, device.c_str(), sampleRate);
 	return true;	
 }
 
-bool AudioInput::open(unsigned int device)
+bool AudioInput::open(int sampleRate, unsigned int device)
 {
 	RtAudioErrorType err;
 
 	parameters.deviceId = device;
-	info = getDeviceInfo(device);
 	parameters.nChannels = 1; //	info.inputChannels;
-	if (info.preferredSampleRate)
-		sampleRate = info.preferredSampleRate;
-	err = this->openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
+	err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio input stream\n");
 		return false;
 	}
-	this->startStream();
+	startStream();
 	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, info.name.c_str(), sampleRate);
 	return true;
 }

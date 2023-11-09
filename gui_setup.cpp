@@ -177,7 +177,7 @@ static void audio_button_handler(lv_event_t * e)
 		audio_output->close();
 		audio_output->open(std::string(buf));
 		audio_input->close();
-		audio_input->open(audio_output->get_device());
+		audio_input->open(audio_output->get_samplerate(), audio_output->get_device());
 		select_mode(mode, false);
 	}
 }
@@ -314,8 +314,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_obj_set_width(d_audio, 1.5 * button_width); // 2*
 	lv_dropdown_clear_options(d_audio);
 	lv_obj_add_event_cb(d_audio, audio_button_handler, LV_EVENT_VALUE_CHANGED, NULL);
-	std::vector<std::string> devices;
-	audio_output->listDevices(devices);
+	std::vector<std::string> devices = audio_output->getDeviceNames();
 	string s = Settings_file.find_audio("device");
 	for (int i = 0; i < devices.size(); i++)
 	{

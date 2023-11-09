@@ -286,8 +286,9 @@ int main(int argc, char *argv[])
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
 
-	if (AudioOutput::createAudioDevice(defaultAudioSampleRate))
-		AudioInput::createAudioInputDevice(audio_output->get_samplerate(), audio_output->get_device());
+	AudioInput::createAudioInputDevice(defaultAudioSampleRate);
+	AudioOutput::createAudioDevice(defaultAudioSampleRate);
+	//AudioInput::createAudioInputDevice(audio_output->get_samplerate());
 	
 	bpf.initFilter();
 

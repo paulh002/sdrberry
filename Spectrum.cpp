@@ -19,7 +19,35 @@ const int vert_lines{9};
 
 Spectrum SpectrumGraph;
 
-static void click_event_cb(lv_event_t *e)
+void Spectrum::pressing_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+
+	lv_indev_t *indev = lv_indev_get_act();
+	lv_indev_type_t indev_type = lv_indev_get_type(indev);
+	switch (code)
+	{
+	case LV_EVENT_PRESSING:
+		if (indev_type == LV_INDEV_TYPE_POINTER)
+		{
+			lv_point_t p;
+			int xx;
+			
+			lv_indev_get_point(indev, &p);
+			xx = p.x - drag.x;
+			drag.x = p.x;
+			//printf("x %d y %d\n", p.x, xx);
+		}
+		break;
+	case LV_EVENT_RELEASED:
+		//printf("Released\n");
+		break;
+	}
+}
+
+
+void Spectrum::click_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
@@ -45,7 +73,7 @@ static void click_event_cb(lv_event_t *e)
 	}
 }
 
-static void draw_event_cb(lv_event_t *e)
+void Spectrum::draw_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
@@ -167,8 +195,10 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 0, 6, 1, true, 80);
 	lv_chart_set_div_line_count(chart, hor_lines, vert_lines);
 	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
-	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
-	lv_obj_add_event_cb(chart, click_event_cb, LV_EVENT_CLICKED, NULL);
+	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(chart, click_event_cb, LV_EVENT_CLICKED, (void *)this);
+	lv_obj_add_event_cb(lv_obj_get_parent(chart), pressing_event_cb, LV_EVENT_PRESSING, (void *)this);
+	lv_obj_add_event_cb(lv_obj_get_parent(chart), pressing_event_cb, LV_EVENT_RELEASED, (void *)this);
 	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM | LV_DIR_TOP);
 
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);

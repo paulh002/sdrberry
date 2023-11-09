@@ -1,5 +1,5 @@
 #pragma once
-#include "lvgl.h"
+#include "lvgl_.h"
 #include "sdrberry.h"
 #include "sma.h"
 #include <atomic>
@@ -24,6 +24,24 @@ const int nfft_samples{800};
 
 class Spectrum
 {
+  private:
+	lv_obj_t *chart;
+	lv_chart_series_t *ser;
+	lv_style_t Spectrum_style;
+	lv_chart_cursor_t *m_cursor;
+	std::atomic<float> m_ifrate;
+	std::atomic<int> m_n;
+	std::unique_ptr<Waterfall> waterfall;
+	std::atomic<double> signal_strength{0};
+	std::vector<SMA<2>> avg_filter;
+	void upload_fft();
+	std::unique_ptr<FastFourier> fft;
+	lv_point_t drag{0};
+
+	void draw_event_cb_class(lv_event_t *e);
+	void click_event_cb_class(lv_event_t *e);
+	void pressing_event_cb_class(lv_event_t *e);
+
   public:
 	void init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate);
 	void load_data();
@@ -37,18 +55,10 @@ class Spectrum
 	double get_signal_strength() { return signal_strength; }
 	void SetSpan(int span);
 
-  private:
-	lv_obj_t *chart;
-	lv_chart_series_t *ser;
-	lv_style_t Spectrum_style;
-	lv_chart_cursor_t *m_cursor;
-	atomic<float> m_ifrate;
-	atomic<int> m_n;
-	std::unique_ptr<Waterfall> waterfall;
-	atomic<double> signal_strength{0};
-	std::vector<SMA<2>> avg_filter;
-	void upload_fft();
-	std::unique_ptr<FastFourier> fft;
+	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
+	static constexpr auto click_event_cb = EventHandler<Spectrum, &Spectrum::click_event_cb_class>::staticHandler;
+	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;
+	
 };
 
 

@@ -20,7 +20,6 @@ class AudioOutput : public RtAudio
 	void set_volume(int vol);
 	unsigned int get_framesize() { return bufferFrames; }
 	int queued_samples();
-	void listDevices(std::vector<std::string> &devices);
 	int getDevices(std::string device);
 	void inc_underrun() { underrun++; }
 	void clear_underrun() { underrun = 0; }
@@ -28,7 +27,6 @@ class AudioOutput : public RtAudio
 	int get_channels() { return info.outputChannels; }
 	unsigned int get_samplerate() { return m_sampleRate; }
 	unsigned int get_device() { return parameters.deviceId; }
-	unsigned int find_device(std::string name);
 	void writeSamples(const SampleVector &audiosamples);
 	void mono_to_left_right(const SampleVector &samples_mono,
 					   SampleVector &audio);

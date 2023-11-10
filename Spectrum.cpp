@@ -47,7 +47,9 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 			{
 				f = vfo.get_sdr_frequency();
 			}
-			vfo.set_vfo(p.x * (span / screenWidth) + f);
+			f = p.x *(span / screenWidth) + f;
+			if (vfo.get_frequency() != f)
+				vfo.set_vfo(f);
 		}
 	}
 }

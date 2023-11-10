@@ -220,8 +220,6 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 	int retval{0};
 	bool changeBandActiveVfo{false};
 
-	if (freq == vfo_setting.vfo_freq[vfo_setting.active_vfo])
-		return 0;
 	if (ActiveVfo != (vfo_activevfo)vfo_setting.active_vfo && ActiveVfo != vfo_activevfo::None)
 	{
 		if (vfo_setting.band[vfo_setting.active_vfo] != ActiveVfo)

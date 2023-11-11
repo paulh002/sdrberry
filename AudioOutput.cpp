@@ -8,6 +8,7 @@
 
 AudioOutput *audio_output;
 DataBuffer<Sample> audiooutput_buffer;
+SampleVector underrunSamples;
 
 bool AudioOutput::createAudioDevice(int SampleRate)
 {
@@ -35,16 +36,30 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	
 	if(((DataBuffer<Sample> *)userData)->queued_samples() == 0)
 	{
+		//Use previous samples incase of buffer underrun
 		int bytes = nBufferFrames * min(audio_output->get_channels(), 2);
-		for (int i = 0; i < bytes; i++)
+		if (underrunSamples.size())
 		{
-			((double *)buffer)[i] = 0.0;
+			int i = 0;
+			for (auto &col : underrunSamples)
+			{
+				Sample v = col;
+				((double *)buffer)[i++] = v;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < bytes; i++)
+			{
+				((double *)buffer)[i] = 0.0;
+			}
 		}
 		if (audio_output != nullptr)
 			audio_output->inc_underrun();
 		return 0;
 	}
 	SampleVector samples = ((DataBuffer<Sample> *)userData)->pull();
+	underrunSamples = samples;
 	//cout << "nBufferFrames " << nBufferFrames << " nSamples " << samples.size() << endl;
 	int i = 0;
 	for (auto& col : samples)

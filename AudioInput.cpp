@@ -291,7 +291,7 @@ void AudioInput::doDigitalMode()
 	databuffer->push(move(buf));
 	if ((bufferFramesSend * bufferFrames) >= digitalmodesignal.size())
 	{
-		cout << "all ft8 audio samples streamed\n";
+		//cout << "all ft8 audio samples streamed\n";
 		bufferFramesSend = 0;
 		bufferempty = true;
 	}

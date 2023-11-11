@@ -86,10 +86,10 @@ void RX_Stream::operator()()
 		stop_flag = true;
 		return;
 	}
-	size_t mtu = SdrDevices.SdrDevices.at(radio)->getStreamMTU(rx_stream);
-	cout << "mtu " << mtu << endl;
-	if (mtu > default_block_length)
-		default_block_length = mtu;
+	//size_t mtu = SdrDevices.SdrDevices.at(radio)->getStreamMTU(rx_stream);
+	//cout << "mtu " << mtu << endl;
+	//if (mtu > default_block_length)
+	//	default_block_length = mtu;
 
 	stop_flag = false;
 	startReadTime = std::chrono::high_resolution_clock::now();

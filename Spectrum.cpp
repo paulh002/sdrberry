@@ -115,11 +115,10 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 		/*Set the markers' text*/
 		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
 		{
-			string str[vert_lines];
 			int span = gsetup.get_span();
 			long long f;
 			int ii, offset{0};
-
+			
 			if (!vfo.compare_span())
 			{
 				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
@@ -132,18 +131,9 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 				ii = span / (vert_lines - 1);
 			}
 
-			for (int i = 0; i < vert_lines; i++)
-			{
-				char str1[20];
-				//double l = (double)((f / 10ULL) % 1000000ULL) / 100.0;
-				long l = (long)(f / 100ULL);
-				sprintf(str1, "%ld", l);
-				str[i] = string(str1);
-				size_t pos = str[i].length();
-				f += ii;
-			}
-			//sizeof(dsc->text)
-			lv_snprintf(dsc->text, str[dsc->value].length(), "%s", str[dsc->value].c_str());
+			f = f + dsc->value * ii;
+			long l = (long)(f / 1000ULL);
+			lv_snprintf(dsc->text, 19, "%ld", l);
 		}
 	}
 }

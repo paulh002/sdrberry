@@ -28,8 +28,6 @@ void Spectrum::click_event_cb_class(lv_event_t *e)
 	if (indev_type == LV_INDEV_TYPE_POINTER)
 	{
 		lv_indev_get_point(indev, &p);
-		printf("click x %d y %d\n", p.x, p.y);
-
 		if (p.x > 90 * screenWidth / 100)
 			vfo.setVfoFrequency(1);
 		if (p.x < 10 * screenWidth / 100)

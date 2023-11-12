@@ -19,8 +19,8 @@ enum audioTone
 class AudioInput : public RtAudio
 {
   public:
-	AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
-	static bool createAudioInputDevice(int Samplerate);
+	AudioInput(unsigned int pcmrate, unsigned int bufferFrames, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
+	static bool createAudioInputDevice(int Samplerate, unsigned int bufferFrames);
 
 	bool open(std::string device);
 	void adjust_gain(SampleVector &samples);

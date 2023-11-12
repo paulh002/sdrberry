@@ -10,12 +10,12 @@ AudioOutput *audio_output;
 DataBuffer<Sample> audiooutput_buffer;
 SampleVector underrunSamples;
 
-bool AudioOutput::createAudioDevice(int SampleRate)
+bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames)
 {
 	auto RtApi = RtAudio::LINUX_ALSA;
 
 	string s = Settings_file.find_audio("device");
-	audio_output = new AudioOutput(SampleRate, &audiooutput_buffer, RtApi);
+	audio_output = new AudioOutput(SampleRate,bufferFrames, &audiooutput_buffer, RtApi);
 	if (audio_output)
 	{
 		audio_output->set_volume(50);
@@ -94,13 +94,12 @@ int AudioOutput::getDevices(std::string device)
 	return 0;
 }
 
-AudioOutput::AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+AudioOutput::AudioOutput(int pcmrate, unsigned int bufferFrames_, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
 	: RtAudio(api),
-	  parameters{}, bufferFrames{}, m_volume{}, underrun{0}, info{0}
+	  parameters{}, bufferFrames{bufferFrames_}, m_volume{}, underrun{0}, info{0}
 {
 	m_sampleRate = pcmrate;
 	databuffer = AudioBuffer;
-	bufferFrames = 1024;
 	parameters.nChannels = 2;
 	parameters.firstChannel = 0;
 	parameters.deviceId = 0;

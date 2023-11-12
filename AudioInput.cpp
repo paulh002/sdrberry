@@ -6,10 +6,10 @@ DataBuffer<Sample> audioinput_buffer;
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
-bool AudioInput::createAudioInputDevice(int SampleRate)
+bool AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames)
 {
 	auto RtApi = RtAudio::LINUX_ALSA;
-	audio_input = new AudioInput(SampleRate, false, &audioinput_buffer, RtApi);
+	audio_input = new AudioInput(SampleRate, bufferFrames, false, &audioinput_buffer, RtApi);
 	if (audio_input)
 	{
 		string s = Settings_file.find_audio("device");
@@ -98,15 +98,14 @@ int AudioInput::getDevices(std::string device)
 	return 0; // return default device
 }
 
-AudioInput::AudioInput(unsigned int pcmrate, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
-	: RtAudio(api), parameters{}, m_volume{0.5}, asteps{}, tune_tone{audioTone::NoTone}
+AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+	: RtAudio(api), parameters{}, bufferFrames{bufferFrames_}, m_volume{0.5}, asteps{}, tune_tone{audioTone::NoTone}
 {
 	m_stereo = stereo;
 	databuffer = AudioBuffer; 
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
 	sampleRate = pcmrate;
-	bufferFrames = 2048;
 	gaindb = 0;
 	digitalmode = false;
 	bufferempty = false;

@@ -21,6 +21,20 @@ Spectrum SpectrumGraph;
 
 void Spectrum::click_event_cb_class(lv_event_t *e)
 {
+	lv_point_t p;
+
+	lv_indev_t *indev = lv_indev_get_act();
+	lv_indev_type_t indev_type = lv_indev_get_type(indev);
+	if (indev_type == LV_INDEV_TYPE_POINTER)
+	{
+		lv_indev_get_point(indev, &p);
+		printf("click x %d y %d\n", p.x, p.y);
+
+		if (p.x > 90 * screenWidth / 100)
+			vfo.setVfoFrequency(1);
+		if (p.x < 10 * screenWidth / 100)
+			vfo.setVfoFrequency(-1);
+	}
 }
 
 void Spectrum::pressing_event_cb_class(lv_event_t *e)
@@ -34,7 +48,6 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 	{
 		lv_point_t p;
 		lv_indev_get_point(indev, &p);
-
 		if (p.x > 0)
 		{
 			long long f;
@@ -45,7 +58,7 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 			}
 			else
 			{
-				f = vfo.get_sdr_frequency();
+				f = vfo.get_sdr_span_frequency();
 			}
 			f = p.x *(span / screenWidth) + f;
 			if (vfo.get_frequency() != f)
@@ -149,9 +162,10 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_style_init(&Spectrum_style);
 	lv_style_set_radius(&Spectrum_style, 0);
 	lv_style_set_bg_color(&Spectrum_style, lv_color_black());
-
+	
 	chart = lv_chart_create(scr);
 	lv_obj_add_style(chart, &Spectrum_style, 0);
+	
 	heightChart = h;
 	heightWaterfall = 0;
 	if (waterfallsize)

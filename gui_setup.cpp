@@ -119,6 +119,8 @@ static void samplerate_button_handler(lv_event_t * e)
 		gsetup.m_ifrate = ifrate;
 		gsetup.set_span_range(ifrate);
 		gsetup.set_span_value(ifrate);
+		Settings_file.save_int(default_radio, "samplerate", ifrate / 1000);
+		Settings_file.write_settings();
 
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0) > 0)
 		{
@@ -449,6 +451,9 @@ void gui_setup::set_span_value(int span)
 	vfo.set_span(span);
 	m_span.store(span);
 	SpectrumGraph.SetSpan(span);
+
+	Settings_file.save_int(default_radio, "span", span / 1000);
+	Settings_file.write_settings();
 }
 
 void gui_setup::set_span_range(int span)

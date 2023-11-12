@@ -9,7 +9,7 @@
 class AudioOutput : public RtAudio
 {
   public:
-	AudioOutput(int pcmrate, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
+	AudioOutput(int pcmrate, unsigned int bufferFrames_, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api = UNSPECIFIED);
 	bool open(std::string device);
 	bool write(SampleVector &samples);
 	void adjust_gain(SampleVector &samples);
@@ -31,7 +31,7 @@ class AudioOutput : public RtAudio
 	void mono_to_left_right(const SampleVector &samples_mono,
 					   SampleVector &audio);
 
-	static bool createAudioDevice(int Samplerate);
+	static bool createAudioDevice(int Samplerate, unsigned int bufferFrames);
 	
   protected:
 	void samplesToInt16(const SampleVector &samples,

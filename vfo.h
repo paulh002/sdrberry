@@ -28,7 +28,7 @@ enum vfo_activevfo
 } ;
 
 
-struct bands
+struct bands_t
 {
 	int meters;
 	string labels;
@@ -43,6 +43,7 @@ struct vfo_settings_struct
 	long long vfo_freq_sdr[2];
 	long long vfo_low;
 	long long vfo_high;
+	int offsetSpan[2];
 	int mode[2];
 	int band[2];
 	int frq_step;
@@ -52,9 +53,9 @@ struct vfo_settings_struct
 	double tuner_offset;
 	bool tx;
 	bool rx;
-	long m_max_offset;
-	long m_offset[2];
-	vector<bands> m_bands;
+	long max_offset;
+	long offset[2];
+	vector<bands_t> bands;
 	long pcmrate;
 	long span;
 	long bandwidth;
@@ -83,36 +84,18 @@ class CVfo
 	void sync_rx_vfo();
 	void vfo_rxtx(bool brx, bool btx);
 	void pause_step(bool pause) {pausevfo = pause;}
-	void set_step(int step, int delay)
-	{
-		vfo_setting.frq_step = step;
-		m_delay = delay;
-	};
+	void set_step(int step, int delay);
+	void setVfoFrequency(int direction);
 	void check_band(int dir, long long &freq);
 	int getBandIndex(int band);
-	int get_band_no(int vfo)
-	{
-		if (vfo < 2 && vfo >= 0)
-			return vfo_setting.band[vfo];
-		else
-			return 0;
-	}
-	int get_mode_no(int vfo)
-	{
-		if (vfo < 2 && vfo >= 0)
-			return vfo_setting.mode[vfo];
-		else
-			return 0;
-	}
-	void set_mode(int vfo, int mode)
-	{
-		if (vfo < 2 && vfo >= 0)
-			vfo_setting.mode[vfo] = mode;
-	}
+	int get_band_no(int vfo);
+	int get_mode_no(int vfo);
+	void set_mode(int vfo, int mode);
 	bool get_rx() { return vfo_setting.rx; }
 	bool get_tx() { return vfo_setting.tx; }
 	int get_active_vfo() { return vfo_setting.active_vfo; }
-	long get_maxoffset() { return vfo_setting.m_max_offset; }
+	long get_maxoffset() { return vfo_setting.max_offset; }
+	long long get_sdr_span_frequency();
 	long long get_sdr_frequency()
 	{
 		return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];

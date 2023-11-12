@@ -19,7 +19,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	transmitIQBuffer = nullptr;
 	audioInputBuffer = audio_input;
 	audioOutputBuffer = audio_output;
-	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 	adjustPhaseGain = get_gain_phase_correction();
@@ -33,7 +33,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	audioSampleRate = audio_input->get_samplerate();
 	transmitIQBuffer = source_buffer;
 	audioInputBuffer = audio_input;
-	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffertx");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 	adjustPhaseGain = get_gain_phase_correction();
@@ -48,7 +48,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	audioSampleRate = audio_output->get_samplerate();
 	receiveIQBuffer = source_buffer;
 	audioOutputBuffer = audio_output;
-	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffersize");
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 

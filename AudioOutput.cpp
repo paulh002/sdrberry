@@ -9,6 +9,12 @@
 AudioOutput *audio_output;
 DataBuffer<Sample> audiooutput_buffer;
 SampleVector underrunSamples;
+std::atomic<bool> copyUnderrun{false};
+
+void AudioOutput::CopyUnderrunSamples(bool copyUnderrun_)
+{
+	copyUnderrun = copyUnderrun_;
+}
 
 bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames)
 {
@@ -26,7 +32,7 @@ bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames)
 	return false;
 }
 
-int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
+int Audioout(void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
 {
 	double *buffer = (double *) outputBuffer;
 	
@@ -38,7 +44,7 @@ int Audioout( void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,do
 	{
 		//Use previous samples incase of buffer underrun
 		int bytes = nBufferFrames * min(audio_output->get_channels(), 2);
-		if (underrunSamples.size())
+		if (underrunSamples.size() && copyUnderrun)
 		{
 			int i = 0;
 			for (auto &col : underrunSamples)

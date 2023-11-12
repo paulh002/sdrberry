@@ -32,7 +32,8 @@ class AudioOutput : public RtAudio
 					   SampleVector &audio);
 
 	static bool createAudioDevice(int Samplerate, unsigned int bufferFrames);
-	
+	void CopyUnderrunSamples(bool copySamples);
+
   protected:
 	void samplesToInt16(const SampleVector &samples,
 						std::vector<std::uint8_t> &bytes);

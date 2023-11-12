@@ -111,6 +111,7 @@ void AMDemodulator::operator()()
 	Agc.setRatio(10);
 	set_span(gsetup.get_span());
 	receiveIQBuffer->clear();
+	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
 	while (!stop_flag.load())
 	{
@@ -240,6 +241,7 @@ void AMDemodulator::operator()()
 			droppedFrames = 0;
 		}
 	}
+	audioOutputBuffer->CopyUnderrunSamples(false);
 	starttime1 = std::chrono::high_resolution_clock::now();
 }
 

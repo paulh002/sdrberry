@@ -18,10 +18,17 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 	float bandwidth{2500}; // SSB
+	float sample_ratio, sample_ratio1;
 
-	float sample_ratio = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
+	sample_ratio1 = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
+	std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
+	sscanf(sampleratio.c_str(), "%f", &sample_ratio);
+
+	if (abs(sample_ratio1 - sample_ratio) > 0.1)
+		sample_ratio = sample_ratio1;
+
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
-	
+
 	switch (mode)
 	{
 	case mode_usb:
@@ -100,8 +107,8 @@ void AMDemodulator::operator()()
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
 	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
-	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 15);
-	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 5);
+	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 2);
+	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
 
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library

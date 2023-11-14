@@ -176,10 +176,10 @@ static void audio_button_handler(lv_event_t * e)
 		int item = lv_dropdown_get_selected(obj);
 		lv_dropdown_get_selected_str(obj,buf, sizeof(buf));
 		destroy_demodulators();
-		audio_output->close();
-		audio_output->open(std::string(buf));
 		audio_input->close();
-		audio_input->open(audio_output->get_samplerate(), audio_output->get_device());
+		audio_output->close();
+		audio_input->open(std::string(buf));
+		audio_output->open(std::string(buf));
 		select_mode(mode, false);
 	}
 }

@@ -176,6 +176,7 @@
     <ClCompile Include="wiringSerial.c" />
     <ClInclude Include="AMDemodulator.h" />
     <ClInclude Include="AMModulator.h" />
+    <ClInclude Include="AudioHeader.h" />
     <ClInclude Include="AudioInput.h" />
     <ClInclude Include="AudioOutput.h" />
     <ClInclude Include="backward.hpp" />

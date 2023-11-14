@@ -2,14 +2,11 @@
 #include "AudioOutput.h"
 
 AudioInput *audio_input;
-DataBuffer<Sample> audioinput_buffer;
-
-#define dB2mag(x) pow(10.0, (x) / 20.0)
 
 bool AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames)
 {
 	auto RtApi = RtAudio::LINUX_ALSA;
-	audio_input = new AudioInput(SampleRate, bufferFrames, false, &audioinput_buffer, RtApi);
+	audio_input = new AudioInput(SampleRate, bufferFrames, false, RtApi);
 	if (audio_input)
 	{
 		string s = Settings_file.find_audio("device");
@@ -21,24 +18,20 @@ bool AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrame
 	return false;
 }
 
-int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
+int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status)
 {
-	AudioInput					*audioinput = (AudioInput *)userData ;
-	DataBuffer<Sample>			*databuffer = audioinput->get_databuffer();
-	
 	if (status)
 		std::cout << "Stream overflow detected!" << std::endl;
-	if (audioinput->get_tone())
+	if (get_tone())
 	{
-		audioinput->ToneBuffer();
+		ToneBuffer();
 		return 0;
 	}
-	if (audioinput->IsdigitalMode())
+	if (IsdigitalMode())
 	{
-		audioinput->doDigitalMode();
+		doDigitalMode();
 		return 0;
 	}
-
 	// Do something with the data in the "inputBuffer" buffer.
 	//printf("frames %u \n", nBufferFrames);
 	SampleVector	buf;
@@ -46,11 +39,11 @@ int record(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, do
 	{
 		Sample f = ((double *)inputBuffer)[i];
 		buf.push_back(f);
-		if (audioinput->get_stereo())
+		if (get_stereo())
 			buf.push_back(f);
 	}
-	databuffer->clear();
-	databuffer->push(move(buf));
+	databuffer.clear();
+	databuffer.push(move(buf));
 	return 0;
 }
 
@@ -98,14 +91,11 @@ int AudioInput::getDevices(std::string device)
 	return 0; // return default device
 }
 
-AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool stereo, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
-	: RtAudio(api), parameters{}, bufferFrames{bufferFrames_}, m_volume{0.5}, asteps{}, tune_tone{audioTone::NoTone}
+AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool stereo_, RtAudio::Api api)
+	: RtAudio(api), parameters{}, sampleRate{pcmrate}, bufferFrames{bufferFrames_}, volume{0.5}, asteps{}, tune_tone{audioTone::NoTone}, stereo{stereo_}
 {
-	m_stereo = stereo;
-	databuffer = AudioBuffer; 
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
-	sampleRate = pcmrate;
 	gaindb = 0;
 	digitalmode = false;
 	bufferempty = false;
@@ -129,7 +119,7 @@ bool AudioInput::open(std::string device)
 {
 	RtAudioErrorType err;
 
-	if (this->getDeviceCount() < 1)
+	if (getDeviceCount() < 1)
 	{
 		std::cout << "\nNo audio devices found!\n";
 		return false;
@@ -139,7 +129,7 @@ bool AudioInput::open(std::string device)
 	else
 		parameters.deviceId = getDefaultInputDevice();
 
-	err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
+	err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, AudioIn, (void *)this);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio input stream\n");
@@ -150,45 +140,26 @@ bool AudioInput::open(std::string device)
 	return true;	
 }
 
-bool AudioInput::open(int sampleRate, unsigned int device)
-{
-	RtAudioErrorType err;
-
-	parameters.deviceId = device;
-	parameters.nChannels = 1; //	info.inputChannels;
-	err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, &record, (void *)this);
-	if (err != RTAUDIO_NO_ERROR)
-	{
-		printf("Cannot open audio input stream\n");
-		return false;
-	}
-	startStream();
-	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, info.name.c_str(), sampleRate);
-	return true;
-}
-
 void AudioInput::set_volume(int vol)
 {
 	// log volume
-	m_volume = exp(((double)vol * 6.908) / 100.0) / 5.0;
-	printf("mic vol %f\n", (float)m_volume);
+	volume = exp(((double)vol * 6.908) / 100.0) / 5.0;
+	printf("mic vol %f\n", (float)volume);
 }
 
 void AudioInput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
-		samples[i] *= m_volume * dB2mag(gaindb);
+		samples[i] *= volume * dB2mag(gaindb);
 	}
 }
 
 
 bool AudioInput::read(SampleVector& samples)
 {
-	if (databuffer == nullptr)
-		return false;
 	if (!isStreamOpen())
 		return false;
-	samples = databuffer->pull();
+	samples = databuffer.pull();
 	if (samples.empty())
 		return false;
 	adjust_gain(samples);
@@ -235,7 +206,7 @@ void AudioInput::ToneBuffer()
 		}
 		buf.push_back(f);
 	}
-	databuffer->push(move(buf));
+	databuffer.push(move(buf));
 }
 
 void AudioInput::StartDigitalMode(vector<float> &signal)
@@ -287,7 +258,7 @@ void AudioInput::doDigitalMode()
 	//cout << "bufferframes send " << bufferFramesSend << endl;
 	audio_output->adjust_gain(buf, buf_out);
 	audio_output->writeSamples(buf_out);
-	databuffer->push(move(buf));
+	databuffer.push(move(buf));
 	if ((bufferFramesSend * bufferFrames) >= digitalmodesignal.size())
 	{
 		//cout << "all ft8 audio samples streamed\n";
@@ -306,7 +277,5 @@ double AudioInput::NextTwotone()
 
 int	 AudioInput::queued_samples()
 {
-	if (databuffer != nullptr)
-		return databuffer->queued_samples();
-	return 0;
+	return databuffer.queued_samples();
 }

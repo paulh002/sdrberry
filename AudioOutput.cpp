@@ -7,9 +7,7 @@
  **/
 
 AudioOutput *audio_output;
-DataBuffer<Sample> audiooutput_buffer;
-SampleVector underrunSamples;
-std::atomic<bool> copyUnderrun{false};
+
 
 void AudioOutput::CopyUnderrunSamples(bool copyUnderrun_)
 {
@@ -21,7 +19,7 @@ bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames)
 	auto RtApi = RtAudio::LINUX_ALSA;
 
 	string s = Settings_file.find_audio("device");
-	audio_output = new AudioOutput(SampleRate,bufferFrames, &audiooutput_buffer, RtApi);
+	audio_output = new AudioOutput(SampleRate,bufferFrames, RtApi);
 	if (audio_output)
 	{
 		audio_output->set_volume(50);
@@ -32,15 +30,15 @@ bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames)
 	return false;
 }
 
-int Audioout(void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,double streamTime,RtAudioStreamStatus status,	void *userData)
+int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status)
 {
 	double *buffer = (double *) outputBuffer;
-	
+
 	if (status)
 		std::cout << "Stream underflow detected!\n" << std::endl;
 	// Write interleaved audio data.
-	
-	if(((DataBuffer<Sample> *)userData)->queued_samples() == 0)
+
+	if (databuffer.queued_samples() == 0)
 	{
 		//Use previous samples incase of buffer underrun
 		int bytes = nBufferFrames * min(audio_output->get_channels(), 2);
@@ -64,7 +62,7 @@ int Audioout(void *outputBuffer,void *inputBuffer,unsigned int nBufferFrames,dou
 			audio_output->inc_underrun();
 		return 0;
 	}
-	SampleVector samples = ((DataBuffer<Sample> *)userData)->pull();
+	SampleVector samples = databuffer.pull();
 	underrunSamples = samples;
 	//cout << "nBufferFrames " << nBufferFrames << " nSamples " << samples.size() << endl;
 	int i = 0;
@@ -100,12 +98,11 @@ int AudioOutput::getDevices(std::string device)
 	return 0;
 }
 
-AudioOutput::AudioOutput(int pcmrate, unsigned int bufferFrames_, DataBuffer<Sample> *AudioBuffer, RtAudio::Api api)
+AudioOutput::AudioOutput(int pcmrate, unsigned int bufferFrames_, RtAudio::Api api)
 	: RtAudio(api),
-	  parameters{}, bufferFrames{bufferFrames_}, m_volume{}, underrun{0}, info{0}
+	  parameters{}, bufferFrames{bufferFrames_}, volume{}, underrun{0}, info{0}
 {
-	m_sampleRate = pcmrate;
-	databuffer = AudioBuffer;
+	sampleRate = pcmrate;
 	parameters.nChannels = 2;
 	parameters.firstChannel = 0;
 	parameters.deviceId = 0;
@@ -134,10 +131,10 @@ bool AudioOutput::open(std::string device)
 		parameters.deviceId = getDevices(device);
 	info = getDeviceInfo(parameters.deviceId);
 	if (info.preferredSampleRate)
-		m_sampleRate = info.preferredSampleRate;
+		sampleRate = info.preferredSampleRate;
 	parameters.nChannels = info.outputChannels;
-	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), m_sampleRate, parameters.nChannels);
-	err = openStream(&parameters, NULL, RTAUDIO_FLOAT64, m_sampleRate, &bufferFrames, &Audioout, (void *)databuffer, NULL);
+	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), sampleRate, parameters.nChannels);
+	err = openStream(&parameters, NULL, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, NULL);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio output stream\n");
@@ -153,13 +150,13 @@ bool AudioOutput::open(std::string device)
 void AudioOutput::set_volume(int vol) 
 {
 	// log volume
-	m_volume.store(exp(((double)vol * 6.908) / 100.0) / 1000);
+	volume.store(exp(((double)vol * 6.908) / 100.0) / 1000);
 	//printf("vol %f\n", (float)m_volume.load());
 } 
 
 void AudioOutput::adjust_gain(SampleVector& samples)
 {
-	double gain = m_volume.load();
+	double gain = volume.load();
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
 		samples[i] *= gain;
 	}
@@ -167,7 +164,7 @@ void AudioOutput::adjust_gain(SampleVector& samples)
 
 void AudioOutput::adjust_gain(SampleVector &samples_in, SampleVector &samples_out)
 {
-	double gain = m_volume.load();
+	double gain = volume.load();
 	for (auto sample  : samples_in)
 	{
 		samples_out.push_back(gain * sample);
@@ -194,8 +191,8 @@ AudioOutput::~AudioOutput()
 
 bool AudioOutput::write(SampleVector& audiosamples)
 {
-	if (databuffer && isStreamOpen())
-		databuffer->push(move(audiosamples));
+	if (isStreamOpen())
+		databuffer.push(move(audiosamples));
 	else
 		audiosamples.clear();
 	return true;
@@ -203,9 +200,7 @@ bool AudioOutput::write(SampleVector& audiosamples)
 
 int	 AudioOutput::queued_samples()
 {
-	if (databuffer != nullptr)
-		return databuffer->queued_samples();
-	return 0;
+	return databuffer.queued_samples();
 }
 
 void AudioOutput::writeSamples(const SampleVector &audioSamples)

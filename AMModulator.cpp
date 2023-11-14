@@ -94,11 +94,20 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	audio_input->set_tone(param.tone);
 	printf("tone %d \n", param.tone);
 	setLowPassAudioFilterCutOffFrequency(2500);
-	if ((ifrate - audio_input->get_samplerate()) > 0.1)
+	if ((param.ifrate - audio_input->get_samplerate()) > 0.1)
 	{
+		float sample_ratio, sample_ratio1;
+		
 		// only resample and tune if ifrate > pcmrate
 		tune_offset(vfo.get_vfo_offset());
-		set_resample_rate(ifrate / audio_input->get_samplerate()); // UP sample to ifrate		
+
+		sample_ratio1 = param.ifrate / (double)audio_input->get_samplerate();
+		std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
+		sscanf(sampleratio.c_str(), "%f", &sample_ratio);
+		if (abs(sample_ratio1 - sample_ratio) > 0.1)
+			sample_ratio = sample_ratio1;
+
+		set_resample_rate(sample_ratio); // UP sample to ifrate		
 	}
 	else
 	{	// mix the transmid signal to the mid of the fft display
@@ -208,17 +217,14 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 		complex<float> f;
 		ampmodem_modulate(AMmodulatorHandle, col, &f);
 		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
-		buf_mod.push_back(f);
+		buf_mod.push_back(f); 
 	}
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
 	executeBandpassFilter(buf_mod, buf_filter);
-	buf_mod.clear();
 	Resample(buf_filter, buf_out);
-	buf_filter.clear();
 	mix_up(buf_out, samples_out); // Mix up to vfo freq
-	mix_up_fft(samples_out, buf_mod);
-	SpectrumGraph.ProcessWaterfall(buf_mod);
+	SpectrumGraph.ProcessWaterfall(samples_out);
 }
 
 void AMModulator::mix_up_fft(const IQSampleVector& filter_in,

@@ -265,17 +265,18 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 
 				ft8status = ft8status_t::monitor;
 				outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
-				if (outfile.fail())
-					return;
-				auto today = date::year_month_weekday{date::floor<date::days>(std::chrono::high_resolution_clock::now())};
-				outfile << today << ",";
-				int rows = gft8.getQsoLogRows();
-				for (int i = 0; i < rows; i++)
+				if (!outfile.fail())
 				{
-					std::string line = gft8.getQso(i);
-					outfile << line << std::endl;
+					auto today = date::year_month_weekday{ date::floor<date::days>(std::chrono::high_resolution_clock::now()) };
+					outfile << today << ",";
+					int rows = gft8.getQsoLogRows();
+					for (int i = 0; i < rows; i++)
+					{
+						std::string line = gft8.getQso(i);
+						outfile << line << std::endl;
+					}
+					outfile.close();
 				}
-				outfile.close();
 				ClearMessage();
 			}
 			break;

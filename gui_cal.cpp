@@ -120,7 +120,8 @@ void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *key
 		calRxPhasePerBand.push_back(0);
 	}
 
-
+	correctionDividerTx = Settings_file.get_int(default_radio, "correctionDividerTx", 500);
+	correctionDividerRx = Settings_file.get_int(default_radio, "correctionDividerRx", 2500);
 
 	calRxPhase = 0;
 	calRxGain = 0;
@@ -185,10 +186,10 @@ void gui_cal::hide(bool hide)
 	}
 }
 
-float gui_cal::getRxPhase() { return (float)calRxPhase / 2500.0; }
-float gui_cal::getRxGain() { return 1.0 + (float)calRxGain / 2500.0; }
-float gui_cal::getTxPhase() { return (float)calTxPhase / 500.0; }
-float gui_cal::getTxGain() { return 1.0 + (float)calTxGain / 500.0; }
+float gui_cal::getRxPhase() { return (float)calRxPhase / (float)correctionDividerTx; } 
+float gui_cal::getRxGain() { return 1.0 + (float)calRxGain / (float)correctionDividerTx; } 
+float gui_cal::getTxPhase() { return (float)calTxPhase / (float)correctionDividerTx; }
+float gui_cal::getTxGain() { return 1.0 + (float)calTxGain / (float)correctionDividerTx; }
 
 void gui_cal::SetCalibrationBand(int bandIndex)
 {

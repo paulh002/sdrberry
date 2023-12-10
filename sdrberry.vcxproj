@@ -50,7 +50,7 @@
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
-      <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
+      <CPPLanguageStandard>CPP20</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
       <DumpStackUsage>
       </DumpStackUsage>
@@ -70,7 +70,7 @@
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
-      <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
+      <CPPLanguageStandard>CPP20</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
       <VerboseMode>false</VerboseMode>
       <WarnOnUnusedParameters>Disabled</WarnOnUnusedParameters>

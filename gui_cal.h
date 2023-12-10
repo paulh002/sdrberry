@@ -36,6 +36,7 @@ class gui_cal
 	lv_group_t *buttonGroup{};
 	std::atomic<int> calRxPhase, calRxGain, calTxPhase, calTxGain;
 	std::vector<int> calRxPhasePerBand, calRxGainPerBand, calTxPhasePerBand, calTxGainPerBand;
+	int correctionDividerTx, correctionDividerRx;
 };
 
 extern gui_cal gcal;

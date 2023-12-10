@@ -90,6 +90,7 @@ class CVfo
 	int getBandIndex(int band);
 	int get_band_no(int vfo);
 	int get_mode_no(int vfo);
+	int get_current_mode();
 	void set_mode(int vfo, int mode);
 	bool get_rx() { return vfo_setting.rx; }
 	bool get_tx() { return vfo_setting.tx; }

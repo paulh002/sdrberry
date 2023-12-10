@@ -236,6 +236,7 @@ void Spectrum::set_pos(int32_t offset)
 
 	if (vfo.compare_span())
 	{
+		// span <> ifrate
 		offset = offset - ((m_ifrate.load() / 2) * m_n.load());
 		float div = m_ifrate.load() / nfft_samples;
 		pos = (uint32_t)round(offset / div) - 1;

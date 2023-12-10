@@ -31,8 +31,8 @@ gui_ft8bar guift8bar;
 static int messageToSend = 1;
 
 gui_ft8bar::gui_ft8bar()
+	: ft8status{ft8status_t::idle}, rxtxmode{mode_ft8}
 {
-	rxtxmode = mode_ft8;
 }
 
 gui_ft8bar::~gui_ft8bar()
@@ -168,7 +168,7 @@ void gui_ft8bar::SetFrequency()
 	}
 }
 
-static void textarea_event_handler(lv_event_t *e)
+void gui_ft8bar::textarea_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *ta = lv_event_get_target(e);
@@ -180,7 +180,7 @@ static void textarea_event_handler(lv_event_t *e)
 	}
 }
 
-static void mode_event_handler(lv_event_t *e)
+void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *ta = lv_event_get_target(e);
@@ -218,8 +218,7 @@ static void mode_event_handler(lv_event_t *e)
 	}
 }
 
-	
-static void filter_event_handler(lv_event_t *e)
+void gui_ft8bar::filter_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *ta = lv_event_get_target(e);
@@ -231,7 +230,7 @@ static void filter_event_handler(lv_event_t *e)
 	}
 }
 
-static void ft8bar_button_handler(lv_event_t *e)
+void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
@@ -245,16 +244,18 @@ static void ft8bar_button_handler(lv_event_t *e)
 		case 0:
 			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
-				guift8bar.SetFrequency();
+				SetFrequency();
 				select_mode(guift8bar.getrxtxmode());
 				gbar.set_mode(mode_usb);
-				guift8bar.setmodeclickable(false);
+				setmodeclickable(false);
+				ft8status = ft8status_t::monitor;
 			}
 			else
 			{
-				guift8bar.setmodeclickable(true);
-				select_mode(mode_usb);
-				gbar.set_mode(mode_usb);
+				setmodeclickable(true);
+				select_mode(vfo.get_current_mode());
+				gbar.set_mode(vfo.get_current_mode());
+				ft8status = ft8status_t::idle;
 			}
 			break;
 		case 1:
@@ -262,6 +263,7 @@ static void ft8bar_button_handler(lv_event_t *e)
 			{
 				std::ofstream outfile;
 
+				ft8status = ft8status_t::monitor;
 				outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
 				if (outfile.fail())
 					return;
@@ -274,21 +276,28 @@ static void ft8bar_button_handler(lv_event_t *e)
 					outfile << line << std::endl;
 				}
 				outfile.close();
-				guift8bar.ClearMessage();
+				ClearMessage();
 			}
 			break;
 		case 2:
 			// Execute the QSO
-			guift8bar.Transmit(obj);
+			if (Transmit(obj))
+				ft8status = ft8status_t::monitor;
+			else
+				ft8status = ft8status_t::response;
 			break;
 		case 3:
 			//CQ
-			guift8bar.SetTxMessage();
+			SetTxMessage();
 			//guift8bar.SetFilterCall();
-			guift8bar.Transmit(obj);
+			if (Transmit(obj))
+				ft8status = ft8status_t::monitor;
+			else
+				ft8status = ft8status_t::cq;
 			break;
 		case 4:
-			guift8bar.ClearMessage();
+			ft8status = ft8status_t::monitor;
+			ClearMessage();
 			break;
 		}
 	}
@@ -310,6 +319,7 @@ void gui_ft8bar::ClearMessage()
 	SetTxMessage();
 	SetFilter("");
 	gft8.clr_qso();
+	gft8.clr_cq();
 }
 
 void gui_ft8bar::setmodeclickable(bool clickable)
@@ -391,7 +401,7 @@ static void freq_event_handler(lv_event_t *e)
 	}
 }
 
-static void tx_slider_event_cb(lv_event_t *e)
+void gui_ft8bar::tx_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *slider = lv_event_get_target(e);
@@ -404,7 +414,7 @@ static void tx_slider_event_cb(lv_event_t *e)
 	}
 }
 
-static void if_slider_event_cb(lv_event_t *e)
+void gui_ft8bar::if_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *slider = lv_event_get_target(e);
@@ -471,7 +481,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 		{
 			button[i] = lv_btn_create(o_parent);
 			lv_obj_add_style(button[i], &style_btn, 0);
-			lv_obj_add_event_cb(button[i], ft8bar_button_handler, LV_EVENT_CLICKED, NULL);
+			lv_obj_add_event_cb(button[i], ft8bar_button_handler, LV_EVENT_CLICKED, (void *)this);
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
 			lv_obj_set_size(button[i], button_width, button_height);
 			lv_group_add_obj(button_group, button[i]);
@@ -525,7 +535,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_align(wsjtxmode, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_size(wsjtxmode, button_width, button_height);
 	lv_dropdown_clear_options(wsjtxmode);
-	lv_obj_add_event_cb(wsjtxmode, mode_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(wsjtxmode, mode_event_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_style_pad_ver(wsjtxmode, 4, LV_PART_MAIN);
 	lv_dropdown_add_option(wsjtxmode, "FT8", LV_DROPDOWN_POS_LAST);
 	lv_dropdown_add_option(wsjtxmode, "FT4", LV_DROPDOWN_POS_LAST);
@@ -540,7 +550,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_align(frequence, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin , y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_size(frequence, 2 * button_width, button_height);
 	lv_dropdown_clear_options(frequence);
-	lv_obj_add_event_cb(frequence, freq_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(frequence, freq_event_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_style_pad_ver(frequence, 4, LV_PART_MAIN);
 	int ii = 0;
 
@@ -559,8 +569,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_style_set_bg_color(&ft8_style, lv_color_black());
 
 	table = lv_table_create(o_parent);
-	lv_obj_add_event_cb(table, message_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
-	lv_obj_add_event_cb(table, press_part_event_cb, LV_EVENT_PRESSED, NULL);
+	lv_obj_add_event_cb(table, message_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(table, press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 	
 	lv_obj_add_style(table, &ft8_style, 0);
 	lv_obj_align(table, LV_ALIGN_TOP_RIGHT, 0, 0);
@@ -672,12 +682,13 @@ void gui_ft8bar::hide(bool hide)
 	}
 }
 
-void gui_ft8bar::Transmit(lv_obj_t *obj)
+int gui_ft8bar::Transmit(lv_obj_t *obj)
 {
 	wsjtxMode wstx_mode;
 	ModulatorParameters param;
 	int frequency;
 	std::string message;
+	int retval = 0; // 1 == no tx action
 
 	const char *ptr = lv_textarea_get_text(Textfield);
 	message = std::string(ptr);
@@ -692,6 +703,7 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 				{
 					printf("tx mode canceld\n");
 					transmitting = false;
+					retval = 1;
 				}
 				else
 				{
@@ -699,7 +711,6 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 					printf("Cannot cancel tx mode\n");
 				}
 			}
-			return;
 		}
 		else
 		{
@@ -732,6 +743,11 @@ void gui_ft8bar::Transmit(lv_obj_t *obj)
 			DigitalTransmission::StartDigitalTransmission(std::move(param));
 		}
 	}
+	else
+	{	
+		retval = 1;
+	}
+	return retval;
 }
 
 void gui_ft8bar::ClearTransmit() 

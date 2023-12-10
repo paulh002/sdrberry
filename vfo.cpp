@@ -549,6 +549,12 @@ void CVfo::setVfoFrequency(int direction)
 	}
 }
 
+int CVfo::get_current_mode()
+{
+	int index = getBandIndex(vfo_setting.band[vfo_setting.active_vfo]);
+	return vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.bands[index].f_mode;
+}
+
 long long CVfo::get_sdr_span_frequency()
 {
 	return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] + vfo_setting.span * vfo_setting.offsetSpan[vfo_setting.active_vfo];

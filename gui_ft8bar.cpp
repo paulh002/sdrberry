@@ -192,7 +192,7 @@ void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 		int selection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
 		if (selection == 0)
 		{
-			guift8bar.setrxtxmode(mode_ft8);
+			setrxtxmode(mode_ft8);
 			lv_dropdown_clear_options(guift8bar.getfrequency());
 			Settings_file.get_array_int("wsjtx", "freqFT8", ftx_freq);
 			for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
@@ -204,7 +204,7 @@ void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 		}
 		if (selection == 1)
 		{
-			guift8bar.setrxtxmode(mode_ft4);
+			setrxtxmode(mode_ft4);
 			lv_dropdown_clear_options(guift8bar.getfrequency());
 			Settings_file.get_array_int("wsjtx", "freqFT4", ftx_freq);
 			for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)

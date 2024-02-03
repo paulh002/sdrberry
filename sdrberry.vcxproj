@@ -50,7 +50,7 @@
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
-      <CPPLanguageStandard>CPP20</CPPLanguageStandard>
+      <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
       <DumpStackUsage>
       </DumpStackUsage>
@@ -70,7 +70,7 @@
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
-      <CPPLanguageStandard>CPP20</CPPLanguageStandard>
+      <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
       <VerboseMode>false</VerboseMode>
       <WarnOnUnusedParameters>Disabled</WarnOnUnusedParameters>
@@ -225,7 +225,6 @@
     <ClInclude Include="KeyboardTranslator.h" />
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="LMSNoisereducer.h" />
-    <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h" />
     <ClInclude Include="lvgl_.h" />
     <ClInclude Include="lv_conf.h" />
     <ClInclude Include="lv_drivers\display\drm.h" />

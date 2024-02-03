@@ -93,7 +93,7 @@ void gui_ft8::qso_draw_part_event_class(lv_event_t *e)
 		/*MAke every 2nd row grayish*/
 		if (col == 3)
 		{
-			char *ptr = table->cell_data[((col + 1) * (row + 1)) - 1] + 1;
+			char *ptr = (char *)table->cell_data[((col + 1) * (row + 1)) - 1] + 1;
 			if (strstr(ptr, getcall().c_str()) != NULL)
 			{
 				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
@@ -119,7 +119,7 @@ void gui_ft8::draw_part_event_class(lv_event_t *e)
 		/*MAke every 2nd row grayish*/
 		if (col == 3)
 		{
-			char *ptr = table->cell_data[((col+1) * (row+1))-1] + 1;
+			char *ptr = (char *)table->cell_data[((col+1) * (row+1))-1] + 1;
 			if (strstr(ptr, "CQ ") != NULL)
 			{
 				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);

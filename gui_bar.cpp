@@ -75,15 +75,12 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 			{
 				switch (i)
 				{
-				case 6:
-					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-						select_mode_tx(mode, SingleTone);
-					else
-						select_mode(mode);
-					break;
 				case 0:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-						select_mode_tx(mode);
+					{
+						if (!select_mode_tx(mode))
+							lv_obj_clear_state(obj, LV_STATE_CHECKED);
+					}
 					else
 						select_mode(mode);
 					break;
@@ -92,6 +89,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 				case 3:
 				case 4:
 				case 5:
+				case 6:
 				case 7:
 					select_mode(bmode,true);
 					lv_obj_add_state(obj, LV_STATE_CHECKED);		
@@ -386,11 +384,12 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 					lv_obj_add_state(button[i], LV_STATE_CHECKED);
 				break;
 			case 6:
-				strcpy(str, "Tune");
+				strcpy(str, "FreeDV");
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[i], (void *)mode_tune);
-				if (mode == mode_tune)
+				lv_obj_set_user_data(button[i], (void *)modefreedv);
+				if (mode == modefreedv)
 					lv_obj_add_state(button[i], LV_STATE_CHECKED);
+				lv_obj_add_state(button[i], LV_STATE_DISABLED);
 				break;
 			case 7:
 				strcpy(str, "bFM");

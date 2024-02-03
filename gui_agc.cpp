@@ -5,21 +5,21 @@
 
 Gui_agc gagc;
 
-static void agc_button_handler(lv_event_t * e)
+void Gui_agc::agc_button_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
 	
 	if (code == LV_EVENT_CLICKED) {
-	
-		for (int i = 0; i < gagc.getbuttons(); i++)
+
+		for (int i = 0; i < ibuttons; i++)
 		{
-			if ((obj != gagc.get_button_obj(i)) && (lv_obj_has_flag(gagc.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
+			if ((obj != button[i]) && (lv_obj_has_flag(button[i], LV_OBJ_FLAG_CHECKABLE)))
 			{
-				lv_obj_clear_state(gagc.get_button_obj(i), LV_STATE_CHECKED);
+				lv_obj_clear_state(button[i], LV_STATE_CHECKED);
 			}
 			else
-				gagc.set_agc_mode(i);
+				set_agc_mode(i);
 		}
 	}
 }
@@ -52,46 +52,46 @@ void Gui_agc::set_agc_mode(int m)
 	}
 }
 
-static void threshold_slider_event_cb(lv_event_t * e)
+void Gui_agc::threshold_slider_event_cb_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *slider = lv_event_get_target(e); 
 	
 	char	str[80];
-	gagc.set_threshold(lv_slider_get_value(slider));
+	threshold = lv_slider_get_value(slider);
 	sprintf(str, "threshold %d db", (lv_slider_get_value(slider) - 100)/5);
-	lv_label_set_text(gagc.get_threshold_slider_label(), str);
+	lv_label_set_text(threshold_slider_label, str);
 }
 
-static void atack_slider_event_cb(lv_event_t * e)
+void Gui_agc::atack_slider_event_cb_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *slider = lv_event_get_target(e); 
 	
 	char	str[80];
-	gagc.set_atack(lv_slider_get_value(slider));
+	atack = lv_slider_get_value(slider);
 	sprintf(str, "atack %d ms", lv_slider_get_value(slider));
-	lv_label_set_text(gagc.get_atack_slider_label(), str);
+	lv_label_set_text(atack_slider_label, str);
 }
 
-static void release_slider_event_cb(lv_event_t * e)
+void Gui_agc::release_slider_event_cb_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *slider = lv_event_get_target(e); 
 	
 	char	str[80];
-	gagc.set_release(lv_slider_get_value(slider));
+	release = lv_slider_get_value(slider);
 	sprintf(str, "release %d ms", lv_slider_get_value(slider));
-	lv_label_set_text(gagc.get_release_slider_label(), str);
+	lv_label_set_text(release_slider_label, str);
 }
-	
-static void ratio_slider_event_cb(lv_event_t * e)
+
+void Gui_agc::ratio_slider_event_cb_class(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
 	char buf[20];
-	gagc.set_ratio(lv_slider_get_value(slider));
+	ratio = lv_slider_get_value(slider);
 	sprintf(buf, "ratio %d", lv_slider_get_value(slider));
-	lv_label_set_text(gagc.get_ratio_slider_label(), buf);
+	lv_label_set_text(ratio_slider_label, buf);
 }
 
 void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
@@ -130,7 +130,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 		button[i] = lv_btn_create(o_tab);
 		lv_group_add_obj(m_button_group, button[i]);
 		lv_obj_add_style(button[i], &style_btn, 0); 
-		lv_obj_add_event_cb(button[i], agc_button_handler, LV_EVENT_CLICKED, NULL);
+		lv_obj_add_event_cb(button[i], agc_button_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
 		lv_obj_set_size(button[i], button_width, button_height);
 		lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);		
@@ -172,13 +172,13 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	agc_mode = Settings_file.getagc("mode");
 	if (agc_mode > 3 || agc_mode < 0)
 		agc_mode = 0;
-	lv_obj_add_state(get_button_obj(agc_mode), LV_STATE_CHECKED);
+	lv_obj_add_state(button[agc_mode], LV_STATE_CHECKED);
 	ibutton_y++;
 	ratio_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(ratio_slider, w / 2 - 50);
 	lv_slider_set_range(ratio_slider, 1, 100);
 	lv_obj_align_to(ratio_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, ibutton_y * button_height_margin + 10);
-	lv_obj_add_event_cb(ratio_slider, ratio_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(ratio_slider, ratio_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_group_add_obj(m_button_group, ratio_slider);
 
 	ratio_slider_label = lv_label_create(o_tab);
@@ -195,7 +195,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_set_width(threshold_slider, w / 2 - 50); 
 	lv_slider_set_range(threshold_slider, 0, 200);
 	lv_obj_align_to(threshold_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, ibutton_y * button_height_margin + 10);
-	lv_obj_add_event_cb(threshold_slider, threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(threshold_slider, threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	set_threshold_slider(Settings_file.getagc("threshold"));
 	lv_group_add_obj(m_button_group, threshold_slider);
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
@@ -212,7 +212,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_slider_set_range(atack_slider, 0, 100);
 	lv_obj_set_width(atack_slider, w / 2 - 50); 
 	lv_obj_align_to(atack_slider, atack_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
-	lv_obj_add_event_cb(atack_slider, atack_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(atack_slider, atack_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	set_atack_slider(atack);
 	lv_group_add_obj(m_button_group, atack_slider);
 
@@ -226,7 +226,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 	
 	lv_obj_set_width(release_slider, w / 2 - 50); 
 	lv_obj_align_to(release_slider, release_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
-	lv_obj_add_event_cb(release_slider, release_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(release_slider, release_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	set_release_slider(Settings_file.getagc("release"));
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }

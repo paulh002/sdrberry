@@ -4,10 +4,6 @@
 #include "vfo.h"
 #include "gui_vfo.h"
 
-static void mic_slider_event_cb(lv_event_t * e);
-static void tx_button_handler(lv_event_t * e);
-static void drv_slider_event_cb(lv_event_t * e);
-
 const int micgain {100};
 
 int drv_min = 0;
@@ -64,7 +60,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 		tx_button[i] = lv_btn_create(o_tab);
 		lv_group_add_obj(m_button_group, tx_button[i]);
 		lv_obj_add_style(tx_button[i], &style_btn, 0); 
-		lv_obj_add_event_cb(tx_button[i], tx_button_handler, LV_EVENT_CLICKED, NULL);
+		lv_obj_add_event_cb(tx_button[i], tx_button_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_align(tx_button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
 		//lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);		
 		lv_obj_set_size(tx_button[i], button_width, button_height);
@@ -115,7 +111,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_set_width(mic_slider, w / 2 - 50); 
 	lv_slider_set_range(mic_slider, 0, micgain);
 	lv_obj_center(mic_slider);
-	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	mic_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	set_mic_slider(Settings_file.micgain());
@@ -125,7 +121,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_set_width(drv_slider, w / 2 - 50); 
 	lv_slider_set_range(drv_slider, 0, 15);
 	lv_obj_align_to(drv_slider, mic_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
-	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	drv_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	set_drv_slider(Settings_file.drive());
@@ -146,14 +142,14 @@ void gui_tx::set_group()
 	lv_group_focus_obj(tx_button[0]);
 }
 
-static void mic_slider_event_cb(lv_event_t * e)
+void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
 	char buf[30];
 	
 	sprintf(buf, "mic gain %d db", lv_slider_get_value(slider));
-	lv_label_set_text(Gui_tx.get_mic_label(), buf);
-	lv_obj_align_to(Gui_tx.get_mic_label(), slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_label_set_text(mic_slider_label, buf);
+	lv_obj_align_to(mic_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	if (audio_input != nullptr)
 		audio_input->set_volume(lv_slider_get_value(slider));
 	Settings_file.set_micgain(lv_slider_get_value(slider));
@@ -181,7 +177,7 @@ void gui_tx::set_mic_slider(int volume)
 		audio_input->set_volume(volume);
 }
 
-static void tx_button_handler(lv_event_t * e)
+void gui_tx::tx_button_handler_class(lv_event_t * e)
 {
 	
 	lv_obj_t *obj = lv_event_get_target(e); 
@@ -193,8 +189,10 @@ static void tx_button_handler(lv_event_t * e)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
-			select_mode_tx(mode);
-			gbar.set_tx(true);
+			if (select_mode_tx(mode))
+				gbar.set_tx(true);
+			else
+				lv_obj_clear_state(obj, LV_STATE_CHECKED);	
 		}
 		else
 		{
@@ -205,34 +203,43 @@ static void tx_button_handler(lv_event_t * e)
 	if (s == "Tune") 
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-			select_mode_tx(mode, SingleTone);
+		{
+			if (!select_mode_tx(mode, SingleTone))
+				lv_obj_clear_state(obj, LV_STATE_CHECKED);
+		}
 		else
 			select_mode(mode);
 	}
 	if (s == "2 Tone")
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-			select_mode_tx(mode, TwoTone);
+		{
+			if (!select_mode_tx(mode, TwoTone))
+				lv_obj_clear_state(obj, LV_STATE_CHECKED);
+		}
 		else
 			select_mode(mode);
 	}
 	if (s == "4 Tone")
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-			select_mode_tx(mode, FourTone);
+		{
+			if (!select_mode_tx(mode, FourTone))
+				lv_obj_clear_state(obj, LV_STATE_CHECKED);
+		}
 		else
 			select_mode(mode);
 	}
 	if (s == "Sync RX vfo")
 	{
-		lv_obj_clear_state(Gui_tx.get_button_obj(3), LV_STATE_CHECKED); 
+		lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED); 
 		vfo.set_active_vfo(0);			
 		vfo.sync_rx_vfo();
 	}
 	if (s == "Split TX vfo")
 	{
-		if ((lv_obj_get_state(Gui_tx.get_button_obj(3)) & LV_STATE_CHECKED) &&
-		 (lv_obj_get_state(Gui_tx.get_button_obj(0)) & LV_STATE_CHECKED))
+		if ((lv_obj_get_state(get_button_obj(3)) & LV_STATE_CHECKED) &&
+		 (lv_obj_get_state(get_button_obj(0)) & LV_STATE_CHECKED))
 		{
 			// If Vfo split mode set active vfo 1
 			vfo.set_active_vfo(1);
@@ -244,14 +251,14 @@ static void tx_button_handler(lv_event_t * e)
 	}
 }
 
-static void drv_slider_event_cb(lv_event_t * e)
+void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 {
 	lv_obj_t * slider = lv_event_get_target(e);
 	char buf[20];
 	
 	sprintf(buf, "drive %d", lv_slider_get_value(slider));
-	lv_label_set_text(Gui_tx.get_drv_label(), buf);
-	lv_obj_align_to(Gui_tx.get_drv_label(), slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_label_set_text(drv_slider_label, buf);
+	lv_obj_align_to(drv_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	Settings_file.set_drive(lv_slider_get_value(slider));
 	try
 	{
@@ -364,4 +371,11 @@ void gui_tx::set_sample_rate(int rate)
 			break;
 	}
 	lv_dropdown_set_selected(drp_samplerate, i);
+}
+
+lv_obj_t* gui_tx::get_button_obj(int i)
+{
+	if (i >= ibuttons)
+		return nullptr;
+	return tx_button[i];
 }

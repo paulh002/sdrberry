@@ -18,6 +18,7 @@
 #include "FreeDVTab.h"
 #include "gui_cal.h"
 #include "wsjtx_lib.h"
+#include "gui_agc.h"
 //#include "quick_arg_parser.hpp"
 
 //#include "HidThread.h"
@@ -770,6 +771,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
+	case mode_freedv:
 		if (mode != mode_cw)
 			guirx.set_cw(false);
 		guift8bar.setmonitor(false);
@@ -802,13 +804,15 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	catinterface.Pause_Cat(false);
 }
 
-void select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
+bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 {
 	ModulatorParameters param{};
 	
 	// Stop all threads
 	if (!SdrDevices.isValid(default_radio))
-		return;
+		return false;
+	if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
+		return false;
 	catinterface.SetTX(cattx);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
@@ -841,6 +845,7 @@ void select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	case mode_dsb:
 	case mode_usb:
 	case mode_lsb:
+	case mode_freedv:
 		param.mode = mode;
 		param.tone = tone;
 		param.ifrate = ifrate_tx;
@@ -856,6 +861,7 @@ void select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		break;
 	}
 	catinterface.Pause_Cat(false);
+	return true;
 }
 
 

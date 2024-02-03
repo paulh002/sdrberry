@@ -2,7 +2,7 @@
 
 gui_rx guirx;
 
-static void event_handler_morse(lv_event_t *e)
+void gui_rx::event_handler_morse_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
@@ -58,13 +58,13 @@ bool gui_rx::get_cw()
 	return lv_obj_get_state(check_cw) & LV_STATE_CHECKED;
 }
 
-static void rx_button_handler(lv_event_t *e)
+void gui_rx::rx_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
-		for (auto con : guirx.get_buttons())
+		for (auto con : get_buttons())
 		{
 			if (con.first == obj)
 			{
@@ -79,13 +79,13 @@ static void rx_button_handler(lv_event_t *e)
 	}
 	if (code == LV_EVENT_LONG_PRESSED)
 	{
-		for (auto con : guirx.get_buttons())
+		for (auto con : get_buttons())
 		{
 			if (con.first == obj)
 			{
 				vector<long> array;
-				guirx.set_freq(con.first, vfo.get_frequency());
-				guirx.get_buttons(array);
+				set_freq(con.first, vfo.get_frequency());
+				get_buttons(array);
 				Settings_file.set_array_long("preselect", "buttons", array);
 			}
 			else
@@ -109,13 +109,13 @@ void gui_rx::get_buttons(vector<long> &array)
 	}
 }
 
-void noise_handler(lv_event_t *e)
+void gui_rx::noise_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		int noise = guirx.get_noise();
+		int noise = get_noise();
 		Settings_file.save_int("Radio", "noise", noise);
 	}
 }
@@ -176,7 +176,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 			buttons.push_back(std::make_pair(lv_btn_create(o_tab), (long long)0));
 		lv_group_add_obj(m_button_group, buttons.back().first);
 		lv_obj_add_style(buttons.back().first, &style_btn, 0);
-		lv_obj_add_event_cb(buttons.back().first, rx_button_handler, (lv_event_code_t)LV_EVENT_ALL /*(LV_EVENT_CLICKED | LV_EVENT_LONG_PRESSED)*/, NULL);
+		lv_obj_add_event_cb(buttons.back().first, rx_button_handler, (lv_event_code_t)LV_EVENT_ALL /*(LV_EVENT_CLICKED | LV_EVENT_LONG_PRESSED)*/, (void*)this);
 		lv_obj_align(buttons.back().first, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
 		//lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 		lv_obj_set_size(buttons.back().first, button_width, button_height);
@@ -231,12 +231,12 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 
 	int noise = Settings_file.get_int("Radio", "noise");
 	lv_dropdown_set_selected(drp_noise, noise);
-	lv_obj_add_event_cb(drp_noise, noise_handler, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(drp_noise, noise_handler, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void*)this);
 
 	check_cw = lv_checkbox_create(o_tab);
 	lv_group_add_obj(m_button_group, check_cw);
 	lv_checkbox_set_text(check_cw, "Morse Decoder");
-	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, (void *)this);
 	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, 1 * button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_group_add_obj(m_button_group, check_cw);
 

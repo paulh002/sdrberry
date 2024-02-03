@@ -1,5 +1,5 @@
 #pragma once
-#include "lvgl.h"
+#include "lvgl_.h"
 #include <atomic>
 
 extern const int screenWidth;
@@ -10,57 +10,6 @@ extern const int tunerHeight;
 
 class Gui_agc
 {
-  public:
-	void init(lv_obj_t *o_tab, lv_coord_t w);
-	void set_ratio_range();
-	void set_ratio_range(int min, int max);
-	void set_ratio_slider(int ratio);
-	void set_group();
-	void set_agc_mode(int m);
-
-	lv_obj_t *get_ratio_slider_label() { return ratio_slider_label; }
-
-	int getbuttons() { return ibuttons; }
-	lv_obj_t *get_button_obj(int i)
-	{
-		if (i >= ibuttons)
-			return nullptr;
-		return button[i];
-	}
-
-	lv_obj_t *get_threshold_slider_label()
-	{
-		return threshold_slider_label;
-	}
-
-	lv_obj_t *get_atack_slider_label()
-	{
-		return atack_slider_label;
-	}
-
-	lv_obj_t *get_release_slider_label()
-	{
-		return release_slider_label;
-	}
-
-	int get_threshold();
-	float get_atack();
-	float get_release();
-	float get_ratio();
-	void set_atack(int a) { atack = a; }
-	void set_release(int a) { release = a; }
-	void set_ratio(int a) { ratio = a; }
-	void set_threshold(int a) { threshold = a; }
-	void set_atack_slider(int t);
-	void set_threshold_slider(int t);
-	void set_release_slider(int t);
-	int get_agc_mode()
-	{
-		return agc_mode;
-	}
-
-	//const int	max_threshold {200};
-
   private:
 	lv_style_t style_btn;
 	lv_obj_t *ratio_slider_label, *ratio_slider;
@@ -78,6 +27,39 @@ class Gui_agc
 	std::atomic<int> release;
 	std::atomic<int> ratio;
 	std::atomic<int> threshold;
+
+	void agc_button_handler_class(lv_event_t *e);
+	void threshold_slider_event_cb_class(lv_event_t *e);
+	void atack_slider_event_cb_class(lv_event_t *e);
+	void release_slider_event_cb_class(lv_event_t *e);
+	void ratio_slider_event_cb_class(lv_event_t * e);
+
+  public:
+	void init(lv_obj_t *o_tab, lv_coord_t w);
+	void set_ratio_range();
+	void set_ratio_range(int min, int max);
+	void set_ratio_slider(int ratio);
+	void set_group();
+	void set_agc_mode(int m);
+
+	float get_atack();
+	float get_release();
+	float get_ratio();
+	int get_threshold();
+	inline int get_agc_mode() {return agc_mode;}
+
+	void set_atack_slider(int t);
+	void set_threshold_slider(int t);
+	void set_release_slider(int t);
+
+
+	static constexpr auto agc_button_handler = EventHandler<Gui_agc, &Gui_agc::agc_button_handler_class>::staticHandler;
+	static constexpr auto threshold_slider_event_cb = EventHandler<Gui_agc, &Gui_agc::threshold_slider_event_cb_class>::staticHandler;
+	static constexpr auto atack_slider_event_cb = EventHandler<Gui_agc, &Gui_agc::atack_slider_event_cb_class>::staticHandler;
+	static constexpr auto release_slider_event_cb = EventHandler<Gui_agc, &Gui_agc::release_slider_event_cb_class>::staticHandler;
+	static constexpr auto ratio_slider_event_cb = EventHandler<Gui_agc, &Gui_agc::ratio_slider_event_cb_class>::staticHandler;
+
+	//const int	max_threshold {200};
 };
 
 extern Gui_agc gagc;

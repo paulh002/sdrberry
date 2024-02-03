@@ -521,9 +521,6 @@
     <ClInclude Include="gui_setup.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="lvgl\src\extra\libs\gif\gifdec.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="MorseDecoder.h">
       <Filter>Header files</Filter>
     </ClInclude>

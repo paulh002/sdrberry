@@ -59,6 +59,8 @@ class gui_ft8bar
 	void SetFilterCall();
 	void ClearMessage();
 	void Process(const IQSampleVector &input);
+	void WaterfallSetMaxMin(float _max, float _min);
+	void WaterfallReset();
 	void DrawWaterfall();
 	void set_if(int ifgain);
 	lv_obj_t *getfrequency() { return frequence; }

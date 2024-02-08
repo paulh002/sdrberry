@@ -27,6 +27,7 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	cout << "Start TX stream running. Number of samples " << param.signal.size() << date::make_time(now - today) << endl;
 	vfo.vfo_rxtx(false, true);
 	Source_buffer_rx = source_buffer_rx;
+	guift8bar.WaterfallSetMaxMin(500.0, 0);
 	sp_ammod = make_shared<AMModulator>(param, source_buffer_tx, audio_input);
 	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
 	TX_Stream::create_tx_streaming_thread(default_radio, param.txChannel, source_buffer_tx, ifrate_tx);
@@ -46,6 +47,7 @@ void DigitalTransmission::operator()()
 	startTX = false;
 	sp_ammod.reset();
 	TX_Stream::destroy_tx_streaming_thread();
+	guift8bar.ClearTransmit();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
@@ -54,7 +56,6 @@ void DigitalTransmission::operator()()
 			  << " elapsed time: " << elapsed_seconds.count() << "s"
 			  << std::endl;
 	RX_Stream::create_rx_streaming_thread(default_radio, param.rxChannel, Source_buffer_rx);
-	guift8bar.ClearTransmit();
 	vfo.vfo_rxtx(true, false);
 }
 

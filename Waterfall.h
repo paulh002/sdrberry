@@ -40,6 +40,7 @@ class Waterfall
 	void Draw();
 	void SetMode(int mode);
 	void SetSpan(int span);
+	void SetMaxMin(float _max, float _min);
 
   private:
 	void SetPartial(partialspectrum p);
@@ -56,4 +57,6 @@ class Waterfall
 	int NumberOfBins;
 	float resampleRate;
 	int excludeMargin;
+	float max;
+	float min;
 };

@@ -113,13 +113,11 @@ void gui_ft8::draw_part_event_class(lv_event_t *e)
 	{
 		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
 		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
-
-		/*Make the texts in the first cell center aligned*/
-
-		/*MAke every 2nd row grayish*/
-		if (col == 3)
+		if (col == 3 && row > 1)
 		{
-			char *ptr = (char *)table->cell_data[((col+1) * (row+1))-1] + 1;
+			uint32_t cell = row * table->col_cnt + col;
+
+			char *ptr = table->cell_data[cell]->txt;
 			if (strstr(ptr, "CQ ") != NULL)
 			{
 				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);

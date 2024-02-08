@@ -49,6 +49,16 @@ void gui_ft8bar::Process(const IQSampleVector &input)
 	waterfall->Process(input);
 }
 
+void gui_ft8bar::WaterfallSetMaxMin(float _max, float _min)
+{
+	waterfall->SetMaxMin(_max, _min);
+}
+
+void gui_ft8bar::WaterfallReset()
+{
+	waterfall->SetMaxMin(50.0, 0);
+}
+
 void gui_ft8bar::DrawWaterfall()
 {
 	waterfall->Draw();
@@ -755,5 +765,6 @@ void gui_ft8bar::ClearTransmit()
 {
 	lv_obj_clear_state(button[txbutton], LV_STATE_CHECKED);
 	lv_obj_clear_state(button[rxbutton], LV_STATE_CHECKED);
-	transmitting = false; 
+	transmitting = false;
+	WaterfallReset();
 }

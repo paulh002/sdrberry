@@ -20,17 +20,14 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
 	uint16_t row, col;
-	char *ptr;
 	int db, length;
 
 	lv_table_get_selected_cell(obj, &row, &col);
 	if (lv_table_get_row_cnt(obj) < row+1)
 		return;
-	ptr = (char *)lv_table_get_cell_value(obj, row, 1);
-	if (ptr != nullptr)
-		db = atoi(ptr);
-	ptr = (char *)lv_table_get_cell_value(obj, row, col);
-	std::string str(ptr);
+	if (lv_table_get_cell_value(obj, row, 1) != nullptr)
+		db = atoi(lv_table_get_cell_value(obj, row, 1));
+	std::string str(lv_table_get_cell_value(obj, row, col));
 	size_t i = str.find(' ');
 	size_t q = str.rfind(' ');
 	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
@@ -49,15 +46,12 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
 	uint16_t row, col;
-	char *ptr;
 	int db, length;
 
 	lv_table_get_selected_cell(obj, &row, &col);
-	ptr = (char *)lv_table_get_cell_value(obj, row, 1);
-	if (ptr != nullptr)
-		db = atoi(ptr);
-	ptr = (char *)lv_table_get_cell_value(obj, row, col);
-	std::string str(ptr);
+	if (lv_table_get_cell_value(obj, row, 1) != nullptr)
+		db = atoi(lv_table_get_cell_value(obj, row, 1));
+	std::string str(lv_table_get_cell_value(obj, row, col));
 
 	std::string::iterator new_end =
 		std::unique(str.begin(), str.end(),
@@ -357,48 +351,31 @@ void gui_ft8::add_cq(struct message msg)
 
 void gui_ft8::cpy_qso(int row)
 {
-	char *ptr;
 
-	ptr = (char *)lv_table_get_cell_value(table, row, 0);
-	lv_table_set_cell_value(qsoTable, qsoRowCount, 0,ptr);
-	ptr = (char *)lv_table_get_cell_value(table, row, 1);
-	lv_table_set_cell_value(qsoTable, qsoRowCount, 1, ptr);
-	ptr = (char *)lv_table_get_cell_value(table, row, 2);
-	lv_table_set_cell_value(qsoTable, qsoRowCount, 2, ptr);
-	ptr = (char *)lv_table_get_cell_value(table, row, 3);
-	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, ptr);
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 0, lv_table_get_cell_value(table, row, 0));
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 1, lv_table_get_cell_value(table, row, 1));
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 2, lv_table_get_cell_value(table, row, 2));
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, lv_table_get_cell_value(table, row, 3));
 	qsoRowCount++;
 }
 
 void gui_ft8::cpy_cq(int row)
 {
-	char *ptr;
-
-	ptr = (char *)lv_table_get_cell_value(table, row, 0);
-	lv_table_set_cell_value(cqTable, cqRowCount, 0, ptr);
-	ptr = (char *)lv_table_get_cell_value(table, row, 1);
-	lv_table_set_cell_value(cqTable, cqRowCount, 1, ptr);
-	ptr = (char *)lv_table_get_cell_value(table, row, 2);
-	lv_table_set_cell_value(cqTable, cqRowCount, 2, ptr);
-	ptr = (char *)lv_table_get_cell_value(table, row, 3);
-	lv_table_set_cell_value(cqTable, cqRowCount, 3, ptr);
+	lv_table_set_cell_value(cqTable, cqRowCount, 0, lv_table_get_cell_value(table, row, 0));
+	lv_table_set_cell_value(cqTable, cqRowCount, 1, lv_table_get_cell_value(table, row, 1));
+	lv_table_set_cell_value(cqTable, cqRowCount, 2, lv_table_get_cell_value(table, row, 2));
+	lv_table_set_cell_value(cqTable, cqRowCount, 3, lv_table_get_cell_value(table, row, 3));
 	cqRowCount++;
 }
 
 void gui_ft8::cpy_cqtoqso(int row)
 {
-	char *ptr;
-
 	if (row > 0)
 	{
-		ptr = (char *)lv_table_get_cell_value(cqTable, row, 0);
-		lv_table_set_cell_value(qsoTable, qsoRowCount, 0, ptr);
-		ptr = (char *)lv_table_get_cell_value(cqTable, row, 1);
-		lv_table_set_cell_value(qsoTable, qsoRowCount, 1, ptr);
-		ptr = (char *)lv_table_get_cell_value(cqTable, row, 2);
-		lv_table_set_cell_value(qsoTable, qsoRowCount, 2, ptr);
-		ptr = (char *)lv_table_get_cell_value(cqTable, row, 3);
-		lv_table_set_cell_value(qsoTable, qsoRowCount, 3, ptr);
+		lv_table_set_cell_value(qsoTable, qsoRowCount, 0, lv_table_get_cell_value(cqTable, row, 0));
+		lv_table_set_cell_value(qsoTable, qsoRowCount, 1, lv_table_get_cell_value(cqTable, row, 1));
+		lv_table_set_cell_value(qsoTable, qsoRowCount, 2, lv_table_get_cell_value(cqTable, row, 2));
+		lv_table_set_cell_value(qsoTable, qsoRowCount, 3, lv_table_get_cell_value(cqTable, row, 3));
 		qsoRowCount++;
 	}
 }
@@ -409,21 +386,15 @@ int gui_ft8::getQsoLogRows(){
 
 std::string gui_ft8::getQso(int row)
 {
-	char *ptr;
 	std::string s;
 
-	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 0);
-	s = std::string(ptr);
+	s = std::string(lv_table_get_cell_value(qsoTable, row, 0));
 	s += ",";
-	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 1);
-	s += std::string(ptr);
+	s += std::string(lv_table_get_cell_value(qsoTable, row, 1));
 	s += ",";
-	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 2);
-	s += std::string(ptr);
+	s += std::string(lv_table_get_cell_value(qsoTable, row, 2));
 	s += ",";
-	ptr = (char *)lv_table_get_cell_value(qsoTable, row, 3);
-	s += std::string(ptr);
-
+	s += std::string(lv_table_get_cell_value(qsoTable, row, 3));
 	return s;
 }
 

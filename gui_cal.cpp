@@ -28,36 +28,36 @@ void gui_cal::SaveCalibrationRxPhase()
 	Settings_file.set_array_int(default_radio, "rx-phase-correction", calRxPhasePerBand);
 }
 
-static void gain_slider_event_cb(lv_event_t *e)
+void gui_cal::gain_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_txgain_slider_label(), "tx gain %d", lv_slider_get_value(slider));
-	gcal.setTxGain(lv_slider_get_value(slider));
-	gcal.SaveCalibrationTxGain();
+	setTxGain(lv_slider_get_value(slider));
+	SaveCalibrationTxGain();
 }
 
-static void phase_slider_event_cb(lv_event_t *e)
+void gui_cal::phase_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_txphase_slider_label(), "tx phase %d", lv_slider_get_value(slider));
-	gcal.setTxPhase(lv_slider_get_value(slider));
-	gcal.SaveCalibrationTxPhase();
+	setTxPhase(lv_slider_get_value(slider));
+	SaveCalibrationTxPhase();
 }
 
-static void rxgain_slider_event_cb(lv_event_t *e)
+void gui_cal::rxgain_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_rxgain_slider_label(), "rx gain %d", lv_slider_get_value(slider));
-	gcal.setRxGain(lv_slider_get_value(slider));
-	gcal.SaveCalibrationRxGain();
+	setRxGain(lv_slider_get_value(slider));
+	SaveCalibrationRxGain();
 }
 
-static void rxphase_slider_event_cb(lv_event_t *e)
+void gui_cal::rxphase_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_rxphase_slider_label(), "rx phase %d", lv_slider_get_value(slider));
-	gcal.setRxPhase(lv_slider_get_value(slider));
-	gcal.SaveCalibrationRxPhase();
+	setRxPhase(lv_slider_get_value(slider));
+	SaveCalibrationRxPhase();
 }
 
 void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h)
@@ -138,7 +138,7 @@ void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *key
 	lv_slider_set_range(txgainslider, -150, 150);
 	lv_obj_set_width(txgainslider, gainwidth);
 	lv_obj_align(txgainslider, LV_ALIGN_TOP_LEFT, gainx, 15);
-	lv_obj_add_event_cb(txgainslider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(txgainslider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	//lv_slider_set_value(txgainslider, txgaincorrection, LV_ANIM_ON);
 	
 	int phase_y = 15 + button_height_margin;
@@ -149,7 +149,7 @@ void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *key
 	lv_slider_set_range(txphaseslider, -150, 150);
 	lv_obj_set_width(txphaseslider, gainwidth);
 	lv_obj_align(txphaseslider, LV_ALIGN_TOP_LEFT, gainx, phase_y);
-	lv_obj_add_event_cb(txphaseslider, phase_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(txphaseslider, phase_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	//lv_slider_set_value(txphaseslider, txphasecorrection, LV_ANIM_ON);
 
 	int rx_x_offset = gainx + gainwidth + 100;
@@ -160,7 +160,7 @@ void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *key
 	lv_slider_set_range(rxgainslider, -150, 150);
 	lv_obj_set_width(rxgainslider, gainwidth);
 	lv_obj_align(rxgainslider, LV_ALIGN_TOP_LEFT, rx_x_offset + gainx, 15);
-	lv_obj_add_event_cb(rxgainslider, rxgain_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(rxgainslider, rxgain_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	//lv_slider_set_value(rxgainslider, rxgaincorrection, LV_ANIM_ON);
 
 	rxphaselabel = lv_label_create(o_parent);
@@ -170,7 +170,7 @@ void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *key
 	lv_slider_set_range(rxphaseslider, -150, 150);
 	lv_obj_set_width(rxphaseslider, gainwidth);
 	lv_obj_align(rxphaseslider, LV_ALIGN_TOP_LEFT, rx_x_offset + gainx, phase_y);
-	lv_obj_add_event_cb(rxphaseslider, rxphase_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(rxphaseslider, rxphase_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	//lv_slider_set_value(rxphaseslider, rxphasecorrection, LV_ANIM_ON);
 }
 

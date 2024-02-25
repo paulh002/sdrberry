@@ -164,6 +164,8 @@ void gui_ft8bar::SetFrequency()
 	
 	int selection = lv_dropdown_get_selected(frequence);
 	int modeselection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
+	gbar.set_vfo(0);
+	Gui_tx.set_split(false);
 
 	switch (modeselection)
 	{
@@ -336,9 +338,15 @@ void gui_ft8bar::ClearMessage()
 void gui_ft8bar::setmodeclickable(bool clickable)
 {
 	if (clickable)
+	{
 		lv_obj_add_flag(wsjtxmode, LV_OBJ_FLAG_CLICKABLE);
+		lv_obj_add_flag(frequence, LV_OBJ_FLAG_CLICKABLE);
+	}
 	else
+	{
 		lv_obj_clear_flag(wsjtxmode, LV_OBJ_FLAG_CLICKABLE);
+		lv_obj_clear_flag(frequence, LV_OBJ_FLAG_CLICKABLE);
+	}
 }
 
 void gui_ft8bar::SetTxMessage(std::string msg)
@@ -403,12 +411,12 @@ static void message_part_event_cb(lv_event_t *e)
 	}
 }
 
-static void freq_event_handler(lv_event_t *e)
+void gui_ft8bar::freq_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		guift8bar.SetFrequency();
+		SetFrequency();
 	}
 }
 
@@ -570,7 +578,10 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
 	{
 		char str[80];
-		sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
+		long khz = *it / 1000;
+		int hhz = (*it - (*it / 1000) * 1000) / 100;
+
+		sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));
 		lv_dropdown_add_option(frequence, str, LV_DROPDOWN_POS_LAST);
 	}
 	ibutton_x++;

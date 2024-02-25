@@ -698,6 +698,20 @@ void gui_bar::hide(bool hide)
 	}
 }
 
+void gui_bar::set_vfo(int active_vfo) 
+{
+	if (active_vfo)
+	{
+		lv_obj_add_state(button[8], LV_STATE_CHECKED);
+		vfo.set_active_vfo(1);
+	}
+	else
+	{
+		lv_obj_clear_state(button[8], LV_STATE_CHECKED);
+		vfo.set_active_vfo(0);
+	}
+}
+
 void gui_bar::set_filter_slider(int ifilter)
 {
 	if (!button[number_of_buttons - 1])

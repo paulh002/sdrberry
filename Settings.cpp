@@ -210,16 +210,7 @@ void Settings::read_settings(string settings_file)
 		//cout << "Option name: " << option.first << endl;
 		probes.insert(pair<string, string>(option.first, option.second));
 	}
-	for (auto& option : config->getSection("VFO1"))
-	{
-		//cout << "Option name: " << option.first << endl;
-		vfo1.insert(pair<string, string>(option.first, option.second));
-	}
-	for (auto& option : config->getSection("VFO2"))
-	{
-		//cout << "Option name: " << option.first << endl;
-		vfo2.insert(pair<string, string>(option.first, option.second));
-	}
+
 	for (auto& option : config->getSection("Audio"))
 	{
 		//cout << "Option name: " << option.first << endl;
@@ -317,39 +308,6 @@ string Settings::find_probe(string key)
 	if (probes.find(key) != probes.end())
 	{
 		auto s = probes.find(key);
-		return string((char *)s->second.c_str());
-	}
-	else 
-		return string("");
-}
-
-long long Settings::find_vfo1_freq(string key)
-{
-	if (vfo1.find(key) != vfo1.end())
-	{
-		auto s = vfo1.find(key);
-		return strtoll((const char *)s->second.c_str(),NULL,0);
-	}
-	else 
-		return 0LL;
-}
-
-string Settings::find_vfo1(string key)
-{
-	if (vfo1.find(key) != vfo1.end())
-	{
-		auto s = vfo1.find(key);
-		return string((char *)s->second.c_str());
-	}
-	else 
-		return string("");
-}
-
-string Settings::find_vfo2(string key)
-{
-	if (vfo2.find(key) != vfo2.end())
-	{
-		auto s = vfo2.find(key);
 		return string((char *)s->second.c_str());
 	}
 	else 
@@ -617,15 +575,25 @@ void Settings::save_span(int span)
 
 // New functions
 
-int Settings::get_int(string sdrdevice, string key, int defaultValue)
+int Settings::get_int(string section, string key, int defaultValue)
 {
-	auto option = config->getSection(sdrdevice);
+	auto option = config->getSection(section);
 	auto s = option.find(key);
 	if (s == option.end())
 		return defaultValue;
 	string st = s->second;
 	int value = atoi((const char *)st.c_str());
 	return value;
+}
+
+long long Settings::get_longlong(string section, string key, long defaultValue)
+{
+	auto option = config->getSection(section);
+	auto s = option.find(key);
+	if (s == option.end())
+		return defaultValue;
+	string st = s->second;
+	return strtoll((const char *)st.c_str(), NULL, 0);
 }
 
 void Settings::save_int(string section, string key, int value)

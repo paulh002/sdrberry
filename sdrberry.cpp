@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 	
 	bpf.initFilter();
 
-	std::string smode = Settings_file.find_vfo1("Mode");
+	std::string smode = Settings_file.get_string("VFO1","Mode");
 	mode = Settings_file.convert_mode(smode);
 
 	
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	SoapySDR::ModuleManager mm(false);
 	SoapySDR::loadModules();
-	freq = Settings_file.find_vfo1_freq("freq");
+	freq = Settings_file.get_int("VFO1","freq");
 
 	default_radio = Settings_file.find_sdr("default");
 	for (auto &con : Settings_file.receivers)
@@ -740,7 +740,6 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		return;
 	}
 	vfo.vfo_rxtx(true, false);
-	vfo.set_freq_to_sdr();
 	if (bvfo)
 	{
 		vfo.set_mode(0, mode);
@@ -800,7 +799,6 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		EchoAudio::create_modulator(audio_output,audio_input);
 		break;
 	}
-	vfo.set_freq_to_sdr();
 	catinterface.Pause_Cat(false);
 }
 
@@ -825,8 +823,8 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	pause_flag = true;
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
-	vfo.vfo_rxtx(false, true);
-	vfo.set_vfo(0);
+	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());
+	vfo.set_vfo(0, vfo_activevfo::None, gui_vfo_inst.get_split());
 	printf("select_mode_tx start tx threads\n");
 	switch (mode)
 	{

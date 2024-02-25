@@ -79,6 +79,7 @@ class gui_bar
 	void setIfGainOverflow(bool state);
 	void hide(bool hide);
 	void hidetx();
+	void set_vfo(int active_vfo);
 
 	lv_obj_t *get_button_obj(int i)
 	{

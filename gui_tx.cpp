@@ -232,21 +232,18 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 	}
 	if (s == "Sync RX vfo")
 	{
-		lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED); 
 		vfo.set_active_vfo(0);			
 		vfo.sync_rx_vfo();
 	}
 	if (s == "Split TX vfo")
 	{
-		if ((lv_obj_get_state(get_button_obj(3)) & LV_STATE_CHECKED) &&
-		 (lv_obj_get_state(get_button_obj(0)) & LV_STATE_CHECKED))
+		if (lv_obj_get_state(get_button_obj(3)) & LV_STATE_CHECKED)
 		{
-			// If Vfo split mode set active vfo 1
-			vfo.set_active_vfo(1);
+			gui_vfo_inst.set_split(true);
 		}
 		else
 		{
-			vfo.set_active_vfo(0);			
+			gui_vfo_inst.set_split(false);
 		}
 	}
 }
@@ -378,4 +375,18 @@ lv_obj_t* gui_tx::get_button_obj(int i)
 	if (i >= ibuttons)
 		return nullptr;
 	return tx_button[i];
+}
+
+void gui_tx::set_split(bool _split)
+{
+	if (_split)
+	{
+		gui_vfo_inst.set_split(true);
+		lv_obj_add_state(get_button_obj(3), LV_STATE_CHECKED);
+	}
+	else
+	{
+		gui_vfo_inst.set_split(false);
+		lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED);
+	}
 }

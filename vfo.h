@@ -72,8 +72,7 @@ class CVfo
 	void vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth);
 	void set_span(long span);
 	bool compare_span();
-	int set_vfo(long long freq, vfo_activevfo ActiveVfo = vfo_activevfo::None);
-	void set_freq_to_sdr();
+	int set_vfo(long long freq, vfo_activevfo ActiveVfo = vfo_activevfo::None, bool split = false);
 	void step_vfo(long icount);
 	long get_active_vfo_freq();
 	std::string get_vfo_str();
@@ -82,7 +81,7 @@ class CVfo
 	void set_vfo_range(long long low, long long high);
 	void set_band(int band, long long freq);
 	void sync_rx_vfo();
-	void vfo_rxtx(bool brx, bool btx);
+	void vfo_rxtx(bool brx, bool btx, bool split = false);
 	void pause_step(bool pause) {pausevfo = pause;}
 	void set_step(int step, int delay);
 	void setVfoFrequency(int direction);
@@ -111,7 +110,7 @@ class CVfo
 		return vfo_setting.vfo_freq[vfo_setting.active_vfo];
 	}
 
-	long long get_tx_frequency();
+	long long get_tx_frequency(bool split);
 	long get_vfo_offset();
 	void return_bands(vector<int> &bands);
 
@@ -131,7 +130,7 @@ class CVfo
 
 	int get_band(int active_vfo);
 	void rx_set_sdr_freq();
-	void tx_set_sdr_freq();
+	void tx_set_sdr_freq(bool split);
 };
 
 extern CVfo vfo;

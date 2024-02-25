@@ -10,23 +10,23 @@ extern const int tunerHeight;
 
 class gui_tx
 {
-private:
-	lv_obj_t*		mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label, *drp_samplerate; 
+  private:
+	lv_obj_t *mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label, *drp_samplerate;
 
-	lv_style_t		style_btn;
-	lv_obj_t		*tx_button[10];
-	vector<int>		sample_rates;
-	int				ibuttons;
-	const int		number_of_buttons {7};
-	lv_group_t		*m_button_group{nullptr};
+	lv_style_t style_btn;
+	lv_obj_t *tx_button[10];
+	vector<int> sample_rates;
+	int ibuttons;
+	const int number_of_buttons{7};
+	lv_group_t *m_button_group{nullptr};
 
-	lv_obj_t* get_button_obj(int i);
-	void mic_slider_event_cb_class(lv_event_t* e);
-	void tx_button_handler_class(lv_event_t* e);
-	void drv_slider_event_cb_class(lv_event_t* e);
-
-public:
-	void gui_tx_init(lv_obj_t* o_tab, lv_coord_t w);
+	lv_obj_t *get_button_obj(int i);
+	void mic_slider_event_cb_class(lv_event_t *e);
+	void tx_button_handler_class(lv_event_t *e);
+	void drv_slider_event_cb_class(lv_event_t *e);
+	
+  public:
+	void gui_tx_init(lv_obj_t *o_tab, lv_coord_t w);
 	void set_mic_slider(int volume);
 	void step_mic_slider(int step);
 	void set_drv_slider(int drive);
@@ -37,7 +37,8 @@ public:
 	void set_sample_rate(int rate);
 	void clear_sample_rate();
 	void set_group();
-	int	get_drv_pos();
+	int get_drv_pos();
+	void set_split(bool _split);
 
 	static constexpr auto mic_slider_event_cb = EventHandler<gui_tx, &gui_tx::mic_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_button_handler = EventHandler<gui_tx, &gui_tx::tx_button_handler_class>::staticHandler;

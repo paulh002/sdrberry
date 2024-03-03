@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
 */
 	wsjtx = make_unique<wsjtx_lib>();
 	KeyboardDevice.init_keyboard();
-	Mouse_dev.init_mouse(Settings_file.find_input("mouse"));
+	Mouse_dev.init_mouse();
 	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
 	HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
 	HidDev_dev2.init("HID 413d:553a");

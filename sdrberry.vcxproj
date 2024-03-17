@@ -76,6 +76,7 @@
       <WarnOnUnusedParameters>Disabled</WarnOnUnusedParameters>
       <WarnOnUnusedVariables>Disabled</WarnOnUnusedVariables>
       <WarnOnMismatchingInitializationOrder>Disabled</WarnOnMismatchingInitializationOrder>
+      <LinkTimeOptimization>true</LinkTimeOptimization>
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>

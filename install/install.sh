@@ -151,12 +151,11 @@ function install_dependency {
 }
 
 install_dependency raspberrypi-kernel-headers
-install_dependency linux-headers-rpi
 install_dependency git
 install_dependency device-tree-compiler
 install_dependency pigpio
 
-git clone  --depth=1 https://github.com/pa3gsb/Radioberry-2.x
+git clone  --depth=1 https://github.com/paulh002/Radioberry-2.x
 
 #-----------------------------------------------------------------------------
 
@@ -201,7 +200,7 @@ sudo cp radioberry.ko /lib/modules/$(uname -r)/kernel/drivers/sdr
 sudo dtc -@ -I dts -O dtb -o radioberry.dtbo radioberry.dts
 sudo cp radioberry.dtbo /boot/overlays
 #add driver to config.txt
-sudo grep -Fxq "dtoverlay=radioberry" /boot/config.txt || sudo sed -i '$ a dtoverlay=radioberry' /boot/config.txt
+sudo grep -Fxq "dtoverlay=radioberry" /boot/firmware/config.txt || sudo sed -i '$ a dtoverlay=radioberry' /boot/config.txt
 
 cd ../../../../..
 	
@@ -280,8 +279,8 @@ fi
 cd $wrkdir || exit
 
 #enable I2C
-sudo sed -i 's/$/ vt.global_cursor_default=0 usbhid.mousepoll=2/' /boot/cmdline.txt
-sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/config.txt
+sudo sed -i 's/$/ vt.global_cursor_default=0 usbhid.mousepoll=2/' /boot/firmware/cmdline.txt
+sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/firmware/config.txt
 
 #Do Cleanup
 #rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*

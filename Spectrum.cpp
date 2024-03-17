@@ -253,7 +253,7 @@ void Spectrum::set_pos(int32_t offset)
 	if (pos >= data_set.size())
 		pos = data_set.size() - 1;
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
-	//printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
+//	printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
 }
 
 void Spectrum::set_fft_if_rate(float ifrate, int n)

@@ -620,6 +620,7 @@ int main(int argc, char *argv[])
 					gbar.setIfGainOverflow(true);
 				else
 					gbar.setIfGainOverflow(false);
+				break;
 			case GuiMessage::setpos:
 				SpectrumGraph.set_pos(vfo.get_vfo_offset());
 				break;

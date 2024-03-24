@@ -662,5 +662,8 @@
     <ClInclude Include="AudioHeader.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="DouglasPeucker.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

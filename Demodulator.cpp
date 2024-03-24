@@ -23,6 +23,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 	adjustPhaseGain = get_gain_phase_correction();
+	highfftquadrant = 0;
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -36,6 +37,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffertx");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
+	highfftquadrant = 0;
 	adjustPhaseGain = get_gain_phase_correction();
 
 	// resampler and band filter assume pcmfrequency on the low side
@@ -49,6 +51,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	receiveIQBuffer = source_buffer;
 	audioOutputBuffer = audio_output;
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer");
+	highfftquadrant = 0;
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 
@@ -69,30 +72,35 @@ void Demodulator::set_signal_strength()
 
 // decrease the span of the fft display by downmixing the bandwidth of the receiver
 // Chop the bandwith in parts en display correct part
-void Demodulator::set_span(int span)
+void Demodulator::set_span(long span)
 {
-	if ((span < ifSampleRate) && span > 0)
+	std::pair<int, double> span_ex = vfo.compare_span_ex();
+
+	switch (span_ex.first)
 	{
+	case 0:
+	case 1:
 		if (m_span != span)
 		{
-			set_fft_resample_rate((float)span * 2);
+			m_span = span;
+			set_fft_resample_rate(0.0);
+			set_fft_mixer(0);
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
 		}
+		break;
+	case 2:
+		if (m_span != span)
+			set_fft_resample_rate((float)span * 2);
 		m_span = span;
-		int n = (vfo.get_vfo_offset() / m_span);
-		//printf("window: %d  offset %d\n", n, m_span * n);
-		set_fft_mixer(m_span * n);
-		SpectrumGraph.set_fft_if_rate(2 * m_span, n);
-		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
-	}
-	else
-	{
-		m_span = span;
-		set_fft_resample_rate(0.0);
-		set_fft_mixer(0);
-		SpectrumGraph.set_fft_if_rate(ifSampleRate, 0);
-		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
+		int highfftquadrant_ = (vfo.get_vfo_offset() / m_span);
+		if (highfftquadrant != highfftquadrant_)
+		{
+			highfftquadrant = highfftquadrant_;
+			//printf("window: %d  offset %d\n", n, m_span * n);
+			set_fft_mixer(m_span * highfftquadrant);
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
+		}
+		break;
 	}
 }
 

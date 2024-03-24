@@ -21,7 +21,7 @@ extern const int rightWidth;
 Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
 					 float r, int wfloor, waterfallFlow flow, partialspectrum p, int margin)
 	: width(w), height(h), resampleRate(r), waterfallfloor(wfloor), waterfallflow(flow), partialSpectrum(p),
-	  excludeMargin(margin), max(50.0), min(0.0)
+	  excludeMargin(margin), max(50.0), min(0.0), factor(0.0f)
 {
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
@@ -35,33 +35,30 @@ Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	SetPartial(partialSpectrum);
 }
 
-void Waterfall::SetSpan(int span)
-{
-	partialspectrum part;
-	if ((ifrate - (float)span) > 0.1)
-		part = lowerpart;
-	else
-		part = allparts;
-	SetPartial(part);		
-}
-
 void Waterfall::SetMaxMin(float _max, float _min)
 {
 	max = _max;
 	min = _min;
 }
 
-void Waterfall::SetPartial(partialspectrum p) 
+void Waterfall::SetPartial(partialspectrum p, float factor_, float downMixFrequency) 
 {
 	std::unique_lock<std::mutex> lock(mutexSingleEntry);
 	partialSpectrum = p;
-	
-	if (p == allparts)
+	resampleRate = factor_;
+	switch (p)
+	{
+	case regionpart:
+	case allparts:
 		NumberOfBins = width - 2 * excludeMargin;
-	else
+		break;
+	case upperpart:
+	case lowerpart:
 		NumberOfBins = (width - 2 * excludeMargin) * 2;
+		break;
+	}
 	fft.reset();
-	fft = std::make_unique<FastFourier>(NumberOfBins, resampleRate);
+	fft = std::make_unique<FastFourier>(NumberOfBins, resampleRate, downMixFrequency);
 }
 
 Waterfall::~Waterfall()
@@ -111,12 +108,23 @@ void Waterfall::Draw()
 	}
 
 	std::vector<float> frequencySpectrum;
-	if (partialSpectrum == allparts)
+	if (partialSpectrum == allparts || partialSpectrum == regionpart)
 		frequencySpectrum = fft->GetLineatSquaredBins();
 	else
 		frequencySpectrum = fft->GetSquaredBins();
 
 	int zz = 0;
+	/*if (partialSpectrum == regionpart)
+	{
+		std::vector<float> fftspectrum;
+		for (int ii = NumberOfBins * factor; ii < frequencySpectrum.size(); ii++)
+		{
+			fftspectrum.push_back(frequencySpectrum.at(ii));
+		}
+		frequencySpectrum = resampleArray(fftspectrum, width);
+	}
+	*/
+	
 	for (lv_coord_t i = excludeMargin; i < width - excludeMargin ; i++)
 	{
 		switch(partialSpectrum)
@@ -128,6 +136,9 @@ void Waterfall::Draw()
 		case lowerpart:
 			zz = i - excludeMargin;
 			break;
+		case regionpart:
+			zz = i - excludeMargin;
+			break;
 		}
 		lv_color_t c = heatmap((float)waterfallfloor + 20.0 * log10(frequencySpectrum.at(zz)), min, max);
 		if (waterfallflow == up)
@@ -137,6 +148,32 @@ void Waterfall::Draw()
 		//printf("%f\n",  20 * log10(f.at(zz)));
 	}
 }
+
+float Waterfall::lerp(float a, float b, float t)
+{
+	return a + t * (b - a);
+}
+
+// Resample array function
+std::vector<float> Waterfall::resampleArray(const std::vector<float> &originalArray, size_t numPoints)
+{
+	std::vector<float> resampledArray(numPoints);
+
+	float spacing = static_cast<float>(originalArray.size() - 1) / (numPoints - 1);
+
+	for (size_t i = 0; i < numPoints; ++i)
+	{
+		float index = i * spacing;
+		size_t lowIndex = static_cast<size_t>(index);
+		size_t highIndex = std::min(lowIndex + 1, originalArray.size() - 1);
+
+		float t = index - lowIndex;
+		resampledArray[i] = lerp(originalArray[lowIndex], originalArray[highIndex], t);
+	}
+
+	return resampledArray;
+}
+
 
 lv_color_t Waterfall::heatmap(float val, float min, float max)
 {

@@ -10,6 +10,7 @@
 #include <liquid/liquid.h>
 #include <mutex>
 #include <vector>
+#include "DouglasPeucker.h"
 
 using namespace std;
 
@@ -49,14 +50,19 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		if (p.x > 0)
 		{
 			long long f;
-			int span = gsetup.get_span();
-			if (!vfo.compare_span())
+			int span = vfo.get_span();
+			std::pair<int, double> span_ex = vfo.compare_span_ex();
+			switch (span_ex.first)
 			{
-				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
-			}
-			else
-			{
+			case 0:
 				f = vfo.get_sdr_span_frequency();
+				break;
+			case 1:
+				f = vfo.get_sdr_span_frequency() - vfo.get_minoffset() ;
+				break;
+			case 2:
+				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
+				break;
 			}
 			f = p.x *(span / screenWidth) + f;
 			if (vfo.get_frequency() != f)
@@ -115,24 +121,29 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 		/*Set the markers' text*/
 		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
 		{
+			std::pair<int, double> span_ex = vfo.compare_span_ex();
 			int span = gsetup.get_span();
-			long long f;
-			int ii, offset{0};
-			
-			if (!vfo.compare_span())
-			{
-				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
-				ii = span / (vert_lines - 1);
-			}
-			else
-			{
-				offset = vfo.get_vfo_offset() / span; // is offset higher than span? 
-				f = vfo.get_sdr_frequency() + offset * span;
-				ii = span / (vert_lines - 1);
-			}
+			int ii; 
+			double offset{0}, f{};
 
+			switch (span_ex.first)
+			{
+			case 0:
+				f = (double)vfo.get_sdr_frequency() - (double)(span / 2.0);
+				ii = span / (vert_lines - 1);
+				break;
+			case 1:
+				f = (double)vfo.get_sdr_frequency() - (double)vfo.get_minoffset() ;
+				ii = span / (vert_lines - 1);
+				break;
+			case 2:
+				offset = vfo.get_vfo_offset() / span;
+				f = (double)vfo.get_sdr_frequency() + offset * (double)span;
+				ii = span / (vert_lines - 1);
+				break;
+			}
 			f = f + dsc->value * ii;
-			long l = (long)(f / 1000ULL);
+			long l = (long)round(f / 1000.0);
 			lv_snprintf(dsc->text, 19, "%ld", l);
 		}
 	}
@@ -186,21 +197,18 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
-	m_ifrate = ifrate;
-	for (int i; i < nfft_samples / 2; i++)
+	for (int i = 0; i < nfft_samples / 2; i++)
 		data_set.push_back(0);
 	lv_chart_set_point_count(chart, data_set.size());
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
 	avg_filter.resize(nfft_samples);
-	fft = std::make_unique<FastFourier>(nfft_samples, 0.0);
+	fft = std::make_unique<FastFourier>(nfft_samples, 0, 0);
 	if (waterfallsize > 0)
-	{	
+	{
 		int waterfallfloor = Settings_file.get_int("Radio", "waterfallfloor", 10);
 		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, waterfallfloor, down, allparts, 12);
-		int span = gsetup.get_span();
-		if ((ifrate - (float)span) > 0.1)
-			waterfall->SetSpan(span);
 	}
+	SetFftParts();
 }
 
 void Spectrum::DrawWaterfall()
@@ -210,10 +218,40 @@ void Spectrum::DrawWaterfall()
 		waterfall->Draw();
 }
 
-void Spectrum::SetSpan(int span)
+void Spectrum::SetFftParts()
 {
+	std::pair<int, double> span_ex = vfo.compare_span_ex();
+	if (fft)
+	{
+		switch (span_ex.first)
+		{
+		case 0:
+			fft->SetParameters(nfft_samples);
+			break;
+		case 1:
+			fft->SetParameters(nfft_samples, (float)vfo.get_span() / (float)ifrate,  0.5f * ((float)ifrate - (float)vfo.get_span()) / ifrate);
+			break;
+		case 2:
+			fft->SetParameters(nfft_samples);
+			break;
+		}
+	}
+	
 	if (waterfall)
-		waterfall->SetSpan(span);
+	{
+		switch (span_ex.first)
+		{
+		case 0:
+			waterfall->SetPartial(allparts);
+			break;
+		case 1:
+			waterfall->SetPartial(regionpart, (float)vfo.get_span() / (float)ifrate, 0.5f * ((float)ifrate - (float)vfo.get_span()) / ifrate);
+			break;
+		case 2:
+			waterfall->SetPartial(lowerpart);
+			break;
+		}
+	}
 }
 
 void Spectrum::set_signal_strength(double strength)
@@ -233,33 +271,19 @@ void Spectrum::set_pos(int32_t offset)
 	int pos;
 	float d;
 	int span = gsetup.get_span();
+	
 
-	if (vfo.compare_span())
-	{
-		// span <> ifrate
-		offset = offset - ((m_ifrate.load() / 2) * m_n.load());
-		float div = m_ifrate.load() / nfft_samples;
-		pos = (uint32_t)round(offset / div) - 1;
-	}
-	else
-	{
-		// currenlty nog negative offset still need to change
-		//d = ((float)offset + (float)m_ifrate.load() / 2.0) / (float)m_ifrate.load();
-		d = ((float)offset + (float)span / 2.0) / (float)span;
-		pos = (d * (float)data_set.size()) - 1;
-	}
+	if (!data_set.size())
+		return;
+
+	d = (float)(data_set.size() * ((float)(offset + vfo.get_minoffset())) / (float)span);
+	pos = d - 1;
 	if (pos < 0)
 		pos = 0;
 	if (pos >= data_set.size())
 		pos = data_set.size() - 1;
 	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
-//	printf("sdr %ld offset %d pos: %d ifrate %f \n", (long)vfo.get_sdr_frequency(), offset, pos, m_ifrate.load());
-}
-
-void Spectrum::set_fft_if_rate(float ifrate, int n)
-{
-	m_ifrate.store(ifrate);
-	m_n.store(n);
+	printf("Pos: freq: %ld sdr %ld offset %d pos: %d span %d \n", (long)vfo.get_frequency(), (long)vfo.get_sdr_frequency(), offset, pos, span);
 }
 
 void Spectrum::load_data()
@@ -275,41 +299,49 @@ void Spectrum::load_data()
 
 void Spectrum::upload_fft()
 {
-	int i{}, value{};
+	int i{};
+	std::pair<int, double> span_ex = vfo.compare_span_ex();
 
 	int noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
-	if (vfo.compare_span())
+	switch (span_ex.first)
 	{
-		std::vector<float> fft_output = fft->GetSquaredBins();
-		data_set.resize(fft_output.size() / 2);
-		for (auto &col : fft_output)
-		{
-			if (i == (fft_output.size() / 2))
-				break;
-			value = noisefloor + (lv_coord_t)(20.0 * log10(col));
-			if (value > 99.0)
-				value = 99.0;
-			data_set[i] = avg_filter[i](value);
-			i++;
-		}
-	}
-	else
+	case 0:
+	case 1:
 	{
-		int ii = 0;
-		std::vector<float> fft_output = fft->GetLineatSquaredBins();
-		data_set.resize(fft_output.size()/2);
-		for (auto &col : fft_output)
-		{
-			value = noisefloor + (lv_coord_t)(20.0 * log10(col));
-			if (value > 99.0)
-				value = 99.0;
-			if (i % 2)
+			int ii{}, value{};
+			std::vector<float> fft_output = fft->GetLineatSquaredBins();
+			data_set.resize(fft_output.size() / 2);
+			for (auto &col : fft_output)
 			{
-				data_set[ii] = avg_filter[ii](value);
-				ii++;
+				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
+				if (value > 99.0)
+					value = 99.0;
+				if (i % 2)
+				{
+					data_set[ii] = avg_filter[ii](value);
+					ii++;
+				}
+				i++;
 			}
-			i++;
 		}
+		break;
+	case 2:
+		{
+			int value{};
+			std::vector<float> fft_output = fft->GetSquaredBins();
+			data_set.resize(fft_output.size() / 2);
+			for (auto &col : fft_output)
+			{
+				if (i == (fft_output.size() / 2))
+					break;
+				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
+				if (value > 99.0)
+					value = 99.0;
+				data_set[i] = avg_filter[i](value);
+				i++;
+			}
+		}
+	break;
 	}
 }
 

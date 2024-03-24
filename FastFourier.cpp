@@ -1,6 +1,6 @@
 #include "FastFourier.h"
 
-FastFourier::FastFourier(int nbins, float rs)
+FastFourier::FastFourier(int nbins, float rs, float downMixFrequency)
 	: numberOffBins(nbins), resampleRate(rs)
 {
 	float As{60.0f};
@@ -13,31 +13,101 @@ FastFourier::FastFourier(int nbins, float rs)
 	}
 	if (resampleRate > 0.0)
 		resampleHandle = msresamp_crcf_create(resampleRate, As);
+	if (downMixFrequency > 0.0)
+	{
+		float rad_per_sample = 2.0f * (float)M_PI * downMixFrequency;
+		if (ncoMixerHandle == nullptr)
+			ncoMixerHandle = nco_crcf_create(LIQUID_NCO);
+		nco_crcf_set_phase(ncoMixerHandle, 0.0f);
+		nco_crcf_set_frequency(ncoMixerHandle, rad_per_sample);
+	}
+}
+
+void FastFourier::SetParameters(int nbins, float resampleRate, float downMixFrequency)
+{
+	float As{60.0f};
+	std::unique_lock<std::mutex> lock(mutexSingleEntry);
+	
+	fftBins.resize(numberOffBins);
+	if (resampleHandle != nullptr)
+		msresamp_crcf_destroy(resampleHandle);
+	if (ncoMixerHandle != nullptr)
+		nco_crcf_destroy(ncoMixerHandle);
+	resampleHandle = nullptr;
+	ncoMixerHandle = nullptr;
+	hammingWindow.clear();
+	for (int i = 0; i < numberOffBins; i++)
+	{
+		hammingWindow.insert(hammingWindow.end(), liquid_windowf(LIQUID_WINDOW_HAMMING, i, numberOffBins, 0));
+	}
+	
+	if (resampleRate > 0.0)
+		resampleHandle = msresamp_crcf_create(resampleRate, As);
+	if (downMixFrequency > 0.0)
+	{
+		float rad_per_sample = 2.0f * (float)M_PI * downMixFrequency;
+		if (ncoMixerHandle == nullptr)
+			ncoMixerHandle = nco_crcf_create(LIQUID_NCO);
+		nco_crcf_set_phase(ncoMixerHandle, 0.0f);
+		nco_crcf_set_frequency(ncoMixerHandle, rad_per_sample);
+	}
+	printf("FFT: nbins %d, reasmpleRate %f, downMixFrequency %f \n", nbins, resampleRate, downMixFrequency);
 }
 
 FastFourier::~FastFourier()
 {
 	if (resampleHandle)
 		msresamp_crcf_destroy(resampleHandle);
+	if (ncoMixerHandle != nullptr)
+		nco_crcf_destroy(ncoMixerHandle);
 }
 
 void FastFourier::Process(const IQSampleVector &input)
 {
+	std::unique_lock<std::mutex> lock(mutexSingleEntry);
 	unsigned int num_written;
 
-	if (input.size() < numberOffBins)
+	if (resampleHandle)
 	{
-		inputData.insert(inputData.end(), input.begin(), input.end());
+		std::vector<std::complex<float>> data, filter_out;
+
+		for (auto col = input.begin(); col != input.begin() + numberOffBins && col != input.end(); col++)
+		{
+			std::complex<float> v;
+
+			if (ncoMixerHandle)
+			{
+				nco_crcf_step(ncoMixerHandle);
+				nco_crcf_mix_down(ncoMixerHandle, *col, &v);
+			}
+			else
+			{
+				v = *col;
+			}
+			filter_out.push_back(v);
+		}
+		data.resize(filter_out.size());
+		msresamp_crcf_execute(resampleHandle, (std::complex<float> *)filter_out.data(), filter_out.size(), (std::complex<float> *)data.data(), &num_written);
+		data.resize(num_written);
+		inputData.insert(inputData.end(), data.begin(), data.end());
 		if (inputData.size() < numberOffBins)
 			return;
 	}
 	else
-		inputData.insert(inputData.end(), input.begin(), input.end());
-	if (resampleHandle)
 	{
-		msresamp_crcf_execute(resampleHandle, (std::complex<float> *)inputData.data(), inputData.size(), (std::complex<float> *)inputData.data(), &num_written);
-		inputData.resize(num_written);
+		if (input.size() < numberOffBins)
+		{
+			inputData.insert(inputData.end(), input.begin(), input.end());
+			if (inputData.size() < numberOffBins)
+				return;
+		}
+		else
+		{
+			auto end = input.begin() + numberOffBins;
+			inputData.insert(inputData.end(), input.begin(), end);
+		}
 	}
+
 	for (int i = 0; i < numberOffBins; i++)
 	{
 		inputData[i].real(inputData[i].real() * hammingWindow[i]);

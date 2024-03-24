@@ -97,7 +97,8 @@ void AMDemodulator::operator()()
 	
 	AudioProcessor Agc;
 	
-	int lowPassAudioFilterCutOffFrequency {-1}, span, droppedFrames {0};
+	int lowPassAudioFilterCutOffFrequency {-1}, droppedFrames {0};
+	long span;
 	SampleVector            audioSamples, audioFrames;
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			dc_iqsamples, iqsamples;
@@ -116,14 +117,14 @@ void AMDemodulator::operator()()
 	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
 	Agc.setThresholdDB(gagc.get_threshold());
 	Agc.setRatio(10);
-	set_span(gsetup.get_span());
+	set_span(vfo.get_span());
 	receiveIQBuffer->clear();
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
 	while (!stop_flag.load())
 	{
 		start1 = std::chrono::high_resolution_clock::now();
-		span = gsetup.get_span();
+		span = vfo.get_span();
 		if (vfo.tune_flag.load() || m_span != span)
 		{
 			vfo.tune_flag = false;
@@ -218,7 +219,8 @@ void AMDemodulator::operator()()
 			timeLastFlashGainSlider = now;
 		}
 		
-		if (timeLastPrint + std::chrono::seconds(10) < now)
+		//if (timeLastPrint + std::chrono::seconds(10) < now)
+		if (false)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);

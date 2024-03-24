@@ -15,13 +15,14 @@ void FMDemodulator::operator()()
 {	
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
-	
-	int						ifilter {-1}, span;
-	SampleVector            audiosamples, audioframes;
+
+	int ifilter{-1};
+	long span;
+	SampleVector audiosamples, audioframes;
 	
 	while (!stop_flag.load())
 	{
-		span = gsetup.get_span();
+		span = vfo.get_span();
 		if (vfo.tune_flag.load() || m_span != span)
 		{
 			vfo.tune_flag = false;

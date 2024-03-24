@@ -29,8 +29,6 @@ class Spectrum
 	lv_chart_series_t *ser;
 	lv_style_t Spectrum_style;
 	lv_chart_cursor_t *m_cursor;
-	std::atomic<float> m_ifrate;
-	std::atomic<int> m_n;
 	std::unique_ptr<Waterfall> waterfall;
 	std::atomic<double> signal_strength{0};
 	std::vector<SMA<2>> avg_filter;
@@ -48,12 +46,11 @@ class Spectrum
 	void set_pos(int32_t offset);
 	std::vector<lv_coord_t> data_set;
 	lv_chart_cursor_t *get_cursor() { return m_cursor; }
-	void set_fft_if_rate(float ifrate, int n);
 	void DrawWaterfall();
 	void ProcessWaterfall(const IQSampleVector &input);
 	void set_signal_strength(double strength);
 	double get_signal_strength() { return signal_strength; }
-	void SetSpan(int span);
+	void SetFftParts();
 
 	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
 	static constexpr auto click_event_cb = EventHandler<Spectrum, &Spectrum::click_event_cb_class>::staticHandler;

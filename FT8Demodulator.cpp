@@ -84,7 +84,8 @@ void FT8Demodulator::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto today = date::floor<date::days>(startTime);
 
-	int ifilter{-1}, span, rcount{0}, dropped_frames{0};
+	int ifilter{-1}, rcount{0}, dropped_frames{0};
+	long span;
 	int cycletime_duration_tensseconds{150}, starttime_delay{0};
 	int capture_time_duration_ms{150};
 	SampleVector audiosamples, audioframes;
@@ -116,7 +117,7 @@ void FT8Demodulator::operator()()
 	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
-		span = gsetup.get_span();
+		span = vfo.get_span();
 		if (vfo.tune_flag.load() || m_span != span)
 		{
 			vfo.tune_flag = false;

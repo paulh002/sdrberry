@@ -191,6 +191,7 @@
     <ClInclude Include="date.h" />
     <ClInclude Include="Demodulator.h" />
     <ClInclude Include="DigitalTransmission.h" />
+    <ClInclude Include="DouglasPeucker.h" />
     <ClInclude Include="EchoAudio.h" />
     <ClInclude Include="EnergyCalculator.h" />
     <ClInclude Include="FastFourier.h" />

@@ -6,11 +6,12 @@
 #include <fftw3.h>
 #include <liquid/liquid.h>
 #include <vector>
+#include <mutex>
 
 class FastFourier
 {
   public:
-	FastFourier(int nbins, float rs);
+	FastFourier(int nbins, float rs, float downMixFrequency);
 	~FastFourier();
 	void Process(const IQSampleVector &input);
 	int Size();
@@ -18,6 +19,7 @@ class FastFourier
 	std::vector<float> GetSquaredBins();
 	std::vector<float> GetLineatSquaredBins();
 	void SetInvert(bool inv);
+	void SetParameters(int nbins, float resampleRate = 0.0f, float downMixFrequency = 0.0f);
 
   private:
 	const int type = LIQUID_FFT_FORWARD;
@@ -29,4 +31,6 @@ class FastFourier
 	msresamp_crcf resampleHandle{0};
 	bool invert{false};
 	float resampleRate{};
+	nco_crcf ncoMixerHandle{nullptr};
+	std::mutex mutexSingleEntry;
 };

@@ -127,11 +127,11 @@ void gui_setup::samplerate_button_handler_class(lv_event_t * e)
 			int sel = gsetup.get_bandwidth_sel();
 			bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
 			SdrDevices.SdrDevices.at(default_radio)->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), bw);
+			vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
 			printf("setBandwidth %ld \n", bw);
 		}
 		else
-			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), 0L);
+			vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), 0L);
 
 		destroy_demodulators(true);
 		try
@@ -158,7 +158,7 @@ void gui_setup::bandwidth_button_handler_class(lv_event_t *e)
 		{
 			long bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init((long)ifrate, gsetup.get_span(), audio_output->get_samplerate(), bw);
+			vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
 			printf("setBandwidth %ld \n", bw);
 		}
 	}
@@ -413,7 +413,7 @@ void gui_setup::set_group()
 	lv_group_focus_obj(d_samplerate);
 }
 
-void gui_setup::set_span_value(int span)
+void gui_setup::set_span_value(long span)
 {
 	char	buf[30];
 	
@@ -428,7 +428,7 @@ void gui_setup::set_span_value(int span)
 		{
 			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);
 			span = m_ifrate;
-			sprintf(buf, "span %d Khz", span / 1000);
+			sprintf(buf, "span %ld Khz", span / 1000);
 			gui_vfo_inst.set_span(span / 1000);			
 		}
 		else
@@ -441,20 +441,21 @@ void gui_setup::set_span_value(int span)
 	else
 	{
 		lv_slider_set_value(span_slider, 1, LV_ANIM_ON);
-		sprintf(buf, "span %d Khz", span / 1000);		
+		sprintf(buf, "span %ld Khz", span / 1000);		
 		gui_vfo_inst.set_span(span / 1000);
 	}
 	lv_label_set_text(span_slider_label, buf);
 	// store in atomic<int> so demodulator thread can request it
+	gui_setup::span = span;
 	vfo.set_span(span);
-	m_span.store(span);
-	SpectrumGraph.SetSpan(span);
+	vfo.set_vfo(vfo.get_frequency());
+	SpectrumGraph.SetFftParts();
 
 	Settings_file.save_int(default_radio, "span", span / 1000);
 	Settings_file.write_settings();
 }
 
-void gui_setup::set_span_range(int span)
+void gui_setup::set_span_range(long span)
 {
 	char	buf[30];
 	

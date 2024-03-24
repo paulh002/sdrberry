@@ -89,7 +89,7 @@ std::mutex gui_mutex;
 int mode = mode_broadband_fm;
 double ifrate = 0.53e6; //1.0e6;//
 double ifrate_tx;
-double freq = 89800000;
+//double freq = 89800000;
 //double	tuner_freq = freq + 0.25 * ifrate;
 //double	tuner_offset = freq - tuner_freq;
 
@@ -433,7 +433,6 @@ int main(int argc, char *argv[])
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	SoapySDR::ModuleManager mm(false);
 	SoapySDR::loadModules();
-	freq = Settings_file.get_int("VFO1","freq");
 
 	default_radio = Settings_file.find_sdr("default");
 	for (auto &con : Settings_file.receivers)
@@ -533,7 +532,7 @@ int main(int argc, char *argv[])
 		gbar.set_if(Settings_file.if_gain(default_radio));
 		gbar.set_gain_range();
 		gbar.set_gain_slider(Settings_file.gain(default_radio));
-		vfo.set_vfo(freq, vfo_activevfo::One);
+		vfo.set_vfo(0LL, vfo_activevfo::One);
 		try
 		{
 			if (SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0))

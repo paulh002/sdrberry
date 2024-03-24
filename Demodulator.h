@@ -67,7 +67,7 @@ class Demodulator
 	void fft_mix(int dir, const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void set_fft_resample_rate(float resample_rate);
 	void fft_resample(const IQSampleVector &filter_in, IQSampleVector &filter_out);
-	void set_span(int span);
+	void set_span(long span);
 	void perform_fft(const IQSampleVector &iqsamples);
 	void calc_af_level(const SampleVector &samples_in);
 	void setBandPassFilter(float high, float mid_high, float mid_low, float low);
@@ -84,7 +84,7 @@ class Demodulator
 	int audioSampleRate;
 	DataBuffer<IQSample> *transmitIQBuffer{nullptr};
 	AudioInput *audioInputBuffer{nullptr};
-	int m_span{0};
+	long m_span{0L};
 
   private:
 	EnergyCalculator ifEnergy, afEnergy;
@@ -97,6 +97,7 @@ class Demodulator
 	msresamp_crcf fftResampleHandle{nullptr};
 	nco_crcf fftNCOHandle{nullptr};
 	int audioBufferSize;
+	int highfftquadrant;
 
 	iirfilt_crcf lowPassAudioFilterHandle{nullptr};
 	

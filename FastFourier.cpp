@@ -51,7 +51,7 @@ void FastFourier::SetParameters(int nbins, float resampleRate, float downMixFreq
 		nco_crcf_set_phase(ncoMixerHandle, 0.0f);
 		nco_crcf_set_frequency(ncoMixerHandle, rad_per_sample);
 	}
-	printf("FFT: nbins %d, reasmpleRate %f, downMixFrequency %f \n", nbins, resampleRate, downMixFrequency);
+	//printf("FFT: nbins %d, reasmpleRate %f, downMixFrequency %f \n", nbins, resampleRate, downMixFrequency);
 }
 
 FastFourier::~FastFourier()

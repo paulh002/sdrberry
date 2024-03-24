@@ -113,18 +113,7 @@ void Waterfall::Draw()
 	else
 		frequencySpectrum = fft->GetSquaredBins();
 
-	int zz = 0;
-	/*if (partialSpectrum == regionpart)
-	{
-		std::vector<float> fftspectrum;
-		for (int ii = NumberOfBins * factor; ii < frequencySpectrum.size(); ii++)
-		{
-			fftspectrum.push_back(frequencySpectrum.at(ii));
-		}
-		frequencySpectrum = resampleArray(fftspectrum, width);
-	}
-	*/
-	
+	int zz = 0;	
 	for (lv_coord_t i = excludeMargin; i < width - excludeMargin ; i++)
 	{
 		switch(partialSpectrum)

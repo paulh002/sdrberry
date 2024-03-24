@@ -128,7 +128,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	catinterface.SetBand(get_band_in_meters());
 	catinterface.SetFA(vfo_setting.vfo_freq[0]);
 	gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
-	printf("Vfo init: freq %lld, sdr %lld offset %ld maxoffset %ld offsetSpan %d\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.offsetSpan[vfo_setting.active_vfo]);
+	//printf("Vfo init: freq %lld, sdr %lld offset %ld maxoffset %ld offsetSpan %d\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.offsetSpan[vfo_setting.active_vfo]);
 }
 
 void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
@@ -266,7 +266,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 	}
 	else
 	{
-		printf("freq %lld, sdr %lld offset %lld diff %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]);
+		//printf("freq %lld, sdr %lld offset %lld diff %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]);
 		if (abs(freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) > vfo_setting.max_offset && (freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]) >0 )
 		{
 			vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;												  // initialize the frequency to user default
@@ -277,7 +277,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 			if (vfo_setting.tx)
 				tx_set_sdr_freq(split);
 			tune_flag = true;
-			printf("Tune pos: freq %lld, sdr %lld offset %ld maxoffset %ld offsetSpan %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.offsetSpan[vfo_setting.active_vfo]);
+			//printf("Tune pos: freq %lld, sdr %lld offset %ld maxoffset %ld offsetSpan %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.offsetSpan[vfo_setting.active_vfo]);
 		}
 		else if (freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] < vfo_setting.min_offset && (freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]) < 0)
 		{
@@ -289,14 +289,14 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 			if (vfo_setting.tx)
 				tx_set_sdr_freq(split);
 			tune_flag = true;
-			printf("Tune neg: freq %lld, sdr %lld offset %ld maxoffset %ld offsetSpan %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.offsetSpan[vfo_setting.active_vfo]);
+			//printf("Tune neg: freq %lld, sdr %lld offset %ld maxoffset %ld offsetSpan %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.offsetSpan[vfo_setting.active_vfo]);
 		}
 		else
 		{
 			vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
 			vfo_setting.offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
 			tune_flag = true;
-			printf("set offset %ld\n", vfo_setting.offset[vfo_setting.active_vfo]);
+			//printf("set offset %ld\n", vfo_setting.offset[vfo_setting.active_vfo]);
 		}
 	}
 	vfo_setting.offsetSpan[vfo_setting.active_vfo] = vfo_setting.offset[vfo_setting.active_vfo] / vfo_setting.span;

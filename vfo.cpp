@@ -186,13 +186,13 @@ bool CVfo::compare_span()
 	return true;
 }
 
-std::pair<int,double> CVfo::compare_span_ex()
+std::pair<vfo_spansetting,double> CVfo::compare_span_ex()
 {
 	if (ifrate <= vfo_setting.span)
-		return std::pair<int, double>(0, 0.0);
+		return std::pair<vfo_spansetting, double>(span_is_ifrate, 0.0);
 	else if (vfo_setting.span >= ifrate / 2)
-		return std::pair<int, double>(1, ((double)ifrate - vfo_setting.span) / ifrate);
-	return std::pair<int, double>(2, 0.0);
+		return std::pair<vfo_spansetting, double>(span_between_ifrate, ((double)ifrate - vfo_setting.span) / ifrate);
+	return std::pair<vfo_spansetting, double>(span_lower_halfrate, 0.0);
 }
 
 void	CVfo::rx_set_sdr_freq()

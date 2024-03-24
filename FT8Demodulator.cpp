@@ -118,11 +118,10 @@ void FT8Demodulator::operator()()
 	while (!stop_flag.load())
 	{
 		span = vfo.get_span();
-		if (vfo.tune_flag.load() || m_span != span)
+		if (vfo.tune_flag.load())
 		{
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
-			set_span(span);
 		}
 
 		if (ifilter != get_lowPassAudioFilterCutOffFrequency())

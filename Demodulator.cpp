@@ -70,40 +70,6 @@ void Demodulator::set_signal_strength()
 	SpectrumGraph.set_signal_strength(get_if_level());
 }
 
-// decrease the span of the fft display by downmixing the bandwidth of the receiver
-// Chop the bandwith in parts en display correct part
-void Demodulator::set_span(long span)
-{
-	std::pair<int, double> span_ex = vfo.compare_span_ex();
-
-	switch (span_ex.first)
-	{
-	case 0:
-	case 1:
-		if (m_span != span)
-		{
-			m_span = span;
-			set_fft_resample_rate(0.0);
-			set_fft_mixer(0);
-			guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		}
-		break;
-	case 2:
-		if (m_span != span)
-			set_fft_resample_rate((float)span * 2);
-		m_span = span;
-		int highfftquadrant_ = (vfo.get_vfo_offset() / m_span);
-		if (highfftquadrant != highfftquadrant_)
-		{
-			highfftquadrant = highfftquadrant_;
-			//printf("window: %d  offset %d\n", n, m_span * n);
-			set_fft_mixer(m_span * highfftquadrant);
-			guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		}
-		break;
-	}
-}
-
 Demodulator::~Demodulator()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
@@ -111,18 +77,12 @@ Demodulator::~Demodulator()
 	if (resampleHandle)
 		msresamp_crcf_destroy(resampleHandle);
 	resampleHandle = nullptr;
-	if (fftResampleHandle)
-		msresamp_crcf_destroy(fftResampleHandle);
-	fftResampleHandle = nullptr;
 	if (tuneNCO != nullptr)
 		nco_crcf_destroy(tuneNCO);
 	tuneNCO = nullptr;
 	if (lowPassAudioFilterHandle)
 		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
 	lowPassAudioFilterHandle = nullptr;
-	if (fftNCOHandle)
-		nco_crcf_destroy(fftNCOHandle);
-	fftNCOHandle = nullptr;
 
 	if (bandPassHandle)
 		iirfilt_crcf_destroy(bandPassHandle);
@@ -196,45 +156,6 @@ float Demodulator::adjust_resample_rate(float rateAjustFraction)
 		msresamp_crcf_print(resampleHandle);
 	}
 	return resampleRate;
-}
-
-
-
-void Demodulator::set_fft_resample_rate(float resample_rate)
-{
-	float As{60.0f};
-
-	if (fftResampleHandle)
-	{
-		msresamp_crcf_destroy(fftResampleHandle);
-		fftResampleHandle = nullptr;
-	}
-	if (resample_rate > 0.0)
-	{
-		printf("fft resample rate %f\n", resample_rate);
-		fftResampleRate = resample_rate / ifSampleRate;
-		fftResampleHandle = msresamp_crcf_create(fftResampleRate, As);
-		msresamp_crcf_print(fftResampleHandle);
-	}
-}
-
-void Demodulator::fft_resample(const IQSampleVector &filter_in,
-							   IQSampleVector &filter_out)
-{
-	unsigned int num_written;
-
-	if (fftResampleHandle)
-	{
-		float nx = (float)filter_in.size() * fftResampleRate * 2;
-		filter_out.reserve((int)ceilf(nx));
-		filter_out.resize((int)ceilf(nx));
-		msresamp_crcf_execute(fftResampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
-		filter_out.resize(num_written);
-	}
-	else
-	{
-		filter_out = filter_in;
-	}
 }
 
 void Demodulator::calc_if_level(const IQSampleVector &samples_in)
@@ -422,44 +343,6 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 	}
 }
 
-void Demodulator::fft_mix(int dir, const IQSampleVector &filter_in,
-						  IQSampleVector &filter_out)
-{
-	if (fftNCOHandle)
-	{
-		for (auto &col : filter_in)
-		{
-			complex<float> v;
-
-			nco_crcf_step(fftNCOHandle);
-			if (dir)
-				nco_crcf_mix_up(fftNCOHandle, col, &v);
-			else
-				nco_crcf_mix_down(fftNCOHandle, col, &v);
-			filter_out.push_back(v);
-		}
-	}
-	else
-	{
-		filter_out = filter_in;
-	}
-}
-
-void Demodulator::set_fft_mixer(float offset)
-{
-	if (fftNCOHandle != nullptr)
-	{
-		nco_crcf_destroy(fftNCOHandle);
-		fftNCOHandle = nullptr;
-	}
-	if (!offset)
-		return;
-	float rad_per_sample = ((2.0f * (float)M_PI * (float)offset) / (float)ifSampleRate);
-	fftNCOHandle = nco_crcf_create(LIQUID_NCO);
-	nco_crcf_set_phase(fftNCOHandle, 0.0f);
-	nco_crcf_set_frequency(fftNCOHandle, rad_per_sample);
-}
-
 void Demodulator::setLowPassAudioFilter(float samplerate, float band_width)
 {
 	if (lowPassAudioFilterHandle)
@@ -476,16 +359,7 @@ void Demodulator::setLowPassAudioFilterCutOffFrequency(int fc)
 
 void Demodulator::perform_fft(const IQSampleVector &iqsamples)
 {
-	IQSampleVector iqsamples_filter, iqsamples_resample;
-
-	if (m_span < ifrate)
-	{
-		fft_mix(0, iqsamples, iqsamples_filter);
-		fft_resample(iqsamples_filter, iqsamples_resample);
-	}
-	else
-		fft_resample(iqsamples, iqsamples_resample);
-	SpectrumGraph.ProcessWaterfall(iqsamples_resample);
+	SpectrumGraph.ProcessWaterfall(iqsamples);
 }
 
 void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, float low)

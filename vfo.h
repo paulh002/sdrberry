@@ -27,6 +27,12 @@ enum vfo_activevfo
 	None = -1
 } ;
 
+enum vfo_spansetting
+{
+	span_is_ifrate = 0,
+	span_between_ifrate = 1,
+	span_lower_halfrate = 2
+};
 
 struct bands_t
 {
@@ -73,7 +79,7 @@ class CVfo
 	void vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth);
 	void set_span(long span);
 	bool compare_span();
-	std::pair<int, double> compare_span_ex();
+	std::pair<vfo_spansetting, double> compare_span_ex();
 	int set_vfo(long long freq, vfo_activevfo ActiveVfo = vfo_activevfo::None, bool split = false);
 	void step_vfo(long icount);
 	long get_active_vfo_freq();

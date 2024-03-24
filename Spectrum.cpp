@@ -220,19 +220,19 @@ void Spectrum::DrawWaterfall()
 
 void Spectrum::SetFftParts()
 {
-	std::pair<int, double> span_ex = vfo.compare_span_ex();
+	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 	if (fft)
 	{
 		switch (span_ex.first)
 		{
-		case 0:
+		case span_is_ifrate:
 			fft->SetParameters(nfft_samples);
 			break;
-		case 1:
+		case span_between_ifrate:
 			fft->SetParameters(nfft_samples, (float)vfo.get_span() / (float)ifrate,  0.5f * ((float)ifrate - (float)vfo.get_span()) / ifrate);
 			break;
-		case 2:
-			fft->SetParameters(nfft_samples);
+		case span_lower_halfrate:
+			fft->SetParameters(nfft_samples, ((float)vfo.get_span() * 2.0f) / ifrate);
 			break;
 		}
 	}
@@ -241,14 +241,14 @@ void Spectrum::SetFftParts()
 	{
 		switch (span_ex.first)
 		{
-		case 0:
+		case span_is_ifrate:
 			waterfall->SetPartial(allparts);
 			break;
-		case 1:
+		case span_between_ifrate:
 			waterfall->SetPartial(regionpart, (float)vfo.get_span() / (float)ifrate, 0.5f * ((float)ifrate - (float)vfo.get_span()) / ifrate);
 			break;
-		case 2:
-			waterfall->SetPartial(lowerpart);
+		case span_lower_halfrate:
+			waterfall->SetPartial(lowerpart, ((float)vfo.get_span() * 2.0f) / ifrate);
 			break;
 		}
 	}
@@ -300,13 +300,13 @@ void Spectrum::load_data()
 void Spectrum::upload_fft()
 {
 	int i{};
-	std::pair<int, double> span_ex = vfo.compare_span_ex();
+	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 
 	int noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
 	switch (span_ex.first)
 	{
-	case 0:
-	case 1:
+	case span_is_ifrate:
+	case span_between_ifrate:
 	{
 			int ii{}, value{};
 			std::vector<float> fft_output = fft->GetLineatSquaredBins();
@@ -325,7 +325,7 @@ void Spectrum::upload_fft()
 			}
 		}
 		break;
-	case 2:
+	case span_lower_halfrate:
 		{
 			int value{};
 			std::vector<float> fft_output = fft->GetSquaredBins();

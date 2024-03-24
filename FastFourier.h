@@ -28,7 +28,7 @@ class FastFourier
 	std::vector<std::complex<float>> fftBins;
 	std::vector<float> hammingWindow;
 	std::vector<std::complex<float>> inputData;
-	msresamp_crcf resampleHandle{0};
+	msresamp_crcf resampleHandle{nullptr};
 	bool invert{false};
 	float resampleRate{};
 	nco_crcf ncoMixerHandle{nullptr};

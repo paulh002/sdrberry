@@ -27,7 +27,7 @@ class gui_setup
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *contour_slider_label, *contour_slider;
 	lv_obj_t *floor_slider_label, *floor_slider;
-	lv_obj_t *calbox;
+	lv_obj_t *calbox, *dcbox;
 	lv_obj_t *tileview, *settings_main, *settings_i2c;
 
 	void receivers_button_handler_class(lv_event_t *e);
@@ -39,6 +39,7 @@ class gui_setup
 	void audio_button_handler_class(lv_event_t *e);
 	void bandwidth_button_handler_class(lv_event_t *e);
 	void samplerate_button_handler_class(lv_event_t *e);
+	void dcbox_event_cb_class(lv_event_t *e);
 
 	void set_contour_value(int speed);
 	void set_floor_value(int floor);
@@ -76,6 +77,7 @@ class gui_setup
 	static constexpr auto audio_button_handler = EventHandler<gui_setup, &gui_setup::audio_button_handler_class>::staticHandler;
 	static constexpr auto bandwidth_button_handler = EventHandler<gui_setup, &gui_setup::bandwidth_button_handler_class>::staticHandler;
 	static constexpr auto samplerate_button_handler = EventHandler<gui_setup, &gui_setup::samplerate_button_handler_class>::staticHandler;
+	static constexpr auto dcbox_event_cb = EventHandler<gui_setup, &gui_setup::dcbox_event_cb_class>::staticHandler;
 };
 
 extern gui_setup gsetup;

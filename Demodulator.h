@@ -32,7 +32,7 @@ class Demodulator
 {
   public:
 	static void setLowPassAudioFilterCutOffFrequency(int band_width);
-
+	static void set_dc_filter(bool state);
 	//std::thread demod_thread;
 	//atomic<bool> stop_flag{false};
 	
@@ -99,6 +99,7 @@ class Demodulator
 	iirfilt_crcf highPassHandle{nullptr};
 	firfilt_crcf dcBlockHandle{nullptr};
 
+	static atomic<bool> dcBlockSwitch;
 	const int lowPassFilterOrder = 6;
 	
 	const liquid_iirdes_filtertype butterwurthType{LIQUID_IIRDES_BUTTER};

@@ -3,10 +3,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <atomic>
 #include "Spectrum.h"
 #include "gui_cal.h"
 #include "gui_ft8bar.h"
 #include "gui_i2csetup.h"
+#include "Demodulator.h"
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
@@ -45,6 +47,26 @@ void gui_setup::calbox_event_cb_class(lv_event_t *e)
 			guift8bar.hide(true);
 			gcal.hide(true);
 		}
+	}
+}
+
+void gui_setup::dcbox_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
+			Demodulator::set_dc_filter(true);
+			Settings_file.save_int(default_radio, "dc", 1);
+		}
+		else
+		{
+			Demodulator::set_dc_filter(false);
+			Settings_file.save_int(default_radio, "dc", 0);
+		}
+		Settings_file.write_settings();
 	}
 }
 
@@ -400,6 +422,14 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
 	lv_checkbox_set_text(calbox, "calibration");
 	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+
+	dcbox = lv_checkbox_create(settings_main);
+	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span + 50);
+	lv_checkbox_set_text(dcbox, "dc filter");
+	lv_obj_add_event_cb(dcbox, dcbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	if (Settings_file.get_int(default_radio, "dc"))
+		lv_obj_add_state(dcbox, LV_STATE_CHECKED);
+
 	if (!Settings_file.get_int(default_radio, "correction"))
 	{
 		lv_obj_add_flag(calbox, LV_OBJ_FLAG_HIDDEN);

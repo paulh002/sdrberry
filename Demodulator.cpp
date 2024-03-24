@@ -11,6 +11,7 @@
  **
  **/
 atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
+atomic<bool> Demodulator::dcBlockSwitch = true;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -57,7 +58,6 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 
 	// resampler and band filter assume pcmfrequency on the low side
 	tune_offset(vfo.get_vfo_offset());
-	//set_span(gsetup.get_span());
 	if (get_dc_filter())
 		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	else
@@ -286,7 +286,7 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 void Demodulator::dc_filter(IQSampleVector &filter_in,
 							IQSampleVector &filter_out)
 {
-	if (dcBlockHandle)
+	if (dcBlockHandle && dcBlockSwitch)
 	{
 		for (auto &col : filter_in)
 		{
@@ -419,6 +419,14 @@ bool Demodulator::get_dc_filter()
 		return true;
 	else
 		return false;
+}
+
+void Demodulator::set_dc_filter(bool state)
+{
+	if (state)
+		dcBlockSwitch = true;
+	else
+		dcBlockSwitch = false;
 }
 
 bool Demodulator::get_gain_phase_correction()

@@ -51,16 +51,16 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		{
 			long long f;
 			int span = vfo.get_span();
-			std::pair<int, double> span_ex = vfo.compare_span_ex();
+			std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 			switch (span_ex.first)
 			{
-			case 0:
+			case span_is_ifrate:
 				f = vfo.get_sdr_span_frequency();
 				break;
-			case 1:
+			case span_between_ifrate:
 				f = vfo.get_sdr_span_frequency() - vfo.get_minoffset() ;
 				break;
-			case 2:
+			case span_lower_halfrate:
 				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
 				break;
 			}
@@ -121,22 +121,22 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 		/*Set the markers' text*/
 		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
 		{
-			std::pair<int, double> span_ex = vfo.compare_span_ex();
+			std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 			int span = gsetup.get_span();
 			int ii; 
 			double offset{0}, f{};
 
 			switch (span_ex.first)
 			{
-			case 0:
+			case span_is_ifrate:
 				f = (double)vfo.get_sdr_frequency() - (double)(span / 2.0);
 				ii = span / (vert_lines - 1);
 				break;
-			case 1:
+			case span_between_ifrate:
 				f = (double)vfo.get_sdr_frequency() - (double)vfo.get_minoffset() ;
 				ii = span / (vert_lines - 1);
 				break;
-			case 2:
+			case span_lower_halfrate:
 				offset = vfo.get_vfo_offset() / span;
 				f = (double)vfo.get_sdr_frequency() + offset * (double)span;
 				ii = span / (vert_lines - 1);
@@ -270,7 +270,7 @@ void Spectrum::set_pos(int32_t offset)
 {
 	int pos;
 	float d;
-	int span = gsetup.get_span();
+	int span = vfo.get_span();
 	
 
 	if (!data_set.size())

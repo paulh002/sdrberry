@@ -49,7 +49,6 @@ struct vfo_settings_struct
 	long long vfo_freq_sdr[2];
 	long long vfo_low;
 	long long vfo_high;
-	int offsetSpan[2];
 	int mode[2];
 	int band[2];
 	int frq_step;

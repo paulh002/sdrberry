@@ -1,7 +1,30 @@
 #!/bin/bash
 wrkdir='/home/pi'
 usrdir='/home/pi'
-
+OS=`uname -m`
+bits=`getconf LONG_BIT`
+echo ""
+echo ""
+echo "============================================"
+echo "sdrberry software installation."
+echo ""
+if [ $OS = "aarch64" ]; then
+        echo "	64 bit kernel"
+fi
+if [ $bits = "64" ]; then
+        echo "	64 bit OS"
+fi
+if [ $bits = "32" ]; then
+        echo "	32 bit OS"
+fi
+if [ $bits = "32" ] && [ $OS = "aarch64" ]; then
+        echo "	64 kernel and 32 bit OS not supported"
+		echo "============================================"
+        exit
+fi
+echo "============================================"
+echo ""
+echo ""
 if [[ $1 = "HRF" ]]; then sdrboard='HRF'
 elif [[ $1 = "HFB" ]]; then sdrboard='HFB'
 elif [[ $1 = "PLT" ]]; then sdrboard='PLT'

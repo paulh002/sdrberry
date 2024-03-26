@@ -51,19 +51,7 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		{
 			long long f;
 			int span = vfo.get_span();
-			std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
-			switch (span_ex.first)
-			{
-			case span_is_ifrate:
-				f = vfo.get_sdr_span_frequency();
-				break;
-			case span_between_ifrate:
-				f = vfo.get_sdr_span_frequency() - vfo.get_minoffset() ;
-				break;
-			case span_lower_halfrate:
-				f = vfo.get_sdr_frequency() - (long long)(span / 2.0);
-				break;
-			}
+			f = vfo.get_sdr_span_frequency();
 			f = p.x *(span / screenWidth) + f;
 			if (vfo.get_frequency() != f)
 				vfo.set_vfo(f);

@@ -58,10 +58,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 
 	// resampler and band filter assume pcmfrequency on the low side
 	tune_offset(vfo.get_vfo_offset());
-	if (get_dc_filter())
-		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
-	else
-		dcBlockHandle = nullptr;
+	dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	adjustPhaseGain = get_gain_phase_correction();
 }
 
@@ -95,7 +92,7 @@ Demodulator::~Demodulator()
 	bandPassHandle = nullptr;
 	lowPassHandle = nullptr;
 	highPassHandle = nullptr;
-
+	dcBlockHandle = nullptr;
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime demodulator:" << timePassed.count() << endl;

@@ -428,7 +428,14 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_checkbox_set_text(dcbox, "dc filter");
 	lv_obj_add_event_cb(dcbox, dcbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	if (Settings_file.get_int(default_radio, "dc"))
+	{
 		lv_obj_add_state(dcbox, LV_STATE_CHECKED);
+		Demodulator::set_dc_filter(true);
+	}
+	else
+	{
+		Demodulator::set_dc_filter(false);
+	}
 
 	if (!Settings_file.get_int(default_radio, "correction"))
 	{

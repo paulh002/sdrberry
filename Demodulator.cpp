@@ -13,6 +13,7 @@
  **/
 atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
 atomic<bool> Demodulator::dcBlockSwitch = true;
+atomic<bool> Demodulator::autocorrection = false;
 atomic<double> correlationMeasurement, errorMeasurement;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
@@ -183,6 +184,14 @@ void Demodulator::tune_offset(long offset)
 		tuneNCO = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(tuneNCO, 0.0f);
 	nco_crcf_set_frequency(tuneNCO, rad_per_sample);
+}
+
+void Demodulator::gain_phasecorrection(IQSampleVector &samples_in, float vol)
+{
+	if (autocorrection)
+		auto_adjust_gain_phasecorrection(samples_in, vol);
+	else
+		adjust_gain_phasecorrection(samples_in, vol);
 }
 
 void Demodulator::adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
@@ -464,6 +473,14 @@ void Demodulator::set_dc_filter(bool state)
 		dcBlockSwitch = true;
 	else
 		dcBlockSwitch = false;
+}
+
+void Demodulator::set_autocorrection(bool state)
+{
+	if (state)
+		autocorrection = true;
+	else
+		autocorrection = false;
 }
 
 bool Demodulator::get_gain_phase_correction()

@@ -147,15 +147,7 @@ void AMDemodulator::operator()()
 		dc_filter(dc_iqsamples,iqsamples);
 		int nosamples = iqsamples.size();
 		passes++;
-		if (gsetup.get_auto_correction())
-		{
-			auto_adjust_gain_phasecorrection(iqsamples, gbar.get_if());
-		}
-		else
-		{
-			adjust_gain_phasecorrection(iqsamples, gbar.get_if());;
-			
-		}
+		gain_phasecorrection(iqsamples, gbar.get_if());
 		calc_if_level(iqsamples);
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);

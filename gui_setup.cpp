@@ -58,11 +58,11 @@ void gui_setup::auto_calbox_event_cb_class(lv_event_t *e)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
-			autoCorrection = true;
+			Demodulator::set_autocorrection(true);
 		}
 		else
 		{
-			autoCorrection = false;
+			Demodulator::set_autocorrection(false);
 		}
 	}
 }
@@ -463,6 +463,17 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	{
 		lv_obj_add_flag(calbox, LV_OBJ_FLAG_HIDDEN);
 	}
+
+	if (Settings_file.get_int(default_radio, "auto-correction") > 0)
+	{
+		lv_obj_add_state(dcbox, LV_STATE_CHECKED);
+		Demodulator::set_autocorrection(true);
+	}
+	else
+	{
+		Demodulator::set_autocorrection(false);
+	}
+
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 

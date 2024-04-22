@@ -592,6 +592,10 @@ int main(int argc, char *argv[])
 			if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 				guift8bar.DrawWaterfall();
 			SpectrumGraph.DrawWaterfall();
+			if (gsetup.get_calibration())
+			{
+				gcal.SetErrorCorrelation(errorMeasurement,correlationMeasurement);
+			}
 		}
 
 		while (wsjtx->pullMessage(msg))

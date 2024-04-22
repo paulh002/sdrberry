@@ -277,7 +277,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 			if (vfo_setting.tx)
 				tx_set_sdr_freq(split);
 			tune_flag = true;
-			//printf("Tune pos: freq %lld, sdr %lld offset %ld maxoffset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+			printf("Tune pos: freq %lld, sdr %lld offset %ld maxoffset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 		}
 		else if (freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] < vfo_setting.min_offset && (freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]) < 0)
 		{
@@ -289,7 +289,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 			if (vfo_setting.tx)
 				tx_set_sdr_freq(split);
 			tune_flag = true;
-			//printf("Tune neg: freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+			printf("Tune neg: freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 		}
 		else
 		{

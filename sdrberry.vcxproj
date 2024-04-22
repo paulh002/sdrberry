@@ -66,7 +66,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/eigen3;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -76,7 +76,7 @@
       <WarnOnUnusedParameters>Disabled</WarnOnUnusedParameters>
       <WarnOnUnusedVariables>Disabled</WarnOnUnusedVariables>
       <WarnOnMismatchingInitializationOrder>Disabled</WarnOnMismatchingInitializationOrder>
-      <LinkTimeOptimization>true</LinkTimeOptimization>
+      <LinkTimeOptimization>false</LinkTimeOptimization>
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>

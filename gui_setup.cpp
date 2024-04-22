@@ -50,6 +50,23 @@ void gui_setup::calbox_event_cb_class(lv_event_t *e)
 	}
 }
 
+void gui_setup::auto_calbox_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
+			autoCorrection = true;
+		}
+		else
+		{
+			autoCorrection = false;
+		}
+	}
+}
+
 void gui_setup::dcbox_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -420,8 +437,13 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 
 	calbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
-	lv_checkbox_set_text(calbox, "calibration");
+	lv_checkbox_set_text(calbox, "cal");
 	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+
+	autocalbox = lv_checkbox_create(settings_main);
+	lv_obj_align_to(autocalbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4 + 60, y_span);
+	lv_checkbox_set_text(autocalbox, "auto");
+	lv_obj_add_event_cb(autocalbox, auto_calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 
 	dcbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span + 50);

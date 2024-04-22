@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "Settings.h"
@@ -27,8 +28,9 @@ class gui_setup
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *contour_slider_label, *contour_slider;
 	lv_obj_t *floor_slider_label, *floor_slider;
-	lv_obj_t *calbox, *dcbox;
+	lv_obj_t *calbox, *dcbox, *autocalbox;
 	lv_obj_t *tileview, *settings_main, *settings_i2c;
+	std::atomic<bool> autoCorrection;
 
 	void receivers_button_handler_class(lv_event_t *e);
 	void calbox_event_cb_class(lv_event_t *e);
@@ -40,6 +42,7 @@ class gui_setup
 	void bandwidth_button_handler_class(lv_event_t *e);
 	void samplerate_button_handler_class(lv_event_t *e);
 	void dcbox_event_cb_class(lv_event_t *e);
+	void auto_calbox_event_cb_class(lv_event_t *e);
 
 	void set_contour_value(int speed);
 	void set_floor_value(int floor);
@@ -58,6 +61,7 @@ class gui_setup
 	void set_brightness(int brightness);
 	int get_brightness();
 	bool get_calibration() { return (lv_obj_get_state(calbox) & LV_STATE_CHECKED); }
+	bool get_auto_correction() { return autoCorrection; }
 
 	void set_group();
 
@@ -78,6 +82,7 @@ class gui_setup
 	static constexpr auto bandwidth_button_handler = EventHandler<gui_setup, &gui_setup::bandwidth_button_handler_class>::staticHandler;
 	static constexpr auto samplerate_button_handler = EventHandler<gui_setup, &gui_setup::samplerate_button_handler_class>::staticHandler;
 	static constexpr auto dcbox_event_cb = EventHandler<gui_setup, &gui_setup::dcbox_event_cb_class>::staticHandler;
+	static constexpr auto auto_calbox_event_cb = EventHandler<gui_setup, &gui_setup::auto_calbox_event_cb_class>::staticHandler;
 };
 
 extern gui_setup gsetup;

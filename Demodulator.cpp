@@ -2,6 +2,7 @@
 #include "gui_speech.h"
 #include "gui_cal.h"
 #include "Spectrum.h"
+#include <tuple>
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -12,6 +13,7 @@
  **/
 atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
 atomic<bool> Demodulator::dcBlockSwitch = true;
+atomic<double> correlationMeasurement, errorMeasurement;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -64,7 +66,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 
 void Demodulator::set_signal_strength()
 {
-	SpectrumGraph.set_signal_strength(get_if_level());
+	SpectrumGraph.set_signal_strength(get_signal_level());
 }
 
 Demodulator::~Demodulator()
@@ -155,6 +157,11 @@ float Demodulator::adjust_resample_rate(float rateAjustFraction)
 	return resampleRate;
 }
 
+void Demodulator::calc_signal_level(const IQSampleVector& samples_in)
+{
+	SignalStrength.calculateEnergyLevel(samples_in);
+}
+
 void Demodulator::calc_if_level(const IQSampleVector &samples_in)
 {
 	ifEnergy.calculateEnergyLevel(samples_in);
@@ -204,8 +211,41 @@ void Demodulator::adjust_gain_phasecorrection(IQSampleVector &samples_in, float 
 	}
 }
 
-void Demodulator::adjust_calibration(IQSampleVector &samples_in)
+void Demodulator::auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
 {
+	double error, correlation;
+	float phase{0};
+	float gain{1.0};
+
+	std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
+	//printf("Phase %f, phasecor %f gaincor %f \n", std::get<0>(result), std::get<1>(result), std::get<2>(result));
+	phase = std::get<1>(result);
+	gain = std::get<2>(result);
+	
+	if (adjustPhaseGain)
+	{
+
+		for (auto &col : samples_in)
+		{
+			col.real(col.real() + col.imag() * phase);
+			col.imag(col.imag() * gain);
+
+			col.real(col.real() * vol);
+			col.imag(col.imag() * vol);
+		}
+	}
+	else
+	{
+		for (auto &col : samples_in)
+		{
+			col.real(col.real() * vol);
+			col.imag(col.imag() * vol);
+		}
+	}
+}
+
+void Demodulator::adjust_calibration(IQSampleVector &samples_in)
+{	
 	float gain = (float)gcal.getTxGain();
 	for (auto &col : samples_in)
 	{

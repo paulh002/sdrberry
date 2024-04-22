@@ -179,7 +179,7 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	filter1.clear();
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
-	calc_if_level(filter1);
+	calc_signal_level(filter1);
 	guift8bar.Process(filter1);
 	for (auto col : filter1)
 	{

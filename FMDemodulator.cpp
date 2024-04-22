@@ -35,6 +35,7 @@ void FMDemodulator::operator()()
 			usleep(500);
 			continue;
 		}
+		calc_if_level(iqsamples);
 		adjust_gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		set_signal_strength();
@@ -76,7 +77,7 @@ void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter1.clear();
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
-	calc_if_level(filter1);
+	calc_signal_level(filter1);
 	for (auto col : filter1)
 	{
 		float v;

@@ -172,6 +172,15 @@ void gui_cal::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *key
 	lv_obj_align(rxphaseslider, LV_ALIGN_TOP_LEFT, rx_x_offset + gainx, phase_y);
 	lv_obj_add_event_cb(rxphaseslider, rxphase_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	//lv_slider_set_value(rxphaseslider, rxphasecorrection, LV_ANIM_ON);
+
+	errorLabel = lv_label_create(o_parent);
+	lv_label_set_text_fmt(errorLabel, "gain error %d", 0);
+	lv_obj_align_to(errorLabel, rxphaseslider, LV_ALIGN_OUT_TOP_MID, -80, 35);
+	
+	correlationLabel = lv_label_create(o_parent);
+	lv_label_set_text_fmt(correlationLabel, "correlation %d", 0);
+	lv_obj_align_to(correlationLabel, rxphaseslider, LV_ALIGN_OUT_TOP_MID, 80, 35);
+
 }
 
 void gui_cal::hide(bool hide)
@@ -213,3 +222,11 @@ void gui_cal::SetCalibrationBand(int bandIndex)
 	printf("tx gain %d tx phase %d rx gain %d rx phase %d \n", calRxGain.load(), calTxPhase.load(), calTxGain.load(), calRxPhase.load());
 }
 
+void gui_cal::SetErrorCorrelation(double error, double correlation)
+{
+	char str[80];
+	sprintf(str, "gain error %f",error);
+	lv_label_set_text(errorLabel,str);
+	sprintf(str, "correlation %f", correlation);
+	lv_label_set_text(correlationLabel, str );
+}

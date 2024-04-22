@@ -13,6 +13,8 @@
 #include "DataBuffer.h"
 #include "SharedQueue.h"
 
+extern atomic<double> correlationMeasurement, errorMeasurement;
+
 enum mode_enum
 {
 	usb,
@@ -47,6 +49,7 @@ class Demodulator
 	Demodulator(AudioOutput *audio_output, AudioInput *audio_input);
 	void mono_to_left_right(const SampleVector &samples_mono, SampleVector &audio);
 	void adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
+	void auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
 	void adjust_calibration(IQSampleVector &samples_in);
 	void tune_offset(long offset);
 	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
@@ -57,10 +60,14 @@ class Demodulator
 	void mix_down(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void mix_up(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void calc_if_level(const IQSampleVector &samples_in);
+	void calc_signal_level(const IQSampleVector& samples_in);
 	double get_if_level() { return ifEnergy.getEnergyLevel(); }
 	double get_af_level() { return afEnergy.getEnergyLevel(); }
 	double get_if_levelI() { return ifEnergy.getEnergyLevelI(); }
 	double get_if_levelQ() { return ifEnergy.getEnergyLevelQ(); }
+	double get_if_Correlation() { return ifEnergy.getEnergyCorrelation();}
+	double get_if_CorrelationNorm() { return ifEnergy.getEnergyCorrelationNorm(); }
+	double get_signal_level() { return SignalStrength.getEnergyLevel(); }
 	void set_signal_strength();
 	void setLowPassAudioFilter(float samplerate, float band_width);
 	void set_span(long span);
@@ -83,7 +90,7 @@ class Demodulator
 	long m_span{0L};
 
   private:
-	EnergyCalculator ifEnergy, afEnergy;
+	EnergyCalculator ifEnergy, afEnergy, SignalStrength;
 	mode_enum rxTxMode;
 	nco_crcf tuneNCO{nullptr};
 	msresamp_crcf resampleHandle{nullptr};

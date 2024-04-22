@@ -5,6 +5,7 @@
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 #include "SharedQueue.h"
+#include "gui_cal.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -92,6 +93,7 @@ void AMDemodulator::operator()()
 {	
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	auto timeLastPrintIQ = std::chrono::high_resolution_clock::now();
 	auto timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1, start2;
 	
@@ -145,7 +147,16 @@ void AMDemodulator::operator()()
 		dc_filter(dc_iqsamples,iqsamples);
 		int nosamples = iqsamples.size();
 		passes++;
-		adjust_gain_phasecorrection(iqsamples, gbar.get_if());;
+		if (gsetup.get_auto_correction())
+		{
+			auto_adjust_gain_phasecorrection(iqsamples, gbar.get_if());
+		}
+		else
+		{
+			adjust_gain_phasecorrection(iqsamples, gbar.get_if());;
+			
+		}
+		calc_if_level(iqsamples);
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
@@ -214,7 +225,19 @@ void AMDemodulator::operator()()
 				guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 0));
 			timeLastFlashGainSlider = now;
 		}
+
+		correlationMeasurement = get_if_CorrelationNorm();
+		errorMeasurement = get_if_levelI() * 10000.0 - get_if_levelQ() * 10000.0;
 		
+/*		if (timeLastPrintIQ + std::chrono::seconds(1) < now)
+		{
+			timeLastPrintIQ = now;
+			double error = get_if_levelI() * 10000.0 - get_if_levelQ() * 10000.0;
+			float phase = (float)gcal.getRxPhase();
+			float gain = (float)gcal.getRxGain();
+			printf("IQ Balance I %f Q %f correlation %f error %f gain %f phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_CorrelationNorm(), error, gain, phase);
+		}
+*/
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
@@ -222,7 +245,7 @@ void AMDemodulator::operator()()
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("rms %f db %f envelope %f\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope());
-			printf("IQ Balance I %f Q %f\n", get_if_levelI(), get_if_levelQ());
+			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;
 			passes = 0;
@@ -242,7 +265,7 @@ void AMDemodulator::operator()()
 				Settings_file.write_settings();
 			}
 			audioOutputBuffer->clear_underrun();
-			droppedFrames = 0;
+			droppedFrames = 0;	
 		}
 	}
 	audioOutputBuffer->CopyUnderrunSamples(false);
@@ -259,7 +282,7 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	filter1.clear();
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
-	calc_if_level(filter1);
+	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)

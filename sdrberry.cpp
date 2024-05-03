@@ -755,7 +755,13 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	case mode_narrowband_fm:
 		guift8bar.setmonitor(false);
 		FMDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
-		RX_Stream::create_rx_streaming_thread(default_radio, channel, &source_buffer_rx);
+		if (!stream_rx_on)
+		{
+			RX_Stream::create_rx_streaming_thread(default_radio, channel, &source_buffer_rx);
+			stream_rx_on = true;
+		}
+		else
+			pause_flag = false;
 		break;
 
 	case mode_broadband_fm:

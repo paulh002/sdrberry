@@ -227,13 +227,11 @@ void Demodulator::auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, f
 	float gain{1.0};
 
 	std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
-	//printf("Phase %f, phasecor %f gaincor %f \n", std::get<0>(result), std::get<1>(result), std::get<2>(result));
 	phase = std::get<1>(result);
 	gain = std::get<2>(result);
 	
 	if (adjustPhaseGain)
 	{
-
 		for (auto &col : samples_in)
 		{
 			col.real(col.real() + col.imag() * phase);

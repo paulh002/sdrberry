@@ -144,7 +144,7 @@ void AudioInput::set_volume(int vol)
 {
 	// log volume
 	volume = exp(((double)vol * 6.908) / 100.0) / 5.0;
-	printf("mic vol %f\n", (float)volume);
+	//printf("mic vol %f\n", (float)volume);
 }
 
 void AudioInput::adjust_gain(SampleVector& samples)

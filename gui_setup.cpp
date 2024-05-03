@@ -59,11 +59,14 @@ void gui_setup::auto_calbox_event_cb_class(lv_event_t *e)
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
 			Demodulator::set_autocorrection(true);
+			Settings_file.save_int(default_radio, "autocal", 1);
 		}
 		else
 		{
 			Demodulator::set_autocorrection(false);
+			Settings_file.save_int(default_radio, "autocal", 0);
 		}
+		Settings_file.write_settings();
 	}
 }
 
@@ -444,6 +447,11 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_obj_align_to(autocalbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4 + 60, y_span);
 	lv_checkbox_set_text(autocalbox, "auto");
 	lv_obj_add_event_cb(autocalbox, auto_calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	int autocal = Settings_file.get_int(default_radio, "autocal",0);
+	if (autocal)
+	{
+		lv_obj_add_state(autocalbox, LV_STATE_CHECKED);
+	}
 
 	dcbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span + 50);
@@ -462,6 +470,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	if (!Settings_file.get_int(default_radio, "correction"))
 	{
 		lv_obj_add_flag(calbox, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(autocalbox, LV_OBJ_FLAG_HIDDEN);
 	}
 
 	if (Settings_file.get_int(default_radio, "auto-correction") > 0)

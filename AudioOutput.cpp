@@ -11,6 +11,11 @@ AudioOutput *audio_output;
 
 void AudioOutput::CopyUnderrunSamples(bool copyUnderrun_)
 {
+	int i = 0;
+	for (auto &col : underrunSamples)
+		{
+			underrunSamples.at(i++) = 0.0;
+		}
 	copyUnderrun = copyUnderrun_;
 }
 

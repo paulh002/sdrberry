@@ -140,6 +140,7 @@ void FMDemodulator::operator()()
 			droppedFrames = 0;
 		}
 	}
+	audioOutputBuffer->CopyUnderrunSamples(false);
 }
 
 void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)

@@ -716,7 +716,7 @@ void gui_bar::set_filter_slider(int ifilter)
 {
 	if (!button[number_of_buttons - 1])
 		return;
-	int filter = 6;
+	int filter = 7;
 	
 	if (ifilter >= 500 && ifilter  < 1000)
 		filter = 0;
@@ -736,7 +736,7 @@ void gui_bar::set_filter_slider(int ifilter)
 		filter = 7;
 	
 	if (filter < 0 || filter > 7) 
-		filter = 6;
+		filter = 7;
 	
 	lv_dropdown_set_selected(button[number_of_buttons-1], filter);
 	Demodulator::setLowPassAudioFilterCutOffFrequency(ifilters[filter]);

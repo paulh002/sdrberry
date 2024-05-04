@@ -9,10 +9,10 @@
 FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 	: Demodulator(ifrate, source_buffer, audio_output)
 {
-	m_bandwidth = 12500; // Narrowband FM
+	int lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
 	Demodulator::set_resample_rate(audio_output->get_samplerate() / ifrate); // down sample to pcmrate
-	Demodulator::setLowPassAudioFilter(audio_output->get_samplerate(), m_bandwidth);
-	demodFM = freqdem_create(0.2);
+	Demodulator::setLowPassAudioFilter(audio_output->get_samplerate(), lowPassAudioFilterCutOffFrequency);
+	demodFM = freqdem_create(0.5);
 }
 	
 void FMDemodulator::operator()()
@@ -21,7 +21,7 @@ void FMDemodulator::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1, start2;
 
-	int ifilter{-1};
+	int ifilter{-1}, lowPassAudioFilterCutOffFrequency{-1};
 	int droppedFrames{0};
 	long span;
 	SampleVector audiosamples, audioframes;
@@ -49,7 +49,14 @@ void FMDemodulator::operator()()
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
 		}
-
+		
+		if (lowPassAudioFilterCutOffFrequency != get_lowPassAudioFilterCutOffFrequency())
+		{
+			lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
+			printf("set filter %d\n", lowPassAudioFilterCutOffFrequency);
+			setLowPassAudioFilter(audioSampleRate, lowPassAudioFilterCutOffFrequency);
+		}
+		
 		IQSampleVector iqsamples = receiveIQBuffer->pull();
 		if (iqsamples.empty())
 		{

@@ -24,5 +24,4 @@ public:
 	
 private:
 	freqdem	demodFM {nullptr};
-	float	m_bandwidth;
 };

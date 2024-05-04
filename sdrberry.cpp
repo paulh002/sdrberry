@@ -754,6 +754,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	{
 	case mode_narrowband_fm:
 		guift8bar.setmonitor(false);
+		gbar.set_filter_slider(4000);
 		FMDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
 		{

@@ -14,8 +14,15 @@
 #include <mutex>
 #include "Spectrum.h"
 #include "vfo.h"
+#include "PeakLevelDetector.h"
+#include "Limiter.h"
+#include "gui_agc.h"
+#include "Agc_class.h"
 
 using namespace std;
+
+static std::thread fmbroadbanddemod_thread;
+shared_ptr<FMBroadBandDemodulator> sp_fmbroadbanddemod;
 
 static atomic_bool stop_flag(false);
 
@@ -480,143 +487,178 @@ void FmDecoder::stereo_to_left_right(const SampleVector& samples_mono,
     }
 }
 
-void FmDecoder::adjust_gain(IQSampleVector &samples_in, float vol)
-{
-	for (auto &col : samples_in)
-	{
-		col.real(col.real() * vol);
-		col.imag(col.imag() * vol);
-	}
-}
-
-pthread_t fm_thread;
-
-void* rx_fm_thread(void* fm_ptr)
+void FMBroadBandDemodulator::operator()()
 {
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
-	
-	unsigned int            block = 0, fft_block = 0;
-	bool                    inbuf_length_warning = false;
-	SampleVector            audioframes, audiosamples;
-	struct demod_struct	    *fm_demod = (struct demod_struct *)fm_ptr;
-	double                  audio_mean = 0.0, audio_rms = 0.0, audio_level = 0.0;
-	IQSampleVector			buf_mix;
-	nco_crcf				upnco {nullptr};
-	
-	unique_lock<mutex> lock_fm(fm_finish); 
-	unique_ptr<FmDecoder> pfm {
-		new FmDecoder(ifrate,                   // sample_rate_if
-			fm_demod->tuner_offset,             // tuning_offset
-			fm_demod->pcmrate,                  // sample_rate_pcm
-			fm_demod->stereo,                   // stereo
-			FmDecoder::default_deemphasis,      // deemphasis,
-			FmDecoder::default_bandwidth_if,    // bandwidth_if
-			FmDecoder::default_freq_dev,        // freq_dev
-			fm_demod->bandwidth_pcm,            // bandwidth_pcm
-			fm_demod->downsample)};
-	
-	float rad_per_sample   = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifrate);
-	upnco = nco_crcf_create(LIQUID_NCO);
-	nco_crcf_set_phase(upnco, 0.0f);
-	nco_crcf_set_frequency(upnco, rad_per_sample);
+	std::chrono::high_resolution_clock::time_point now, start1, start2;
+
+	int ifilter{-1}, lowPassAudioFilterCutOffFrequency{200000};
+	int droppedFrames{0};
+	long span;
+	SampleVector audiosamples, audioframes;
+	long long pr_time{0};
+	int vsize, passes{0};
+
+	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 2);
+	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
+	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
+	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
+	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
+	AudioProcessor Agc;
+
+	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
+	Agc.setThresholdDB(gagc.get_threshold());
+	Agc.setRatio(10);
+	receiveIQBuffer->clear();
+	audioOutputBuffer->CopyUnderrunSamples(true);
+	audioOutputBuffer->clear_underrun();
+	setLowPassAudioFilter(ifrate, lowPassAudioFilterCutOffFrequency);
 	while (!stop_flag.load())
-	{		
-		if (vfo.tune_flag == true)
+	{
+		span = vfo.get_span();
+		if (vfo.tune_flag.load())
 		{
 			vfo.tune_flag = false;
-			float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifrate);
-			upnco = nco_crcf_create(LIQUID_NCO);
-			nco_crcf_set_phase(upnco, 0.0f);
-			nco_crcf_set_frequency(upnco, rad_per_sample);
+			tune_offset(vfo.get_vfo_offset());
 		}
-		
-		IQSampleVector iqsamples = fm_demod->source_buffer->pull();
-		if (iqsamples.empty())
+
+		IQSampleVector iqsamples;
+		IQSampleVector dc_iqsamples = receiveIQBuffer->pull();
+		if (dc_iqsamples.empty())
 		{
-			usleep(5000);
+			usleep(500);
 			continue;
 		}
+		dc_filter(dc_iqsamples, iqsamples);
 		int nosamples = iqsamples.size();
-		pfm->adjust_gain(iqsamples, gbar.get_if());
-		buf_mix.clear();
-		for (auto& col : iqsamples)
+		calc_if_level(iqsamples);
+		//limiter.Process(iqsamples);
+		adjust_gain_phasecorrection(iqsamples, gbar.get_if());
+		perform_fft(iqsamples);
+		set_signal_strength();
+		process(iqsamples, audiosamples);
+		if (gagc.get_agc_mode())
 		{
-			complex<float> v;
-		
-			nco_crcf_step(upnco);
-			nco_crcf_mix_down(upnco, col, &v);
-			buf_mix.push_back(v);
+			Agc.setRelease(gagc.get_release());
+			Agc.setRatio(gagc.get_ratio());
+			Agc.setAtack(gagc.get_atack());
+			Agc.setThresholdDB(gagc.get_threshold());
+			Agc.processBlock(audiosamples);
 		}
-		
-		if (fft_block == 5)
-		{
-			fft_block = 0;
-			SpectrumGraph.ProcessWaterfall(buf_mix);
-			SpectrumGraph.set_signal_strength(pfm->get_if_level()); 
-		}
-		fft_block++;			
-		
-		pfm->process(buf_mix, audiosamples);
-		// Measure audio level.
-		samples_mean_rms(audiosamples, audio_mean, audio_rms);
-		audio_level = 0.95 * audio_level + 0.05 * audio_rms;
-		int noaudiosamples = audiosamples.size();
 		// Set nominal audio volume.
-		audio_output->adjust_gain(audiosamples);	
-		for (auto& col : audiosamples)
+		audio_output->adjust_gain(audiosamples);
+		int noaudiosamples = audiosamples.size();
+		for (auto &col : audiosamples)
 		{
-			audioframes.push_back(col);
+			// split the stream in blocks of samples of the size framesize
+			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
-				audio_output->write(audioframes);		
-			}	
-		}
-		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(20) < now)
-		{
-			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-			printf("Buffer queue %d Radio samples %d Audio Samples %d Queued Audio Samples %d underrun %d\n", fm_demod->source_buffer->size(),nosamples, noaudiosamples, audio_output->queued_samples() / 2,  audio_output->get_underrun());
-			audio_output->clear_underrun();
+				if ((audioOutputBuffer->queued_samples()) < get_audioBufferSize())
+				{
+					audio_output->write(audioframes);
+					audioframes.clear();
+				}
+				else
+				{
+					droppedFrames++;
+					audioframes.clear();
+				}
+			}
 		}
 		iqsamples.clear();
 		audiosamples.clear();
-		buf_mix.clear();
+
+		now = std::chrono::high_resolution_clock::now();
+		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
+		if (pr_time < process_time1.count())
+			pr_time = process_time1.count();
+		if (timeLastPrint + std::chrono::seconds(10) < now)
+		{
+			timeLastPrint = now;
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
+			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(), Agc.getRelease());
+			printf("rms %f db %f envelope %f\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope());
+			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
+			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
+			pr_time = 0;
+			passes = 0;
+
+			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
+			{
+				float resamplerate = Demodulator::adjust_resample_rate(-0.0005 * droppedFrames); //-0.002
+				std::string str1 = std::to_string(resamplerate);
+				Settings_file.save_string(default_radio, "resamplerate", str1);
+				Settings_file.write_settings();
+			}
+			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
+			{
+				float resamplerate = Demodulator::adjust_resample_rate(0.0005 * audioOutputBuffer->get_underrun());
+				std::string str1 = std::to_string(resamplerate);
+				Settings_file.save_string(default_radio, "resamplerate", str1);
+				Settings_file.write_settings();
+			}
+			audioOutputBuffer->clear_underrun();
+			droppedFrames = 0;
+		}
 	}
-	nco_crcf_destroy(upnco);
-	pthread_exit(NULL);
-}	
+	audioOutputBuffer->CopyUnderrunSamples(false);
+}
+
+void FMBroadBandDemodulator::process(const IQSampleVector &samples_in, SampleVector &audio)
+{
+	IQSampleVector filter1, filter2;
+
+	// mix to correct frequency
+	mix_down(samples_in, filter1);
+	lowPassAudioFilter(filter1, filter2);
+	calc_signal_level(filter2);
+	pfm->process(filter2, audio);
+}
 
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-static demod_struct	fm_demod;
-
-void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
+bool FMBroadBandDemodulator::create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int stereo)
 {
-	fm_demod.source_buffer = source_buffer;
-	fm_demod.audio_output = audio_output;
-	fm_demod.pcmrate = pcmrate;
-	fm_demod.ifrate = ifrate;
-	fm_demod.tuner_offset = 0.25 * ifrate;
-	fm_demod.downsample = max(1, int(ifrate / 215.0e3));
-	fm_demod.bandwidth_pcm = MIN(15000, 0.45 * pcmrate);
-	fm_demod.stereo = stereo;
-	
-	printf("baseband downsampling factor %u\n", fm_demod.downsample);
-	printf("audio sample rate: %u Hz\n", pcmrate);
-	printf("audio bandwidth:   %.3f kHz\n", fm_demod.bandwidth_pcm * 1.0e-3);
-	vfo.set_tuner_offset(0.25 * ifrate);
-	vfo.set_step(100, 10);
-	int rc = pthread_create(&fm_thread, NULL, rx_fm_thread, (void *)&fm_demod);	
+	if (sp_fmbroadbanddemod != nullptr)
+		return false;
+	sp_fmbroadbanddemod = make_shared<FMBroadBandDemodulator>(ifrate, source_buffer, audio_output, stereo);
+	fmbroadbanddemod_thread = std::thread(&FMBroadBandDemodulator::operator(), sp_fmbroadbanddemod);
+	return true;
 }
-	/* end */
 
-void stop_fm()
+void FMBroadBandDemodulator::destroy_demodulator()
 {
-	stop_flag = true; // depreciated only used for broadband fm
-	unique_lock<mutex> lock_fm(fm_finish);
-	stop_flag = false;
+	if (sp_fmbroadbanddemod == nullptr)
+		return;
+	sp_fmbroadbanddemod->stop_flag = true;
+	fmbroadbanddemod_thread.join();
+	sp_fmbroadbanddemod.reset();
+}
+
+FMBroadBandDemodulator::FMBroadBandDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int stereo)
+	: Demodulator(ifrate, source_buffer, audio_output)
+{
+	int lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
+	Demodulator::set_resample_rate(audio_output->get_samplerate() / ifrate); // down sample to pcmrate
+	Demodulator::setLowPassAudioFilter(audio_output->get_samplerate(), lowPassAudioFilterCutOffFrequency);
+	int pcmrate = audio_output->get_samplerate();
+	pfm = make_unique<FmDecoder>(ifrate,							// sample_rate_if
+								 ifrate,							// tuning_offset
+								 pcmrate,							// sample_rate_pcm
+								 stereo,							// stereo
+								 FmDecoder::default_deemphasis,		// deemphasis,
+								 FmDecoder::default_bandwidth_if,	// bandwidth_if
+								 FmDecoder::default_freq_dev,		// freq_dev
+								 MIN(15000, 0.45 * pcmrate),		// bandwidth_pcm
+								 MAX(1, int(ifrate / 215.0e3)));    // downsample
+}
+
+FMBroadBandDemodulator::~FMBroadBandDemodulator()
+{
+
 }

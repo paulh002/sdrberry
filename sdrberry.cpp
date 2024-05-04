@@ -709,7 +709,7 @@ void destroy_demodulators(bool all)
 	FMModulator::destroy_modulator();
 	FT8Demodulator::destroy_demodulator();
 	EchoAudio::destroy_modulator();
-	stop_fm();
+	FMBroadBandDemodulator::destroy_demodulator();
 	if (all)
 	{
 		RX_Stream::destroy_rx_streaming_thread();
@@ -771,10 +771,16 @@ void select_mode(int s_mode, bool bvfo, int channel)
 			stereo = true;
 		else
 			stereo = false;
-		start_fm(ifrate, audio_output->get_samplerate(), stereo, &source_buffer_rx, audio_output);
-		RX_Stream::create_rx_streaming_thread(default_radio, channel, &source_buffer_rx);
+		FMBroadBandDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, stereo);
+		if (!stream_rx_on)
+		{
+			RX_Stream::create_rx_streaming_thread(default_radio, channel, &source_buffer_rx);
+			stream_rx_on = true;
+		}
+		else
+			pause_flag = false;
 		break;
-
+		
 	case mode_cw:
 		guirx.set_cw(true);
 	case mode_am:

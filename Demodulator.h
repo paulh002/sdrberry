@@ -92,6 +92,7 @@ class Demodulator
 	long m_span{0L};
 	void adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
 	void auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
+	void FlashGainSlider(float envelope);
 
   private:
 	EnergyCalculator ifEnergy, afEnergy, SignalStrength;
@@ -127,4 +128,5 @@ class Demodulator
 	static atomic<int> lowPassAudioFilterCutOffFrequency;
 
 	bool adjustPhaseGain;
+	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 };

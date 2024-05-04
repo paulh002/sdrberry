@@ -94,7 +94,6 @@ void AMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastPrintIQ = std::chrono::high_resolution_clock::now();
-	auto timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1, start2;
 	
 	AudioProcessor Agc;
@@ -209,15 +208,7 @@ void AMDemodulator::operator()()
 		if (pr_time < process_time1.count())
 			pr_time = process_time1.count();
 
-		if (timeLastFlashGainSlider + std::chrono::milliseconds(500) < now)
-		{// toggle collor of gain slider when signal is limitted
-			if (limiter.getEnvelope() > 0.99)
-				guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 1));
-			else
-				guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 0));
-			timeLastFlashGainSlider = now;
-		}
-
+		FlashGainSlider(limiter.getEnvelope());
 		correlationMeasurement = get_if_CorrelationNorm();
 		errorMeasurement = get_if_levelI() * 10000.0 - get_if_levelQ() * 10000.0;
 		

@@ -533,7 +533,7 @@ void FMBroadBandDemodulator::operator()()
 		dc_filter(dc_iqsamples, iqsamples);
 		int nosamples = iqsamples.size();
 		calc_if_level(iqsamples);
-		//limiter.Process(iqsamples);
+		limiter.Process(iqsamples);
 		adjust_gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		set_signal_strength();
@@ -574,6 +574,9 @@ void FMBroadBandDemodulator::operator()()
 		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
 		if (pr_time < process_time1.count())
 			pr_time = process_time1.count();
+
+		FlashGainSlider(limiter.getEnvelope());
+
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;

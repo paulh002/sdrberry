@@ -110,6 +110,7 @@ void FMDemodulator::operator()()
 		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
 		if (pr_time < process_time1.count())
 			pr_time = process_time1.count();
+		FlashGainSlider(limiter.getEnvelope());
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;

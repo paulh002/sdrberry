@@ -28,6 +28,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 		audioBufferSize = 4096;
 	adjustPhaseGain = get_gain_phase_correction();
 	highfftquadrant = 0;
+	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -43,7 +44,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 		audioBufferSize = 4096;
 	highfftquadrant = 0;
 	adjustPhaseGain = get_gain_phase_correction();
-
+	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	// resampler and band filter assume pcmfrequency on the low side
 }
 
@@ -63,6 +64,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	tune_offset(vfo.get_vfo_offset());
 	dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	adjustPhaseGain = get_gain_phase_correction();
+	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 }
 
 void Demodulator::set_signal_strength()
@@ -171,6 +173,19 @@ void Demodulator::calc_if_level(const IQSampleVector &samples_in)
 void Demodulator::calc_af_level(const SampleVector &samples_in)
 {
 	afEnergy.calculateEnergyLevel(samples_in);
+}
+
+void Demodulator::FlashGainSlider(float envelope)
+{
+	auto now = std::chrono::high_resolution_clock::now();
+	if (timeLastFlashGainSlider + std::chrono::milliseconds(500) < now)
+	{ // toggle collor of gain slider when signal is limitted
+		if (envelope > 0.99)
+			guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 1));
+		else
+			guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 0));
+		timeLastFlashGainSlider = now;
+	}
 }
 
 // The vfo class calculates an offset within the bandwidth of the sdr radio

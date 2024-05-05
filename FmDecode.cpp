@@ -591,17 +591,17 @@ void FMBroadBandDemodulator::operator()()
 
 			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
 			{
-				float resamplerate = Demodulator::adjust_resample_rate(-0.0005 * droppedFrames); //-0.002
-				std::string str1 = std::to_string(resamplerate);
-				Settings_file.save_string(default_radio, "resamplerate", str1);
-				Settings_file.write_settings();
+				//float resamplerate = Demodulator::adjust_resample_rate(-0.0005 * droppedFrames); //-0.002
+				//std::string str1 = std::to_string(resamplerate);
+				//Settings_file.save_string(default_radio, "resamplerate", str1);
+				//Settings_file.write_settings();
 			}
 			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
-				float resamplerate = Demodulator::adjust_resample_rate(0.0005 * audioOutputBuffer->get_underrun());
-				std::string str1 = std::to_string(resamplerate);
-				Settings_file.save_string(default_radio, "resamplerate", str1);
-				Settings_file.write_settings();
+				//float resamplerate = Demodulator::adjust_resample_rate(0.0005 * audioOutputBuffer->get_underrun());
+				//std::string str1 = std::to_string(resamplerate);
+				//Settings_file.save_string(default_radio, "resamplerate", str1);
+				//Settings_file.write_settings();
 			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;
@@ -646,9 +646,6 @@ void FMBroadBandDemodulator::destroy_demodulator()
 FMBroadBandDemodulator::FMBroadBandDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int stereo)
 	: Demodulator(ifrate, source_buffer, audio_output)
 {
-	int lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
-	Demodulator::set_resample_rate(audio_output->get_samplerate() / ifrate); // down sample to pcmrate
-	Demodulator::setLowPassAudioFilter(audio_output->get_samplerate(), lowPassAudioFilterCutOffFrequency);
 	int pcmrate = audio_output->get_samplerate();
 	pfm = make_unique<FmDecoder>(ifrate,							// sample_rate_if
 								 ifrate,							// tuning_offset

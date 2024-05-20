@@ -12,6 +12,7 @@
 #include <mutex>
 #include <vector>
 #include "Waterfall.h"
+#include "PeakMeasurement.h"
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -21,6 +22,7 @@ extern const int tunerHeight;
 extern const int rightWidth;
 
 const int nfft_samples{800};
+const int s_poits_max{100};
 
 class Spectrum
 {
@@ -35,10 +37,12 @@ class Spectrum
 	void upload_fft();
 	std::unique_ptr<FastFourier> fft;
 	lv_point_t drag{0};
-
+	PeakMeasurement finder;
+	
 	void draw_event_cb_class(lv_event_t *e);
 	void click_event_cb_class(lv_event_t *e);
 	void pressing_event_cb_class(lv_event_t *e);
+	
 
   public:
 	void init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate);
@@ -51,7 +55,8 @@ class Spectrum
 	void set_signal_strength(double strength);
 	double get_signal_strength() { return signal_strength; }
 	void SetFftParts();
-
+	float getSuppression();
+	
 	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
 	static constexpr auto click_event_cb = EventHandler<Spectrum, &Spectrum::click_event_cb_class>::staticHandler;
 	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;

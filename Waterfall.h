@@ -42,8 +42,8 @@ class Waterfall
 	void SetMode(int mode);
 	void SetMaxMin(float _max, float _min);
 	void SetPartial(partialspectrum p, float factor_ = 0.0f, float downMixFrequency = 0.0f);
-  
-	private:
+
+  private:
 	lv_obj_t *canvas{};
 	std::vector<uint8_t> cbuf;
 	std::unique_ptr<FastFourier> fft;

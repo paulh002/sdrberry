@@ -93,6 +93,7 @@ class Demodulator
 	void adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
 	void auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
 	void FlashGainSlider(float envelope);
+	float getSuppression();
 
   private:
 	EnergyCalculator ifEnergy, afEnergy, SignalStrength;

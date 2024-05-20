@@ -192,6 +192,11 @@ class SdrDevice
 		return soapyDevice->writeStream(stream, buffs, numElems, flags, timeNs, timeoutUs);
 	}
 
+	bool hasFullDuplex(const int direction, const size_t channel) const
+	{
+		return soapyDevice->getFullDuplex(direction, channel);
+	}
+
 	std::vector<std::unique_ptr<SdrDeviceChannel>> rx_channels;
 	std::vector<std::unique_ptr<SdrDeviceChannel>> tx_channels;
 

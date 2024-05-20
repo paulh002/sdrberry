@@ -588,21 +588,6 @@ void FMBroadBandDemodulator::operator()()
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;
 			passes = 0;
-
-			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
-			{
-				//float resamplerate = Demodulator::adjust_resample_rate(-0.0005 * droppedFrames); //-0.002
-				//std::string str1 = std::to_string(resamplerate);
-				//Settings_file.save_string(default_radio, "resamplerate", str1);
-				//Settings_file.write_settings();
-			}
-			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
-			{
-				//float resamplerate = Demodulator::adjust_resample_rate(0.0005 * audioOutputBuffer->get_underrun());
-				//std::string str1 = std::to_string(resamplerate);
-				//Settings_file.save_string(default_radio, "resamplerate", str1);
-				//Settings_file.write_settings();
-			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;
 		}

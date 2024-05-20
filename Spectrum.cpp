@@ -12,6 +12,7 @@
 #include <vector>
 #include "DouglasPeucker.h"
 
+
 using namespace std;
 
 const int noise_floor{20};
@@ -169,7 +170,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 		lv_obj_set_size(chart, w, h - fontsize);
 		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	}
-	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
+	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 130);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
 	lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
@@ -289,6 +290,7 @@ void Spectrum::upload_fft()
 {
 	int i{};
 	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
+	std::vector<int> peaks;
 
 	int noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
 	switch (span_ex.first)
@@ -299,11 +301,12 @@ void Spectrum::upload_fft()
 			int ii{}, value{};
 			std::vector<float> fft_output = fft->GetLineatSquaredBins();
 			data_set.resize(fft_output.size() / 2);
+			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
 				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
-				if (value > 99.0)
-					value = 99.0;
+				if (value > (float)s_poits_max)
+					value = (float)s_poits_max;
 				if (i % 2)
 				{
 					data_set[ii] = avg_filter[ii](value);
@@ -323,8 +326,8 @@ void Spectrum::upload_fft()
 				if (i == (fft_output.size() / 2))
 					break;
 				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
-				if (value > 99.0)
-					value = 99.0;
+				if (value > (float)s_poits_max)
+					value = (float)s_poits_max;
 				data_set[i] = avg_filter[i](value);
 				i++;
 			}
@@ -333,4 +336,7 @@ void Spectrum::upload_fft()
 	}
 }
 
-
+float Spectrum::getSuppression()
+{
+	return finder.GetSuppression();
+}

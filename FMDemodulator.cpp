@@ -56,17 +56,18 @@ void FMDemodulator::operator()()
 			printf("set filter %d\n", lowPassAudioFilterCutOffFrequency);
 			setLowPassAudioFilter(audioSampleRate, lowPassAudioFilterCutOffFrequency);
 		}
-		
-		IQSampleVector iqsamples = receiveIQBuffer->pull();
-		if (iqsamples.empty())
+		IQSampleVector iqsamples;
+		IQSampleVector dc_iqsamples = receiveIQBuffer->pull();
+		if (dc_iqsamples.empty())
 		{
 			usleep(500);
 			continue;
 		}
+		dc_filter(dc_iqsamples, iqsamples);
 		int nosamples = iqsamples.size();
 		calc_if_level(iqsamples);
+		gain_phasecorrection(iqsamples, gbar.get_if());
 		limiter.Process(iqsamples);
-		adjust_gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		set_signal_strength();
 		process(iqsamples, audiosamples);

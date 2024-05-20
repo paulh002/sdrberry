@@ -146,8 +146,8 @@ void AMDemodulator::operator()()
 		dc_filter(dc_iqsamples,iqsamples);
 		int nosamples = iqsamples.size();
 		passes++;
-		gain_phasecorrection(iqsamples, gbar.get_if());
 		calc_if_level(iqsamples);
+		gain_phasecorrection(iqsamples, gbar.get_if());
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
@@ -227,7 +227,7 @@ void AMDemodulator::operator()()
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
-			printf("rms %f db %f envelope %f\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope());
+			printf("rms %f db %f envelope %f suppression %f db\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope(), getSuppression());
 			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;

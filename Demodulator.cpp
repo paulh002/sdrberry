@@ -27,6 +27,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 	adjustPhaseGain = get_gain_phase_correction();
+	autocorrection = Settings_file.get_int(default_radio, "autocal");
 	highfftquadrant = 0;
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	// resampler and band filter assume pcmfrequency on the low side;
@@ -44,6 +45,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 		audioBufferSize = 4096;
 	highfftquadrant = 0;
 	adjustPhaseGain = get_gain_phase_correction();
+	autocorrection = Settings_file.get_int(default_radio, "autocal");
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	// resampler and band filter assume pcmfrequency on the low side
 }
@@ -65,6 +67,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	adjustPhaseGain = get_gain_phase_correction();
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
+	autocorrection = Settings_file.get_int(default_radio, "autocal");
 }
 
 void Demodulator::set_signal_strength()
@@ -240,17 +243,17 @@ void Demodulator::auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, f
 	double error, correlation;
 	float phase{0};
 	float gain{1.0};
-
+	float gainManual = (float)gcal.getRxGain();
+	
 	std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
 	phase = std::get<1>(result);
 	gain = std::get<2>(result);
-	
 	if (adjustPhaseGain)
 	{
 		for (auto &col : samples_in)
 		{
 			col.real(col.real() + col.imag() * phase);
-			col.imag(col.imag() * gain);
+			col.imag(col.imag() * gain * gainManual);
 
 			col.real(col.real() * vol);
 			col.imag(col.imag() * vol);
@@ -419,6 +422,11 @@ void Demodulator::setLowPassAudioFilterCutOffFrequency(int fc)
 void Demodulator::perform_fft(const IQSampleVector &iqsamples)
 {
 	SpectrumGraph.ProcessWaterfall(iqsamples);
+}
+
+float Demodulator::getSuppression()
+{
+	return SpectrumGraph.getSuppression();
 }
 
 void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, float low)

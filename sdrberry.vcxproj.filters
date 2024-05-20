@@ -304,6 +304,12 @@
     <ClCompile Include="MCP23008.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="PeakFinder.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="PeakMeasurement.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -663,6 +669,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="DouglasPeucker.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeakFinder.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeakMeasurement.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

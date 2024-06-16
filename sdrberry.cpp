@@ -19,6 +19,7 @@
 #include "gui_cal.h"
 #include "wsjtx_lib.h"
 #include "gui_agc.h"
+#include "gui_bottom_bar.h"
 //#include "quick_arg_parser.hpp"
 
 //#include "HidThread.h"
@@ -76,7 +77,7 @@ lv_obj_t *bg_middle;
 lv_obj_t *vfo1_button;
 lv_obj_t *vfo2_button;
 lv_obj_t *tabview_mid;
-lv_obj_t *bar_view, *ft8bar_view, *calbar_view;
+lv_obj_t *bar_view, *ft8bar_view, *calbar_view, *bottom_bar_view;
 lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
@@ -585,7 +586,7 @@ int main(int argc, char *argv[])
 			timeLastStatus = now;
 			SpectrumGraph.load_data();
 			double s = SpectrumGraph.get_signal_strength();
-			set_s_meter(s);
+			gui_vfo_inst.set_s_meter(s);
 			catinterface.SetSM((uint8_t)s);
 			if (mode == mode_freedv)
 				freeDVTab.DrawWaterfall();
@@ -680,7 +681,8 @@ int main(int argc, char *argv[])
 }
 
 /*Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR`*/
-uint32_t custom_tick_get(void)
+
+/*uint32_t custom_tick_get(void)
 {
 	static uint64_t start_ms = 0;
 	if (start_ms == 0)
@@ -696,6 +698,23 @@ uint32_t custom_tick_get(void)
 	now_ms = (tv_now.tv_sec * 1000000 + tv_now.tv_usec) / 1000;
 
 	uint32_t time_ms = now_ms - start_ms;
+	return time_ms;
+}
+*/
+
+uint32_t custom_tick_get(void)
+{
+	struct timespec period;
+	clock_gettime(CLOCK_MONOTONIC, &period);
+	uint64_t ticks_ms = period.tv_sec * 1000 + period.tv_nsec / 1000000;
+
+	static uint64_t start_ms = 0;
+	if (start_ms == 0)
+	{
+		start_ms = ticks_ms;
+	}
+
+	uint32_t time_ms = ticks_ms - start_ms;
 	return time_ms;
 }
 

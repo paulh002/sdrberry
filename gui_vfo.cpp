@@ -9,11 +9,11 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include "cmeter.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
 
-void set_smeter_img(lv_obj_t *box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
 gui_vfo gui_vfo_inst;
 
 void gui_vfo::gui_vfo_init(lv_obj_t *scr)
@@ -22,7 +22,8 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 	lv_style_init(&tuner_style);
 	lv_style_set_radius(&tuner_style, 0);
 	lv_style_set_bg_color(&tuner_style, lv_color_black());
-
+	lv_style_set_bg_opa(&tuner_style, LV_OPA_100);
+	
 	bg_tuner1 = lv_obj_create(scr);
 	lv_obj_add_style(bg_tuner1, &tuner_style, 0);
 	lv_obj_set_pos(bg_tuner1, 0, topHeight);
@@ -31,21 +32,21 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 
 	bg_tuner2 = lv_obj_create(scr);
 	lv_obj_add_style(bg_tuner2, &tuner_style, 0);
-	lv_obj_set_pos(bg_tuner2, 2 * (LV_HOR_RES / 6) + 3, topHeight);
+	lv_obj_set_pos(bg_tuner2, 2 * (LV_HOR_RES / 6) , topHeight);
 	lv_obj_set_size(bg_tuner2, 2 * (LV_HOR_RES / 6) - 3, tunerHeight);
 	lv_obj_clear_flag(bg_tuner2, LV_OBJ_FLAG_SCROLLABLE);
 
-	/*bg_smeter = lv_obj_create(scr);
-	lv_obj_add_style(bg_smeter, &tuner_style, 0);
-	lv_obj_set_pos(bg_smeter, 4*(LV_HOR_RES / 6) + 3, topHeight);
-	lv_obj_set_size(bg_smeter, 2*(LV_HOR_RES / 6) - 3, tunerHeight);
-	lv_obj_clear_flag(bg_smeter, LV_OBJ_FLAG_SCROLLABLE);
-	*/
-	set_smeter_img(scr, 4 * (LV_HOR_RES / 6) + 3, topHeight, 2 * (LV_HOR_RES / 6) - 3, tunerHeight);
-
-	lv_style_init(&text_style);
+	lv_obj_t *bg_tuner3 = lv_obj_create(scr);
+	lv_obj_add_style(bg_tuner3, &tuner_style, 0);
+	lv_obj_set_pos(bg_tuner3, 4 * (LV_HOR_RES / 6) , topHeight);
+	lv_obj_set_size(bg_tuner3, 2 * (LV_HOR_RES / 6) , tunerHeight);
+	lv_obj_clear_flag(bg_tuner3, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_set_style_pad_hor(bg_tuner3, 0, LV_PART_MAIN);
+	lv_obj_set_style_pad_ver(bg_tuner3, 0, LV_PART_MAIN);
+	set_smeter_img(bg_tuner3, 0, 0, 2 * (LV_HOR_RES / 6) - 3, tunerHeight);
 
 	/*Set a background color and a radius*/
+	lv_style_init(&text_style);
 	lv_style_set_radius(&text_style, 5);
 	lv_style_set_bg_opa(&text_style, LV_OPA_COVER);
 	lv_style_set_bg_color(&text_style, lv_color_black());
@@ -197,28 +198,22 @@ void gui_vfo::set_vfo_gui(int avfo, long long freq)
 		lv_label_set_text(mode_split2, "");
 }
 
-static lv_obj_t *meter;
-static lv_meter_indicator_t *smeter_indic;
-
-static void set_smeter_value(int32_t v)
+void gui_vfo::set_smeter_value(int32_t v)
 {
-	lv_meter_set_indicator_value(meter, (lv_meter_indicator_t *)smeter_indic, v);
+	if (cmeter_ptr != nullptr)
+		cmeter_ptr->lv_meter_set_indicator_value((lv_meter_indicator_c *)smeter_indic, v);
 }
 
-static void smeter_event_cb(lv_event_t *e)
+void gui_vfo::smeter_event_cb_class(lv_event_t *e)
 {
+	lv_obj_t *obj = lv_event_get_target(e);
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
-
-	switch (code)
+	lv_meter_c *meter = (lv_meter_c *)obj;
+	
+	if (code == LV_EVENT_DRAW_PART_BEGIN && (lv_meter_scale_c *)dsc->sub_part_ptr == scale)
 	{
-	case LV_EVENT_DRAW_PART_BEGIN:
-		dsc->value = dsc->value / 10;
-		if (dsc->value == 1)
-		{
-			strcpy(dsc->text, "S");
-		}
-
+		dsc->value = dsc->value / 10 - 1;
 		if (dsc->value > 9)
 		{
 			if (dsc->value == 10)
@@ -228,60 +223,107 @@ static void smeter_event_cb(lv_event_t *e)
 			if (dsc->value == 12)
 				dsc->value = 60;
 		}
-		lv_snprintf(dsc->text, sizeof(dsc->text), "%d", dsc->value);
-		break;
+		switch (dsc->value)
+		{
+		case 0:
+			strcpy(dsc->text, "S");
+			break;
+		case 2:
+		//case 3:
+		case 4:
+		case 6:
+		//case 7:
+		case 8:
+		case 20:
+			strcpy(dsc->text, "");
+			break;
+
+		case 40:
+		case 60:
+			lv_snprintf(dsc->text, sizeof(dsc->text), "+%d", dsc->value);
+			break;
+
+		default:
+			lv_snprintf(dsc->text, sizeof(dsc->text), "%d", dsc->value);
+			break;
+		}
+	}
+	if (code == LV_EVENT_DRAW_PART_BEGIN && (lv_meter_scale_c *)dsc->sub_part_ptr == scale2)
+	{
+		if (dsc->value == 0)
+			strcpy(dsc->text, "Po");
 	}
 }
 
-static lv_style_t meter_style;
-
-void set_smeter_img(lv_obj_t *box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
+void gui_vfo::set_smeter_img(lv_obj_t *box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
 {
-	lv_style_init(&meter_style);
-	lv_style_set_radius(&meter_style, 0);
-	lv_style_set_bg_color(&meter_style, lv_color_black());
+	const int center_modifier = 150;
+	const int arc_angle_range = 48;
+	const int arc_rotation = 246;
 
-	meter = lv_meter_create(box);
-	lv_obj_set_pos(meter, x, y);
-	lv_obj_set_size(meter, w, h);
-	lv_obj_add_style(meter, &meter_style, 0);
-	lv_obj_add_event_cb(meter, smeter_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
-
-	/*Remove the circle from the middle*/
-	//lv_obj_remove_style(meter, NULL, LV_PART_INDICATOR);
-	lv_obj_set_style_pad_hor(meter, 0, LV_PART_MAIN);
-	lv_obj_set_style_pad_ver(meter, 0, LV_PART_MAIN);
-	lv_obj_set_style_size(meter, w, LV_PART_MAIN);
-
+	cmeter_ptr = make_unique<cmeter>(box, x, y, w, h);
 	/*Add a scale first*/
-	lv_meter_scale_t *scale = lv_meter_add_scale(meter);
-	lv_meter_set_scale_range(meter, scale, 10, 120, 100, 220);
-	lv_meter_set_scale_ticks(meter, scale, 12, 10, 5, lv_palette_main(LV_PALETTE_LIGHT_GREEN));
-	lv_meter_set_scale_major_ticks(meter, scale, 1, 2, 10, lv_color_hex3(0xeee), 10);
+	scale = cmeter_ptr->lv_meter_add_scale(0, center_modifier);
+	cmeter_ptr->lv_obj_add_event_cb(smeter_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+
+	//lv_meter_set_scale_range(meter, scale, 10, 120, 100, 220);
+	cmeter_ptr->lv_meter_set_scale_range(scale, 10, 120, arc_angle_range, arc_rotation);
+	cmeter_ptr->lv_meter_set_scale_ticks(scale, 12, 10, 5, lv_palette_main(LV_PALETTE_LIGHT_GREEN));
+	cmeter_ptr->lv_meter_set_scale_major_ticks(scale, 1, 2, 10, lv_color_hex3(0xeee), -20);
 
 	//lv_meter_set_scale_major_ticks(meter, scale, 1, 4, 10, lv_color_hex3(0xeee), 10);
+	const int arc_start_value = 0;
+	const int arc_first_sector = 90;
+	const int arc_second_sector = 120;
 
-	lv_meter_indicator_t *indic;
-	indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_GREEN), 0);
-	lv_meter_set_indicator_start_value(meter, indic, 0);
-	lv_meter_set_indicator_end_value(meter, indic, 90);
+	lv_meter_indicator_c *indic;
+	indic = cmeter_ptr->lv_meter_add_arc(scale, 3, lv_palette_main(LV_PALETTE_GREEN), -5, center_modifier); // -5
+	cmeter_ptr->lv_meter_set_indicator_start_value(indic, arc_start_value);
+	cmeter_ptr->lv_meter_set_indicator_end_value(indic, arc_first_sector);
 
-	lv_meter_indicator_t *indic1;
-	indic1 = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_RED), 0);
-	lv_meter_set_indicator_start_value(meter, indic1, 90);
-	lv_meter_set_indicator_end_value(meter, indic1, 120);
+	lv_meter_indicator_c *indic1;
+	indic1 = cmeter_ptr->lv_meter_add_arc(scale, 3, lv_palette_main(LV_PALETTE_RED), -5, center_modifier);
+	cmeter_ptr->lv_meter_set_indicator_start_value(indic1, arc_first_sector);
+	cmeter_ptr->lv_meter_set_indicator_end_value(indic1, arc_second_sector);
 
-	smeter_indic = lv_meter_add_needle_line(meter, scale, 1, lv_color_white(), -10);
-	lv_meter_set_indicator_value(meter, smeter_indic, 0);
+	lv_meter_indicator_c *indic2;
+	indic2 = cmeter_ptr->lv_meter_add_arc(scale, 3, lv_color_white(), -10, center_modifier);
+	cmeter_ptr->lv_meter_set_indicator_start_value(indic2, arc_start_value);
+	cmeter_ptr->lv_meter_set_indicator_end_value(indic2, arc_second_sector);
+
+	const int scale_2 = -33;
+
+	lv_meter_indicator_c *indic3;
+	indic3 = cmeter_ptr->lv_meter_add_arc(scale, 3, lv_color_white(), scale_2 -7, center_modifier);
+	cmeter_ptr->lv_meter_set_indicator_start_value(indic3, arc_start_value);
+	cmeter_ptr->lv_meter_set_indicator_end_value(indic3, arc_second_sector);
+
+	lv_meter_indicator_c *indic4;
+	indic4 = cmeter_ptr->lv_meter_add_arc(scale, 3, lv_palette_main(LV_PALETTE_RED), scale_2 -3, center_modifier);
+	cmeter_ptr->lv_meter_set_indicator_start_value(indic4, arc_first_sector);
+	cmeter_ptr->lv_meter_set_indicator_end_value(indic4, arc_second_sector);
+
+	lv_meter_indicator_c *indic5;
+	indic5 = cmeter_ptr->lv_meter_add_arc(scale, 3, lv_palette_main(LV_PALETTE_BLUE), scale_2 -3, center_modifier);
+	cmeter_ptr->lv_meter_set_indicator_start_value(indic5, arc_start_value);
+	cmeter_ptr->lv_meter_set_indicator_end_value(indic5, arc_first_sector);
+
+	scale2 = cmeter_ptr->lv_meter_add_scale(scale_2, center_modifier);
+	//lv_meter_set_scale_range(meter, scale, 10, 120, 100, 220);
+	cmeter_ptr->lv_meter_set_scale_range(scale2, 0, 10, arc_angle_range, arc_rotation);
+	cmeter_ptr->lv_meter_set_scale_major_ticks(scale2, 1, 2, 10, lv_color_hex3(0xeee), -20);
+
+	smeter_indic = cmeter_ptr->lv_meter_add_needle_line(scale, 2, lv_palette_main(LV_PALETTE_RED), 5);
+	cmeter_ptr->lv_meter_set_indicator_value(smeter_indic, 0);
 }
 
-void set_s_meter(double value)
+void gui_vfo::set_s_meter(double value)
 {
 	//printf("value %f\n", value);
 	//value = 30.0 + value;
 	//value = value + 200.0;
 	//printf(" value s%f \n", value);
-	lv_meter_set_indicator_value(meter, smeter_indic, value);
+	cmeter_ptr->lv_meter_set_indicator_value(smeter_indic, value);
 }
 
 void gui_vfo::set_span(int span)

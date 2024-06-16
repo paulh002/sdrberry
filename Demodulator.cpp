@@ -196,12 +196,21 @@ void Demodulator::FlashGainSlider(float envelope)
 // use mix_down() to mix down to baseband during receive,mix_up() for transmit to mixup from baseband
 void Demodulator::tune_offset(long offset)
 {
-	tuneOffsetFrequency = offset;
-	float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifSampleRate);
-	if (tuneNCO == nullptr)
-		tuneNCO = nco_crcf_create(LIQUID_NCO);
-	nco_crcf_set_phase(tuneNCO, 0.0f);
-	nco_crcf_set_frequency(tuneNCO, rad_per_sample);
+	if (offset)
+	{
+		tuneOffsetFrequency = offset;
+		float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifSampleRate);
+		if (tuneNCO == nullptr)
+			tuneNCO = nco_crcf_create(LIQUID_NCO);
+		nco_crcf_set_phase(tuneNCO, 0.0f);
+		nco_crcf_set_frequency(tuneNCO, rad_per_sample);
+	}
+	else
+	{
+		if (tuneNCO != nullptr)
+			nco_crcf_destroy(tuneNCO);
+		tuneNCO = nullptr;		
+	}
 }
 
 void Demodulator::gain_phasecorrection(IQSampleVector &samples_in, float vol)

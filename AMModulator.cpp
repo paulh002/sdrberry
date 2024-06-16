@@ -107,7 +107,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		if (abs(sample_ratio1 - sample_ratio) > 0.1)
 			sample_ratio = sample_ratio1;
 
-		set_resample_rate(sample_ratio); // UP sample to ifrate		
+		set_resample_rate(sample_ratio); // UP sample to ifrate
 	}
 	else
 	{	// mix the transmid signal to the mid of the fft display
@@ -189,7 +189,7 @@ void AMModulator::operator()()
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(5) < now)
+		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
@@ -222,7 +222,7 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
 	executeBandpassFilter(buf_mod, buf_filter);
-	Resample(buf_filter, buf_out);
+	Resample(buf_filter, buf_out ); //buf_out
 	mix_up(buf_out, samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);
 }

@@ -136,7 +136,7 @@ bool AudioInput::open(std::string device)
 		return false;
 	}
 	startStream();
-	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, device.c_str(), sampleRate);
+	printf("audio input device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), sampleRate, parameters.nChannels);
 	return true;	
 }
 

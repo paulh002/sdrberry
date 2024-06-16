@@ -310,6 +310,12 @@
     <ClCompile Include="PeakMeasurement.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_bottom_bar.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="cmeter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -675,6 +681,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="PeakMeasurement.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_bottom_bar.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="cmeter.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

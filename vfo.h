@@ -67,6 +67,8 @@ struct vfo_settings_struct
 	long bandwidth;
 	int correction_tx;
 	int correction_rx;
+	int notxoffset;
+	long maxtxoffset;
 };
 
 class CVfo

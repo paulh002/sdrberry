@@ -38,7 +38,8 @@ class Spectrum
 	std::unique_ptr<FastFourier> fft;
 	lv_point_t drag{0};
 	PeakMeasurement finder;
-	
+	int signal_strength_offset;
+
 	void draw_event_cb_class(lv_event_t *e);
 	void click_event_cb_class(lv_event_t *e);
 	void pressing_event_cb_class(lv_event_t *e);

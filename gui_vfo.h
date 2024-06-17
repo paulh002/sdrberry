@@ -38,7 +38,7 @@ class gui_vfo
 
   public:
 	void gui_vfo_init(lv_obj_t *scr);
-	void set_vfo_gui(int vfo, long long freq);
+	void set_vfo_gui(int vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band);
 	void set_span(int span);
 	void set_split(bool _split);
 	bool get_split();

@@ -429,6 +429,17 @@ int main(int argc, char *argv[])
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_HIDDEN);
 
+	static lv_style_t style_btn;
+	lv_style_init(&style_btn);
+	lv_style_set_radius(&style_btn, 0);
+	lv_style_set_border_width(&style_btn, 1);
+	lv_style_set_border_opa(&style_btn, LV_OPA_50);
+	lv_style_set_border_color(&style_btn, lv_color_black());
+	lv_style_set_border_side(&style_btn, LV_BORDER_SIDE_INTERNAL);
+	lv_style_set_radius(&style_btn, 0);
+	lv_obj_add_style(tab_buttons, &style_btn, LV_PART_ITEMS);
+	
+
 	//keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;

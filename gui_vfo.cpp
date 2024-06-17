@@ -1,5 +1,4 @@
 #include "gui_vfo.h"
-#include "vfo.h"
 #include <math.h>
 #include <pthread.h>
 #include <stdint.h>
@@ -10,6 +9,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "cmeter.h"
+#include "Modes.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
@@ -64,7 +64,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 	//lv_label_set_long_mode(vfo1_frequency, LV_LABEL_LONG_CLIP);
 	lv_obj_add_style(vfo1_frequency, &text_style, 0);
 	lv_obj_set_width(vfo1_frequency, LV_HOR_RES - 20);
-	lv_label_set_text(vfo1_frequency, "3,500.00");
+	lv_label_set_text(vfo1_frequency, "3.500.00");
 	lv_obj_set_height(vfo1_frequency, 40);
 
 	band_label = lv_label_create(bg_tuner1);
@@ -89,7 +89,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 	//lv_label_set_long_mode(vfo2_frequency, LV_LABEL_LONG_CLIP);
 	lv_obj_add_style(vfo2_frequency, &text_style, 0);
 	lv_obj_set_width(vfo2_frequency, LV_HOR_RES - 20);
-	lv_label_set_text(vfo2_frequency, "7,200.00");
+	lv_label_set_text(vfo2_frequency, "7.200.00");
 	lv_obj_set_height(vfo2_frequency, 40);
 
 	band_label2 = lv_label_create(bg_tuner2);
@@ -112,7 +112,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 	lv_label_set_recolor(rxtx_label2, true);
 }
 
-void gui_vfo::set_vfo_gui(int avfo, long long freq)
+void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band)
 {
 	char str[30];
 
@@ -125,7 +125,7 @@ void gui_vfo::set_vfo_gui(int avfo, long long freq)
 		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 	}
 
-	if (avfo)
+	if (active_vfo)
 	{
 		lv_label_set_text(vfo2_frequency, str);
 	}
@@ -133,38 +133,35 @@ void gui_vfo::set_vfo_gui(int avfo, long long freq)
 	{
 		lv_label_set_text(vfo1_frequency, str);
 	}
-
-	int band = vfo.get_band_no(avfo);
-	sprintf(str, "%d m", band);
-
-	if (avfo)
+	sprintf(str, "%d m", vfo_band);
+	if (active_vfo)
 		lv_label_set_text(band_label2, str);
 	else
 		lv_label_set_text(band_label, str);
 
-	if (vfo.get_rx() != rxtx)
+	if (vfo_rx!= rxtx)
 	{
-		rxtx = vfo.get_rx();
+		rxtx = vfo_rx;
 		if (rxtx)
 		{
-			if (avfo)
+			if (active_vfo)
 				lv_label_set_text(rxtx_label2, "RX");
 			else
 				lv_label_set_text(rxtx_label, "RX");
 		}
 		else
 		{
-			if (avfo)
+			if (active_vfo)
 				lv_label_set_text(rxtx_label2, "#ff0000 TX#");
 			else
 				lv_label_set_text(rxtx_label, "#ff0000 TX#");
 		}
 	}
 
-	if (mode[avfo] != vfo.get_mode_no(avfo))
+	if (mode[active_vfo] != vfo_mode_no)
 	{
-		mode[avfo] = vfo.get_mode_no(avfo);
-		switch (mode[avfo])
+		mode[active_vfo] = vfo_mode_no;
+		switch (mode[active_vfo])
 		{
 		case mode_broadband_fm:
 			strcpy(str, "FM");
@@ -187,7 +184,7 @@ void gui_vfo::set_vfo_gui(int avfo, long long freq)
 			strcpy(str, "FT8");
 			break;
 		}
-		if (avfo)
+		if (active_vfo)
 			lv_label_set_text(mode_label2, str);
 		else
 			lv_label_set_text(mode_label, str);
@@ -261,7 +258,7 @@ void gui_vfo::set_smeter_img(lv_obj_t *box, lv_coord_t x, lv_coord_t y, lv_coord
 	const int arc_angle_range = 48;
 	const int arc_rotation = 246;
 
-	cmeter_ptr = make_unique<cmeter>(box, x, y, w, h);
+	cmeter_ptr = std::make_unique<cmeter>(box, x, y, w, h);
 	/*Add a scale first*/
 	scale = cmeter_ptr->lv_meter_add_scale(0, center_modifier);
 	cmeter_ptr->lv_obj_add_event_cb(smeter_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
@@ -313,7 +310,7 @@ void gui_vfo::set_smeter_img(lv_obj_t *box, lv_coord_t x, lv_coord_t y, lv_coord
 	cmeter_ptr->lv_meter_set_scale_range(scale2, 0, 10, arc_angle_range, arc_rotation);
 	cmeter_ptr->lv_meter_set_scale_major_ticks(scale2, 1, 2, 10, lv_color_hex3(0xeee), -20);
 
-	smeter_indic = cmeter_ptr->lv_meter_add_needle_line(scale, 2, lv_palette_main(LV_PALETTE_RED), 5);
+	smeter_indic = cmeter_ptr->lv_meter_add_needle_line(scale, 3, lv_palette_main(LV_PALETTE_RED), 5);
 	cmeter_ptr->lv_meter_set_indicator_value(smeter_indic, 0);
 }
 

@@ -16,7 +16,8 @@
 using namespace std;
 
 const int noise_floor{20};
-const int hor_lines{8};
+const int hor_lines_small{6};
+const int hor_lines_large{8};
 const int vert_lines{9};
 
 Spectrum SpectrumGraph;
@@ -140,7 +141,7 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 
 void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
-	
+	int hor_lines = hor_lines_large;
 	int heightChart, fontsize = 20, heightWaterfall;
 	int waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
 	signal_strength_offset = Settings_file.get_int("Radio", "s_offset", 150);
@@ -171,6 +172,8 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 		lv_obj_set_size(chart, w, h - fontsize);
 		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	}
+	if (waterfallsize > 3)
+		hor_lines = hor_lines_small;
 	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 130);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);

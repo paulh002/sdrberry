@@ -264,7 +264,6 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	Resample(filter1, filter2);
 	filter1.clear();
 	lowPassAudioFilter(filter2, filter1);
-	filter2.clear();
 	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
@@ -275,8 +274,6 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 		ampmodem_demodulate(demodulatorHandle, (liquid_float_complex)col, &v);
 		audio.push_back(v);
 	}	
-	filter1.clear();
-	filter2.clear();
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate,  DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)

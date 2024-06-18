@@ -144,7 +144,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	int hor_lines = hor_lines_large;
 	int heightChart, fontsize = 20, heightWaterfall;
 	int waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
-	signal_strength_offset = Settings_file.get_int("Radio", "s_offset", 150);
+	signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 100);
 		
 	if (waterfallsize < 0 || waterfallsize > 10 || waterfallsize == 1)
 		waterfallsize = 0;
@@ -249,7 +249,8 @@ void Spectrum::SetFftParts()
 
 void Spectrum::set_signal_strength(double strength)
 {
-	signal_strength = 20 * log10(strength) + signal_strength_offset;
+	signal_strength = 40 * log10(strength) + signal_strength_offset;
+	//printf("S %f offset %d \n", signal_strength.load(), signal_strength_offset);
 }
 
 void Spectrum::ProcessWaterfall(const IQSampleVector &input)

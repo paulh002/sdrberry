@@ -1,44 +1,7 @@
 #pragma once
-#include "AMDemodulator.h"
-#include "AMModulator.h"
+#include "FT891_CAT.h"
 #include "AudioInput.h"
-#include "AudioOutput.h"
-#include "Catinterface.h"
-#include "DataBuffer.h"
-#include "Filter.h"
-#include "FmDecode.h"
-#include "Gui_band.h"
-#include "MidiControle.h"
-#include "Modes.h"
-#include "RtAudio.h"
 #include "SdrDevice.h"
-#include "Settings.h"
-#include "gui_bar.h"
-#include "gui_ft8.h"
-#include "gui_rx.h"
-#include "gui_setup.h"
-#include "gui_top_bar.h"
-#include "gui_tx.h"
-#include "gui_vfo.h"
-#include "lv_drivers/display/fbdev.h"
-#include "lv_drivers/indev/evdev.h"
-#include "lvgl.h"
-#include "sdrstream.h"
-#include "vfo.h"
-#include <cmath>
-#include <complex>
-#include <cstdio>
-#include <cstdlib>
-#include <fftw3.h>
-#include <liquid/liquid.h>
-#include <memory>
-#include <mutex>
-#include <stdint.h>
-#include <sys/time.h>
-#include <thread>
-#include <time.h>
-#include <unistd.h>
-#include <vector>
 
 extern const int barHeight;
 extern const int MorseHeight;

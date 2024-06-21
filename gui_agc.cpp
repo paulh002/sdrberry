@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "vfo.h"
 #include "gui_vfo.h"
+#include "gui_setup.h"
 
 Gui_agc gagc;
 
@@ -11,15 +12,49 @@ void Gui_agc::agc_button_handler_class(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e); 
 	
 	if (code == LV_EVENT_CLICKED) {
-
-		for (int i = 0; i < ibuttons; i++)
+		if (obj == button[4])
 		{
-			if ((obj != button[i]) && (lv_obj_has_flag(button[i], LV_OBJ_FLAG_CHECKABLE)))
+			// SDR button
+			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
-				lv_obj_clear_state(button[i], LV_STATE_CHECKED);
+				try
+				{
+					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
+					{
+						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), true);
+					}
+				}
+				catch (const std::exception &e)
+				{
+					std::cout << e.what();
+				}
 			}
 			else
-				set_agc_mode(i);
+			{
+				try
+				{
+					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
+					{
+						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), false);
+					}
+				}
+				catch (const std::exception &e)
+				{
+					std::cout << e.what();
+				}
+			}
+		}
+		else
+		{
+			for (int i = 0; i < ibuttons - 1; i++)
+			{
+				if ((obj != button[i]) && (lv_obj_has_flag(button[i], LV_OBJ_FLAG_CHECKABLE)))
+				{
+					lv_obj_clear_state(button[i], LV_STATE_CHECKED);
+				}
+				else
+					set_agc_mode(i);
+			}
 		}
 	}
 }
@@ -99,7 +134,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 20;
-	const int x_number_buttons = 5;
+	const int x_number_buttons = 6;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin  = 20;
 	
@@ -157,6 +192,12 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 			strcpy(str, "Slow");
 			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(button[i], (void *)mode_narrowband_fm);
+			break;
+		case 4:
+			strcpy(str, "SDR");
+			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+			lv_obj_set_user_data(button[i], (void *)4);
+			lv_obj_add_state(button[i], LV_STATE_DISABLED);
 			break;
 		}
 		lv_label_set_text(lv_label, str);
@@ -235,6 +276,14 @@ void Gui_agc::set_group()
 {
 	lv_indev_set_group(encoder_indev_t, m_button_group);
 	lv_group_focus_obj(button[0]);
+}
+
+void Gui_agc::set_sdr_state()
+{
+	if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
+	{
+		lv_obj_clear_state(button[4], LV_STATE_DISABLED);
+	}
 }
 
 void Gui_agc::set_atack_slider(int t)

@@ -3,6 +3,7 @@
 #include "Spectrum.h"
 #include "date.h"
 #include "gui_ft8bar.h"
+#include "gui_bar.h"
 #include "sdrberry.h"
 #include <assert.h>
 #include <chrono>

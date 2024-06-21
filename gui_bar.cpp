@@ -1,6 +1,10 @@
 #include "gui_bar.h"
 #include "gui_ft8bar.h"
+#include "gui_setup.h"
+#include "gui_rx.h"
+#include "Catinterface.h"
 
+#include <memory>
 static const char * opts = "0.5 Khz\n"
 						   "1.0 Khz\n"
 						   "1.5 Khz\n"
@@ -55,13 +59,21 @@ void gui_bar::set_mode(int mode)
 	}
 }
 
+
 void gui_bar::bar_button_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
 	
 	int bmode = (long)lv_obj_get_user_data(obj);
-	
+	if (code == LV_EVENT_CUSTOM)
+	{
+		attenuatorWindow.reset();
+		attenuatorWindow = nullptr;
+		lv_obj_clear_state(get_button_obj(9), LV_STATE_CHECKED);
+		return;
+	}
+
 	if (code == LV_EVENT_CLICKED) {
 	
 		for (int i = 0; i < gbar.getbuttons(); i++)
@@ -78,7 +90,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 				case 0:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 					{
-						if (!select_mode_tx(mode))
+						if (!select_mode_tx(mode, audioTone::SingleTone))
 							lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					}
 					else
@@ -94,7 +106,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 					select_mode(bmode,true);
 					lv_obj_add_state(obj, LV_STATE_CHECKED);		
 					break;
-				case 9:
+				case 99:
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 					{
 						try
@@ -130,14 +142,23 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 					else
 						vfo.set_active_vfo(0);	
 					break;
+				case 9:
+					if (attenuatorWindow == nullptr)
+					{
+						std::vector<std::string> btns{"off","-10db", "-20db", "-30db", "-40db"};
+						attenuatorWindow = std::make_unique<guiButtonWindows>(obj, (void *)this,"Attenuator", btns, 300, 200);
+					}
+					break;
+						
 				case 10:
 					// Noise
 					if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 					{
-					
+						Demodulator::set_noise_filter(guirx.get_noise() + 1);
 					}
 					else
 					{
+						Demodulator::set_noise_filter(0);
 					}
 					break;
 				}
@@ -322,7 +343,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	lv_obj_set_style_pad_hor(o_parent, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(o_parent, 0, LV_PART_MAIN);
 	lv_obj_clear_flag(o_parent, LV_OBJ_FLAG_SCROLLABLE);
-	m_button_group = button_group;
+	buttongroup = button_group;
 	
 	ibuttons = number_of_buttons;
 	for (i = 0; i < ibuttons; i++)
@@ -344,7 +365,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			case 0:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], NULL);
-				strcpy(str, "TX");
+				strcpy(str, "Tune");
 				if (SdrDevices.get_tx_channels(default_radio) == 0)
 					lv_obj_add_flag(button[i], LV_OBJ_FLAG_HIDDEN);
 				break;
@@ -404,7 +425,8 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				break;
 			case 9:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				strcpy(str, "AGC");
+				strcpy(str, "ATT");
+				lv_obj_add_event_cb(button[i], bar_button_handler, LV_EVENT_CUSTOM, (void *)this);
 				break;
 			case 10:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
@@ -647,6 +669,13 @@ void gui_bar::set_vol_slider(int volume)
 	Settings_file.save_vol(volume);
 }
 
+bool gui_bar::get_noise()
+{
+	if (lv_obj_get_state(button[10]) & LV_STATE_CHECKED)
+		return true;
+	return false;
+}
+
 int gui_bar::get_vol_range()
 {
 	return max_volume;
@@ -758,12 +787,6 @@ void gui_bar::get_gain_range(int &max_gain, int &min_gain)
 	return;
 }
 
-int gui_bar::get_noise()
-{
-	if (lv_obj_get_state(button[10]) & LV_STATE_CHECKED)
-		return guirx.get_noise() + 1;
-	return 0;
-}
 
 void gui_bar::hidetx()
 {

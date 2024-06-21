@@ -1,4 +1,7 @@
 #include "gui_rx.h"
+#include "gui_bar.h"
+#include "Catinterface.h"
+#include "Demodulator.h"
 
 gui_rx guirx;
 
@@ -117,6 +120,10 @@ void gui_rx::noise_handler_class(lv_event_t *e)
 	{
 		int noise = get_noise();
 		Settings_file.save_int("Radio", "noise", noise);
+		if (gbar.get_noise())
+		{
+			Demodulator::set_noise_filter(noise + 1);
+		}
 	}
 }
 

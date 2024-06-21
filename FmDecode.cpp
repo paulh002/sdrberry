@@ -18,6 +18,7 @@
 #include "Limiter.h"
 #include "gui_agc.h"
 #include "Agc_class.h"
+#include "gui_bar.h"
 
 using namespace std;
 

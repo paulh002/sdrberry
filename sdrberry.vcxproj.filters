@@ -136,9 +136,6 @@
     <ClCompile Include="Keyboard.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="Waterfall.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="AMDemodulator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -314,6 +311,12 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="cmeter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="guiButtonWindows.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Waterfall.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -687,6 +690,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="cmeter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="guiButtonWindows.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

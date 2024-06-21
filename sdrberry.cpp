@@ -1,4 +1,4 @@
-#include "sdrberry.h"
+#include "AMDemodulator.h"
 #include "AMModulator.h"
 #include "BandFilter.h"
 #include "Catinterface.h"
@@ -19,7 +19,31 @@
 #include "gui_cal.h"
 #include "wsjtx_lib.h"
 #include "gui_agc.h"
+#include "gui_rx.h"
+#include "gui_bar.h"
+#include "gui_tx.h"
+#include "gui_setup.h"
+#include "gui_ft8.h"
 #include "gui_bottom_bar.h"
+#include "Gui_band.h"
+#include "AudioInput.h"
+#include "AudioOutput.h"
+#include "Catinterface.h"
+#include "DataBuffer.h"
+#include "Filter.h"
+#include "FmDecode.h"
+#include "MidiControle.h"
+#include "Modes.h"
+#include "RtAudio.h"
+#include "lv_drivers/display/fbdev.h"
+#include "lv_drivers/indev/evdev.h"
+#include "Settings.h"
+#include "gui_top_bar.h"
+#include "sdrstream.h"
+#include "sdrberry.h"
+
+
+
 //#include "quick_arg_parser.hpp"
 
 //#include "HidThread.h"
@@ -194,6 +218,11 @@ static void tabview_event_cb(lv_event_t *e)
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gui_band_instance.set_group();
+		break;
+	case 2:
+		gcal.hide(true);
+		gbar.hide(false);
+		guift8bar.hide(true);
 		break;
 	case 3:
 		gcal.hide(true);
@@ -560,6 +589,7 @@ int main(int argc, char *argv[])
 			std::cout << e.what();
 		}
 		gsetup.init_bandwidth();
+		gagc.set_sdr_state();
 		select_mode(mode); // start streaming
 	}
 	else

@@ -1,5 +1,6 @@
 #include "FMModulator.h"
 #include "Spectrum.h"
+#include "vfo.h"
 
 static shared_ptr<FMModulator> sp_fmmod;
 

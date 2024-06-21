@@ -1,6 +1,5 @@
 #pragma once
 #include "lvgl_.h"
-#include "sdrberry.h"
 
 extern const int screenWidth;
 extern const int screenHeight;

@@ -6,6 +6,7 @@
 #include "lvgl_.h"
 #include "sdrberry.h"
 #include "vfo.h"
+#include "guiButtonWindows.h"
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -30,14 +31,16 @@ class gui_bar
 	vector<int> ifilters;
 	lv_obj_t *cw_wpm, *cw_message, *cw_box, *cw_led;
 	lv_style_t cw_style, style_selected_color;
-	lv_group_t *m_button_group{nullptr};
+	lv_group_t *buttongroup{nullptr};
 	bool ifStyleState{false};
+	std::unique_ptr <guiButtonWindows> attenuatorWindow;
 
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);
 	void if_slider_event_class(lv_event_t *e);
 	void vol_slider_event_class(lv_event_t *e);
 	void filter_slider_event_class(lv_event_t *e);
+	
 
   public:
 	gui_bar();
@@ -48,6 +51,7 @@ class gui_bar
 	static constexpr auto if_slider_event_cb = EventHandler<gui_bar, &gui_bar::if_slider_event_class>::staticHandler;
 	static constexpr auto vol_slider_event_cb = EventHandler<gui_bar, &gui_bar::vol_slider_event_class>::staticHandler;
 	static constexpr auto filter_slider_event_cb = EventHandler<gui_bar, &gui_bar::filter_slider_event_class>::staticHandler;
+	
 
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
 	void set_vol_slider(int volume);
@@ -75,11 +79,11 @@ class gui_bar
 	void set_tx(bool tx);
 	void get_gain_range(int &max_gain, int &min_gain);
 	int get_rf_gain() { return lv_slider_get_value(gain_slider); }
-	int get_noise();
 	void setIfGainOverflow(bool state);
 	void hide(bool hide);
 	void hidetx();
 	void set_vfo(int active_vfo);
+	bool get_noise();
 
 	lv_obj_t *get_button_obj(int i)
 	{

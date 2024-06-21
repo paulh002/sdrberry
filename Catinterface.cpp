@@ -1,6 +1,7 @@
 #include "Catinterface.h"
 #include "vfo.h"
 #include "SharedQueue.h"
+#include "gui_bar.h"
 
 extern SharedQueue<GuiMessage> guiQueue;
 

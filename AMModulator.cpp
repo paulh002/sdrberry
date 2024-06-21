@@ -6,6 +6,8 @@
 #include <chrono>
 #include <ctime>
 #include "IQGenerator.h"
+#include "vfo.h"
+#include "sdrberry.h"
 
 shared_ptr<AMModulator> sp_ammod;
 

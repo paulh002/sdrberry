@@ -7,7 +7,6 @@
 #include <mutex>
 #include <condition_variable>
 #include "Waterfall.h"
-#include "sdrberry.h"
 #include "sma.h"
 #include "Modes.h"
 

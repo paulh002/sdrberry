@@ -4,6 +4,9 @@
 #include "sdrstream.h"
 #include "Spectrum.h"
 #include "gui_cal.h"
+#include "gui_bar.h"
+#include "gui_tx.h"
+#include "Gui_band.h"
 
 CVfo	vfo;
 

@@ -1,9 +1,10 @@
-#include "sdrberry.h"
 #include "FMDemodulator.h"
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 #include "gui_agc.h"
+#include "gui_bar.h"
 #include "Agc_class.h"
+#include "sdrberry.h"
 #include <thread>
 
 FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)

@@ -1,7 +1,10 @@
+#include "lvgl_.h"
 #include "Demodulator.h"
 #include "gui_speech.h"
 #include "gui_cal.h"
 #include "Spectrum.h"
+#include "vfo.h"
+#include "sdrberry.h"
 #include <tuple>
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
@@ -15,6 +18,7 @@ atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
 atomic<bool> Demodulator::dcBlockSwitch = true;
 atomic<bool> Demodulator::autocorrection = false;
 atomic<double> correlationMeasurement, errorMeasurement;
+atomic<int> Demodulator::noisefilter = 0;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -30,6 +34,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	autocorrection = Settings_file.get_int(default_radio, "autocal");
 	highfftquadrant = 0;
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
+	noisefilter = 0;
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -519,4 +524,9 @@ bool Demodulator::get_gain_phase_correction()
 		return true;
 	else
 		return false;
+}
+
+void Demodulator::set_noise_filter(int noise)
+{
+	noisefilter = noise;
 }

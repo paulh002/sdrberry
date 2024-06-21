@@ -1,12 +1,4 @@
 #pragma once
-#include "SdrDevice.h"
-#include "Settings.h"
-#include "gui_top_bar.h"
-#include "gui_vfo.h"
-#include "lv_drivers/display/fbdev.h"
-#include "lv_drivers/indev/evdev.h"
-#include "lvgl.h"
-#include "sdrstream.h"
 #include <atomic>
 #include <math.h>
 #include <mutex>
@@ -17,6 +9,11 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include "SdrDevice.h"
+#include "Settings.h"
+#include "lvgl.h"
+
+
 
 #define MAX_NUM_BAND 15
 

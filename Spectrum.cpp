@@ -1,7 +1,4 @@
 
-#include "Spectrum.h"
-#include "sdrberry.h"
-#include "sma.h"
 #include <atomic>
 #include <cmath>
 #include <complex>
@@ -10,8 +7,11 @@
 #include <liquid/liquid.h>
 #include <mutex>
 #include <vector>
+#include <algorithm>
+#include "Spectrum.h"
+#include "sma.h"
 #include "DouglasPeucker.h"
-
+#include "gui_setup.h"
 
 using namespace std;
 

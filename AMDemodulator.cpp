@@ -1,11 +1,13 @@
 #include <thread>
 #include "AMDemodulator.h"
-#include "gui_bar.h"
 #include "gui_agc.h"
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 #include "SharedQueue.h"
 #include "gui_cal.h"
+#include "vfo.h"
+#include "gui_bar.h"
+#include "gui_rx.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -13,18 +15,18 @@ std::mutex amdemod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1 {};
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
-	: Demodulator(ifrate, source_buffer, audioOutputBuffer), receiverMode(mode) 
+	: Demodulator(ifrate, source_buffer, audioOutputBuffer), receiverMode(mode)
 {
 	float					modulationIndex  = 0.03125f; 
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 	float bandwidth{2500}; // SSB
 	float sample_ratio, sample_ratio1;
-
+	
 	sample_ratio1 = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
 	std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
 	sscanf(sampleratio.c_str(), "%f", &sample_ratio);
-
+	
 	if (abs(sample_ratio1 - sample_ratio) > 0.1)
 		sample_ratio = sample_ratio1;
 
@@ -173,10 +175,11 @@ void AMDemodulator::operator()()
 				{
 					SampleVector		audioStereoSamples, audioNoiseSamples;
 
-					switch (gbar.get_noise())
+					switch (get_noise())
 					{
 					case 1:
 						pXanr->Process(audioFrames, audioNoiseSamples);
+						mono_to_left_right(audioNoiseSamples, audioStereoSamples);
 						break;
 					case 2:
 						pNoisesp->Process(audioFrames, audioNoiseSamples);

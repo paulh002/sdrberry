@@ -7,6 +7,7 @@
 #include "Spectrum.h"
 #include "gui_cal.h"
 #include "gui_ft8bar.h"
+#include "gui_bar.h"
 #include "gui_i2csetup.h"
 #include "Demodulator.h"
 

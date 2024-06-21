@@ -1,7 +1,5 @@
 #pragma once
-#include "vfo.h"
-#include "gui_vfo.h"
-
+#include <atomic>
 extern const int screenWidth;
 extern const int screenHeight;
 extern const int bottomHeight;
@@ -141,12 +139,12 @@ class gui_speech
 	const int top_y{10};
 	int speech_mode{0};
 	lv_group_t *m_button_group{nullptr};
-	atomic<int> a_threshold;
-	atomic<float> a_atack;
-	atomic<float> a_release;
-	atomic<int> a_ratio;
-	atomic<int> a_treble;
-	atomic<int> a_bass;
+	std::atomic<int> a_threshold;
+	std::atomic<float> a_atack;
+	std::atomic<float> a_release;
+	std::atomic<int> a_ratio;
+	std::atomic<int> a_treble;
+	std::atomic<int> a_bass;
 };
 
 extern gui_speech gspeech;

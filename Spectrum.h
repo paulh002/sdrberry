@@ -1,6 +1,5 @@
 #pragma once
 #include "lvgl_.h"
-#include "sdrberry.h"
 #include "sma.h"
 #include <atomic>
 #include <cmath>
@@ -67,7 +66,7 @@ class Spectrum
 
 
 template <typename _Real>
-static inline void rotshift(complex<_Real> *complexVector, const size_t count)
+static inline void rotshift(std::complex<_Real> *complexVector, const size_t count)
 {
 	int center = (int)floor((float)count / 2);
 	if (count % 2 != 0)
@@ -79,7 +78,7 @@ static inline void rotshift(complex<_Real> *complexVector, const size_t count)
 }
 
 template <typename _Real>
-static inline void irotshift(complex<_Real> *complexVector, const size_t count)
+static inline void irotshift(std::complex<_Real> *complexVector, const size_t count)
 {
 	int center = (int)floor((float)count / 2);
 	// odd: 01 234 changes to 234 01

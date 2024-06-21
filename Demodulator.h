@@ -36,7 +36,7 @@ class Demodulator
 	static void setLowPassAudioFilterCutOffFrequency(int band_width);
 	static void set_dc_filter(bool state);
 	static void set_autocorrection(bool state);
-
+	static void set_noise_filter(int noise);
 	//std::thread demod_thread;
 	//atomic<bool> stop_flag{false};
 	
@@ -94,6 +94,7 @@ class Demodulator
 	void auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
 	void FlashGainSlider(float envelope);
 	float getSuppression();
+	int get_noise() { return noisefilter.load(); }
 
   private:
 	EnergyCalculator ifEnergy, afEnergy, SignalStrength;
@@ -116,6 +117,7 @@ class Demodulator
 	static atomic<bool> autocorrection;
 	const int lowPassFilterOrder = 6;
 	
+	
 	const liquid_iirdes_filtertype butterwurthType{LIQUID_IIRDES_BUTTER};
 	const liquid_iirdes_bandtype bandFilterType{LIQUID_IIRDES_BANDPASS};
 	const liquid_iirdes_format sosFormat{LIQUID_IIRDES_SOS};
@@ -127,7 +129,8 @@ class Demodulator
 	float StopBandAttenuation;
 
 	static atomic<int> lowPassAudioFilterCutOffFrequency;
-
+	static atomic<int> noisefilter;
+	
 	bool adjustPhaseGain;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 };

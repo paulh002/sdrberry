@@ -1,4 +1,8 @@
 #include "gui_ft8bar.h"
+#include "gui_setup.h"
+#include "gui_ft8.h"
+#include "gui_tx.h"
+#include "gui_bar.h"
 #include "wsjtx_lib.h"
 #include "vfo.h"
 #include "Modes.h"

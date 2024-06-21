@@ -1,4 +1,5 @@
 #include "BandFilter.h"
+#include "vfo.h"
 
 void BandFilter::initFilter()
 {

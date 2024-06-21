@@ -12,6 +12,8 @@ const char *pcf8475_opts = "20\n21\n22\n23\n24\n25\n26\n27";
 const char *pcf8475a_opts = "38\n39\n3A\n3B\n3C\n3D\n3E\n3F";
 const char *mcp22016_opts = "20\n21\n22\n23\n24\n25\n26\n27";
 const char *tca9548_opts = "70\n71\n72\n73\n74\n75\n76\n77";
+std::vector<std::string> devices{"NONE", "PCF8574", "PCF8574A", "MCP23016", "TCA9548"};
+
 
 void gui_i2csetup::editButton_handler_class(lv_event_t *e)
 {
@@ -217,7 +219,7 @@ void gui_i2csetup::setDevice(std::string buffer)
 	std::string buf1 = strlib::toUpper(buffer);
 
 	int i = 0;
-	for (auto col : devicesList)
+	for (auto col : devices)
 	{
 		std::string buf = strlib::toUpper(col);
 		if (buf == buf1)
@@ -427,7 +429,6 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	lv_obj_add_event_cb(deviceDropdown, deviceDropdownHandler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_size(deviceDropdown, button_width, button_height + y_margin);
 	
-	std::vector<std::string> devices{"NONE", "PCF8574", "PCF8574A", "MCP23016", "TCA9548"};
 	for (auto col : devices)
 	{
 		lv_dropdown_add_option(deviceDropdown, col.c_str(), LV_DROPDOWN_POS_LAST);

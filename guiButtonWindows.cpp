@@ -1,11 +1,11 @@
 #include "guiButtonWindows.h"
 #include <algorithm>
-
+#include <stdio.h>
 
 const int windowbar = 40;
 
-guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, int width, int height)
-	: Parent(parent), thisPtr(thisptr)
+guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, CustomWindowsEvents eventNumber, int width, int height)
+	: Parent(parent), thisPtr(thisptr), eventIndex((lv_event_code_t)eventNumber)
 {
 	if (buttonWindowObj == nullptr)
 	{
@@ -109,7 +109,7 @@ void guiButtonWindows::buttons_handler_class(lv_event_t *e)
 			{
 				lv_obj_del(buttonWindowObj);
 				buttonWindowObj = nullptr;
-				lv_event_send(Parent, LV_EVENT_CUSTOM, (void *)(long)i);
+				lv_event_send(Parent, (lv_event_code_t)eventIndex, (void *)(long)i);
 				break;
 			}
 		}

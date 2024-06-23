@@ -590,6 +590,7 @@ int main(int argc, char *argv[])
 		}
 		gsetup.init_bandwidth();
 		gagc.set_sdr_state();
+		gbar.set_mode(mode);
 		select_mode(mode); // start streaming
 	}
 	else

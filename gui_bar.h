@@ -22,9 +22,10 @@ class gui_bar
 	lv_style_t style_btn;
 	lv_style_t ifGainStyleKnob, ifGainStyleIndicator;
 	lv_obj_t *button[20]{nullptr};
+	lv_obj_t *label[20]{nullptr};
 	int ibuttons{0};
 	int filter;
-	const int number_of_buttons{12};
+	const int number_of_buttons{8};
 	lv_obj_t *vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
 	lv_obj_t *if_slider_label, *if_slider;
 	const int max_volume{100};
@@ -33,7 +34,7 @@ class gui_bar
 	lv_style_t cw_style, style_selected_color;
 	lv_group_t *buttongroup{nullptr};
 	bool ifStyleState{false};
-	std::unique_ptr <guiButtonWindows> attenuatorWindow;
+	std::unique_ptr<guiButtonWindows> attenuatorWindow, preampWindow, modeWindow;
 
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);

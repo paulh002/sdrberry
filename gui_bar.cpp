@@ -747,14 +747,14 @@ void gui_bar::set_vfo(int active_vfo)
 {
 	if (active_vfo)
 	{
-		lv_obj_add_state(button[8], LV_STATE_CHECKED);
+		lv_obj_add_state(button[2], LV_STATE_CHECKED);
 		vfo.set_active_vfo(1);
 		std::string txt = std::string("VFO") + std::string("\n#0fff0f 2#");
 		lv_label_set_text(label[2], txt.c_str());
 	}
 	else
 	{
-		lv_obj_clear_state(button[8], LV_STATE_CHECKED);
+		lv_obj_clear_state(button[2], LV_STATE_CHECKED);
 		vfo.set_active_vfo(0);
 		std::string txt = std::string("VFO") + std::string("\n#0fff0f 1#");
 		lv_label_set_text(label[2], txt.c_str());

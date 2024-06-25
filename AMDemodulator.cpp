@@ -270,6 +270,10 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
+	if (get_noise())
+	{
+		NoiseFilterProcess(filter1, filter1);
+	}
 	for (auto col : filter1)
 	{
 		float v;

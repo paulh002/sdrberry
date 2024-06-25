@@ -12,6 +12,7 @@
 #include "Agc_class.h"
 #include "DataBuffer.h"
 #include "SharedQueue.h"
+#include "NoiseFilter.h"
 
 extern atomic<double> correlationMeasurement, errorMeasurement;
 
@@ -37,12 +38,8 @@ class Demodulator
 	static void set_dc_filter(bool state);
 	static void set_autocorrection(bool state);
 	static void set_noise_filter(int noise);
-	//std::thread demod_thread;
-	//atomic<bool> stop_flag{false};
-	
-	//static void destroy_demodulator();
-	//static bool create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-	
+	static void set_noise_threshold(int threshold);
+	static float get_threshold() { return noiseThresshold; }
 	
   protected:
 	~Demodulator();
@@ -95,6 +92,7 @@ class Demodulator
 	void FlashGainSlider(float envelope);
 	float getSuppression();
 	int get_noise() { return noisefilter.load(); }
+	void NoiseFilterProcess(IQSampleVector &filter_in, IQSampleVector &filter_out);
 
   private:
 	EnergyCalculator ifEnergy, afEnergy, SignalStrength;
@@ -130,7 +128,8 @@ class Demodulator
 
 	static atomic<int> lowPassAudioFilterCutOffFrequency;
 	static atomic<int> noisefilter;
-	
+	static atomic<float> noiseThresshold;
+
 	bool adjustPhaseGain;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 };

@@ -5,6 +5,7 @@
 #include "Spectrum.h"
 #include "vfo.h"
 #include "sdrberry.h"
+#include "NoiseFilter.h"
 #include <tuple>
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
@@ -19,6 +20,7 @@ atomic<bool> Demodulator::dcBlockSwitch = true;
 atomic<bool> Demodulator::autocorrection = false;
 atomic<double> correlationMeasurement, errorMeasurement;
 atomic<int> Demodulator::noisefilter = 0;
+atomic<float> Demodulator::noiseThresshold = 0.0;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -529,4 +531,17 @@ bool Demodulator::get_gain_phase_correction()
 void Demodulator::set_noise_filter(int noise)
 {
 	noisefilter = noise;
+}
+
+void Demodulator::set_noise_threshold(int threshold)
+{
+	noiseThresshold = threshold;
+}
+
+void Demodulator::NoiseFilterProcess(IQSampleVector &filter_in,
+						   IQSampleVector &filter_out)
+{
+	NoiseFilter nf;
+
+	nf.Process(filter_in, filter_out);
 }

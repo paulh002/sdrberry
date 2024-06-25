@@ -15,12 +15,15 @@ private:
 	const int number_of_buttons{ 5 };
 	lv_obj_t* drp_noise;
 	lv_obj_t* check_cw;
-	
+	lv_obj_t *noise_slider;
+	lv_obj_t *noise_slider_label;
+
 	void get_buttons(vector<long>& array);
 	vector<pair<lv_obj_t*, long long>> get_buttons();
 	void rx_button_handler_class(lv_event_t* e);
 	void event_handler_morse_class(lv_event_t* e);
 	void noise_handler_class(lv_event_t* e);
+	void noise_slider_event_cb_class(lv_event_t *e);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w);	
@@ -33,6 +36,7 @@ private:
 	static constexpr auto rx_button_handler = EventHandler<gui_rx, &gui_rx::rx_button_handler_class>::staticHandler;
 	static constexpr auto event_handler_morse = EventHandler<gui_rx, &gui_rx::event_handler_morse_class>::staticHandler;
 	static constexpr auto noise_handler = EventHandler<gui_rx, &gui_rx::noise_handler_class>::staticHandler;
+	static constexpr auto noise_slider_event_cb = EventHandler<gui_rx, &gui_rx::noise_slider_event_cb_class>::staticHandler;
 };
 
 extern gui_rx guirx;

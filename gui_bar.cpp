@@ -687,7 +687,7 @@ void gui_bar::set_vol_slider(int volume)
 
 bool gui_bar::get_noise()
 {
-	if (lv_obj_get_state(button[10]) & LV_STATE_CHECKED)
+	if (lv_obj_get_state(button[5]) & LV_STATE_CHECKED)
 		return true;
 	return false;
 }
@@ -749,14 +749,14 @@ void gui_bar::set_vfo(int active_vfo)
 	{
 		lv_obj_add_state(button[2], LV_STATE_CHECKED);
 		vfo.set_active_vfo(1);
-		std::string txt = std::string("VFO") + std::string("\n#0fff0f 2#");
+		std::string txt = std::string("VFO 2");
 		lv_label_set_text(label[2], txt.c_str());
 	}
 	else
 	{
 		lv_obj_clear_state(button[2], LV_STATE_CHECKED);
 		vfo.set_active_vfo(0);
-		std::string txt = std::string("VFO") + std::string("\n#0fff0f 1#");
+		std::string txt = std::string("VFO 1");
 		lv_label_set_text(label[2], txt.c_str());
 	}
 }

@@ -20,6 +20,11 @@ class FastFourier
 	std::vector<float> GetLineatSquaredBins();
 	void SetInvert(bool inv);
 	void SetParameters(int nbins, float resampleRate = 0.0f, float downMixFrequency = 0.0f);
+	IQSampleVector GetBins();
+	void ProcessForward(IQSampleVector &input);
+	void ProcessBackward(IQSampleVector &output);
+	std::vector<float> SpectrumPower(float offset = 0.0f);
+	IQSampleVector &GetfftBins();
 
   private:
 	const int type = LIQUID_FFT_FORWARD;

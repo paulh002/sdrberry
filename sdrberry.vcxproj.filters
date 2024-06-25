@@ -319,6 +319,9 @@
     <ClCompile Include="Waterfall.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="NoiseFilter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -693,6 +696,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="guiButtonWindows.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseFilter.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

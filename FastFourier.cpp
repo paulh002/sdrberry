@@ -114,7 +114,7 @@ void FastFourier::Process(const IQSampleVector &input)
 		if (invert)
 			inputData[i].imag(inputData[i].imag() * -1.0);
 		inputData[i].imag(inputData[i].imag() * hammingWindow[i]);
-		}
+	}
 	int i = numberOffBins % 2; // Make sure number of bins is even
 	fftplan plan = fft_create_plan(numberOffBins - i, inputData.data(), fftBins.data(), type, flags);
 	fft_execute(plan);
@@ -165,4 +165,37 @@ std::vector<float> FastFourier::GetLineatSquaredBins()
 		outputArray[ii++] = std::norm(fftBins.at(i));
 	}
 	return outputArray;
+}
+
+void FastFourier::ProcessForward(IQSampleVector &input)
+{
+	fftplan plan = fft_create_plan(numberOffBins, input.data(), fftBins.data(), type, flags);
+	fft_execute(plan);
+	fft_destroy_plan(plan);
+}
+
+void FastFourier::ProcessBackward(IQSampleVector &output)
+{
+	output.clear();
+	output.resize(numberOffBins);
+	fftplan plan = fft_create_plan(numberOffBins, fftBins.data(), output.data(), LIQUID_FFT_BACKWARD, flags);
+	fft_execute(plan);
+	fft_destroy_plan(plan);
+}
+
+std::vector<float> FastFourier::SpectrumPower(float offset)
+{
+	std::vector<float> sp;
+	
+	for (int i = 0; i < numberOffBins; i++)
+	{
+		float num = std::norm(fftBins[i]);
+		sp.push_back((float)(10.0 * log10(1E-60 + (double)num)) + offset);
+	}
+	return sp;
+}
+
+IQSampleVector &FastFourier::GetfftBins()
+{
+	return fftBins;
 }

@@ -11,6 +11,7 @@
 class FastFourier
 {
   public:
+	FastFourier();
 	FastFourier(int nbins, float rs, float downMixFrequency);
 	~FastFourier();
 	void Process(const IQSampleVector &input);
@@ -24,7 +25,7 @@ class FastFourier
 	void ProcessForward(IQSampleVector &input);
 	void ProcessBackward(IQSampleVector &output);
 	std::vector<float> SpectrumPower(float offset = 0.0f);
-	IQSampleVector &GetfftBins();
+	void ProcessfftBins(const std::vector<float> &factor);
 
   private:
 	const int type = LIQUID_FFT_FORWARD;

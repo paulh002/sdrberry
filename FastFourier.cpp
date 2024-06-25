@@ -1,5 +1,10 @@
 #include "FastFourier.h"
 
+FastFourier::FastFourier()
+	: numberOffBins(0), resampleRate(0)
+{
+}
+
 FastFourier::FastFourier(int nbins, float rs, float downMixFrequency)
 	: numberOffBins(nbins), resampleRate(rs)
 {
@@ -169,7 +174,9 @@ std::vector<float> FastFourier::GetLineatSquaredBins()
 
 void FastFourier::ProcessForward(IQSampleVector &input)
 {
-	fftplan plan = fft_create_plan(numberOffBins, input.data(), fftBins.data(), type, flags);
+	numberOffBins = input.size();
+	fftBins.resize(input.size());
+	fftplan plan = fft_create_plan(input.size(), input.data(), fftBins.data(), LIQUID_FFT_FORWARD, flags);
 	fft_execute(plan);
 	fft_destroy_plan(plan);
 }
@@ -195,7 +202,11 @@ std::vector<float> FastFourier::SpectrumPower(float offset)
 	return sp;
 }
 
-IQSampleVector &FastFourier::GetfftBins()
+void FastFourier::ProcessfftBins(const std::vector<float> &factor)
 {
-	return fftBins;
+	int i = 0;
+	for (auto &col : fftBins)
+	{
+		col = col * factor[i++];
+	}
 }

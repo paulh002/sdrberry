@@ -260,27 +260,32 @@ void AMDemodulator::operator()()
 
 void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
 {
-	IQSampleVector		filter1, filter2;
+	IQSampleVector		filter1, filter2, filter3;
 		
 	// mix to correct frequency
 	mix_down(samples_in, filter1);
 	Resample(filter1, filter2);
 	filter1.clear();
-	lowPassAudioFilter(filter2, filter1);
+	if (get_noise())
+	{
+		NoiseFilterProcess(filter2, filter3);
+		lowPassAudioFilter(filter3, filter1);
+	}
+	else
+	{
+		lowPassAudioFilter(filter2, filter1);
+	}
 	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
-	if (get_noise())
-	{
-		NoiseFilterProcess(filter1, filter1);
-	}
+	
 	for (auto col : filter1)
 	{
 		float v;
 
 		ampmodem_demodulate(demodulatorHandle, (liquid_float_complex)col, &v);
 		audio.push_back(v);
-	}	
+	}
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate,  DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)

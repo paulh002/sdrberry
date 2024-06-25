@@ -24,7 +24,7 @@ class FastFourier
 	IQSampleVector GetBins();
 	void ProcessForward(IQSampleVector &input);
 	void ProcessBackward(IQSampleVector &output);
-	std::vector<float> SpectrumPower(float offset = 0.0f);
+	void SpectrumPower(std::vector<float> &power, float offset = 0.0f);
 	void ProcessfftBins(const std::vector<float> &factor);
 
   private:

@@ -13,13 +13,14 @@ void NoiseFilter::Process(IQSampleVector &filter_in, IQSampleVector &filter_out)
 	int size = filter_in.size();
 
 	fft->ProcessForward(filter_in);
-	power = fft->SpectrumPower();
+	fft->SpectrumPower(power);
 
 	smoothedGainPtr.resize(size);
 	gainPtr.resize(size);
+	float thresshold = Demodulator::get_threshold();
 	for (int i = 0; i < size; i++)
 	{
-		gainPtr[i] = ((power[i] > Demodulator::get_threshold()) ? 1.0f : 0.0f);
+		gainPtr[i] = ((power[i] > thresshold) ? 1.0f : 0.0f);
 	}
 	for (int j = 0; j < size; j++)
 	{

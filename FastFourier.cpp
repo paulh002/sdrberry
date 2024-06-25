@@ -184,22 +184,19 @@ void FastFourier::ProcessForward(IQSampleVector &input)
 void FastFourier::ProcessBackward(IQSampleVector &output)
 {
 	output.clear();
-	output.resize(numberOffBins);
-	fftplan plan = fft_create_plan(numberOffBins, fftBins.data(), output.data(), LIQUID_FFT_BACKWARD, flags);
+	output.resize(fftBins.size());
+	fftplan plan = fft_create_plan(fftBins.size(), fftBins.data(), output.data(), LIQUID_FFT_BACKWARD, flags);
 	fft_execute(plan);
 	fft_destroy_plan(plan);
 }
 
-std::vector<float> FastFourier::SpectrumPower(float offset)
+void FastFourier::SpectrumPower(std::vector<float> &power, float offset)
 {
-	std::vector<float> sp;
-	
-	for (int i = 0; i < numberOffBins; i++)
+	for (auto col : fftBins)
 	{
-		float num = std::norm(fftBins[i]);
-		sp.push_back((float)(10.0 * log10(1E-60 + (double)num)) + offset);
+		float num = std::norm(col);
+		power.push_back((float)(10.0 * log10(1E-60 + (double)num)) + offset);
 	}
-	return sp;
 }
 
 void FastFourier::ProcessfftBins(const std::vector<float> &factor)

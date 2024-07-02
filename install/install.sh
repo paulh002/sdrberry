@@ -226,14 +226,16 @@ sudo cp radioberry.dtbo /boot/overlays
 sudo grep -Fxq "dtoverlay=radioberry" /boot/firmware/config.txt || sudo sed -i '$ a dtoverlay=radioberry' /boot/firmware/config.txt
 
 cd ../../../../..
-	
+
 sudo depmod	
 #register radioberry driver
 sudo modprobe radioberry
 sudo chmod 666 /dev/radioberry
 #show radioberry driver info.
 sudo modinfo radioberry
-
+sudo groupadd radioberry
+sudo usermod -aG radioberry pi
+sudo sed -i '1i\SUBSYSTEM=="radioberry", GROUP="radioberry", MODE="0660"' /etc/udev/rules.d/99-com.rules
 echo ""
 echo "Radioberry driver installed."
 

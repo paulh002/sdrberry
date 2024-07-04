@@ -72,7 +72,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e); 
 	
 	int bmode = (long)lv_obj_get_user_data(obj);
-	if (code == LV_EVENT_CUSTOM)
+	if (code == guiButtonWindows::getCustomEvent(LV_EVENT_CUSTOM))
 	{
 		if (attenuatorWindow != nullptr)
 		{
@@ -95,7 +95,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 		return;
 	}
 	
-	if (code == (lv_event_code_t)LV_EVENT_MODE_CLICKED)
+	if (code == guiButtonWindows::getCustomEvent(LV_EVENT_MODE_CLICKED))
 	{
 		modeWindow.reset();
 		modeWindow = nullptr;
@@ -107,7 +107,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 		return;
 	}
 
-	if (code == (lv_event_code_t)LV_EVENT_PREAMP_CLICKED)
+	if (code == guiButtonWindows::getCustomEvent(LV_EVENT_PREAMP_CLICKED))
 	{
 		preampWindow.reset();
 		preampWindow = nullptr;
@@ -122,7 +122,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 		return;
 	}
 
-	if (code == (lv_event_code_t)LV_EVENT_ATT_CLICKED)
+	if (code == guiButtonWindows::getCustomEvent(LV_EVENT_ATT_CLICKED))
 	{
 		attenuatorWindow.reset();
 		attenuatorWindow = nullptr;
@@ -163,7 +163,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 				case 1:
 					if (modeWindow == nullptr)
 					{
-						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModesTypes, CustomWindowsEvents::LV_EVENT_MODE_CLICKED, 300, 200);
+						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModesTypes, guiButtonWindows::getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
 					}
 					break;
 				case 2:
@@ -183,14 +183,14 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 				case 3:
 					if (preampWindow == nullptr)
 					{
-						preampWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Preamp", preamTypes, CustomWindowsEvents::LV_EVENT_PREAMP_CLICKED, 300, 150);
+						preampWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Preamp", preamTypes, guiButtonWindows::getCustomEvent(LV_EVENT_PREAMP_CLICKED), 300, 150);
 					}
 					break;
 				case 4:
 					if (attenuatorWindow == nullptr)
 					{
 
-						attenuatorWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Attenuator", attnTypes, CustomWindowsEvents::LV_EVENT_ATT_CLICKED, 300, 200);
+						attenuatorWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Attenuator", attnTypes, guiButtonWindows::getCustomEvent(LV_EVENT_ATT_CLICKED), 300, 200);
 					}
 					break;
 				case 5:
@@ -416,7 +416,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				break;
 			case 1:
 				strcpy(str, "Mode");
-				lv_obj_add_event_cb(button[i], bar_button_handler, (lv_event_code_t)LV_EVENT_MODE_CLICKED, (void *)this);
+				lv_obj_add_event_cb(button[i], bar_button_handler, guiButtonWindows::getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
 				lv_obj_add_event_cb(button[i], bar_button_handler, (lv_event_code_t)LV_EVENT_CUSTOM, (void *)this);
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[i], (void *)mode_usb);
@@ -430,14 +430,14 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			case 3:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "PreAmp");
-				lv_obj_add_event_cb(button[i], bar_button_handler, (lv_event_code_t)LV_EVENT_PREAMP_CLICKED, (void *)this);
-				lv_obj_add_event_cb(button[i], bar_button_handler, (lv_event_code_t)LV_EVENT_CUSTOM, (void *)this);
+				lv_obj_add_event_cb(button[i], bar_button_handler, guiButtonWindows::getCustomEvent(LV_EVENT_PREAMP_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[i], bar_button_handler,  guiButtonWindows::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
 				break;
 			case 4:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "ATT");
-				lv_obj_add_event_cb(button[i], bar_button_handler, (lv_event_code_t)LV_EVENT_ATT_CLICKED, (void *)this);
-				lv_obj_add_event_cb(button[i], bar_button_handler, (lv_event_code_t)LV_EVENT_CUSTOM, (void *)this);
+				lv_obj_add_event_cb(button[i], bar_button_handler, guiButtonWindows::getCustomEvent(LV_EVENT_ATT_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[i], bar_button_handler, guiButtonWindows::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
 				break;
 			case 5:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
@@ -445,7 +445,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				break;
 			case 6:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				strcpy(str, "Squelch");
+				strcpy(str, "Rit");
 				break;
 
 			}

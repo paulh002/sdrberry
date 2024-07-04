@@ -2,11 +2,27 @@
 #include <algorithm>
 #include <stdio.h>
 
-const int windowbar = 40;
 
-guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, CustomWindowsEvents eventNumber, int width, int height)
-	: Parent(parent), thisPtr(thisptr), eventIndex((lv_event_code_t)eventNumber)
+const int windowbar = 40;
+bool guiButtonWindows::initialized = false;
+std::array<uint32_t, lv_custom_events> guiButtonWindows::custom_event;
+
+void guiButtonWindows::InitEvents()
 {
+	if (!initialized)
+	{
+		initialized = true;
+		for (int i = 0; i < lv_custom_events; i++)
+		{
+			custom_event[i] = lv_event_register_id();
+		}
+	}
+}
+
+guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, lv_event_code_t eventNumber, int width, int height)
+	: Parent(parent), thisPtr(thisptr), event(eventNumber)
+{
+	guiButtonWindows::InitEvents();
 	if (buttonWindowObj == nullptr)
 	{
 		buttonWindowObj = lv_win_create(lv_scr_act(), windowbar);
@@ -32,7 +48,7 @@ void guiButtonWindows::buttonWindowObj_event_handler_class(lv_event_t *e)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_event_send(Parent, LV_EVENT_CUSTOM, NULL);
+		lv_event_send(Parent, getCustomEvent(LV_EVENT_CUSTOM), NULL);
 	}
 }
 
@@ -109,7 +125,7 @@ void guiButtonWindows::buttons_handler_class(lv_event_t *e)
 			{
 				lv_obj_del(buttonWindowObj);
 				buttonWindowObj = nullptr;
-				lv_event_send(Parent, (lv_event_code_t)eventIndex, (void *)(long)i);
+				lv_event_send(Parent, event, (void *)(long)i);
 				break;
 			}
 		}

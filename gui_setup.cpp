@@ -103,18 +103,6 @@ void gui_setup::contour_slider_event_cb_class(lv_event_t *e)
 	}
 }
 
-void gui_setup::floor_slider_event_cb_class(lv_event_t *e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-
-	int i = lv_slider_get_value(obj);
-	if (i > 0)
-	{
-		set_floor_value(i);
-	}
-}
-
 void gui_setup::span_slider_event_cb_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -403,7 +391,6 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	set_span_value(span * 1000);
 
 	//lv_obj_t *contour_slider_label, *contour_slider;
-	//lv_obj_t *floor_slider_label, *floor_slider;
 
 	contour_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(button_group, contour_slider);
@@ -427,17 +414,6 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	brightness_slider_label = lv_label_create(settings_main);
 	lv_label_set_text(brightness_slider_label, "brightness");
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-
-	floor_slider = lv_slider_create(settings_main);
-	lv_group_add_obj(button_group, floor_slider);
-	lv_obj_set_width(floor_slider, w / 4 - 50);
-	lv_obj_align_to(floor_slider, span_slider, LV_ALIGN_OUT_BOTTOM_LEFT, w / 2, 40);
-	lv_slider_set_range(floor_slider, 1, 20);
-
-	lv_obj_add_event_cb(floor_slider, floor_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	floor_slider_label = lv_label_create(settings_main);
-	lv_label_set_text(floor_slider_label, "Noise floor 1");
-	lv_obj_align_to(floor_slider_label, floor_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	calbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
@@ -577,14 +553,6 @@ void gui_setup::set_contour_value(int speed)
 int gui_setup::get_contour_value()
 {
 	return lv_slider_get_value(contour_slider);
-}
-
-void gui_setup::set_floor_value(int speed)
-{
-	char buf[30];
-
-	sprintf(buf, " noise floor %d ", speed);
-	lv_label_set_text(floor_slider_label, buf);
 }
 
 int gui_setup::get_brightness()

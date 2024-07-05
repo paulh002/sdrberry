@@ -38,6 +38,7 @@ class Spectrum
 	lv_point_t drag{0};
 	PeakMeasurement finder;
 	int signal_strength_offset;
+	int noisefloor{0};
 
 	void draw_event_cb_class(lv_event_t *e);
 	void click_event_cb_class(lv_event_t *e);
@@ -50,7 +51,7 @@ class Spectrum
 	void set_pos(int32_t offset);
 	std::vector<lv_coord_t> data_set;
 	lv_chart_cursor_t *get_cursor() { return m_cursor; }
-	void DrawWaterfall();
+	void DrawDisplay(int noisefloor);
 	void ProcessWaterfall(const IQSampleVector &input);
 	void set_signal_strength(double strength);
 	double get_signal_strength() { return signal_strength; }

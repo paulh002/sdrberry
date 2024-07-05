@@ -152,7 +152,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	int button_height = 50;
+	int button_height = 40;
 	int button_height_margin = button_height + y_margin;
 	int ibutton_x = 0, ibutton_y = 0;
 	
@@ -264,6 +264,22 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(m_button_group, noise_slider);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
+
+	waterfallgain = Settings_file.get_int("Radio", "Waterfallgain", 35);
+	waterfall_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(waterfall_slider, w / 2 - 50);
+	lv_slider_set_range(waterfall_slider, 0, 100);
+	lv_obj_align_to(waterfall_slider, noise_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_add_event_cb(waterfall_slider, waterfall_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(m_button_group, waterfall_slider);
+	lv_slider_set_value(waterfall_slider, waterfallgain, LV_ANIM_OFF);
+
+	waterfall_slider_label = lv_label_create(o_tab);
+	sprintf(buf, "Waterfall level %d db", waterfallgain);
+	lv_label_set_text(waterfall_slider_label, buf);
+	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+
+	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 
 void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
@@ -279,4 +295,17 @@ void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 	{
 		Demodulator::set_noise_threshold(lv_slider_get_value(slider));
 	}
+}
+
+void gui_rx::waterfall_slider_event_cb_class(lv_event_t *e)
+{
+	lv_obj_t *slider = lv_event_get_target(e);
+	char buf[30];
+
+	sprintf(buf, "Waterfall level %d db", lv_slider_get_value(slider));
+	lv_label_set_text(waterfall_slider_label, buf);
+	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+	waterfallgain = lv_slider_get_value(slider);
+	Settings_file.save_int("Radio", "Waterfallgain", waterfallgain);
+	Settings_file.write_settings();
 }

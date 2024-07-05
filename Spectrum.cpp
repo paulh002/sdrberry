@@ -204,11 +204,13 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	SetFftParts();
 }
 
-void Spectrum::DrawWaterfall()
+void Spectrum::DrawDisplay(int ns)
 {
+	noisefloor = ns;
 	upload_fft();
+	load_data();
 	if (waterfall)
-		waterfall->Draw();
+		waterfall->Draw((float)noisefloor);
 }
 
 void Spectrum::SetFftParts()
@@ -297,7 +299,6 @@ void Spectrum::upload_fft()
 	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 	std::vector<int> peaks;
 
-	int noisefloor = Settings_file.get_int("Radio", "noisefloor", noise_floor);
 	switch (span_ex.first)
 	{
 	case span_is_ifrate:

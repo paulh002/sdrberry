@@ -626,15 +626,14 @@ int main(int argc, char *argv[])
 		if (timeLastStatus + std::chrono::milliseconds(100) < now)
 		{
 			timeLastStatus = now;
-			SpectrumGraph.load_data();
 			double s = SpectrumGraph.get_signal_strength();
 			gui_vfo_inst.set_s_meter(s);
 			catinterface.SetSM((uint8_t)s);
 			if (mode == mode_freedv)
 				freeDVTab.DrawWaterfall();
 			if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
-				guift8bar.DrawWaterfall();
-			SpectrumGraph.DrawWaterfall();
+				guift8bar.DrawWaterfall(guirx.get_waterfallgain());
+			SpectrumGraph.DrawDisplay(guirx.get_waterfallgain());
 			if (gsetup.get_calibration())
 			{
 				gcal.SetErrorCorrelation(errorMeasurement,correlationMeasurement);

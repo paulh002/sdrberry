@@ -19,7 +19,7 @@ extern const int rightWidth;
 
 Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
 					 float r, int wfloor, waterfallFlow flow, partialspectrum p, int margin)
-	: width(w), height(h), resampleRate(r), waterfallfloor(wfloor), waterfallflow(flow), partialSpectrum(p),
+	: width(w), height(h), resampleRate(r), waterfallflow(flow), partialSpectrum(p),
 	  excludeMargin(margin), max(50.0), min(0.0), factor(0.0f)
 {
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
@@ -79,7 +79,7 @@ void Waterfall::Process(const IQSampleVector &input)
 	fft->Process(input);
 }
 
-void Waterfall::Draw()
+void Waterfall::Draw(float waterfallfloor)
 {
 	std::unique_lock<std::mutex> lock(mutexSingleEntry);
 	
@@ -128,7 +128,7 @@ void Waterfall::Draw()
 			zz = i - excludeMargin;
 			break;
 		}
-		lv_color_t c = heatmap((float)waterfallfloor + 20.0 * log10(frequencySpectrum.at(zz)), min, max);
+		lv_color_t c = heatmap(waterfallfloor + 20.0 * log10(frequencySpectrum.at(zz)), min, max);
 		if (waterfallflow == up)
 			lv_canvas_set_px_color(canvas, i, height - 1, c);
 		else

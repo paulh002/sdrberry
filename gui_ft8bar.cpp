@@ -63,9 +63,9 @@ void gui_ft8bar::WaterfallReset()
 	waterfall->SetMaxMin(50.0, 0);
 }
 
-void gui_ft8bar::DrawWaterfall()
+void gui_ft8bar::DrawWaterfall(int noisefloor)
 {
-	waterfall->Draw();
+	waterfall->Draw((float)noisefloor);
 }
 
 void gui_ft8bar::setmonitor(bool mon)

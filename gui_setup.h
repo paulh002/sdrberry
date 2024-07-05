@@ -26,14 +26,12 @@ class gui_setup
 	lv_obj_t *d_audio, *d_bandwitdth;
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *contour_slider_label, *contour_slider;
-	lv_obj_t *floor_slider_label, *floor_slider;
 	lv_obj_t *calbox, *dcbox, *autocalbox;
 	lv_obj_t *tileview, *settings_main, *settings_i2c;
 
 	void receivers_button_handler_class(lv_event_t *e);
 	void calbox_event_cb_class(lv_event_t *e);
 	void contour_slider_event_cb_class(lv_event_t *e);
-	void floor_slider_event_cb_class(lv_event_t *e);
 	void span_slider_event_cb_class(lv_event_t *e);
 	void brightness_slider_event_cb_class(lv_event_t *e);
 	void audio_button_handler_class(lv_event_t *e);
@@ -43,7 +41,6 @@ class gui_setup
 	void auto_calbox_event_cb_class(lv_event_t *e);
 
 	void set_contour_value(int speed);
-	void set_floor_value(int floor);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice);
@@ -72,7 +69,6 @@ class gui_setup
 	static constexpr auto receivers_button_handler = EventHandler<gui_setup, &gui_setup::receivers_button_handler_class>::staticHandler;
 	static constexpr auto calbox_event_cb = EventHandler<gui_setup, &gui_setup::calbox_event_cb_class>::staticHandler;
 	static constexpr auto contour_slider_event_cb = EventHandler<gui_setup, &gui_setup::contour_slider_event_cb_class>::staticHandler;
-	static constexpr auto floor_slider_event_cb = EventHandler<gui_setup, &gui_setup::floor_slider_event_cb_class>::staticHandler;
 	static constexpr auto span_slider_event_cb = EventHandler<gui_setup, &gui_setup::span_slider_event_cb_class>::staticHandler;
 	static constexpr auto brightness_slider_event_cb = EventHandler<gui_setup, &gui_setup::brightness_slider_event_cb_class>::staticHandler;
 	static constexpr auto audio_button_handler = EventHandler<gui_setup, &gui_setup::audio_button_handler_class>::staticHandler;

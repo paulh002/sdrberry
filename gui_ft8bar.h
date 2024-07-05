@@ -62,7 +62,7 @@ class gui_ft8bar
 	void Process(const IQSampleVector &input);
 	void WaterfallSetMaxMin(float _max, float _min);
 	void WaterfallReset();
-	void DrawWaterfall();
+	void DrawWaterfall(int noisefloor);
 	void set_if(int ifgain);
 	lv_obj_t *getfrequency() { return frequence; }
 	lv_obj_t *getwsjtxmode() { return wsjtxmode; }

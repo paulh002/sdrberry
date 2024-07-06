@@ -4,7 +4,7 @@
 #include <vector>
 #include "lvgl_.h"
 
-enum CustomWindowsEvents
+enum CustomButtonWindowsEvents
 {
 	LV_EVENT_CUSTOM,
 	LV_EVENT_ATT_CLICKED,
@@ -12,7 +12,7 @@ enum CustomWindowsEvents
 	LV_EVENT_PREAMP_CLICKED
 };
 
-constexpr int lv_custom_events = sizeof(CustomWindowsEvents);
+constexpr int lv_custom_events = sizeof(CustomButtonWindowsEvents);
 
 class guiButtonWindows
 {

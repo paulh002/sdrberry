@@ -72,7 +72,7 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e); 
 	
 	int bmode = (long)lv_obj_get_user_data(obj);
-	if (code == guiButtonWindows::getCustomEvent(LV_EVENT_CUSTOM))
+	if (code == guiButtonWindows::getCustomEvent(LV_EVENT_CUSTOM) || code == guiSliderWindows::getCustomEvent(LV_SLIDER_EVENT_CUSTOM))
 	{
 		if (attenuatorWindow != nullptr)
 		{
@@ -91,6 +91,12 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 			preampWindow.reset();
 			preampWindow = nullptr;
 			lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED);
+		}
+		if (ritWindow != nullptr)
+		{
+			ritWindow.reset();
+			ritWindow = nullptr;
+			lv_obj_clear_state(get_button_obj(6), LV_STATE_CHECKED);
 		}
 		return;
 	}
@@ -202,6 +208,12 @@ void gui_bar::bar_button_handler_class(lv_event_t * e)
 					else
 					{
 						Demodulator::set_noise_filter(0);
+					}
+					break;
+				case 6:
+					if (ritWindow == nullptr)
+					{
+						ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), guiSliderWindows::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 300, 200);
 					}
 					break;
 				}
@@ -446,6 +458,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			case 6:
 				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "Rit");
+				lv_obj_add_event_cb(button[i], bar_button_handler, guiSliderWindows::getCustomEvent(LV_SLIDER_EVENT_CUSTOM), (void *)this);
 				break;
 
 			}

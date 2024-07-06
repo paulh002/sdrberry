@@ -251,7 +251,7 @@ void Spectrum::SetFftParts()
 
 void Spectrum::set_signal_strength(double strength)
 {
-	signal_strength = 40 * log10(strength) + signal_strength_offset;
+	signal_strength = 40 * log10(strength) + signal_strength_offset + noisefloor;
 	//printf("S %f offset %d \n", signal_strength.load(), signal_strength_offset);
 }
 

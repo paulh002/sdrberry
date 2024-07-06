@@ -322,6 +322,9 @@
     <ClCompile Include="NoiseFilter.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="guiSliderWindows.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -699,6 +702,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="NoiseFilter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="guiSliderWindows.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

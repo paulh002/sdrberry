@@ -127,6 +127,8 @@ void Demodulator::set_resample_rate(float resample_rate)
 
 float Demodulator::adjust_resample_rate(float rateAjustFraction)
 {
+	if ((resampleRate + resampleRate * rateAjustFraction) < 0)
+		return resampleRate;
 	resampleRate = resampleRate + resampleRate * rateAjustFraction;
 	struct msresamp_rrrf_s
 	{

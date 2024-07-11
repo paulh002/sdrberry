@@ -198,8 +198,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	fft = std::make_unique<FastFourier>(nfft_samples, 0, 0);
 	if (waterfallsize > 0)
 	{
-		int waterfallfloor = Settings_file.get_int("Radio", "waterfallfloor", 10);
-		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, waterfallfloor, down, allparts, 12);
+		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, down, allparts, 12);
 	}
 	SetFftParts();
 }

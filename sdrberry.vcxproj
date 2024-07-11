@@ -97,6 +97,7 @@
     <ClCompile Include="cmeter.cpp" />
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
+    <ClCompile Include="CustomEvents.cpp" />
     <ClCompile Include="Demodulator.cpp" />
     <ClCompile Include="DigitalTransmission.cpp" />
     <ClCompile Include="EchoAudio.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Spectrum.cpp" />
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="TCA9548.cpp" />
+    <ClCompile Include="ui_img_btn_knob_png.c" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
     <ClCompile Include="wave.cpp" />
@@ -195,6 +197,7 @@
     <ClInclude Include="cmeter.h" />
     <ClInclude Include="configfile.h" />
     <ClInclude Include="configoption.h" />
+    <ClInclude Include="CustomEvents.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="date.h" />
     <ClInclude Include="Demodulator.h" />

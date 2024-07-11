@@ -599,3 +599,8 @@ void CVfo::set_step(int step, int delay)
 	vfo_setting.frq_step = step;
 	m_delay = delay;
 }
+
+void CVfo::setRit(int rit)
+{
+	vfo_setting.rit = rit;
+}

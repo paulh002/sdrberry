@@ -37,8 +37,14 @@ void save_wav(const float* signal, int num_samples, int sample_rate, const char*
     }
 
     FILE* f = fopen(path, "wb");
+	if (f == NULL)
+	{
+		printf("cannot create wave.wav");
+		free(raw_data);
+		return;
+	}
 
-    // NOTE: works only on little-endian architecture
+	// NOTE: works only on little-endian architecture
     fwrite(chunkID, sizeof(chunkID), 1, f);
     fwrite(&chunkSize, sizeof(chunkSize), 1, f);
     fwrite(format, sizeof(format), 1, f);

@@ -41,7 +41,7 @@
 #include "gui_top_bar.h"
 #include "sdrstream.h"
 #include "sdrberry.h"
-
+#include "CustomEvents.h"
 
 
 //#include "quick_arg_parser.hpp"
@@ -132,7 +132,7 @@ auto startTime = std::chrono::high_resolution_clock::now();
 
 SdrDeviceVector SdrDevices;
 std::string default_radio;
-
+CustomEvents customevents;
 
 static std::string keysRed;
 
@@ -610,6 +610,7 @@ int main(int argc, char *argv[])
 	gui_mutex.unlock(); // Start GUI updates
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
+	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
 	while (1)
 	{
 		WsjtxMessage msg;
@@ -632,7 +633,7 @@ int main(int argc, char *argv[])
 			if (mode == mode_freedv)
 				freeDVTab.DrawWaterfall();
 			if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
-				guift8bar.DrawWaterfall(guirx.get_waterfallgain());
+				guift8bar.DrawWaterfall(guirx.get_waterfallgain() + (float)wsjtxWaterfallGain);
 			SpectrumGraph.DrawDisplay(guirx.get_waterfallgain());
 			if (gsetup.get_calibration())
 			{

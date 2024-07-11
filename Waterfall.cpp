@@ -18,7 +18,7 @@ extern const int tunerHeight;
 extern const int rightWidth;
 
 Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
-					 float r, int wfloor, waterfallFlow flow, partialspectrum p, int margin)
+					 float r, waterfallFlow flow, partialspectrum p, int margin)
 	: width(w), height(h), resampleRate(r), waterfallflow(flow), partialSpectrum(p),
 	  excludeMargin(margin), max(50.0), min(0.0), factor(0.0f)
 {
@@ -31,7 +31,7 @@ Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
 	lv_obj_set_pos(canvas,x,y);
 	NumberOfBins = width - 2 * excludeMargin;
-	SetPartial(partialSpectrum);
+	SetPartial(partialSpectrum, resampleRate);
 }
 
 void Waterfall::SetMaxMin(float _max, float _min)

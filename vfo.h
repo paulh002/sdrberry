@@ -58,7 +58,7 @@ struct vfo_settings_struct
 	long max_offset;
 	long min_offset;
 	long offset[2];
-	vector<bands_t> bands;
+	std::vector<bands_t> bands;
 	long pcmrate;
 	long span;
 	long bandwidth;
@@ -66,6 +66,7 @@ struct vfo_settings_struct
 	int correction_rx;
 	int notxoffset;
 	long maxtxoffset;
+	std::atomic<int> rit;
 };
 
 class CVfo
@@ -125,6 +126,7 @@ class CVfo
 
 	std::atomic_bool tune_flag{false};
 	bool limit_ham_band;
+	void setRit(int rit);
 
   private:
 	struct vfo_settings_struct vfo_setting;

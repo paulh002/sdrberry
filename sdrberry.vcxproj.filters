@@ -325,6 +325,12 @@
     <ClCompile Include="guiSliderWindows.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="ui_img_btn_knob_png.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomEvents.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -705,6 +711,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="guiSliderWindows.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomEvents.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

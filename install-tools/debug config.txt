@@ -1,5 +1,0 @@
-#add dtdebug to config.txt
-dtdebug=1
-
-#after reboot check
-sudo vcdbg log msg

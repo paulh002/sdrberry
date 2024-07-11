@@ -689,10 +689,9 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	
-	float bandwidth = Settings_file.get_int("wsjtx", "bandwidth", 4500);
-	int waterfallfloor = Settings_file.get_int("wsjtx", "waterfallfloor", 60);
+	float bandwidth = Settings_file.get_int("wsjtx", "bandwidth", 4000);
 	float resampleRate = bandwidth / ft8_rate;
-	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, waterfallfloor, down, allparts);
+	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, down, lowerpart);
 }
 
 void gui_ft8bar::hide(bool hide)

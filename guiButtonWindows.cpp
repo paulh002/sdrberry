@@ -1,28 +1,14 @@
-#include "guiButtonWindows.h"
 #include <algorithm>
 #include <stdio.h>
-
+#include "guiButtonWindows.h"
+#include "CustomEvents.h"
 
 const int windowbar = 40;
-bool guiButtonWindows::initialized = false;
-std::array<uint32_t, lv_custom_events> guiButtonWindows::custom_event;
 
-void guiButtonWindows::InitEvents()
-{
-	if (!initialized)
-	{
-		initialized = true;
-		for (int i = 0; i < lv_custom_events; i++)
-		{
-			custom_event[i] = lv_event_register_id();
-		}
-	}
-}
 
-guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, lv_event_code_t eventNumber, int width, int height)
-	: Parent(parent), thisPtr(thisptr), event(eventNumber)
+guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, int selected, lv_event_code_t eventNumber, int width, int height)
+	: Parent(parent), thisPtr(thisptr), eventcode(eventNumber)
 {
-	guiButtonWindows::InitEvents();
 	if (buttonWindowObj == nullptr)
 	{
 		buttonWindowObj = lv_win_create(lv_scr_act(), windowbar);
@@ -31,7 +17,7 @@ guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string 
 		lv_obj_add_event_cb(btn, buttonWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_set_size(buttonWindowObj, width, height);
 		lv_obj_align(buttonWindowObj, LV_ALIGN_CENTER, 0, 0);
-		createButtons(buttons);
+		createButtons(buttons, selected);
 	}
 }
 
@@ -48,11 +34,11 @@ void guiButtonWindows::buttonWindowObj_event_handler_class(lv_event_t *e)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_event_send(Parent, getCustomEvent(LV_EVENT_CUSTOM), NULL);
+		lv_event_send(Parent, CustomEvents::getCustomEvent(LV_EVENT_CUSTOM), NULL);
 	}
 }
 
-void guiButtonWindows::createButtons(std::vector<std::string> buttons)
+void guiButtonWindows::createButtons(std::vector<std::string> buttons, int selected)
 {
 	const lv_coord_t x_margin_dropdown = 0;
 	const lv_coord_t x_margin = 2;
@@ -103,6 +89,8 @@ void guiButtonWindows::createButtons(std::vector<std::string> buttons)
 		lv_obj_t *lv_label = lv_label_create(button[i]);
 		lv_label_set_text(lv_label, buttons.at(i).c_str());
 		lv_obj_center(lv_label);
+		if (i == selected)
+			lv_obj_add_state(button[i], LV_STATE_CHECKED);
 		
 		ibutton_x++;
 		if (ibutton_x >= x_number_buttons)
@@ -125,7 +113,7 @@ void guiButtonWindows::buttons_handler_class(lv_event_t *e)
 			{
 				lv_obj_del(buttonWindowObj);
 				buttonWindowObj = nullptr;
-				lv_event_send(Parent, event, (void *)(long)i);
+				lv_event_send(Parent, eventcode, (void *)(long)i);
 				break;
 			}
 		}

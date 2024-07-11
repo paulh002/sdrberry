@@ -37,6 +37,7 @@ class gui_bar
 	bool ifStyleState{false};
 	std::unique_ptr<guiButtonWindows> attenuatorWindow, preampWindow, modeWindow;
 	std::unique_ptr<guiSliderWindows> ritWindow;
+	int rit_value;
 
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);

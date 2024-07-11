@@ -62,7 +62,7 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
 	gbar.set_filter_slider(m_bandwidth);
 	setLowPassAudioFilterCutOffFrequency(m_bandwidth);
-	Demodulator::setLowPassAudioFilter(audioSampleRate, m_bandwidth);
+	Demodulator::setLowPassAudioFilter(ft8_rate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
@@ -129,7 +129,7 @@ void FT8Demodulator::operator()()
 		{
 			ifilter = get_lowPassAudioFilterCutOffFrequency();
 			printf("set filter %d\n", ifilter);
-			setLowPassAudioFilter(audioSampleRate, ifilter);
+			setLowPassAudioFilter(ft8_rate, ifilter);
 		}
 
 		IQSampleVector iqsamples = receiveIQBuffer->pull();
@@ -180,7 +180,6 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	Resample(filter1, filter2);
 	filter1.clear();
 	lowPassAudioFilter(filter2, filter1);
-	filter2.clear();
 	calc_signal_level(filter1);
 	guift8bar.Process(filter1);
 	for (auto col : filter1)
@@ -190,6 +189,4 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 		ampmodem_demodulate(m_demod, (liquid_float_complex)col, &v);
 		audio.push_back(v);
 	}
-	filter1.clear();
-	filter2.clear();
 }

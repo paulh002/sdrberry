@@ -26,12 +26,10 @@ class Settings
 	int volume();
 	int gain();
 	int txgain();
-	int micgain();
 	int drive();
 	int getagc(string key);
 	int getspeech(string key);
 	void set_drive(int drive);
-	void set_micgain(int gain);
 	void set_txgain(int gain);
 	void set_gain(int gain);
 	string find_input(string key);

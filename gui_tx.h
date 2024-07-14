@@ -28,7 +28,6 @@ class gui_tx
   public:
 	void gui_tx_init(lv_obj_t *o_tab, lv_coord_t w);
 	void set_mic_slider(int volume);
-	void step_mic_slider(int step);
 	void set_drv_slider(int drive);
 	void set_tx_state(bool state);
 	void set_drv_range();

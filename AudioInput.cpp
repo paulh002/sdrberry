@@ -11,7 +11,7 @@ bool AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrame
 	{
 		string s = Settings_file.find_audio("device");
 		audio_input->open(s);
-		audio_input->set_volume(Settings_file.micgain());
+		audio_input->set_volume(Settings_file.get_int("Radio", "micgain", 85));
 		return true;
 	}
 	fprintf(stderr, "ERROR: Cannot create AudioInputDevice\n");

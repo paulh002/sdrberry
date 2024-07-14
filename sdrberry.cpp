@@ -1009,7 +1009,7 @@ void switch_sdrreceiver(std::string receiver)
 				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_HIDDEN);
 				Gui_tx.clear_sample_rate();
 				Gui_tx.set_drv_range();
-				Gui_tx.set_mic_slider(Settings_file.micgain());
+				Gui_tx.set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 				{
 					int v = (int)col;

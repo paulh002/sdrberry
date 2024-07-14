@@ -375,28 +375,6 @@ void Settings::set_gain(int gain)
 		return;
 }
 
-int Settings::micgain()
-{
-	if (radio.find("micgain") != radio.end())
-	{
-		auto s = radio.find("micgain");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-void Settings::set_micgain(int gain)
-{
-	if (radio.find("micgain") != radio.end())
-	{
-		auto s = radio.find("micgain");
-		s->second = to_string(gain);
-		return;
-	}
-	else 
-		return;
-}
 
 int Settings::drive()
 {

@@ -116,7 +116,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	mic_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
-	set_mic_slider(Settings_file.micgain());
+	set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
 	lv_group_add_obj(m_button_group, mic_slider);
 	
 	drv_slider = lv_slider_create(o_tab);
@@ -154,13 +154,8 @@ void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
 	lv_obj_align_to(mic_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	if (audio_input != nullptr)
 		audio_input->set_volume(lv_slider_get_value(slider));
-	Settings_file.set_micgain(lv_slider_get_value(slider));
-}
-
-void gui_tx::step_mic_slider(int step)
-{
-	set_mic_slider(lv_slider_get_value(mic_slider) + step);
-	Settings_file.set_micgain(lv_slider_get_value(mic_slider));
+	Settings_file.save_int("Radio", "micgain", lv_slider_get_value(slider));
+	Settings_file.write_settings();
 }
 
 void gui_tx::set_mic_slider(int volume)

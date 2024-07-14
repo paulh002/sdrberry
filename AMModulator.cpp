@@ -61,18 +61,20 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		digitalmode = true;
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
-		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
+		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d ifrate %f\n", suppressed_carrier, param.ifrate);
 		break;
 
 	case mode_usb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
-		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	case mode_lsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_LSB;
-		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	case mode_cw:
 		suppressed_carrier = 1;
@@ -82,12 +84,14 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	case mode_am:
 		suppressed_carrier = 0;
 		am_mode = LIQUID_AMPMODEM_DSB;
-		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	case mode_dsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_DSB;
-		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	default:
 		printf("Mode not correct\n");		
@@ -99,7 +103,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		float sample_ratio, sample_ratio1;
 		
 		// only resample and tune if ifrate > pcmrate
-		tune_offset(vfo.get_vfo_offset());
+		tune_offset(vfo.get_vfo_offset_tx());
 
 		sample_ratio1 = param.ifrate / (double)audio_input->get_samplerate();
 		std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
@@ -110,10 +114,9 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		set_resample_rate(sample_ratio); // UP sample to ifrate
 	}
 	else
-	{	// mix the transmid signal to the mid of the fft display
-		//fft_offset(ifrate / 4);
+	{
+		printf("No resample \n");
 	}
-	setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 	AMmodulatorHandle = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
 }
@@ -185,7 +188,7 @@ void AMModulator::operator()()
 		}
 
 		adjust_calibration(samples_out);
-		transmitIQBuffer->push(move(samples_out));
+		transmitIQBuffer->push(std::move(samples_out));
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
@@ -223,7 +226,7 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 		guift8bar.Process(buf_mod);
 	executeBandpassFilter(buf_mod, buf_filter);
 	Resample(buf_filter, buf_out ); //buf_out
-	mix_up(buf_out, samples_out); // Mix up to vfo freq
+	mix_up(buf_mod, samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);
 }
 

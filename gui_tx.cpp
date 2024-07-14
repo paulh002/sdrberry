@@ -115,17 +115,27 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	lv_obj_center(mic_slider);
 	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	mic_slider_label = lv_label_create(o_tab);
-	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
 	set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
 	lv_group_add_obj(m_button_group, mic_slider);
+
+	digital_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(digital_slider, w / 2 - 50);
+	lv_slider_set_range(digital_slider, 0, micgain);
+	lv_obj_align_to(digital_slider, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 15);
+	lv_obj_add_event_cb(digital_slider, digital_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	digital_slider_label = lv_label_create(o_tab);
+	lv_obj_align_to(digital_slider_label, digital_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
+	set_digital_slider(Settings_file.get_int("Radio", "digitalgain", 15));
+	lv_group_add_obj(m_button_group, digital_slider);
 	
 	drv_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(drv_slider, w / 2 - 50); 
 	lv_slider_set_range(drv_slider, 0, 15);
-	lv_obj_align_to(drv_slider, mic_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_align_to(drv_slider, digital_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 15);
 	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	drv_slider_label = lv_label_create(o_tab);
-	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
 	set_drv_slider(Settings_file.drive());
 	lv_group_add_obj(m_button_group, drv_slider);
 
@@ -151,11 +161,38 @@ void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
 	
 	sprintf(buf, "mic gain %d db", lv_slider_get_value(slider));
 	lv_label_set_text(mic_slider_label, buf);
-	lv_obj_align_to(mic_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	if (audio_input != nullptr)
 		audio_input->set_volume(lv_slider_get_value(slider));
 	Settings_file.save_int("Radio", "micgain", lv_slider_get_value(slider));
 	Settings_file.write_settings();
+}
+
+void gui_tx::digital_slider_event_cb_class(lv_event_t *e)
+{
+	lv_obj_t *slider = lv_event_get_target(e);
+	char buf[30];
+
+	sprintf(buf, "digital gain %d db", lv_slider_get_value(slider));
+	lv_label_set_text(digital_slider_label, buf);
+	if (audio_input != nullptr)
+		audio_input->set_digital_volume(lv_slider_get_value(slider));
+	Settings_file.save_int("Radio", "digitalgain", lv_slider_get_value(slider));
+	Settings_file.write_settings();
+}
+
+void gui_tx::set_digital_slider(int volume)
+{
+	if (volume < 0)
+		volume = 0;
+	if (volume > micgain)
+		volume = micgain;
+	lv_slider_set_value(digital_slider, volume, LV_ANIM_ON);
+	char buf[20];
+
+	sprintf(buf, "digital gain %d db", volume);
+	lv_label_set_text(digital_slider_label, buf);
+	if (audio_input != nullptr)
+		audio_input->set_digital_volume(volume);
 }
 
 void gui_tx::set_mic_slider(int volume)
@@ -167,9 +204,8 @@ void gui_tx::set_mic_slider(int volume)
 	lv_slider_set_value(mic_slider, volume, LV_ANIM_ON);
 	char buf[20];
 	
-	sprintf(buf, "mic gain %d", volume);
+	sprintf(buf, "mic gain %d db", volume);
 	lv_label_set_text(mic_slider_label, buf);
-	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	if (audio_input != nullptr)
 		audio_input->set_volume(volume);
 }
@@ -252,7 +288,6 @@ void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 	
 	sprintf(buf, "drive %d", lv_slider_get_value(slider));
 	lv_label_set_text(drv_slider_label, buf);
-	lv_obj_align_to(drv_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	Settings_file.set_drive(lv_slider_get_value(slider));
 	try
 	{
@@ -308,7 +343,6 @@ void gui_tx::set_drv_slider(int drive)
 	
 	sprintf(buf, "drive %d", drive);
 	lv_label_set_text(drv_slider_label, buf);
-	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, gsetup.get_current_tx_channel(), (double)drive);

@@ -15,7 +15,7 @@
  ** Basic class for processing radio data for bith RX and TX
  **
  **/
-std::atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency;
+std::atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency; // bad idea to do this needs to be fixed
 std::atomic<bool> Demodulator::dcBlockSwitch = true;
 std::atomic<bool> Demodulator::autocorrection = false;
 std::atomic<double> correlationMeasurement, errorMeasurement;
@@ -291,25 +291,28 @@ void Demodulator::auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, f
 }
 
 void Demodulator::adjust_calibration(IQSampleVector &samples_in)
-{	
-	float gain = (float)gcal.getTxGain();
-	for (auto &col : samples_in)
+{
+	if (adjustPhaseGain)
 	{
-		col.real(col.real() * gain);
-	}
-	float phase = (float)gcal.getTxPhase();
-	if (phase < 0.0)
-	{
+		float gain = (float)gcal.getTxGain();
 		for (auto &col : samples_in)
 		{
-			col.real(col.real() + col.imag() * phase);
+			col.real(col.real() * gain);
 		}
-	}
-	if (phase > 0.0)
-	{
-		for (auto &col : samples_in)
+		float phase = (float)gcal.getTxPhase();
+		if (phase < 0.0)
 		{
-			col.imag(col.imag() + col.real() * phase);
+			for (auto &col : samples_in)
+			{
+				col.real(col.real() + col.imag() * phase);
+			}
+		}
+		if (phase > 0.0)
+		{
+			for (auto &col : samples_in)
+			{
+				col.imag(col.imag() + col.real() * phase);
+			}
 		}
 	}
 }
@@ -485,7 +488,7 @@ void Demodulator::executeBandpassFilter(const IQSampleVector &filter_in,
 {
 	if (bandPassHandle == nullptr || lowPassHandle == nullptr || highPassHandle == nullptr)
 	{
-		filter_out = filter_in;
+		filter_out = std::move(filter_in);
 		return;
 	}
 	float bass_gain = dB2mag(gspeech.get_bass());

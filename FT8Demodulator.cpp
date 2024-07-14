@@ -124,13 +124,6 @@ void FT8Demodulator::operator()()
 			tune_offset(vfo.get_vfo_offset());
 		}
 
-		if (ifilter != get_lowPassAudioFilterCutOffFrequency())
-		{
-			ifilter = get_lowPassAudioFilterCutOffFrequency();
-			printf("set filter %d\n", ifilter);
-			setLowPassAudioFilter(ft8_rate, ifilter);
-		}
-
 		IQSampleVector iqsamples = receiveIQBuffer->pull();
 		if (iqsamples.empty())
 		{

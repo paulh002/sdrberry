@@ -147,10 +147,23 @@ void AudioInput::set_volume(int vol)
 	//printf("mic vol %f\n", (float)volume);
 }
 
+void AudioInput::set_digital_volume(int vol)
+{
+	// log volume
+	digitalvolume = exp(((double)vol * 6.908) / 100.0) / 5.0;
+}
+
 void AudioInput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
-		samples[i] *= volume * dB2mag(gaindb);
+		if (digitalmode)
+		{
+			samples[i] *= digitalvolume * dB2mag(gaindb);
+		}
+		else
+		{
+			samples[i] *= volume * dB2mag(gaindb);
+		}
 	}
 }
 

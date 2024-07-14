@@ -34,7 +34,6 @@ FMModulator::FMModulator(int mode, double ifrate, audioTone tone, DataBuffer<IQS
 	float kf          = 0.1f; // modulation factor
 	
 	audio_input->set_tone(tone);
-	setLowPassAudioFilterCutOffFrequency(5000);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, 5000);
 	Demodulator::set_resample_rate(ifrate / audio_input->get_samplerate()); // UP sample to ifrate
 	modFM = freqmod_create(kf); 

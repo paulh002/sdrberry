@@ -68,7 +68,7 @@ class Demodulator
 	double get_if_CorrelationNorm() { return ifEnergy.getEnergyCorrelationNorm(); }
 	double get_signal_level() { return SignalStrength.getEnergyLevel(); }
 	void set_signal_strength();
-	void setLowPassAudioFilter(float samplerate, float band_width);
+	void setLowPassAudioFilter(float samplerate, int band_width);
 	void set_span(long span);
 	void perform_fft(const IQSampleVector &iqsamples);
 	void calc_af_level(const SampleVector &samples_in);
@@ -126,9 +126,9 @@ class Demodulator
 	float passBandRipple;
 	float StopBandAttenuation;
 
-	static atomic<int> lowPassAudioFilterCutOffFrequency;
-	static atomic<int> noisefilter;
-	static atomic<float> noiseThresshold;
+	static std::atomic<int> lowPassAudioFilterCutOffFrequency;
+	static std::atomic<int> noisefilter;
+	static std::atomic<float> noiseThresshold;
 
 	bool adjustPhaseGain;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;

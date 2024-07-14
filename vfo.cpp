@@ -17,12 +17,14 @@ CVfo::CVfo()
 	vfo_setting.tx = false;
 	vfo_setting.rx = true;
 	limit_ham_band = true;
+	vfo_setting.split = false;
 }
 
 void CVfo::vfo_rxtx(bool brx, bool btx, bool split)
 {
 	vfo_setting.tx = btx;
 	vfo_setting.rx = brx;
+	vfo_setting.split = split;
 	if (vfo_setting.tx && !vfo_setting.rx && split && vfo_setting.active_vfo == vfo_activevfo::One)
 		bpf.SetBand(vfo_setting.band[vfo_activevfo::Two], vfo_setting.rx);
 	else
@@ -208,12 +210,12 @@ void	CVfo::rx_set_sdr_freq()
 	}
 }
 
-void	CVfo::tx_set_sdr_freq(bool split)
+void	CVfo::tx_set_sdr_freq()
 {
 	if (SdrDevices && tx_channel >= 0)
 	{
-		printf("TX Freq %lld\n", vfo.get_tx_frequency(split));
-		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, vfo.get_tx_frequency(split) + vfo_setting.correction_tx);
+		printf("TX Freq %lld\n", vfo.get_tx_frequency());
+		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, vfo.get_tx_frequency() + vfo_setting.correction_tx);
 	}
 }
 
@@ -221,6 +223,15 @@ long CVfo::get_vfo_offset()
 {
 	unique_lock<mutex> lock(m_vfo_mutex);
 	return vfo_setting.offset[vfo_setting.active_vfo];
+}
+
+long CVfo::get_vfo_offset_tx()
+{
+	unique_lock<mutex> lock(m_vfo_mutex);
+	if (((abs(ifrate - ifrate_tx) > 0.1) || (abs(ifrate_tx - (double)vfo_setting.pcmrate) < 0.1) || vfo_setting.notxoffset) && vfo_setting.tx)
+		return 0L;
+	else
+		return vfo_setting.offset[vfo_setting.active_vfo];
 }
 
 /*
@@ -238,7 +249,7 @@ long CVfo::get_vfo_offset()
  * So it need to tuned differently than the receiver.
  **/
 
-int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
+int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 {
 	unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
 	int retval{0};
@@ -260,7 +271,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 		if (vfo_setting.rx)
 			rx_set_sdr_freq();
 		if (vfo_setting.tx)
-			tx_set_sdr_freq(split);
+			tx_set_sdr_freq();
 	}
 	if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
 		return -1;
@@ -268,7 +279,8 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 	if (((abs(ifrate - ifrate_tx) > 0.1) || (abs(ifrate_tx - (double)vfo_setting.pcmrate) < 0.1) || vfo_setting.notxoffset) && vfo_setting.tx)
 	{  // incase of different ifrates for tx don't use offset or incase tx samplerate is equal to pcmrate
 		vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
-		tx_set_sdr_freq(split);
+		tx_set_sdr_freq();
+		printf("tx no offset freq = %lld\n", vfo_setting.vfo_freq[vfo_setting.active_vfo]);
 	}
 	else
 	{
@@ -281,7 +293,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 			if (vfo_setting.rx)
 				rx_set_sdr_freq();
 			if (vfo_setting.tx)
-				tx_set_sdr_freq(split);
+				tx_set_sdr_freq();
 			tune_flag = true;
 			printf("Tune pos: freq %lld, sdr %lld offset %ld maxoffset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 		}
@@ -293,7 +305,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 			if (vfo_setting.rx)
 				rx_set_sdr_freq();
 			if (vfo_setting.tx)
-				tx_set_sdr_freq(split);
+				tx_set_sdr_freq();
 			tune_flag = true;
 			//printf("Tune neg: freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 		}
@@ -305,7 +317,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo, bool split)
 			//printf("set offset %ld\n", vfo_setting.offset[vfo_setting.active_vfo]);
 		}
 	}
-	//printf("freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+	printf("freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo));
 	SpectrumGraph.set_pos(vfo_setting.offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)
@@ -390,11 +402,11 @@ std::string CVfo::get_vfo_str()
 	return s;
 }
 
-long long CVfo::get_tx_frequency(bool split)
+long long CVfo::get_tx_frequency()
 {
 	int active_vfo = vfo_setting.active_vfo;
 
-	if (split)
+	if (vfo_setting.split)
 		active_vfo = Two;
 	// incase of different ifrates for tx don't use offset
 	if (fabs(ifrate - ifrate_tx) > 0.1 || vfo_setting.notxoffset)

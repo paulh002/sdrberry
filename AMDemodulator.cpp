@@ -69,7 +69,6 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 		return;
 	}
 	const auto startTime = std::chrono::high_resolution_clock::now();
-	Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, bandwidth);
 	demodulatorHandle = ampmodem_create(modulationIndex, am_mode, suppressed_carrier);
 	gbar.set_filter_slider(bandwidth);

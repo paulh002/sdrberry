@@ -94,8 +94,6 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		return;
 	}
 	audio_input->set_tone(param.tone);
-	printf("tone %d \n", param.tone);
-	setLowPassAudioFilterCutOffFrequency(2500);
 	if ((param.ifrate - audio_input->get_samplerate()) > 0.1)
 	{
 		float sample_ratio, sample_ratio1;
@@ -135,7 +133,7 @@ void AMModulator::operator()()
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
-	tune_offset(vfo.get_vfo_offset());
+	tune_offset(vfo.get_vfo_offset_tx());
 	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
 		audioInputBuffer->set_gain(0);
@@ -152,7 +150,7 @@ void AMModulator::operator()()
 		if (vfo.tune_flag.load())
 		{
 			vfo.tune_flag = false;
-			tune_offset(vfo.get_vfo_offset());
+			tune_offset(vfo.get_vfo_offset_tx());
 		}
 
 		if (audioInputBuffer->IsBufferEmpty() && digitalmode)

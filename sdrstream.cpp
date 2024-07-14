@@ -243,15 +243,13 @@ void TX_Stream::operator()()
 	SoapySDR::Stream		*tx_stream;
 	int ret;
 	
-	//unique_lock<mutex> lock_rx(rxstream_mutex);
-	
 	try
 	{
 		//SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
 		//SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
 		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CF32);
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
-		//SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
+		SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
 		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 	}
 	catch (const std::exception& e)

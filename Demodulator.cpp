@@ -15,12 +15,12 @@
  ** Basic class for processing radio data for bith RX and TX
  **
  **/
-atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
-atomic<bool> Demodulator::dcBlockSwitch = true;
-atomic<bool> Demodulator::autocorrection = false;
-atomic<double> correlationMeasurement, errorMeasurement;
-atomic<int> Demodulator::noisefilter = 0;
-atomic<float> Demodulator::noiseThresshold = 0.0;
+std::atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency;
+std::atomic<bool> Demodulator::dcBlockSwitch = true;
+std::atomic<bool> Demodulator::autocorrection = false;
+std::atomic<double> correlationMeasurement, errorMeasurement;
+std::atomic<int> Demodulator::noisefilter = 0;
+std::atomic<float> Demodulator::noiseThresshold = 0.0;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -37,6 +37,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	highfftquadrant = 0;
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	noisefilter = 0;
+	lowPassAudioFilterCutOffFrequency = 0;
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -54,6 +55,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	adjustPhaseGain = get_gain_phase_correction();
 	autocorrection = Settings_file.get_int(default_radio, "autocal");
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
+	lowPassAudioFilterCutOffFrequency = 0;
 	// resampler and band filter assume pcmfrequency on the low side
 }
 
@@ -75,6 +77,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	adjustPhaseGain = get_gain_phase_correction();
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	autocorrection = Settings_file.get_int(default_radio, "autocal");
+	lowPassAudioFilterCutOffFrequency = 0;
 }
 
 void Demodulator::set_signal_strength()
@@ -423,8 +426,9 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 	}
 }
 
-void Demodulator::setLowPassAudioFilter(float samplerate, float band_width)
+void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 {
+	lowPassAudioFilterCutOffFrequency = band_width;
 	if (lowPassAudioFilterHandle)
 		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
 	float factor = band_width / samplerate;
@@ -432,9 +436,9 @@ void Demodulator::setLowPassAudioFilter(float samplerate, float band_width)
 	iirfilt_crcf_print(lowPassAudioFilterHandle);
 }
 
-void Demodulator::setLowPassAudioFilterCutOffFrequency(int fc)
+void Demodulator::setLowPassAudioFilterCutOffFrequency(int band_width)
 {
-	lowPassAudioFilterCutOffFrequency = fc;
+	lowPassAudioFilterCutOffFrequency = band_width;
 }
 
 void Demodulator::perform_fft(const IQSampleVector &iqsamples)

@@ -902,7 +902,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());
-	vfo.set_vfo(0, vfo_activevfo::None, gui_vfo_inst.get_split());
+	vfo.set_vfo(0, vfo_activevfo::None);
 	printf("select_mode_tx start tx threads\n");
 	switch (mode)
 	{

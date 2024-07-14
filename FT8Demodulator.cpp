@@ -61,7 +61,6 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 
 	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
 	gbar.set_filter_slider(m_bandwidth);
-	setLowPassAudioFilterCutOffFrequency(m_bandwidth);
 	Demodulator::setLowPassAudioFilter(ft8_rate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();

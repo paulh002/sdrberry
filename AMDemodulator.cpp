@@ -311,4 +311,8 @@ void AMDemodulator::destroy_demodulator()
 	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;
 }
 
-
+void AMDemodulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_amdemod != nullptr)
+		sp_amdemod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+}

@@ -17,6 +17,7 @@ class FT8Demodulator : public Demodulator
 	static bool create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode);
 	static void destroy_demodulator();
 	static std::string getName() { return "FT8Demodulator"; }
+	static void setLowPassAudioFilterCutOffFrequency(int bandwidth);
 
 	FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode);
 	~FT8Demodulator();

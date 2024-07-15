@@ -342,7 +342,7 @@ void gui_bar::set_tx(bool tx)
 		{
 			int sel = lv_dropdown_get_selected(obj);
 			catinterface.SetSH(ifilters.at(sel));
-			Demodulator::setLowPassAudioFilterCutOffFrequency(ifilters.at(sel));
+			update_filter(ifilters.at(sel));
 		}
 	}
 
@@ -818,7 +818,7 @@ void gui_bar::set_filter_slider(int ifilter)
 		filter = 7;
 	
 	lv_dropdown_set_selected(button[number_of_buttons-1], filter);
-	Demodulator::setLowPassAudioFilterCutOffFrequency(ifilters[filter]);
+	update_filter(ifilters[filter]);
 }
 
 void gui_bar::get_gain_range(int &max_gain, int &min_gain)

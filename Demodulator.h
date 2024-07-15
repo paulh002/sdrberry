@@ -34,13 +34,14 @@ enum mode_enum
 class Demodulator
 {
   public:
-	static void setLowPassAudioFilterCutOffFrequency(int band_width);
 	static void set_dc_filter(bool state);
 	static void set_autocorrection(bool state);
 	static void set_noise_filter(int noise);
 	static void set_noise_threshold(int threshold);
 	static float get_threshold() { return noiseThresshold; }
-	
+
+	void setLowPassAudioFilterCutOffFrequency(int band_width);
+
   protected:
 	~Demodulator();
 	Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
@@ -126,7 +127,7 @@ class Demodulator
 	float passBandRipple;
 	float StopBandAttenuation;
 
-	static std::atomic<int> lowPassAudioFilterCutOffFrequency;
+	std::atomic<int> lowPassAudioFilterCutOffFrequency;
 	static std::atomic<int> noisefilter;
 	static std::atomic<float> noiseThresshold;
 

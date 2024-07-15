@@ -296,3 +296,9 @@ void AMModulator::WaitForTimeSlot()
 	tm local_tm = *localtime(&tt);
 	printf("start tx cycle %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 }
+
+void AMModulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_ammod != nullptr)
+		sp_ammod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+}

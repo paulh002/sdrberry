@@ -15,7 +15,6 @@
  ** Basic class for processing radio data for bith RX and TX
  **
  **/
-std::atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency; // bad idea to do this needs to be fixed
 std::atomic<bool> Demodulator::dcBlockSwitch = true;
 std::atomic<bool> Demodulator::autocorrection = false;
 std::atomic<double> correlationMeasurement, errorMeasurement;

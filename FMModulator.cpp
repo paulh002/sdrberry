@@ -97,3 +97,9 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	buf_out.clear();
 	buf_filter.clear();
 }
+
+void FMModulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_fmmod != nullptr)
+		sp_fmmod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+}

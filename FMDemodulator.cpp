@@ -196,3 +196,9 @@ void FMDemodulator::destroy_demodulator()
 	fmdemod_thread.join();
 	sp_fmdemod.reset();
 }
+
+void FMDemodulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_fmdemod != nullptr)
+		sp_fmdemod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+}

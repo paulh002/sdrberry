@@ -779,6 +779,14 @@ void destroy_demodulators(bool all)
 	TX_Stream::destroy_tx_streaming_thread();
 }
 
+void update_filter(int bandwidth)
+{
+	FMDemodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+	AMDemodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+	AMModulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+	FT8Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+}
+
 extern std::chrono::high_resolution_clock::time_point starttime1;
 
 void select_mode(int s_mode, bool bvfo, int channel)

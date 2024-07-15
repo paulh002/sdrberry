@@ -15,7 +15,8 @@ public:
 	static bool create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	static void destroy_demodulator();
 	static std::string getName() { return "FMDemodulator";}
-	
+	static void setLowPassAudioFilterCutOffFrequency(int bandwidth);
+
 	FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~FMDemodulator();
 	void	process(const IQSampleVector&	samples_in, SampleVector& audio) ;

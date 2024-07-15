@@ -20,7 +20,8 @@ public:
 	static bool		create_demodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	static void		destroy_demodulator();
 	static std::string getName() { return "AMDemodulator";}
-	
+	static void		setLowPassAudioFilterCutOffFrequency(int ifilter);
+
 	AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~AMDemodulator();
 	void	process(const IQSampleVector&	samples_in, SampleVector& audio);
@@ -29,8 +30,7 @@ public:
 	atomic<bool>		stop_flag {false};
 	std::thread			amdemod_thread;
 	
-	static void setLowPassAudioFilterCutOffFrequency(int ifilter);
-
+	
   private:
 	ampmodem		demodulatorHandle {nullptr};
 	Agc_class		agc;

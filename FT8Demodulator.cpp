@@ -182,3 +182,9 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 		audio.push_back(v);
 	}
 }
+
+void FT8Demodulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_ft8demod != nullptr)
+		sp_ft8demod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+}

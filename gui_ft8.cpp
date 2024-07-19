@@ -285,7 +285,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	{
 		if (guift8bar.GetFilter().length() > 0)
 		{
-			if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) && msg.find("CQ") == std::string::npos)
+			if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ") == std::string::npos)
 			{
 				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 				add_qso(m);

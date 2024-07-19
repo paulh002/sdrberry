@@ -75,7 +75,6 @@ class gui_bar
 	void set_gain_slider(int gain);
 	int getbuttons() { return ibuttons; }
 	void set_mode(int mode);
-	void check_agc();
 	void set_cw_message(std::string message);
 	void set_cw_wpm(int wpm);
 	void hide_cw(bool hide);

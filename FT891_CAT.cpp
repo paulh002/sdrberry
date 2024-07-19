@@ -207,6 +207,8 @@ int FT891_CAT::CheckCAT (bool bwait)
 			return 0;							// We're done
 
 		ParseMsg ();							// Separate any data in the message
+		//if (newMessage.ID == MSG_SH)
+		//	printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
 
 		if ( newMessage.Type == MSG_CMD )		// Command?
 		{
@@ -504,10 +506,13 @@ bool FT891_CAT::ProcessCmd ()
 			break;
 
 		case MSG_SH:									// Set IF shift & status
-			strncpy ( tempBuff, &dataBuff[1], 5 );		// Extract the offset amount
-			radioStatus.SH_VALUE = atoi ( tempBuff );	// Set value in the structure
-			radioStatus.SH_STAT = dataBuff[0] - '0';	// Set on/off status
-			cmdProcessed = true; // Command was processed
+			if (strlen(dataBuff) < 10)
+			{
+				strncpy(tempBuff, &dataBuff[1], 5);		 // Extract the offset amount
+				radioStatus.SH_VALUE = atoi(tempBuff);	 // Set value in the structure
+				radioStatus.SH_STAT = dataBuff[0] - '0'; // Set on/off status
+				cmdProcessed = true;					 // Command was processed
+			}
 			break;
 		
 		case MSG_MD:									// Set mode (USB, LSB, CW, etc.)

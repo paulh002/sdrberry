@@ -56,6 +56,16 @@ struct Args : MainArguments<Args>
 };
 */
 
+/* print stacktrace
+ 	StackTrace st;
+	st.load_here(32);
+	Printer p;
+	p.object = true;
+	p.color_mode = ColorMode::always;
+	p.address = true;
+	p.print(st, stdout);
+*/
+
 #define BACKWARD_HAS_BFD 1
 #define BACKWARD_HAS_DW 1
 #include "backward.hpp"
@@ -712,6 +722,7 @@ int main(int argc, char *argv[])
 		}
 		gui_mutex.unlock();
 		usleep(500);
+		fflush(stdout);
 	}
 	audio_output->close();
 	delete audio_output;
@@ -989,7 +1000,6 @@ void switch_sdrreceiver(std::string receiver)
 		if (ifrate_tx == 0)
 			ifrate_tx = ifrate;
 		printf("samplerate rx%f sample rate tx %f\n", ifrate, ifrate_tx);
-		gbar.check_agc();
 		// set top line with receiver information
 		if (SdrDevices.get_rx_channels(default_radio) < 1)
 		{

@@ -22,12 +22,21 @@ std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_ds
 
 gui_bar gbar;
 
+const int button_tune = 0;
+const int button_mode = 1;
+const int button_vfo = 2;
+const int button_preamp = 3;
+const int button_att = 4;
+const int button_noise = 5;
+const int button_rit = 6;
+const int button_filter = 7;
+
 void gui_bar::set_tx(bool tx)
 {
 	if (tx)
-		lv_obj_add_state(button[0], LV_STATE_CHECKED);
+		lv_obj_add_state(button[button_tune], LV_STATE_CHECKED);
 	else
-		lv_obj_clear_state(button[0], LV_STATE_CHECKED);
+		lv_obj_clear_state(button[button_tune], LV_STATE_CHECKED);
 	}
 
 	void gui_bar::set_mode(int mode)
@@ -63,7 +72,7 @@ void gui_bar::set_tx(bool tx)
 			i = 6;
 		}
 		std::string txt = std::string("Mode") + std::string("\n#0fff0f ") + ModesTypes[i] + std::string("#");
-		lv_label_set_text(label[1], txt.c_str());
+		lv_label_set_text(label[button_mode], txt.c_str());
 	}
 
 	void gui_bar::bar_button_handler_class(lv_event_t * e)
@@ -78,19 +87,19 @@ void gui_bar::set_tx(bool tx)
 			{
 				attenuatorWindow.reset();
 				attenuatorWindow = nullptr;
-				lv_obj_clear_state(get_button_obj(4), LV_STATE_CHECKED);
+				lv_obj_clear_state(get_button_obj(button_att), LV_STATE_CHECKED);
 			}
 			if (modeWindow != nullptr)
 			{
 				modeWindow.reset();
 				modeWindow = nullptr;
-				lv_obj_clear_state(get_button_obj(1), LV_STATE_CHECKED);
+				lv_obj_clear_state(get_button_obj(button_mode), LV_STATE_CHECKED);
 			}
 			if (preampWindow != nullptr)
 			{
 				preampWindow.reset();
 				preampWindow = nullptr;
-				lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED);
+				lv_obj_clear_state(get_button_obj(button_preamp), LV_STATE_CHECKED);
 			}
 			if (ritWindow != nullptr)
 			{
@@ -98,13 +107,13 @@ void gui_bar::set_tx(bool tx)
 				ritWindow = nullptr;
 				if (code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM))
 				{
-					lv_obj_clear_state(get_button_obj(6), LV_STATE_CHECKED);
+					lv_obj_clear_state(get_button_obj(button_rit), LV_STATE_CHECKED);
 					rit_value = 0;
 					vfo.setRit(rit_value);
 				}
 				else
 				{
-					lv_obj_add_state(get_button_obj(6), LV_STATE_CHECKED);
+					lv_obj_add_state(get_button_obj(button_rit), LV_STATE_CHECKED);
 				}
 			}
 			return;
@@ -115,7 +124,7 @@ void gui_bar::set_tx(bool tx)
 			modeWindow.reset();
 			modeWindow = nullptr;
 			long i = (long)e->param;
-			lv_obj_clear_state(get_button_obj(1), LV_STATE_CHECKED);
+			lv_obj_clear_state(get_button_obj(button_mode), LV_STATE_CHECKED);
 			std::string txt = std::string("Mode") + std::string("\n#0fff0f ") + ModesTypes[i] + std::string("#");
 			lv_label_set_text(label[1], txt.c_str());
 			select_mode((int)ModesCodes[i], true);
@@ -132,8 +141,8 @@ void gui_bar::set_tx(bool tx)
 			{
 				txt += std::string("\n#0fff0f ") + preamTypes[i] + std::string("#");
 			}
-			lv_label_set_text(label[3], txt.c_str());
-			lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED);
+			lv_label_set_text(label[button_preamp], txt.c_str());
+			lv_obj_clear_state(get_button_obj(button_preamp), LV_STATE_CHECKED);
 			return;
 		}
 
@@ -147,8 +156,8 @@ void gui_bar::set_tx(bool tx)
 			{
 				txt += std::string("\n#0fff0f ") + attnTypes[i] + std::string("#");
 			}
-			lv_label_set_text(label[4], txt.c_str());
-			lv_obj_clear_state(get_button_obj(4), LV_STATE_CHECKED);
+			lv_label_set_text(label[button_att], txt.c_str());
+			lv_obj_clear_state(get_button_obj(button_att), LV_STATE_CHECKED);
 			return;
 		}
 
@@ -157,6 +166,7 @@ void gui_bar::set_tx(bool tx)
 			rit_value = (long)e->param;
 			printf("value %ld\n", (long)e->param);
 			vfo.setRit(rit_value);
+			return;
 		}
 		
 		if (code == LV_EVENT_CLICKED)
@@ -193,13 +203,13 @@ void gui_bar::set_tx(bool tx)
 						{
 							vfo.set_active_vfo(1);
 							std::string txt = std::string("VFO 2");
-							lv_label_set_text(label[2], txt.c_str());
+							lv_label_set_text(label[button_vfo], txt.c_str());
 						}
 						else
 						{
 							vfo.set_active_vfo(0);
 							std::string txt = std::string("VFO 1");
-							lv_label_set_text(label[2], txt.c_str());
+							lv_label_set_text(label[button_vfo], txt.c_str());
 						}
 						break;
 					case 3:
@@ -230,7 +240,7 @@ void gui_bar::set_tx(bool tx)
 						if (ritWindow == nullptr)
 						{
 							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 180);
-							lv_obj_add_state(get_button_obj(6), LV_STATE_CHECKED);
+							lv_obj_add_state(get_button_obj(button_rit), LV_STATE_CHECKED);
 						}
 						break;
 					}
@@ -491,11 +501,8 @@ void gui_bar::set_tx(bool tx)
 				lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
 				lv_obj_set_size(button[i], button_width + x_margin_dropdown, button_height);
 				lv_obj_add_style(button[i], &style_btn, 0);
-				lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-				lv_dropdown_set_selected(button[i], 4);
+				// lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 				lv_group_add_obj(button_group, button[i]);
-				int bandwidth = ifilters[4];
-				catinterface.SetSH(bandwidth);
 			}
 
 			ibutton_x++;
@@ -657,27 +664,6 @@ void gui_bar::setIfGainOverflow(bool state)
 		}
 	}
 }
-	
-void gui_bar::check_agc()
-{
-		try
-		{
-			if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
-			{
-				bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, gsetup.get_current_rx_channel());
-				if (bAgc)
-					lv_obj_add_state(button[7], LV_STATE_CHECKED);
-				else
-					lv_obj_clear_state(button[7], LV_STATE_CHECKED);
-			}
-			else
-				lv_obj_clear_state(button[7], LV_STATE_CHECKED);
-		}
-		catch (const std::exception &e)
-		{
-			std::cout << e.what();
-		}
-}
 
 void gui_bar::set_cw_message(std::string message)
 {
@@ -712,6 +698,7 @@ void gui_bar::set_vol_slider(int volume)
 	lv_label_set_text_fmt(vol_slider_label, "vol %d", volume);
 	audio_output->set_volume(volume);
 	catinterface.SetAG(volume);
+	Settings_file.write_settings();
 	Settings_file.save_vol(volume);
 }
 
@@ -746,6 +733,7 @@ void gui_bar::set_if(int ifg)
 	lv_label_set_text_fmt(if_slider_label, "if %d db", ifg);
 	catinterface.SetIG(ifg);
 	Settings_file.save_ifgain(ifg);
+	Settings_file.write_settings();
 	guift8bar.set_if(ifg);
 }
 
@@ -791,12 +779,21 @@ void gui_bar::set_vfo(int active_vfo)
 	}
 }
 
+#define BACKWARD_HAS_BFD 1
+#define BACKWARD_HAS_DW 1
+#include "backward.hpp"
+
+using namespace backward;
+
 void gui_bar::set_filter_slider(int ifilter)
 {
-	if (!button[number_of_buttons - 1])
-		return;
 	int filter = 7;
-	
+
+	if (ifilter < 500 || ifilter > 4000)
+	{
+		printf("set filter out of range %d\n", ifilter);
+		return;
+	}
 	if (ifilter >= 500 && ifilter  < 1000)
 		filter = 0;
 	if (ifilter >= 1000 && ifilter  < 1500)
@@ -816,9 +813,9 @@ void gui_bar::set_filter_slider(int ifilter)
 	
 	if (filter < 0 || filter > 7) 
 		filter = 7;
-	
-	lv_dropdown_set_selected(button[number_of_buttons-1], filter);
+	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
+	catinterface.SetSH(ifilters[filter]);
 }
 
 void gui_bar::get_gain_range(int &max_gain, int &min_gain)

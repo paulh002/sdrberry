@@ -104,6 +104,7 @@ void AMDemodulator::operator()()
 	unique_lock<mutex>		lock_am(amdemod_mutex);
 	IQSampleVector			dc_iqsamples, iqsamples;
 	long long pr_time{0};
+	long noRfSamples{0}, noAfSamples{0};
 	int vsize, passes{0};
 
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
@@ -147,6 +148,7 @@ void AMDemodulator::operator()()
 		}
 		dc_filter(dc_iqsamples,iqsamples);
 		int nosamples = iqsamples.size();
+		noRfSamples += nosamples;
 		passes++;
 		calc_if_level(iqsamples);
 		gain_phasecorrection(iqsamples, gbar.get_if());
@@ -165,6 +167,7 @@ void AMDemodulator::operator()()
 		// Set nominal audio volume.
 		audioOutputBuffer->adjust_gain(audioSamples);
 		int noaudiosamples = audioSamples.size();
+		noAfSamples += noaudiosamples;
 		for (auto &col : audioSamples)
 		{
 			// split the stream in blocks of samples of the size framesize
@@ -231,6 +234,8 @@ void AMDemodulator::operator()()
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("rms %f db %f envelope %f suppression %f db\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope(), getSuppression());
+			printf("RF samples %ld Af samples %ld ratio %f \n", noRfSamples, noAfSamples, (float)noAfSamples / (float)noRfSamples);
+			noRfSamples = noAfSamples = 0L;
 			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;

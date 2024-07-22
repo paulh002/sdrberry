@@ -68,6 +68,8 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 		clr_cq();
 		cpy_qso(row);
 		QsoScrollLatestItem();
+		//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+		//add_cq(m);
 	}
 }
 
@@ -408,10 +410,43 @@ void gui_ft8::clr_qso()
 
 void gui_ft8::clr_cq()
 {
-	lv_table_set_row_cnt(cqTable, 1);
-	CqScrollFirstItem();
-	lv_obj_invalidate(table);
-	cqRowCount = 1;
+	if (guift8bar.GetFilter().size() == 0)
+	{
+		lv_table_set_row_cnt(cqTable, 1);
+		CqScrollFirstItem();
+		lv_obj_invalidate(table);
+		cqRowCount = 1;
+	}
+	else
+	{
+		std::vector<std::string> r1, r2, r3, r4;
+		for (int row = 1; row < cqRowCount; row++)
+		{
+			std::string rr1(lv_table_get_cell_value(cqTable, row, 0));
+			std::string rr2(lv_table_get_cell_value(cqTable, row, 1));
+			std::string rr3(lv_table_get_cell_value(cqTable, row, 2));
+			std::string rr4(lv_table_get_cell_value(cqTable, row, 3));
+			if (rr4.find(guift8bar.GetFilter()) == std::string::npos)
+			{
+				r1.push_back(rr1);
+				r2.push_back(rr2);
+				r3.push_back(rr3);
+				r4.push_back(rr4);
+			}
+		}
+		lv_table_set_row_cnt(cqTable, 1);
+		cqRowCount = 1;
+		for (int row = 0; row < r1.size(); row++)
+		{
+			lv_table_set_cell_value(cqTable, cqRowCount, 0, r1.at(row).c_str());
+			lv_table_set_cell_value(cqTable, cqRowCount, 1, r2.at(row).c_str());
+			lv_table_set_cell_value(cqTable, cqRowCount, 2, r3.at(row).c_str());
+			lv_table_set_cell_value(cqTable, cqRowCount, 3, r4.at(row).c_str());
+			cqRowCount++;
+		}
+		CqScrollFirstItem();
+		lv_obj_invalidate(table);
+	}
 }
 
 void gui_ft8::clear()

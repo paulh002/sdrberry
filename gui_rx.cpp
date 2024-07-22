@@ -289,7 +289,7 @@ void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 
 	sprintf(buf, "noise thresshold %d db", lv_slider_get_value(slider));
 	lv_label_set_text(noise_slider_label, buf);
-	lv_obj_align_to(noise_slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_align_to(noise_slider_label, slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	Settings_file.save_int("Radio","NoiseThreshold",lv_slider_get_value(slider));
 	if (gbar.get_noise())
 	{

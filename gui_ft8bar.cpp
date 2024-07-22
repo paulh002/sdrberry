@@ -278,13 +278,18 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 			// log
 			{
 				std::ofstream outfile;
-
+				std::string  buf;
+				
 				ft8status = ft8status_t::monitor;
 				outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
 				if (!outfile.fail())
 				{
 					auto today = date::year_month_weekday{ date::floor<date::days>(std::chrono::high_resolution_clock::now()) };
 					outfile << today << ",";
+					buf.resize(20);
+					lv_dropdown_get_selected_str(frequence, (char *)buf.c_str(), 20);
+					buf.resize(strlen(buf.c_str()));
+					outfile << buf << ",";
 					int rows = gft8.getQsoLogRows();
 					for (int i = 0; i < rows; i++)
 					{
@@ -333,10 +338,10 @@ void gui_ft8bar::ClearMessage()
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	messageToSend = 1;
-	SetTxMessage();
-	SetFilter("");
 	gft8.clr_qso();
 	gft8.clr_cq();
+	SetTxMessage();
+	SetFilter("");
 }
 
 void gui_ft8bar::setmodeclickable(bool clickable)

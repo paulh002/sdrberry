@@ -17,6 +17,7 @@ extern int barHeightft8;
 extern unique_ptr<wsjtx_lib> wsjtx;
 
 
+
 /*R"(
         ^\s*                                      # optional leading spaces
         ( [A-Z]{0,2} | [A-Z][0-9] | [0-9][A-Z] )  # part 1
@@ -260,11 +261,13 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 		case 0:
 			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
+				gft8.reset();
 				SetFrequency();
 				select_mode(guift8bar.getrxtxmode());
 				gbar.set_mode(mode_usb);
 				setmodeclickable(false);
 				ft8status = ft8status_t::monitor;
+				
 			}
 			else
 			{

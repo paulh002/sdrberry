@@ -152,7 +152,7 @@ void FT8Demodulator::operator()()
 			capture = false;
 			if (audiosamples.size() < capture_time_duration_ms * ft8_rate / 1000)
 				audiosamples.resize(capture_time_duration_ms * ft8_rate / 1000);
-			printf("cpatured %ld samples \n", audiosamples.size());
+			printf("capatured %ld samples \n", audiosamples.size());
 			ft8processor->AddaudioSample(audiosamples);
 			audiosamples.clear();
 		}

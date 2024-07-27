@@ -81,7 +81,6 @@ void FT8Processor::operator()()
 		{
 			samples.push_back((audiosamples[i] * 32768.0f));
 		}
-		guiQueue.push_back(GuiMessage(GuiMessage::action::clearWsjtx,0));
 		wsjtx->decode(decodeMode, samples, 1000, nothreads);
 		audiosamples.clear();
 		samples.clear();

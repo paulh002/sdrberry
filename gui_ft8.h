@@ -23,8 +23,8 @@ class gui_ft8
 	lv_obj_t *table, *table_label, *qsoTable, *qsoLabel, *cqTable;
 	lv_style_t style_btn, ft8_style;
 	std::vector<message> messages, qsoMessages;
-	int m_cycle_count{0}, qsoRowCount{0}, cqRowCount{0};
-	bool bclear{false};
+	int  qsoRowCount{0}, cqRowCount{0};
+	int tableviewsize;
 	void Scroll(lv_obj_t *table, lv_coord_t currScrollPos);
 	std::string call;
 
@@ -50,7 +50,6 @@ class gui_ft8
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
 	void add_line(int hh, int min, int sec, int snr, int correct_bits, double off, int hz0, std::string msg);
-	void clear();
 	void set_group();
 	void reset();
 	void clr_qso();
@@ -58,6 +57,7 @@ class gui_ft8
 	void cpy_cqtoqso(int row);
 	int getQsoLogRows();
 	std::string getQso(int row);
+	void tableScrollLastItem() { ScrollLatestItem(); }
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

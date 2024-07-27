@@ -715,7 +715,9 @@ int main(int argc, char *argv[])
 				gbar.set_filter_slider(msg.data);
 				break;
 			case GuiMessage::clearWsjtx:
-				gft8.clear();
+				break;
+			case GuiMessage::scrollWsjtx:
+				gft8.tableScrollLastItem();
 				break;
 			}
 			guiQueue.pop_front();

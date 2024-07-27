@@ -1,6 +1,6 @@
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
-
+#include "table.h"
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -150,6 +150,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	int button_height_margin = button_height + y_margin;
 	int ibutton_x = 0, ibutton_y = 0;
 
+	tableviewsize = Settings_file.get_int("wsjtx", "tableviewsize", 50);
 	lv_style_init(&ft8_style);
 	lv_style_set_radius(&ft8_style, 0);
 	lv_style_set_bg_color(&ft8_style, lv_color_black());
@@ -197,7 +198,6 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_col_width(table, 2, w/12);
 	lv_table_set_cell_value(table, 0, 3, "Message");
 	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12) - 10);
-	m_cycle_count++;
 
 	qsoTable = lv_table_create(o_tab);
 	lv_obj_add_event_cb(qsoTable, qso_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
@@ -265,20 +265,18 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	//add_cq(m);
 }
 
+
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,int hz0, string msg)
 {
 	char str[128];
 	
-	//unique_lock<mutex> gui_lock(gui_mutex);
-	if (bclear)
+	if (lv_table_get_row_cnt(table) > tableviewsize)
 	{
-		lv_table_set_row_cnt(table, 1);
-		ScrollFirstItem();
-		m_cycle_count = 1;
-		bclear = false;
+		lv_table_remove_rows(table, 1, 1);
 	}
 
-	if (msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0)
+	if ((msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0) ||
+		(msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) == std::string::npos))
 	{
 		message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 		add_cq(m);
@@ -301,18 +299,15 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		}
 	}
 
+	int row = lv_table_get_row_cnt(table);
 	sprintf(str,"%02d:%02d:%02d", hh, min, sec);
-	lv_table_set_cell_value(table, m_cycle_count, 0, str);
-
+	lv_table_set_cell_value(table, row, 0, str);
 	sprintf(str,"%3d",snr);
-	lv_table_set_cell_value(table, m_cycle_count, 1, str);
-
+	lv_table_set_cell_value(table, row, 1, str);
 	sprintf(str, "%6d", hz0);
-	lv_table_set_cell_value(table, m_cycle_count, 2, str);
-
-	lv_table_set_cell_value(table, m_cycle_count, 3, msg.c_str());
-
-	m_cycle_count++;
+	lv_table_set_cell_value(table, row, 2, str);
+	lv_table_set_cell_value(table, row, 3, msg.c_str());
+	ScrollLatestItem();
 }
 
 void gui_ft8::add_qso(struct message msg)
@@ -449,11 +444,6 @@ void gui_ft8::clr_cq()
 	}
 }
 
-void gui_ft8::clear()
-{
-	bclear = true;
-}
-
 void gui_ft8::set_group()
 {
 
@@ -462,8 +452,6 @@ void gui_ft8::set_group()
 void gui_ft8::reset()
 {
 	lv_table_set_row_cnt(table, 1);
-	m_cycle_count = 1;
-	bclear = true;
 }
 
 void gui_ft8::ScrollLatestItem()

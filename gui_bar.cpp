@@ -501,7 +501,7 @@ void gui_bar::set_tx(bool tx)
 				lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
 				lv_obj_set_size(button[i], button_width + x_margin_dropdown, button_height);
 				lv_obj_add_style(button[i], &style_btn, 0);
-				// lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+				lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 				lv_group_add_obj(button_group, button[i]);
 			}
 

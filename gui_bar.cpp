@@ -109,7 +109,7 @@ void gui_bar::set_tx(bool tx)
 				{
 					lv_obj_clear_state(get_button_obj(button_rit), LV_STATE_CHECKED);
 					rit_value = 0;
-					vfo.setRit(rit_value);
+					vfo.setRit(rit_value, vfo.get_active_vfo());
 				}
 				else
 				{
@@ -164,8 +164,7 @@ void gui_bar::set_tx(bool tx)
 		if (code == CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED))
 		{
 			rit_value = (long)e->param;
-			printf("value %ld\n", (long)e->param);
-			vfo.setRit(rit_value);
+			vfo.setRit(rit_value, vfo.get_active_vfo());
 			return;
 		}
 		
@@ -239,7 +238,7 @@ void gui_bar::set_tx(bool tx)
 					case 6:
 						if (ritWindow == nullptr)
 						{
-							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 180);
+							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 200);
 							lv_obj_add_state(get_button_obj(button_rit), LV_STATE_CHECKED);
 						}
 						break;

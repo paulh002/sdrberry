@@ -46,6 +46,7 @@ struct vfo_settings_struct
 	long long vfo_freq_sdr[2];
 	long long vfo_low;
 	long long vfo_high;
+	int vfo_rit[2];
 	int mode[2];
 	int band[2];
 	int frq_step;
@@ -67,7 +68,6 @@ struct vfo_settings_struct
 	int notxoffset;
 	long maxtxoffset;
 	bool split;
-	std::atomic<int> rit;
 };
 
 class CVfo
@@ -128,7 +128,7 @@ class CVfo
 
 	std::atomic_bool tune_flag{false};
 	bool limit_ham_band;
-	void setRit(int rit);
+	void setRit(int rit, int active_vfo);
 
   private:
 	struct vfo_settings_struct vfo_setting;

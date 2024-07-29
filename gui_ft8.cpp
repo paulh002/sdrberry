@@ -33,11 +33,12 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
 	{
 		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, 2);
-		
-		if (qsoRowCount == 1)
-		{
-			cpy_cqtoqso(row);
-		}
+		cpy_conversationtoqso();
+		// copy conversation to qso pane
+		//if (qsoRowCount == 1)
+		//{
+		//	cpy_cqtoqso(row);
+		//}
 	}
 }
 
@@ -261,8 +262,17 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	cqRowCount++;
 
 	// DK7ZT
-	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
-	//add_cq(m);
+/*	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+	add_cq(m);
+
+	message m1{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF R-03"};
+	add_cq(m1);
+	
+	message m2{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+	add_cq(m2);
+	
+	message m3{12, 1, 1, 1, 1, 1, 1000, "PA0PHH M0ZMF KO21"};
+	add_cq(m3); */
 }
 
 
@@ -375,6 +385,25 @@ void gui_ft8::cpy_cqtoqso(int row)
 		lv_table_set_cell_value(qsoTable, qsoRowCount, 3, lv_table_get_cell_value(cqTable, row, 3));
 		qsoRowCount++;
 	}
+}
+
+void gui_ft8::cpy_conversationtoqso()
+{
+	qsoRowCount = 1;
+	lv_table_set_row_cnt(qsoTable, qsoRowCount);
+	for (int row = 1; row < lv_table_get_row_cnt(cqTable); row++)
+	{
+		std::string msg(lv_table_get_cell_value(cqTable, row, 3));
+		if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) != std::string::npos)
+		{
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 0, lv_table_get_cell_value(cqTable, row, 0));
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 1, lv_table_get_cell_value(cqTable, row, 1));
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 2, lv_table_get_cell_value(cqTable, row, 2));
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 3, lv_table_get_cell_value(cqTable, row, 3));
+			qsoRowCount++;
+		}
+	}
+	lv_obj_invalidate(qsoTable);
 }
 
 int gui_ft8::getQsoLogRows(){

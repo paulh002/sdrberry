@@ -222,7 +222,13 @@ void	CVfo::tx_set_sdr_freq()
 long CVfo::get_vfo_offset()
 {
 	unique_lock<mutex> lock(m_vfo_mutex);
-	return vfo_setting.offset[vfo_setting.active_vfo];
+	
+	long offset_freq = vfo_setting.offset[vfo_setting.active_vfo] + vfo_setting.vfo_rit[vfo_setting.active_vfo];
+
+	if (offset_freq > vfo_setting.max_offset || abs(offset_freq) > abs(vfo_setting.min_offset))
+		offset_freq = vfo_setting.offset[vfo_setting.active_vfo];
+	return offset_freq;
+//vfo_setting.offset[vfo_setting.active_vfo];
 }
 
 long CVfo::get_vfo_offset_tx()
@@ -612,7 +618,10 @@ void CVfo::set_step(int step, int delay)
 	m_delay = delay;
 }
 
-void CVfo::setRit(int rit)
+void CVfo::setRit(int rit, int active_vfo)
 {
-	vfo_setting.rit = rit;
+	unique_lock<mutex> lock(m_vfo_mutex);
+	
+	vfo_setting.vfo_rit[active_vfo] = rit;
+	tune_flag = true;
 }

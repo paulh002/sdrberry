@@ -18,7 +18,7 @@ guiSliderWindows::guiSliderWindows(lv_obj_t *parent, void *thisptr, std::string 
 		lv_obj_add_event_cb(btnok, btnokWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_set_size(buttonWindowObj, width, height);
 		lv_obj_align(buttonWindowObj, LV_ALIGN_CENTER, 0, 0);
-		create_rotary_button(buttonWindowObj);
+		create_rotary_button(buttonWindowObj, -20);
 	}
 }
 
@@ -57,12 +57,16 @@ void guiSliderWindows::slider_handler_class(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
+		char buf[20];
+		
 		value = lv_arc_get_value(ui_Arc1);
 		lv_event_send(Parent, event, (void *)(long)value);
+		sprintf(buf, "%d Hz", value);
+		lv_label_set_text(label, buf);
 	}
 }
 
-void guiSliderWindows::create_rotary_button(lv_obj_t *parent)
+void guiSliderWindows::create_rotary_button(lv_obj_t *parent, int dy)
 {
 	lv_obj_t *winAreaObject = lv_win_get_content(buttonWindowObj);
 	lv_obj_update_layout(buttonWindowObj);
@@ -76,7 +80,7 @@ void guiSliderWindows::create_rotary_button(lv_obj_t *parent)
 	lv_obj_set_x(ui_Image1, 0);
 	lv_obj_set_y(ui_Image1, 0);
 
-	lv_obj_align_to(ui_Image1, winAreaObject, LV_ALIGN_CENTER,0,0);
+	lv_obj_align_to(ui_Image1, winAreaObject, LV_ALIGN_CENTER, 0, dy);
 	lv_obj_add_flag(ui_Image1, LV_OBJ_FLAG_ADV_HITTEST); /// Flags
 
 	ui_Arc1 = lv_arc_create(winAreaObject);
@@ -84,7 +88,8 @@ void guiSliderWindows::create_rotary_button(lv_obj_t *parent)
 	lv_obj_set_height(ui_Arc1, 97);
 	lv_obj_set_x(ui_Arc1, 0);
 	lv_obj_set_y(ui_Arc1, 0);
-	lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
+	lv_obj_align_to(ui_Arc1, winAreaObject, LV_ALIGN_CENTER, 0, dy);
+	//lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
 	lv_arc_set_range(ui_Arc1, -500, 500);
 	lv_arc_set_value(ui_Arc1, value);
 	lv_arc_set_bg_angles(ui_Arc1, 129, 51);
@@ -106,4 +111,11 @@ void guiSliderWindows::create_rotary_button(lv_obj_t *parent)
 
 	lv_arc_set_mode(ui_Arc1, LV_ARC_MODE_SYMMETRICAL);
 	lv_obj_add_event_cb(ui_Arc1, slider_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+
+	label = lv_label_create(winAreaObject);
+	lv_obj_align_to(label, ui_Arc1,LV_ALIGN_BOTTOM_MID, 0, 30);
+	
+	char buf[20];
+	sprintf(buf, "%d Hz", value);
+	lv_label_set_text(label, buf);
 }

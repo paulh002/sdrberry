@@ -46,7 +46,8 @@ class gui_ft8
 	void qso_draw_part_event_class(lv_event_t *e);
 	void draw_part_event_class(lv_event_t *e);
 	void cq_press_part_event_class(lv_event_t *e);
-	
+	void cpy_conversationtoqso();
+
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
 	void add_line(int hh, int min, int sec, int snr, int correct_bits, double off, int hz0, std::string msg);

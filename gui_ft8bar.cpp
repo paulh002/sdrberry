@@ -264,7 +264,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				gft8.reset();
 				SetFrequency();
 				select_mode(guift8bar.getrxtxmode());
-				gbar.set_mode(mode_usb);
+				gbar.set_mode(guift8bar.getrxtxmode());
 				setmodeclickable(false);
 				ft8status = ft8status_t::monitor;
 				

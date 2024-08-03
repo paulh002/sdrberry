@@ -801,6 +801,16 @@ void update_filter(int bandwidth)
 }
 
 extern std::chrono::high_resolution_clock::time_point starttime1;
+bool IsDigtalMode()
+{
+	if (mode == mode_ft8)
+		return true;
+	if (mode == mode_ft4)
+		return true;
+	if (mode == mode_wspr)
+		return true;
+	return false;
+}
 
 void select_mode(int s_mode, bool bvfo, int channel)
 {

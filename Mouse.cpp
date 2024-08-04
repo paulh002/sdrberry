@@ -10,7 +10,7 @@ std::chrono::milliseconds double_click_threshold(300);
 Mouse::Mouse()
 {
 	fd = -1;
-	step = 10;
+	step = 1;
 	bstep = false;
 	MouseActivity = false;
 	last_click_time = std::chrono::system_clock::now();
@@ -20,7 +20,7 @@ Mouse::Mouse()
 Mouse::Mouse(int mousefd)
 {
 	fd = mousefd;
-	step = 10;
+	step = 1;
 	bstep = false;
 	MouseActivity = false;
 }
@@ -112,18 +112,6 @@ bool Mouse::GetMouseAttached()
 	return false;
 }
 
-int Mouse::count()
-{
-	read_mouse_event();
-	//if (mouse_event.type > 0)
-	//	printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
-	if (mouse_event.type == EV_REL && mouse_event.code == 11)
-		return mouse_event.value;
-	else
-		return 0;
-}
-
-
 bool Mouse::read_mouse_event()
 {
 	int bytes;
@@ -159,6 +147,15 @@ MouseState Mouse::GetMouseState()
 		bytes = read(fd, (void *)&mouse_event, sizeof(struct input_event));
 		while (bytes > 0)
 		{
+			//printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
+
+			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_MIDDLE && mouse_event.value == 1)
+			{
+					step = step * 10;
+					if (step > 100)
+						step = 1;
+			}
+			
 			if (mouse_event.type == EV_REL && mouse_event.code == REL_WHEEL)
 			{
 				vfo.step_vfo(step * mouse_event.value);
@@ -222,29 +219,4 @@ MouseState Mouse::GetMouseState()
 		}
 	}
 	return state;
-}
-
-void Mouse::step_vfo()
-{
-	int i = count();
-	if (mouse_event.type == EV_KEY && mouse_event.code == 272 && mouse_event.value == 1 && bstep == false & step < 100000)
-	{
-		bstep = true;
-		step = step * 10;
-	}
-	if (mouse_event.type == EV_KEY && mouse_event.code == 272 && mouse_event.value == 0)
-		bstep = false;
-
-	if (mouse_event.type == EV_KEY && mouse_event.code == 273 && mouse_event.value == 1 && bstep == false && step > 1)
-	{
-		bstep = true;
-		step = step / 10;
-	}
-	if (mouse_event.type == EV_KEY && mouse_event.code == 273 && mouse_event.value == 0)
-		bstep = false;
-
-	if (i > 0)
-		vfo.step_vfo(step);
-	if (i < 0)
-		vfo.step_vfo(-1 * step);
 }

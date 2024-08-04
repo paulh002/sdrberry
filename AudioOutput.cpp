@@ -197,7 +197,7 @@ AudioOutput::~AudioOutput()
 bool AudioOutput::write(SampleVector& audiosamples)
 {
 	if (isStreamOpen())
-		databuffer.push(move(audiosamples));
+		databuffer.push(std::move(audiosamples));
 	else
 		audiosamples.clear();
 	return true;

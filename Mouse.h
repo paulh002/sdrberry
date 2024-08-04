@@ -28,9 +28,6 @@ class Mouse
 	void init_mouse();
 	Mouse();
 	Mouse(int mousefd);
-
-	int count();
-	void step_vfo();
 	MouseState GetMouseState();
 	bool GetMouseAttached();
 	

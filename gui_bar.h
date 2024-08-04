@@ -26,7 +26,7 @@ class gui_bar
 	lv_obj_t *label[20]{nullptr};
 	int ibuttons{0};
 	int filter;
-	const int number_of_buttons{8};
+	
 	lv_obj_t *vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
 	lv_obj_t *if_slider_label, *if_slider;
 	const int max_volume{100};

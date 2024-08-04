@@ -5,6 +5,18 @@
 #include "gui_rx.h"
 #include "gui_setup.h"
 #include <memory>
+
+static const int buttontx = 0;
+static const int buttontune = 1;
+static const int buttonmode = 2;
+static const int buttonvfo = 3;
+static const int buttonpreamp = 4;
+static const int buttonatt = 5;
+static const int buttonnoise = 6;
+static const int buttonrit = 7;
+static const int button_filter = 8;
+static const int number_of_buttons{9};
+
 static const char *opts = "0.5 Khz\n"
 						  "1.0 Khz\n"
 						  "1.5 Khz\n"
@@ -22,21 +34,12 @@ std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_ds
 
 gui_bar gbar;
 
-const int button_tune = 0;
-const int button_mode = 1;
-const int button_vfo = 2;
-const int button_preamp = 3;
-const int button_att = 4;
-const int button_noise = 5;
-const int button_rit = 6;
-const int button_filter = 7;
-
 void gui_bar::set_tx(bool tx)
 {
 	if (tx)
-		lv_obj_add_state(button[button_tune], LV_STATE_CHECKED);
+		lv_obj_add_state(button[buttontune], LV_STATE_CHECKED);
 	else
-		lv_obj_clear_state(button[button_tune], LV_STATE_CHECKED);
+		lv_obj_clear_state(button[buttontune], LV_STATE_CHECKED);
 }
 
 void gui_bar::set_mode(int mode)
@@ -68,7 +71,7 @@ void gui_bar::set_mode(int mode)
 		break;
 	}
 	std::string txt = std::string("Mode") + std::string("\n#0fff0f ") + ModesTypes[i] + std::string("#");
-	lv_label_set_text(label[button_mode], txt.c_str());
+	lv_label_set_text(label[buttonmode], txt.c_str());
 }
 
 void gui_bar::bar_button_handler_class(lv_event_t *e)
@@ -83,19 +86,19 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		{
 			attenuatorWindow.reset();
 			attenuatorWindow = nullptr;
-			lv_obj_clear_state(get_button_obj(button_att), LV_STATE_CHECKED);
+			lv_obj_clear_state(get_button_obj(buttonatt), LV_STATE_CHECKED);
 		}
 		if (modeWindow != nullptr)
 		{
 			modeWindow.reset();
 			modeWindow = nullptr;
-			lv_obj_clear_state(get_button_obj(button_mode), LV_STATE_CHECKED);
+			lv_obj_clear_state(get_button_obj(buttonmode), LV_STATE_CHECKED);
 		}
 		if (preampWindow != nullptr)
 		{
 			preampWindow.reset();
 			preampWindow = nullptr;
-			lv_obj_clear_state(get_button_obj(button_preamp), LV_STATE_CHECKED);
+			lv_obj_clear_state(get_button_obj(buttonpreamp), LV_STATE_CHECKED);
 		}
 		if (ritWindow != nullptr)
 		{
@@ -103,13 +106,13 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 			ritWindow = nullptr;
 			if (code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM))
 			{
-				lv_obj_clear_state(get_button_obj(button_rit), LV_STATE_CHECKED);
+				lv_obj_clear_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 				rit_value = 0;
 				vfo.setRit(rit_value, vfo.get_active_vfo());
 			}
 			else
 			{
-				lv_obj_add_state(get_button_obj(button_rit), LV_STATE_CHECKED);
+				lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 			}
 		}
 		return;
@@ -120,9 +123,9 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		modeWindow.reset();
 		modeWindow = nullptr;
 		long i = (long)e->param;
-		lv_obj_clear_state(get_button_obj(button_mode), LV_STATE_CHECKED);
+		lv_obj_clear_state(get_button_obj(buttonmode), LV_STATE_CHECKED);
 		std::string txt = std::string("Mode") + std::string("\n#0fff0f ") + ModesTypes[i] + std::string("#");
-		lv_label_set_text(label[1], txt.c_str());
+		lv_label_set_text(label[buttonmode], txt.c_str());
 		select_mode((int)ModesCodes[i], true);
 		return;
 	}
@@ -137,8 +140,8 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		{
 			txt += std::string("\n#0fff0f ") + preamTypes[i] + std::string("#");
 		}
-		lv_label_set_text(label[button_preamp], txt.c_str());
-		lv_obj_clear_state(get_button_obj(button_preamp), LV_STATE_CHECKED);
+		lv_label_set_text(label[buttonpreamp], txt.c_str());
+		lv_obj_clear_state(get_button_obj(buttonpreamp), LV_STATE_CHECKED);
 		return;
 	}
 
@@ -152,8 +155,8 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		{
 			txt += std::string("\n#0fff0f ") + attnTypes[i] + std::string("#");
 		}
-		lv_label_set_text(label[button_att], txt.c_str());
-		lv_obj_clear_state(get_button_obj(button_att), LV_STATE_CHECKED);
+		lv_label_set_text(label[buttonatt], txt.c_str());
+		lv_obj_clear_state(get_button_obj(buttonatt), LV_STATE_CHECKED);
 		return;
 	}
 
@@ -178,7 +181,23 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 			{
 				switch (i)
 				{
-				case 0:
+				case buttontx:
+					if (!IsDigtalMode())
+					{
+						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+						{
+							if (!select_mode_tx(mode))
+								lv_obj_clear_state(obj, LV_STATE_CHECKED);
+						}
+						else
+							select_mode(mode);
+					}
+					else
+					{
+						lv_obj_clear_state(obj, LV_STATE_CHECKED);
+					}
+					break;
+				case buttontune:
 					if (!IsDigtalMode())
 					{
 						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -194,27 +213,27 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 						lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					}
 					break;
-				case 1:
+				case buttonmode:
 					if (modeWindow == nullptr && !IsDigtalMode())
 					{
 						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModesTypes, ModesMap.at(mode), CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
 					}
 					lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					break;
-				case 2:
+				case buttonvfo:
 					if (!IsDigtalMode())
 					{
 						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						{
 							vfo.set_active_vfo(1);
 							std::string txt = std::string("VFO 2");
-							lv_label_set_text(label[button_vfo], txt.c_str());
+							lv_label_set_text(label[buttonvfo], txt.c_str());
 						}
 						else
 						{
 							vfo.set_active_vfo(0);
 							std::string txt = std::string("VFO 1");
-							lv_label_set_text(label[button_vfo], txt.c_str());
+							lv_label_set_text(label[buttonvfo], txt.c_str());
 						}
 					}
 					else
@@ -222,19 +241,19 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 						lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					}
 					break;
-				case 3:
+				case buttonpreamp:
 					if (preampWindow == nullptr)
 					{
 						preampWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Preamp", preamTypes, -1, CustomEvents::getCustomEvent(LV_EVENT_PREAMP_CLICKED), 300, 150);
 					}
 					break;
-				case 4:
+				case buttonatt:
 					if (attenuatorWindow == nullptr)
 					{
 						attenuatorWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Attenuator", attnTypes, -1, CustomEvents::getCustomEvent(LV_EVENT_ATT_CLICKED), 300, 200);
 					}
 					break;
-				case 5:
+				case buttonnoise:
 					// Noise
 					if (!IsDigtalMode())
 					{
@@ -252,11 +271,11 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 						lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					}
 					break;
-				case 6:
+				case buttonrit:
 					if (ritWindow == nullptr)
 					{
 						ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 200);
-						lv_obj_add_state(get_button_obj(button_rit), LV_STATE_CHECKED);
+						lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 					}
 					break;
 				}
@@ -398,10 +417,9 @@ void gui_bar::set_gain_range()
 
 void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h)
 {
-	const lv_coord_t x_margin_dropdown = 0;
 	const lv_coord_t x_margin = 2;
 	const lv_coord_t y_margin = 2; // 5;
-	const int x_number_buttons = 4;
+	const int x_number_buttons = 5;
 	const int y_number_buttons = 2;
 	const int max_rows = 2;
 	const int slide_max_rows = 3;
@@ -415,6 +433,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	int ibutton_x = 0, ibutton_y = 0;
 	int i = 0;
 	int slider_height_margin = h / slide_max_rows - y_margin;
+	int button_width_dropdown = 2 * button_width;
 
 	ifilters.push_back(500);
 	ifilters.push_back(1000);
@@ -469,48 +488,55 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			label[i] = lv_label_create(button[i]);
 			switch (i)
 			{
-			case 0:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[i], NULL);
+			case buttontx:
+				lv_obj_add_flag(button[buttontx], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[buttontx], NULL);
+				strcpy(str, "TX");
+				if (SdrDevices.get_tx_channels(default_radio) == 0)
+					lv_obj_add_flag(button[buttontx], LV_OBJ_FLAG_HIDDEN);
+				break;
+			case buttontune:
+				lv_obj_add_flag(button[buttontune], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[buttontune], NULL);
 				strcpy(str, "Tune");
 				if (SdrDevices.get_tx_channels(default_radio) == 0)
-					lv_obj_add_flag(button[i], LV_OBJ_FLAG_HIDDEN);
+					lv_obj_add_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
 				break;
-			case 1:
+			case buttonmode:
 				strcpy(str, "Mode");
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[i], bar_button_handler, (lv_event_code_t)LV_EVENT_CUSTOM, (void *)this);
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[i], (void *)mode_usb);
+				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, (lv_event_code_t)LV_EVENT_CUSTOM, (void *)this);
+				lv_obj_add_flag(button[buttonmode], LV_OBJ_FLAG_CHECKABLE);
+				lv_obj_set_user_data(button[buttonmode], (void *)mode_usb);
 				if (mode == mode_usb)
-					lv_obj_add_state(button[i], LV_STATE_CHECKED);
+					lv_obj_add_state(button[buttonmode], LV_STATE_CHECKED);
 				break;
-			case 2:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+			case buttonvfo:
+				lv_obj_add_flag(button[buttonvfo], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "VFO 1");
 				break;
-			case 3:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+			case buttonpreamp:
+				lv_obj_add_flag(button[buttonpreamp], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "PreAmp");
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_PREAMP_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_PREAMP_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
 				break;
-			case 4:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+			case buttonatt:
+				lv_obj_add_flag(button[buttonatt], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "ATT");
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_ATT_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_ATT_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
 				break;
-			case 5:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+			case buttonnoise:
+				lv_obj_add_flag(button[buttonnoise], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "Noise");
 				break;
-			case 6:
-				lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+			case buttonrit:
+				lv_obj_add_flag(button[buttonrit], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "Rit");
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM), (void *)this);
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), (void *)this);
-				lv_obj_add_event_cb(button[i], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), (void *)this);
+				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), (void *)this);
+				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), (void *)this);
 				break;
 			}
 			lv_label_set_recolor(label[i], true);
@@ -523,7 +549,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			button[i] = lv_dropdown_create(o_parent);
 			lv_dropdown_set_options_static(button[i], opts);
 			lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, y_margin + ibutton_y * button_height_margin);
-			lv_obj_set_size(button[i], button_width + x_margin_dropdown, button_height);
+			lv_obj_set_size(button[i], button_width_dropdown, button_height);
 			lv_obj_add_style(button[i], &style_btn, 0);
 			lv_obj_add_event_cb(button[i], filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 			lv_group_add_obj(button_group, button[i]);
@@ -537,7 +563,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 		}
 	}
 
-	int vol_x = x_number_buttons * button_width_margin + 10 + x_margin_dropdown;
+	int vol_x = x_number_buttons * button_width_margin + 10;
 	int vol_width = (w / 3); //	-30;
 	vol_slider_label = lv_label_create(o_parent);
 	lv_label_set_text(vol_slider_label, "vol");
@@ -728,7 +754,7 @@ void gui_bar::set_vol_slider(int volume)
 
 bool gui_bar::get_noise()
 {
-	if (lv_obj_get_state(button[5]) & LV_STATE_CHECKED)
+	if (lv_obj_get_state(button[buttonnoise]) & LV_STATE_CHECKED)
 		return true;
 	return false;
 }
@@ -789,17 +815,17 @@ void gui_bar::set_vfo(int active_vfo)
 {
 	if (active_vfo)
 	{
-		lv_obj_add_state(button[2], LV_STATE_CHECKED);
+		lv_obj_add_state(button[buttonvfo], LV_STATE_CHECKED);
 		vfo.set_active_vfo(1);
 		std::string txt = std::string("VFO 2");
-		lv_label_set_text(label[2], txt.c_str());
+		lv_label_set_text(label[buttonvfo], txt.c_str());
 	}
 	else
 	{
-		lv_obj_clear_state(button[2], LV_STATE_CHECKED);
+		lv_obj_clear_state(button[buttonvfo], LV_STATE_CHECKED);
 		vfo.set_active_vfo(0);
 		std::string txt = std::string("VFO 1");
-		lv_label_set_text(label[2], txt.c_str());
+		lv_label_set_text(label[buttonvfo], txt.c_str());
 	}
 }
 
@@ -861,8 +887,14 @@ void gui_bar::get_gain_range(int &max_gain, int &min_gain)
 void gui_bar::hidetx()
 {
 	if (SdrDevices.get_tx_channels(default_radio) == 0)
-		lv_obj_add_flag(button[0], LV_OBJ_FLAG_HIDDEN);
+	{
+		lv_obj_add_flag(button[buttontx], LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
+	}
 	else
-		lv_obj_clear_flag(button[0], LV_OBJ_FLAG_HIDDEN);
+	{
+		lv_obj_clear_flag(button[buttontx], LV_OBJ_FLAG_HIDDEN);
+		lv_obj_clear_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
+	}
 	return;
 }

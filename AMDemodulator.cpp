@@ -129,7 +129,7 @@ void AMDemodulator::operator()()
 		if (vfo.tune_flag.load())
 		{
 			vfo.tune_flag = false;
-			tune_offset(vfo.get_vfo_offset());
+			tune_offset(vfo.get_vfo_offset(true));
 		}
 
 		if (lowPassAudioFilterCutOffFrequency != get_lowPassAudioFilterCutOffFrequency())

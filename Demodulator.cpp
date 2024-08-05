@@ -210,7 +210,7 @@ void Demodulator::tune_offset(long offset)
 	if (offset)
 	{
 		tuneOffsetFrequency = offset;
-		float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifSampleRate);
+		float rad_per_sample = ((2.0f * (float)M_PI * (float)(tuneOffsetFrequency)) / (float)ifSampleRate);
 		if (tuneNCO == nullptr)
 			tuneNCO = nco_crcf_create(LIQUID_NCO);
 		nco_crcf_set_phase(tuneNCO, 0.0f);

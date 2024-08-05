@@ -120,7 +120,7 @@ class CVfo
 	}
 
 	long long get_tx_frequency();
-	long get_vfo_offset();
+	long get_vfo_offset(bool rit = false);
 	long get_vfo_offset_tx();
 	long get_vfo_absolute_offset();
 	void return_bands(vector<int> &bands);

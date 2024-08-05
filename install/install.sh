@@ -80,7 +80,7 @@ cd $wrkdir || exit
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp || exit
-git checkout v1.6.0
+git switch v1.6.0
 ./bootstrap.sh
 ./configure
 make -j4
@@ -93,7 +93,7 @@ cd $wrkdir || exit
 #build sdrberry
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry || exit
-#git checkout installation-improvement
+#git switch test
 mkdir build
 cd build && cmake .. && make -j4
 sudo make install

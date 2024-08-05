@@ -79,7 +79,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 
-	if (code == CustomEvents::getCustomEvent(LV_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK))
+	if (code == CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK))
 	{
 		if (attenuatorWindow != nullptr)
 		{
@@ -499,7 +499,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			case buttonmode:
 				strcpy(str, "Mode");
 				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, (lv_event_code_t)LV_EVENT_CUSTOM, (void *)this);
+				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
 				lv_obj_add_flag(button[buttonmode], LV_OBJ_FLAG_CHECKABLE);
 				lv_obj_set_user_data(button[buttonmode], NULL);
 				break;
@@ -511,13 +511,13 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				lv_obj_add_flag(button[buttonpreamp], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "PreAmp");
 				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_PREAMP_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
 				break;
 			case buttonatt:
 				lv_obj_add_flag(button[buttonatt], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "ATT");
 				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_ATT_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
 				break;
 			case buttonnoise:
 				lv_obj_add_flag(button[buttonnoise], LV_OBJ_FLAG_CHECKABLE);

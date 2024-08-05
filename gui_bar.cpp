@@ -266,10 +266,13 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					}
 					break;
 				case buttonrit:
-					if (ritWindow == nullptr)
+					if (!IsDigtalMode())
 					{
-						ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 200);
-						lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
+						if (ritWindow == nullptr)
+						{
+							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 200);
+							lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
+						}
 					}
 					break;
 				}

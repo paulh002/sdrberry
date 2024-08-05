@@ -54,6 +54,12 @@ else
    echo "No packages"
 fi
 
+if [[ $3 = "build" ]]; then BUILD='YES'
+   echo "build branch"
+else
+   echo "main branch"
+fi
+
 #if false; then
 sudo apt update
 sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig \
@@ -93,7 +99,9 @@ cd $wrkdir || exit
 #build sdrberry
 git clone https://github.com/paulh002/sdrberry
 cd sdrberry || exit
-#git switch test
+if [[ $BUILD == 'YES' ]]; then
+git switch build
+fi
 mkdir build
 cd build && cmake .. && make -j4
 sudo make install

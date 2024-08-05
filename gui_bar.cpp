@@ -79,7 +79,6 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 
-	int bmode = (long)lv_obj_get_user_data(obj);
 	if (code == CustomEvents::getCustomEvent(LV_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK))
 	{
 		if (attenuatorWindow != nullptr)
@@ -172,11 +171,6 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 
 		for (int i = 0; i < gbar.getbuttons(); i++)
 		{
-			if ((obj != gbar.get_button_obj(i)) && (lv_obj_has_flag(gbar.get_button_obj(i), LV_OBJ_FLAG_CHECKABLE)))
-			{
-				if (bmode)
-					lv_obj_clear_state(gbar.get_button_obj(i), LV_STATE_CHECKED);
-			}
 			if (obj == gbar.get_button_obj(i))
 			{
 				switch (i)
@@ -507,9 +501,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
 				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, (lv_event_code_t)LV_EVENT_CUSTOM, (void *)this);
 				lv_obj_add_flag(button[buttonmode], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[buttonmode], (void *)mode_usb);
-				if (mode == mode_usb)
-					lv_obj_add_state(button[buttonmode], LV_STATE_CHECKED);
+				lv_obj_set_user_data(button[buttonmode], NULL);
 				break;
 			case buttonvfo:
 				lv_obj_add_flag(button[buttonvfo], LV_OBJ_FLAG_CHECKABLE);

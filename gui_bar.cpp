@@ -6,16 +6,16 @@
 #include "gui_setup.h"
 #include <memory>
 
-static const int buttontx = 0;
-static const int buttontune = 1;
-static const int buttonmode = 2;
-static const int buttonvfo = 3;
-static const int buttonpreamp = 4;
-static const int buttonatt = 5;
-static const int buttonnoise = 6;
-static const int buttonrit = 7;
-static const int button_filter = 8;
-static const int number_of_buttons{9};
+const int buttontx = 0;
+const int buttontune = 1;
+const int buttonmode = 2;
+const int buttonvfo = 3;
+const int buttonpreamp = 4;
+const int buttonatt = 5;
+const int buttonnoise = 6;
+const int buttonrit = 7;
+const int button_filter = 8;
+
 
 static const char *opts = "0.5 Khz\n"
 						  "1.0 Khz\n"
@@ -487,14 +487,12 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			{
 			case buttontx:
 				lv_obj_add_flag(button[buttontx], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[buttontx], NULL);
 				strcpy(str, "TX");
 				if (SdrDevices.get_tx_channels(default_radio) == 0)
 					lv_obj_add_flag(button[buttontx], LV_OBJ_FLAG_HIDDEN);
 				break;
 			case buttontune:
 				lv_obj_add_flag(button[buttontune], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[buttontune], NULL);
 				strcpy(str, "Tune");
 				if (SdrDevices.get_tx_channels(default_radio) == 0)
 					lv_obj_add_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
@@ -504,7 +502,6 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
 				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
 				lv_obj_add_flag(button[buttonmode], LV_OBJ_FLAG_CHECKABLE);
-				lv_obj_set_user_data(button[buttonmode], NULL);
 				break;
 			case buttonvfo:
 				lv_obj_add_flag(button[buttonvfo], LV_OBJ_FLAG_CHECKABLE);

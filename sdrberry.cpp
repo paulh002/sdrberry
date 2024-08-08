@@ -142,7 +142,6 @@ auto startTime = std::chrono::high_resolution_clock::now();
 
 SdrDeviceVector SdrDevices;
 std::string default_radio;
-CustomEvents customevents;
 
 static std::string keysRed;
 
@@ -412,7 +411,7 @@ int main(int argc, char *argv[])
 	lv_disp_set_theme(NULL, th);
 	scr = lv_scr_act();
 
-	setup_top_bar(scr);
+	GuiTopBar.setup_top_bar(scr);
 	gui_vfo_inst.gui_vfo_init(scr);
 
 	static lv_style_t background_style;
@@ -515,7 +514,7 @@ int main(int argc, char *argv[])
 		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
 		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
-		lv_label_set_text(label_status, s.c_str());
+		GuiTopBar.set_label_status(s.c_str());
 		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
 			default_tx_channel = -1;
 		else
@@ -611,7 +610,7 @@ int main(int argc, char *argv[])
 		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, tabHeight - buttonHeight, RangeList);
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
-		lv_label_set_text(label_status, "No SDR Device Found");
+		GuiTopBar.set_label_status("No SDR Device Found");
 		gsetup.set_radio(default_radio);
 	}
 
@@ -662,7 +661,7 @@ int main(int argc, char *argv[])
 						  msg.freq,
 						  msg.msg.c_str());
 		}
-		set_time_label();
+		GuiTopBar.set_time_label();
 		while (guiQueue.size() > 0)
 		{
 			GuiMessage msg = guiQueue.front();
@@ -1025,7 +1024,7 @@ void switch_sdrreceiver(std::string receiver)
 		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
 		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
-		lv_label_set_text(label_status, s.c_str());
+		GuiTopBar.set_label_status(s.c_str());
 		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
 			default_tx_channel = -1;
 		else

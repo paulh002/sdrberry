@@ -18,11 +18,11 @@ enum CustomEventsDefinitions
 class CustomEvents
 {
   private:
-	static bool initialized;
-	static std::vector<uint32_t> custom_event;
+	std::vector<uint32_t> custom_event;
 	
   public:
 	CustomEvents();
-	static lv_event_code_t getCustomEvent(int index) { return (lv_event_code_t)custom_event[index]; }
+	lv_event_code_t getCustomEvent(int index) { return (lv_event_code_t)custom_event.at(index); }
 };
 
+extern CustomEvents customLVevents;

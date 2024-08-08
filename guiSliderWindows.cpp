@@ -36,7 +36,7 @@ void guiSliderWindows::btnWindowObj_event_handler_class(lv_event_t *e)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_event_send(Parent, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM), NULL);
+		lv_event_send(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM), NULL);
 	}
 }
 void guiSliderWindows::btnokWindowObj_event_handler_class(lv_event_t *e)
@@ -47,7 +47,7 @@ void guiSliderWindows::btnokWindowObj_event_handler_class(lv_event_t *e)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_event_send(Parent, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), NULL);
+		lv_event_send(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), NULL);
 	}
 }
 

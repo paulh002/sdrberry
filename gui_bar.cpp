@@ -79,7 +79,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 
-	if (code == CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK))
+	if (code == customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK))
 	{
 		if (attenuatorWindow != nullptr)
 		{
@@ -103,7 +103,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		{
 			ritWindow.reset();
 			ritWindow = nullptr;
-			if (code == CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM))
+			if (code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM))
 			{
 				lv_obj_clear_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 				rit_value = 0;
@@ -117,7 +117,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		return;
 	}
 
-	if (code == CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED))
+	if (code == customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED))
 	{
 		modeWindow.reset();
 		modeWindow = nullptr;
@@ -129,7 +129,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		return;
 	}
 
-	if (code == CustomEvents::getCustomEvent(LV_EVENT_PREAMP_CLICKED))
+	if (code == customLVevents.getCustomEvent(LV_EVENT_PREAMP_CLICKED))
 	{
 		preampWindow.reset();
 		preampWindow = nullptr;
@@ -144,7 +144,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		return;
 	}
 
-	if (code == CustomEvents::getCustomEvent(LV_EVENT_ATT_CLICKED))
+	if (code == customLVevents.getCustomEvent(LV_EVENT_ATT_CLICKED))
 	{
 		attenuatorWindow.reset();
 		attenuatorWindow = nullptr;
@@ -159,7 +159,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		return;
 	}
 
-	if (code == CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED))
+	if (code == customLVevents.getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED))
 	{
 		rit_value = (long)e->param;
 		vfo.setRit(rit_value, vfo.get_active_vfo());
@@ -210,7 +210,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 				case buttonmode:
 					if (modeWindow == nullptr && !IsDigtalMode())
 					{
-						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModesTypes, ModesMap.at(mode), CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
+						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModesTypes, ModesMap.at(mode), customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
 					}
 					lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					break;
@@ -238,13 +238,13 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 				case buttonpreamp:
 					if (preampWindow == nullptr)
 					{
-						preampWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Preamp", preamTypes, -1, CustomEvents::getCustomEvent(LV_EVENT_PREAMP_CLICKED), 300, 150);
+						preampWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Preamp", preamTypes, -1, customLVevents.getCustomEvent(LV_EVENT_PREAMP_CLICKED), 300, 150);
 					}
 					break;
 				case buttonatt:
 					if (attenuatorWindow == nullptr)
 					{
-						attenuatorWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Attenuator", attnTypes, -1, CustomEvents::getCustomEvent(LV_EVENT_ATT_CLICKED), 300, 200);
+						attenuatorWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Attenuator", attnTypes, -1, customLVevents.getCustomEvent(LV_EVENT_ATT_CLICKED), 300, 200);
 					}
 					break;
 				case buttonnoise:
@@ -270,7 +270,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					{
 						if (ritWindow == nullptr)
 						{
-							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 200);
+							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, customLVevents.getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 200);
 							lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 						}
 					}
@@ -499,8 +499,8 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				break;
 			case buttonmode:
 				strcpy(str, "Mode");
-				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[buttonmode], bar_button_handler, customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
 				lv_obj_add_flag(button[buttonmode], LV_OBJ_FLAG_CHECKABLE);
 				break;
 			case buttonvfo:
@@ -510,14 +510,14 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			case buttonpreamp:
 				lv_obj_add_flag(button[buttonpreamp], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "PreAmp");
-				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_PREAMP_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_PREAMP_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
 				break;
 			case buttonatt:
 				lv_obj_add_flag(button[buttonatt], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "ATT");
-				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_ATT_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, CustomEvents::getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_ATT_CLICKED), (void *)this);
+				lv_obj_add_event_cb(button[buttonatt], bar_button_handler, customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
 				break;
 			case buttonnoise:
 				lv_obj_add_flag(button[buttonnoise], LV_OBJ_FLAG_CHECKABLE);
@@ -526,9 +526,9 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 			case buttonrit:
 				lv_obj_add_flag(button[buttonrit], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "Rit");
-				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM), (void *)this);
-				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, CustomEvents::getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), (void *)this);
-				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, CustomEvents::getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), (void *)this);
+				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), (void *)this);
+				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), (void *)this);
 				break;
 			}
 			lv_label_set_recolor(label[i], true);

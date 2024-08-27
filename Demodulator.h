@@ -12,6 +12,9 @@
 #include "Agc_class.h"
 #include "DataBuffer.h"
 #include "SharedQueue.h"
+#include "NoiseFilter.h"
+
+extern atomic<double> correlationMeasurement, errorMeasurement;
 
 enum mode_enum
 {
@@ -31,22 +34,22 @@ enum mode_enum
 class Demodulator
 {
   public:
-	static void setLowPassAudioFilterCutOffFrequency(int band_width);
+	static void set_dc_filter(bool state);
+	static void set_autocorrection(bool state);
+	static void set_noise_filter(int noise);
+	static void set_noise_threshold(int threshold);
+	static float get_threshold() { return noiseThresshold; }
 
-	//std::thread demod_thread;
-	//atomic<bool> stop_flag{false};
-	
-	//static void destroy_demodulator();
-	//static bool create_demodulator(int mode, double ifrate, int pcmrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-	
-	
+	void setLowPassAudioFilterCutOffFrequency(int band_width);
+
   protected:
 	~Demodulator();
 	Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	Demodulator(double ifrate,  DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	Demodulator(AudioOutput *audio_output, AudioInput *audio_input);
 	void mono_to_left_right(const SampleVector &samples_mono, SampleVector &audio);
-	void adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
+
+	void gain_phasecorrection(IQSampleVector &samples_in, float vol);
 	void adjust_calibration(IQSampleVector &samples_in);
 	void tune_offset(long offset);
 	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
@@ -57,17 +60,17 @@ class Demodulator
 	void mix_down(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void mix_up(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void calc_if_level(const IQSampleVector &samples_in);
+	void calc_signal_level(const IQSampleVector& samples_in);
 	double get_if_level() { return ifEnergy.getEnergyLevel(); }
 	double get_af_level() { return afEnergy.getEnergyLevel(); }
 	double get_if_levelI() { return ifEnergy.getEnergyLevelI(); }
 	double get_if_levelQ() { return ifEnergy.getEnergyLevelQ(); }
+	double get_if_Correlation() { return ifEnergy.getEnergyCorrelation();}
+	double get_if_CorrelationNorm() { return ifEnergy.getEnergyCorrelationNorm(); }
+	double get_signal_level() { return SignalStrength.getEnergyLevel(); }
 	void set_signal_strength();
-	void set_fft_mixer(float offset);
-	void setLowPassAudioFilter(float samplerate, float band_width);
-	void fft_mix(int dir, const IQSampleVector &filter_in, IQSampleVector &filter_out);
-	void set_fft_resample_rate(float resample_rate);
-	void fft_resample(const IQSampleVector &filter_in, IQSampleVector &filter_out);
-	void set_span(int span);
+	void setLowPassAudioFilter(float samplerate, int band_width);
+	void set_span(long span);
 	void perform_fft(const IQSampleVector &iqsamples);
 	void calc_af_level(const SampleVector &samples_in);
 	void setBandPassFilter(float high, float mid_high, float mid_low, float low);
@@ -84,19 +87,23 @@ class Demodulator
 	int audioSampleRate;
 	DataBuffer<IQSample> *transmitIQBuffer{nullptr};
 	AudioInput *audioInputBuffer{nullptr};
-	int m_span{0};
+	long m_span{0L};
+	void adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
+	void auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol);
+	void FlashGainSlider(float envelope);
+	float getSuppression();
+	int get_noise() { return noisefilter.load(); }
+	void NoiseFilterProcess(IQSampleVector &filter_in, IQSampleVector &filter_out);
 
   private:
-	EnergyCalculator ifEnergy, afEnergy;
+	EnergyCalculator ifEnergy, afEnergy, SignalStrength;
 	mode_enum rxTxMode;
 	nco_crcf tuneNCO{nullptr};
 	msresamp_crcf resampleHandle{nullptr};
 	long tuneOffsetFrequency;
 	float resampleRate;
-	float fftResampleRate;
-	msresamp_crcf fftResampleHandle{nullptr};
-	nco_crcf fftNCOHandle{nullptr};
 	int audioBufferSize;
+	int highfftquadrant;
 
 	iirfilt_crcf lowPassAudioFilterHandle{nullptr};
 	
@@ -105,7 +112,10 @@ class Demodulator
 	iirfilt_crcf highPassHandle{nullptr};
 	firfilt_crcf dcBlockHandle{nullptr};
 
+	static atomic<bool> dcBlockSwitch;
+	static atomic<bool> autocorrection;
 	const int lowPassFilterOrder = 6;
+	
 	
 	const liquid_iirdes_filtertype butterwurthType{LIQUID_IIRDES_BUTTER};
 	const liquid_iirdes_bandtype bandFilterType{LIQUID_IIRDES_BANDPASS};
@@ -117,7 +127,10 @@ class Demodulator
 	float passBandRipple;
 	float StopBandAttenuation;
 
-	static atomic<int> lowPassAudioFilterCutOffFrequency;
+	std::atomic<int> lowPassAudioFilterCutOffFrequency;
+	static std::atomic<int> noisefilter;
+	static std::atomic<float> noiseThresshold;
 
 	bool adjustPhaseGain;
+	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 };

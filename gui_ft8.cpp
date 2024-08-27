@@ -1,6 +1,6 @@
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
-
+#include "table.h"
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -33,11 +33,12 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
 	{
 		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, 2);
-		
-		if (qsoRowCount == 1)
-		{
-			cpy_cqtoqso(row);
-		}
+		cpy_conversationtoqso();
+		// copy conversation to qso pane
+		//if (qsoRowCount == 1)
+		//{
+		//	cpy_cqtoqso(row);
+		//}
 	}
 }
 
@@ -68,6 +69,8 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 		clr_cq();
 		cpy_qso(row);
 		QsoScrollLatestItem();
+		//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+		//add_cq(m);
 	}
 }
 
@@ -148,6 +151,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	int button_height_margin = button_height + y_margin;
 	int ibutton_x = 0, ibutton_y = 0;
 
+	tableviewsize = Settings_file.get_int("wsjtx", "tableviewsize", 50);
 	lv_style_init(&ft8_style);
 	lv_style_set_radius(&ft8_style, 0);
 	lv_style_set_bg_color(&ft8_style, lv_color_black());
@@ -195,7 +199,6 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_col_width(table, 2, w/12);
 	lv_table_set_cell_value(table, 0, 3, "Message");
 	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12) - 10);
-	m_cycle_count++;
 
 	qsoTable = lv_table_create(o_tab);
 	lv_obj_add_event_cb(qsoTable, qso_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
@@ -259,24 +262,31 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	cqRowCount++;
 
 	// DK7ZT
-	//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
-	//add_cq(m);
+/*	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+	add_cq(m);
+
+	message m1{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF R-03"};
+	add_cq(m1);
+	
+	message m2{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+	add_cq(m2);
+	
+	message m3{12, 1, 1, 1, 1, 1, 1000, "PA0PHH M0ZMF KO21"};
+	add_cq(m3); */
 }
+
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,int hz0, string msg)
 {
 	char str[128];
 	
-	//unique_lock<mutex> gui_lock(gui_mutex);
-	if (bclear)
+	if (lv_table_get_row_cnt(table) > tableviewsize)
 	{
-		lv_table_set_row_cnt(table, 1);
-		ScrollFirstItem();
-		m_cycle_count = 1;
-		bclear = false;
+		lv_table_remove_rows(table, 1, 1);
 	}
 
-	if (msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0)
+	if ((msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0) ||
+		(msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) == std::string::npos))
 	{
 		message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 		add_cq(m);
@@ -285,7 +295,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	{
 		if (guift8bar.GetFilter().length() > 0)
 		{
-			if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) && msg.find("CQ") == std::string::npos)
+			if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ") == std::string::npos)
 			{
 				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 				add_qso(m);
@@ -299,18 +309,15 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		}
 	}
 
+	int row = lv_table_get_row_cnt(table);
 	sprintf(str,"%02d:%02d:%02d", hh, min, sec);
-	lv_table_set_cell_value(table, m_cycle_count, 0, str);
-
+	lv_table_set_cell_value(table, row, 0, str);
 	sprintf(str,"%3d",snr);
-	lv_table_set_cell_value(table, m_cycle_count, 1, str);
-
+	lv_table_set_cell_value(table, row, 1, str);
 	sprintf(str, "%6d", hz0);
-	lv_table_set_cell_value(table, m_cycle_count, 2, str);
-
-	lv_table_set_cell_value(table, m_cycle_count, 3, msg.c_str());
-
-	m_cycle_count++;
+	lv_table_set_cell_value(table, row, 2, str);
+	lv_table_set_cell_value(table, row, 3, msg.c_str());
+	ScrollLatestItem();
 }
 
 void gui_ft8::add_qso(struct message msg)
@@ -380,6 +387,25 @@ void gui_ft8::cpy_cqtoqso(int row)
 	}
 }
 
+void gui_ft8::cpy_conversationtoqso()
+{
+	qsoRowCount = 1;
+	lv_table_set_row_cnt(qsoTable, qsoRowCount);
+	for (int row = 1; row < lv_table_get_row_cnt(cqTable); row++)
+	{
+		std::string msg(lv_table_get_cell_value(cqTable, row, 3));
+		if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) != std::string::npos)
+		{
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 0, lv_table_get_cell_value(cqTable, row, 0));
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 1, lv_table_get_cell_value(cqTable, row, 1));
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 2, lv_table_get_cell_value(cqTable, row, 2));
+			lv_table_set_cell_value(qsoTable, qsoRowCount, 3, lv_table_get_cell_value(cqTable, row, 3));
+			qsoRowCount++;
+		}
+	}
+	lv_obj_invalidate(qsoTable);
+}
+
 int gui_ft8::getQsoLogRows(){
 	return lv_table_get_row_cnt(qsoTable);
 }
@@ -408,15 +434,43 @@ void gui_ft8::clr_qso()
 
 void gui_ft8::clr_cq()
 {
-	lv_table_set_row_cnt(cqTable, 1);
-	CqScrollFirstItem();
-	lv_obj_invalidate(table);
-	cqRowCount = 1;
-}
-
-void gui_ft8::clear()
-{
-	bclear = true;
+	if (guift8bar.GetFilter().size() == 0)
+	{
+		lv_table_set_row_cnt(cqTable, 1);
+		CqScrollFirstItem();
+		lv_obj_invalidate(table);
+		cqRowCount = 1;
+	}
+	else
+	{
+		std::vector<std::string> r1, r2, r3, r4;
+		for (int row = 1; row < cqRowCount; row++)
+		{
+			std::string rr1(lv_table_get_cell_value(cqTable, row, 0));
+			std::string rr2(lv_table_get_cell_value(cqTable, row, 1));
+			std::string rr3(lv_table_get_cell_value(cqTable, row, 2));
+			std::string rr4(lv_table_get_cell_value(cqTable, row, 3));
+			if (rr4.find(guift8bar.GetFilter()) == std::string::npos)
+			{
+				r1.push_back(rr1);
+				r2.push_back(rr2);
+				r3.push_back(rr3);
+				r4.push_back(rr4);
+			}
+		}
+		lv_table_set_row_cnt(cqTable, 1);
+		cqRowCount = 1;
+		for (int row = 0; row < r1.size(); row++)
+		{
+			lv_table_set_cell_value(cqTable, cqRowCount, 0, r1.at(row).c_str());
+			lv_table_set_cell_value(cqTable, cqRowCount, 1, r2.at(row).c_str());
+			lv_table_set_cell_value(cqTable, cqRowCount, 2, r3.at(row).c_str());
+			lv_table_set_cell_value(cqTable, cqRowCount, 3, r4.at(row).c_str());
+			cqRowCount++;
+		}
+		CqScrollFirstItem();
+		lv_obj_invalidate(table);
+	}
 }
 
 void gui_ft8::set_group()
@@ -427,8 +481,6 @@ void gui_ft8::set_group()
 void gui_ft8::reset()
 {
 	lv_table_set_row_cnt(table, 1);
-	m_cycle_count = 1;
-	bclear = true;
 }
 
 void gui_ft8::ScrollLatestItem()

@@ -7,7 +7,7 @@ void FreeDVTab::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 {
 	float resampleRate = 4000.0 / (float)audio_output->get_samplerate();
 	int waterfallfloor = Settings_file.get_int("FreeDV", "Waterfallfloor", 60);
-	waterfall = std::make_unique<Waterfall>(scr, x, y, w / 2, h, resampleRate, waterfallfloor);
+	waterfall = std::make_unique<Waterfall>(scr, x, y, w / 2, h, resampleRate);
 }
 
 void FreeDVTab::DrawWaterfall()

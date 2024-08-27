@@ -11,7 +11,7 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"CAT", {{"USB", cfg::makeOption("/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0")}}},
 	{"samplerate", {{"radioberry", cfg::makeOption(384)}, {"plutosdr", cfg::makeOption(1000)}, {"rtlsdr", cfg::makeOption(1000)}, {"sdrplay", cfg::makeOption(1000)}}},
 	{"samplerate_tx", {{"radioberry", cfg::makeOption(384)}}},
-	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"volume", cfg::makeOption(50)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}, {"if-gain", cfg::makeOption(30)}, {"noise", cfg::makeOption(4)}, {"noisefloor", cfg::makeOption(30)}, {"waterfallsize", cfg::makeOption(3)}}},
+	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"volume", cfg::makeOption(50)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}, {"if-gain", cfg::makeOption(30)}, {"noise", cfg::makeOption(4)}, {"noisefloor", cfg::makeOption(30)}, {"waterfallsize", cfg::makeOption(3)}, {"s-meter-offset", cfg::makeOption(100)}}},
 	{"radioberry", {{"gain", cfg::makeOption(10)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("48")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"correction_tx", cfg::makeOption(0)}, {"correction_rx", cfg::makeOption(0)}, {"buffersize", cfg::makeOption(504)}}},
 	{"hifiberry", {{"gain", cfg::makeOption(0)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("192")}, {"samplerate_tx", cfg::makeOption("192")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"correction", cfg::makeOption(0)}, {"dc", cfg::makeOption(1)}}},
 	{"sdrplay", {{"gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
@@ -23,7 +23,7 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"Audio", {{"device", cfg::makeOption("USB Audio Device")}}},
 	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}},
 	{"Speech", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(12)}, {"threshold", cfg::makeOption(0)}, {"bass", cfg::makeOption(0)}, {"treble", cfg::makeOption(0)}}},
-	{"wsjtx", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}, {"tx", cfg::makeOption("1200")}, {"rx", cfg::makeOption("1200")}}}
+	{"wsjtx", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}, {"tx", cfg::makeOption("1200")}, {"rx", cfg::makeOption("1200")}, {"tableviewsize", cfg::makeOption("50")}}}
 };
 
 
@@ -210,16 +210,7 @@ void Settings::read_settings(string settings_file)
 		//cout << "Option name: " << option.first << endl;
 		probes.insert(pair<string, string>(option.first, option.second));
 	}
-	for (auto& option : config->getSection("VFO1"))
-	{
-		//cout << "Option name: " << option.first << endl;
-		vfo1.insert(pair<string, string>(option.first, option.second));
-	}
-	for (auto& option : config->getSection("VFO2"))
-	{
-		//cout << "Option name: " << option.first << endl;
-		vfo2.insert(pair<string, string>(option.first, option.second));
-	}
+
 	for (auto& option : config->getSection("Audio"))
 	{
 		//cout << "Option name: " << option.first << endl;
@@ -323,39 +314,6 @@ string Settings::find_probe(string key)
 		return string("");
 }
 
-long long Settings::find_vfo1_freq(string key)
-{
-	if (vfo1.find(key) != vfo1.end())
-	{
-		auto s = vfo1.find(key);
-		return strtoll((const char *)s->second.c_str(),NULL,0);
-	}
-	else 
-		return 0LL;
-}
-
-string Settings::find_vfo1(string key)
-{
-	if (vfo1.find(key) != vfo1.end())
-	{
-		auto s = vfo1.find(key);
-		return string((char *)s->second.c_str());
-	}
-	else 
-		return string("");
-}
-
-string Settings::find_vfo2(string key)
-{
-	if (vfo2.find(key) != vfo2.end())
-	{
-		auto s = vfo2.find(key);
-		return string((char *)s->second.c_str());
-	}
-	else 
-		return string("");
-}
-
 int Settings::volume()
 {
 	if (radio.find("volume") != radio.end())
@@ -417,28 +375,6 @@ void Settings::set_gain(int gain)
 		return;
 }
 
-int Settings::micgain()
-{
-	if (radio.find("micgain") != radio.end())
-	{
-		auto s = radio.find("micgain");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-void Settings::set_micgain(int gain)
-{
-	if (radio.find("micgain") != radio.end())
-	{
-		auto s = radio.find("micgain");
-		s->second = to_string(gain);
-		return;
-	}
-	else 
-		return;
-}
 
 int Settings::drive()
 {
@@ -617,15 +553,25 @@ void Settings::save_span(int span)
 
 // New functions
 
-int Settings::get_int(string sdrdevice, string key, int defaultValue)
+int Settings::get_int(string section, string key, int defaultValue)
 {
-	auto option = config->getSection(sdrdevice);
+	auto option = config->getSection(section);
 	auto s = option.find(key);
 	if (s == option.end())
 		return defaultValue;
 	string st = s->second;
 	int value = atoi((const char *)st.c_str());
 	return value;
+}
+
+long long Settings::get_longlong(string section, string key, long defaultValue)
+{
+	auto option = config->getSection(section);
+	auto s = option.find(key);
+	if (s == option.end())
+		return defaultValue;
+	string st = s->second;
+	return strtoll((const char *)st.c_str(), NULL, 0);
 }
 
 void Settings::save_int(string section, string key, int value)

@@ -1,4 +1,8 @@
 #include "gui_ft8bar.h"
+#include "gui_setup.h"
+#include "gui_ft8.h"
+#include "gui_tx.h"
+#include "gui_bar.h"
 #include "wsjtx_lib.h"
 #include "vfo.h"
 #include "Modes.h"
@@ -11,6 +15,7 @@ extern const int tunerHeight;
 extern const int barHeight;
 extern int barHeightft8;
 extern unique_ptr<wsjtx_lib> wsjtx;
+
 
 
 /*R"(
@@ -59,9 +64,9 @@ void gui_ft8bar::WaterfallReset()
 	waterfall->SetMaxMin(50.0, 0);
 }
 
-void gui_ft8bar::DrawWaterfall()
+void gui_ft8bar::DrawWaterfall(int noisefloor)
 {
-	waterfall->Draw();
+	waterfall->Draw((float)noisefloor);
 }
 
 void gui_ft8bar::setmonitor(bool mon)
@@ -164,6 +169,8 @@ void gui_ft8bar::SetFrequency()
 	
 	int selection = lv_dropdown_get_selected(frequence);
 	int modeselection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
+	gbar.set_vfo(0);
+	Gui_tx.set_split(false);
 
 	switch (modeselection)
 	{
@@ -254,11 +261,13 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 		case 0:
 			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
+				gft8.reset();
 				SetFrequency();
 				select_mode(guift8bar.getrxtxmode());
-				gbar.set_mode(mode_usb);
+				gbar.set_mode(guift8bar.getrxtxmode());
 				setmodeclickable(false);
 				ft8status = ft8status_t::monitor;
+				
 			}
 			else
 			{
@@ -272,13 +281,18 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 			// log
 			{
 				std::ofstream outfile;
-
+				std::string  buf;
+				
 				ft8status = ft8status_t::monitor;
 				outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
 				if (!outfile.fail())
 				{
 					auto today = date::year_month_weekday{ date::floor<date::days>(std::chrono::high_resolution_clock::now()) };
 					outfile << today << ",";
+					buf.resize(20);
+					lv_dropdown_get_selected_str(frequence, (char *)buf.c_str(), 20);
+					buf.resize(strlen(buf.c_str()));
+					outfile << buf << ",";
 					int rows = gft8.getQsoLogRows();
 					for (int i = 0; i < rows; i++)
 					{
@@ -327,18 +341,24 @@ void gui_ft8bar::ClearMessage()
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	messageToSend = 1;
-	SetTxMessage();
-	SetFilter("");
 	gft8.clr_qso();
 	gft8.clr_cq();
+	SetTxMessage();
+	SetFilter("");
 }
 
 void gui_ft8bar::setmodeclickable(bool clickable)
 {
 	if (clickable)
+	{
 		lv_obj_add_flag(wsjtxmode, LV_OBJ_FLAG_CLICKABLE);
+		lv_obj_add_flag(frequence, LV_OBJ_FLAG_CLICKABLE);
+	}
 	else
+	{
 		lv_obj_clear_flag(wsjtxmode, LV_OBJ_FLAG_CLICKABLE);
+		lv_obj_clear_flag(frequence, LV_OBJ_FLAG_CLICKABLE);
+	}
 }
 
 void gui_ft8bar::SetTxMessage(std::string msg)
@@ -403,12 +423,12 @@ static void message_part_event_cb(lv_event_t *e)
 	}
 }
 
-static void freq_event_handler(lv_event_t *e)
+void gui_ft8bar::freq_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		guift8bar.SetFrequency();
+		SetFrequency();
 	}
 }
 
@@ -570,7 +590,10 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
 	{
 		char str[80];
-		sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
+		long khz = *it / 1000;
+		int hhz = (*it - (*it / 1000) * 1000) / 100;
+
+		sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));
 		lv_dropdown_add_option(frequence, str, LV_DROPDOWN_POS_LAST);
 	}
 	ibutton_x++;
@@ -674,10 +697,9 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	
-	float bandwidth = Settings_file.get_int("wsjtx", "bandwidth", 4500);
-	int waterfallfloor = Settings_file.get_int("wsjtx", "waterfallfloor", 60);
+	float bandwidth = Settings_file.get_int("wsjtx", "bandwidth", 4000);
 	float resampleRate = bandwidth / ft8_rate;
-	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, waterfallfloor, down, allparts);
+	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, down, lowerpart);
 }
 
 void gui_ft8bar::hide(bool hide)

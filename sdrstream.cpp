@@ -19,6 +19,9 @@
 #include "SdrDevice.h"
 #include "DataBuffer.h"
 #include "sdrberry.h"
+#include "gui_bar.h"
+#include "gui_tx.h"
+#include "gui_setup.h"
 
 std::atomic<double> rx_sampleRate{0.0};
 std::atomic<double> tx_sampleRate{0};
@@ -239,8 +242,6 @@ void TX_Stream::operator()()
 	IQSampleVector			iqsamples;
 	SoapySDR::Stream		*tx_stream;
 	int ret;
-	
-	//unique_lock<mutex> lock_rx(rxstream_mutex);
 	
 	try
 	{

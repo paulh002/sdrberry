@@ -27,7 +27,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <GNUConfigurationType>Debug</GNUConfigurationType>
-    <RemoteBuildHost>192.168.88.67</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.62</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -42,7 +42,7 @@
     <GNUToolchainPrefix />
     <GNUCompilerType>GCC</GNUCompilerType>
     <RemoteBuildTool>Ninja</RemoteBuildTool>
-    <RemoteBuildHost>192.168.88.67</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.62</RemoteBuildHost>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
@@ -60,14 +60,14 @@
       <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;pthread;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
-      <AdditionalOptions />
+      <AdditionalOptions>-z execstack </AdditionalOptions>
       <VerboseMode>false</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/eigen3;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
@@ -76,13 +76,14 @@
       <WarnOnUnusedParameters>Disabled</WarnOnUnusedParameters>
       <WarnOnUnusedVariables>Disabled</WarnOnUnusedVariables>
       <WarnOnMismatchingInitializationOrder>Disabled</WarnOnMismatchingInitializationOrder>
+      <LinkTimeOptimization>false</LinkTimeOptimization>
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
-      <AdditionalOptions />
+      <AdditionalOptions>-z execstack </AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -93,8 +94,10 @@
     <ClCompile Include="BandFilter.cpp" />
     <ClCompile Include="BandPassFilter.cpp" />
     <ClCompile Include="Catinterface.cpp" />
+    <ClCompile Include="cmeter.cpp" />
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
+    <ClCompile Include="CustomEvents.cpp" />
     <ClCompile Include="Demodulator.cpp" />
     <ClCompile Include="DigitalTransmission.cpp" />
     <ClCompile Include="EchoAudio.cpp" />
@@ -112,10 +115,13 @@
     <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="FT8Demodulator.cpp" />
     <ClCompile Include="FT8Processor.cpp" />
+    <ClCompile Include="guiButtonWindows.cpp" />
     <ClCompile Include="GuiFt8Setting.cpp" />
+    <ClCompile Include="guiSliderWindows.cpp" />
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
+    <ClCompile Include="gui_bottom_bar.cpp" />
     <ClCompile Include="gui_cal.cpp" />
     <ClCompile Include="gui_ft8.cpp" />
     <ClCompile Include="gui_ft8bar.cpp" />
@@ -157,8 +163,11 @@
     <ClCompile Include="MorseDecoder.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="mouse_cursor_icon.c" />
+    <ClCompile Include="NoiseFilter.cpp" />
     <ClCompile Include="PCF8574.cpp" />
+    <ClCompile Include="PeakFinder.cpp" />
     <ClCompile Include="PeakLevelDetector.cpp" />
+    <ClCompile Include="PeakMeasurement.cpp" />
     <ClCompile Include="RtAudio.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
@@ -168,7 +177,9 @@
     <ClCompile Include="SpectralNoiseReduction.cpp" />
     <ClCompile Include="Spectrum.cpp" />
     <ClCompile Include="strlib.cpp" />
+    <ClCompile Include="table.cpp" />
     <ClCompile Include="TCA9548.cpp" />
+    <ClCompile Include="ui_img_btn_knob_png.c" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
     <ClCompile Include="wave.cpp" />
@@ -184,12 +195,15 @@
     <ClInclude Include="BandPassFilter.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="Catinterface.h" />
+    <ClInclude Include="cmeter.h" />
     <ClInclude Include="configfile.h" />
     <ClInclude Include="configoption.h" />
+    <ClInclude Include="CustomEvents.h" />
     <ClInclude Include="DataBuffer.h" />
     <ClInclude Include="date.h" />
     <ClInclude Include="Demodulator.h" />
     <ClInclude Include="DigitalTransmission.h" />
+    <ClInclude Include="DouglasPeucker.h" />
     <ClInclude Include="EchoAudio.h" />
     <ClInclude Include="EnergyCalculator.h" />
     <ClInclude Include="FastFourier.h" />
@@ -202,10 +216,13 @@
     <ClInclude Include="FT8Demodulator.h" />
     <ClInclude Include="FT8Generator.h" />
     <ClInclude Include="FT8Processor.h" />
+    <ClInclude Include="guiButtonWindows.h" />
     <ClInclude Include="GuiFt8Setting.h" />
+    <ClInclude Include="guiSliderWindows.h" />
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />
     <ClInclude Include="gui_bar.h" />
+    <ClInclude Include="gui_bottom_bar.h" />
     <ClInclude Include="gui_cal.h" />
     <ClInclude Include="gui_ft8.h" />
     <ClInclude Include="gui_ft8bar.h" />
@@ -252,8 +269,11 @@
     <ClInclude Include="Modes.h" />
     <ClInclude Include="MorseDecoder.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="NoiseFilter.h" />
     <ClInclude Include="PCF8574.h" />
+    <ClInclude Include="PeakFinder.h" />
     <ClInclude Include="PeakLevelDetector.h" />
+    <ClInclude Include="PeakMeasurement.h" />
     <ClInclude Include="quick_arg_parser.hpp" />
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />
@@ -283,6 +303,7 @@
     <ClInclude Include="Spectrum.h" />
     <ClInclude Include="StartTx.h" />
     <ClInclude Include="strlib.h" />
+    <ClInclude Include="table.h" />
     <ClInclude Include="TCA9548.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="Waterfall.h" />

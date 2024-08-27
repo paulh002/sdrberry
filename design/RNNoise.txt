@@ -1,0 +1,18 @@
+extern "C" {
+    #include "rnnoise.h"
+}
+
+int main() {
+    DenoiseState *st = rnnoise_create(NULL);
+    float x[FRAME_SIZE];
+    // Fill x with your audio data
+    rnnoise_process_frame(st, x, x);
+    rnnoise_destroy(st);
+    return 0;
+}
+
+
+add_subdirectory(rnnoise)
+target_link_libraries(your_project_name rnnoise)
+
+git clone https://github.com/xiph/rnnoise.git

@@ -5,7 +5,7 @@
 #include "gui_speech.h"
 #include <chrono>
 #include "date.h"
-
+#include "sdrstream.h"
 
 extern DataBuffer<IQSample> source_buffer_rx;
 extern DataBuffer<IQSample> source_buffer_tx;

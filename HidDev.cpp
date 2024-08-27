@@ -1,5 +1,10 @@
 #include "HidDev.h"
 #include "gui_setup.h"
+#include "gui_bar.h"
+#include "gui_rx.h"
+#include "vfo.h"
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /* Jabra Vendor Id */
 #define JABRA_VID ((__u16)0x0B0E)

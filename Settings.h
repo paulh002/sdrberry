@@ -23,17 +23,13 @@ class Settings
 	string find_probe(string key);
 	string find_sdr(string key);
 	long long find_vfo1_freq(string key);
-	string find_vfo1(string key);
-	string find_vfo2(string key);
 	int volume();
 	int gain();
 	int txgain();
-	int micgain();
 	int drive();
 	int getagc(string key);
 	int getspeech(string key);
 	void set_drive(int drive);
-	void set_micgain(int gain);
 	void set_txgain(int gain);
 	void set_gain(int gain);
 	string find_input(string key);
@@ -52,7 +48,8 @@ class Settings
 	void save_span(int span);
 	int if_gain(string sdrdevice);
 	int gain(string sdrdevice);
-	int get_int(string sdrdevice, string key, int defaultValue = 0);
+	int get_int(string section, string key, int defaultValue = 0);
+	long long get_longlong(string section, string key, long defaultValue = 0L);
 	string get_string(string sdrdevice, string key);
 	void save_int(string section, string key, int value);
 	void save_string(string section, string key, string value);
@@ -79,8 +76,6 @@ class Settings
 	map<string, string> sdr;
 	map<string, string> radio;
 	map<string, string> probes;
-	map<string, string> vfo1;
-	map<string, string> vfo2;
 	map<string, string> audio;
 	map<string, string> input_dev;
 	map<string, string> cat;

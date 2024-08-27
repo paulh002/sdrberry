@@ -16,6 +16,10 @@ arecord -V stereo -r 192000 -c 2 /dev/null
 Recording WAVE '/dev/null' : Signed 16 bit Little Endian, Rate 16000 Hz, Stereo
 +################# 52%|68%#######################+
 
+
+arecord -D hw:CARD=sndrpihifiberry,DEV=0 -f S32_LE -V stereo -r 192000 -c 2 /dev/null
+
+
 // generate tone
 ffplay -ar 192000 -f lavfi -i "sine=frequency=1000" -nodisp
 

@@ -1,5 +1,8 @@
+#include "Gui_band.h"
 #include "vfo.h"
+#include "gui_bar.h"
 #include "BandFilter.h"
+#include "Catinterface.h"
 
 Gui_band	gui_band_instance;
 

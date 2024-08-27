@@ -1,6 +1,8 @@
 #pragma once
-
+#include "AudioInput.h"
+#include "AudioOutput.h"
 #include <complex>
+#include <thread>
 #include <semaphore.h>
 #include "vfo.h"
 #include "DataBuffer.h"

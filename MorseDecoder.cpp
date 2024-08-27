@@ -1,5 +1,6 @@
 #include "MorseDecoder.h"
 #include "gui_bar.h"
+#include "SharedQueue.h"
 
 MorseDecoder::MorseDecoder(float ifrate)
 {

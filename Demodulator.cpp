@@ -1,7 +1,12 @@
+#include "lvgl_.h"
 #include "Demodulator.h"
 #include "gui_speech.h"
 #include "gui_cal.h"
 #include "Spectrum.h"
+#include "vfo.h"
+#include "sdrberry.h"
+#include "NoiseFilter.h"
+#include <tuple>
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -10,7 +15,11 @@
  ** Basic class for processing radio data for bith RX and TX
  **
  **/
-atomic<int> Demodulator::lowPassAudioFilterCutOffFrequency = 0;
+std::atomic<bool> Demodulator::dcBlockSwitch = true;
+std::atomic<bool> Demodulator::autocorrection = false;
+std::atomic<double> correlationMeasurement, errorMeasurement;
+std::atomic<int> Demodulator::noisefilter = 0;
+std::atomic<float> Demodulator::noiseThresshold = 0.0;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -23,6 +32,11 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 	adjustPhaseGain = get_gain_phase_correction();
+	autocorrection = Settings_file.get_int(default_radio, "autocal");
+	highfftquadrant = 0;
+	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
+	noisefilter = 0;
+	lowPassAudioFilterCutOffFrequency = 0;
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -36,8 +50,11 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffertx");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
+	highfftquadrant = 0;
 	adjustPhaseGain = get_gain_phase_correction();
-
+	autocorrection = Settings_file.get_int(default_radio, "autocal");
+	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
+	lowPassAudioFilterCutOffFrequency = 0;
 	// resampler and band filter assume pcmfrequency on the low side
 }
 
@@ -49,51 +66,22 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	receiveIQBuffer = source_buffer;
 	audioOutputBuffer = audio_output;
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer");
+	highfftquadrant = 0;
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 
 	// resampler and band filter assume pcmfrequency on the low side
 	tune_offset(vfo.get_vfo_offset());
-	//set_span(gsetup.get_span());
-	if (get_dc_filter())
-		dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
-	else
-		dcBlockHandle = nullptr;
+	dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
 	adjustPhaseGain = get_gain_phase_correction();
+	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
+	autocorrection = Settings_file.get_int(default_radio, "autocal");
+	lowPassAudioFilterCutOffFrequency = 0;
 }
 
 void Demodulator::set_signal_strength()
 {
-	SpectrumGraph.set_signal_strength(get_if_level());
-}
-
-// decrease the span of the fft display by downmixing the bandwidth of the receiver
-// Chop the bandwith in parts en display correct part
-void Demodulator::set_span(int span)
-{
-	if ((span < ifSampleRate) && span > 0)
-	{
-		if (m_span != span)
-		{
-			set_fft_resample_rate((float)span * 2);
-		}
-		m_span = span;
-		int n = (vfo.get_vfo_offset() / m_span);
-		//printf("window: %d  offset %d\n", n, m_span * n);
-		set_fft_mixer(m_span * n);
-		SpectrumGraph.set_fft_if_rate(2 * m_span, n);
-		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
-	}
-	else
-	{
-		m_span = span;
-		set_fft_resample_rate(0.0);
-		set_fft_mixer(0);
-		SpectrumGraph.set_fft_if_rate(ifSampleRate, 0);
-		guiQueue.push_back(GuiMessage(GuiMessage::action::setpos, 0));
-		//SpectrumGraph.set_pos(vfo.get_vfo_offset(), true);
-	}
+	SpectrumGraph.set_signal_strength(get_signal_level());
 }
 
 Demodulator::~Demodulator()
@@ -103,18 +91,12 @@ Demodulator::~Demodulator()
 	if (resampleHandle)
 		msresamp_crcf_destroy(resampleHandle);
 	resampleHandle = nullptr;
-	if (fftResampleHandle)
-		msresamp_crcf_destroy(fftResampleHandle);
-	fftResampleHandle = nullptr;
 	if (tuneNCO != nullptr)
 		nco_crcf_destroy(tuneNCO);
 	tuneNCO = nullptr;
 	if (lowPassAudioFilterHandle)
 		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
 	lowPassAudioFilterHandle = nullptr;
-	if (fftNCOHandle)
-		nco_crcf_destroy(fftNCOHandle);
-	fftNCOHandle = nullptr;
 
 	if (bandPassHandle)
 		iirfilt_crcf_destroy(bandPassHandle);
@@ -127,7 +109,7 @@ Demodulator::~Demodulator()
 	bandPassHandle = nullptr;
 	lowPassHandle = nullptr;
 	highPassHandle = nullptr;
-
+	dcBlockHandle = nullptr;
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime demodulator:" << timePassed.count() << endl;
@@ -147,6 +129,8 @@ void Demodulator::set_resample_rate(float resample_rate)
 
 float Demodulator::adjust_resample_rate(float rateAjustFraction)
 {
+	if ((resampleRate + resampleRate * rateAjustFraction) < 0)
+		return resampleRate;
 	resampleRate = resampleRate + resampleRate * rateAjustFraction;
 	struct msresamp_rrrf_s
 	{
@@ -190,43 +174,9 @@ float Demodulator::adjust_resample_rate(float rateAjustFraction)
 	return resampleRate;
 }
 
-
-
-void Demodulator::set_fft_resample_rate(float resample_rate)
+void Demodulator::calc_signal_level(const IQSampleVector& samples_in)
 {
-	float As{60.0f};
-
-	if (fftResampleHandle)
-	{
-		msresamp_crcf_destroy(fftResampleHandle);
-		fftResampleHandle = nullptr;
-	}
-	if (resample_rate > 0.0)
-	{
-		printf("fft resample rate %f\n", resample_rate);
-		fftResampleRate = resample_rate / ifSampleRate;
-		fftResampleHandle = msresamp_crcf_create(fftResampleRate, As);
-		msresamp_crcf_print(fftResampleHandle);
-	}
-}
-
-void Demodulator::fft_resample(const IQSampleVector &filter_in,
-							   IQSampleVector &filter_out)
-{
-	unsigned int num_written;
-
-	if (fftResampleHandle)
-	{
-		float nx = (float)filter_in.size() * fftResampleRate * 2;
-		filter_out.reserve((int)ceilf(nx));
-		filter_out.resize((int)ceilf(nx));
-		msresamp_crcf_execute(fftResampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
-		filter_out.resize(num_written);
-	}
-	else
-	{
-		filter_out = filter_in;
-	}
+	SignalStrength.calculateEnergyLevel(samples_in);
 }
 
 void Demodulator::calc_if_level(const IQSampleVector &samples_in)
@@ -239,17 +189,47 @@ void Demodulator::calc_af_level(const SampleVector &samples_in)
 	afEnergy.calculateEnergyLevel(samples_in);
 }
 
+void Demodulator::FlashGainSlider(float envelope)
+{
+	auto now = std::chrono::high_resolution_clock::now();
+	if (timeLastFlashGainSlider + std::chrono::milliseconds(500) < now)
+	{ // toggle collor of gain slider when signal is limitted
+		if (envelope > 0.99)
+			guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 1));
+		else
+			guiQueue.push_back(GuiMessage(GuiMessage::action::blink, 0));
+		timeLastFlashGainSlider = now;
+	}
+}
+
 // The vfo class calculates an offset within the bandwidth of the sdr radio
 // tune offset configure the mixer to mix offset down to baseband
 // use mix_down() to mix down to baseband during receive,mix_up() for transmit to mixup from baseband
 void Demodulator::tune_offset(long offset)
 {
-	tuneOffsetFrequency = offset;
-	float rad_per_sample = ((2.0f * (float)M_PI * (float)(vfo.get_vfo_offset())) / (float)ifSampleRate);
-	if (tuneNCO == nullptr)
-		tuneNCO = nco_crcf_create(LIQUID_NCO);
-	nco_crcf_set_phase(tuneNCO, 0.0f);
-	nco_crcf_set_frequency(tuneNCO, rad_per_sample);
+	if (offset)
+	{
+		tuneOffsetFrequency = offset;
+		float rad_per_sample = ((2.0f * (float)M_PI * (float)(tuneOffsetFrequency)) / (float)ifSampleRate);
+		if (tuneNCO == nullptr)
+			tuneNCO = nco_crcf_create(LIQUID_NCO);
+		nco_crcf_set_phase(tuneNCO, 0.0f);
+		nco_crcf_set_frequency(tuneNCO, rad_per_sample);
+	}
+	else
+	{
+		if (tuneNCO != nullptr)
+			nco_crcf_destroy(tuneNCO);
+		tuneNCO = nullptr;		
+	}
+}
+
+void Demodulator::gain_phasecorrection(IQSampleVector &samples_in, float vol)
+{
+	if (autocorrection)
+		auto_adjust_gain_phasecorrection(samples_in, vol);
+	else
+		adjust_gain_phasecorrection(samples_in, vol);
 }
 
 void Demodulator::adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
@@ -278,26 +258,60 @@ void Demodulator::adjust_gain_phasecorrection(IQSampleVector &samples_in, float 
 	}
 }
 
-void Demodulator::adjust_calibration(IQSampleVector &samples_in)
+void Demodulator::auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
 {
-	float gain = (float)gcal.getTxGain();
-	for (auto &col : samples_in)
-	{
-		col.real(col.real() * gain);
-	}
-	float phase = (float)gcal.getTxPhase();
-	if (phase < 0.0)
+	double error, correlation;
+	float phase{0};
+	float gain{1.0};
+	float gainManual = (float)gcal.getRxGain();
+	
+	std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
+	phase = std::get<1>(result);
+	gain = std::get<2>(result);
+	if (adjustPhaseGain)
 	{
 		for (auto &col : samples_in)
 		{
 			col.real(col.real() + col.imag() * phase);
+			col.imag(col.imag() * gain * gainManual);
+
+			col.real(col.real() * vol);
+			col.imag(col.imag() * vol);
 		}
 	}
-	if (phase > 0.0)
+	else
 	{
 		for (auto &col : samples_in)
 		{
-			col.imag(col.imag() + col.real() * phase);
+			col.real(col.real() * vol);
+			col.imag(col.imag() * vol);
+		}
+	}
+}
+
+void Demodulator::adjust_calibration(IQSampleVector &samples_in)
+{
+	if (adjustPhaseGain)
+	{
+		float gain = (float)gcal.getTxGain();
+		for (auto &col : samples_in)
+		{
+			col.real(col.real() * gain);
+		}
+		float phase = (float)gcal.getTxPhase();
+		if (phase < 0.0)
+		{
+			for (auto &col : samples_in)
+			{
+				col.real(col.real() + col.imag() * phase);
+			}
+		}
+		if (phase > 0.0)
+		{
+			for (auto &col : samples_in)
+			{
+				col.imag(col.imag() + col.real() * phase);
+			}
 		}
 	}
 }
@@ -357,7 +371,7 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 void Demodulator::dc_filter(IQSampleVector &filter_in,
 							IQSampleVector &filter_out)
 {
-	if (dcBlockHandle)
+	if (dcBlockHandle && dcBlockSwitch)
 	{
 		for (auto &col : filter_in)
 		{
@@ -414,46 +428,9 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 	}
 }
 
-void Demodulator::fft_mix(int dir, const IQSampleVector &filter_in,
-						  IQSampleVector &filter_out)
+void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 {
-	if (fftNCOHandle)
-	{
-		for (auto &col : filter_in)
-		{
-			complex<float> v;
-
-			nco_crcf_step(fftNCOHandle);
-			if (dir)
-				nco_crcf_mix_up(fftNCOHandle, col, &v);
-			else
-				nco_crcf_mix_down(fftNCOHandle, col, &v);
-			filter_out.push_back(v);
-		}
-	}
-	else
-	{
-		filter_out = filter_in;
-	}
-}
-
-void Demodulator::set_fft_mixer(float offset)
-{
-	if (fftNCOHandle != nullptr)
-	{
-		nco_crcf_destroy(fftNCOHandle);
-		fftNCOHandle = nullptr;
-	}
-	if (!offset)
-		return;
-	float rad_per_sample = ((2.0f * (float)M_PI * (float)offset) / (float)ifSampleRate);
-	fftNCOHandle = nco_crcf_create(LIQUID_NCO);
-	nco_crcf_set_phase(fftNCOHandle, 0.0f);
-	nco_crcf_set_frequency(fftNCOHandle, rad_per_sample);
-}
-
-void Demodulator::setLowPassAudioFilter(float samplerate, float band_width)
-{
+	lowPassAudioFilterCutOffFrequency = band_width;
 	if (lowPassAudioFilterHandle)
 		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
 	float factor = band_width / samplerate;
@@ -461,23 +438,19 @@ void Demodulator::setLowPassAudioFilter(float samplerate, float band_width)
 	iirfilt_crcf_print(lowPassAudioFilterHandle);
 }
 
-void Demodulator::setLowPassAudioFilterCutOffFrequency(int fc)
+void Demodulator::setLowPassAudioFilterCutOffFrequency(int band_width)
 {
-	lowPassAudioFilterCutOffFrequency = fc;
+	lowPassAudioFilterCutOffFrequency = band_width;
 }
 
 void Demodulator::perform_fft(const IQSampleVector &iqsamples)
 {
-	IQSampleVector iqsamples_filter, iqsamples_resample;
+	SpectrumGraph.ProcessWaterfall(iqsamples);
+}
 
-	if (m_span < ifrate)
-	{
-		fft_mix(0, iqsamples, iqsamples_filter);
-		fft_resample(iqsamples_filter, iqsamples_resample);
-	}
-	else
-		fft_resample(iqsamples, iqsamples_resample);
-	SpectrumGraph.ProcessWaterfall(iqsamples_resample);
+float Demodulator::getSuppression()
+{
+	return SpectrumGraph.getSuppression();
 }
 
 void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, float low)
@@ -514,7 +487,7 @@ void Demodulator::executeBandpassFilter(const IQSampleVector &filter_in,
 {
 	if (bandPassHandle == nullptr || lowPassHandle == nullptr || highPassHandle == nullptr)
 	{
-		filter_out = filter_in;
+		filter_out = std::move(filter_in);
 		return;
 	}
 	float bass_gain = dB2mag(gspeech.get_bass());
@@ -539,10 +512,44 @@ bool Demodulator::get_dc_filter()
 		return false;
 }
 
+void Demodulator::set_dc_filter(bool state)
+{
+	if (state)
+		dcBlockSwitch = true;
+	else
+		dcBlockSwitch = false;
+}
+
+void Demodulator::set_autocorrection(bool state)
+{
+	if (state)
+		autocorrection = true;
+	else
+		autocorrection = false;
+}
+
 bool Demodulator::get_gain_phase_correction()
 {
 	if (Settings_file.get_int(default_radio, "correction"))
 		return true;
 	else
 		return false;
+}
+
+void Demodulator::set_noise_filter(int noise)
+{
+	noisefilter = noise;
+}
+
+void Demodulator::set_noise_threshold(int threshold)
+{
+	noiseThresshold = threshold;
+}
+
+void Demodulator::NoiseFilterProcess(IQSampleVector &filter_in,
+						   IQSampleVector &filter_out)
+{
+	NoiseFilter nf;
+
+	nf.Process(filter_in, filter_out);
 }

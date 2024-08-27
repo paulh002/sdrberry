@@ -6,6 +6,8 @@
 #include <chrono>
 #include <ctime>
 #include "IQGenerator.h"
+#include "vfo.h"
+#include "sdrberry.h"
 
 shared_ptr<AMModulator> sp_ammod;
 
@@ -59,18 +61,20 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		digitalmode = true;
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
-		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
+		printf("digital tx mode LIQUID_AMPMODEM_USB carrier %d ifrate %f\n", suppressed_carrier, param.ifrate);
 		break;
 
 	case mode_usb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
-		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	case mode_lsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_LSB;
-		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	case mode_cw:
 		suppressed_carrier = 1;
@@ -80,26 +84,26 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	case mode_am:
 		suppressed_carrier = 0;
 		am_mode = LIQUID_AMPMODEM_DSB;
-		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	case mode_dsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_DSB;
-		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		
+		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
+		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 		break;
 	default:
 		printf("Mode not correct\n");		
 		return;
 	}
 	audio_input->set_tone(param.tone);
-	printf("tone %d \n", param.tone);
-	setLowPassAudioFilterCutOffFrequency(2500);
 	if ((param.ifrate - audio_input->get_samplerate()) > 0.1)
 	{
 		float sample_ratio, sample_ratio1;
 		
 		// only resample and tune if ifrate > pcmrate
-		tune_offset(vfo.get_vfo_offset());
+		tune_offset(vfo.get_vfo_offset_tx());
 
 		sample_ratio1 = param.ifrate / (double)audio_input->get_samplerate();
 		std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
@@ -107,13 +111,12 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		if (abs(sample_ratio1 - sample_ratio) > 0.1)
 			sample_ratio = sample_ratio1;
 
-		set_resample_rate(sample_ratio); // UP sample to ifrate		
+		set_resample_rate(sample_ratio); // UP sample to ifrate
 	}
 	else
-	{	// mix the transmid signal to the mid of the fft display
-		//fft_offset(ifrate / 4);
+	{
+		printf("No resample \n");
 	}
-	setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
 	AMmodulatorHandle = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
 }
@@ -133,7 +136,7 @@ void AMModulator::operator()()
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
-	tune_offset(vfo.get_vfo_offset());
+	tune_offset(vfo.get_vfo_offset_tx());
 	audioInputBuffer->clear();
 	if (gspeech.get_speech_mode())
 		audioInputBuffer->set_gain(0);
@@ -150,7 +153,7 @@ void AMModulator::operator()()
 		if (vfo.tune_flag.load())
 		{
 			vfo.tune_flag = false;
-			tune_offset(vfo.get_vfo_offset());
+			tune_offset(vfo.get_vfo_offset_tx());
 		}
 
 		if (audioInputBuffer->IsBufferEmpty() && digitalmode)
@@ -185,11 +188,11 @@ void AMModulator::operator()()
 		}
 
 		adjust_calibration(samples_out);
-		transmitIQBuffer->push(move(samples_out));
+		transmitIQBuffer->push(std::move(samples_out));
 		audiosamples.clear();
 		
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastPrint + std::chrono::seconds(5) < now)
+		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
@@ -222,8 +225,8 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
 	executeBandpassFilter(buf_mod, buf_filter);
-	Resample(buf_filter, buf_out);
-	mix_up(buf_out, samples_out); // Mix up to vfo freq
+	Resample(buf_filter, buf_out ); //buf_out
+	mix_up(buf_mod, samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);
 }
 
@@ -292,4 +295,10 @@ void AMModulator::WaitForTimeSlot()
 	tt = std::chrono::system_clock::to_time_t(now);
 	tm local_tm = *localtime(&tt);
 	printf("start tx cycle %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+}
+
+void AMModulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_ammod != nullptr)
+		sp_ammod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 }

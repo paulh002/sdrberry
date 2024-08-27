@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <memory>
 #include <variant>
-#include "vfo.h"
 #include "Settings.h"
 #include "PCF8574.h"
 #include "TCA9548.h"

@@ -11,7 +11,7 @@ bool AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrame
 	{
 		string s = Settings_file.find_audio("device");
 		audio_input->open(s);
-		audio_input->set_volume(Settings_file.micgain());
+		audio_input->set_volume(Settings_file.get_int("Radio", "micgain", 85));
 		return true;
 	}
 	fprintf(stderr, "ERROR: Cannot create AudioInputDevice\n");
@@ -136,7 +136,7 @@ bool AudioInput::open(std::string device)
 		return false;
 	}
 	startStream();
-	printf("audio input device = %d %s samplerate %d\n", parameters.deviceId, device.c_str(), sampleRate);
+	printf("audio input device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), sampleRate, parameters.nChannels);
 	return true;	
 }
 
@@ -144,13 +144,26 @@ void AudioInput::set_volume(int vol)
 {
 	// log volume
 	volume = exp(((double)vol * 6.908) / 100.0) / 5.0;
-	printf("mic vol %f\n", (float)volume);
+	//printf("mic vol %f\n", (float)volume);
+}
+
+void AudioInput::set_digital_volume(int vol)
+{
+	// log volume
+	digitalvolume = exp(((double)vol * 6.908) / 100.0) / 5.0;
 }
 
 void AudioInput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
-		samples[i] *= volume * dB2mag(gaindb);
+		if (digitalmode)
+		{
+			samples[i] *= digitalvolume * dB2mag(gaindb);
+		}
+		else
+		{
+			samples[i] *= volume * dB2mag(gaindb);
+		}
 	}
 }
 

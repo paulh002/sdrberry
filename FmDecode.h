@@ -1,9 +1,11 @@
+#pragma once
 #ifndef SOFTFM_FMDECODE_H
 #define SOFTFM_FMDECODE_H
 
 #include "SdrberryTypeDefs.h"
 #include "Filter.h"
 #include "DataBuffer.h"
+#include "Demodulator.h"
 
 struct	demod_struct
 {
@@ -163,7 +165,6 @@ public:
     void process(const IQSampleVector& samples_in,
                  SampleVector& audio);
 	
-	void adjust_gain(IQSampleVector &samples_in, float vol);
     /** Return true if a stereo signal is detected. */
     bool stereo_detected() const
     {
@@ -249,6 +250,25 @@ private:
     LowPassFilterRC     m_deemph_stereo;
 };
 
-void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
-void stop_fm();
+//void start_fm(double ifrate, int pcmrate, bool stereo, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
+//void stop_fm();
+
+#include "Demodulator.h"
+
+class FMBroadBandDemodulator : public Demodulator
+{
+  public:
+	static bool create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int stereo);
+	static void destroy_demodulator();
+	static std::string getName() { return "FMBroadBandDemodulator"; }
+
+	FMBroadBandDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int stereo);
+	~FMBroadBandDemodulator();
+	void process(const IQSampleVector &samples_in, SampleVector &audio);
+	void operator()() override;
+	atomic<bool> stop_flag{false};
+
+  private:
+	unique_ptr<FmDecoder> pfm;
+};
 #endif

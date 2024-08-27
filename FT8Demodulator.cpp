@@ -3,6 +3,7 @@
 #include "Spectrum.h"
 #include "date.h"
 #include "gui_ft8bar.h"
+#include "gui_bar.h"
 #include "sdrberry.h"
 #include <assert.h>
 #include <chrono>
@@ -60,8 +61,7 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 
 	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
 	gbar.set_filter_slider(m_bandwidth);
-	setLowPassAudioFilterCutOffFrequency(m_bandwidth);
-	Demodulator::setLowPassAudioFilter(audioSampleRate, m_bandwidth);
+	Demodulator::setLowPassAudioFilter(ft8_rate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
@@ -84,7 +84,8 @@ void FT8Demodulator::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto today = date::floor<date::days>(startTime);
 
-	int ifilter{-1}, span, rcount{0}, dropped_frames{0};
+	int ifilter{-1}, rcount{0}, dropped_frames{0};
+	long span;
 	int cycletime_duration_tensseconds{150}, starttime_delay{0};
 	int capture_time_duration_ms{150};
 	SampleVector audiosamples, audioframes;
@@ -116,19 +117,11 @@ void FT8Demodulator::operator()()
 	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
-		span = gsetup.get_span();
-		if (vfo.tune_flag.load() || m_span != span)
+		span = vfo.get_span();
+		if (vfo.tune_flag.load())
 		{
 			vfo.tune_flag = false;
 			tune_offset(vfo.get_vfo_offset());
-			set_span(span);
-		}
-
-		if (ifilter != get_lowPassAudioFilterCutOffFrequency())
-		{
-			ifilter = get_lowPassAudioFilterCutOffFrequency();
-			printf("set filter %d\n", ifilter);
-			setLowPassAudioFilter(audioSampleRate, ifilter);
 		}
 
 		IQSampleVector iqsamples = receiveIQBuffer->pull();
@@ -137,7 +130,8 @@ void FT8Demodulator::operator()()
 			usleep(500);
 			continue;
 		}
-		adjust_gain_phasecorrection(iqsamples, gbar.get_if());
+		calc_if_level(iqsamples);
+		gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		set_signal_strength();
 		process(iqsamples, audiosamples);
@@ -158,7 +152,7 @@ void FT8Demodulator::operator()()
 			capture = false;
 			if (audiosamples.size() < capture_time_duration_ms * ft8_rate / 1000)
 				audiosamples.resize(capture_time_duration_ms * ft8_rate / 1000);
-			printf("cpatured %ld samples \n", audiosamples.size());
+			printf("capatured %ld samples \n", audiosamples.size());
 			ft8processor->AddaudioSample(audiosamples);
 			audiosamples.clear();
 		}
@@ -178,8 +172,7 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 	Resample(filter1, filter2);
 	filter1.clear();
 	lowPassAudioFilter(filter2, filter1);
-	filter2.clear();
-	calc_if_level(filter1);
+	calc_signal_level(filter1);
 	guift8bar.Process(filter1);
 	for (auto col : filter1)
 	{
@@ -188,6 +181,10 @@ void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &aud
 		ampmodem_demodulate(m_demod, (liquid_float_complex)col, &v);
 		audio.push_back(v);
 	}
-	filter1.clear();
-	filter2.clear();
+}
+
+void FT8Demodulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_ft8demod != nullptr)
+		sp_ft8demod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 }

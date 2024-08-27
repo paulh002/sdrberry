@@ -18,7 +18,7 @@ class Gui_agc
 	lv_obj_t *release_slider_label, *release_slider;
 	lv_obj_t *button[10];
 	int ibuttons{0};
-	const int number_of_buttons{4};
+	const int number_of_buttons{5};
 	const int top_y{10};
 	std::atomic<int> agc_mode{0};
 	lv_group_t *m_button_group{nullptr};
@@ -51,7 +51,7 @@ class Gui_agc
 	void set_atack_slider(int t);
 	void set_threshold_slider(int t);
 	void set_release_slider(int t);
-
+	void set_sdr_state();
 
 	static constexpr auto agc_button_handler = EventHandler<Gui_agc, &Gui_agc::agc_button_handler_class>::staticHandler;
 	static constexpr auto threshold_slider_event_cb = EventHandler<Gui_agc, &Gui_agc::threshold_slider_event_cb_class>::staticHandler;

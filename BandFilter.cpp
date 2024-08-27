@@ -1,4 +1,5 @@
 #include "BandFilter.h"
+#include "vfo.h"
 
 void BandFilter::initFilter()
 {
@@ -19,7 +20,7 @@ void BandFilter::initFilter()
 			if (i2cdevice.begin(0))
 			{
 				i2cDevices.push_back(i2cdevice);
-				printf("Connected to %d \n", (int)i2cdevice.getAddress());
+				printf("Connected to PCF8574(A) %d \n", (int)i2cdevice.getAddress());
 			}
 			else
 			{
@@ -35,7 +36,7 @@ void BandFilter::initFilter()
 			if (i2cdevice.begin(0))
 			{			
 				i2cDevices.push_back(i2cdevice);
-				printf("Connected to %d \n", (int)i2cdevice.getAddress());
+				printf("Connected to TCA9548 %d \n", (int)i2cdevice.getAddress());
 			}
 			else
 			{
@@ -53,7 +54,7 @@ void BandFilter::initFilter()
 				i2cdevice.pinMode8(0);
 				i2cdevice.write8(0x00);
 				i2cDevices.push_back(i2cdevice);
-				printf("Connected to %d \n", (int)i2cdevice.getAddress());
+				printf("Connected to MCP23008 %d \n", (int)i2cdevice.getAddress());
 			}
 			else
 			{

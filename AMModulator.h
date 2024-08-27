@@ -14,7 +14,8 @@ class AMModulator : public Demodulator
 	void operator()();
 	static void destroy_modulator();
 	static bool create_modulator(ModulatorParameters param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
-	
+	static void setLowPassAudioFilterCutOffFrequency(int bandwidth);
+
 	atomic<bool> stop_flag{false};
 	std::thread ammod_thread;
 

@@ -40,6 +40,7 @@ class gui_ft8bar
 	void textarea_event_handler_class(lv_event_t *e);
 	void if_slider_event_cb_class(lv_event_t *e);
 	void tx_slider_event_cb_class(lv_event_t *e);
+	void freq_event_handler_class(lv_event_t *e);
 
   public:
 	gui_ft8bar();
@@ -61,7 +62,7 @@ class gui_ft8bar
 	void Process(const IQSampleVector &input);
 	void WaterfallSetMaxMin(float _max, float _min);
 	void WaterfallReset();
-	void DrawWaterfall();
+	void DrawWaterfall(int noisefloor);
 	void set_if(int ifgain);
 	lv_obj_t *getfrequency() { return frequence; }
 	lv_obj_t *getwsjtxmode() { return wsjtxmode; }
@@ -77,6 +78,9 @@ class gui_ft8bar
 	static constexpr auto textarea_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::textarea_event_handler_class>::staticHandler;
 	static constexpr auto if_slider_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::if_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_slider_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::tx_slider_event_cb_class>::staticHandler;
+	static constexpr auto freq_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::freq_event_handler_class>::staticHandler;
+
+	
 };
 
 extern gui_ft8bar guift8bar;

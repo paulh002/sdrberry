@@ -1,5 +1,6 @@
 #include "FMModulator.h"
 #include "Spectrum.h"
+#include "vfo.h"
 
 static shared_ptr<FMModulator> sp_fmmod;
 
@@ -33,7 +34,6 @@ FMModulator::FMModulator(int mode, double ifrate, audioTone tone, DataBuffer<IQS
 	float kf          = 0.1f; // modulation factor
 	
 	audio_input->set_tone(tone);
-	setLowPassAudioFilterCutOffFrequency(5000);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, 5000);
 	Demodulator::set_resample_rate(ifrate / audio_input->get_samplerate()); // UP sample to ifrate
 	modFM = freqmod_create(kf); 
@@ -96,4 +96,10 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	buf_mod.clear();
 	buf_out.clear();
 	buf_filter.clear();
+}
+
+void FMModulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+{
+	if (sp_fmmod != nullptr)
+		sp_fmmod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 }

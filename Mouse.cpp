@@ -1,5 +1,6 @@
 #include "Mouse.h"
-
+#include <iostream>
+#include <fstream>
 
 #define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
 #define NBITS(x) ((((x)-1) / (sizeof(long) * 8)) + 1)
@@ -8,9 +9,8 @@ std::chrono::milliseconds double_click_threshold(300);
 
 Mouse::Mouse()
 {
-	m_fd = -1;
-	numMouseIndex = 2;
-	step = 10;
+	fd = -1;
+	step = 1;
 	bstep = false;
 	MouseActivity = false;
 	last_click_time = std::chrono::system_clock::now();
@@ -19,9 +19,8 @@ Mouse::Mouse()
 
 Mouse::Mouse(int mousefd)
 {
-	m_fd = mousefd;
-	numMouseIndex = 2;
-	step = 10;
+	fd = mousefd;
+	step = 1;
 	bstep = false;
 	MouseActivity = false;
 }
@@ -34,83 +33,91 @@ void strupr(char *str)
 	}
 }
 
-void Mouse::init_mouse(string mouse_name)
+std::string Mouse::find_mouse()
 {
-	// first find a mouse
-	//if (mouse_name.size() == 0)
-	//	mouse_name = "MOUSE";
-	transform(mouse_name.begin(), mouse_name.end(), mouse_name.begin(), ::toupper);
-	numMouseIndex = 0;
-	do
+	std::ifstream device("/proc/bus/input/devices");
+	std::string line;
+	std::string mouse;
+
+	if (device.is_open())
 	{
-		sprintf(mouseDev, "/dev/input/event%d", numMouseIndex);
-		m_fd = open(mouseDev, O_RDONLY | O_NONBLOCK);
-		if (m_fd > 0)
+		while (std::getline(device, line))
 		{
+			transform(line.begin(), line.end(), line.begin(), ::toupper);
+			// Look for lines containing "mouse" indicating a mouse device
+			if (line.find("MOUSE") != std::string::npos && line.find("NAME") != std::string::npos)
+			{
+				while (std::getline(device, line))
+				{
+					if (line.find("H:") != std::string::npos)
+					{
+						int i = line.find("event");
+						mouse = line.substr(i);
+						break;
+					}
+				}
+				break;
+			}
+		}
+		device.close();
+	}
+	mouse.erase(std::remove(mouse.begin(), mouse.end(), ' '), mouse.end());
+	return mouse;
+}
+
+void Mouse::init_mouse()
+{
+	std::string mouse = find_mouse();
+	if (mouse.size() > 0)
+	{
+		strcpy(mouseDev,  "/dev/input/");
+		strcat(mouseDev, mouse.c_str());
+		fd = open(mouseDev, O_RDONLY | O_NONBLOCK);
+		if (fd > 0)
+		{
+			printf("Input device is a mouse %s\n", mouse.c_str());
 			unsigned long ev_bits[NBITS(EV_MAX)];
 
 			char name[256] = "Unknown";
-			ioctl(m_fd, EVIOCGNAME(sizeof(name)), name);
+			ioctl(fd, EVIOCGNAME(sizeof(name)), name);
 			printf("Input device name: \"%s\"\n", name);
 			strupr(name);
 			char *ptr = strstr(name, mouse_name.c_str());
 
-			if (ioctl(m_fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits) == -1)
+			if (ioctl(fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits) == -1)
 			{
 				printf("ioctl error\n");
-				close(m_fd);
-				numMouseIndex++;
-				m_fd = -1;
+				close(fd);
+				fd = -1;
 			}
-			
+
 			if (test_bit(EV_KEY, ev_bits) && test_bit(EV_REL, ev_bits))
 			{
 				printf("Input device is a mouse\n");
 				if (ptr == NULL && mouse_name.length() > 0)
 				{
-					close(m_fd);
-					numMouseIndex++;
-					m_fd = -1;
+					close(fd);
+					fd = -1;
 				}
 			}
-			else
-			{
-				printf("Input device is not a mouse\n");
-				close(m_fd);
-				numMouseIndex++;
-				m_fd = -1;
-			}
 		}
-		else
-			numMouseIndex++;
-	} while (numMouseIndex < 30 && m_fd == -1);
-	printf("end mouse \n");
+	}
 }
+
 
 bool Mouse::GetMouseAttached()
 {
-	if (m_fd > 0)
+	if (fd > 0)
 		return true;
 	return false;
-}
-
-int Mouse::count()
-{
-	read_mouse_event();
-	//if (mouse_event.type > 0)
-	//	printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
-	if (mouse_event.type == EV_REL && mouse_event.code == 11)
-		return mouse_event.value;
-	else
-		return 0;
 }
 
 bool Mouse::read_mouse_event()
 {
 	int bytes;
-	if (m_fd > 0)
+	if (fd > 0)
 	{
-		bytes = read(m_fd, (void *)&mouse_event, sizeof(struct input_event));
+		bytes = read(fd, (void *)&mouse_event, sizeof(struct input_event));
 		if (bytes == -1)
 			return false;
 		if (bytes == sizeof(struct input_event))
@@ -122,14 +129,33 @@ bool Mouse::read_mouse_event()
 MouseState Mouse::GetMouseState()
 {
 	int bytes, count = 0;
+	char name[256];
 
 	state.MouseActivity = false;
 	state.Rotated = 0;
-	if (m_fd > 0)
+
+	if (fd > 0 && ioctl(fd, EVIOCGNAME(sizeof(name)), name) < 0)
 	{
-		bytes = read(m_fd, (void *)&mouse_event, sizeof(struct input_event));
+		fd = 0;
+		printf("Mouse Removed \n");
+	}
+
+	if (fd <= 0)
+		init_mouse();
+	else
+	{
+		bytes = read(fd, (void *)&mouse_event, sizeof(struct input_event));
 		while (bytes > 0)
 		{
+			//printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
+
+			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_MIDDLE && mouse_event.value == 1)
+			{
+					step = step * 10;
+					if (step > 100)
+						step = 1;
+			}
+			
 			if (mouse_event.type == EV_REL && mouse_event.code == REL_WHEEL)
 			{
 				vfo.step_vfo(step * mouse_event.value);
@@ -189,33 +215,8 @@ MouseState Mouse::GetMouseState()
 					state.MouseActivity = true;
 				}
 			}
-		bytes = read(m_fd, (void *)&mouse_event, sizeof(struct input_event));
+		bytes = read(fd, (void *)&mouse_event, sizeof(struct input_event));
 		}
 	}
 	return state;
-}
-
-void Mouse::step_vfo()
-{
-	int i = count();
-	if (mouse_event.type == EV_KEY && mouse_event.code == 272 && mouse_event.value == 1 && bstep == false & step < 100000)
-	{
-		bstep = true;
-		step = step * 10;
-	}
-	if (mouse_event.type == EV_KEY && mouse_event.code == 272 && mouse_event.value == 0)
-		bstep = false;
-
-	if (mouse_event.type == EV_KEY && mouse_event.code == 273 && mouse_event.value == 1 && bstep == false && step > 1)
-	{
-		bstep = true;
-		step = step / 10;
-	}
-	if (mouse_event.type == EV_KEY && mouse_event.code == 273 && mouse_event.value == 0)
-		bstep = false;
-
-	if (i > 0)
-		vfo.step_vfo(step);
-	if (i < 0)
-		vfo.step_vfo(-1 * step);
 }

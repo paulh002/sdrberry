@@ -1,12 +1,4 @@
 #pragma once
-#include "SdrDevice.h"
-#include "Settings.h"
-#include "gui_top_bar.h"
-#include "gui_vfo.h"
-#include "lv_drivers/display/fbdev.h"
-#include "lv_drivers/indev/evdev.h"
-#include "lvgl.h"
-#include "sdrstream.h"
 #include <atomic>
 #include <math.h>
 #include <mutex>
@@ -17,6 +9,11 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include "SdrDevice.h"
+#include "Settings.h"
+#include "lvgl.h"
+
+
 
 #define MAX_NUM_BAND 15
 
@@ -27,6 +24,12 @@ enum vfo_activevfo
 	None = -1
 } ;
 
+enum vfo_spansetting
+{
+	span_is_ifrate = 0,
+	span_between_ifrate = 1,
+	span_lower_halfrate = 2
+};
 
 struct bands_t
 {
@@ -43,7 +46,7 @@ struct vfo_settings_struct
 	long long vfo_freq_sdr[2];
 	long long vfo_low;
 	long long vfo_high;
-	int offsetSpan[2];
+	int vfo_rit[2];
 	int mode[2];
 	int band[2];
 	int frq_step;
@@ -54,13 +57,17 @@ struct vfo_settings_struct
 	bool tx;
 	bool rx;
 	long max_offset;
+	long min_offset;
 	long offset[2];
-	vector<bands_t> bands;
+	std::vector<bands_t> bands;
 	long pcmrate;
 	long span;
 	long bandwidth;
 	int correction_tx;
 	int correction_rx;
+	int notxoffset;
+	long maxtxoffset;
+	bool split;
 };
 
 class CVfo
@@ -72,8 +79,8 @@ class CVfo
 	void vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth);
 	void set_span(long span);
 	bool compare_span();
+	std::pair<vfo_spansetting, double> compare_span_ex();
 	int set_vfo(long long freq, vfo_activevfo ActiveVfo = vfo_activevfo::None);
-	void set_freq_to_sdr();
 	void step_vfo(long icount);
 	long get_active_vfo_freq();
 	std::string get_vfo_str();
@@ -82,7 +89,7 @@ class CVfo
 	void set_vfo_range(long long low, long long high);
 	void set_band(int band, long long freq);
 	void sync_rx_vfo();
-	void vfo_rxtx(bool brx, bool btx);
+	void vfo_rxtx(bool brx, bool btx, bool split = false);
 	void pause_step(bool pause) {pausevfo = pause;}
 	void set_step(int step, int delay);
 	void setVfoFrequency(int direction);
@@ -96,6 +103,7 @@ class CVfo
 	bool get_tx() { return vfo_setting.tx; }
 	int get_active_vfo() { return vfo_setting.active_vfo; }
 	long get_maxoffset() { return vfo_setting.max_offset; }
+	long get_minoffset() { return vfo_setting.min_offset * -1; }
 	long long get_sdr_span_frequency();
 	long long get_sdr_frequency()
 	{
@@ -112,11 +120,15 @@ class CVfo
 	}
 
 	long long get_tx_frequency();
-	long get_vfo_offset();
+	long get_vfo_offset(bool rit = false);
+	long get_vfo_offset_tx();
+	long get_vfo_absolute_offset();
 	void return_bands(vector<int> &bands);
+	long get_span() { return vfo_setting.span;}
 
 	std::atomic_bool tune_flag{false};
 	bool limit_ham_band;
+	void setRit(int rit, int active_vfo);
 
   private:
 	struct vfo_settings_struct vfo_setting;
@@ -126,7 +138,7 @@ class CVfo
 	SdrDeviceVector *SdrDevices{nullptr};
 	std::string radio;
 	int rx_channel, tx_channel;
-	long offset_frequency;
+	long span_offset_frequency;
 	bool pausevfo{false};
 
 	int get_band(int active_vfo);

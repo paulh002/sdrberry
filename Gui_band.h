@@ -1,5 +1,4 @@
 #pragma once
-
 #include "lvgl_.h"
 #include <SoapySDR/ConverterRegistry.hpp>
 #include <SoapySDR/Device.hpp>
@@ -8,6 +7,7 @@
 #include <SoapySDR/Registry.hpp>
 #include <SoapySDR/Types.hpp>
 #include <SoapySDR/Version.hpp>
+#include <vector>
 
 #define MAX_BAND_BUTTONS 100
 
@@ -41,5 +41,5 @@ class Gui_band
 	void set_group();
 };
 
-int getIndex(vector<int> v, int s);
+int getIndex(std::vector<int> v, int s);
 extern Gui_band gui_band_instance;

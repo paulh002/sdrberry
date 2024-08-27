@@ -11,6 +11,11 @@ AudioOutput *audio_output;
 
 void AudioOutput::CopyUnderrunSamples(bool copyUnderrun_)
 {
+	int i = 0;
+	for (auto &col : underrunSamples)
+		{
+			underrunSamples.at(i++) = 0.0;
+		}
 	copyUnderrun = copyUnderrun_;
 }
 
@@ -150,7 +155,7 @@ bool AudioOutput::open(std::string device)
 void AudioOutput::set_volume(int vol) 
 {
 	// log volume
-	volume.store(exp(((double)vol * 6.908) / 100.0) / 1000);
+	volume.store(exp(((double)vol * 6.908) / 80.0) / 1000);
 	//printf("vol %f\n", (float)m_volume.load());
 } 
 
@@ -192,7 +197,7 @@ AudioOutput::~AudioOutput()
 bool AudioOutput::write(SampleVector& audiosamples)
 {
 	if (isStreamOpen())
-		databuffer.push(move(audiosamples));
+		databuffer.push(std::move(audiosamples));
 	else
 		audiosamples.clear();
 	return true;

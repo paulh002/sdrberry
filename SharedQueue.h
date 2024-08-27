@@ -96,7 +96,8 @@ class GuiMessage
 		setwpm,
 		displayline,
 		filter,
-		clearWsjtx
+		clearWsjtx,
+		scrollWsjtx		
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

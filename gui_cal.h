@@ -8,6 +8,7 @@ class gui_cal
   private:
 	lv_obj_t *barview, *txgainslider, *txgainlabel, *txphaseslider, *txphaselabel;
 	lv_obj_t *rxgainslider, *rxgainlabel, *rxphaseslider, *rxphaselabel;
+	lv_obj_t *errorLabel, *correlationLabel;
 	lv_style_t style_btn;
 	lv_group_t *buttonGroup{};
 	std::atomic<int> calRxPhase, calRxGain, calTxPhase, calTxGain;
@@ -46,6 +47,7 @@ class gui_cal
 	float getTxPhase();
 	float getTxGain();
 	void SetCalibrationBand(int bandIndex);
+	void SetErrorCorrelation(double error, double correlation);
 	
 	static constexpr auto gain_slider_event_cb = EventHandler<gui_cal, &gui_cal::gain_slider_event_cb_class>::staticHandler;
 	static constexpr auto phase_slider_event_cb = EventHandler<gui_cal, &gui_cal::phase_slider_event_cb_class>::staticHandler;

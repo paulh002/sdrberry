@@ -2,18 +2,16 @@
 #include <linux/input.h>
 #include <linux/hiddev.h>
 #include <cstdio>
-#include <string.h>
+#include <string>
 #include <time.h>
 #include <sys/time.h>
 #include <chrono>
-#include "Settings.h"
-#include "sdrberry.h"
-#include "vfo.h"
+#include "lvgl_.h"
 
 class HidDev
 {
   public:
-	void init(string input_dev);
+	void init(std::string input_dev);
 	HidDev();
 	~HidDev();
 	void step_vfo();
@@ -40,7 +38,7 @@ class HidDev
 	void rotate(int value);
 	void rotate_vfo();
 	bool read_event();
-	string HidName;
+	std::string HidName;
 	bool txstate{false};
 	bool usb_hid;
 	float fspeed;

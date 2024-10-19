@@ -6,10 +6,11 @@
 class PeakMeasurement
 {
   public:
-	void uploadData(std::vector<float> data);
+	void uploadData(const std::vector<float>& data);
 	void SearchTwoPeaksSupperssion();
 	void PrintPeakes();
 	float GetSuppression();
+	std::vector<int> GetIndexToPeaks() { return IndexToPeaks; }
 
   private:
 	std::vector<float> peakValues;

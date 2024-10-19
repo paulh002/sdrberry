@@ -13,6 +13,7 @@
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
 
+
 using namespace std;
 
 const int noise_floor{20};
@@ -38,6 +39,18 @@ void Spectrum::click_event_cb_class(lv_event_t *e)
 	}
 }
 
+std::pair<bool,int> Spectrum::cursor_intersect(lv_point_t p)
+{
+	int i = 0;
+	for (auto mark : markers)
+	{
+		if (mark != nullptr && abs(mark->pos.x - p.x) < 10)
+			return std::make_pair(true,i);
+		i++;
+	}
+	return std::make_pair(false,0);
+}
+
 void Spectrum::pressing_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -45,18 +58,41 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 
 	lv_indev_t *indev = lv_indev_get_act();
 	lv_indev_type_t indev_type = lv_indev_get_type(indev);
-	if (indev_type == LV_INDEV_TYPE_POINTER)
+	
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED)
+	{
+		// make sure only the marker is dragged, fast mouse movements will skipp multiple x possitions
+		drag_marker = 0;
+	}
+	
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING)
 	{
 		lv_point_t p;
 		lv_indev_get_point(indev, &p);
 		if (p.x > 0)
 		{
-			long long f;
-			int span = vfo.get_span();
-			f = vfo.get_sdr_span_frequency();
-			f = p.x *(span / screenWidth) + f;
-			if (vfo.get_frequency() != f)
-				vfo.set_vfo(f);
+			auto ret = cursor_intersect(p);
+			if (ret.first || drag_marker) // close to marker or drag mode
+			{
+				if (drag_marker) // make sure the same marker is dragged
+				{
+					set_marker(drag_marker - 1, (data_set.size() * p.x) / screenWidth);
+				}
+				else
+				{
+					set_marker(ret.second, (data_set.size() * p.x) / screenWidth);
+					drag_marker = ret.second + 1;
+				}
+			}
+			else
+			{
+				long long f;
+				int span = vfo.get_span();
+				f = vfo.get_sdr_span_frequency();
+				f = p.x * (span / screenWidth) + f;
+				if (vfo.get_frequency() != f)
+					vfo.set_vfo(f);
+			}
 		}
 	}
 }
@@ -136,6 +172,18 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 			long l = (long)round(f / 1000.0);
 			lv_snprintf(dsc->text, 19, "%ld", l);
 		}
+		if (lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_CURSOR))
+		{
+			for (auto cursor : markers)
+			{
+				if (cursor != nullptr && dsc->sub_part_ptr == cursor)
+				{
+					draw_marker_label(cursor, dsc);
+				}
+			}
+			if (dsc->sub_part_ptr == FrequencyCursor && active_markers > 0)
+				draw_marker_label(FrequencyCursor, dsc);
+		}
 	}
 }
 
@@ -184,8 +232,9 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	//lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_PRESSING, (void *)this);
+	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_RELEASED, (void *)this);
 	lv_obj_add_event_cb(lv_obj_get_parent(chart), click_event_cb, LV_EVENT_CLICKED, (void *)this);
-	m_cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM | LV_DIR_TOP);
+	FrequencyCursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM | LV_DIR_TOP);
 
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
@@ -277,7 +326,7 @@ void Spectrum::set_pos(int32_t offset)
 		pos = 0;
 	if (pos >= data_set.size())
 		pos = data_set.size() - 1;
-	lv_chart_set_cursor_point(chart, m_cursor, NULL, pos);
+	lv_chart_set_cursor_point(chart, FrequencyCursor, NULL, pos);
 //	printf("Pos: freq: %ld sdr %ld offset %d pos: %d span %d \n", (long)vfo.get_frequency(), (long)vfo.get_sdr_frequency(), offset, pos, span);
 }
 
@@ -296,7 +345,6 @@ void Spectrum::upload_fft()
 {
 	int i{};
 	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
-	std::vector<int> peaks;
 
 	switch (span_ex.first)
 	{
@@ -326,6 +374,7 @@ void Spectrum::upload_fft()
 			int value{};
 			std::vector<float> fft_output = fft->GetSquaredBins();
 			data_set.resize(fft_output.size() / 2);
+			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
 				if (i == (fft_output.size() / 2))
@@ -344,4 +393,61 @@ void Spectrum::upload_fft()
 float Spectrum::getSuppression()
 {
 	return finder.GetSuppression();
+}
+
+void Spectrum::enable_marker(int marker, bool enable)
+{
+	if (marker < markers.size())
+	{
+		if (markers[marker] == nullptr && enable)
+		{
+			markers[marker] = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_RED), LV_DIR_BOTTOM | LV_DIR_TOP);
+			lv_chart_set_cursor_point(chart, markers[marker], NULL, markers_location[marker]);
+			active_markers++;
+		}
+		if (markers[marker] != nullptr && !enable)
+		{
+			lv_chart_remove_cursor(chart, markers[marker]);
+			markers[marker] = nullptr;
+			active_markers--;
+		}
+	}
+}
+
+void Spectrum::set_marker(int marker, int32_t offset)
+{
+	if (marker < markers.size())
+	{
+		markers_location[marker] = offset;
+		if (markers[marker] != nullptr)
+			lv_chart_set_cursor_point(chart, markers[marker], NULL, markers_location[marker]);
+	}
+}
+
+void Spectrum::draw_marker_label(lv_chart_cursor_t *cursor, lv_obj_draw_part_dsc_t *dsc)
+{
+	lv_coord_t *data_array = lv_chart_get_y_array(chart, ser);
+	lv_coord_t v = data_array[cursor->point_id];
+	char buf[16];
+
+	lv_snprintf(buf, sizeof(buf), "%d db", v);
+
+	lv_point_t size;
+	lv_txt_get_size(&size, buf, LV_FONT_DEFAULT, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+
+	lv_area_t a;
+	a.x1 = dsc->p1->x + 10;
+	a.x2 = a.x1 + size.x + 10;
+
+	a.y1 = dsc->p1->y + 10;
+	a.y2 = a.y1 + size.y + 10;
+
+	lv_draw_label_dsc_t draw_label_dsc;
+	lv_draw_label_dsc_init(&draw_label_dsc);
+	draw_label_dsc.color = lv_color_white();
+	a.x1 += 5;
+	a.x2 -= 5;
+	a.y1 += 5;
+	a.y2 -= 5;
+	lv_draw_label(dsc->draw_ctx, &draw_label_dsc, &a, buf, NULL);
 }

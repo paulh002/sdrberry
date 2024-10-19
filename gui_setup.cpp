@@ -14,6 +14,11 @@
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
 
+static const char *cal_opts = "None\n"
+							  "Manual\n"
+							  "Auto\n"
+							  "Both";
+
 void gui_setup::receivers_button_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -51,22 +56,15 @@ void gui_setup::calbox_event_cb_class(lv_event_t *e)
 	}
 }
 
-void gui_setup::auto_calbox_event_cb_class(lv_event_t *e)
+void gui_setup::cal_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-		{
-			Demodulator::set_autocorrection(true);
-			Settings_file.save_int(default_radio, "autocal", 1);
-		}
-		else
-		{
-			Demodulator::set_autocorrection(false);
-			Settings_file.save_int(default_radio, "autocal", 0);
-		}
+		int i = lv_dropdown_get_selected(obj);
+		Demodulator::set_autocorrection(i);
+		Settings_file.save_int(default_radio, "correction", i);
 		Settings_file.write_settings();
 	}
 }
@@ -88,18 +86,6 @@ void gui_setup::dcbox_event_cb_class(lv_event_t *e)
 			Settings_file.save_int(default_radio, "dc", 0);
 		}
 		Settings_file.write_settings();
-	}
-}
-
-void gui_setup::contour_slider_event_cb_class(lv_event_t *e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-
-	int i = lv_slider_get_value(obj);
-	if (i > 0)
-	{
-		set_contour_value(i);
 	}
 }
 
@@ -390,19 +376,6 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	set_span_range(ifrate);
 	set_span_value(span * 1000);
 
-	//lv_obj_t *contour_slider_label, *contour_slider;
-
-	contour_slider = lv_slider_create(settings_main);
-	lv_group_add_obj(button_group, contour_slider);
-	lv_obj_set_width(contour_slider, w / 4 - 50);
-	lv_obj_align_to(contour_slider, settings_main, LV_ALIGN_TOP_LEFT, w / 2, y_span);
-	lv_slider_set_range(contour_slider, 1, 10);
-
-	lv_obj_add_event_cb(contour_slider, contour_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	contour_slider_label = lv_label_create(settings_main);
-	lv_label_set_text(contour_slider_label, "speed 1");
-	lv_obj_align_to(contour_slider_label, contour_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-
 	brightness_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(button_group, brightness_slider);
 	lv_obj_set_width(brightness_slider, w / 2 - 50);
@@ -415,20 +388,23 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_label_set_text(brightness_slider_label, "brightness");
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
+	calibration_dropdown = lv_dropdown_create(settings_main);
+	lv_group_add_obj(button_group, calibration_dropdown);
+	lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2, y_span);
+	lv_obj_set_width(calibration_dropdown, button_width); // 2*
+	lv_dropdown_clear_options(calibration_dropdown);
+	lv_obj_add_event_cb(calibration_dropdown, cal_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_dropdown_set_options_static(calibration_dropdown, cal_opts);
+	cal_label = lv_label_create(settings_main);
+	lv_label_set_text(cal_label, "calibration");
+	lv_obj_align_to(cal_label, calibration_dropdown, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+	lv_dropdown_set_selected(calibration_dropdown, Settings_file.get_int(default_radio, "correction", 0));
+	Demodulator::set_autocorrection(Settings_file.get_int(default_radio, "correction", 0));
+
 	calbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span);
 	lv_checkbox_set_text(calbox, "cal");
 	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-
-	autocalbox = lv_checkbox_create(settings_main);
-	lv_obj_align_to(autocalbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4 + 60, y_span);
-	lv_checkbox_set_text(autocalbox, "auto");
-	lv_obj_add_event_cb(autocalbox, auto_calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	int autocal = Settings_file.get_int(default_radio, "autocal",0);
-	if (autocal)
-	{
-		lv_obj_add_state(autocalbox, LV_STATE_CHECKED);
-	}
 
 	dcbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span + 50);
@@ -443,23 +419,6 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	{
 		Demodulator::set_dc_filter(false);
 	}
-
-	if (!Settings_file.get_int(default_radio, "correction"))
-	{
-		lv_obj_add_flag(calbox, LV_OBJ_FLAG_HIDDEN);
-		lv_obj_add_flag(autocalbox, LV_OBJ_FLAG_HIDDEN);
-	}
-
-	if (Settings_file.get_int(default_radio, "auto-correction") > 0)
-	{
-		lv_obj_add_state(dcbox, LV_STATE_CHECKED);
-		Demodulator::set_autocorrection(true);
-	}
-	else
-	{
-		Demodulator::set_autocorrection(false);
-	}
-
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 
@@ -540,19 +499,6 @@ void gui_setup::set_brightness(int brightness)
 	}
 	sprintf(buf,"%d", brightness);
 	myfile << std::string(buf);
-}
-
-void gui_setup::set_contour_value(int speed)
-{
-	char buf[20];
-
-	sprintf(buf, " speed %d ",speed);
-	lv_label_set_text(contour_slider_label, buf);
-}
-
-int gui_setup::get_contour_value()
-{
-	return lv_slider_get_value(contour_slider);
 }
 
 int gui_setup::get_brightness()

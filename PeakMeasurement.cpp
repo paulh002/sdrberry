@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstdio>
 
-void PeakMeasurement::uploadData(std::vector<float> data)
+void PeakMeasurement::uploadData(const std::vector<float>& data)
 {
 	IndexToPeaks.clear();
 	PeakFinder::findPeaks(data, IndexToPeaks, false);

@@ -26,7 +26,7 @@ class gui_bar
 	lv_obj_t *label[20]{nullptr};
 	int ibuttons{0};
 	int filter;
-	const int number_of_buttons = 9;
+	const int number_of_buttons = 10;
 	
 	lv_obj_t *vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
 	lv_obj_t *if_slider_label, *if_slider;
@@ -36,7 +36,7 @@ class gui_bar
 	lv_style_t cw_style, style_selected_color;
 	lv_group_t *buttongroup{nullptr};
 	bool ifStyleState{false};
-	std::unique_ptr<guiButtonWindows> attenuatorWindow, preampWindow, modeWindow;
+	std::unique_ptr<guiButtonWindows> attenuatorWindow, preampWindow, modeWindow, MarkerWindow;
 	std::unique_ptr<guiSliderWindows> ritWindow;
 	int rit_value;
 

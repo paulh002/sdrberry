@@ -25,22 +25,19 @@ class gui_setup
 	lv_obj_t *brightness_slider_label, *brightness_slider;
 	lv_obj_t *d_audio, *d_bandwitdth;
 	lv_group_t *button_group{nullptr};
-	lv_obj_t *contour_slider_label, *contour_slider;
+	lv_obj_t *cal_label, *calibration_dropdown;
 	lv_obj_t *calbox, *dcbox, *autocalbox;
 	lv_obj_t *tileview, *settings_main, *settings_i2c;
 
 	void receivers_button_handler_class(lv_event_t *e);
 	void calbox_event_cb_class(lv_event_t *e);
-	void contour_slider_event_cb_class(lv_event_t *e);
 	void span_slider_event_cb_class(lv_event_t *e);
 	void brightness_slider_event_cb_class(lv_event_t *e);
 	void audio_button_handler_class(lv_event_t *e);
 	void bandwidth_button_handler_class(lv_event_t *e);
 	void samplerate_button_handler_class(lv_event_t *e);
 	void dcbox_event_cb_class(lv_event_t *e);
-	void auto_calbox_event_cb_class(lv_event_t *e);
-
-	void set_contour_value(int speed);
+	void cal_button_handler_class(lv_event_t *e);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice);
@@ -58,8 +55,6 @@ class gui_setup
 	bool get_calibration() { return (lv_obj_get_state(calbox) & LV_STATE_CHECKED); }
 
 	void set_group();
-
-	int get_contour_value();
 	void init_bandwidth();
 	int get_bandwidth_sel() { return lv_dropdown_get_selected(d_bandwitdth); }
 	double m_ifrate;
@@ -68,14 +63,14 @@ class gui_setup
 
 	static constexpr auto receivers_button_handler = EventHandler<gui_setup, &gui_setup::receivers_button_handler_class>::staticHandler;
 	static constexpr auto calbox_event_cb = EventHandler<gui_setup, &gui_setup::calbox_event_cb_class>::staticHandler;
-	static constexpr auto contour_slider_event_cb = EventHandler<gui_setup, &gui_setup::contour_slider_event_cb_class>::staticHandler;
 	static constexpr auto span_slider_event_cb = EventHandler<gui_setup, &gui_setup::span_slider_event_cb_class>::staticHandler;
 	static constexpr auto brightness_slider_event_cb = EventHandler<gui_setup, &gui_setup::brightness_slider_event_cb_class>::staticHandler;
 	static constexpr auto audio_button_handler = EventHandler<gui_setup, &gui_setup::audio_button_handler_class>::staticHandler;
 	static constexpr auto bandwidth_button_handler = EventHandler<gui_setup, &gui_setup::bandwidth_button_handler_class>::staticHandler;
 	static constexpr auto samplerate_button_handler = EventHandler<gui_setup, &gui_setup::samplerate_button_handler_class>::staticHandler;
 	static constexpr auto dcbox_event_cb = EventHandler<gui_setup, &gui_setup::dcbox_event_cb_class>::staticHandler;
-	static constexpr auto auto_calbox_event_cb = EventHandler<gui_setup, &gui_setup::auto_calbox_event_cb_class>::staticHandler;
+	static constexpr auto cal_button_handler = EventHandler<gui_setup, &gui_setup::cal_button_handler_class>::staticHandler;
+	
 };
 
 extern gui_setup gsetup;

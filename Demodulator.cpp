@@ -16,7 +16,7 @@
  **
  **/
 std::atomic<bool> Demodulator::dcBlockSwitch = true;
-std::atomic<bool> Demodulator::autocorrection = false;
+std::atomic<int> Demodulator::correction = 0;
 std::atomic<double> correlationMeasurement, errorMeasurement;
 std::atomic<int> Demodulator::noisefilter = 0;
 std::atomic<float> Demodulator::noiseThresshold = 0.0;
@@ -31,8 +31,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer");
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
-	adjustPhaseGain = get_gain_phase_correction();
-	autocorrection = Settings_file.get_int(default_radio, "autocal");
+	correction = Settings_file.get_int(default_radio, "correction");
 	highfftquadrant = 0;
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	noisefilter = 0;
@@ -51,8 +50,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	if (!audioBufferSize)
 		audioBufferSize = 4096;
 	highfftquadrant = 0;
-	adjustPhaseGain = get_gain_phase_correction();
-	autocorrection = Settings_file.get_int(default_radio, "autocal");
+	correction = Settings_file.get_int(default_radio, "correction");
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	lowPassAudioFilterCutOffFrequency = 0;
 	// resampler and band filter assume pcmfrequency on the low side
@@ -73,9 +71,8 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	// resampler and band filter assume pcmfrequency on the low side
 	tune_offset(vfo.get_vfo_offset());
 	dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
-	adjustPhaseGain = get_gain_phase_correction();
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
-	autocorrection = Settings_file.get_int(default_radio, "autocal");
+	correction = Settings_file.get_int(default_radio, "correction");
 	lowPassAudioFilterCutOffFrequency = 0;
 }
 
@@ -226,54 +223,34 @@ void Demodulator::tune_offset(long offset)
 
 void Demodulator::gain_phasecorrection(IQSampleVector &samples_in, float vol)
 {
-	if (autocorrection)
-		auto_adjust_gain_phasecorrection(samples_in, vol);
-	else
-		adjust_gain_phasecorrection(samples_in, vol);
-}
-
-void Demodulator::adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
-{
-	if (adjustPhaseGain)
-	{
-		float phase = (float)gcal.getRxPhase();
-		float gain = (float)gcal.getRxGain();
-		for (auto& col : samples_in)
-		{
-			col.real(col.real() * vol * gain);
-			col.imag(col.imag() * vol);
-			if (phase < 0.0)
-				col.real(col.real() + col.imag() * phase);
-			if (phase > 0.0)
-				col.imag(col.imag() + col.real() * phase);
-		}
-	}
-	else
-	{
-		for (auto& col : samples_in)
-		{
-			col.real(col.real() * vol);
-			col.imag(col.imag() * vol);
-		}
-	}
-}
-
-void Demodulator::auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, float vol)
-{
 	double error, correlation;
-	float phase{0};
-	float gain{1.0};
-	float gainManual = (float)gcal.getRxGain();
+	float autophase{0};
+	float autogain{1.0};
 	
+	float gainManual = (float)gcal.getRxGain();
+	float phaseManual = (float)gcal.getRxPhase();
+
 	std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
-	phase = std::get<1>(result);
-	gain = std::get<2>(result);
-	if (adjustPhaseGain)
+	autophase = std::get<1>(result);
+	autogain = std::get<2>(result);
+	if (correction > 0)
 	{
 		for (auto &col : samples_in)
 		{
-			col.real(col.real() + col.imag() * phase);
-			col.imag(col.imag() * gain * gainManual);
+			if (correction > 1)
+			{
+				col.real(col.real() + col.imag() * autophase);
+				col.imag(col.imag() * autogain);
+			}
+			
+			if (correction == 1 || correction == 3)
+			{
+				col.real(col.real() * gainManual);
+				if (phaseManual < 0.0)
+					col.real(col.real() + col.imag() * phaseManual);
+				if (phaseManual > 0.0)
+					col.imag(col.imag() + col.real() * phaseManual);
+			}
 
 			col.real(col.real() * vol);
 			col.imag(col.imag() * vol);
@@ -288,10 +265,11 @@ void Demodulator::auto_adjust_gain_phasecorrection(IQSampleVector &samples_in, f
 		}
 	}
 }
+
 
 void Demodulator::adjust_calibration(IQSampleVector &samples_in)
 {
-	if (adjustPhaseGain)
+	if (correction > 0)
 	{
 		float gain = (float)gcal.getTxGain();
 		for (auto &col : samples_in)
@@ -315,6 +293,7 @@ void Demodulator::adjust_calibration(IQSampleVector &samples_in)
 		}
 	}
 }
+
 
 // copy mono signal to both sereo channels
 void Demodulator::mono_to_left_right(const SampleVector &samples_mono,
@@ -520,20 +499,10 @@ void Demodulator::set_dc_filter(bool state)
 		dcBlockSwitch = false;
 }
 
-void Demodulator::set_autocorrection(bool state)
+void Demodulator::set_autocorrection(int state)
 {
-	if (state)
-		autocorrection = true;
-	else
-		autocorrection = false;
-}
-
-bool Demodulator::get_gain_phase_correction()
-{
-	if (Settings_file.get_int(default_radio, "correction"))
-		return true;
-	else
-		return false;
+	correction.store(state);
+	printf("auto correction %d\n", correction.load());
 }
 
 void Demodulator::set_noise_filter(int noise)

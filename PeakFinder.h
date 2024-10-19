@@ -15,7 +15,7 @@ namespace PeakFinder {
         Output
         peakInds: Indices of peaks in x0
     */
-    void findPeaks(std::vector<float> x0, std::vector<int>& peakInds, bool includeEndpoints=true, float extrema=1);
+    void findPeaks(const std::vector<float>& x0, std::vector<int>& peakInds, bool includeEndpoints=true, float extrema=1);
 }
 
 #endif

@@ -4,6 +4,7 @@
 #include "gui_ft8bar.h"
 #include "gui_rx.h"
 #include "gui_setup.h"
+#include "Spectrum.h"
 #include <memory>
 
 const int buttontx = 0;
@@ -14,22 +15,24 @@ const int buttonpreamp = 4;
 const int buttonatt = 5;
 const int buttonnoise = 6;
 const int buttonrit = 7;
-const int button_filter = 8;
+const int buttonmarker = 8;
+const int button_filter = 9;
 
 
-static const char *opts = "0.5 Khz\n"
-						  "1.0 Khz\n"
-						  "1.5 Khz\n"
-						  "2.0 Khz\n"
-						  "2.5 Khz\n"
-						  "3.0 Khz\n"
-						  "3.5 Khz\n"
-						  "4.0 Khz";
+static const char *opts = "0.5 Kc\n"
+						  "1.0 Kc\n"
+						  "1.5 Kc\n"
+						  "2.0 Kc\n"
+						  "2.5 Kc\n"
+						  "3.0 Kc\n"
+						  "3.5 Kc\n"
+						  "4.0 Kc";
 
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};
 std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm};
 std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
 std::vector<std::string> attnTypes{"off", "-10db", "-20db", "-30db", "-40db"};
+std::vector<std::string> MarkerTypes{"off", "M 1", "M 2"};
 std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}};
 
 gui_bar gbar;
@@ -99,6 +102,12 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 			preampWindow = nullptr;
 			lv_obj_clear_state(get_button_obj(buttonpreamp), LV_STATE_CHECKED);
 		}
+		if (MarkerWindow != nullptr)
+		{
+			MarkerWindow.reset();
+			MarkerWindow = nullptr;
+			lv_obj_clear_state(get_button_obj(buttonmarker), LV_STATE_CHECKED);
+		}
 		if (ritWindow != nullptr)
 		{
 			ritWindow.reset();
@@ -117,6 +126,28 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		return;
 	}
 
+	if (code == customLVevents.getCustomEvent(LV_EVENT_MARKER_CLICKED))
+	{
+		MarkerWindow.reset();
+		MarkerWindow = nullptr;
+		long i = (long)e->param;
+		switch (i)
+		{
+		case 0:
+			SpectrumGraph.enable_marker(0, false);
+			SpectrumGraph.enable_marker(1, false);
+			lv_obj_clear_state(get_button_obj(buttonmarker), LV_STATE_CHECKED);
+			break;
+		case 1:
+			SpectrumGraph.enable_marker(0, true);
+			break;
+		case 2:
+			SpectrumGraph.enable_marker(1, true);
+			break;
+		}
+		return;
+	}
+	
 	if (code == customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED))
 	{
 		modeWindow.reset();
@@ -275,6 +306,13 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 						}
 					}
 					break;
+				case buttonmarker:
+					if (MarkerWindow == nullptr)
+					{
+						MarkerWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Marker", MarkerTypes, -1, customLVevents.getCustomEvent(LV_EVENT_MARKER_CLICKED), 300, 200);
+						lv_obj_add_state(get_button_obj(buttonmarker), LV_STATE_CHECKED);
+					}
+					break;
 				}
 			}
 		}
@@ -430,7 +468,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	int ibutton_x = 0, ibutton_y = 0;
 	int i = 0;
 	int slider_height_margin = h / slide_max_rows - y_margin;
-	int button_width_dropdown = 2 * button_width;
+	int button_width_dropdown = button_width;
 
 	ifilters.push_back(500);
 	ifilters.push_back(1000);
@@ -529,6 +567,12 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM), (void *)this);
 				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), (void *)this);
 				lv_obj_add_event_cb(button[buttonrit], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), (void *)this);
+				break;
+			case buttonmarker:
+				lv_obj_add_flag(button[buttonmarker], LV_OBJ_FLAG_CHECKABLE);
+				strcpy(str, "Marker");
+				lv_obj_add_event_cb(button[buttonmarker], bar_button_handler, customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
+				lv_obj_add_event_cb(button[buttonmarker], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_MARKER_CLICKED), (void *)this);
 				break;
 			}
 			lv_label_set_recolor(label[i], true);

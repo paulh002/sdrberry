@@ -35,7 +35,7 @@ class Demodulator
 {
   public:
 	static void set_dc_filter(bool state);
-	static void set_autocorrection(bool state);
+	static void set_autocorrection(int state);
 	static void set_noise_filter(int noise);
 	static void set_noise_threshold(int threshold);
 	static float get_threshold() { return noiseThresshold; }
@@ -113,7 +113,7 @@ class Demodulator
 	firfilt_crcf dcBlockHandle{nullptr};
 
 	static atomic<bool> dcBlockSwitch;
-	static atomic<bool> autocorrection;
+	static atomic<int> correction;
 	const int lowPassFilterOrder = 6;
 	
 	
@@ -130,7 +130,5 @@ class Demodulator
 	std::atomic<int> lowPassAudioFilterCutOffFrequency;
 	static std::atomic<int> noisefilter;
 	static std::atomic<float> noiseThresshold;
-
-	bool adjustPhaseGain;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 };

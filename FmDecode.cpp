@@ -535,7 +535,7 @@ void FMBroadBandDemodulator::operator()()
 		int nosamples = iqsamples.size();
 		calc_if_level(iqsamples);
 		limiter.Process(iqsamples);
-		adjust_gain_phasecorrection(iqsamples, gbar.get_if());
+		gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
 		set_signal_strength();
 		process(iqsamples, audiosamples);

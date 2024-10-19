@@ -272,7 +272,18 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	add_cq(m2);
 	
 	message m3{12, 1, 1, 1, 1, 1, 1000, "PA0PHH M0ZMF KO21"};
-	add_cq(m3); */
+	add_cq(m3);
+
+	for (int i = 0; i < 20; i++)
+	{
+		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF KO21"));
+	}
+	for (int i = 0; i < 100; i++)
+	{
+		add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
+	}
+add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
+*/
 }
 
 
@@ -282,7 +293,23 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	
 	if (lv_table_get_row_cnt(table) > tableviewsize)
 	{
-		lv_table_remove_rows(table, 1, 1);
+		// remove first row to limit table become to large, but retain qso entries
+		int row = 1;
+		int size = lv_table_get_row_cnt(table);
+		std::string message(lv_table_get_cell_value(table, 1, 3));		
+		if (message.find(call) != std::string::npos)
+		{
+			do
+			{
+				row++;
+				std::string str(lv_table_get_cell_value(table, row, 3));
+				message = str;
+
+			} while (message.find(call) != std::string::npos && row < size);
+			if (row > tableviewsize / 5)
+				row = 1;
+		}
+		lv_table_remove_rows(table, row, 1);
 	}
 
 	if ((msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0) ||
@@ -435,14 +462,14 @@ void gui_ft8::clr_qso()
 void gui_ft8::clr_cq()
 {
 	if (guift8bar.GetFilter().size() == 0)
-	{
+	{	// remove all cq's's
 		lv_table_set_row_cnt(cqTable, 1);
 		CqScrollFirstItem();
 		lv_obj_invalidate(table);
 		cqRowCount = 1;
 	}
 	else
-	{
+	{	// remove cq's (with call in filter) from cq window but retain all other 
 		std::vector<std::string> r1, r2, r3, r4;
 		for (int row = 1; row < cqRowCount; row++)
 		{

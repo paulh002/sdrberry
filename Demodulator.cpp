@@ -121,7 +121,6 @@ void Demodulator::set_resample_rate(float resample_rate)
 	resampleRate = resample_rate;
 	resampleHandle = msresamp_crcf_create(resampleRate, As);
 	msresamp_crcf_print(resampleHandle);
-
 }
 
 float Demodulator::adjust_resample_rate(float rateAjustFraction)

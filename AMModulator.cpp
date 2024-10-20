@@ -100,17 +100,12 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	audio_input->set_tone(param.tone);
 	if ((param.ifrate - audio_input->get_samplerate()) > 0.1)
 	{
-		float sample_ratio, sample_ratio1;
+		float sample_ratio;
 		
 		// only resample and tune if ifrate > pcmrate
 		tune_offset(vfo.get_vfo_offset_tx());
-
-		sample_ratio1 = param.ifrate / (double)audio_input->get_samplerate();
-		std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
-		sscanf(sampleratio.c_str(), "%f", &sample_ratio);
-		if (abs(sample_ratio1 - sample_ratio) > 0.1)
-			sample_ratio = sample_ratio1;
-
+		sample_ratio = param.ifrate / (double)audio_input->get_samplerate();
+		printf("ifrate %f, audiorate %d  Resample rate %f\n", param.ifrate, audio_input->get_samplerate(), sample_ratio);
 		set_resample_rate(sample_ratio); // UP sample to ifrate
 	}
 	else
@@ -129,7 +124,7 @@ void AMModulator::operator()()
 	unsigned int            fft_block = 0;
 	bool                    inbuf_length_warning = false;
 	SampleVector            audiosamples;
-	IQSampleVector			samples_out;
+	IQSampleVector			samples_out, samples_in;
 	AudioProcessor			Speech;
 	IQGenerator IqGenerator(ifrate, audioInputBuffer);
 
@@ -180,14 +175,18 @@ void AMModulator::operator()()
 		calc_af_level(audiosamples);
 		set_signal_strength();
 		if (audioInputBuffer->get_tone() != audioTone::FourTone)
+		{
 			process(audiosamples, samples_out);
-		else
+		}
+		else 
 		{
 			samples_out = IqGenerator.generateIQVectors(4, 45.0f, 48000);
 			SpectrumGraph.ProcessWaterfall(samples_out);
 		}
 
 		adjust_calibration(samples_out);
+		int number_of_samples = samples_out.size();
+		int number_of_audio_samples = audiosamples.size();
 		transmitIQBuffer->push(std::move(samples_out));
 		audiosamples.clear();
 		
@@ -195,8 +194,8 @@ void AMModulator::operator()()
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
-			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
-			printf("Queued transmitbuffer Samples %lu\n", transmitIQBuffer->queued_samples());
+			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+			printf("Queued transmitbuffer Samples %lu number of audio samples %d number of samples %d\n", transmitIQBuffer->queued_samples(), number_of_audio_samples, number_of_samples);
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
 	}
@@ -226,7 +225,7 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 		guift8bar.Process(buf_mod);
 	executeBandpassFilter(buf_mod, buf_filter);
 	Resample(buf_filter, buf_out ); //buf_out
-	mix_up(buf_mod, samples_out); // Mix up to vfo freq
+	mix_up(buf_out, samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);
 }
 

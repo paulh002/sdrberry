@@ -2,6 +2,7 @@
 #include "gui_bar.h"
 #include "Catinterface.h"
 #include "Demodulator.h"
+#include "Spectrum.h"
 
 gui_rx guirx;
 
@@ -124,6 +125,21 @@ void gui_rx::noise_handler_class(lv_event_t *e)
 		{
 			Demodulator::set_noise_filter(noise + 1);
 		}
+	}
+}
+
+void gui_rx::event_handler_hold_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	
+	if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+	{
+		SpectrumGraph.enable_second_data_series(true);
+	}
+	else
+	{
+		SpectrumGraph.enable_second_data_series(false);
 	}
 }
 
@@ -278,6 +294,16 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	sprintf(buf, "Waterfall level %d db", waterfallgain);
 	lv_label_set_text(waterfall_slider_label, buf);
 	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+
+	waterfall_hold = lv_checkbox_create(o_tab);
+	lv_group_add_obj(m_button_group, waterfall_hold);
+	lv_checkbox_set_text(waterfall_hold, "Spectrum hold");
+	lv_obj_add_event_cb(waterfall_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_add_flag(waterfall_hold, LV_OBJ_FLAG_CHECKABLE);
+	lv_obj_align_to(waterfall_hold, waterfall_slider, LV_ALIGN_OUT_RIGHT_TOP, 30, 0);
+	//lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, 1 * button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_group_add_obj(m_button_group, waterfall_hold);
+	
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }

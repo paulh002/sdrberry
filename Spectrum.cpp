@@ -13,7 +13,6 @@
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
 
-
 using namespace std;
 
 const int noise_floor{20};
@@ -104,7 +103,7 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 
 	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
 
-	if (dsc->part == LV_PART_ITEMS)
+	if (dsc->part == LV_PART_ITEMS && dsc->sub_part_ptr == ser)
 	{
 		if (!dsc->p1 || !dsc->p2)
 			return;
@@ -234,13 +233,16 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_PRESSING, (void *)this);
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_RELEASED, (void *)this);
 	lv_obj_add_event_cb(lv_obj_get_parent(chart), click_event_cb, LV_EVENT_CLICKED, (void *)this);
-	FrequencyCursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM | LV_DIR_TOP);
+	FrequencyCursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_RED), LV_DIR_BOTTOM | LV_DIR_TOP);
 
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
 	for (int i = 0; i < nfft_samples / 2; i++)
+	{
 		data_set.push_back(0);
+		data_set_peak.push_back(0);
+	}
 	lv_chart_set_point_count(chart, data_set.size());
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
 	avg_filter.resize(nfft_samples);
@@ -326,8 +328,37 @@ void Spectrum::set_pos(int32_t offset)
 		pos = 0;
 	if (pos >= data_set.size())
 		pos = data_set.size() - 1;
-	lv_chart_set_cursor_point(chart, FrequencyCursor, NULL, pos);
+	lv_chart_set_cursor_point(chart, FrequencyCursor, ser, pos);
 //	printf("Pos: freq: %ld sdr %ld offset %d pos: %d span %d \n", (long)vfo.get_frequency(), (long)vfo.get_sdr_frequency(), offset, pos, span);
+}
+
+void Spectrum::enable_second_data_series(bool enable)
+{
+	hold_peak = enable;
+	if (hold_peak)
+	{
+		peak_ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_BLUE), LV_CHART_AXIS_PRIMARY_Y);
+		for (auto m : markers)
+		{
+			if (m != nullptr)
+				m->ser = peak_ser;
+		}
+	}
+	else
+	{
+		if (peak_ser)
+		{
+			lv_chart_remove_series(chart, peak_ser);
+			for (auto &value : data_set_peak)
+				value = 0;
+			peak_ser = nullptr;
+		}
+		for (auto m : markers)
+		{
+			if (m != nullptr)
+				m->ser = ser;
+		}
+	}
 }
 
 void Spectrum::load_data()
@@ -337,6 +368,10 @@ void Spectrum::load_data()
 	{
 		lv_chart_set_point_count(chart, i);
 		lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
+		if (peak_ser != nullptr)
+		{
+			lv_chart_set_ext_y_array(chart, peak_ser, (lv_coord_t *)data_set_peak.data());
+		}
 		lv_chart_refresh(chart);
 	}
 }
@@ -354,6 +389,7 @@ void Spectrum::upload_fft()
 			int ii{}, value{};
 			std::vector<float> fft_output = fft->GetLineatSquaredBins();
 			data_set.resize(fft_output.size() / 2);
+			data_set_peak.resize(fft_output.size() / 2);
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
@@ -363,6 +399,7 @@ void Spectrum::upload_fft()
 				if (i % 2)
 				{
 					data_set[ii] = avg_filter[ii](value);
+					data_set_peak[ii] = std::max(data_set_peak[ii], data_set[ii]);
 					ii++;
 				}
 				i++;
@@ -374,6 +411,7 @@ void Spectrum::upload_fft()
 			int value{};
 			std::vector<float> fft_output = fft->GetSquaredBins();
 			data_set.resize(fft_output.size() / 2);
+			data_set_peak.resize(fft_output.size() / 2);
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
@@ -383,6 +421,7 @@ void Spectrum::upload_fft()
 				if (value > (float)s_poits_max)
 					value = (float)s_poits_max;
 				data_set[i] = avg_filter[i](value);
+				data_set_peak[i] = std::max(data_set_peak[i], data_set[i]);
 				i++;
 			}
 		}
@@ -401,8 +440,8 @@ void Spectrum::enable_marker(int marker, bool enable)
 	{
 		if (markers[marker] == nullptr && enable)
 		{
-			markers[marker] = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_RED), LV_DIR_BOTTOM | LV_DIR_TOP);
-			lv_chart_set_cursor_point(chart, markers[marker], NULL, markers_location[marker]);
+			markers[marker] = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM | LV_DIR_TOP);
+			lv_chart_set_cursor_point(chart, markers[marker], (peak_ser == nullptr) ? ser : peak_ser, markers_location[marker]);
 			active_markers++;
 		}
 		if (markers[marker] != nullptr && !enable)
@@ -420,13 +459,13 @@ void Spectrum::set_marker(int marker, int32_t offset)
 	{
 		markers_location[marker] = offset;
 		if (markers[marker] != nullptr)
-			lv_chart_set_cursor_point(chart, markers[marker], NULL, markers_location[marker]);
+			lv_chart_set_cursor_point(chart, markers[marker], (peak_ser == nullptr) ? ser : peak_ser, markers_location[marker]);
 	}
 }
 
 void Spectrum::draw_marker_label(lv_chart_cursor_t *cursor, lv_obj_draw_part_dsc_t *dsc)
 {
-	lv_coord_t *data_array = lv_chart_get_y_array(chart, ser);
+	lv_coord_t *data_array = lv_chart_get_y_array(chart, cursor->ser);
 	lv_coord_t v = data_array[cursor->point_id];
 	char buf[16];
 

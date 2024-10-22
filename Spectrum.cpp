@@ -221,7 +221,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	}
 	if (waterfallsize > 3)
 		hor_lines = hor_lines_small;
-	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 130);
+	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
 	lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
@@ -393,13 +393,13 @@ void Spectrum::upload_fft()
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
-				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
+				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
 				if (value > (float)s_poits_max)
 					value = (float)s_poits_max;
 				if (i % 2)
 				{
 					data_set[ii] = avg_filter[ii](value);
-					data_set_peak[ii] = std::max(data_set_peak[ii], data_set[ii]);
+					data_set_peak[ii] = std::max(data_set_peak[ii], (lv_coord_t)value);
 					ii++;
 				}
 				i++;
@@ -417,11 +417,11 @@ void Spectrum::upload_fft()
 			{
 				if (i == (fft_output.size() / 2))
 					break;
-				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
+				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
 				if (value > (float)s_poits_max)
 					value = (float)s_poits_max;
 				data_set[i] = avg_filter[i](value);
-				data_set_peak[i] = std::max(data_set_peak[i], data_set[i]);
+				data_set_peak[i] = std::max(data_set_peak[i], (lv_coord_t)value);
 				i++;
 			}
 		}

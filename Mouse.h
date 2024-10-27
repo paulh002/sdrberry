@@ -45,5 +45,6 @@ class Mouse
 	std::chrono::time_point<std::chrono::system_clock> last_click_time;
 	int click_count;
 
-	std::string find_mouse();
+	//std::string find_mouse();
+	bool find_mouse(const char *device_path);
 };

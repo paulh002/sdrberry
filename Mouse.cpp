@@ -1,6 +1,7 @@
 #include "Mouse.h"
 #include <iostream>
 #include <fstream>
+#include <dirent.h>
 
 #define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
 #define NBITS(x) ((((x)-1) / (sizeof(long) * 8)) + 1)
@@ -33,75 +34,92 @@ void strupr(char *str)
 	}
 }
 
-std::string Mouse::find_mouse()
+bool Mouse::find_mouse(const char *device_path)
 {
-	std::ifstream device("/proc/bus/input/devices");
-	std::string line;
-	std::string mouse;
-
-	if (device.is_open())
+	fd = open(device_path, O_RDONLY | O_NONBLOCK);
+	if (fd < 0)
 	{
-		while (std::getline(device, line))
+		perror("Failed to open device");
+		return 0;
+	}
+	
+	char name[256] = "Unknown";
+	ioctl(fd, EVIOCGNAME(sizeof(name)), name);
+	printf("Input device name: \"%s\"\n", name);
+	if (strstr(name, "hdmi") != nullptr)
+	{
+		close(fd);
+		fd = -1;
+		return 0;
+	}
+	
+	// To detect if it's a mouse, we use the ioctl function with EVIOCGBIT.
+	unsigned long evbit[(EV_MAX + 7) / 8] = {0};
+	if (ioctl(fd, EVIOCGBIT(0, EV_MAX), evbit) < 0)
+	{
+		perror("ioctl failed");
+		close(fd);
+		fd = -1;
+		return 0;
+	}
+
+	// Check if the device supports EV_REL (relative movement events) and
+	// REL_X and REL_Y (axis for mouse movement).
+	int is_mouse = evbit[EV_REL / 8] & (1 << (EV_REL % 8));
+	if (is_mouse)
+	{
+		unsigned long relbit[(REL_MAX + 7) / 8] = {0};
+		if (ioctl(fd, EVIOCGBIT(EV_REL, REL_MAX), relbit) >= 0)
 		{
-			transform(line.begin(), line.end(), line.begin(), ::toupper);
-			// Look for lines containing "mouse" indicating a mouse device
-			if (line.find("MOUSE") != std::string::npos && line.find("NAME") != std::string::npos)
+			if ((relbit[REL_X / 8] & (1 << (REL_X % 8))) &&
+				(relbit[REL_Y / 8] & (1 << (REL_Y % 8))))
 			{
-				while (std::getline(device, line))
-				{
-					if (line.find("H:") != std::string::npos)
-					{
-						int i = line.find("event");
-						mouse = line.substr(i);
-						break;
-					}
-				}
-				break;
+				is_mouse = 1;
+			}
+			else
+			{
+				is_mouse = 0;
 			}
 		}
-		device.close();
 	}
-	mouse.erase(std::remove(mouse.begin(), mouse.end(), ' '), mouse.end());
-	return mouse;
+
+	if (!is_mouse)
+	{
+		close(fd);
+		fd = -1;
+	}
+	else
+	{
+		printf("Mouse device name: \"%s\"\n", name);
+	}
+	return is_mouse;
 }
 
 void Mouse::init_mouse()
 {
-	std::string mouse = find_mouse();
-	if (mouse.size() > 0)
+	struct dirent *entry;
+	DIR *dp = opendir("/dev/input");
+
+	if (dp == NULL)
 	{
-		strcpy(mouseDev,  "/dev/input/");
-		strcat(mouseDev, mouse.c_str());
-		fd = open(mouseDev, O_RDONLY | O_NONBLOCK);
-		if (fd > 0)
+		perror("opendir failed");
+		return;
+	}
+
+	while ((entry = readdir(dp)))
+	{
+		// Only consider "event" devices
+		if (strncmp(entry->d_name, "event", 5) == 0)
 		{
-			printf("Input device is a mouse %s\n", mouse.c_str());
-			unsigned long ev_bits[NBITS(EV_MAX)];
-
-			char name[256] = "Unknown";
-			ioctl(fd, EVIOCGNAME(sizeof(name)), name);
-			printf("Input device name: \"%s\"\n", name);
-			strupr(name);
-			char *ptr = strstr(name, mouse_name.c_str());
-
-			if (ioctl(fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits) == -1)
+			char device_path[256];
+			snprintf(device_path, sizeof(device_path), "/dev/input/%s", entry->d_name);
+			if (find_mouse(device_path))
 			{
-				printf("ioctl error\n");
-				close(fd);
-				fd = -1;
-			}
-
-			if (test_bit(EV_KEY, ev_bits) && test_bit(EV_REL, ev_bits))
-			{
-				printf("Input device is a mouse\n");
-				if (ptr == NULL && mouse_name.length() > 0)
-				{
-					close(fd);
-					fd = -1;
-				}
+				break;
 			}
 		}
 	}
+	closedir(dp);
 }
 
 

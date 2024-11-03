@@ -6,7 +6,7 @@
 #define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
 #define NBITS(x) ((((x)-1) / (sizeof(long) * 8)) + 1)
 
-std::chrono::milliseconds double_click_threshold(300); 
+static std::chrono::milliseconds double_click_threshold(300); 
 
 Mouse::Mouse()
 {
@@ -74,7 +74,23 @@ bool Mouse::find_mouse(const char *device_path)
 			if ((relbit[REL_X / 8] & (1 << (REL_X % 8))) &&
 				(relbit[REL_Y / 8] & (1 << (REL_Y % 8))))
 			{
-				is_mouse = 1;
+				int keyBitmask[KEY_MAX / (sizeof(int) * 8) + 1];
+				if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyBitmask)), keyBitmask) == -1)
+				{
+					is_mouse = 0;
+				}
+				else
+				{
+					if (keyBitmask[KEY_A / (sizeof(int) * 8)] & (1 << (KEY_A % (sizeof(int) * 8))))
+					{
+						//printf("Device is also a keyboard\n");
+						is_mouse = 0;
+					}
+					else
+					{
+						is_mouse = 1;
+					}
+				}
 			}
 			else
 			{
@@ -227,7 +243,7 @@ MouseState Mouse::GetMouseState()
 					}
 					last_click_time = current_time;
 				}
-				else
+				if (mouse_event.value == 0)
 				{
 					state.pressed = LV_INDEV_STATE_REL;
 					state.MouseActivity = true;
@@ -236,5 +252,7 @@ MouseState Mouse::GetMouseState()
 		bytes = read(fd, (void *)&mouse_event, sizeof(struct input_event));
 		}
 	}
+	//if (state.MouseActivity)
+	//	printf("x %d y %d pressed %d activity %d \n", state.x, state.y, state.pressed, state.MouseActivity);
 	return state;
 }

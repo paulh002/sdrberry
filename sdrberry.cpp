@@ -191,6 +191,26 @@ void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 	}
 }
 
+void mouse_keyboard_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
+{
+	MouseState state;
+	/*Get the current x and y coordinates*/
+	state = KeyboardDevice.GetMouseState();
+	data->point.x = state.x;
+	data->point.y = state.y;
+	rotary_rotation = state.Rotated;
+
+	/*Get whether the mouse button is pressed or released*/
+	if (state.pressed)
+	{
+		data->state = LV_INDEV_STATE_PR;
+	}
+	else
+	{
+		data->state = LV_INDEV_STATE_REL;
+	}
+}
+
 void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data){
 	//data->enc_diff = HidDev_dev.encoder_rotate();
 	//data->state = HidDev_dev.encoder_key_press();
@@ -390,12 +410,26 @@ int main(int argc, char *argv[])
 		indev_drv_mouse.type = LV_INDEV_TYPE_POINTER;
 		indev_drv_mouse.read_cb = mouse_read;
 		indev_mouse = lv_indev_drv_register(&indev_drv_mouse);
-		//Set cursor. For simplicity set a HOME symbol now.
+		// Set cursor. For simplicity set a HOME symbol now.
 		lv_obj_t *mouse_cursor = lv_img_create(lv_scr_act());
 		lv_img_set_src(mouse_cursor, &mouse_cursor_icon);
 		lv_indev_set_cursor(indev_mouse, mouse_cursor);
 	}
-	
+	else
+	{
+		if (KeyboardDevice.MouseAttached())
+		{
+			lv_indev_drv_init(&indev_drv_mouse);
+			indev_drv_mouse.type = LV_INDEV_TYPE_POINTER;
+			indev_drv_mouse.read_cb = mouse_keyboard_read;
+			indev_mouse = lv_indev_drv_register(&indev_drv_mouse);
+			// Set cursor. For simplicity set a HOME symbol now.
+			lv_obj_t *mouse_cursor = lv_img_create(lv_scr_act());
+			lv_img_set_src(mouse_cursor, &mouse_cursor_icon);
+			lv_indev_set_cursor(indev_mouse, mouse_cursor);
+		}
+	}
+
 	static lv_indev_drv_t indev_drv_keyboard;
 	if (KeyboardDevice.Attached())
 	{

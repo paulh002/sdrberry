@@ -8,6 +8,7 @@
 #include <string.h>
 #include "Mouse.h"
 #include "KeyboardTranslator.h"
+#include <queue>
 
 #define KEYBOARD_BUFFER_SIZE 256
 
@@ -18,6 +19,7 @@ class Keyboard
 	Keyboard();
 	~Keyboard();
 	MouseState GetMouseState();
+	bool MouseAttached() { return mouse_attached; }
 	bool Attached();
 	std::string GetKeys();
 
@@ -25,9 +27,13 @@ class Keyboard
 	int fd;
 	int Index;
 	char KeyboardName[80];
+	bool mouse_attached;
+	int click_count;
 	input_event keyboard_event;
-	unique_ptr<Mouse> mouse;
 	KeyboardTranslator kbTranslator;
+	MouseState state{0, 0, LV_INDEV_STATE_REL, false};
+	std::chrono::time_point<std::chrono::system_clock> last_click_time;
+	std::queue<MouseState> mousestates;
 	struct libevdev *dev; 
 };
 

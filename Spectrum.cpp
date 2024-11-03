@@ -233,7 +233,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_PRESSING, (void *)this);
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_RELEASED, (void *)this);
 	lv_obj_add_event_cb(lv_obj_get_parent(chart), click_event_cb, LV_EVENT_CLICKED, (void *)this);
-	FrequencyCursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_RED), LV_DIR_BOTTOM | LV_DIR_TOP);
+	FrequencyCursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM | LV_DIR_TOP);
 
 	lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
 	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
@@ -440,7 +440,7 @@ void Spectrum::enable_marker(int marker, bool enable)
 	{
 		if (markers[marker] == nullptr && enable)
 		{
-			markers[marker] = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_BOTTOM | LV_DIR_TOP);
+				markers[marker] = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_LIME), LV_DIR_BOTTOM | LV_DIR_TOP);
 			lv_chart_set_cursor_point(chart, markers[marker], (peak_ser == nullptr) ? ser : peak_ser, markers_location[marker]);
 			active_markers++;
 		}

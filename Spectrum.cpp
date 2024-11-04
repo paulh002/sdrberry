@@ -440,7 +440,7 @@ void Spectrum::enable_marker(int marker, bool enable)
 	{
 		if (markers[marker] == nullptr && enable)
 		{
-				markers[marker] = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_LIME), LV_DIR_BOTTOM | LV_DIR_TOP);
+			markers[marker] = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_LIME), LV_DIR_BOTTOM | LV_DIR_TOP);
 			lv_chart_set_cursor_point(chart, markers[marker], (peak_ser == nullptr) ? ser : peak_ser, markers_location[marker]);
 			active_markers++;
 		}

@@ -33,6 +33,9 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Lvgl of Gabor Kiss-Vamosi
 - and others
 
+## Under development
+- webserver
+
 ## ToDo
 - Support for Midi contoler
 - Cheap USB Hid controlers
@@ -82,6 +85,8 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - pthread
 - liquid-dsp
 - fftw
+- civetweb
+- nlohmann json
 
 # Installation
 

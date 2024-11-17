@@ -2,6 +2,7 @@
 #include "gui_ft8bar.h"
 #include "table.h"
 
+
 extern const int screenWidth;
 extern const int screenHeight;
 extern const int bottomHeight;
@@ -568,3 +569,17 @@ void gui_ft8::Scroll(lv_obj_t *table, lv_coord_t currScrollPos)
 	return;
 }
 
+std::vector<std::string> gui_ft8::get_messages(int rowstart, int row_end)
+{
+	std::vector<std::string> result;
+	int rowcount = lv_table_get_row_cnt(table);
+
+	for (int row = 1; row < rowcount; row++)
+	{
+		result.push_back(lv_table_get_cell_value(table, row, 0));
+		result.push_back(lv_table_get_cell_value(table, row, 1));
+		result.push_back(lv_table_get_cell_value(table, row, 2));
+		result.push_back(lv_table_get_cell_value(table, row, 3));
+	}
+	return result;
+}

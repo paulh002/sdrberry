@@ -17,11 +17,13 @@ class gui_top_bar
 	lv_style_t top_style;
 	lv_style_t LabelTextStyle;
 	lv_style_t TimeTextStyle;
+	std::string label;
 
   public:
 	void setup_top_bar(lv_obj_t *scr);
 	void set_time_label();
 	void set_label_status(std::string s);
+	std::string getLabel();
 };
 
 extern gui_top_bar GuiTopBar;

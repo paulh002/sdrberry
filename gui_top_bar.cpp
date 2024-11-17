@@ -50,5 +50,11 @@ void gui_top_bar::set_time_label()
 
 void gui_top_bar::set_label_status(std::string s)
 {
+	label = s;
 	lv_label_set_text(label_status, s.c_str());
+}
+
+std::string gui_top_bar::getLabel()
+{
+	return label;
 }

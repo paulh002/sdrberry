@@ -334,6 +334,18 @@
     <ClCompile Include="table.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="CivetServer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="civetweb.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WebServer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WebRestHandler.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -341,6 +353,24 @@
     </None>
     <None Include="sdrberry-Release.vgdbsettings">
       <Filter>VisualGDB settings</Filter>
+    </None>
+    <None Include="md5.inl">
+      <Filter>Header files</Filter>
+    </None>
+    <None Include="response.inl">
+      <Filter>Header files</Filter>
+    </None>
+    <None Include="sha1.inl">
+      <Filter>Header files</Filter>
+    </None>
+    <None Include="sort.inl">
+      <Filter>Header files</Filter>
+    </None>
+    <None Include="match.inl">
+      <Filter>Header files</Filter>
+    </None>
+    <None Include="handle_form.inl">
+      <Filter>Header files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -720,6 +750,18 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="table.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="CivetServer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="civetweb.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WebServer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WebRestHandler.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -38,6 +38,7 @@
         <string>*.txt</string>
         <string>*.cmake</string>
         <string>*.a</string>
+        <string>*.inl</string>
       </FileMasks>
       <TransferNewFilesOnly>false</TransferNewFilesOnly>
       <IncludeSubdirectories>true</IncludeSubdirectories>

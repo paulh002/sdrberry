@@ -63,6 +63,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	auto it_band = Settings_file.meters.begin();
 	auto it_high = Settings_file.f_high.begin();
 	auto it_mode = Settings_file.mode.begin();
+	auto it_label = Settings_file.labels.begin();
 	vfo_setting.bands.clear();
 	for (auto col : Settings_file.f_low)
 	{
@@ -74,6 +75,8 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 				b.f_high = *it_high;
 			if (it_band != Settings_file.meters.end())
 				b.meters = *it_band;
+			if (it_label != Settings_file.labels.end())
+				b.label = *it_label;
 			if (it_mode != Settings_file.mode.end())
 			{
 				
@@ -626,4 +629,43 @@ void CVfo::setRit(int rit, int active_vfo)
 	
 	vfo_setting.vfo_rit[active_vfo] = rit;
 	tune_flag = true;
+}
+
+std::string CVfo::getMode(int active_vfo)
+{
+	char str[80], str1[80];
+
+	switch (vfo_setting.mode[active_vfo])
+	{
+	case mode_broadband_fm:
+		strcpy(str, "FM");
+		break;
+	case mode_lsb:
+		strcpy(str, "LSB");
+		break;
+	case mode_ft8:
+	case mode_usb:
+		strcpy(str, "USB");
+		break;
+	case mode_dsb:
+		strcpy(str, "DSB");
+	case mode_am:
+		strcpy(str, "AM");
+		break;
+	case mode_cw:
+		strcpy(str, "CW");
+		break;
+	}
+	std::string result(str);
+	return result;
+}
+
+std::string CVfo::get_band_in_text()
+{
+	char str[80];
+	
+	sprintf(str, "%d ", get_band_in_meters());
+
+	std::string result(str);
+	return result + vfo_setting.bands.at(getCurrentBandIndex()).label;
 }

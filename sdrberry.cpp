@@ -42,6 +42,7 @@
 #include "sdrstream.h"
 #include "sdrberry.h"
 #include "CustomEvents.h"
+#include "WebServer.h"
 
 
 //#include "quick_arg_parser.hpp"
@@ -136,6 +137,9 @@ HidDev HidDev_dev, HidDev_dev1, HidDev_dev2;
 BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
+WebServer webserver;
+
+
 
 MidiControle *midicontrole = nullptr;
 auto startTime = std::chrono::high_resolution_clock::now();
@@ -545,8 +549,11 @@ int main(int argc, char *argv[])
 			r = SdrDevices.get_full_frequency_range(default_radio, default_rx_channel);
 		}
 
-		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
-		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
+		char str[80];
+		sprintf(str, "%0.2f", r.minimum() / 1.0e6);
+		std::string	start_freq(str);
+		sprintf(str, "%0.2f", r.maximum() / 1.0e6);
+		std::string stop_freq(str);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		GuiTopBar.set_label_status(s.c_str());
 		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
@@ -654,6 +661,7 @@ int main(int argc, char *argv[])
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
+	webserver.StartServer();		
 	while (1)
 	{
 		WsjtxMessage msg;

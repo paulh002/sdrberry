@@ -47,7 +47,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;NO_SSL=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
@@ -67,7 +67,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;NO_SSL=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
@@ -81,7 +81,7 @@
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
     </Link>
@@ -94,6 +94,8 @@
     <ClCompile Include="BandFilter.cpp" />
     <ClCompile Include="BandPassFilter.cpp" />
     <ClCompile Include="Catinterface.cpp" />
+    <ClCompile Include="CivetServer.cpp" />
+    <ClCompile Include="civetweb.c" />
     <ClCompile Include="cmeter.cpp" />
     <ClCompile Include="configfile.cpp" />
     <ClCompile Include="configoption.cpp" />
@@ -183,6 +185,8 @@
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="Waterfall.cpp" />
     <ClCompile Include="wave.cpp" />
+    <ClCompile Include="WebRestHandler.cpp" />
+    <ClCompile Include="WebServer.cpp" />
     <ClCompile Include="wiringPiI2C.c" />
     <ClCompile Include="wiringSerial.c" />
     <ClInclude Include="AMDemodulator.h" />
@@ -195,6 +199,8 @@
     <ClInclude Include="BandPassFilter.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="Catinterface.h" />
+    <ClInclude Include="CivetServer.h" />
+    <ClInclude Include="civetweb.h" />
     <ClInclude Include="cmeter.h" />
     <ClInclude Include="configfile.h" />
     <ClInclude Include="configoption.h" />
@@ -308,13 +314,21 @@
     <ClInclude Include="vfo.h" />
     <ClInclude Include="Waterfall.h" />
     <ClInclude Include="wave.h" />
+    <ClInclude Include="WebRestHandler.h" />
+    <ClInclude Include="WebServer.h" />
     <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />
     <ClInclude Include="wstring.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="handle_form.inl" />
+    <None Include="match.inl" />
+    <None Include="md5.inl" />
+    <None Include="response.inl" />
     <None Include="sdrberry-Debug.vgdbsettings" />
     <None Include="sdrberry-Release.vgdbsettings" />
+    <None Include="sha1.inl" />
+    <None Include="sort.inl" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="lvgl\lvgl.vcxproj">

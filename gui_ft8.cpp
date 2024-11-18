@@ -1,7 +1,7 @@
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
 #include "table.h"
-
+#include "strlib.h"
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -290,6 +290,7 @@ add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,int hz0, string msg)
 {
+	std::unique_lock<std::mutex> mlock(mutex_);
 	char str[128];
 	
 	if (lv_table_get_row_cnt(table) > tableviewsize)
@@ -382,6 +383,33 @@ void gui_ft8::add_cq(struct message msg)
 	lv_table_set_cell_value(cqTable, cqRowCount, 3, msg.msg.c_str());
 
 	cqRowCount++;
+}
+
+void gui_ft8::add_cq(json msg)
+{
+	lv_table_set_cell_value(cqTable, cqRowCount, 0, strlib::removeCharacters(msg.at("time").dump(), '"').c_str());
+
+	lv_table_set_cell_value(cqTable, cqRowCount, 1, strlib::removeCharacters(msg.at("decibel").dump(), '"').c_str());
+
+	lv_table_set_cell_value(cqTable, cqRowCount, 2, strlib::removeCharacters(msg.at("frequency").dump(), '"').c_str());
+
+	lv_table_set_cell_value(cqTable, cqRowCount, 3, strlib::removeCharacters(msg.at("message").dump(), '"').c_str());
+
+	cqRowCount++;
+}
+
+void gui_ft8::add_qso(json msg)
+{
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 0, strlib::removeCharacters(msg.at("time").dump(), '"').c_str());
+
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 1, strlib::removeCharacters(msg.at("decibel").dump(), '"').c_str());
+
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 2, strlib::removeCharacters(msg.at("frequency").dump(), '"').c_str());
+
+	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, strlib::removeCharacters(msg.at("message").dump(), '"').c_str());
+
+	
+	qsoRowCount++;
 }
 
 void gui_ft8::cpy_qso(int row)
@@ -569,17 +597,81 @@ void gui_ft8::Scroll(lv_obj_t *table, lv_coord_t currScrollPos)
 	return;
 }
 
-std::vector<std::string> gui_ft8::get_messages(int rowstart, int row_end)
+json gui_ft8::get_messages(int rowstart, int row_end)
 {
-	std::vector<std::string> result;
+	std::unique_lock<std::mutex> mlock(mutex_);
+	json result = json::array();
+	json message;
 	int rowcount = lv_table_get_row_cnt(table);
 
 	for (int row = 1; row < rowcount; row++)
 	{
-		result.push_back(lv_table_get_cell_value(table, row, 0));
-		result.push_back(lv_table_get_cell_value(table, row, 1));
-		result.push_back(lv_table_get_cell_value(table, row, 2));
-		result.push_back(lv_table_get_cell_value(table, row, 3));
+		message.emplace("time", lv_table_get_cell_value(table, row, 0));
+		message.emplace("decibel", lv_table_get_cell_value(table, row, 1));
+		message.emplace("frequency", lv_table_get_cell_value(table, row, 2));
+		message.emplace("message", lv_table_get_cell_value(table, row, 3));
+		result.push_back(message);
+		message.clear();
+	}
+	return result;
+}
+
+void gui_ft8::SelectMessage(std::string str)
+{
+	std::unique_lock<std::mutex> mlock(mutex_);
+	json jsonMessage = json::parse(str);
+
+	std::string message = strlib::removeCharacters(jsonMessage.at("message").dump(), '"');
+	std::string dbmessage = strlib::removeCharacters(jsonMessage.at("decibel").dump(), '"');
+	int db = atol(dbmessage.c_str());
+	if (message.rfind("CQ ", 0) == 0 && guift8bar.get_status() == ft8status_t::monitor)
+	{
+		int i = message.find(' ', 3) - 3;
+		if (i > 0)
+			guift8bar.setMessage(message.substr(3, i), db);
+		else
+			guift8bar.setMessage(message.substr(3), db);
+		clr_qso();
+		clr_cq();
+		add_qso(jsonMessage);
+		QsoScrollLatestItem();
+	}
+}
+
+json gui_ft8::get_qso(int rowstart, int row_end)
+{
+	std::unique_lock<std::mutex> mlock(mutex_);
+	json result = json::array();
+	json message;
+	int rowcount = lv_table_get_row_cnt(qsoTable);
+
+	for (int row = 1; row < rowcount; row++)
+	{
+		message.emplace("time", lv_table_get_cell_value(qsoTable, row, 0));
+		message.emplace("decibel", lv_table_get_cell_value(qsoTable, row, 1));
+		message.emplace("frequency", lv_table_get_cell_value(qsoTable, row, 2));
+		message.emplace("message", lv_table_get_cell_value(qsoTable, row, 3));
+		result.push_back(message);
+		message.clear();
+	}
+	return result;
+}
+
+json gui_ft8::get_cq(int rowstart, int row_end)
+{
+	std::unique_lock<std::mutex> mlock(mutex_);
+	json result = json::array();
+	json message;
+	int rowcount = lv_table_get_row_cnt(cqTable);
+
+	for (int row = 1; row < rowcount; row++)
+	{
+		message.emplace("time", lv_table_get_cell_value(cqTable, row, 0));
+		message.emplace("decibel", lv_table_get_cell_value(cqTable, row, 1));
+		message.emplace("frequency", lv_table_get_cell_value(cqTable, row, 2));
+		message.emplace("message", lv_table_get_cell_value(cqTable, row, 3));
+		result.push_back(message);
+		message.clear();
 	}
 	return result;
 }

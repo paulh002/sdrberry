@@ -25,3 +25,19 @@ class WebRestHandlerSelectMessage : public CivetHandler
 
   private:
 };
+
+class WebRestHandlerQso : public CivetHandler
+{
+  public:
+	bool handleGet(CivetServer *server, struct mg_connection *conn);
+
+  private:
+};
+
+class WebRestHandlerCq : public CivetHandler
+{
+  public:
+	bool handleGet(CivetServer *server, struct mg_connection *conn);
+
+  private:
+};

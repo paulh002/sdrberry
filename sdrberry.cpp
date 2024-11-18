@@ -760,6 +760,12 @@ int main(int argc, char *argv[])
 			case GuiMessage::scrollWsjtx:
 				gft8.tableScrollLastItem();
 				break;
+			case GuiMessage::selectMessage:
+				if (IsDigtalMode())
+				{
+					gft8.SelectMessage(msg.text);
+				}
+				break;
 			}
 			guiQueue.pop_front();
 		}

@@ -9,6 +9,8 @@
 WebRestHandler wsjtx_messages;
 WebRestHandlerVfo frequencyvfo1;
 WebRestHandlerSelectMessage SelectMessage;
+WebRestHandlerQso qso_messages;
+WebRestHandlerCq cq_messages;
 
 WebServer::WebServer()
 {
@@ -30,7 +32,8 @@ void WebServer::StartServer()
 	AddHandler("/api/wsjtxmessages", wsjtx_messages);
 	AddHandler("/api/frequencyvfo1", frequencyvfo1);
 	AddHandler("/api/selectmessage", SelectMessage);
-	
+	AddHandler("/api/qsomessages", qso_messages);
+	AddHandler("/api/cqmessages", cq_messages);
 }
 
 void WebServer::AddHandler(const std::string &uri, CivetHandler& handler)

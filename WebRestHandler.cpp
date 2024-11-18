@@ -3,6 +3,7 @@
 #include "gui_ft8.h"
 #include "gui_top_bar.h"
 #include "vfo.h"
+#include "SharedQueue.h"
 
 using json = nlohmann::json;
 
@@ -11,53 +12,11 @@ bool WebRestHandler::handleGet(CivetServer *server, struct mg_connection *conn)
 	/* Handler may access the request info using mg_get_request_info */
 	const struct mg_request_info *req_info = mg_get_request_info(conn);
 
-	json jsonresult;
-	json message;
-	json message_array = json::array();
+	//json message_array = json::array();
 
-	//mg_printf(conn,
-	//		  "HTTP/1.1 200 OK\r\nContent-Type: "
-	//		  "text/html\r\nConnection: close\r\n\r\n");
-
-	std::vector<std::string> result = gft8.get_messages(0, 0);
-
-	int i = 0;
-	for (auto col : result)
-	{
-		switch (i)
-		{
-		case 0:
-			message.emplace("time", col);
-			break;
-		case 1:
-			message.emplace("decibel", col);
-			break;
-		case 2:
-			message.emplace("frequency", col);
-			break;
-		case 3:
-			message.emplace("message", col);
-			break;
-		}
-		i++;
-		if (i == 4)
-		{
-			i = 0;
-			// std::string s = message.dump() + "\n";
-			message_array.push_back(message);
-			message.clear();
-		}
-	}
-	//jsonresult["message"] = message_array;
-	//mg_send_http_ok(conn, "application/json; charset=utf-8", jsonresult.dump().length());
-	//mg_printf(conn, "%s", jsonresult.dump().c_str());
-
+	json message_array = gft8.get_messages(0, 0);
 	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
 	mg_printf(conn, "%s", message_array.dump().c_str());
-
-	//printf("%s\n", jsonresult.dump().c_str());
-	//mg_printf(conn, "%s", message_array.dump().c_str());
-
 	return true;
 }
 
@@ -197,11 +156,38 @@ bool WebRestHandlerSelectMessage::handlePost(CivetServer *server, struct mg_conn
 			return true;
 	}
 
-	printf("%s\n", message.dump().c_str());
+	
+	guiQueue.push_back(GuiMessage(GuiMessage::action::selectMessage, message.dump()));
 	
 	mg_printf(conn,
 			  "HTTP/1.1 201 OK\r\nContent-Type: "
 			  "application/json\r\nConnection: close\r\n\r\n");
 	
+	return true;
+}
+
+bool WebRestHandlerQso::handleGet(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+
+	json message_array = json::array();
+
+	message_array = gft8.get_qso(0, 0);
+	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
+	mg_printf(conn, "%s", message_array.dump().c_str());
+	return true;
+}
+
+bool WebRestHandlerCq::handleGet(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+
+	json message_array = json::array();
+
+	message_array = gft8.get_cq(0, 0);
+	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
+	mg_printf(conn, "%s", message_array.dump().c_str());
 	return true;
 }

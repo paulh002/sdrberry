@@ -98,7 +98,8 @@ class GuiMessage
 		filter,
 		clearWsjtx,
 		scrollWsjtx,
-		selectMessage
+		selectMessage,
+		buttonMessage
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

@@ -675,3 +675,5 @@ json gui_ft8::get_cq(int rowstart, int row_end)
 	}
 	return result;
 }
+
+

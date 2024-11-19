@@ -790,3 +790,43 @@ void gui_ft8bar::ClearTransmit()
 	transmitting = false;
 	WaterfallReset();
 }
+
+json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
+{
+	//std::unique_lock<std::mutex> mlock(mutex_);
+	json result = json::array();
+	json message;
+	std::vector<int> ftx_freq;
+
+	int band = lv_dropdown_get_selected(frequence);
+	int selection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
+	if (selection == 0)
+	{
+		Settings_file.get_array_int("wsjtx", "freqFT8", ftx_freq);
+		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
+		{
+			char str[80];
+			sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
+			message.emplace("frequency", str);
+			message.emplace("band", std::to_string(band));
+			result.push_back(message);
+			message.clear();
+		}
+	}
+	if (selection == 1)
+	{
+		Settings_file.get_array_int("wsjtx", "freqFT4", ftx_freq);
+		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
+		{
+			char str[80];
+			sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
+			message.emplace("frequency", str);
+			message.emplace("band", std::to_string(band));
+			result.push_back(message);
+			message.clear();
+		}
+	}	
+	return result;
+}
+
+

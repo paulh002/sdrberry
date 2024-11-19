@@ -4,6 +4,7 @@
 #include "gui_top_bar.h"
 #include "vfo.h"
 #include "SharedQueue.h"
+#include "gui_ft8bar.h"
 
 using json = nlohmann::json;
 
@@ -189,5 +190,67 @@ bool WebRestHandlerCq::handleGet(CivetServer *server, struct mg_connection *conn
 	message_array = gft8.get_cq(0, 0);
 	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
 	mg_printf(conn, "%s", message_array.dump().c_str());
+	return true;
+}
+
+bool WebRestHandlerWsjtxFrq::handleGet(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+
+	json message_array = json::array();
+
+	message_array = guift8bar.get_wsjtxfreq(0, 0);
+	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
+	mg_printf(conn, "%s", message_array.dump().c_str());
+	return true;
+}
+
+bool WebRestHandlerButtonMessage::handlePost(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+	long long rlen, wlen;
+	long long nlen = 0;
+	long long tlen = req_info->content_length;
+	char buf[1024];
+
+	std::memset(buf, 0, sizeof(buf));
+	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
+	if ((dlen < 1) || (dlen >= sizeof(buf)))
+	{
+			mg_send_http_error(conn, 400, "%s", "No request body data");
+			return false;
+	}
+	json message;
+	try
+	{
+			message = json::parse(buf);
+	}
+	catch (const exception &e)
+	{
+			std::string err = e.what();
+			mg_send_http_error(conn, 400, "%s", err.c_str());
+			return true;
+	}
+
+	try
+	{
+			message.at("button");
+			message.at("type");
+	}
+	catch (const exception &e)
+	{
+			std::string err = e.what();
+			mg_send_http_error(conn, 400, "%s", err.c_str());
+			return true;
+	}
+	std::string s = message["button"];
+	guiQueue.push_back(GuiMessage(GuiMessage::action::buttonMessage, message.dump()));
+
+	mg_printf(conn,
+			  "HTTP/1.1 201 OK\r\nContent-Type: "
+			  "application/json\r\nConnection: close\r\n\r\n");
+
 	return true;
 }

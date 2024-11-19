@@ -43,7 +43,9 @@
 #include "sdrberry.h"
 #include "CustomEvents.h"
 #include "WebServer.h"
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 
 //#include "quick_arg_parser.hpp"
 
@@ -764,6 +766,14 @@ int main(int argc, char *argv[])
 				if (IsDigtalMode())
 				{
 					gft8.SelectMessage(msg.text);
+				}
+				break;
+			case GuiMessage::buttonMessage:
+				json message = json::parse(msg.text);
+				printf("%s\n", message.dump().c_str());
+				if (message.at("type") == "wsjtxbar")
+				{
+					
 				}
 				break;
 			}

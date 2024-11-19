@@ -41,3 +41,19 @@ class WebRestHandlerCq : public CivetHandler
 
   private:
 };
+
+class WebRestHandlerWsjtxFrq : public CivetHandler
+{
+  public:
+	bool handleGet(CivetServer *server, struct mg_connection *conn);
+
+  private:
+};
+
+class WebRestHandlerButtonMessage : public CivetHandler
+{
+  public:
+	bool handlePost(CivetServer *server, struct mg_connection *conn);
+
+  private:
+};

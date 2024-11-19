@@ -3,6 +3,9 @@
 #include "Settings.h"
 #include "AMModulator.h"
 #include "Waterfall.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 enum class ft8status_t
 {
@@ -71,6 +74,7 @@ class gui_ft8bar
 	void setrxtxmode(int mode) { rxtxmode = mode; }
 	int getrxtxmode() { return rxtxmode; }
 	ft8status_t get_status() { return ft8status; }
+	json get_wsjtxfreq(int rowstart, int row_end);
 
 	static constexpr auto ft8bar_button_handler = EventHandler<gui_ft8bar, &gui_ft8bar::ft8bar_button_handler_class>::staticHandler;
 	static constexpr auto filter_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::filter_event_handler_class>::staticHandler;

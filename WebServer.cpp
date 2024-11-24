@@ -13,6 +13,7 @@ WebRestHandlerQso qso_messages;
 WebRestHandlerCq cq_messages;
 WebRestHandlerWsjtxFrq wsjtx_frequencies;
 WebRestHandlerButtonMessage buttonMessage;
+WebRestHandlerTxMessage txmessage;
 
 WebServer::WebServer()
 {
@@ -37,7 +38,8 @@ void WebServer::StartServer()
 	AddHandler("/api/qsomessages", qso_messages);
 	AddHandler("/api/cqmessages", cq_messages);
 	AddHandler("/api/wsjtxfrequencies", wsjtx_frequencies);
-	AddHandler("/api/buttonmessage", buttonMessage);	
+	AddHandler("/api/buttonmessage", buttonMessage);
+	AddHandler("/api/txmessage", txmessage);
 }
 
 void WebServer::AddHandler(const std::string &uri, CivetHandler& handler)

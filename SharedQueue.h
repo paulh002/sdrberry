@@ -99,7 +99,8 @@ class GuiMessage
 		clearWsjtx,
 		scrollWsjtx,
 		selectMessage,
-		buttonMessage
+		buttonMessage,
+		TxMessage
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

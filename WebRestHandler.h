@@ -53,6 +53,16 @@ class WebRestHandlerWsjtxFrq : public CivetHandler
 class WebRestHandlerButtonMessage : public CivetHandler
 {
   public:
+	bool handleGet(CivetServer *server, struct mg_connection *conn);
+	bool handlePost(CivetServer *server, struct mg_connection *conn);
+
+  private:
+};
+
+class WebRestHandlerTxMessage : public CivetHandler
+{
+  public:
+	bool handleGet(CivetServer *server, struct mg_connection *conn);
 	bool handlePost(CivetServer *server, struct mg_connection *conn);
 
   private:

@@ -75,6 +75,14 @@ class gui_ft8bar
 	int getrxtxmode() { return rxtxmode; }
 	ft8status_t get_status() { return ft8status; }
 	json get_wsjtxfreq(int rowstart, int row_end);
+	void CQButton();
+	void TXButton();
+	void ClearButton();
+	void MonitorButton();
+	json get_txmessage();
+	void MessageNo(std::string message);
+	json get_buttons();
+	void set_frequency(json message);
 
 	static constexpr auto ft8bar_button_handler = EventHandler<gui_ft8bar, &gui_ft8bar::ft8bar_button_handler_class>::staticHandler;
 	static constexpr auto filter_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::filter_event_handler_class>::staticHandler;

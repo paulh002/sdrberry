@@ -10,12 +10,19 @@
 #include <regex>
 #include "wave.h"
 #include "date.h"
+#include "strlib.h"
 
 extern const int tunerHeight;
 extern const int barHeight;
 extern int barHeightft8;
 extern unique_ptr<wsjtx_lib> wsjtx;
 
+const int buttonmonitor = 0;
+const int buttonlog = 1;
+const int buttontx = 2;
+const int buttoncq = 3;
+const int buttonclear = 4;
+const int buttonmode = 5;
 
 
 /*R"(
@@ -163,6 +170,28 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 	messageToSend = row;
 }
 
+void gui_ft8bar::set_frequency(json message)
+{
+	if (ft8status != ft8status_t::idle)
+		return;
+
+	std::string s = message.at("frequency");
+	std::vector<long> freqencies;
+	const char *ptr = lv_dropdown_get_options(frequence);
+	std::string freq(ptr);
+	std::string delim("\n");
+	std::vector<std::string> setOfFrequencies = strlib::split(freq, delim);
+	int i = 0;
+	for (auto col : setOfFrequencies)
+	{
+		if (s == col)
+			break;
+		i++;
+	}
+	lv_dropdown_set_selected(frequence, i);
+	SetFrequency();
+}
+
 void gui_ft8bar::SetFrequency()
 {
 	std::vector<long> freqencies;
@@ -258,7 +287,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 	{
 		switch (i)
 		{
-		case 0:
+		case buttonmonitor:
 			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
 				gft8.reset();
@@ -277,7 +306,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				ft8status = ft8status_t::idle;
 			}
 			break;
-		case 1:
+		case buttonlog:
 			// log
 			{
 				std::ofstream outfile;
@@ -304,14 +333,14 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				ClearMessage();
 			}
 			break;
-		case 2:
+		case buttontx:
 			// Execute the QSO
 			if (Transmit(obj))
 				ft8status = ft8status_t::monitor;
 			else
 				ft8status = ft8status_t::response;
 			break;
-		case 3:
+		case buttoncq:
 			//CQ
 			SetTxMessage();
 			//guift8bar.SetFilterCall();
@@ -320,12 +349,73 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 			else
 				ft8status = ft8status_t::cq;
 			break;
-		case 4:
+		case buttonclear:
 			ft8status = ft8status_t::monitor;
 			ClearMessage();
 			break;
 		}
 	}
+}
+
+
+
+void gui_ft8bar::CQButton()
+{
+	SetTxMessage();
+	// guift8bar.SetFilterCall();
+	if (Transmit(button[buttoncq]))
+	{
+		ft8status = ft8status_t::monitor;
+		lv_obj_clear_state(button[buttoncq], LV_STATE_CHECKED);
+	}
+	else
+	{
+		lv_obj_add_state(button[buttoncq], LV_STATE_CHECKED);
+		ft8status = ft8status_t::cq;
+	}
+}
+
+void gui_ft8bar::TXButton()
+{
+	if (Transmit(button[buttontx]))
+	{
+		ft8status = ft8status_t::monitor;
+		lv_obj_clear_state(button[buttontx], LV_STATE_CHECKED);
+	}
+	else
+	{
+		lv_obj_add_state(button[buttontx], LV_STATE_CHECKED);
+		ft8status = ft8status_t::response;
+	}
+}
+
+void gui_ft8bar::MonitorButton()
+{
+	if (ft8status == ft8status_t::idle)
+	{
+		lv_obj_add_state(button[buttonmonitor], LV_STATE_CHECKED);
+		gft8.reset();
+		SetFrequency();
+		select_mode(guift8bar.getrxtxmode());
+		gbar.set_mode(guift8bar.getrxtxmode());
+		setmodeclickable(false);
+		ft8status = ft8status_t::monitor;
+	}
+	else
+	{
+		lv_obj_clear_state(button[buttonmonitor], LV_STATE_CHECKED);
+		setmodeclickable(true);
+		select_mode(vfo.get_current_mode());
+		gbar.set_mode(vfo.get_current_mode());
+		ft8status = ft8status_t::idle;
+	}
+}
+
+
+void gui_ft8bar::ClearButton()
+{
+	ft8status = ft8status_t::monitor;
+	ClearMessage();
 }
 
 void gui_ft8bar::ClearMessage()
@@ -345,6 +435,36 @@ void gui_ft8bar::ClearMessage()
 	gft8.clr_cq();
 	SetTxMessage();
 	SetFilter("");
+}
+
+json gui_ft8bar::get_txmessage()
+{
+	json result = json::array();
+	json message;
+	int rowcount = lv_table_get_row_cnt(table);
+
+	for (int row = 1; row < rowcount; row++)
+	{
+		message.emplace("no", lv_table_get_cell_value(table, row, 0));
+		message.emplace("message", lv_table_get_cell_value(table, row, 1));
+		std::string s = std::to_string(messageToSend);
+		message.emplace("messagetosend", s);
+		result.push_back(message);
+		message.clear();
+	}
+	return result;
+}
+
+void gui_ft8bar::MessageNo(std::string message)
+{
+	int i = std::stoi(message);
+	if (i <= 0)
+		return;
+	//printf("Message to send %d", messageToSend);
+	messageToSend = i;
+	char *ptr = (char *)lv_table_get_cell_value(table, i, 1);
+	guift8bar.SetTxMessage(std::string(ptr));
+	lv_obj_invalidate(table);
 }
 
 void gui_ft8bar::setmodeclickable(bool clickable)
@@ -799,14 +919,17 @@ json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
 	std::vector<int> ftx_freq;
 
 	int band = lv_dropdown_get_selected(frequence);
-	int selection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
+	int selection = lv_dropdown_get_selected(getwsjtxmode());
 	if (selection == 0)
 	{
 		Settings_file.get_array_int("wsjtx", "freqFT8", ftx_freq);
 		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
 		{
 			char str[80];
-			sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
+			long khz = *it / 1000;
+			int hhz = (*it - (*it / 1000) * 1000) / 100;
+
+			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));
 			message.emplace("frequency", str);
 			message.emplace("band", std::to_string(band));
 			result.push_back(message);
@@ -819,8 +942,10 @@ json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
 		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
 		{
 			char str[80];
-			sprintf(str, "%3ld.%03ld Khz", *it / 1000, (long)((*it / 1) % 100));
-			message.emplace("frequency", str);
+			long khz = *it / 1000;
+			int hhz = (*it - (*it / 1000) * 1000) / 100;
+
+			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));			message.emplace("frequency", str);
 			message.emplace("band", std::to_string(band));
 			result.push_back(message);
 			message.clear();
@@ -829,4 +954,32 @@ json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
 	return result;
 }
 
+json gui_ft8bar::get_buttons()
+{
+	json result = json::array();
+	json message;
+	std::string s;
 
+	s = "0";
+	if (lv_obj_get_state(button[buttonmonitor]) & LV_STATE_CHECKED)
+		s = "1";
+	message.emplace("monitor", s);
+	s = "0";
+	if (lv_obj_get_state(button[buttonlog]) & LV_STATE_CHECKED)
+		s = "1";
+	message.emplace("log", s);
+	s = "0";
+	if (lv_obj_get_state(button[buttontx]) & LV_STATE_CHECKED)
+		s = "1";
+	message.emplace("tx", s);
+	s = "0";
+	if (lv_obj_get_state(button[buttoncq]) & LV_STATE_CHECKED)
+		s = "1";
+	message.emplace("cq", s);
+	s = "0";
+	if (lv_obj_get_state(button[buttonclear]) & LV_STATE_CHECKED)
+		s = "1";
+	message.emplace("clear", s);
+	//result.push_back(message);
+	return message;
+}

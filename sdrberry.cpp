@@ -768,12 +768,35 @@ int main(int argc, char *argv[])
 					gft8.SelectMessage(msg.text);
 				}
 				break;
-			case GuiMessage::buttonMessage:
-				json message = json::parse(msg.text);
-				printf("%s\n", message.dump().c_str());
-				if (message.at("type") == "wsjtxbar")
-				{
-					
+			case GuiMessage::buttonMessage: {
+					json message = json::parse(msg.text);
+					//printf("%s\n", message.dump().c_str());
+					if (message.at("type") == "wsjtxbar")
+					{
+						if (message.at("button") == "Monitor")
+							guift8bar.MonitorButton();
+						if (message.at("button") == "CQ")
+							guift8bar.CQButton();
+						if (message.at("button") == "TX")
+							guift8bar.TXButton();
+						if (message.at("button") == "Clear")
+							guift8bar.ClearButton();
+						if (message.at("button") == "frequency")
+						{
+							guift8bar.set_frequency(message);
+						}
+					}
+				}
+				break;
+
+			case GuiMessage::TxMessage: {
+					json message = json::parse(msg.text);
+					//printf("%s\n", message.dump().c_str());
+					if (message.at("type") == "wsjtxbar")
+					{
+						printf("send message\n");
+						guift8bar.MessageNo(message.at("no"));
+					}
 				}
 				break;
 			}

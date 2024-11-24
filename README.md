@@ -130,3 +130,8 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 
 # ESP32 Remote control for raspberry pi
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20231015_131803.jpg)
+
+# Web Server on port 8081
+
+Open the WSJTX webpage on http://raspberry_pi_ip:8081
+

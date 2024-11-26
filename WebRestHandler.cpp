@@ -1,5 +1,4 @@
 #include "WebRestHandler.h"
-#include <nlohmann/json.hpp>
 #include "gui_ft8.h"
 #include "gui_top_bar.h"
 #include "vfo.h"
@@ -115,7 +114,98 @@ bool WebRestHandlerVfo::handleGet(CivetServer *server, struct mg_connection *con
 	return true;
 }
 
+bool WebRestHandlerVfo::handlePost(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+	long long rlen, wlen;
+	long long nlen = 0;
+	long long tlen = req_info->content_length;
+	char buf[1024];
 
+	std::memset(buf, 0, sizeof(buf));
+	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
+	if ((dlen < 1) || (dlen >= sizeof(buf)))
+	{
+		mg_send_http_error(conn, 400, "%s", "No request body data");
+		return false;
+	}
+	json argument;
+	try
+	{
+		argument = json::parse(buf);
+	}
+	catch (const exception &e)
+	{
+		std::string err = e.what();
+		mg_send_http_error(conn, 400, "%s", err.c_str());
+		return true;
+	}
+
+	try
+	{
+		argument.at("identifier");
+	}
+	catch (const exception &e)
+	{
+		std::string err = e.what();
+		mg_send_http_error(conn, 400, "%s", err.c_str());
+		return true;
+	}
+
+	json message;
+
+	std::string freq = vfo.get_vfo_str();
+	std::string mode = vfo.getMode(vfo.get_active_vfo());
+	std::string band = vfo.get_band_in_text();
+	std::string call = Settings_file.get_string("wsjtx", "call");
+
+	message.emplace("frequency", freq);
+	message.emplace("mode", mode);
+	message.emplace("band", band);
+	message.emplace("call", call);
+	message.emplace("label", GuiTopBar.getLabel());
+
+	if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
+	{
+		identifier[argument.at("identifier")] = message;
+		mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
+		mg_printf(conn, "%s", message.dump().c_str());
+		printf("New identifier %s\n", argument.at("identifier").dump().c_str());
+		return true;
+	}
+	std::unique_lock<std::mutex> lock(longpoll);
+	bool wait = true;
+	while (wait)
+	{
+		printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
+		new_data.wait_for(lock, std::chrono::seconds(10)); // conditional wait unlocks the mutex!
+		
+		std::string freq = vfo.get_vfo_str();
+		std::string mode = vfo.getMode(vfo.get_active_vfo());
+		std::string band = vfo.get_band_in_text();
+		std::string call = Settings_file.get_string("wsjtx", "call");
+
+		message.clear();
+		message.emplace("frequency", freq);
+		message.emplace("mode", mode);
+		message.emplace("band", band);
+		message.emplace("call", call);
+		message.emplace("label", GuiTopBar.getLabel());
+
+		//if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
+			wait = false;
+	}
+	mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
+	mg_printf(conn, "%s", message.dump().c_str());
+	return true;
+}
+
+void WebRestHandlerVfo::NewData()
+{
+	new_data.notify_all();
+}
+	
 bool WebRestHandlerSelectMessage::handlePost(CivetServer *server, struct mg_connection *conn)
 {
 	/* Handler may access the request info using mg_get_request_info */

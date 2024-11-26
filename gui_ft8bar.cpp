@@ -308,30 +308,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 			break;
 		case buttonlog:
 			// log
-			{
-				std::ofstream outfile;
-				std::string  buf;
-				
-				ft8status = ft8status_t::monitor;
-				outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
-				if (!outfile.fail())
-				{
-					auto today = date::year_month_weekday{ date::floor<date::days>(std::chrono::high_resolution_clock::now()) };
-					outfile << today << ",";
-					buf.resize(20);
-					lv_dropdown_get_selected_str(frequence, (char *)buf.c_str(), 20);
-					buf.resize(strlen(buf.c_str()));
-					outfile << buf << ",";
-					int rows = gft8.getQsoLogRows();
-					for (int i = 0; i < rows; i++)
-					{
-						std::string line = gft8.getQso(i);
-						outfile << line << std::endl;
-					}
-					outfile.close();
-				}
-				ClearMessage();
-			}
+			Log();
 			break;
 		case buttontx:
 			// Execute the QSO
@@ -982,4 +959,36 @@ json gui_ft8bar::get_buttons()
 	message.emplace("clear", s);
 	//result.push_back(message);
 	return message;
+}
+
+void gui_ft8bar::LogButton()
+{
+	Log();
+}
+
+void gui_ft8bar::Log()
+{
+	std::ofstream outfile;
+	std::string buf;
+
+	if (ft8status != ft8status_t::monitor)
+		return;
+	outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
+	if (!outfile.fail())
+	{
+		auto today = date::year_month_weekday{date::floor<date::days>(std::chrono::high_resolution_clock::now())};
+		outfile << today << ",";
+		buf.resize(20);
+		lv_dropdown_get_selected_str(frequence, (char *)buf.c_str(), 20);
+		buf.resize(strlen(buf.c_str()));
+		outfile << buf << ",";
+		int rows = gft8.getQsoLogRows();
+		for (int i = 0; i < rows; i++)
+		{
+			std::string line = gft8.getQso(i);
+			outfile << line << std::endl;
+		}
+		outfile.close();
+	}
+	ClearMessage();
 }

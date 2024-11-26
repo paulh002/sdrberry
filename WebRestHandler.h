@@ -1,5 +1,9 @@
 #pragma once
 #include "WebServer.h"
+#include <nlohmann/json.hpp>
+#include <map>
+#include <mutex>
+#include <condition_variable>
 
 class WebRestHandler : public CivetHandler
 {
@@ -14,8 +18,13 @@ class WebRestHandlerVfo : public CivetHandler
 {
   public:
 	bool handleGet(CivetServer *server, struct mg_connection *conn);
+	bool handlePost(CivetServer *server, struct mg_connection *conn);
+	void NewData();
 
   private:
+	std::map<std::string, nlohmann::json> identifier;
+	std::mutex longpoll;
+	std::condition_variable new_data;
 };
 
 class WebRestHandlerSelectMessage : public CivetHandler

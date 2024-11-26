@@ -781,6 +781,8 @@ int main(int argc, char *argv[])
 							guift8bar.TXButton();
 						if (message.at("button") == "Clear")
 							guift8bar.ClearButton();
+						if (message.at("button") == "Log")
+							guift8bar.LogButton();
 						if (message.at("button") == "frequency")
 						{
 							guift8bar.set_frequency(message);

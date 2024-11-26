@@ -7,8 +7,10 @@
 #include "gui_bar.h"
 #include "gui_tx.h"
 #include "Gui_band.h"
+#include "WebRestHandler.h"
 
 CVfo	vfo;
+extern WebRestHandlerVfo frequencyvfo1;
 
 CVfo::CVfo()
 {
@@ -340,6 +342,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		retval = 1;
 	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
+	frequencyvfo1.NewData();
 	return retval;
 }
 

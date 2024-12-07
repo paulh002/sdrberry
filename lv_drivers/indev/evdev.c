@@ -76,6 +76,8 @@ void evdev_init(void)
 				ptr = strstr(name, "WS Capacitive TouchScreen");
 			if (ptr == NULL) // Bullseye changed driver name
 				ptr = strstr(name, "QDtech");
+			if (ptr == NULL) // Bullseye changed driver name
+				ptr = strstr(name, "ILITEK-TOUCH");
 			if (ptr == NULL)
 			{
 				close(evdev_fd);

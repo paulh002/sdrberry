@@ -55,6 +55,7 @@ int evdev_key_val;
 void evdev_init(void)
 {
 	char str[2048];
+	char name[256] = "Unknown";
 	int input_device = 0;
 	char *ptr;
 	
@@ -66,7 +67,6 @@ void evdev_init(void)
 		evdev_fd = open(str, O_RDONLY | O_NONBLOCK);
 		if (evdev_fd > 0)
 		{
-			char name[256] = "Unknown";
 			ioctl(evdev_fd, EVIOCGNAME(sizeof(name)), name);
 			printf("Input device name: \"%s\"\n", name);
 			ptr = strstr(name, "raspberrypi-ts");
@@ -76,6 +76,8 @@ void evdev_init(void)
 				ptr = strstr(name, "WS Capacitive TouchScreen");
 			if (ptr == NULL) // Bullseye changed driver name
 				ptr = strstr(name, "QDtech");
+			if (ptr == NULL) // Bullseye changed driver name
+				ptr = strstr(name, "ILITEK-TOUCH");
 			if (ptr == NULL)
 			{
 				close(evdev_fd);
@@ -85,9 +87,10 @@ void evdev_init(void)
 		}
 		else
 			input_device++;
-	} while (input_device < 30 && evdev_fd == -1) ;	
+	} while (input_device < 30 && evdev_fd == -1) ;
+	printf("Touch device name: \"%s\"\n", name);
 
-    if(evdev_fd == -1) {
+	if(evdev_fd == -1) {
         perror("unable open evdev interface:");
         return;
     }

@@ -77,7 +77,7 @@ void evdev_init(void)
 			if (ptr == NULL) // Bullseye changed driver name
 				ptr = strstr(name, "QDtech");
 			if (ptr == NULL) // Bullseye changed driver name
-				ptr = strstr(name, "ILITEK-TOUCH");
+				ptr = strstr(name, "ILITEK");
 			if (ptr == NULL)
 			{
 				close(evdev_fd);

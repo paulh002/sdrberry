@@ -12,13 +12,7 @@
 #include "sma.h"
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
-
-using namespace std;
-
-const int noise_floor{20};
-const int hor_lines_small{6};
-const int hor_lines_large{8};
-const int vert_lines{9};
+#include "WebRestHandler.h"
 
 Spectrum SpectrumGraph;
 
@@ -261,6 +255,7 @@ void Spectrum::DrawDisplay(int ns)
 	load_data();
 	if (waterfall)
 		waterfall->Draw((float)noisefloor);
+	webspectrum.NewData(data_set);
 }
 
 void Spectrum::SetFftParts()
@@ -394,8 +389,8 @@ void Spectrum::upload_fft()
 			for (auto &col : fft_output)
 			{
 				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
-				if (value > (float)s_poits_max)
-					value = (float)s_poits_max;
+				if (value > (float)s_points_max)
+					value = (float)s_points_max;
 				if (i % 2)
 				{
 					data_set[ii] = avg_filter[ii](value);
@@ -418,8 +413,8 @@ void Spectrum::upload_fft()
 				if (i == (fft_output.size() / 2))
 					break;
 				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
-				if (value > (float)s_poits_max)
-					value = (float)s_poits_max;
+				if (value > (float)s_points_max)
+					value = (float)s_points_max;
 				data_set[i] = avg_filter[i](value);
 				data_set_peak[i] = std::max(data_set_peak[i], (lv_coord_t)value);
 				i++;

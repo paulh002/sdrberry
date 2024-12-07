@@ -10,7 +10,6 @@
 #include "WebRestHandler.h"
 
 CVfo	vfo;
-extern WebRestHandlerVfo frequencyvfo1;
 
 CVfo::CVfo()
 {

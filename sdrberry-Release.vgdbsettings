@@ -72,7 +72,6 @@
     <ProjectFile>sdrberry.vcxproj</ProjectFile>
     <RemoteBuildEnvironment>
       <Records />
-      <EnvironmentSetupFiles />
     </RemoteBuildEnvironment>
     <ParallelJobCount>1</ParallelJobCount>
     <SuppressDirectoryChangeMessages>true</SuppressDirectoryChangeMessages>
@@ -217,5 +216,6 @@
     <StripDebugSymbolsDuringDeployment>false</StripDebugSymbolsDuringDeployment>
     <SuppressTTYCreation>false</SuppressTTYCreation>
     <IndexDebugSymbols>false</IndexDebugSymbols>
+    <RunLiveMemoryAgentAsRoot>true</RunLiveMemoryAgentAsRoot>
   </Debug>
 </VisualGDBProjectSettings2>

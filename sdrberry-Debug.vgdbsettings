@@ -173,5 +173,6 @@
     <StripDebugSymbolsDuringDeployment>false</StripDebugSymbolsDuringDeployment>
     <SuppressTTYCreation>false</SuppressTTYCreation>
     <IndexDebugSymbols>false</IndexDebugSymbols>
+    <RunLiveMemoryAgentAsRoot>true</RunLiveMemoryAgentAsRoot>
   </Debug>
 </VisualGDBProjectSettings2>

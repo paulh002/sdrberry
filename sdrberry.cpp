@@ -787,6 +787,10 @@ int main(int argc, char *argv[])
 						{
 							guift8bar.set_frequency(message);
 						}
+						if (message.at("type") == "spectrumbar")
+						{
+							
+						}
 					}
 				}
 				break;

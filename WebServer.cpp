@@ -14,6 +14,10 @@ WebRestHandlerCq cq_messages;
 WebRestHandlerWsjtxFrq wsjtx_frequencies;
 WebRestHandlerButtonMessage buttonMessage;
 WebRestHandlerTxMessage txmessage;
+WebRestHandlerFilterFrq filter_frequencies;
+WebRestHandlerSpectrum webspectrum;
+WebSocketHandler websocketserver;
+WsStartHandler wsstarthandler;
 
 WebServer::WebServer()
 {
@@ -22,6 +26,10 @@ WebServer::WebServer()
 	options.push_back(DOCUMENT_ROOT);
 	options.push_back("listening_ports");
 	options.push_back(PORT);
+	options.push_back("enable_keep_alive");
+	options.push_back("yes");
+	options.push_back("keep_alive_timeout_ms");
+	options.push_back("500");
 }
 
 WebServer::~WebServer()
@@ -40,6 +48,10 @@ void WebServer::StartServer()
 	AddHandler("/api/wsjtxfrequencies", wsjtx_frequencies);
 	AddHandler("/api/buttonmessage", buttonMessage);
 	AddHandler("/api/txmessage", txmessage);
+	AddHandler("/api/filterfrequencies", filter_frequencies);
+	AddHandler("/api/spectrum", webspectrum);
+	AddHandler("/ws", wsstarthandler);
+	Server->addWebSocketHandler("/websocket", websocketserver);
 }
 
 void WebServer::AddHandler(const std::string &uri, CivetHandler& handler)

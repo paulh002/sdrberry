@@ -1,0 +1,1 @@
+import{o as e,a,h as o,u as t}from"./index-UNQvOp-_.js";const r="2.4.25",s={"aria-hidden":"true"},u={__name:"PackageVersion",setup(n){return(c,i)=>(e(),a("desc",s,"Composed with Vue Data UI "+o(t(r)),1))}};export{u as p};

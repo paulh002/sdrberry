@@ -37,6 +37,39 @@ std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_ds
 
 gui_bar gbar;
 
+json gui_bar::get_filterfreq()
+{
+	json result = json::array();
+	json message;
+	
+	message.emplace("frequency", "0.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "1.0 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "1.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "2.0 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "2.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "3.0 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "3.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "4.0 Khz");
+	result.push_back(message);
+	message.clear();
+
+	return result;
+}
+
 void gui_bar::set_tx(bool tx)
 {
 	if (tx)

@@ -1,0 +1,2 @@
+curl --header "Content-Type: application/json"  --request POST --data '{"identifier":"xyz"}' http://192.168.88.13:8081/api/selectmessage
+curl --header "Content-Type: application/json"  --request POST --data '{"identifier":"xyz"}' http://192.168.88.13:8081/api/spectrum

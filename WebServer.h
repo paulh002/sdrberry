@@ -12,7 +12,7 @@ class WebServer
 	void AddHandler(const std::string &uri, CivetHandler& handler);
 
   private:
-	//const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, 0};
+	// const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, "enable_keep_alive","yes",0};
 	std::vector<std::string> options;
 	std::unique_ptr<CivetServer> Server;
 };

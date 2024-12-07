@@ -4,6 +4,7 @@
 #include "vfo.h"
 #include "SharedQueue.h"
 #include "gui_ft8bar.h"
+#include "gui_bar.h"
 
 using json = nlohmann::json;
 
@@ -178,7 +179,7 @@ bool WebRestHandlerVfo::handlePost(CivetServer *server, struct mg_connection *co
 	bool wait = true;
 	while (wait)
 	{
-		printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
+		//printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
 		new_data.wait_for(lock, std::chrono::seconds(10)); // conditional wait unlocks the mutex!
 		
 		std::string freq = vfo.get_vfo_str();
@@ -292,6 +293,19 @@ bool WebRestHandlerWsjtxFrq::handleGet(CivetServer *server, struct mg_connection
 	json message_array = json::array();
 
 	message_array = guift8bar.get_wsjtxfreq(0, 0);
+	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
+	mg_printf(conn, "%s", message_array.dump().c_str());
+	return true;
+}
+
+bool WebRestHandlerFilterFrq::handleGet(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+
+	json message_array = json::array();
+
+	message_array = gbar.get_filterfreq();
 	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
 	mg_printf(conn, "%s", message_array.dump().c_str());
 	return true;
@@ -417,4 +431,172 @@ bool WebRestHandlerTxMessage::handlePost(CivetServer *server, struct mg_connecti
 			  "application/json\r\nConnection: close\r\n\r\n");
 
 	return true;
+}
+
+bool WebRestHandlerSpectrum::handleGet(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+
+	json message_array = json::array();
+
+	message_array = guift8bar.get_txmessage();
+	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
+	mg_printf(conn, "%s", message_array.dump().c_str());
+	return true;
+}
+
+bool WebRestHandlerSpectrum::handlePost(CivetServer *server, struct mg_connection *conn)
+{
+	/* Handler may access the request info using mg_get_request_info */
+	const struct mg_request_info *req_info = mg_get_request_info(conn);
+	long long rlen, wlen;
+	long long nlen = 0;
+	long long tlen = req_info->content_length;
+	char buf[1024];
+
+	std::memset(buf, 0, sizeof(buf));
+	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
+	if ((dlen < 1) || (dlen >= sizeof(buf)))
+	{
+			mg_send_http_error(conn, 400, "%s", "No request body data");
+			return false;
+	}
+	json argument;
+	try
+	{
+			argument = json::parse(buf);
+	}
+	catch (const exception &e)
+	{
+			std::string err = e.what();
+			mg_send_http_error(conn, 400, "%s", err.c_str());
+			return true;
+	}
+
+	try
+	{
+			argument.at("identifier");
+	}
+	catch (const exception &e)
+	{
+			std::string err = e.what();
+			mg_send_http_error(conn, 400, "%s", err.c_str());
+			return true;
+	}
+
+	json message(spectrum);
+
+	if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
+	{
+			identifier[argument.at("identifier")] = message;
+			mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
+			mg_printf(conn, "%s", message.dump().c_str());
+			printf("New identifier %s\n", argument.at("identifier").dump().c_str());
+			return true;
+	}
+	std::unique_lock<std::mutex> lock(longpoll);
+	bool wait = true;
+	while (wait)
+	{
+			//printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
+			//new_data.wait_for(lock, std::chrono::seconds(100)); // conditional wait unlocks the mutex!
+			json message(spectrum);
+			
+			// if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
+			wait = false;
+	}
+	mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
+	mg_printf(conn, "%s", message.dump().c_str());
+	return true;
+}
+	
+void WebRestHandlerSpectrum::NewData(const std::vector<int16_t>& newspectrum)
+{
+	spectrum = newspectrum;
+	for (auto &col : spectrum)
+	{
+		if (col < 0)
+			col = 0;
+	}
+	new_data.notify_all();
+}
+
+bool WsStartHandler::handleGet(CivetServer *server, struct mg_connection *conn)
+{
+
+	mg_printf(conn,
+			  "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: "
+			  "close\r\n\r\n");
+
+	mg_printf(conn, "<!DOCTYPE html>\n");
+	mg_printf(conn, "<html>\n<head>\n");
+	mg_printf(conn, "<meta charset=\"UTF-8\">\n");
+	mg_printf(conn, "<title>Embedded websocket example</title>\n");
+
+#ifdef USE_WEBSOCKET
+	/* mg_printf(conn, "<script type=\"text/javascript\"><![CDATA[\n"); ...
+	 * xhtml style */
+	mg_printf(conn, "<script>\n");
+	mg_printf(
+		conn,
+		"var i=0\n"
+		"function load() {\n"
+		"  var wsproto = (location.protocol === 'https:') ? 'wss:' : 'ws:';\n"
+		"  connection = new WebSocket(wsproto + '//' + window.location.host + "
+		"'/websocket');\n"
+		"  websock_text_field = "
+		"document.getElementById('websock_text_field');\n"
+		"  connection.onmessage = function (e) {\n"
+		"    websock_text_field.innerHTML=e.data;\n"
+		"    i=i+1;"
+		"    connection.send(i);\n"
+		"  }\n"
+		"  connection.onerror = function (error) {\n"
+		"    alert('WebSocket error');\n"
+		"    connection.close();\n"
+		"  }\n"
+		"}\n");
+	/* mg_printf(conn, "]]></script>\n"); ... xhtml style */
+	mg_printf(conn, "</script>\n");
+	mg_printf(conn, "</head>\n<body onload=\"load()\">\n");
+	mg_printf(
+		conn,
+		"<div id='websock_text_field'>No websocket connection yet</div>\n");
+#else
+	mg_printf(conn, "</head>\n<body>\n");
+	mg_printf(conn, "Example not compiled with USE_WEBSOCKET\n");
+#endif
+	mg_printf(conn, "</body>\n</html>\n");
+
+	return 1;
+}
+
+bool WebSocketHandler::handleConnection(CivetServer *server, const struct mg_connection *conn)
+{
+	printf("WS connected\n");
+	return true;
+}
+
+void WebSocketHandler::handleReadyState(CivetServer *server, struct mg_connection *conn)
+{
+	printf("WS ready\n");
+
+	const char *text = "Hello from the websocket ready handler";
+	mg_websocket_write(conn, MG_WEBSOCKET_OPCODE_TEXT, text, strlen(text));
+}
+
+bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *conn, int bits, char *data, size_t data_len)
+{
+	printf("WS got %lu bytes: ", (long unsigned)data_len);
+	fwrite(data, 1, data_len, stdout);
+	printf("\n");
+
+	mg_websocket_write(conn, MG_WEBSOCKET_OPCODE_TEXT, data, data_len);
+	return (data_len < 4);
+}
+
+void WebSocketHandler::handleClose(CivetServer *server,	 const struct mg_connection *conn)
+{
+	printf("WS closed\n");
 }

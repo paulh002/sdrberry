@@ -47,7 +47,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;NO_SSL=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;NO_SSL=1;USE_WEBSOCKET=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
@@ -67,7 +67,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;NO_SSL=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;NO_SSL=1;USE_WEBSOCKET=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
@@ -307,6 +307,7 @@
     <ClInclude Include="sdrberry.h" />
     <ClInclude Include="SpectralNoiseReduction.h" />
     <ClInclude Include="Spectrum.h" />
+    <ClInclude Include="SpectrumConstants.h" />
     <ClInclude Include="StartTx.h" />
     <ClInclude Include="strlib.h" />
     <ClInclude Include="table.h" />

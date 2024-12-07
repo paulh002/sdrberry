@@ -8,6 +8,9 @@
 #include "vfo.h"
 #include "guiButtonWindows.h"
 #include "guiSliderWindows.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -88,6 +91,7 @@ class gui_bar
 	void hidetx();
 	void set_vfo(int active_vfo);
 	bool get_noise();
+	json get_filterfreq();
 
 	lv_obj_t *get_button_obj(int i)
 	{

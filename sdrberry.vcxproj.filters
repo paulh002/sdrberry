@@ -764,5 +764,8 @@
     <ClInclude Include="WebRestHandler.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="SpectrumConstants.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

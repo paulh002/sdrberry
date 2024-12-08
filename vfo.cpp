@@ -342,6 +342,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
 	frequencyvfo1.NewData();
+	webspectrumledgend.NewData(Legend());
 	return retval;
 }
 
@@ -670,4 +671,41 @@ std::string CVfo::get_band_in_text()
 
 	std::string result(str);
 	return result + vfo_setting.bands.at(getCurrentBandIndex()).label;
+}
+
+std::vector<int16_t> CVfo::Legend()
+{
+	std::vector<int16_t> spectrumLedgend;
+	std::pair<vfo_spansetting, double> span_ex = compare_span_ex();
+	int span = vfo_setting.span; 
+	int ii, bins;
+	double offset{0}, f{0.0};
+
+	switch (span_ex.first)
+	{
+	case span_is_ifrate:
+		f = (double)vfo.get_sdr_frequency() - (double)(span / 2.0);
+		bins = nfft_samples;
+		ii = span / (nfft_samples - 1);
+		break;
+	case span_between_ifrate:
+		f = (double)vfo.get_sdr_frequency() - (double)vfo.get_minoffset();
+		bins = nfft_samples/2;
+		ii = span / (nfft_samples/2 - 1);
+		break;
+	case span_lower_halfrate:
+		offset = vfo.get_vfo_offset() / span;
+		f = (double)vfo.get_sdr_frequency() + offset * (double)span;
+		bins = nfft_samples / 2;
+		ii = span / (nfft_samples/2 - 1);
+		break;
+	}
+
+	for (int i; i < bins; i++)
+	{
+		f = f + ii;
+		int16_t l = (int16_t)round(f / 1000.0);
+		spectrumLedgend.push_back(l);
+	}
+	return spectrumLedgend;
 }

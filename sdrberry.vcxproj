@@ -160,6 +160,9 @@
     <ClCompile Include="lv_drivers\indev\mouse.c" />
     <ClCompile Include="lv_drivers\indev\mousewheel.c" />
     <ClCompile Include="lv_drivers\indev\XPT2046.c" />
+    <ClCompile Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.c" />
+    <ClCompile Include="lv_drivers\wayland\smm.c" />
+    <ClCompile Include="lv_drivers\wayland\wayland.c" />
     <ClCompile Include="MCP23008.cpp" />
     <ClCompile Include="MidiControle.cpp" />
     <ClCompile Include="MorseDecoder.cpp" />
@@ -268,6 +271,9 @@
     <ClInclude Include="lv_drivers\indev\mouse.h" />
     <ClInclude Include="lv_drivers\indev\mousewheel.h" />
     <ClInclude Include="lv_drivers\indev\XPT2046.h" />
+    <ClInclude Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.h" />
+    <ClInclude Include="lv_drivers\wayland\smm.h" />
+    <ClInclude Include="lv_drivers\wayland\wayland.h" />
     <ClInclude Include="lv_drv_conf.h" />
     <ClInclude Include="MCP23008.h" />
     <ClInclude Include="MidiControle.h" />

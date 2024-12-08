@@ -136,7 +136,8 @@ class CVfo
 	bool limit_ham_band;
 	void setRit(int rit, int active_vfo);
 	std::string getMode(int active_vfo);
-
+	std::vector<int16_t> Legend();
+	
   private:
 	struct vfo_settings_struct vfo_setting;
 	int m_delay_counter = 0;

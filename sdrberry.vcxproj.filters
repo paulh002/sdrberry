@@ -346,6 +346,15 @@
     <ClCompile Include="WebRestHandler.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="lv_drivers\wayland\smm.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\wayland\wayland.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.c">
+      <Filter>Source files\lv_drivers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -766,6 +775,15 @@
     </ClInclude>
     <ClInclude Include="SpectrumConstants.h">
       <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\wayland\smm.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\wayland\wayland.h">
+      <Filter>Header files\lv_drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.h">
+      <Filter>Source files\lv_drivers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -16,6 +16,7 @@ WebRestHandlerButtonMessage buttonMessage;
 WebRestHandlerTxMessage txmessage;
 WebRestHandlerFilterFrq filter_frequencies;
 WebRestHandlerSpectrum webspectrum;
+WebRestHandlerSpectrumLedgend webspectrumledgend;
 WebSocketHandler websocketserver;
 WsStartHandler wsstarthandler;
 
@@ -50,6 +51,7 @@ void WebServer::StartServer()
 	AddHandler("/api/txmessage", txmessage);
 	AddHandler("/api/filterfrequencies", filter_frequencies);
 	AddHandler("/api/spectrum", webspectrum);
+	AddHandler("/api/spectrumledgend", webspectrumledgend);
 	AddHandler("/ws", wsstarthandler);
 	Server->addWebSocketHandler("/websocket", websocketserver);
 }

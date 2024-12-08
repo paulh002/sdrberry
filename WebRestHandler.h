@@ -101,6 +101,21 @@ class WebRestHandlerSpectrum : public CivetHandler
 	std::vector<int16_t> spectrum;
 };
 
+class WebRestHandlerSpectrumLedgend : public CivetHandler
+{
+  public:
+	WebRestHandlerSpectrumLedgend() : spectrumLedgend(nfft_samples, 0) {}
+	bool handlePost(CivetServer *server, struct mg_connection *conn);
+	void NewData(const std::vector<int16_t> &newspectrum);
+
+  private:
+	std::map<std::string, nlohmann::json> identifier;
+	std::mutex longpoll;
+	std::condition_variable new_data;
+	std::vector<int16_t> spectrumLedgend;
+
+};
+
 class WsStartHandler : public CivetHandler
 {
   public:
@@ -117,4 +132,5 @@ class WebSocketHandler : public CivetWebSocketHandler
 };
 
 extern WebRestHandlerSpectrum webspectrum;
+extern WebRestHandlerSpectrumLedgend webspectrumledgend;
 extern WebRestHandlerVfo frequencyvfo1;

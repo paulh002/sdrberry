@@ -12,6 +12,7 @@
 #include "sma.h"
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
+#include "screen.h"
 #include "WebRestHandler.h"
 
 Spectrum SpectrumGraph;

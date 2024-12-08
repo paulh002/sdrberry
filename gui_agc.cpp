@@ -3,6 +3,7 @@
 #include "vfo.h"
 #include "gui_vfo.h"
 #include "gui_setup.h"
+#include "screen.h"
 
 Gui_agc gagc;
 

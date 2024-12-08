@@ -290,6 +290,7 @@
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />
     <ClInclude Include="scancodes_linux.h" />
+    <ClInclude Include="screen.h" />
     <ClInclude Include="SDL_keycode.h" />
     <ClInclude Include="SDL_scancode.h" />
     <ClInclude Include="SdrberryTypeDefs.h" />

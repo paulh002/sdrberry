@@ -2,12 +2,6 @@
 #include "lvgl_.h"
 #include <atomic>
 
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
-
 class Gui_agc
 {
   private:

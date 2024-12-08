@@ -12,11 +12,6 @@
 
 using json = nlohmann::json;
 
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
 const int maxifgain = 100;
 
 class gui_bar

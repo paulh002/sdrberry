@@ -6,6 +6,7 @@
 #include "gui_setup.h"
 #include "Spectrum.h"
 #include <memory>
+#include "screen.h"
 
 const int buttontx = 0;
 const int buttontune = 1;

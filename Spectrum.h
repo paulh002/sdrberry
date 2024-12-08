@@ -15,13 +15,6 @@
 #include "PeakMeasurement.h"
 #include "SpectrumConstants.h"
 
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
-extern const int rightWidth;
-
 class Spectrum
 {
   private:

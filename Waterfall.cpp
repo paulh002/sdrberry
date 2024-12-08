@@ -9,13 +9,7 @@
 #include "Waterfall.h"
 #include "sma.h"
 #include "Modes.h"
-
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
-extern const int rightWidth;
+#include "screen.h"
 
 Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
 					 float r, waterfallFlow flow, partialspectrum p, int margin)

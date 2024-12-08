@@ -2,12 +2,7 @@
 #include "gui_ft8bar.h"
 #include "table.h"
 #include "strlib.h"
-
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
+#include "screen.h"
 
 gui_ft8 gft8;
 

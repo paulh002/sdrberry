@@ -785,5 +785,8 @@
     <ClInclude Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.h">
       <Filter>Source files\lv_drivers</Filter>
     </ClInclude>
+    <ClInclude Include="screen.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,6 +10,7 @@
 #include <string>
 #include "lvgl.h"
 #include "gui_top_bar.h"
+#include "screen.h"
 
 gui_top_bar GuiTopBar;
 

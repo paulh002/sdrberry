@@ -5,6 +5,7 @@
 #include "gui_vfo.h"
 #include "gui_bar.h"
 #include "gui_setup.h"
+#include "screen.h"
 
 const int micgain {100};
 

@@ -92,8 +92,12 @@ LV_FONT_DECLARE(FreeSansOblique32);
 #define DISP_BUF_SIZE 384000 // 800x480
 //#define DISP_BUF_SIZE (128 * 1024)
 
-const int screenWidth = 800;
-const int screenHeight = 480;
+const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
+const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
+
+int screenSelect = 9;
+int screenWidth = 800;
+int screenHeight = 480;
 const int bottomHeight = 40;
 const int topHeight = 35;
 const int tunerHeight = 100;
@@ -320,7 +324,12 @@ int main(int argc, char *argv[])
 	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	default_radio = Settings_file.find_sdr("default");
-	
+
+	screenSelect = Settings_file.get_int("screen","resolution", 9);
+	screenWidth = screenResolutionsWidth.at(screenSelect);
+	screenHeight = screenResolutionsHeight.at(screenSelect);
+	printf("Screen resolution %d x %d\n", screenWidth, screenHeight);
+
 	//Args args{{argc, argv}}; // Get the arguments from command line
 	/*if (args.sdrRadio.size() > 0)
 	{
@@ -370,6 +379,7 @@ int main(int argc, char *argv[])
 	/*LittlevGL init*/
 	lv_init();
 
+#if USE_FBDEV
 	/*Linux frame buffer device init*/
 	fbdev_init();
 
@@ -407,6 +417,13 @@ int main(int argc, char *argv[])
 	encoder_indev_t = lv_indev_drv_register(&indev_drv_enc);
 	button_group = lv_group_create();
 	lv_indev_set_group(encoder_indev_t, button_group);
+#endif
+
+#if USE_WAYLAND
+	//-lwayland-client -lwayland-cursor -lxkbcommon
+	lv_wayland_init();
+	lv_disp_t *disp = lv_wayland_create_window(screenWidth, screenHeight,"sdrberry",NULL);
+#endif
 
 	static lv_indev_drv_t indev_drv_mouse;
 	lv_indev_t *indev_mouse;

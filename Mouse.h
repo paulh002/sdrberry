@@ -8,9 +8,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-
-extern const int screenWidth;
-extern const int screenHeight;
+#include "screen.h"
 
 struct MouseState
 {

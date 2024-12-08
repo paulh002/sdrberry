@@ -3,6 +3,7 @@
 #include "Catinterface.h"
 #include "Demodulator.h"
 #include "Spectrum.h"
+#include "screen.h"
 
 gui_rx guirx;
 

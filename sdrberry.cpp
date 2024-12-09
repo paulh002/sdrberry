@@ -328,7 +328,11 @@ int main(int argc, char *argv[])
 	screenSelect = Settings_file.get_int("screen","resolution", 9);
 	screenWidth = screenResolutionsWidth.at(screenSelect);
 	screenHeight = screenResolutionsHeight.at(screenSelect);
-	printf("Screen resolution %d x %d\n", screenWidth, screenHeight);
+	int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
+	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
+	evdev_touch_swap(touchswapxy);
+	evdev_touch_driver(touchscreen.c_str());
+	printf("Screen resolution %d x %d touch swap setting %d\n", screenWidth, screenHeight, touchswapxy);
 
 	//Args args{{argc, argv}}; // Get the arguments from command line
 	/*if (args.sdrRadio.size() > 0)
@@ -385,7 +389,7 @@ int main(int argc, char *argv[])
 
 	// Touch pointer device init
 	evdev_init();
-
+	
 	/*A small buffer for LittlevGL to draw the screen's content*/
 	static lv_color_t buf[DISP_BUF_SIZE];
 	//static lv_color_t buf1[DISP_BUF_SIZE];

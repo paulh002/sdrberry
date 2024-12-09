@@ -11,11 +11,9 @@
 #include "wave.h"
 #include "date.h"
 #include "strlib.h"
+#include "screen.h"
 
-extern const int tunerHeight;
-extern const int barHeight;
-extern int barHeightft8;
-extern unique_ptr<wsjtx_lib> wsjtx;
+extern std::unique_ptr<wsjtx_lib> wsjtx;
 
 const int buttonmonitor = 0;
 const int buttonlog = 1;

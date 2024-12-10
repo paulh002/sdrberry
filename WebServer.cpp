@@ -52,8 +52,8 @@ void WebServer::StartServer()
 	AddHandler("/api/filterfrequencies", filter_frequencies);
 	AddHandler("/api/spectrum", webspectrum);
 	AddHandler("/api/spectrumledgend", webspectrumledgend);
-	AddHandler("/ws", wsstarthandler);
-	Server->addWebSocketHandler("/websocket", websocketserver);
+	//AddHandler("/ws", wsstarthandler);
+	//Server->addWebSocketHandler("/websocket", websocketserver);
 }
 
 void WebServer::AddHandler(const std::string &uri, CivetHandler& handler)

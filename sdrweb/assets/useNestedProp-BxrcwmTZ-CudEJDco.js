@@ -1,1 +1,0 @@
-import{a9 as f,a8 as o}from"./index-UNQvOp-_.js";function i({defaultConfig:t,userConfig:e}){if(!Object.keys(e||{}).length)return t;const n=f({defaultConfig:t,userConfig:e});return o(n)}export{i as c};

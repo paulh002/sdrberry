@@ -683,11 +683,12 @@ std::vector<int16_t> CVfo::Legend()
 
 	switch (span_ex.first)
 	{
+	//case span_is_ifrate:
+	//	f = (double)vfo.get_sdr_frequency() - (double)(span / 2.0);
+	//	bins = nfft_samples;
+	//	ii = span / (nfft_samples - 1);
+	//	break;
 	case span_is_ifrate:
-		f = (double)vfo.get_sdr_frequency() - (double)(span / 2.0);
-		bins = nfft_samples;
-		ii = span / (nfft_samples - 1);
-		break;
 	case span_between_ifrate:
 		f = (double)vfo.get_sdr_frequency() - (double)vfo.get_minoffset();
 		bins = nfft_samples/2;

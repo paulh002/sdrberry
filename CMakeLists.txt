@@ -28,7 +28,7 @@ target_link_libraries(sdrberry PRIVATE "${LIBRARIES_FROM_REFERENCES}")
 target_link_libraries(sdrberry PRIVATE lvgl::lvgl)
 target_link_libraries(sdrberry PRIVATE nlohmann_json::nlohmann_json)
 install(TARGETS sdrberry DESTINATION /usr/local/bin)
-add_custom_target(sdrweb ALL DEPENDS ${CMAKE_SOURCE_DIR}/sdrweb)
+add_custom_target(sdrweb DEPENDS ${CMAKE_SOURCE_DIR}/sdrweb)
 add_custom_command(TARGET sdrweb PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E remove_directory /home/pi/sdrweb
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/sdrweb /home/pi/sdrweb)

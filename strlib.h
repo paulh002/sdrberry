@@ -47,7 +47,7 @@ std::string join(T&& elements, const std::string& sepStr);
 // Remove non digits or spaces
 std::string remove_non_digits(const std::string &input);
 std::string remove_spaces(const std::string &input);
-
+std::string removeCharacters(std::string str, char c);
 /// File operations ===========================================================
 
 // Splits a string into separate lines using the CR and/or LF characters

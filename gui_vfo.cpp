@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include "cmeter.h"
 #include "Modes.h"
+#include "screen.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);

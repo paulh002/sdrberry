@@ -13,16 +13,7 @@
 #include <vector>
 #include "Waterfall.h"
 #include "PeakMeasurement.h"
-
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
-extern const int rightWidth;
-
-const int nfft_samples{800};
-const int s_poits_max{130};
+#include "SpectrumConstants.h"
 
 class Spectrum
 {

@@ -42,7 +42,10 @@
 #include "sdrstream.h"
 #include "sdrberry.h"
 #include "CustomEvents.h"
+#include "WebServer.h"
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 
 //#include "quick_arg_parser.hpp"
 
@@ -89,8 +92,12 @@ LV_FONT_DECLARE(FreeSansOblique32);
 #define DISP_BUF_SIZE 384000 // 800x480
 //#define DISP_BUF_SIZE (128 * 1024)
 
-const int screenWidth = 800;
-const int screenHeight = 480;
+const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
+const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
+
+int screenSelect = 9;
+int screenWidth = 800;
+int screenHeight = 480;
 const int bottomHeight = 40;
 const int topHeight = 35;
 const int tunerHeight = 100;
@@ -136,6 +143,9 @@ HidDev HidDev_dev, HidDev_dev1, HidDev_dev2;
 BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
+//WebServer webserver;
+
+
 
 MidiControle *midicontrole = nullptr;
 auto startTime = std::chrono::high_resolution_clock::now();
@@ -314,7 +324,16 @@ int main(int argc, char *argv[])
 	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	default_radio = Settings_file.find_sdr("default");
-	
+
+	screenSelect = Settings_file.get_int("screen","resolution", 9);
+	screenWidth = screenResolutionsWidth.at(screenSelect);
+	screenHeight = screenResolutionsHeight.at(screenSelect);
+	int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
+	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
+	evdev_touch_swap(touchswapxy);
+	evdev_touch_driver(touchscreen.c_str());
+	printf("Screen resolution %d x %d touch swap setting %d\n", screenWidth, screenHeight, touchswapxy);
+
 	//Args args{{argc, argv}}; // Get the arguments from command line
 	/*if (args.sdrRadio.size() > 0)
 	{
@@ -364,12 +383,13 @@ int main(int argc, char *argv[])
 	/*LittlevGL init*/
 	lv_init();
 
+#if USE_FBDEV
 	/*Linux frame buffer device init*/
 	fbdev_init();
 
 	// Touch pointer device init
 	evdev_init();
-
+	
 	/*A small buffer for LittlevGL to draw the screen's content*/
 	static lv_color_t buf[DISP_BUF_SIZE];
 	//static lv_color_t buf1[DISP_BUF_SIZE];
@@ -401,6 +421,13 @@ int main(int argc, char *argv[])
 	encoder_indev_t = lv_indev_drv_register(&indev_drv_enc);
 	button_group = lv_group_create();
 	lv_indev_set_group(encoder_indev_t, button_group);
+#endif
+
+#if USE_WAYLAND
+	//-lwayland-client -lwayland-cursor -lxkbcommon
+	lv_wayland_init();
+	lv_disp_t *disp = lv_wayland_create_window(screenWidth, screenHeight,"sdrberry",NULL);
+#endif
 
 	static lv_indev_drv_t indev_drv_mouse;
 	lv_indev_t *indev_mouse;
@@ -545,8 +572,11 @@ int main(int argc, char *argv[])
 			r = SdrDevices.get_full_frequency_range(default_radio, default_rx_channel);
 		}
 
-		std::string start_freq = std::to_string(r.minimum() / 1.0e6);
-		std::string stop_freq = std::to_string(r.maximum() / 1.0e6);
+		char str[80];
+		sprintf(str, "%0.2f", r.minimum() / 1.0e6);
+		std::string	start_freq(str);
+		sprintf(str, "%0.2f", r.maximum() / 1.0e6);
+		std::string stop_freq(str);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		GuiTopBar.set_label_status(s.c_str());
 		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
@@ -654,6 +684,7 @@ int main(int argc, char *argv[])
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
+	//webserver.StartServer();		
 	while (1)
 	{
 		WsjtxMessage msg;
@@ -751,6 +782,87 @@ int main(int argc, char *argv[])
 				break;
 			case GuiMessage::scrollWsjtx:
 				gft8.tableScrollLastItem();
+				break;
+			case GuiMessage::selectMessage:
+				if (IsDigtalMode())
+				{
+					gft8.SelectMessage(msg.text);
+				}
+				break;
+			case GuiMessage::buttonMessage: {
+					json message = json::parse(msg.text);
+					//printf("%s\n", message.dump().c_str());
+					if (message.at("type") == "wsjtxbar")
+					{
+						if (message.at("button") == "Monitor")
+							guift8bar.MonitorButton();
+						if (message.at("button") == "CQ")
+							guift8bar.CQButton();
+						if (message.at("button") == "TX")
+							guift8bar.TXButton();
+						if (message.at("button") == "Clear")
+							guift8bar.ClearButton();
+						if (message.at("button") == "Log")
+							guift8bar.LogButton();
+						if (message.at("button") == "frequency")
+						{
+							guift8bar.set_frequency(message);
+						}
+						if (message.at("type") == "spectrumbar")
+						{
+							
+						}
+					}
+				}
+				break;
+
+			case GuiMessage::TxMessage: {
+					json message = json::parse(msg.text);
+					//printf("%s\n", message.dump().c_str());
+					if (message.at("type") == "wsjtxbar")
+					{
+						printf("send message\n");
+						guift8bar.MessageNo(message.at("no"));
+					}
+				}
+				break;
+			
+			case GuiMessage::TranceiverMessage: {
+					json message = json::parse(msg.text);
+					// printf("%s\n", message.dump().c_str());
+					if (message.at("type") == "tranceiver")
+					{
+						if (message.find("volume") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("rf_value") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("if_value") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("tx") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("tune") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("mode") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("band") != message.end())
+						{
+							// do volume
+						}
+						// do something
+					}
+				}
 				break;
 			}
 			guiQueue.pop_front();

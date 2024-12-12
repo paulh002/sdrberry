@@ -10,6 +10,7 @@
 #include "gui_bar.h"
 #include "gui_i2csetup.h"
 #include "Demodulator.h"
+#include "screen.h"
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);

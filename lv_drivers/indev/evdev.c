@@ -40,7 +40,8 @@ int evdev_root_y;
 int evdev_button;
 
 int evdev_key_val;
-
+int swap_xy = 0;
+char touch_driver[80];
 /**********************
  *      MACROS
  **********************/
@@ -48,17 +49,25 @@ int evdev_key_val;
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+void evdev_touch_swap(int swap)
+{
+	swap_xy = swap;
+}
 
+void evdev_touch_driver(const char *driver)
+{
+	strcpy(touch_driver, driver);
+}
 /**
  * Initialize the evdev interface
  */
-void evdev_init(void)
+void evdev_init()
 {
 	char str[2048];
 	char name[256] = "Unknown";
 	int input_device = 0;
 	char *ptr;
-	
+
 	// search for touch screen
 	// first check which device need to be opened.
 	do
@@ -66,7 +75,7 @@ void evdev_init(void)
 		sprintf(str, "/dev/input/event%d", input_device);
 		evdev_fd = open(str, O_RDONLY | O_NONBLOCK);
 		if (evdev_fd > 0)
-		{	
+		{
 			ioctl(evdev_fd, EVIOCGNAME(sizeof(name)), name);
 			printf("Input device name: \"%s\"\n", name);
 			ptr = strstr(name, "raspberrypi-ts");
@@ -78,6 +87,8 @@ void evdev_init(void)
 				ptr = strstr(name, "QDtech");
 			if (ptr == NULL) // Bullseye changed driver name
 				ptr = strstr(name, "ILITEK");
+			if (ptr == NULL && strlen(touch_driver))
+				ptr = strstr(name, touch_driver);
 			if (ptr == NULL)
 			{
 				close(evdev_fd);
@@ -89,7 +100,8 @@ void evdev_init(void)
 			input_device++;
 	} while (input_device < 30 && evdev_fd == -1) ;
 	printf("Touch device name: \"%s\"\n", name);
-    if(evdev_fd == -1) {
+
+	if(evdev_fd == -1) {
         perror("unable open evdev interface:");
         return;
     }
@@ -251,7 +263,28 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
 
     data->state = evdev_button;
 
-    if(data->point.x < 0)
+	// xy swap 
+	if (swap_xy == 1)
+	{
+		int x = data->point.x;
+		data->point.x = data->point.y;
+		data->point.y = x;
+	}
+
+	// x inverted
+	if (swap_xy == 2)
+	{
+		data->point.x = drv->disp->driver->hor_res - data->point.x;
+	}
+
+	// Roatate touch
+	if (swap_xy == 3)
+	{
+		data->point.x = drv->disp->driver->hor_res - data->point.x;
+		data->point.y = drv->disp->driver->ver_res - data->point.y;
+	}
+
+	if(data->point.x < 0)
       data->point.x = 0;
     if(data->point.y < 0)
       data->point.y = 0;

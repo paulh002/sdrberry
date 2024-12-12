@@ -34,7 +34,7 @@ enum vfo_spansetting
 struct bands_t
 {
 	int meters;
-	string labels;
+	string label;
 	long f_low;
 	long f_high;
 	int f_mode;
@@ -113,7 +113,13 @@ class CVfo
 	{
 		return vfo_setting.band[vfo_setting.active_vfo];
 	}
-	int getCurrentBandIndex() { return getBandIndex(get_band_in_meters()); }
+
+	std::string get_band_in_text();
+	
+	int getCurrentBandIndex()
+	{
+		return getBandIndex(get_band_in_meters());
+	}
 	long long get_frequency()
 	{
 		return vfo_setting.vfo_freq[vfo_setting.active_vfo];
@@ -129,7 +135,9 @@ class CVfo
 	std::atomic_bool tune_flag{false};
 	bool limit_ham_band;
 	void setRit(int rit, int active_vfo);
-
+	std::string getMode(int active_vfo);
+	std::vector<int16_t> Legend();
+	
   private:
 	struct vfo_settings_struct vfo_setting;
 	int m_delay_counter = 0;

@@ -33,6 +33,9 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Lvgl of Gabor Kiss-Vamosi
 - and others
 
+## Under development
+- webserver
+
 ## ToDo
 - Support for Midi contoler
 - Cheap USB Hid controlers
@@ -82,6 +85,8 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - pthread
 - liquid-dsp
 - fftw
+- civetweb
+- nlohmann json
 
 # Installation
 
@@ -112,16 +117,16 @@ In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline
 5 inch DSI screens from waveshare do not need any adjustment. Sdrberry is currently tested for a resolution of 800 x 480. 
 Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for other resolutions. There can be some issues.
 
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/rb_tranceiver.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/rb_tranceiver.jpg)
 
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20220203_ft8.jpg)
-
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20211215_200645.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/IMG_20220203_ft8.jpg)
 
 [![Radioberry demo](https://i9.ytimg.com/vi_webp/ycU_IUmV8j4/mq1.webp?sqp=CMC2268G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGBggSih_MA8=&rs=AOn4CLC4GjVI4ExJf2BNTO02C6DS9CYR2g)](https://youtu.be/ycU_IUmV8j4?si=ixo44dyJ-GQGvl-Y)
 
 # I2C configuration
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/setup_it2c.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/setup_it2c.jpg)
 
 # ESP32 Remote control for raspberry pi
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20231015_131803.jpg)
+
+

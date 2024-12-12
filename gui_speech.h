@@ -1,10 +1,5 @@
 #pragma once
 #include <atomic>
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
 
 class gui_speech
 {

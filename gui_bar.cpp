@@ -6,6 +6,8 @@
 #include "gui_setup.h"
 #include "Spectrum.h"
 #include <memory>
+#include "screen.h"
+#include "WebRestHandler.h"
 
 const int buttontx = 0;
 const int buttontune = 1;
@@ -36,6 +38,39 @@ std::vector<std::string> MarkerTypes{"off", "M 1", "M 2"};
 std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}};
 
 gui_bar gbar;
+
+json gui_bar::get_filterfreq()
+{
+	json result = json::array();
+	json message;
+	
+	message.emplace("frequency", "0.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "1.0 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "1.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "2.0 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "2.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "3.0 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "3.5 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "4.0 Khz");
+	result.push_back(message);
+	message.clear();
+
+	return result;
+}
 
 void gui_bar::set_tx(bool tx)
 {
@@ -326,6 +361,7 @@ void gui_bar::vol_slider_event_class(lv_event_t *e)
 	audio_output->set_volume(lv_slider_get_value(slider));
 	catinterface.SetAG(lv_slider_get_value(slider));
 	Settings_file.save_vol(lv_slider_get_value(slider));
+	updateweb();
 }
 
 void gui_bar::if_slider_event_class(lv_event_t *e)
@@ -337,6 +373,7 @@ void gui_bar::if_slider_event_class(lv_event_t *e)
 	catinterface.SetIG(lv_slider_get_value(slider));
 	Settings_file.save_ifgain(lv_slider_get_value(slider));
 	guift8bar.set_if(sl);
+	updateweb();
 }
 
 void gui_bar::gain_slider_event_class(lv_event_t *e)
@@ -346,6 +383,7 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface.SetRG(lv_slider_get_value(slider));
 	Settings_file.save_rf(lv_slider_get_value(slider));
+	updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), lv_slider_get_value(slider));
@@ -403,6 +441,7 @@ void gui_bar::set_gain_slider(int gain)
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
 	Settings_file.save_rf(gain);
 	catinterface.SetRG(gain);
+	updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), (double)gain);
@@ -786,6 +825,7 @@ void gui_bar::set_vol_slider(int volume)
 	catinterface.SetAG(volume);
 	Settings_file.write_settings();
 	Settings_file.save_vol(volume);
+	updateweb();
 }
 
 bool gui_bar::get_noise()
@@ -821,6 +861,7 @@ void gui_bar::set_if(int ifg)
 	Settings_file.save_ifgain(ifg);
 	Settings_file.write_settings();
 	guift8bar.set_if(ifg);
+	updateweb();
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)
@@ -933,4 +974,9 @@ void gui_bar::hidetx()
 		lv_obj_clear_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
 	}
 	return;
+}
+
+void gui_bar::updateweb()
+{
+	webspectrumsliders.NewData(get_volume(), get_if_slider(), get_rf_gain());
 }

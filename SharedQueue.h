@@ -97,7 +97,11 @@ class GuiMessage
 		displayline,
 		filter,
 		clearWsjtx,
-		scrollWsjtx		
+		scrollWsjtx,
+		selectMessage,
+		buttonMessage,
+		TxMessage,
+		TranceiverMessage
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

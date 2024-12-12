@@ -7,6 +7,7 @@
 #include "gui_bar.h"
 #include "gui_tx.h"
 #include "Gui_band.h"
+#include "WebRestHandler.h"
 
 CVfo	vfo;
 
@@ -63,6 +64,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	auto it_band = Settings_file.meters.begin();
 	auto it_high = Settings_file.f_high.begin();
 	auto it_mode = Settings_file.mode.begin();
+	auto it_label = Settings_file.labels.begin();
 	vfo_setting.bands.clear();
 	for (auto col : Settings_file.f_low)
 	{
@@ -74,6 +76,8 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 				b.f_high = *it_high;
 			if (it_band != Settings_file.meters.end())
 				b.meters = *it_band;
+			if (it_label != Settings_file.labels.end())
+				b.label = *it_label;
 			if (it_mode != Settings_file.mode.end())
 			{
 				
@@ -337,6 +341,8 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		retval = 1;
 	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
+	frequencyvfo1.NewData();
+	webspectrumledgend.NewData(Legend());
 	return retval;
 }
 
@@ -626,4 +632,81 @@ void CVfo::setRit(int rit, int active_vfo)
 	
 	vfo_setting.vfo_rit[active_vfo] = rit;
 	tune_flag = true;
+}
+
+std::string CVfo::getMode(int active_vfo)
+{
+	char str[80], str1[80];
+
+	switch (vfo_setting.mode[active_vfo])
+	{
+	case mode_broadband_fm:
+		strcpy(str, "FM");
+		break;
+	case mode_lsb:
+		strcpy(str, "LSB");
+		break;
+	case mode_ft8:
+	case mode_usb:
+		strcpy(str, "USB");
+		break;
+	case mode_dsb:
+		strcpy(str, "DSB");
+	case mode_am:
+		strcpy(str, "AM");
+		break;
+	case mode_cw:
+		strcpy(str, "CW");
+		break;
+	}
+	std::string result(str);
+	return result;
+}
+
+std::string CVfo::get_band_in_text()
+{
+	char str[80];
+	
+	sprintf(str, "%d ", get_band_in_meters());
+
+	std::string result(str);
+	return result + vfo_setting.bands.at(getCurrentBandIndex()).label;
+}
+
+std::vector<int16_t> CVfo::Legend()
+{
+	std::vector<int16_t> spectrumLedgend;
+	std::pair<vfo_spansetting, double> span_ex = compare_span_ex();
+	int span = vfo_setting.span; 
+	int ii, bins;
+	double offset{0}, f{0.0};
+
+	switch (span_ex.first)
+	{
+	//case span_is_ifrate:
+	//	f = (double)vfo.get_sdr_frequency() - (double)(span / 2.0);
+	//	bins = nfft_samples;
+	//	ii = span / (nfft_samples - 1);
+	//	break;
+	case span_is_ifrate:
+	case span_between_ifrate:
+		f = (double)vfo.get_sdr_frequency() - (double)vfo.get_minoffset();
+		bins = nfft_samples/2;
+		ii = span / (nfft_samples/2 - 1);
+		break;
+	case span_lower_halfrate:
+		offset = vfo.get_vfo_offset() / span;
+		f = (double)vfo.get_sdr_frequency() + offset * (double)span;
+		bins = nfft_samples / 2;
+		ii = span / (nfft_samples/2 - 1);
+		break;
+	}
+
+	for (int i; i < bins; i++)
+	{
+		f = f + ii;
+		int16_t l = (int16_t)round(f / 1000.0);
+		spectrumLedgend.push_back(l);
+	}
+	return spectrumLedgend;
 }

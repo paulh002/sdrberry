@@ -175,4 +175,15 @@ std::string remove_spaces(const std::string &input)
 	return result;
 }
 
+std::string removeCharacters(std::string str, char c)
+{
+	std::string result;
+	for (auto &col : str)
+	{
+		if (col != c)
+			result.push_back(col);
+	}
+	return result;
+}
+
 }

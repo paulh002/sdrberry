@@ -59,6 +59,9 @@ bool evdev_set_file(char* dev_name);
  */
 void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data);
 
+// swap the xy coordinates of touch
+void evdev_touch_swap(int swap);
+void evdev_touch_driver(const char *driver);
 
 /**********************
  *      MACROS

@@ -3,6 +3,9 @@
 #include "lvgl_.h"
 #include "Settings.h"
 #include "sdrberry.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 class message
 {
@@ -27,6 +30,7 @@ class gui_ft8
 	int tableviewsize;
 	void Scroll(lv_obj_t *table, lv_coord_t currScrollPos);
 	std::string call;
+	std::mutex mutex_;
 
 	std::string getcall() { return call; }
 	void cpy_qso(int row);
@@ -47,6 +51,9 @@ class gui_ft8
 	void draw_part_event_class(lv_event_t *e);
 	void cq_press_part_event_class(lv_event_t *e);
 	void cpy_conversationtoqso();
+	void add_cq(json msg);
+	void add_qso(json msg);
+	
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
@@ -59,6 +66,10 @@ class gui_ft8
 	int getQsoLogRows();
 	std::string getQso(int row);
 	void tableScrollLastItem() { ScrollLatestItem(); }
+	json get_messages(int rowstart, int row_end);
+	json get_qso(int rowstart, int row_end);
+	json get_cq(int rowstart, int row_end);
+	void SelectMessage(std::string str);
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

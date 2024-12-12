@@ -1,8 +1,8 @@
-
 #include "lvgl_.h"
 #include "gui_speech.h"
 #include "Settings.h"
 #include "sdrberry.h"
+#include "screen.h"
 
 gui_speech gspeech;
 

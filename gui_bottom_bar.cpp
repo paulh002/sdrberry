@@ -1,4 +1,5 @@
 #include "gui_bottom_bar.h"
+#include "screen.h"
 
 void gui_bottom_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h)
 {

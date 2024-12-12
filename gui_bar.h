@@ -8,12 +8,10 @@
 #include "vfo.h"
 #include "guiButtonWindows.h"
 #include "guiSliderWindows.h"
+#include <nlohmann/json.hpp>
 
-extern const int screenWidth;
-extern const int screenHeight;
-extern const int bottomHeight;
-extern const int topHeight;
-extern const int tunerHeight;
+using json = nlohmann::json;
+
 const int maxifgain = 100;
 
 class gui_bar
@@ -45,7 +43,7 @@ class gui_bar
 	void if_slider_event_class(lv_event_t *e);
 	void vol_slider_event_class(lv_event_t *e);
 	void filter_slider_event_class(lv_event_t *e);
-	
+	void updateweb();
 
   public:
 	gui_bar();
@@ -83,11 +81,13 @@ class gui_bar
 	void set_tx(bool tx);
 	void get_gain_range(int &max_gain, int &min_gain);
 	int get_rf_gain() { return lv_slider_get_value(gain_slider); }
+	int get_volume() { return lv_slider_get_value(vol_slider); }
 	void setIfGainOverflow(bool state);
 	void hide(bool hide);
 	void hidetx();
 	void set_vfo(int active_vfo);
 	bool get_noise();
+	json get_filterfreq();
 
 	lv_obj_t *get_button_obj(int i)
 	{

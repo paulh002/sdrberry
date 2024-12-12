@@ -826,6 +826,44 @@ int main(int argc, char *argv[])
 					}
 				}
 				break;
+			
+			case GuiMessage::TranceiverMessage: {
+					json message = json::parse(msg.text);
+					// printf("%s\n", message.dump().c_str());
+					if (message.at("type") == "tranceiver")
+					{
+						if (message.find("volume") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("rf_value") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("if_value") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("tx") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("tune") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("mode") != message.end())
+						{
+							// do volume
+						}
+						if (message.find("band") != message.end())
+						{
+							// do volume
+						}
+						// do something
+					}
+				}
+				break;
 			}
 			guiQueue.pop_front();
 		}

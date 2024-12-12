@@ -100,7 +100,8 @@ class GuiMessage
 		scrollWsjtx,
 		selectMessage,
 		buttonMessage,
-		TxMessage
+		TxMessage,
+		TranceiverMessage
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

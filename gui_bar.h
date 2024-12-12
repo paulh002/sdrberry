@@ -43,7 +43,7 @@ class gui_bar
 	void if_slider_event_class(lv_event_t *e);
 	void vol_slider_event_class(lv_event_t *e);
 	void filter_slider_event_class(lv_event_t *e);
-	
+	void updateweb();
 
   public:
 	gui_bar();
@@ -81,6 +81,7 @@ class gui_bar
 	void set_tx(bool tx);
 	void get_gain_range(int &max_gain, int &min_gain);
 	int get_rf_gain() { return lv_slider_get_value(gain_slider); }
+	int get_volume() { return lv_slider_get_value(volume_slider); }
 	void setIfGainOverflow(bool state);
 	void hide(bool hide);
 	void hidetx();

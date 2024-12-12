@@ -7,6 +7,7 @@
 #include "Spectrum.h"
 #include <memory>
 #include "screen.h"
+#include "WebRestHandler.h"
 
 const int buttontx = 0;
 const int buttontune = 1;
@@ -360,6 +361,7 @@ void gui_bar::vol_slider_event_class(lv_event_t *e)
 	audio_output->set_volume(lv_slider_get_value(slider));
 	catinterface.SetAG(lv_slider_get_value(slider));
 	Settings_file.save_vol(lv_slider_get_value(slider));
+	updateweb();
 }
 
 void gui_bar::if_slider_event_class(lv_event_t *e)
@@ -371,6 +373,7 @@ void gui_bar::if_slider_event_class(lv_event_t *e)
 	catinterface.SetIG(lv_slider_get_value(slider));
 	Settings_file.save_ifgain(lv_slider_get_value(slider));
 	guift8bar.set_if(sl);
+	updateweb();
 }
 
 void gui_bar::gain_slider_event_class(lv_event_t *e)
@@ -380,6 +383,7 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface.SetRG(lv_slider_get_value(slider));
 	Settings_file.save_rf(lv_slider_get_value(slider));
+	updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), lv_slider_get_value(slider));
@@ -967,4 +971,9 @@ void gui_bar::hidetx()
 		lv_obj_clear_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
 	}
 	return;
+}
+
+void gui_bar::updateweb()
+{
+	webspectrumsliders.NewData(get_volume(), get_if_slider(), get_rf_gain());
 }

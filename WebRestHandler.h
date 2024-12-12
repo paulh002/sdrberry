@@ -116,6 +116,27 @@ class WebRestHandlerSpectrumLedgend : public CivetHandler
 
 };
 
+class WebRestHandlerSpectrumSliders : public CivetHandler
+{
+  public:
+	bool handlePost(CivetServer *server, struct mg_connection *conn);
+	void NewData(const int volume, const int if_v, const int rf_v);
+
+  private:
+	std::map<std::string, nlohmann::json> identifier;
+	std::mutex longpoll;
+	std::condition_variable new_data;
+	int volume_value;
+	int if_value;
+	int rf_value;
+};
+
+class WebRestHandlerSpectrumSlidersButtons : public CivetHandler
+{
+  public:
+	bool handlePost(CivetServer *server, struct mg_connection *conn);
+};
+
 class WsStartHandler : public CivetHandler
 {
   public:
@@ -134,3 +155,4 @@ class WebSocketHandler : public CivetWebSocketHandler
 extern WebRestHandlerSpectrum webspectrum;
 extern WebRestHandlerSpectrumLedgend webspectrumledgend;
 extern WebRestHandlerVfo frequencyvfo1;
+extern WebRestHandlerSpectrumSliders webspectrumsliders;

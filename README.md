@@ -129,12 +129,4 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 # ESP32 Remote control for raspberry pi
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20231015_131803.jpg)
 
-# Web Server on port 8081
-First version of sdrberry webserver, goal is to remote controle the functions of sdrberry.
-This is still an experiment / beta version. To see what is the best way to integrate web with C++ application.
-WEB pages are build with VUE JS 3 and Primevui source code will be shared later in seperate github repo.
 
-Copy sdrweb directory to pi home dir 
-Open the WSJTX webpage on http://raspberry_pi_ip:8081
-
-![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/sdrweb.png)

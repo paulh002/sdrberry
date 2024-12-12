@@ -624,6 +624,7 @@ bool WebRestHandlerSpectrumSliders::handlePost(CivetServer *server, struct mg_co
 	try
 	{
 		argument.at("identifier");
+		argument.at("type");
 	}
 	catch (const exception &e)
 	{
@@ -651,8 +652,8 @@ bool WebRestHandlerSpectrumSliders::handlePost(CivetServer *server, struct mg_co
 	{
 		// printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
 		new_data.wait_for(lock, std::chrono::seconds(100)); // conditional wait unlocks the mutex!
-	
-		json message;
+
+		message.clear();
 		message.emplace("volume", volume_value);
 		message.emplace("ifvalue", if_value);
 		message.emplace("rfvalue", rf_value);

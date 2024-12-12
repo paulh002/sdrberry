@@ -143,7 +143,7 @@ HidDev HidDev_dev, HidDev_dev1, HidDev_dev2;
 BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
-WebServer webserver;
+//WebServer webserver;
 
 
 
@@ -684,7 +684,7 @@ int main(int argc, char *argv[])
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
-	webserver.StartServer();		
+	//webserver.StartServer();		
 	while (1)
 	{
 		WsjtxMessage msg;

@@ -81,7 +81,7 @@ class gui_bar
 	void set_tx(bool tx);
 	void get_gain_range(int &max_gain, int &min_gain);
 	int get_rf_gain() { return lv_slider_get_value(gain_slider); }
-	int get_volume() { return lv_slider_get_value(volume_slider); }
+	int get_volume() { return lv_slider_get_value(vol_slider); }
 	void setIfGainOverflow(bool state);
 	void hide(bool hide);
 	void hidetx();

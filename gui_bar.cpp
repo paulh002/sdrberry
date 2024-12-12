@@ -441,6 +441,7 @@ void gui_bar::set_gain_slider(int gain)
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
 	Settings_file.save_rf(gain);
 	catinterface.SetRG(gain);
+	updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), (double)gain);
@@ -824,6 +825,7 @@ void gui_bar::set_vol_slider(int volume)
 	catinterface.SetAG(volume);
 	Settings_file.write_settings();
 	Settings_file.save_vol(volume);
+	updateweb();
 }
 
 bool gui_bar::get_noise()
@@ -859,6 +861,7 @@ void gui_bar::set_if(int ifg)
 	Settings_file.save_ifgain(ifg);
 	Settings_file.write_settings();
 	guift8bar.set_if(ifg);
+	updateweb();
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)

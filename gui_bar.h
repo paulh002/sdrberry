@@ -43,7 +43,7 @@ class gui_bar
 	void if_slider_event_class(lv_event_t *e);
 	void vol_slider_event_class(lv_event_t *e);
 	void filter_slider_event_class(lv_event_t *e);
-	void updateweb();
+	
 
   public:
 	gui_bar();
@@ -54,8 +54,8 @@ class gui_bar
 	static constexpr auto if_slider_event_cb = EventHandler<gui_bar, &gui_bar::if_slider_event_class>::staticHandler;
 	static constexpr auto vol_slider_event_cb = EventHandler<gui_bar, &gui_bar::vol_slider_event_class>::staticHandler;
 	static constexpr auto filter_slider_event_cb = EventHandler<gui_bar, &gui_bar::filter_slider_event_class>::staticHandler;
-	
 
+	void updateweb();
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
 	void set_vol_slider(int volume);
 	void set_focus();

@@ -684,7 +684,9 @@ int main(int argc, char *argv[])
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
-	webserver.StartServer();		
+
+	if (Settings_file.get_int("web", "enabled", 0))
+		webserver.StartServer();		
 	while (1)
 	{
 		WsjtxMessage msg;

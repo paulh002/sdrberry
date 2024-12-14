@@ -7,7 +7,8 @@
 #include "gui_bar.h"
 #include "gui_tx.h"
 #include "Gui_band.h"
-#include "WebRestHandler.h"
+#include "WebServer.h"
+#include "gui_top_bar.h"
 
 CVfo	vfo;
 
@@ -341,8 +342,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		retval = 1;
 	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
-	frequencyvfo1.NewData();
-	webspectrumledgend.NewData(Legend());
+	updateweb();
 	return retval;
 }
 
@@ -552,7 +552,7 @@ int CVfo::getBandIndex(int band)
 			return i;
 		i++;
 	}
-	return -1;
+	return 0;
 }
 
 void CVfo::setVfoFrequency(int direction)
@@ -704,9 +704,38 @@ std::vector<int16_t> CVfo::Legend()
 
 	for (int i; i < bins; i++)
 	{
-		f = f + ii;
 		int16_t l = (int16_t)round(f / 1000.0);
 		spectrumLedgend.push_back(l);
+		f = f + ii;
 	}
 	return spectrumLedgend;
+}
+
+void CVfo::updateweb()
+{
+	if (webserver.isEnabled())
+	{
+		json message, data;
+
+		std::string freq = get_vfo_str();
+		std::string mode = getMode(vfo.get_active_vfo());
+		std::string band = get_band_in_text();
+		std::string call = Settings_file.get_string("wsjtx", "call");
+
+		message.clear();
+		data.clear();
+		data.emplace("frequency", freq);
+		data.emplace("mode", mode);
+		data.emplace("band", band);
+		data.emplace("call", call);
+		data.emplace("label", GuiTopBar.getLabel());
+		message.emplace("type", "vfo");
+		message.emplace("data",data);
+		webserver.SendMessage(message);
+		
+		message.clear();
+		message.emplace("type","ledgend");
+		message.emplace("data",Legend());
+		webserver.SendMessage(message);
+	}
 }

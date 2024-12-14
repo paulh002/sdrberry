@@ -131,7 +131,8 @@ class CVfo
 	long get_vfo_absolute_offset();
 	void return_bands(vector<int> &bands);
 	long get_span() { return vfo_setting.span;}
-
+	void updateweb();
+	
 	std::atomic_bool tune_flag{false};
 	bool limit_ham_band;
 	void setRit(int rit, int active_vfo);
@@ -152,6 +153,7 @@ class CVfo
 	int get_band(int active_vfo);
 	void rx_set_sdr_freq();
 	void tx_set_sdr_freq();
+	
 };
 
 extern CVfo vfo;

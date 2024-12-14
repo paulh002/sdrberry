@@ -7,7 +7,7 @@
 #include "Spectrum.h"
 #include <memory>
 #include "screen.h"
-#include "WebRestHandler.h"
+#include "WebServer.h"
 
 const int buttontx = 0;
 const int buttontune = 1;
@@ -978,5 +978,14 @@ void gui_bar::hidetx()
 
 void gui_bar::updateweb()
 {
-	webspectrumsliders.NewData(get_volume(), get_if_slider(), get_rf_gain());
+	json message, data;
+
+	data.clear();
+	data.emplace("volume", get_volume());
+	data.emplace("ifvalue", get_if_slider());
+	data.emplace("rfvalue", get_rf_gain());
+
+	message.emplace("type", "sliders");
+	message.emplace("data", data);
+	webserver.SendMessage(message);
 }

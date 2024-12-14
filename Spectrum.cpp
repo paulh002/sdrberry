@@ -13,7 +13,7 @@
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
 #include "screen.h"
-#include "WebRestHandler.h"
+#include "WebServer.h"
 
 Spectrum SpectrumGraph;
 
@@ -256,7 +256,16 @@ void Spectrum::DrawDisplay(int ns)
 	load_data();
 	if (waterfall)
 		waterfall->Draw((float)noisefloor);
-	webspectrum.NewData(data_set);
+
+	if (webserver.isEnabled())
+	{
+		nlohmann::json message, data;
+
+		message.clear();
+		message.emplace("type", "spectrum");
+		message.emplace("data", data_set);
+		webserver.SendMessage(message);
+	}
 }
 
 void Spectrum::SetFftParts()

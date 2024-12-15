@@ -40,7 +40,7 @@ std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_ds
 
 gui_bar gbar;
 
-json gui_bar::get_filterfreq()
+void gui_bar::web_filterfreq()
 {
 	json result = json::array();
 	json message;
@@ -70,7 +70,10 @@ json gui_bar::get_filterfreq()
 	result.push_back(message);
 	message.clear();
 
-	return result;
+	message.clear();
+	message.emplace("type", "filterfrq");
+	message.emplace("data", result);
+	webserver.SendMessage(message);
 }
 
 void gui_bar::set_tx(bool tx)

@@ -12,6 +12,7 @@
 #include "date.h"
 #include "strlib.h"
 #include "screen.h"
+#include "WebServer.h"
 
 extern std::unique_ptr<wsjtx_lib> wsjtx;
 
@@ -329,6 +330,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 			ClearMessage();
 			break;
 		}
+	get_buttons();
 	}
 }
 
@@ -886,7 +888,7 @@ void gui_ft8bar::ClearTransmit()
 	WaterfallReset();
 }
 
-json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
+void gui_ft8bar::web_wsjtxfreq()
 {
 	//std::unique_lock<std::mutex> mlock(mutex_);
 	json result = json::array();
@@ -925,38 +927,41 @@ json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
 			result.push_back(message);
 			message.clear();
 		}
-	}	
-	return result;
+	}
+	message.clear();
+	message.emplace("type", "wsjtxfrequencies");
+	message.emplace("data", result);
+	webserver.SendMessage(message);
 }
 
-json gui_ft8bar::get_buttons()
+void gui_ft8bar::get_buttons()
 {
-	json result = json::array();
-	json message;
+	json message, data;
 	std::string s;
 
 	s = "0";
 	if (lv_obj_get_state(button[buttonmonitor]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("monitor", s);
+	data.emplace("monitor", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttonlog]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("log", s);
+	data.emplace("log", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttontx]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("tx", s);
+	data.emplace("tx", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttoncq]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("cq", s);
+	data.emplace("cq", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttonclear]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("clear", s);
-	//result.push_back(message);
-	return message;
+	data.emplace("clear", s);
+	message.emplace("type", "wsjtxbuttons");
+	message.emplace("data", data);
+	webserver.SendMessage(message);
 }
 
 void gui_ft8bar::LogButton()

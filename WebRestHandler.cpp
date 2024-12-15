@@ -93,119 +93,6 @@ bool WebRestHandler::handlePost(CivetServer *server, struct mg_connection *conn)
 	return true;
 }
 
-bool WebRestHandlerVfo::handleGet(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-	json message;
-
-	std::string freq = vfo.get_vfo_str();
-	std::string mode = vfo.getMode(vfo.get_active_vfo());
-	std::string band = vfo.get_band_in_text();
-	std::string call = Settings_file.get_string("wsjtx", "call");
-
-	message.emplace("frequency", freq);
-	message.emplace("mode", mode);
-	message.emplace("band", band);
-	message.emplace("call", call);
-	message.emplace("label", GuiTopBar.getLabel());
-
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-	mg_printf(conn, "%s", message.dump().c_str());
-	return true;
-}
-
-bool WebRestHandlerVfo::handlePost(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-	long long rlen, wlen;
-	long long nlen = 0;
-	long long tlen = req_info->content_length;
-	char buf[1024];
-
-	std::memset(buf, 0, sizeof(buf));
-	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
-	if ((dlen < 1) || (dlen >= sizeof(buf)))
-	{
-		mg_send_http_error(conn, 400, "%s", "No request body data");
-		return false;
-	}
-	json argument;
-	try
-	{
-		argument = json::parse(buf);
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	try
-	{
-		argument.at("identifier");
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	json message;
-
-	std::string freq = vfo.get_vfo_str();
-	std::string mode = vfo.getMode(vfo.get_active_vfo());
-	std::string band = vfo.get_band_in_text();
-	std::string call = Settings_file.get_string("wsjtx", "call");
-
-	message.emplace("frequency", freq);
-	message.emplace("mode", mode);
-	message.emplace("band", band);
-	message.emplace("call", call);
-	message.emplace("label", GuiTopBar.getLabel());
-
-	if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-	{
-		identifier[argument.at("identifier")] = message;
-		mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-		mg_printf(conn, "%s", message.dump().c_str());
-		printf("New identifier %s\n", argument.at("identifier").dump().c_str());
-		return true;
-	}
-	std::unique_lock<std::mutex> lock(longpoll);
-	bool wait = true;
-	while (wait)
-	{
-		// printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
-		new_data.wait_for(lock, std::chrono::seconds(10)); // conditional wait unlocks the mutex!
-
-		std::string freq = vfo.get_vfo_str();
-		std::string mode = vfo.getMode(vfo.get_active_vfo());
-		std::string band = vfo.get_band_in_text();
-		std::string call = Settings_file.get_string("wsjtx", "call");
-
-		message.clear();
-		message.emplace("frequency", freq);
-		message.emplace("mode", mode);
-		message.emplace("band", band);
-		message.emplace("call", call);
-		message.emplace("label", GuiTopBar.getLabel());
-
-		// if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-		wait = false;
-	}
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-	mg_printf(conn, "%s", message.dump().c_str());
-	return true;
-}
-
-void WebRestHandlerVfo::NewData()
-{
-	new_data.notify_all();
-}
 
 bool WebRestHandlerSelectMessage::handlePost(CivetServer *server, struct mg_connection *conn)
 {
@@ -285,32 +172,6 @@ bool WebRestHandlerCq::handleGet(CivetServer *server, struct mg_connection *conn
 	return true;
 }
 
-bool WebRestHandlerWsjtxFrq::handleGet(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-
-	json message_array = json::array();
-
-	message_array = guift8bar.get_wsjtxfreq(0, 0);
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
-	mg_printf(conn, "%s", message_array.dump().c_str());
-	return true;
-}
-
-bool WebRestHandlerFilterFrq::handleGet(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-
-	json message_array = json::array();
-
-	message_array = gbar.get_filterfreq();
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
-	mg_printf(conn, "%s", message_array.dump().c_str());
-	return true;
-}
-
 bool WebRestHandlerTxMessage::handleGet(CivetServer *server, struct mg_connection *conn)
 {
 	/* Handler may access the request info using mg_get_request_info */
@@ -372,297 +233,6 @@ bool WebRestHandlerTxMessage::handlePost(CivetServer *server, struct mg_connecti
 	return true;
 }
 
-bool WebRestHandlerSpectrum::handleGet(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-
-	json message_array = json::array();
-
-	message_array = guift8bar.get_txmessage();
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
-	mg_printf(conn, "%s", message_array.dump().c_str());
-	return true;
-}
-
-bool WebRestHandlerSpectrum::handlePost(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-	long long rlen, wlen;
-	long long nlen = 0;
-	long long tlen = req_info->content_length;
-	char buf[1024];
-
-	std::memset(buf, 0, sizeof(buf));
-	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
-	if ((dlen < 1) || (dlen >= sizeof(buf)))
-	{
-		mg_send_http_error(conn, 400, "%s", "No request body data");
-		return false;
-	}
-	json argument;
-	try
-	{
-		argument = json::parse(buf);
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	try
-	{
-		argument.at("identifier");
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	json message(spectrum);
-
-	if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-	{
-		identifier[argument.at("identifier")] = message;
-		mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-		mg_printf(conn, "%s", message.dump().c_str());
-		printf("New identifier %s\n", argument.at("identifier").dump().c_str());
-		return true;
-	}
-	std::unique_lock<std::mutex> lock(longpoll);
-	bool wait = true;
-	while (wait)
-	{
-		// printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
-		// new_data.wait_for(lock, std::chrono::seconds(100)); // conditional wait unlocks the mutex!
-		json message(spectrum);
-
-		// if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-		wait = false;
-	}
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-	mg_printf(conn, "%s", message.dump().c_str());
-	return true;
-}
-
-void WebRestHandlerSpectrum::NewData(const std::vector<int16_t> &newspectrum)
-{
-	spectrum = newspectrum;
-	for (auto &col : spectrum)
-	{
-		if (col < 0)
-			col = 0;
-	}
-	new_data.notify_all();
-}
-
-bool WebRestHandlerSpectrumLedgend::handlePost(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-	long long rlen, wlen;
-	long long nlen = 0;
-	long long tlen = req_info->content_length;
-	char buf[1024];
-
-	std::memset(buf, 0, sizeof(buf));
-	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
-	if ((dlen < 1) || (dlen >= sizeof(buf)))
-	{
-		mg_send_http_error(conn, 400, "%s", "No request body data");
-		return false;
-	}
-	json argument;
-	try
-	{
-		argument = json::parse(buf);
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	try
-	{
-		argument.at("identifier");
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	json message(spectrumLedgend);
-
-	if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-	{
-		identifier[argument.at("identifier")] = message;
-		mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-		mg_printf(conn, "%s", message.dump().c_str());
-		printf("New identifier %s\n", argument.at("identifier").dump().c_str());
-		return true;
-	}
-	std::unique_lock<std::mutex> lock(longpoll);
-	bool wait = true;
-	while (wait)
-	{
-		// printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
-		new_data.wait_for(lock, std::chrono::seconds(100)); // conditional wait unlocks the mutex!
-		json message(spectrumLedgend);
-
-		// if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-		wait = false;
-	}
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-	mg_printf(conn, "%s", message.dump().c_str());
-	return true;
-}
-
-void WebRestHandlerSpectrumLedgend::NewData(const std::vector<int16_t> &newspectrumledgend)
-{
-	spectrumLedgend = newspectrumledgend;
-	new_data.notify_all();
-}
-
-bool WebRestHandlerSpectrumSliders::handlePost(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-	long long rlen, wlen;
-	long long nlen = 0;
-	long long tlen = req_info->content_length;
-	char buf[1024];
-
-	std::memset(buf, 0, sizeof(buf));
-	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
-	if ((dlen < 1) || (dlen >= sizeof(buf)))
-	{
-		mg_send_http_error(conn, 400, "%s", "No request body data");
-		return false;
-	}
-	json argument;
-	try
-	{
-		argument = json::parse(buf);
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	try
-	{
-		argument.at("identifier");
-		argument.at("type");
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	json message;
-	message.emplace("volume", volume_value);
-	message.emplace("ifvalue", if_value);
-	message.emplace("rfvalue", rf_value);
-
-	if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-	{
-		identifier[argument.at("identifier")] = message;
-		mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-		mg_printf(conn, "%s", message.dump().c_str());
-		printf("New identifier %s\n", argument.at("identifier").dump().c_str());
-		return true;
-	}
-	std::unique_lock<std::mutex> lock(longpoll);
-	bool wait = true;
-	while (wait)
-	{
-		// printf("Existing identifier %s\n", argument.at("identifier").dump().c_str());
-		new_data.wait_for(lock, std::chrono::seconds(100)); // conditional wait unlocks the mutex!
-
-		message.clear();
-		message.emplace("volume", volume_value);
-		message.emplace("ifvalue", if_value);
-		message.emplace("rfvalue", rf_value);
-
-		// if (auto search = identifier.find(argument.at("identifier")); search == identifier.end())
-		wait = false;
-	}
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message.dump().length());
-	mg_printf(conn, "%s", message.dump().c_str());
-	return true;
-}
-
-void WebRestHandlerSpectrumSliders::NewData(const int volume, const int if_v, const int rf_v)
-{
-	volume_value = volume;
-	if_value = if_v;
-	rf_value = rf_v;
-	new_data.notify_all();
-}
-
-bool WebRestHandlerSpectrumSlidersButtons::handlePost(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-	long long rlen, wlen;
-	long long nlen = 0;
-	long long tlen = req_info->content_length;
-	char buf[1024];
-
-	std::memset(buf, 0, sizeof(buf));
-	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
-	if ((dlen < 1) || (dlen >= sizeof(buf)))
-	{
-		mg_send_http_error(conn, 400, "%s", "No request body data");
-		return false;
-	}
-	json message;
-	try
-	{
-		message = json::parse(buf);
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	try
-	{
-		// check if message is a tranceiver message
-		message.at("tranceiver");
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	// printf("select message\n");
-	guiQueue.push_back(GuiMessage(GuiMessage::action::TranceiverMessage, message.dump()));
-
-	mg_printf(conn,
-			  "HTTP/1.1 201 OK\r\nContent-Type: "
-			  "application/json\r\nConnection: close\r\n\r\n");
-
-	return true;
-}
-
 WebSocketHandler::WebSocketHandler()
 {
 	state = OFFLINE;
@@ -698,8 +268,8 @@ bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *con
 	strncpy(s.data(), data, data_len);
 	
 	//printf("WS got %lu bytes: ", (long unsigned)data_len);
-	//fwrite(data, 1, data_len, stdout);
-	//printf("\n");
+	fwrite(data, 1, data_len, stdout);
+	printf("\n");
 
 	try
 	{
@@ -715,9 +285,20 @@ bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *con
 	{
 		vfo.updateweb();
 		gbar.updateweb();
+		gbar.web_filterfreq();
+		guift8bar.get_buttons();
+		guift8bar.web_wsjtxfreq();
 		return true;
 	}
-	printf("%s\n", message.dump().c_str());
+	//printf("%s\n", message.dump().c_str());
+	if (message.find("type") != message.end())
+	{
+		if (message.at("type") == "wsjtxbar")
+		{
+			guiQueue.push_back(GuiMessage(GuiMessage::action::buttonMessage, message.dump()));
+			return true;
+		}
+	}
 	guiQueue.push_back(GuiMessage(GuiMessage::action::TranceiverMessage, message.dump()));
 	return true;
 }

@@ -15,19 +15,6 @@ class WebRestHandler : public CivetHandler
 	
 };
 
-class WebRestHandlerVfo : public CivetHandler
-{
-  public:
-	bool handleGet(CivetServer *server, struct mg_connection *conn);
-	bool handlePost(CivetServer *server, struct mg_connection *conn);
-	void NewData();
-
-  private:
-	std::map<std::string, nlohmann::json> identifier;
-	std::mutex longpoll;
-	std::condition_variable new_data;
-};
-
 class WebRestHandlerSelectMessage : public CivetHandler
 {
   public:
@@ -52,22 +39,6 @@ class WebRestHandlerCq : public CivetHandler
   private:
 };
 
-class WebRestHandlerWsjtxFrq : public CivetHandler
-{
-  public:
-	bool handleGet(CivetServer *server, struct mg_connection *conn);
-
-  private:
-};
-
-class WebRestHandlerFilterFrq : public CivetHandler
-{
-  public:
-	bool handleGet(CivetServer *server, struct mg_connection *conn);
-
-  private:
-};
-	
 class WebRestHandlerTxMessage : public CivetHandler
 {
   public:
@@ -75,57 +46,6 @@ class WebRestHandlerTxMessage : public CivetHandler
 	bool handlePost(CivetServer *server, struct mg_connection *conn);
 
   private:
-};
-
-class WebRestHandlerSpectrum : public CivetHandler
-{
-  public:
-	WebRestHandlerSpectrum() : spectrum(nfft_samples,0) {}
-	bool handleGet(CivetServer *server, struct mg_connection *conn);
-	bool handlePost(CivetServer *server, struct mg_connection *conn);
-	void NewData(const std::vector<int16_t>& newspectrum);
-
-  private:
-	std::map<std::string, nlohmann::json> identifier;
-	std::mutex longpoll;
-	std::condition_variable new_data;
-	std::vector<int16_t> spectrum;
-};
-
-class WebRestHandlerSpectrumLedgend : public CivetHandler
-{
-  public:
-	WebRestHandlerSpectrumLedgend() : spectrumLedgend(nfft_samples, 0) {}
-	bool handlePost(CivetServer *server, struct mg_connection *conn);
-	void NewData(const std::vector<int16_t> &newspectrum);
-
-  private:
-	std::map<std::string, nlohmann::json> identifier;
-	std::mutex longpoll;
-	std::condition_variable new_data;
-	std::vector<int16_t> spectrumLedgend;
-
-};
-
-class WebRestHandlerSpectrumSliders : public CivetHandler
-{
-  public:
-	bool handlePost(CivetServer *server, struct mg_connection *conn);
-	void NewData(const int volume, const int if_v, const int rf_v);
-
-  private:
-	std::map<std::string, nlohmann::json> identifier;
-	std::mutex longpoll;
-	std::condition_variable new_data;
-	int volume_value;
-	int if_value;
-	int rf_value;
-};
-
-class WebRestHandlerSpectrumSlidersButtons : public CivetHandler
-{
-  public:
-	bool handlePost(CivetServer *server, struct mg_connection *conn);
 };
 
 enum websocketstate
@@ -152,8 +72,3 @@ public:
 	WebSocketHandler();
 	void SendMessage(nlohmann::json message);
 };
-
-extern WebRestHandlerSpectrum webspectrum;
-extern WebRestHandlerSpectrumLedgend webspectrumledgend;
-extern WebRestHandlerVfo frequencyvfo1;
-extern WebRestHandlerSpectrumSliders webspectrumsliders;

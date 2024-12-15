@@ -10,9 +10,7 @@ WebRestHandler wsjtx_messages;
 WebRestHandlerSelectMessage SelectMessage;
 WebRestHandlerQso qso_messages;
 WebRestHandlerCq cq_messages;
-WebRestHandlerWsjtxFrq wsjtx_frequencies;
 WebRestHandlerTxMessage txmessage;
-WebRestHandlerFilterFrq filter_frequencies;
 WebSocketHandler websocketserver;
 
 WebServer::WebServer()
@@ -42,9 +40,7 @@ void WebServer::StartServer()
 	AddHandler("/api/selectmessage", SelectMessage);
 	AddHandler("/api/qsomessages", qso_messages);
 	AddHandler("/api/cqmessages", cq_messages);
-	AddHandler("/api/wsjtxfrequencies", wsjtx_frequencies);
 	AddHandler("/api/txmessage", txmessage);
-	AddHandler("/api/filterfrequencies", filter_frequencies);
 
 	Server->addWebSocketHandler("/ws", websocketserver);
 	enabled = true;

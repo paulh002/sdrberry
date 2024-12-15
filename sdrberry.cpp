@@ -814,6 +814,7 @@ int main(int argc, char *argv[])
 						{
 							
 						}
+						guift8bar.get_buttons();
 					}
 				}
 				break;
@@ -830,7 +831,7 @@ int main(int argc, char *argv[])
 				break;
 			
 			case GuiMessage::TranceiverMessage: {
-					printf("%s\n", msg.text.c_str());
+					//printf("%s\n", msg.text.c_str());
 					json message;
 					try
 					{

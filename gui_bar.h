@@ -87,7 +87,7 @@ class gui_bar
 	void hidetx();
 	void set_vfo(int active_vfo);
 	bool get_noise();
-	json get_filterfreq();
+	void web_filterfreq();
 	void websetfilter(std::string message);
 
 	lv_obj_t *get_button_obj(int i)

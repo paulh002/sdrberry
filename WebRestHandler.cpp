@@ -311,67 +311,6 @@ bool WebRestHandlerFilterFrq::handleGet(CivetServer *server, struct mg_connectio
 	return true;
 }
 
-bool WebRestHandlerButtonMessage::handleGet(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-
-	json message_array = json::array();
-
-	message_array = guift8bar.get_buttons();
-	mg_send_http_ok(conn, "application/json; charset=utf-8", message_array.dump().length());
-	mg_printf(conn, "%s", message_array.dump().c_str());
-	return true;
-}
-
-bool WebRestHandlerButtonMessage::handlePost(CivetServer *server, struct mg_connection *conn)
-{
-	/* Handler may access the request info using mg_get_request_info */
-	const struct mg_request_info *req_info = mg_get_request_info(conn);
-	long long rlen, wlen;
-	long long nlen = 0;
-	long long tlen = req_info->content_length;
-	char buf[1024];
-
-	std::memset(buf, 0, sizeof(buf));
-	int dlen = mg_read(conn, buf, sizeof(buf) - 1);
-	if ((dlen < 1) || (dlen >= sizeof(buf)))
-	{
-		mg_send_http_error(conn, 400, "%s", "No request body data");
-		return false;
-	}
-	json message;
-	try
-	{
-		message = json::parse(buf);
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-
-	try
-	{
-		message.at("button");
-		message.at("type");
-	}
-	catch (const exception &e)
-	{
-		std::string err = e.what();
-		mg_send_http_error(conn, 400, "%s", err.c_str());
-		return true;
-	}
-	guiQueue.push_back(GuiMessage(GuiMessage::action::buttonMessage, message.dump()));
-
-	mg_printf(conn,
-			  "HTTP/1.1 201 OK\r\nContent-Type: "
-			  "application/json\r\nConnection: close\r\n\r\n");
-
-	return true;
-}
-
 bool WebRestHandlerTxMessage::handleGet(CivetServer *server, struct mg_connection *conn)
 {
 	/* Handler may access the request info using mg_get_request_info */
@@ -752,8 +691,12 @@ void WebSocketHandler::handleReadyState(CivetServer *server, struct mg_connectio
 bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *conn, int bits, char *data, size_t data_len)
 {
 	json message;
-	std::string s(data);
-
+	std::string s;
+	
+	s.resize(data_len + 1);
+	memset(s.data(), 0, data_len + 1);
+	strncpy(s.data(), data, data_len);
+	
 	//printf("WS got %lu bytes: ", (long unsigned)data_len);
 	//fwrite(data, 1, data_len, stdout);
 	//printf("\n");
@@ -772,8 +715,10 @@ bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *con
 	{
 		vfo.updateweb();
 		gbar.updateweb();
+		return true;
 	}
-	//mg_websocket_write(conn, MG_WEBSOCKET_OPCODE_TEXT, data, data_len);
+	printf("%s\n", message.dump().c_str());
+	guiQueue.push_back(GuiMessage(GuiMessage::action::TranceiverMessage, message.dump()));
 	return true;
 }
 

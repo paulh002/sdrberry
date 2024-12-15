@@ -830,40 +830,61 @@ int main(int argc, char *argv[])
 				break;
 			
 			case GuiMessage::TranceiverMessage: {
-					json message = json::parse(msg.text);
-					// printf("%s\n", message.dump().c_str());
-					if (message.at("type") == "tranceiver")
+					printf("%s\n", msg.text.c_str());
+					json message;
+					try
 					{
-						if (message.find("volume") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("rf_value") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("if_value") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("tx") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("tune") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("mode") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("band") != message.end())
-						{
-							// do volume
-						}
-						// do something
+						message = json::parse(msg.text);
 					}
+					catch (const exception &e)
+					{
+						std::string err = e.what();
+						printf("%s\n", err.c_str());
+						break;
+					}
+					
+					//printf("%s\n", message.dump().c_str());
+					if (message.find("setfilter") != message.end())
+					{
+						gbar.websetfilter(message.at("setfilter"));
+					}
+					if (message.find("setvolume") != message.end())
+					{
+						if (message.at("setvolume").is_number())
+							gbar.set_vol_slider(message.at("setvolume"), false);
+					}
+					if (message.find("setrfvalue") != message.end())
+					{
+						if (message.at("setrfvalue").is_number())
+						{
+							int max_gain, min_gain;
+
+							gbar.get_gain_range(max_gain, min_gain);
+							gbar.set_gain_slider((int)message.at("setrfvalue") + min_gain, false);
+						}
+					}
+					if (message.find("setifvalue") != message.end())
+					{
+						if (message.at("setifvalue").is_number())
+							gbar.set_if(message.at("setifvalue"), false);
+					}
+					if (message.find("tx") != message.end())
+					{
+						// do volume
+					}
+					if (message.find("tune") != message.end())
+					{
+						// do volume
+					}
+					if (message.find("mode") != message.end())
+					{
+						// do volume
+					}
+					if (message.find("band") != message.end())
+					{
+						// do volume
+					}
+
 				}
 				break;
 			}

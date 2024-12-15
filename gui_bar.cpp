@@ -30,6 +30,7 @@ static const char *opts = "0.5 Kc\n"
 						  "3.5 Kc\n"
 						  "4.0 Kc";
 
+std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz"};
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};
 std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm};
 std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
@@ -417,7 +418,7 @@ gui_bar::~gui_bar()
 	lv_obj_del(gain_slider_label);
 }
 
-void gui_bar::set_gain_slider(int gain)
+void gui_bar::set_gain_slider(int gain, bool web)
 {
 	double max_gain{0.0};
 	double min_gain{0.0};
@@ -432,7 +433,6 @@ void gui_bar::set_gain_slider(int gain)
 		std::cout << e.what();
 		return;
 	}
-
 	if (gain > max_gain)
 		gain = max_gain;
 	if (gain < min_gain)
@@ -441,7 +441,8 @@ void gui_bar::set_gain_slider(int gain)
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
 	Settings_file.save_rf(gain);
 	catinterface.SetRG(gain);
-	updateweb();
+	if (web)
+		updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), (double)gain);
@@ -465,6 +466,7 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 			int sel = lv_dropdown_get_selected(obj);
 			catinterface.SetSH(ifilters.at(sel));
 			update_filter(ifilters.at(sel));
+			updateweb();
 		}
 		else
 		{
@@ -813,7 +815,7 @@ void gui_bar::step_vol_slider(int step)
 	set_vol_slider(lv_slider_get_value(vol_slider) + step);
 }
 
-void gui_bar::set_vol_slider(int volume)
+void gui_bar::set_vol_slider(int volume, bool web)
 {
 	if (volume < 0)
 		volume = 0;
@@ -825,7 +827,8 @@ void gui_bar::set_vol_slider(int volume)
 	catinterface.SetAG(volume);
 	Settings_file.write_settings();
 	Settings_file.save_vol(volume);
-	updateweb();
+	if (web)
+		updateweb();
 }
 
 bool gui_bar::get_noise()
@@ -850,7 +853,7 @@ int gui_bar::get_if_slider()
 	return lv_slider_get_value(if_slider);
 }
 
-void gui_bar::set_if(int ifg)
+void gui_bar::set_if(int ifg, bool web)
 {
 	if (ifg > maxifgain)
 		ifg = maxifgain;
@@ -861,7 +864,8 @@ void gui_bar::set_if(int ifg)
 	Settings_file.save_ifgain(ifg);
 	Settings_file.write_settings();
 	guift8bar.set_if(ifg);
-	updateweb();
+	if (web)
+		updateweb();
 }
 
 void gui_bar::get_filter_range(vector<string> &filters)
@@ -943,6 +947,7 @@ void gui_bar::set_filter_slider(int ifilter)
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
 	catinterface.SetSH(ifilters[filter]);
+	updateweb();
 }
 
 void gui_bar::get_gain_range(int &max_gain, int &min_gain)
@@ -980,12 +985,34 @@ void gui_bar::updateweb()
 {
 	json message, data;
 
-	data.clear();
-	data.emplace("volume", get_volume());
-	data.emplace("ifvalue", get_if_slider());
-	data.emplace("rfvalue", get_rf_gain());
+	if (webserver.isEnabled())
+	{
+		int max_gain, min_gain;
 
-	message.emplace("type", "sliders");
-	message.emplace("data", data);
-	webserver.SendMessage(message);
+		get_gain_range(max_gain, min_gain);
+		data.clear();
+		data.emplace("volume", get_volume());
+		data.emplace("ifvalue", get_if_slider());
+		data.emplace("rfvalue", get_rf_gain() - min_gain);
+		data.emplace("filter", FilterTypes.at(lv_dropdown_get_selected(button[filter])));
+
+		message.emplace("type", "sliders");
+		message.emplace("data", data);
+		webserver.SendMessage(message);
+	}
+}
+
+void gui_bar::websetfilter(std::string message)
+{
+	int filter = 0;
+	for (auto col : FilterTypes)
+	{
+		if (col == message)
+		{
+			lv_dropdown_set_selected(button[button_filter], filter);
+			update_filter(ifilters[filter]);
+			catinterface.SetSH(ifilters[filter]);
+		}
+		filter++;
+	}
 }

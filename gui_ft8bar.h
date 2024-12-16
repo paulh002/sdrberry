@@ -44,7 +44,8 @@ class gui_ft8bar
 	void if_slider_event_cb_class(lv_event_t *e);
 	void tx_slider_event_cb_class(lv_event_t *e);
 	void freq_event_handler_class(lv_event_t *e);
-
+	void press_part_event_cb_class(lv_event_t *e);
+	
   public:
 	gui_ft8bar();
 	~gui_ft8bar();
@@ -81,6 +82,7 @@ class gui_ft8bar
 	void MonitorButton();
 	void LogButton();
 	json get_txmessage();
+	void web_txmessage();
 	void MessageNo(std::string message);
 	void get_buttons();
 	void set_frequency(json message);
@@ -93,8 +95,7 @@ class gui_ft8bar
 	static constexpr auto if_slider_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::if_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_slider_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::tx_slider_event_cb_class>::staticHandler;
 	static constexpr auto freq_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::freq_event_handler_class>::staticHandler;
-
-	
+	static constexpr auto press_part_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::press_part_event_cb_class>::staticHandler;
 };
 
 extern gui_ft8bar guift8bar;

@@ -785,13 +785,7 @@ int main(int argc, char *argv[])
 			case GuiMessage::scrollWsjtx:
 				gft8.tableScrollLastItem();
 				break;
-			case GuiMessage::selectMessage:
-				if (IsDigtalMode())
-				{
-					gft8.SelectMessage(msg.text);
-				}
-				break;
-			case GuiMessage::buttonMessage: {
+			case GuiMessage::wsjtxMessage: {
 					json message = json::parse(msg.text);
 					//printf("%s\n", message.dump().c_str());
 					if (message.at("type") == "wsjtxbar")
@@ -816,20 +810,28 @@ int main(int argc, char *argv[])
 						}
 						guift8bar.get_buttons();
 					}
-				}
-				break;
-
-			case GuiMessage::TxMessage: {
-					json message = json::parse(msg.text);
-					//printf("%s\n", message.dump().c_str());
-					if (message.at("type") == "wsjtxbar")
+					if (IsDigtalMode())
 					{
-						printf("send message\n");
-						guift8bar.MessageNo(message.at("no"));
+						try
+						{
+							if (message.at("type") == "selecttxmessage")
+							{
+								guift8bar.MessageNo(message.at("no"));
+							}
+							if (message.at("type") == "selectmessage")
+							{
+								gft8.SelectMessage(message.at("data"));
+							}
+						}
+						catch (const exception &e)
+						{
+							std::string err = e.what();
+							printf("%s\n", err.c_str());
+						}
 					}
 				}
 				break;
-			
+
 			case GuiMessage::TranceiverMessage: {
 					//printf("%s\n", msg.text.c_str());
 					json message;

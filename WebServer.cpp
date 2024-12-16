@@ -6,11 +6,6 @@
 #define EXAMPLE_URI "/example"
 #define EXIT_URI "/exit"
 
-WebRestHandler wsjtx_messages;
-WebRestHandlerSelectMessage SelectMessage;
-WebRestHandlerQso qso_messages;
-WebRestHandlerCq cq_messages;
-WebRestHandlerTxMessage txmessage;
 WebSocketHandler websocketserver;
 
 WebServer::WebServer()
@@ -36,12 +31,6 @@ void WebServer::StartServer()
 	options.push_back("500");
 	
 	Server = std::make_unique<CivetServer>(options);
-	AddHandler("/api/wsjtxmessages", wsjtx_messages);
-	AddHandler("/api/selectmessage", SelectMessage);
-	AddHandler("/api/qsomessages", qso_messages);
-	AddHandler("/api/cqmessages", cq_messages);
-	AddHandler("/api/txmessage", txmessage);
-
 	Server->addWebSocketHandler("/ws", websocketserver);
 	enabled = true;
 }

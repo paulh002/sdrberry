@@ -271,7 +271,7 @@ fi
 cd $wrkdir || exit
 
 #Remove if not planning to use bluetooth.
-sudo apt-get remove -y pulseaudio
+#sudo apt-get remove -y pulseaudio
 
 if [[ $sdrboard == 'HRF' ]]; then
 # put sdrberry config in users home dir

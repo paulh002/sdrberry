@@ -67,7 +67,7 @@ class gui_ft8
 	std::string getQso(int row);
 	void tableScrollLastItem() { ScrollLatestItem(); }
 	void web_qso();
-	json get_cq(int rowstart, int row_end);
+	void web_cq();
 	void SelectMessage(json jsonMessage);
 	void web_messages();
 	void web_message(message m);

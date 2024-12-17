@@ -335,8 +335,6 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 	}
 }
 
-
-
 void gui_ft8bar::CQButton()
 {
 	SetTxMessage();
@@ -415,7 +413,7 @@ void gui_ft8bar::ClearMessage()
 	SetFilter("");
 	web_txmessage();
 }
-
+/*
 json gui_ft8bar::get_txmessage()
 {
 	json result = json::array();
@@ -433,7 +431,7 @@ json gui_ft8bar::get_txmessage()
 	}
 	return result;
 }
-
+*/
 void gui_ft8bar::web_txmessage()
 {
 	json result = json::array();
@@ -496,11 +494,13 @@ void gui_ft8bar::SetTxMessage(std::string msg)
 void gui_ft8bar::SetFilter(std::string msg)
 {
 	lv_textarea_set_text(FilterField, msg.c_str());
+	web_call(msg);
 }
 
 void gui_ft8bar::SetFilterCall()
 {
 	lv_textarea_set_text(FilterField, call.c_str());
+	web_call(call);
 }
 
 std::string gui_ft8bar::GetFilter()
@@ -912,6 +912,7 @@ void gui_ft8bar::ClearTransmit()
 	lv_obj_clear_state(button[rxbutton], LV_STATE_CHECKED);
 	transmitting = false;
 	WaterfallReset();
+	get_buttons();
 }
 
 void gui_ft8bar::web_wsjtxfreq()
@@ -990,6 +991,17 @@ void gui_ft8bar::get_buttons()
 	webserver.SendMessage(message);
 }
 
+void gui_ft8bar::web_call(std::string msg)
+{
+	json message, data;
+
+	data.emplace("callsign", msg);
+	data.emplace("operator", call);
+	message.emplace("type", "callfilter");
+	message.emplace("data", data);
+	webserver.SendMessage(message);
+}
+
 void gui_ft8bar::LogButton()
 {
 	Log();
@@ -1021,3 +1033,5 @@ void gui_ft8bar::Log()
 	}
 	ClearMessage();
 }
+
+

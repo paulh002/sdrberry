@@ -63,6 +63,10 @@ bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *con
 		gbar.web_filterfreq();
 		guift8bar.get_buttons();
 		guift8bar.web_wsjtxfreq();
+		guift8bar.web_call(guift8bar.GetFilter());
+		guift8bar.web_txmessage();
+		gft8.web_cq();
+		gft8.web_qso();
 		return true;
 	}
 	//printf("%s\n", message.dump().c_str());

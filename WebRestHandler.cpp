@@ -79,6 +79,14 @@ bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *con
 			guiQueue.push_back(GuiMessage(GuiMessage::action::wsjtxMessage, message.dump()));
 			return true;
 		}
+
+		if (message.at("type") == "vfo")
+		{
+			//printf("%s\n", message.dump().c_str());
+			int step = message.at("step");
+			guiQueue.push_back(GuiMessage(GuiMessage::action::step, step));
+			return true;
+		}
 	}
 
 	guiQueue.push_back(GuiMessage(GuiMessage::action::TranceiverMessage, message.dump()));

@@ -30,6 +30,7 @@ class Spectrum
 	std::vector<SMA<4>> avg_peak_filter;
 	std::vector<lv_coord_t> data_set;
 	std::vector<lv_coord_t> data_set_peak;
+	std::vector<lv_coord_t> data_set_nonfiltered;
 	void upload_fft();
 	std::unique_ptr<FastFourier> fft;
 	lv_point_t drag{0};

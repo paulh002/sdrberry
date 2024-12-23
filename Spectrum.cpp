@@ -237,6 +237,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	{
 		data_set.push_back(0);
 		data_set_peak.push_back(0);
+		data_set_nonfiltered.push_back(0);
 	}
 	lv_chart_set_point_count(chart, data_set.size());
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
@@ -263,7 +264,7 @@ void Spectrum::DrawDisplay(int ns)
 
 		message.clear();
 		message.emplace("type", "spectrum");
-		message.emplace("data", data_set);
+		message.emplace("data", data_set_nonfiltered);
 		webserver.SendMessage(message);
 	}
 }
@@ -403,6 +404,7 @@ void Spectrum::upload_fft()
 					value = (float)s_points_max;
 				if (i % 2)
 				{
+					data_set_nonfiltered[ii] = value;
 					data_set[ii] = avg_filter[ii](value);
 					data_set_peak[ii] = std::max(data_set_peak[ii], (lv_coord_t)value);
 					ii++;
@@ -427,6 +429,7 @@ void Spectrum::upload_fft()
 					value = (float)s_points_max;
 				data_set[i] = avg_filter[i](value);
 				data_set_peak[i] = std::max(data_set_peak[i], (lv_coord_t)value);
+				data_set_nonfiltered[i] = value;
 				i++;
 			}
 		}

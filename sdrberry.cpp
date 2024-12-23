@@ -686,7 +686,8 @@ int main(int argc, char *argv[])
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
 
 	if (Settings_file.get_int("web", "enabled", 0))
-		webserver.StartServer();		
+		webserver.StartServer();
+	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 50);
 	while (1)
 	{
 		WsjtxMessage msg;
@@ -700,7 +701,7 @@ int main(int argc, char *argv[])
 		if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 			DigitalTransmission::WaitForTimeSlot();
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastStatus + std::chrono::milliseconds(100) < now)
+		if (timeLastStatus + std::chrono::milliseconds(refreshSpeed) < now)
 		{
 			timeLastStatus = now;
 			double s = SpectrumGraph.get_signal_strength();

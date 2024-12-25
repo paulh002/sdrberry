@@ -11,7 +11,7 @@ class WebServer
 	~WebServer();
 	void StartServer();
 	void AddHandler(const std::string &uri, CivetHandler& handler);
-	bool isEnabled() { return enabled; }
+	bool isEnabled();
 	void SendMessage(nlohmann::json message);
 
   private:

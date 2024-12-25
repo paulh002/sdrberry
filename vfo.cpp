@@ -226,7 +226,7 @@ void	CVfo::tx_set_sdr_freq()
 
 long CVfo::get_vfo_offset(bool rit)
 {
-	unique_lock<mutex> lock(m_vfo_mutex);
+	//unique_lock<mutex> lock(m_vfo_mutex);
 	
 	long offset_freq = vfo_setting.offset[vfo_setting.active_vfo] + vfo_setting.vfo_rit[vfo_setting.active_vfo];
 	
@@ -240,7 +240,7 @@ long CVfo::get_vfo_offset(bool rit)
 
 long CVfo::get_vfo_offset_tx()
 {
-	unique_lock<mutex> lock(m_vfo_mutex);
+	//unique_lock<mutex> lock(m_vfo_mutex);
 	if (((abs(ifrate - ifrate_tx) > 0.1) || (abs(ifrate_tx - (double)vfo_setting.pcmrate) < 0.1) || vfo_setting.notxoffset) && vfo_setting.tx)
 		return 0L;
 	else
@@ -264,7 +264,7 @@ long CVfo::get_vfo_offset_tx()
 
 int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 {
-	unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
+	//unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
 	int retval{0};
 	bool changeBandActiveVfo{false};
 
@@ -628,7 +628,7 @@ void CVfo::set_step(int step, int delay)
 
 void CVfo::setRit(int rit, int active_vfo)
 {
-	unique_lock<mutex> lock(m_vfo_mutex);
+	//unique_lock<mutex> lock(m_vfo_mutex);
 	
 	vfo_setting.vfo_rit[active_vfo] = rit;
 	tune_flag = true;

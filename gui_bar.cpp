@@ -31,6 +31,7 @@ static const char *opts = "0.5 Kc\n"
 						  "4.0 Kc";
 
 std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz"};
+std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000};
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};
 std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm};
 std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
@@ -998,7 +999,7 @@ void gui_bar::updateweb()
 		data.emplace("ifvalue", get_if_slider());
 		data.emplace("rfvalue", get_rf_gain() - min_gain);
 		data.emplace("filter", FilterTypes.at(lv_dropdown_get_selected(button[filter])));
-
+		data.emplace("ifilter", FilterValues.at(lv_dropdown_get_selected(button[filter])));
 		message.emplace("type", "sliders");
 		message.emplace("data", data);
 		webserver.SendMessage(message);

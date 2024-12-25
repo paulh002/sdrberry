@@ -466,7 +466,7 @@ void gui_setup::set_span_value(long span)
 	vfo.set_span(span);
 	vfo.set_vfo(vfo.get_frequency());
 	SpectrumGraph.SetFftParts();
-
+	gbar.updateweb();
 	Settings_file.save_int(default_radio, "span", span / 1000);
 	Settings_file.write_settings();
 }

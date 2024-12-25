@@ -28,5 +28,6 @@ class WebSocketHandler : public CivetWebSocketHandler
   
 public:
 	WebSocketHandler();
+	bool IsConnected() { return state == CONNECTED; }
 	void SendMessage(nlohmann::json message);
 };

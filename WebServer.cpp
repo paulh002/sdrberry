@@ -45,3 +45,10 @@ void WebServer::SendMessage(nlohmann::json message)
 	if (enabled)
 		websocketserver.SendMessage(message);
 }
+
+bool WebServer::isEnabled() 
+{
+	if (websocketserver.IsConnected() && enabled)
+		return true;
+	return false;
+}

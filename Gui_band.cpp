@@ -252,11 +252,10 @@ void Gui_band::update_web()
 {
 	if (webserver.isEnabled())
 	{
-		json message, data;
+		json message;
 
-		data.emplace("bands", buttons);
 		message.emplace("type", "bands");
-		message.emplace("data", data);
+		message.emplace("data", buttons);
 		webserver.SendMessage(message);
 	}	
 }

@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
 	static lv_disp_drv_t disp_drv;
 	lv_disp_drv_init(&disp_drv);
 	disp_drv.draw_buf = &disp_buf;
-	disp_drv.flush_cb = fbdev_flush;
+	disp_drv.flush_cb = fbdev_flush_rotated;
 	disp_drv.hor_res = screenWidth;
 	disp_drv.ver_res = screenHeight;
 	lv_disp_drv_register(&disp_drv);

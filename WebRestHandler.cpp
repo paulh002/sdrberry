@@ -4,6 +4,7 @@
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
 #include "gui_top_bar.h"
+#include "Gui_band.h"
 #include "vfo.h"
 
 using json = nlohmann::json;
@@ -67,6 +68,7 @@ bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *con
 		guift8bar.web_txmessage();
 		gft8.web_cq();
 		gft8.web_qso();
+		gui_band_instance.update_web();
 		return true;
 	}
 	//printf("%s\n", message.dump().c_str());

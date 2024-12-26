@@ -42,7 +42,7 @@
     <GNUToolchainPrefix />
     <GNUCompilerType>GCC</GNUCompilerType>
     <RemoteBuildTool>Ninja</RemoteBuildTool>
-    <RemoteBuildHost>192.168.88.62</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.24</RemoteBuildHost>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>

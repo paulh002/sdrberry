@@ -84,6 +84,8 @@ void evdev_init()
 			if (ptr == NULL) // Bullseye changed driver name
 				ptr = strstr(name, "WS Capacitive TouchScreen");
 			if (ptr == NULL) // Bullseye changed driver name
+				ptr = strstr(name, "11 - 005d Goodix Capacitive TouchScreen");
+			if (ptr == NULL) // Bullseye changed driver name
 				ptr = strstr(name, "QDtech");
 			if (ptr == NULL) // Bullseye changed driver name
 				ptr = strstr(name, "ILITEK");

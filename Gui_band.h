@@ -30,7 +30,7 @@ class Gui_band
 	void band_event_handler_class(lv_event_t *e);
 	void ham_event_handler_class(lv_event_t *e);
 	void band_button_class(lv_event_t *e);
-	void update_web();
+	
 
   public:
 	static constexpr auto band_event_handler = EventHandler<Gui_band, &Gui_band::band_event_handler_class>::staticHandler;
@@ -41,6 +41,7 @@ class Gui_band
 
 	void set_gui(int band);
 	void set_group();
+	void update_web();
 };
 
 int getIndex(std::vector<int> v, int s);

@@ -241,8 +241,8 @@ void fbdev_flush_rotated(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *
 	if (fbp == NULL ||
 		area->x2 < 0 ||
 		area->y2 < 0 ||
-		area->x1 > (int32_t)vinfo.xres - 1 ||
-		area->y1 > (int32_t)vinfo.yres - 1)
+		area->y1 > (int32_t)vinfo.xres - 1 ||
+		area->x1 > (int32_t)vinfo.yres - 1)
 	{
 		lv_disp_flush_ready(drv);
 		return;

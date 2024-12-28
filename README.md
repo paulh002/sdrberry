@@ -101,11 +101,11 @@ wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.
 chmod +x install.sh
 ./install.sh HFB DSI
 ```
-Raspberry PI Touch 2
+Raspberry PI Touch 2 with Radioberry
 ```
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
 chmod +x install.sh
-./install.sh HFB T2
+./install.sh RDB T2
 ```
 ## start sdrberry  
 sdrberry can be started in usermode or as root, this depends on the device beeing used for radioberry use sudo

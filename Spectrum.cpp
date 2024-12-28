@@ -181,6 +181,11 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 	}
 }
 
+void Spectrum::setSignalStrenthOffset(int offset)
+{
+	signal_strength_offset = offset;
+}
+
 void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
 	int hor_lines = hor_lines_large;

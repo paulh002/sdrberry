@@ -129,6 +129,21 @@ void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 	}
 }
 
+void gui_rx::signal_strength_offset_event_class(lv_event_t *e)
+{
+	char buf[80];
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		int signal_strength_offset = lv_slider_get_value(obj);
+		sprintf(buf, "signal strength offset %d", signal_strength_offset);
+		lv_label_set_text(signal_strength_offset_slider_label, buf);
+		Settings_file.save_int("Radio", "s-meter-offset", signal_strength_offset);
+		SpectrumGraph.setSignalStrenthOffset(signal_strength_offset);
+	}
+}
+
 void gui_rx::noise_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -333,6 +348,20 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	sprintf(buf, "Waterfallsize level %d", waterfallsize);
 	lv_label_set_text(waterfallsize_slider_label, buf);
 	lv_obj_align_to(waterfallsize_slider_label, waterfallsize_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+
+	int signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 200);
+	signal_strength_offset_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(signal_strength_offset_slider, w / 2 - 50);
+	lv_slider_set_range(signal_strength_offset_slider, 0, 400);
+	lv_obj_align_to(signal_strength_offset_slider, waterfallsize_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_add_event_cb(signal_strength_offset_slider, signal_strength_offset_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(m_button_group, signal_strength_offset_slider);
+	lv_slider_set_value(signal_strength_offset_slider, signal_strength_offset, LV_ANIM_OFF);
+
+	signal_strength_offset_slider_label = lv_label_create(o_tab);
+	sprintf(buf, "signal strength offset %d", signal_strength_offset);
+	lv_label_set_text(signal_strength_offset_slider_label, buf);
+	lv_obj_align_to(signal_strength_offset_slider_label, signal_strength_offset_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }

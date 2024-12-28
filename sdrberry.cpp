@@ -97,7 +97,6 @@ LV_FONT_DECLARE(FreeSansOblique32);
 const std::array<int, 10> screenResolutionsWidth = {800, 800, 1024, 1280, 1600, 1920, 2048, 2560, 3200, 3840};
 const std::array<int, 10> screenResolutionsHeight = {480, 600, 768, 720, 1200, 1080, 1080, 1440, 1800, 2160};
 
-
 int screenSelect = 9;
 int screenRotate = 0;
 int screenWidth = 800;

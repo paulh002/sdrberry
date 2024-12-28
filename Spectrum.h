@@ -66,7 +66,8 @@ class Spectrum
 	void set_active_marker(int marker, bool active);
 	void enable_second_data_series(bool enable);
 	void setWaterfallSize(int waterfallsize);
-
+	void setSignalStrenthOffset(int offset);
+	
 	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
 	static constexpr auto click_event_cb = EventHandler<Spectrum, &Spectrum::click_event_cb_class>::staticHandler;
 	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;

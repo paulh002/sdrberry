@@ -92,7 +92,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 
 ## Install and compile with cmake
 Download the install file in pi home directory (the install script supports different SDR's)
-The install script can install DSI or Waveshare 7 inch display
+The install script can install DSI, Raspberry PI Touch 2 7inch 1280x720 ,  Waveshare 7 inch display
 SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device
 If you want to install the devices using current packages add Y to the install command
 install DEVICE LCD PACKAGE Y/N
@@ -101,7 +101,12 @@ wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.
 chmod +x install.sh
 ./install.sh HFB DSI
 ```
-
+Raspberry PI Touch 2
+```
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
+chmod +x install.sh
+./install.sh HFB T2
+```
 ## start sdrberry  
 sdrberry can be started in usermode or as root, this depends on the device beeing used for radioberry use sudo
 ```

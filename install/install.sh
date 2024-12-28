@@ -296,9 +296,9 @@ wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry
 mv sdrberry_settings_radioberry.cfg $usrdir/sdrberry_settings.cfg
 fi
 if [[ $LCD == 'T2' ]]; then
-sed -i 's/resolution = 0/resolution = 3' $usrdir/sdrberry_settings.cfg
-sed -i 's/rotation = 0/rotation = 1' $usrdir/sdrberry_settings.cfg
-sed -i 's/touch_swap_xy = 0/touch_swap_xy = 1' $usrdir/sdrberry_settings.cfg
+sed -i '/resolution = 0/c\resolution = 3' $usrdir/sdrberry_settings.cfg
+sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
+sed -i '/touch_swap_xy = 0/c\touch_swap_xy = 1' $usrdir/sdrberry_settings.cfg
 fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh

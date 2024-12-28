@@ -3,6 +3,8 @@
 #include "AudioInput.h"
 #include "SdrDevice.h"
 
+extern int screenRotate;
+
 extern const int barHeight;
 extern const int MorseHeight;
 extern lv_obj_t *bar_view;
@@ -28,3 +30,4 @@ bool select_mode_tx(int s_mode, audioTone tone = audioTone::NoTone, int cattx = 
 void destroy_demodulators(bool all = false);
 void update_filter(int bandwidth);
 bool IsDigtalMode();
+int IsScreenRotated();

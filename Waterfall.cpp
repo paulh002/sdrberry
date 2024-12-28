@@ -13,7 +13,7 @@
 
 Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
 					 float r, waterfallFlow flow, partialspectrum p, int margin)
-	: width(w), height(h), resampleRate(r), waterfallflow(flow), partialSpectrum(p),
+	: xpos(x), width(w), height(h), resampleRate(r), waterfallflow(flow), partialSpectrum(p),
 	  excludeMargin(margin), max(50.0), min(0.0), factor(0.0f)
 {
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
@@ -26,6 +26,14 @@ Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_obj_set_pos(canvas,x,y);
 	NumberOfBins = width - 2 * excludeMargin;
 	SetPartial(partialSpectrum, resampleRate);
+}
+
+void Waterfall::Size(lv_coord_t y, lv_coord_t h)
+{
+	lv_obj_set_pos(canvas, xpos, y);
+	height = h;
+	cbuf.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, h));
+	lv_canvas_set_buffer(canvas, cbuf.data(), width, h, LV_IMG_CF_TRUE_COLOR);
 }
 
 void Waterfall::SetMaxMin(float _max, float _min)

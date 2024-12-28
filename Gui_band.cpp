@@ -4,6 +4,7 @@
 #include "gui_bar.h"
 #include "vfo.h"
 #include "WebServer.h"
+#include "screen.h"
 
 Gui_band gui_band_instance;
 
@@ -80,12 +81,14 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 	long f_min = r.front().minimum();
 	long f_max = r.front().maximum();
 
-	const int max_rows = 4;
+	int max_rows = 5;
 	const lv_coord_t x_margin = 10;
 	const lv_coord_t y_margin = 10;
 	const int x_number_buttons = 5;
-	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin = 20;
+
+	if (screenHeight < 500)
+		max_rows = 4;
 
 	button_width_margin = ((w - tab_margin) / x_number_buttons);
 	button_width = ((w - tab_margin) / x_number_buttons) - x_margin;

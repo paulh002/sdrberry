@@ -184,10 +184,14 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
 	int hor_lines = hor_lines_large;
-	int heightChart, fontsize = 20, heightWaterfall;
 	int waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
 	signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 100);
-		
+
+	height = h;
+	width = w;
+	xx = x;
+	yy = y;
+	fontsize = 20;
 	if (waterfallsize < 0 || waterfallsize > 10 || waterfallsize == 1)
 		waterfallsize = 0;
 
@@ -248,6 +252,27 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, down, allparts, 12);
 	}
 	SetFftParts();
+}
+
+void Spectrum::setWaterfallSize(int waterfallsize)
+{
+	if (waterfallsize)
+	{
+		lv_obj_set_pos(chart, xx, yy + fontsize);
+		heightChart = height - (height * waterfallsize) / 10;
+		heightWaterfall = (height * waterfallsize) / 10;
+		lv_obj_set_size(chart, width, heightChart);
+		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_SECONDARY_X, 0, 0, vert_lines, 1, true, 100);
+		
+	}
+	else
+	{
+		lv_obj_set_pos(chart, xx, yy);
+		lv_obj_set_size(chart, width, height - fontsize);
+		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
+	}
+	
+	waterfall->Size(heightChart + fontsize, heightWaterfall - fontsize);
 }
 
 void Spectrum::DrawDisplay(int ns)

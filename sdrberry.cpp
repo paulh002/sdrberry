@@ -89,13 +89,17 @@ LV_FONT_DECLARE(FreeSansOblique32);
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 // display buffer size - not sure if this size is really needed
-#define DISP_BUF_SIZE 384000 // 800x480
+#define DISP_BUF_SIZE 29491200 //384000 // 800x480
 //#define DISP_BUF_SIZE (128 * 1024)
 
-const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
-const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
+//const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
+//const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
+const std::array<int, 10> screenResolutionsWidth = {800, 800, 1024, 1280, 1600, 1920, 2048, 2560, 3200, 3840};
+const std::array<int, 10> screenResolutionsHeight = {480, 600, 768, 720, 1200, 1080, 1080, 1440, 1800, 2160};
+
 
 int screenSelect = 9;
+int screenRotate = 0;
 int screenWidth = 800;
 int screenHeight = 480;
 const int bottomHeight = 40;
@@ -108,11 +112,11 @@ const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 const int buttonHeight = 40;
-const int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
 const int hidetx{5};
 
-
+lv_color_t *display_buf;
 lv_obj_t *scr;
 lv_obj_t *bg_middle;
 lv_obj_t *vfo1_button;
@@ -154,6 +158,11 @@ SdrDeviceVector SdrDevices;
 std::string default_radio;
 
 static std::string keysRed;
+
+int IsScreenRotated() 
+{ 
+	return screenRotate; 
+}
 
 void keyboard_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
@@ -325,9 +334,13 @@ int main(int argc, char *argv[])
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	default_radio = Settings_file.find_sdr("default");
 
-	screenSelect = Settings_file.get_int("screen","resolution", 9);
+	screenSelect = Settings_file.get_int("screen","resolution", 0);
+	screenRotate = Settings_file.get_int("screen", "rotation", 0);
 	screenWidth = screenResolutionsWidth.at(screenSelect);
 	screenHeight = screenResolutionsHeight.at(screenSelect);
+
+	tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+
 	int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
 	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
 	evdev_touch_swap(touchswapxy);
@@ -391,24 +404,38 @@ int main(int argc, char *argv[])
 	evdev_init();
 	
 	/*A small buffer for LittlevGL to draw the screen's content*/
-	static lv_color_t buf[DISP_BUF_SIZE];
+	const int dispbuffersize = LV_COLOR_DEPTH * screenWidth * screenHeight;
+	//static lv_color_t buf[dispbuffersize];
 	//static lv_color_t buf1[DISP_BUF_SIZE];
+	display_buf = (lv_color_t *)malloc(dispbuffersize * sizeof(lv_color_t));
 
 	/*Initialize a descriptor for the buffer*/
 	static lv_disp_draw_buf_t disp_buf;
-	lv_disp_draw_buf_init(&disp_buf, buf, NULL, DISP_BUF_SIZE);
+	lv_disp_draw_buf_init(&disp_buf, display_buf, NULL, dispbuffersize);
 
 	/*Initialize and register a display driver*/
 	static lv_disp_drv_t disp_drv;
 	lv_disp_drv_init(&disp_drv);
 	disp_drv.draw_buf = &disp_buf;
-	disp_drv.flush_cb = fbdev_flush_rotated;
-	disp_drv.hor_res = screenWidth;
-	disp_drv.ver_res = screenHeight;
-	lv_disp_drv_register(&disp_drv);
-
+	disp_drv.flush_cb = fbdev_flush;
+	if (screenRotate)
+	{
+		disp_drv.hor_res = screenHeight;
+		disp_drv.ver_res = screenWidth;
+	}
+	else
+	{
+		disp_drv.hor_res = screenWidth;
+		disp_drv.ver_res = screenHeight;
+	}
+	lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
+	if (screenRotate)
+	{
+			disp_drv.sw_rotate = 1;
+			lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+	}
 	// Initialize and register a pointer device driver
-	static lv_indev_drv_t indev_drv;	
+	static lv_indev_drv_t indev_drv;
 	lv_indev_drv_init(&indev_drv);
 	indev_drv.type = LV_INDEV_TYPE_POINTER;
 	indev_drv.read_cb = evdev_read; // defined in lv_drivers/indev/evdev.h
@@ -421,6 +448,7 @@ int main(int argc, char *argv[])
 	encoder_indev_t = lv_indev_drv_register(&indev_drv_enc);
 	button_group = lv_group_create();
 	lv_indev_set_group(encoder_indev_t, button_group);
+	
 #endif
 
 #if USE_WAYLAND
@@ -902,6 +930,7 @@ int main(int argc, char *argv[])
 	delete audio_output;
 	audio_input->close();
 	delete audio_input;
+	free(display_buf);
 	if (midicontrole)
 		delete midicontrole;
 	return 0;

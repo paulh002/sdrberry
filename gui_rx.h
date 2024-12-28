@@ -16,8 +16,8 @@ private:
 	lv_obj_t* drp_noise;
 	lv_obj_t *check_cw, *waterfall_hold;
 	lv_obj_t *noise_slider, *waterfall_slider;
-	lv_obj_t *noise_slider_label, *waterfall_slider_label;
-	int waterfallgain;
+	lv_obj_t *noise_slider_label, *waterfall_slider_label, *waterfallsize_slider, *waterfallsize_slider_label;
+	int waterfallgain, waterfallsize;
 
 	void get_buttons(vector<long>& array);
 	vector<pair<lv_obj_t*, long long>> get_buttons();
@@ -27,6 +27,7 @@ private:
 	void noise_slider_event_cb_class(lv_event_t *e);
 	void waterfall_slider_event_cb_class(lv_event_t *e);
 	void event_handler_hold_class(lv_event_t *e);
+	void waterfallsize_slider_event_class(lv_event_t *e);
 	
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w);	
@@ -43,9 +44,7 @@ private:
 	static constexpr auto noise_slider_event_cb = EventHandler<gui_rx, &gui_rx::noise_slider_event_cb_class>::staticHandler;
 	static constexpr auto waterfall_slider_event_cb = EventHandler<gui_rx, &gui_rx::waterfall_slider_event_cb_class>::staticHandler;
 	static constexpr auto event_handler_hold = EventHandler<gui_rx, &gui_rx::event_handler_hold_class>::staticHandler;
-	
-
-	
+	static constexpr auto waterfallsize_slider_event_cb = EventHandler<gui_rx, &gui_rx::waterfallsize_slider_event_class>::staticHandler;
 };
 
 extern gui_rx guirx;

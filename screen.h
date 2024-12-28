@@ -13,4 +13,4 @@ extern const int nobuttons;
 extern const int bottombutton_width;
 extern const int bottombutton_width1;
 extern const int buttonHeight;
-extern const int tabHeight;
+extern int tabHeight;

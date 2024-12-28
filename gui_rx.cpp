@@ -114,6 +114,21 @@ void gui_rx::get_buttons(vector<long> &array)
 	}
 }
 
+void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
+{
+	char buf[80];
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		sprintf(buf, "Waterfallsize level %d", lv_slider_get_value(obj));
+		lv_label_set_text(waterfallsize_slider_label, buf);
+		waterfallsize = lv_slider_get_value(obj);
+		Settings_file.save_int("Radio", "waterfallsize", waterfallsize);
+		SpectrumGraph.setWaterfallSize(waterfallsize);
+	}
+}
+
 void gui_rx::noise_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -304,7 +319,20 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_align_to(waterfall_hold, waterfall_slider, LV_ALIGN_OUT_RIGHT_TOP, 30, 0);
 	//lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, 1 * button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_group_add_obj(m_button_group, waterfall_hold);
-	
+
+	waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
+	waterfallsize_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(waterfallsize_slider, w / 2 - 50);
+	lv_slider_set_range(waterfallsize_slider, 0, 10);
+	lv_obj_align_to(waterfallsize_slider, waterfall_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_add_event_cb(waterfallsize_slider, waterfallsize_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(m_button_group, waterfallsize_slider);
+	lv_slider_set_value(waterfallsize_slider, waterfallsize, LV_ANIM_OFF);
+
+	waterfallsize_slider_label = lv_label_create(o_tab);
+	sprintf(buf, "Waterfallsize level %d", waterfallsize);
+	lv_label_set_text(waterfallsize_slider_label, buf);
+	lv_obj_align_to(waterfallsize_slider_label, waterfallsize_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }

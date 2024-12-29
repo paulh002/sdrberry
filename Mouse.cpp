@@ -1,4 +1,5 @@
 #include "Mouse.h"
+#include "sdrberry.h"
 #include <iostream>
 #include <fstream>
 #include <dirent.h>
@@ -164,11 +165,26 @@ MouseState Mouse::GetMouseState()
 {
 	int bytes, count = 0;
 	char name[256];
+	int rel_1, rel_2, screen_w, screen_h;
 
 	state.MouseActivity = false;
 	state.Rotated = 0;
+	if (IsScreenRotated())
+	{
+		rel_2 = REL_X;
+		rel_1 = REL_Y;
+		screen_h = screenWidth;
+		screen_w = screenHeight;
+	}
+	else
+	{
+		rel_1 = REL_X;
+		rel_2 = REL_Y;
+		screen_w = screenWidth;
+		screen_h = screenHeight;
+	}
 
-	if (fd > 0 && ioctl(fd, EVIOCGNAME(sizeof(name)), name) < 0)
+		if (fd > 0 && ioctl(fd, EVIOCGNAME(sizeof(name)), name) < 0)
 	{
 		fd = 0;
 		printf("Mouse Removed \n");
@@ -196,25 +212,37 @@ MouseState Mouse::GetMouseState()
 				state.Rotated = mouse_event.value;
 			}
 
-			if (mouse_event.type == EV_REL && mouse_event.code == REL_X )
+			if (mouse_event.type == EV_REL && mouse_event.code == rel_1 )
 			{
-				state.x = state.x + mouse_event.value;
-				if (state.x >= screenWidth)
-					state.x = screenWidth - 1;
+				if (IsScreenRotated())
+					state.x = state.x + mouse_event.value * -1;
+				else
+					state.x = state.x + mouse_event.value;
+				if (state.x >= screen_w)
+					state.x = screen_w - 1;
 				if (state.x < 0)
 					state.x = 0;
 				//printf("value %d, x %d\n", mouse_event.value, state.x);
 				state.MouseActivity = true;
 			}
-			if (mouse_event.type == EV_REL && mouse_event.code == REL_Y)
+			if (mouse_event.type == EV_REL && mouse_event.code == rel_2)
 			{
 				state.y = state.y + mouse_event.value;
-				if (state.y >= screenHeight)
-					state.y = screenHeight - 1;
+				if (state.y >= screen_h)
+					state.y = screen_h - 1;
 				if (state.y < 0)
 					state.y = 0;
 				//printf("value %d, y %d\n", mouse_event.value, state.y);
-				state.MouseActivity = true;
+				state.MouseActivity = true;	
+			}
+
+			if (mouse_event.type == EV_REL && (mouse_event.code == REL_Y || mouse_event.code == REL_X))
+			{
+				if (IsScreenRotated())
+				{
+					//state.x = screenWidth - state.x;
+					//state.y = screenHeight - state.y;
+				}
 			}
 
 			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_LEFT)

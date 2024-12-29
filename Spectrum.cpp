@@ -13,7 +13,7 @@
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
 #include "screen.h"
-#include "WebRestHandler.h"
+#include "WebServer.h"
 
 Spectrum SpectrumGraph;
 
@@ -181,13 +181,22 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 	}
 }
 
+void Spectrum::setSignalStrenthOffset(int offset)
+{
+	signal_strength_offset = offset;
+}
+
 void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
 	int hor_lines = hor_lines_large;
-	int heightChart, fontsize = 20, heightWaterfall;
 	int waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
-	signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 100);
-		
+	signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 200);
+
+	height = h;
+	width = w;
+	xx = x;
+	yy = y;
+	fontsize = 20;
 	if (waterfallsize < 0 || waterfallsize > 10 || waterfallsize == 1)
 		waterfallsize = 0;
 
@@ -237,6 +246,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	{
 		data_set.push_back(0);
 		data_set_peak.push_back(0);
+		data_set_nonfiltered.push_back(0);
 	}
 	lv_chart_set_point_count(chart, data_set.size());
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
@@ -249,6 +259,27 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	SetFftParts();
 }
 
+void Spectrum::setWaterfallSize(int waterfallsize)
+{
+	if (waterfallsize)
+	{
+		lv_obj_set_pos(chart, xx, yy + fontsize);
+		heightChart = height - (height * waterfallsize) / 10;
+		heightWaterfall = (height * waterfallsize) / 10;
+		lv_obj_set_size(chart, width, heightChart);
+		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_SECONDARY_X, 0, 0, vert_lines, 1, true, 100);
+		
+	}
+	else
+	{
+		lv_obj_set_pos(chart, xx, yy);
+		lv_obj_set_size(chart, width, height - fontsize);
+		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
+	}
+	
+	waterfall->Size(heightChart + fontsize, heightWaterfall - fontsize);
+}
+
 void Spectrum::DrawDisplay(int ns)
 {
 	noisefloor = ns;
@@ -256,7 +287,16 @@ void Spectrum::DrawDisplay(int ns)
 	load_data();
 	if (waterfall)
 		waterfall->Draw((float)noisefloor);
-	webspectrum.NewData(data_set);
+
+	if (webserver.isEnabled())
+	{
+		nlohmann::json message, data;
+
+		message.clear();
+		message.emplace("type", "spectrum");
+		message.emplace("data", data_set_nonfiltered);
+		webserver.SendMessage(message);
+	}
 }
 
 void Spectrum::SetFftParts()
@@ -374,7 +414,7 @@ void Spectrum::load_data()
 
 void Spectrum::upload_fft()
 {
-	int i{};
+	int i{0};
 	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 
 	switch (span_ex.first)
@@ -389,11 +429,12 @@ void Spectrum::upload_fft()
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
-				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
+				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
 				if (value > (float)s_points_max)
 					value = (float)s_points_max;
 				if (i % 2)
 				{
+					data_set_nonfiltered[ii] = value;
 					data_set[ii] = avg_filter[ii](value);
 					data_set_peak[ii] = std::max(data_set_peak[ii], (lv_coord_t)value);
 					ii++;
@@ -413,11 +454,12 @@ void Spectrum::upload_fft()
 			{
 				if (i == (fft_output.size() / 2))
 					break;
-				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
+				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
 				if (value > (float)s_points_max)
 					value = (float)s_points_max;
 				data_set[i] = avg_filter[i](value);
 				data_set_peak[i] = std::max(data_set_peak[i], (lv_coord_t)value);
+				data_set_nonfiltered[i] = value;
 				i++;
 			}
 		}

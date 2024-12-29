@@ -176,8 +176,8 @@ void gui_setup::bandwidth_button_handler_class(lv_event_t *e)
 		{
 			long bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
-			printf("setBandwidth %ld \n", bw);
+			//vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
+			//printf("setBandwidth %ld \n", bw);
 		}
 	}
 }
@@ -466,7 +466,7 @@ void gui_setup::set_span_value(long span)
 	vfo.set_span(span);
 	vfo.set_vfo(vfo.get_frequency());
 	SpectrumGraph.SetFftParts();
-
+	gbar.updateweb();
 	Settings_file.save_int(default_radio, "span", span / 1000);
 	Settings_file.write_settings();
 }

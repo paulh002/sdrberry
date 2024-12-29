@@ -21,13 +21,13 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 	float bandwidth{2500}; // SSB
-	float sample_ratio, sample_ratio1;
-	
+	float sample_ratio{0.0}, sample_ratio1{0.0};
+
 	sample_ratio1 = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
 	std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
 	sscanf(sampleratio.c_str(), "%f", &sample_ratio);
-	
-	if (abs(sample_ratio1 - sample_ratio) > 0.1)
+
+	if (abs(sample_ratio1 - sample_ratio) > 0.1 || sampleratio.length() == 0)
 		sample_ratio = sample_ratio1;
 
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
@@ -235,6 +235,7 @@ void AMDemodulator::operator()()
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("rms %f db %f envelope %f suppression %f db\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope(), getSuppression());
 			printf("RF samples %ld Af samples %ld ratio %f \n", noRfSamples, noAfSamples, (float)noAfSamples / (float)noRfSamples);
+			printf("Process time %lld Samples %d\n", pr_time, nosamples);
 			noRfSamples = noAfSamples = 0L;
 			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
@@ -245,6 +246,7 @@ void AMDemodulator::operator()()
 			{
 				float resamplerate = Demodulator::adjust_resample_rate(-0.0005 * droppedFrames); //-0.002
 				std::string str1 = std::to_string(resamplerate);
+				printf("dropframes resamplerate %s %f\n", str1.c_str(), -0.0005 * droppedFrames);
 				Settings_file.save_string(default_radio, "resamplerate", str1);
 				Settings_file.write_settings();
 			}
@@ -252,6 +254,7 @@ void AMDemodulator::operator()()
 			{
 				float resamplerate = Demodulator::adjust_resample_rate(0.0005 * audioOutputBuffer->get_underrun());
 				std::string str1 = std::to_string(resamplerate);
+				printf("underrun resamplerate %s %f\n", str1.c_str(), -0.0005 * droppedFrames);
 				Settings_file.save_string(default_radio, "resamplerate", str1);
 				Settings_file.write_settings();
 			}

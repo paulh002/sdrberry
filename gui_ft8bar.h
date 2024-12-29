@@ -44,7 +44,8 @@ class gui_ft8bar
 	void if_slider_event_cb_class(lv_event_t *e);
 	void tx_slider_event_cb_class(lv_event_t *e);
 	void freq_event_handler_class(lv_event_t *e);
-
+	void press_part_event_cb_class(lv_event_t *e);
+	
   public:
 	gui_ft8bar();
 	~gui_ft8bar();
@@ -74,17 +75,19 @@ class gui_ft8bar
 	void setrxtxmode(int mode) { rxtxmode = mode; }
 	int getrxtxmode() { return rxtxmode; }
 	ft8status_t get_status() { return ft8status; }
-	json get_wsjtxfreq(int rowstart, int row_end);
+	void web_wsjtxfreq();
 	void CQButton();
 	void TXButton();
 	void ClearButton();
 	void MonitorButton();
 	void LogButton();
 	json get_txmessage();
+	void web_txmessage();
 	void MessageNo(std::string message);
-	json get_buttons();
+	void get_buttons();
 	void set_frequency(json message);
 	void Log();
+	void web_call(std::string msg);
 
 	static constexpr auto ft8bar_button_handler = EventHandler<gui_ft8bar, &gui_ft8bar::ft8bar_button_handler_class>::staticHandler;
 	static constexpr auto filter_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::filter_event_handler_class>::staticHandler;
@@ -93,8 +96,7 @@ class gui_ft8bar
 	static constexpr auto if_slider_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::if_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_slider_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::tx_slider_event_cb_class>::staticHandler;
 	static constexpr auto freq_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::freq_event_handler_class>::staticHandler;
-
-	
+	static constexpr auto press_part_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::press_part_event_cb_class>::staticHandler;
 };
 
 extern gui_ft8bar guift8bar;

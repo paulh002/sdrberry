@@ -12,6 +12,7 @@
 #include "date.h"
 #include "strlib.h"
 #include "screen.h"
+#include "WebServer.h"
 
 extern std::unique_ptr<wsjtx_lib> wsjtx;
 
@@ -166,6 +167,7 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 	}
 	SetFilter(callsign);
 	messageToSend = row;
+	web_txmessage();
 }
 
 void gui_ft8bar::set_frequency(json message)
@@ -329,10 +331,9 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 			ClearMessage();
 			break;
 		}
+	get_buttons();
 	}
 }
-
-
 
 void gui_ft8bar::CQButton()
 {
@@ -410,8 +411,9 @@ void gui_ft8bar::ClearMessage()
 	gft8.clr_cq();
 	SetTxMessage();
 	SetFilter("");
+	web_txmessage();
 }
-
+/*
 json gui_ft8bar::get_txmessage()
 {
 	json result = json::array();
@@ -429,16 +431,41 @@ json gui_ft8bar::get_txmessage()
 	}
 	return result;
 }
+*/
+void gui_ft8bar::web_txmessage()
+{
+	json result = json::array();
+	json message;
+	int rowcount = lv_table_get_row_cnt(table);
+
+	if (webserver.isEnabled())
+	{
+		for (int row = 1; row < rowcount; row++)
+		{
+			message.emplace("no", lv_table_get_cell_value(table, row, 0));
+			message.emplace("message", lv_table_get_cell_value(table, row, 1));
+			std::string s = std::to_string(messageToSend);
+			message.emplace("messagetosend", s);
+			result.push_back(message);
+			message.clear();
+		}
+		message.clear();
+		message.emplace("type", "wsjtxtxmessages");
+		message.emplace("data", result);
+		webserver.SendMessage(message);
+	}
+}
 
 void gui_ft8bar::MessageNo(std::string message)
 {
+	//printf("Message to send %d", messageToSend);
 	int i = std::stoi(message);
 	if (i <= 0)
 		return;
 	//printf("Message to send %d", messageToSend);
 	messageToSend = i;
 	char *ptr = (char *)lv_table_get_cell_value(table, i, 1);
-	guift8bar.SetTxMessage(std::string(ptr));
+	SetTxMessage(std::string(ptr));
 	lv_obj_invalidate(table);
 }
 
@@ -467,11 +494,13 @@ void gui_ft8bar::SetTxMessage(std::string msg)
 void gui_ft8bar::SetFilter(std::string msg)
 {
 	lv_textarea_set_text(FilterField, msg.c_str());
+	web_call(msg);
 }
 
 void gui_ft8bar::SetFilterCall()
 {
 	lv_textarea_set_text(FilterField, call.c_str());
+	web_call(call);
 }
 
 std::string gui_ft8bar::GetFilter()
@@ -481,9 +510,7 @@ std::string gui_ft8bar::GetFilter()
 	return s;
 }
 
-
-
-static void press_part_event_cb(lv_event_t *e)
+void gui_ft8bar::press_part_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *obj = lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
@@ -494,8 +521,9 @@ static void press_part_event_cb(lv_event_t *e)
 	if (row == 0)
 		return;
 	ptr = (char *)lv_table_get_cell_value(obj, row, col);
-	guift8bar.SetTxMessage(std::string(ptr));
+	SetTxMessage(std::string(ptr));
 	messageToSend = row;
+	web_txmessage();
 }
 
 
@@ -884,9 +912,10 @@ void gui_ft8bar::ClearTransmit()
 	lv_obj_clear_state(button[rxbutton], LV_STATE_CHECKED);
 	transmitting = false;
 	WaterfallReset();
+	get_buttons();
 }
 
-json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
+void gui_ft8bar::web_wsjtxfreq()
 {
 	//std::unique_lock<std::mutex> mlock(mutex_);
 	json result = json::array();
@@ -925,38 +954,52 @@ json gui_ft8bar::get_wsjtxfreq(int rowstart, int row_end)
 			result.push_back(message);
 			message.clear();
 		}
-	}	
-	return result;
+	}
+	message.clear();
+	message.emplace("type", "wsjtxfrequencies");
+	message.emplace("data", result);
+	webserver.SendMessage(message);
 }
 
-json gui_ft8bar::get_buttons()
+void gui_ft8bar::get_buttons()
 {
-	json result = json::array();
-	json message;
+	json message, data;
 	std::string s;
 
 	s = "0";
 	if (lv_obj_get_state(button[buttonmonitor]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("monitor", s);
+	data.emplace("monitor", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttonlog]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("log", s);
+	data.emplace("log", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttontx]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("tx", s);
+	data.emplace("tx", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttoncq]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("cq", s);
+	data.emplace("cq", s);
 	s = "0";
 	if (lv_obj_get_state(button[buttonclear]) & LV_STATE_CHECKED)
 		s = "1";
-	message.emplace("clear", s);
-	//result.push_back(message);
-	return message;
+	data.emplace("clear", s);
+	message.emplace("type", "wsjtxbuttons");
+	message.emplace("data", data);
+	webserver.SendMessage(message);
+}
+
+void gui_ft8bar::web_call(std::string msg)
+{
+	json message, data;
+
+	data.emplace("callsign", msg);
+	data.emplace("operator", call);
+	message.emplace("type", "callfilter");
+	message.emplace("data", data);
+	webserver.SendMessage(message);
 }
 
 void gui_ft8bar::LogButton()
@@ -990,3 +1033,5 @@ void gui_ft8bar::Log()
 	}
 	ClearMessage();
 }
+
+

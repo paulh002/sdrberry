@@ -66,10 +66,11 @@ class gui_ft8
 	int getQsoLogRows();
 	std::string getQso(int row);
 	void tableScrollLastItem() { ScrollLatestItem(); }
-	json get_messages(int rowstart, int row_end);
-	json get_qso(int rowstart, int row_end);
-	json get_cq(int rowstart, int row_end);
-	void SelectMessage(std::string str);
+	void web_qso();
+	void web_cq();
+	void SelectMessage(json jsonMessage);
+	void web_messages();
+	void web_message(message m);
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

@@ -36,6 +36,7 @@ class Waterfall
 	void SetMode(int mode);
 	void SetMaxMin(float _max, float _min);
 	void SetPartial(partialspectrum p, float factor_ = 0.0f, float downMixFrequency = 0.0f);
+	void Size(lv_coord_t y, lv_coord_t h);
 
   private:
 	lv_obj_t *canvas{};
@@ -45,7 +46,7 @@ class Waterfall
 	lv_color_t heatmap(float val, float min, float max);
 	float lerp(float a, float b, float t);
 	std::vector<float> resampleArray(const std::vector<float> &originalArray, size_t numPoints);
-	lv_coord_t width, height;
+	lv_coord_t width, height, xpos;
 	waterfallFlow waterfallflow;
 	partialspectrum partialSpectrum;
 	int NumberOfBins;

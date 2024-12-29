@@ -98,9 +98,7 @@ class GuiMessage
 		filter,
 		clearWsjtx,
 		scrollWsjtx,
-		selectMessage,
-		buttonMessage,
-		TxMessage,
+		wsjtxMessage,
 		TranceiverMessage
 	} ;
 

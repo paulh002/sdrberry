@@ -43,7 +43,7 @@ class gui_bar
 	void if_slider_event_class(lv_event_t *e);
 	void vol_slider_event_class(lv_event_t *e);
 	void filter_slider_event_class(lv_event_t *e);
-	void updateweb();
+	
 
   public:
 	gui_bar();
@@ -54,10 +54,10 @@ class gui_bar
 	static constexpr auto if_slider_event_cb = EventHandler<gui_bar, &gui_bar::if_slider_event_class>::staticHandler;
 	static constexpr auto vol_slider_event_cb = EventHandler<gui_bar, &gui_bar::vol_slider_event_class>::staticHandler;
 	static constexpr auto filter_slider_event_cb = EventHandler<gui_bar, &gui_bar::filter_slider_event_class>::staticHandler;
-	
 
+	void updateweb();
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
-	void set_vol_slider(int volume);
+	void set_vol_slider(int volume, bool web = true);
 	void set_focus();
 	void set_filter_slider(int filter);
 	void step_vol_slider(int step);
@@ -69,9 +69,9 @@ class gui_bar
 	int get_vol_range();
 	float get_if();
 	int get_if_slider();
-	void set_if(int rf);
+	void set_if(int rf, bool web = true);
 	void set_gain_range();
-	void set_gain_slider(int gain);
+	void set_gain_slider(int gain, bool web = true);
 	int getbuttons() { return ibuttons; }
 	void set_mode(int mode);
 	void set_cw_message(std::string message);
@@ -87,7 +87,8 @@ class gui_bar
 	void hidetx();
 	void set_vfo(int active_vfo);
 	bool get_noise();
-	json get_filterfreq();
+	void web_filterfreq();
+	void websetfilter(std::string message);
 
 	lv_obj_t *get_button_obj(int i)
 	{

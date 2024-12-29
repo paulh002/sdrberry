@@ -92,7 +92,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 
 ## Install and compile with cmake
 Download the install file in pi home directory (the install script supports different SDR's)
-The install script can install DSI or Waveshare 7 inch display
+The install script can install DSI, Raspberry PI Touch 2 7inch 1280x720 ,  Waveshare 7 inch display
 SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device
 If you want to install the devices using current packages add Y to the install command
 install DEVICE LCD PACKAGE Y/N
@@ -101,7 +101,12 @@ wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.
 chmod +x install.sh
 ./install.sh HFB DSI
 ```
-
+Raspberry PI Touch 2 with Radioberry
+```
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
+chmod +x install.sh
+./install.sh RDB T2
+```
 ## start sdrberry  
 sdrberry can be started in usermode or as root, this depends on the device beeing used for radioberry use sudo
 ```
@@ -127,6 +132,14 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/setup_it2c.jpg)
 
 # ESP32 Remote control for raspberry pi
-![sdrberry](https://github.com/paulh002/sdrberry/blob/master/IMG_20231015_131803.jpg)
+![sdrberry](images/IMG_20231015_131803.jpg)
 
+# Web Server on port 8081
+First version of sdrberry webserver, goal is to remote controle the functions of sdrberry.
+This is still an experiment / beta version. To see what is the best way to integrate web with C++ application.
+WEB pages are build with VUE JS 3 and Primevui source code will be shared later in seperate github repo.
 
+Copy sdrweb directory to pi home dir 
+Open the WSJTX webpage on http://raspberry_pi_ip:8081
+
+![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/sdrweb.png)

@@ -7,7 +7,8 @@
 #include "gui_bar.h"
 #include "gui_tx.h"
 #include "Gui_band.h"
-#include "WebRestHandler.h"
+#include "WebServer.h"
+#include "gui_top_bar.h"
 
 CVfo	vfo;
 
@@ -139,7 +140,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	catinterface.SetBand(get_band_in_meters());
 	catinterface.SetFA(vfo_setting.vfo_freq[0]);
 	gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
-	//printf("Vfo init: freq %lld, sdr %lld offset %ld maxoffset %ld\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+	printf("Vfo init: freq %lld, sdr %lld offset %ld maxoffset %ld\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 }
 
 void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
@@ -225,7 +226,7 @@ void	CVfo::tx_set_sdr_freq()
 
 long CVfo::get_vfo_offset(bool rit)
 {
-	unique_lock<mutex> lock(m_vfo_mutex);
+	//unique_lock<mutex> lock(m_vfo_mutex);
 	
 	long offset_freq = vfo_setting.offset[vfo_setting.active_vfo] + vfo_setting.vfo_rit[vfo_setting.active_vfo];
 	
@@ -239,7 +240,7 @@ long CVfo::get_vfo_offset(bool rit)
 
 long CVfo::get_vfo_offset_tx()
 {
-	unique_lock<mutex> lock(m_vfo_mutex);
+	//unique_lock<mutex> lock(m_vfo_mutex);
 	if (((abs(ifrate - ifrate_tx) > 0.1) || (abs(ifrate_tx - (double)vfo_setting.pcmrate) < 0.1) || vfo_setting.notxoffset) && vfo_setting.tx)
 		return 0L;
 	else
@@ -263,7 +264,7 @@ long CVfo::get_vfo_offset_tx()
 
 int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 {
-	unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
+	//unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
 	int retval{0};
 	bool changeBandActiveVfo{false};
 
@@ -329,7 +330,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 			//printf("set offset %ld\n", vfo_setting.offset[vfo_setting.active_vfo]);
 		}
 	}
-	//printf("freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+	printf("freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo));
 	SpectrumGraph.set_pos(vfo_setting.offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)
@@ -341,8 +342,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		retval = 1;
 	}
 	gui_band_instance.set_gui(vfo_setting.band[0]);
-	frequencyvfo1.NewData();
-	webspectrumledgend.NewData(Legend());
+	updateweb();
 	return retval;
 }
 
@@ -552,7 +552,7 @@ int CVfo::getBandIndex(int band)
 			return i;
 		i++;
 	}
-	return -1;
+	return 0;
 }
 
 void CVfo::setVfoFrequency(int direction)
@@ -628,7 +628,7 @@ void CVfo::set_step(int step, int delay)
 
 void CVfo::setRit(int rit, int active_vfo)
 {
-	unique_lock<mutex> lock(m_vfo_mutex);
+	//unique_lock<mutex> lock(m_vfo_mutex);
 	
 	vfo_setting.vfo_rit[active_vfo] = rit;
 	tune_flag = true;
@@ -678,7 +678,7 @@ std::vector<int16_t> CVfo::Legend()
 	std::vector<int16_t> spectrumLedgend;
 	std::pair<vfo_spansetting, double> span_ex = compare_span_ex();
 	int span = vfo_setting.span; 
-	int ii, bins;
+	int ii;
 	double offset{0}, f{0.0};
 
 	switch (span_ex.first)
@@ -691,22 +691,49 @@ std::vector<int16_t> CVfo::Legend()
 	case span_is_ifrate:
 	case span_between_ifrate:
 		f = (double)vfo.get_sdr_frequency() - (double)vfo.get_minoffset();
-		bins = nfft_samples/2;
-		ii = span / (nfft_samples/2 - 1);
+		ii = span / (vert_lines - 1);
 		break;
 	case span_lower_halfrate:
 		offset = vfo.get_vfo_offset() / span;
 		f = (double)vfo.get_sdr_frequency() + offset * (double)span;
-		bins = nfft_samples / 2;
-		ii = span / (nfft_samples/2 - 1);
+		ii = span / (vert_lines - 1);
 		break;
 	}
 
-	for (int i; i < bins; i++)
+	for (int i = 0; i < vert_lines; i++)
 	{
-		f = f + ii;
 		int16_t l = (int16_t)round(f / 1000.0);
 		spectrumLedgend.push_back(l);
+		f = f + ii;
 	}
 	return spectrumLedgend;
+}
+
+void CVfo::updateweb()
+{
+	if (webserver.isEnabled())
+	{
+		json message, data;
+
+		std::string freq = get_vfo_str();
+		std::string mode = getMode(vfo.get_active_vfo());
+		std::string band = get_band_in_text();
+		std::string call = Settings_file.get_string("wsjtx", "call");
+
+		message.clear();
+		data.clear();
+		data.emplace("frequency", freq);
+		data.emplace("mode", mode);
+		data.emplace("band", band);
+		data.emplace("call", call);
+		data.emplace("label", GuiTopBar.getLabel());
+		message.emplace("type", "vfo");
+		message.emplace("data",data);
+		webserver.SendMessage(message);
+		
+		message.clear();
+		message.emplace("type","ledgend");
+		message.emplace("data",Legend());
+		webserver.SendMessage(message);
+	}
 }

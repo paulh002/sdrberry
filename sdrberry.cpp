@@ -89,13 +89,16 @@ LV_FONT_DECLARE(FreeSansOblique32);
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 // display buffer size - not sure if this size is really needed
-#define DISP_BUF_SIZE 384000 // 800x480
+#define DISP_BUF_SIZE 29491200 //384000 // 800x480
 //#define DISP_BUF_SIZE (128 * 1024)
 
-const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
-const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
+//const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
+//const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
+const std::array<int, 10> screenResolutionsWidth = {800, 800, 1024, 1280, 1600, 1920, 2048, 2560, 3200, 3840};
+const std::array<int, 10> screenResolutionsHeight = {480, 600, 768, 720, 1200, 1080, 1080, 1440, 1800, 2160};
 
 int screenSelect = 9;
+int screenRotate = 0;
 int screenWidth = 800;
 int screenHeight = 480;
 const int bottomHeight = 40;
@@ -108,11 +111,11 @@ const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
 const int bottombutton_width1 = (screenWidth / nobuttons);
 const int buttonHeight = 40;
-const int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
 const int hidetx{5};
 
-
+lv_color_t *display_buf;
 lv_obj_t *scr;
 lv_obj_t *bg_middle;
 lv_obj_t *vfo1_button;
@@ -143,7 +146,7 @@ HidDev HidDev_dev, HidDev_dev1, HidDev_dev2;
 BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
-//WebServer webserver;
+WebServer webserver;
 
 
 
@@ -154,6 +157,11 @@ SdrDeviceVector SdrDevices;
 std::string default_radio;
 
 static std::string keysRed;
+
+int IsScreenRotated() 
+{ 
+	return screenRotate; 
+}
 
 void keyboard_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
@@ -325,9 +333,13 @@ int main(int argc, char *argv[])
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	default_radio = Settings_file.find_sdr("default");
 
-	screenSelect = Settings_file.get_int("screen","resolution", 9);
+	screenSelect = Settings_file.get_int("screen","resolution", 0);
+	screenRotate = Settings_file.get_int("screen", "rotation", 0);
 	screenWidth = screenResolutionsWidth.at(screenSelect);
 	screenHeight = screenResolutionsHeight.at(screenSelect);
+
+	tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+
 	int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
 	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
 	evdev_touch_swap(touchswapxy);
@@ -391,24 +403,38 @@ int main(int argc, char *argv[])
 	evdev_init();
 	
 	/*A small buffer for LittlevGL to draw the screen's content*/
-	static lv_color_t buf[DISP_BUF_SIZE];
+	const int dispbuffersize = LV_COLOR_DEPTH * screenWidth * screenHeight;
+	//static lv_color_t buf[dispbuffersize];
 	//static lv_color_t buf1[DISP_BUF_SIZE];
+	display_buf = (lv_color_t *)malloc(dispbuffersize * sizeof(lv_color_t));
 
 	/*Initialize a descriptor for the buffer*/
 	static lv_disp_draw_buf_t disp_buf;
-	lv_disp_draw_buf_init(&disp_buf, buf, NULL, DISP_BUF_SIZE);
+	lv_disp_draw_buf_init(&disp_buf, display_buf, NULL, dispbuffersize);
 
 	/*Initialize and register a display driver*/
 	static lv_disp_drv_t disp_drv;
 	lv_disp_drv_init(&disp_drv);
 	disp_drv.draw_buf = &disp_buf;
 	disp_drv.flush_cb = fbdev_flush;
-	disp_drv.hor_res = screenWidth;
-	disp_drv.ver_res = screenHeight;
-	lv_disp_drv_register(&disp_drv);
-
+	if (screenRotate)
+	{
+		disp_drv.hor_res = screenHeight;
+		disp_drv.ver_res = screenWidth;
+	}
+	else
+	{
+		disp_drv.hor_res = screenWidth;
+		disp_drv.ver_res = screenHeight;
+	}
+	lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
+	if (screenRotate)
+	{
+			disp_drv.sw_rotate = 1;
+			lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+	}
 	// Initialize and register a pointer device driver
-	static lv_indev_drv_t indev_drv;	
+	static lv_indev_drv_t indev_drv;
 	lv_indev_drv_init(&indev_drv);
 	indev_drv.type = LV_INDEV_TYPE_POINTER;
 	indev_drv.read_cb = evdev_read; // defined in lv_drivers/indev/evdev.h
@@ -421,6 +447,7 @@ int main(int argc, char *argv[])
 	encoder_indev_t = lv_indev_drv_register(&indev_drv_enc);
 	button_group = lv_group_create();
 	lv_indev_set_group(encoder_indev_t, button_group);
+	
 #endif
 
 #if USE_WAYLAND
@@ -684,7 +711,10 @@ int main(int argc, char *argv[])
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
-	//webserver.StartServer();		
+
+	if (Settings_file.get_int("web", "enabled", 0))
+		webserver.StartServer();
+	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 50);
 	while (1)
 	{
 		WsjtxMessage msg;
@@ -698,7 +728,7 @@ int main(int argc, char *argv[])
 		if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 			DigitalTransmission::WaitForTimeSlot();
 		const auto now = std::chrono::high_resolution_clock::now();
-		if (timeLastStatus + std::chrono::milliseconds(100) < now)
+		if (timeLastStatus + std::chrono::milliseconds(refreshSpeed) < now)
 		{
 			timeLastStatus = now;
 			double s = SpectrumGraph.get_signal_strength();
@@ -783,13 +813,7 @@ int main(int argc, char *argv[])
 			case GuiMessage::scrollWsjtx:
 				gft8.tableScrollLastItem();
 				break;
-			case GuiMessage::selectMessage:
-				if (IsDigtalMode())
-				{
-					gft8.SelectMessage(msg.text);
-				}
-				break;
-			case GuiMessage::buttonMessage: {
+			case GuiMessage::wsjtxMessage: {
 					json message = json::parse(msg.text);
 					//printf("%s\n", message.dump().c_str());
 					if (message.at("type") == "wsjtxbar")
@@ -812,56 +836,86 @@ int main(int argc, char *argv[])
 						{
 							
 						}
+						guift8bar.get_buttons();
+					}
+					if (IsDigtalMode())
+					{
+						try
+						{
+							if (message.at("type") == "selecttxmessage")
+							{
+								guift8bar.MessageNo(message.at("no"));
+							}
+							if (message.at("type") == "selectmessage")
+							{
+								gft8.SelectMessage(message.at("data"));
+							}
+						}
+						catch (const exception &e)
+						{
+							std::string err = e.what();
+							printf("%s\n", err.c_str());
+						}
 					}
 				}
 				break;
 
-			case GuiMessage::TxMessage: {
-					json message = json::parse(msg.text);
-					//printf("%s\n", message.dump().c_str());
-					if (message.at("type") == "wsjtxbar")
-					{
-						printf("send message\n");
-						guift8bar.MessageNo(message.at("no"));
-					}
-				}
-				break;
-			
 			case GuiMessage::TranceiverMessage: {
-					json message = json::parse(msg.text);
-					// printf("%s\n", message.dump().c_str());
-					if (message.at("type") == "tranceiver")
+					//printf("%s\n", msg.text.c_str());
+					json message;
+					try
 					{
-						if (message.find("volume") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("rf_value") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("if_value") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("tx") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("tune") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("mode") != message.end())
-						{
-							// do volume
-						}
-						if (message.find("band") != message.end())
-						{
-							// do volume
-						}
-						// do something
+						message = json::parse(msg.text);
 					}
+					catch (const exception &e)
+					{
+						std::string err = e.what();
+						printf("%s\n", err.c_str());
+						break;
+					}
+					
+					//printf("%s\n", message.dump().c_str());
+					if (message.find("setfilter") != message.end())
+					{
+						gbar.websetfilter(message.at("setfilter"));
+					}
+					if (message.find("setvolume") != message.end())
+					{
+						if (message.at("setvolume").is_number())
+							gbar.set_vol_slider(message.at("setvolume"), false);
+					}
+					if (message.find("setrfvalue") != message.end())
+					{
+						if (message.at("setrfvalue").is_number())
+						{
+							int max_gain, min_gain;
+
+							gbar.get_gain_range(max_gain, min_gain);
+							gbar.set_gain_slider((int)message.at("setrfvalue") + min_gain, false);
+						}
+					}
+					if (message.find("setifvalue") != message.end())
+					{
+						if (message.at("setifvalue").is_number())
+							gbar.set_if(message.at("setifvalue"), false);
+					}
+					if (message.find("tx") != message.end())
+					{
+						// do volume
+					}
+					if (message.find("tune") != message.end())
+					{
+						// do volume
+					}
+					if (message.find("mode") != message.end())
+					{
+						// do volume
+					}
+					if (message.find("band") != message.end())
+					{
+						// do volume
+					}
+
 				}
 				break;
 			}
@@ -875,6 +929,7 @@ int main(int argc, char *argv[])
 	delete audio_output;
 	audio_input->close();
 	delete audio_input;
+	free(display_buf);
 	if (midicontrole)
 		delete midicontrole;
 	return 0;

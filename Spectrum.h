@@ -30,6 +30,7 @@ class Spectrum
 	std::vector<SMA<4>> avg_peak_filter;
 	std::vector<lv_coord_t> data_set;
 	std::vector<lv_coord_t> data_set_peak;
+	std::vector<lv_coord_t> data_set_nonfiltered;
 	void upload_fft();
 	std::unique_ptr<FastFourier> fft;
 	lv_point_t drag{0};
@@ -40,6 +41,8 @@ class Spectrum
 	int active_markers{0};
 	int drag_marker{0};
 	bool hold_peak{false};
+	lv_coord_t height, width, xx, yy;
+	int heightChart, fontsize , heightWaterfall;
 
 	void draw_event_cb_class(lv_event_t *e);
 	void click_event_cb_class(lv_event_t *e);
@@ -62,7 +65,9 @@ class Spectrum
 	float getSuppression();
 	void set_active_marker(int marker, bool active);
 	void enable_second_data_series(bool enable);
-
+	void setWaterfallSize(int waterfallsize);
+	void setSignalStrenthOffset(int offset);
+	
 	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
 	static constexpr auto click_event_cb = EventHandler<Spectrum, &Spectrum::click_event_cb_class>::staticHandler;
 	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;

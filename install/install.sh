@@ -32,7 +32,7 @@ elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
-   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Waveshare 7 inch 1200x600 WC12"
+   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
    echo "If you want to compile from code use ./install.sh RDB DSI"
@@ -40,9 +40,10 @@ else
 fi
 if [[ $2 = "DSI" ]]; then LCD='DSI'
 elif [[ $2 = "WC12" ]]; then LCD='7c'
+elif [[ $2 = "T2" ]]; then LCD='T2'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
-   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Waveshare 7 inch 1200x600 WC12"
+   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 2 T2, Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
    echo "If you want to compile from code use ./install.sh RDB DSI"
@@ -66,7 +67,7 @@ sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy s
 binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
 libboost-all-dev python3 libfftw3-dev \
-libglfw3-dev vim
+libglfw3-dev vim libxkbcommon-dev
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 
@@ -101,6 +102,10 @@ git clone https://github.com/paulh002/sdrberry
 cd sdrberry || exit
 if [[ $BUILD == 'YES' ]]; then
 git switch build
+fi
+if [[ $LCD == 'T2' ]]; then
+rm lv_conf.h
+mv lv_conf32.h lv_conf.h
 fi
 mkdir build
 cd build && cmake .. && make -j4
@@ -187,6 +192,7 @@ install_dependency device-tree-compiler
 install_dependency pigpio
 
 git clone  --depth=1 https://github.com/paulh002/Radioberry-2.x
+git checkout build
 
 #-----------------------------------------------------------------------------
 
@@ -271,7 +277,7 @@ fi
 cd $wrkdir || exit
 
 #Remove if not planning to use bluetooth.
-sudo apt-get remove -y pulseaudio
+#sudo apt-get remove -y pulseaudio
 
 if [[ $sdrboard == 'HRF' ]]; then
 # put sdrberry config in users home dir
@@ -289,7 +295,11 @@ elif [[ $sdrboard == 'RDB' ]]; then
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_radioberry.cfg
 mv sdrberry_settings_radioberry.cfg $usrdir/sdrberry_settings.cfg
 fi
-
+if [[ $LCD == 'T2' ]]; then
+sed -i '/resolution = 0/c\resolution = 3' $usrdir/sdrberry_settings.cfg
+sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
+sed -i '/touch_swap_xy = 0/c\touch_swap_xy = 1' $usrdir/sdrberry_settings.cfg
+fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh
 

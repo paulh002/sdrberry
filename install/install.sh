@@ -299,7 +299,6 @@ fi
 if [[ $LCD == 'T2' ]]; then
 sed -i '/resolution = 0/c\resolution = 3' $usrdir/sdrberry_settings.cfg
 sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
-sed -i '/touch_swap_xy = 0/c\touch_swap_xy = 1' $usrdir/sdrberry_settings.cfg
 fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh

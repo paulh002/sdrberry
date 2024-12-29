@@ -13,6 +13,7 @@ class WebServer
 	void AddHandler(const std::string &uri, CivetHandler& handler);
 	bool isEnabled();
 	void SendMessage(nlohmann::json message);
+	void StopServer();
 
   private:
 	// const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, "enable_keep_alive","yes",0};

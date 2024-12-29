@@ -11,6 +11,7 @@
 #include "gui_i2csetup.h"
 #include "Demodulator.h"
 #include "screen.h"
+#include "WebServer.h"
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
@@ -19,6 +20,26 @@ static const char *cal_opts = "None\n"
 							  "Manual\n"
 							  "Auto\n"
 							  "Both";
+
+void gui_setup::webbox_event_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
+			Settings_file.save_int("web", "enabled", 1);
+			webserver.StartServer();
+		}
+		else
+		{
+			Settings_file.save_int("web", "enabled", 0);
+			webserver.StopServer();
+		}
+	Settings_file.save();
+	}
+}
 
 void gui_setup::receivers_button_handler_class(lv_event_t * e)
 {
@@ -407,6 +428,14 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_checkbox_set_text(calbox, "cal");
 	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 
+	webbox = lv_checkbox_create(settings_main);
+	lv_obj_align_to(webbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4 + w / 8, y_span);
+	lv_checkbox_set_text(webbox, "web");
+	lv_obj_add_event_cb(webbox, webbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	if (Settings_file.get_int("web", "enabled"))
+	{
+		lv_obj_add_state(webbox, LV_STATE_CHECKED);
+	}	
 	dcbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_span + 50);
 	lv_checkbox_set_text(dcbox, "dc filter");

@@ -21,7 +21,7 @@ class gui_setup
 	lv_obj_t *d_audio, *d_bandwitdth;
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *cal_label, *calibration_dropdown;
-	lv_obj_t *calbox, *dcbox, *autocalbox;
+	lv_obj_t *calbox, *dcbox, *autocalbox, *webbox;
 	lv_obj_t *tileview, *settings_main, *settings_i2c;
 
 	void receivers_button_handler_class(lv_event_t *e);
@@ -33,6 +33,7 @@ class gui_setup
 	void samplerate_button_handler_class(lv_event_t *e);
 	void dcbox_event_cb_class(lv_event_t *e);
 	void cal_button_handler_class(lv_event_t *e);
+	void webbox_event_class(lv_event_t *e);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice);
@@ -65,6 +66,8 @@ class gui_setup
 	static constexpr auto samplerate_button_handler = EventHandler<gui_setup, &gui_setup::samplerate_button_handler_class>::staticHandler;
 	static constexpr auto dcbox_event_cb = EventHandler<gui_setup, &gui_setup::dcbox_event_cb_class>::staticHandler;
 	static constexpr auto cal_button_handler = EventHandler<gui_setup, &gui_setup::cal_button_handler_class>::staticHandler;
+	static constexpr auto webbox_event_cb = EventHandler<gui_setup, &gui_setup::webbox_event_class>::staticHandler;
+
 	
 };
 

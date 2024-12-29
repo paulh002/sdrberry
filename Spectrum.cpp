@@ -190,7 +190,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 {
 	int hor_lines = hor_lines_large;
 	int waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
-	signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 100);
+	signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 200);
 
 	height = h;
 	width = w;
@@ -414,7 +414,7 @@ void Spectrum::load_data()
 
 void Spectrum::upload_fft()
 {
-	int i{};
+	int i{0};
 	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 
 	switch (span_ex.first)
@@ -429,7 +429,7 @@ void Spectrum::upload_fft()
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
-				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
+				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
 				if (value > (float)s_points_max)
 					value = (float)s_points_max;
 				if (i % 2)
@@ -454,7 +454,7 @@ void Spectrum::upload_fft()
 			{
 				if (i == (fft_output.size() / 2))
 					break;
-				value = noisefloor + (lv_coord_t)(10.0 * log10(col));
+				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
 				if (value > (float)s_points_max)
 					value = (float)s_points_max;
 				data_set[i] = avg_filter[i](value);

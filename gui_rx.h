@@ -9,7 +9,7 @@
 class gui_rx
 {
 private:
-	lv_group_t* m_button_group{ nullptr };
+	lv_group_t* button_group{ nullptr };
 	lv_style_t style_btn;
 	vector<pair<lv_obj_t*, long long>> buttons;
 	const int number_of_buttons{ 5 };

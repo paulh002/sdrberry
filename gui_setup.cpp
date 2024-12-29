@@ -176,8 +176,8 @@ void gui_setup::bandwidth_button_handler_class(lv_event_t *e)
 		{
 			long bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
-			printf("setBandwidth %ld \n", bw);
+			//vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
+			//printf("setBandwidth %ld \n", bw);
 		}
 	}
 }

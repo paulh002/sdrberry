@@ -77,27 +77,35 @@ void FastFourier::Process(const IQSampleVector &input)
 	{
 		std::vector<std::complex<float>> data, filter_out;
 
-		for (auto col = input.begin(); col != input.begin() + numberOffBins && col != input.end(); col++)
+		for (auto col : input)
 		{
 			std::complex<float> v;
 
 			if (ncoMixerHandle)
 			{
 				nco_crcf_step(ncoMixerHandle);
-				nco_crcf_mix_down(ncoMixerHandle, *col, &v);
+				nco_crcf_mix_down(ncoMixerHandle, col, &v);
 			}
 			else
 			{
-				v = *col;
+				v = col;
 			}
 			filter_out.push_back(v);
 		}
 		data.resize(filter_out.size());
 		msresamp_crcf_execute(resampleHandle, (std::complex<float> *)filter_out.data(), filter_out.size(), (std::complex<float> *)data.data(), &num_written);
 		data.resize(num_written);
-		inputData.insert(inputData.end(), data.begin(), data.end());
-		if (inputData.size() < numberOffBins)
-			return;
+		if (data.size() < numberOffBins)
+		{
+			inputData.insert(inputData.end(), data.begin(), data.end());
+			if (inputData.size() < numberOffBins)
+				return;
+		}
+		else
+		{
+			auto end = data.begin() + numberOffBins;
+			inputData.insert(inputData.end(), data.begin(), end);
+		}
 	}
 	else
 	{

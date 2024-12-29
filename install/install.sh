@@ -109,6 +109,7 @@ mv lv_conf32.h lv_conf.h
 fi
 mkdir build
 cd build && cmake .. && make -j4
+make sdrweb
 sudo make install
 
 #cd to work dir . If does not exist exit script

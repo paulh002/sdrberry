@@ -1,6 +1,7 @@
 #include "FMModulator.h"
 #include "Spectrum.h"
 #include "vfo.h"
+#include "gui_speech.h"
 
 static shared_ptr<FMModulator> sp_fmmod;
 
@@ -31,12 +32,26 @@ FMModulator::~FMModulator()
 FMModulator::FMModulator(int mode, double ifrate, audioTone tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 	: Demodulator(ifrate, source_buffer, audio_input)
 {
-	float kf          = 0.1f; // modulation factor
+	float kf          = 0.5f; // modulation factor
 	
 	audio_input->set_tone(tone);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, 5000);
-	Demodulator::set_resample_rate(ifrate / audio_input->get_samplerate()); // UP sample to ifrate
-	modFM = freqmod_create(kf); 
+	if ((ifrate - audio_input->get_samplerate()) > 0.1)
+	{
+		float sample_ratio;
+
+		// only resample and tune if ifrate > pcmrate
+		tune_offset(vfo.get_vfo_offset_tx());
+		sample_ratio = ifrate / (double)audio_input->get_samplerate();
+		printf("ifrate %f, audiorate %d  Resample rate %f\n", ifrate, audio_input->get_samplerate(), sample_ratio);
+		set_resample_rate(sample_ratio); // UP sample to ifrate
+	}
+	else
+	{
+		printf("No resample \n");
+	}
+	modFM = freqmod_create(kf);
+	freqmod_print(modFM);
 	source_buffer->restart_queue();
 }
 
@@ -46,7 +61,10 @@ void FMModulator::operator()()
 	bool                    inbuf_length_warning = false;
 	SampleVector            audiosamples;
 	IQSampleVector			dummy;
-		
+
+	audioInputBuffer->clear();
+	if (gspeech.get_speech_mode())
+		audioInputBuffer->set_gain(0);
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag)
@@ -76,7 +94,7 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	unsigned int				num_written;
 	
 	// Modulate audio to USB, LSB or DSB
-	buf_mod.clear(); 
+	buf_mod.reserve(samples.size());
 	for (auto& col : samples)
 	{
 		complex<float> f;	
@@ -85,17 +103,14 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 		buf_mod.push_back(f);
 	}
 	// Low pass filter 5 Khz for NB FM
+	//buf_filter.reserve(buf_mod.size());
+	//lowPassAudioFilter(buf_mod, buf_filter);
+	Resample(buf_mod, buf_out);
 	buf_filter.clear();
-	lowPassAudioFilter(buf_mod, buf_filter);	
-	buf_out.clear();
-	Resample(buf_filter, buf_out);
-	buf_filter.clear();
+	buf_filter.reserve(buf_out.size());
 	mix_up(buf_out, buf_filter); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(buf_filter);
-	transmitIQBuffer->push(move(buf_filter));
-	buf_mod.clear();
-	buf_out.clear();
-	buf_filter.clear();
+	transmitIQBuffer->push(std::move(buf_filter));
 }
 
 void FMModulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)

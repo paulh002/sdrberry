@@ -93,7 +93,6 @@ void RX_Stream::operator()()
 	//cout << "mtu " << mtu << endl;
 	//if (mtu > default_block_length)
 	//	default_block_length = mtu;
-
 	stop_flag = false;
 	startReadTime = std::chrono::high_resolution_clock::now();
 	while (!stop_flag.load())
@@ -151,7 +150,7 @@ void RX_Stream::operator()()
 			if (!pause_flag)
 			{
 				buf.resize(ret);
-				receiveIQBuffer->push(move(buf));
+				receiveIQBuffer->push(std::move(buf));
 			}
 			else
 			{
@@ -245,12 +244,14 @@ void TX_Stream::operator()()
 	
 	try
 	{
+		printf("activate stream \n");
 		//SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
 		//SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
 		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CF32);
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
 		SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
 		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
+		SdrDevices.SdrDevices.at(radio)->activateStream(tx_stream);
 	}
 	catch (const std::exception& e)
 	{

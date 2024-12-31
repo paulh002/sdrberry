@@ -571,6 +571,7 @@ int main(int argc, char *argv[])
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	SoapySDR::ModuleManager mm(false);
 	SoapySDR::loadModules();
+	SoapySDR::setLogLevel(SOAPY_SDR_TRACE);
 
 	default_radio = Settings_file.find_sdr("default");
 	for (auto &con : Settings_file.receivers)
@@ -1128,8 +1129,17 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	auto now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> timePassed = now - startTime;
 	printf("select_mode_tx stop all threads time %4.2f\n", (double)timePassed.count() * 1000000.0);
-	destroy_demodulators();
-	pause_flag = true;
+	int halfduplex = Settings_file.get_int(default_radio, "halfduplex", 1);
+	if (halfduplex)
+	{
+		destroy_demodulators(true);
+		pause_flag = false;
+	}
+	else
+	{
+		destroy_demodulators(false);
+		pause_flag = true;
+	}
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());

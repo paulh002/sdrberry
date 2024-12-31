@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	SoapySDR::ModuleManager mm(false);
 	SoapySDR::loadModules();
-	SoapySDR::setLogLevel(SOAPY_SDR_TRACE);
+	//SoapySDR::setLogLevel(SOAPY_SDR_TRACE);
 
 	default_radio = Settings_file.find_sdr("default");
 	for (auto &con : Settings_file.receivers)

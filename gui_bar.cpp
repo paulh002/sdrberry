@@ -376,7 +376,7 @@ void gui_bar::if_slider_event_class(lv_event_t *e)
 	int sl = lv_slider_get_value(slider);
 	gbar.ifgain = std::pow(10.0, (float)sl / 20.0);
 	catinterface.SetIG(lv_slider_get_value(slider));
-	Settings_file.save_ifgain(lv_slider_get_value(slider));
+	Settings_file.save_int(default_radio, "if-gain",lv_slider_get_value(slider));
 	guift8bar.set_if(sl);
 	updateweb();
 }
@@ -865,7 +865,7 @@ void gui_bar::set_if(int ifg, bool web)
 	lv_slider_set_value(if_slider, ifg, LV_ANIM_ON);
 	lv_label_set_text_fmt(if_slider_label, "if %d db", ifg);
 	catinterface.SetIG(ifg);
-	Settings_file.save_ifgain(ifg);
+	Settings_file.save_int(default_radio,"if-gain",ifg);
 	Settings_file.write_settings();
 	guift8bar.set_if(ifg);
 	if (web)

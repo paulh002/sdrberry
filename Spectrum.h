@@ -36,7 +36,6 @@ class Spectrum
 	lv_point_t drag{0};
 	PeakMeasurement finder;
 	int signal_strength_offset;
-	int noisefloor{0};
 	std::vector<int> peaks;
 	int active_markers{0};
 	int drag_marker{0};
@@ -57,7 +56,7 @@ class Spectrum
 	void set_pos(int32_t offset);
 	void set_marker(int marker, int32_t offset);
 	void enable_marker(int marker, bool enable);
-	void DrawDisplay(int noisefloor);
+	void DrawDisplay();
 	void ProcessWaterfall(const IQSampleVector &input);
 	void set_signal_strength(double strength);
 	double get_signal_strength() { return signal_strength; }

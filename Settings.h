@@ -38,15 +38,11 @@ class Settings
 	long long get_ft8(int band);
 	void getagc_preset(std::string key, int &atack, int &release);
 	void getspeech_preset(std::string key, int &atack, int &release);
-	int if_gain();
 	void save_speech(std::string key, int value);
 	void save();
-	void save_ifgain(int ifgain);
 	void save_vol(int vol);
 	void save_rf(int rf);
 	void save_vfo(int vfo, long freq);
-	void save_span(int span);
-	int if_gain(string sdrdevice);
 	int gain(string sdrdevice);
 	int get_int(string section, string key, int defaultValue = 0);
 	long long get_longlong(string section, string key, long defaultValue = 0L);

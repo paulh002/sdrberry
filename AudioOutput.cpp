@@ -35,14 +35,29 @@ bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames)
 	return false;
 }
 
+std::chrono::high_resolution_clock::time_point AudioOutput::GetSampleTime()
+{
+	return SampleTimeNow.load();
+}
+
+long AudioOutput::GetSampleDuration()
+{
+	return duration.load().count();
+}
+
 int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status)
 {
 	double *buffer = (double *) outputBuffer;
 
 	if (status)
 		std::cout << "Stream underflow detected!\n" << std::endl;
-	// Write interleaved audio data.
+	
+	// Measure cycle time and phase time
+	SampleTimeNow.store(std::chrono::high_resolution_clock::now());
+	duration.store(std::chrono::duration_cast<std::chrono::microseconds>(SampleTimeNow.load() - SampleTime));
+	SampleTime = std::chrono::high_resolution_clock::now();
 
+	// Write interleaved audio data.
 	if (databuffer.queued_samples() == 0)
 	{
 		//Use previous samples incase of buffer underrun
@@ -146,6 +161,7 @@ bool AudioOutput::open(std::string device)
 		return false;
 	}
 	startStream();
+	SampleTime = std::chrono::high_resolution_clock::now();
 	return true;	
 }
 

@@ -145,45 +145,71 @@ int gui_setup::get_sample_rate(int rate)
 	return 0;
 }
 
+void gui_setup::decimate_button_handler_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		set_samplerate();
+	}
+}
+
 void gui_setup::samplerate_button_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e); 
-	if (code == LV_EVENT_VALUE_CHANGED) 
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		int rate = lv_dropdown_get_selected(obj);
-		ifrate = gsetup.get_sample_rate(rate);
-		gsetup.m_ifrate = ifrate;
-		set_span_range(ifrate);
-		set_span_value(ifrate);
-		Settings_file.save_int(default_radio, "samplerate", ifrate / 1000);
-		Settings_file.write_settings();
-
-		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0) > 0)
-		{
-			long bw = 0L;
-
-			int sel = gsetup.get_bandwidth_sel();
-			bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
-			SdrDevices.SdrDevices.at(default_radio)->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
-			printf("setBandwidth %ld \n", bw);
-		}
-		else
-			vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), 0L);
-
-		destroy_demodulators(true);
-		try
-		{
-			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), ifrate);
-		}
-		catch (const std::exception& e)
-		{
-			std::cout << e.what() << endl;
-			return;
-		}
-		select_mode(mode);
+		set_samplerate();
 	}
+}
+
+void gui_setup::set_samplerate()
+{
+	int decimate = lv_dropdown_get_selected(d_decimate);
+	Settings_file.save_int(default_radio, "decimate", decimate);
+	Settings_file.write_settings();
+	
+	int rate = lv_dropdown_get_selected(d_samplerate);
+	ifrate = (double)get_sample_rate(rate) / pow(2, decimate);
+	
+	Settings_file.save_int(default_radio, "samplerate", get_sample_rate(rate) / 1000);
+	Settings_file.write_settings();
+
+	float rx_ifrate = ifrate * pow(2, decimate);
+	printf("ifrate %f rxifrate %f \n", ifrate, rx_ifrate);
+	if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0) > 0)
+	{
+		long bw = 0L;
+
+		int sel = gsetup.get_bandwidth_sel();
+		bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, sel);
+		SdrDevices.SdrDevices.at(default_radio)->setBandwidth(SOAPY_SDR_RX, 0, bw);
+		vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
+		printf("setBandwidth %ld \n", bw);
+	}
+	else
+		vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), 0L);
+
+	destroy_demodulators(true);
+	try
+	{
+		SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), rx_ifrate);
+	}
+	catch (const std::exception &e)
+	{
+		std::cout << e.what() << endl;
+		return;
+	}
+	select_mode(mode);
+	set_span_range(ifrate);
+	set_span_value(ifrate);
+}
+
+int gui_setup::get_decimation()
+{
+	return lv_dropdown_get_selected(d_decimate);
 }
 
 void gui_setup::bandwidth_button_handler_class(lv_event_t *e)
@@ -239,6 +265,7 @@ void gui_setup::set_sample_rate(int rate)
 			break;
 	}
 	lv_dropdown_set_selected(d_samplerate, i);
+	lv_dropdown_set_selected(d_decimate, Settings_file.get_int(default_radio, "decimate", 0));
 }
 
 void gui_setup::clear_sample_rate()
@@ -292,16 +319,18 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	const lv_coord_t x_page_margin = 5;
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 5;
-	const int x_number_buttons = 5;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin  = 20;
-	
+
+	int x_number_buttons = 5;
+	if (w > 800)
+		x_number_buttons = 8;
+
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
 	int button_height = 50;
 	int button_height_margin = button_height + y_margin;
 	int	ibutton_x = 0, ibutton_y = 0;
-	m_ifrate = ifrate;
 
 	button_group = lv_group_create();
 	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
@@ -335,10 +364,26 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, x_page_margin, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_samplerate);
 	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_set_width(d_samplerate, button_width);
+
+	int xpos = x_page_margin + button_width + x_margin;
+	d_decimate = lv_dropdown_create(settings_main);
+	lv_group_add_obj(button_group, d_decimate);
+	lv_obj_align(d_decimate, LV_ALIGN_TOP_LEFT, xpos , y_margin + ibutton_y * button_height_margin);
+	lv_dropdown_clear_options(d_decimate);
+	lv_obj_add_event_cb(d_decimate, decimate_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_set_width(d_decimate, 0.5 * button_width);
+	for (int i = 0; i < 6; i++)
+	{
+		std::string decimation = std::to_string((int)floor(pow(2, i)));
+		lv_dropdown_add_option(d_decimate, decimation.c_str(), LV_DROPDOWN_POS_LAST);
+	}
+	lv_dropdown_set_selected(d_decimate, Settings_file.get_int(default_radio, "decimate", 0));
 	
+	xpos = 0.5 * button_width + xpos + x_margin;
 	d_receivers = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, d_receivers);
-	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin);
 	lv_dropdown_clear_options(d_receivers);
 	lv_obj_add_event_cb(d_receivers, receivers_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	std::string def = Settings_file.find_sdr("default");
@@ -346,11 +391,13 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	{
 		lv_dropdown_add_option(d_receivers, col.c_str(), LV_DROPDOWN_POS_LAST);
 	}
+	lv_obj_set_width(d_receivers, button_width);
 
+	xpos = xpos + x_margin + button_width;
 	d_audio = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, d_audio);
-	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, 2 * button_width_margin, y_margin + ibutton_y * button_height_margin);
-	lv_obj_set_width(d_audio, 1.5 * button_width); // 2*
+	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin);
+	lv_obj_set_width(d_audio, 2 * button_width); // 2*
 	lv_dropdown_clear_options(d_audio);
 	lv_obj_add_event_cb(d_audio, audio_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	std::vector<std::string> devices = audio_output->getDeviceNames();
@@ -367,9 +414,10 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 		}
 	}
 
+	xpos = xpos + x_margin + 2 * button_width;
 	d_bandwitdth = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, d_bandwitdth);
-	lv_obj_align(d_bandwitdth, LV_ALIGN_TOP_LEFT, 3.5 * button_width_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_bandwitdth, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_width(d_bandwitdth, button_width); // 2*
 	lv_dropdown_clear_options(d_bandwitdth);
 	lv_obj_add_event_cb(d_bandwitdth, bandwidth_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -390,13 +438,6 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_label_set_text(span_slider_label, "span 500 Khz");
 	//lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
 	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-
-
-	int span = Settings_file.get_int(default_radio, "span");
-	if (((span * 1000) > (ifrate / 1)) || span == 0)
-		span = ifrate / 1000;
-	set_span_range(ifrate);
-	set_span_value(span * 1000);
 
 	brightness_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(button_group, brightness_slider);
@@ -469,10 +510,10 @@ void gui_setup::set_span_value(long span)
 		span = maxv;
 	if (v > 0)
 	{
-		if ((m_ifrate - (double)span) < 0.1)
+		if ((ifrate - (double)span) < 0.1)
 		{
 			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);
-			span = m_ifrate;
+			span = ifrate;
 			sprintf(buf, "span %ld Khz", span / 1000);
 			gui_vfo_inst.set_span(span / 1000);			
 		}

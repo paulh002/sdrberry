@@ -10,7 +10,7 @@ class EchoAudio : public Demodulator
 	EchoAudio(AudioOutput *audio_ouput, AudioInput *audio_input);
 	~EchoAudio();
 
-	void operator()() override;
+	void operator()();
 	void process(const IQSampleVector &samples_in, SampleVector &audio) ;
 
 	atomic<bool> stop_flag{false};

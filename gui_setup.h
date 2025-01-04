@@ -14,7 +14,7 @@ class gui_setup
 	long span;
 	lv_style_t style_btn, style_tile;
 	vector<int> sample_rates;
-	lv_obj_t *d_samplerate;
+	lv_obj_t *d_samplerate, *d_decimate;
 	lv_obj_t *d_receivers;
 	lv_obj_t *span_slider_label, *span_slider;
 	lv_obj_t *brightness_slider_label, *brightness_slider;
@@ -34,12 +34,15 @@ class gui_setup
 	void dcbox_event_cb_class(lv_event_t *e);
 	void cal_button_handler_class(lv_event_t *e);
 	void webbox_event_class(lv_event_t *e);
+	void decimate_button_handler_class(lv_event_t *e);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice);
 	void add_sample_rate(int samplerate);
 	void set_sample_rate(int rate);
+	void set_samplerate();
 	int get_sample_rate(int rate);
+	int get_decimation();
 	void set_radio(std::string name);
 	void clear_sample_rate();
 	lv_obj_t *get_span_slider_label() { return span_slider_label; }
@@ -53,7 +56,6 @@ class gui_setup
 	void set_group();
 	void init_bandwidth();
 	int get_bandwidth_sel() { return lv_dropdown_get_selected(d_bandwitdth); }
-	double m_ifrate;
 	int get_current_rx_channel();
 	int get_current_tx_channel();
 
@@ -67,8 +69,7 @@ class gui_setup
 	static constexpr auto dcbox_event_cb = EventHandler<gui_setup, &gui_setup::dcbox_event_cb_class>::staticHandler;
 	static constexpr auto cal_button_handler = EventHandler<gui_setup, &gui_setup::cal_button_handler_class>::staticHandler;
 	static constexpr auto webbox_event_cb = EventHandler<gui_setup, &gui_setup::webbox_event_class>::staticHandler;
-
-	
+	static constexpr auto decimate_button_handler = EventHandler<gui_setup, &gui_setup::decimate_button_handler_class>::staticHandler;
 };
 
 extern gui_setup gsetup;

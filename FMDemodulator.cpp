@@ -59,14 +59,14 @@ void FMDemodulator::operator()()
 			printf("set filter %d\n", lowPassAudioFilterCutOffFrequency);
 			setLowPassAudioFilter(audioSampleRate, lowPassAudioFilterCutOffFrequency);
 		}
-		IQSampleVector iqsamples;
-		IQSampleVector dc_iqsamples = receiveIQBuffer->pull();
-		if (dc_iqsamples.empty())
+
+		IQSampleVector iqsamples = receiveIQBuffer->pull();
+		if (iqsamples.empty())
 		{
 			usleep(500);
 			continue;
 		}
-		dc_filter(dc_iqsamples, iqsamples);
+		dc_filter(iqsamples);
 		int nosamples = iqsamples.size();
 		calc_if_level(iqsamples);
 		gain_phasecorrection(iqsamples, gbar.get_if());
@@ -148,14 +148,13 @@ void FMDemodulator::operator()()
 	audioOutputBuffer->CopyUnderrunSamples(false);
 }
 
-void FMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
+void FMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 {
 	IQSampleVector		filter1, filter2;
 		
 	// mix to correct frequency
-	mix_down(samples_in, filter1);
-	Resample(filter1, filter2);
-	filter1.clear();
+	mix_down(samples_in);
+	Resample(samples_in, filter2);
 	lowPassAudioFilter(filter2, filter1);
 	filter2.clear();
 	calc_signal_level(filter1);

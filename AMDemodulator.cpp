@@ -8,11 +8,15 @@
 #include "vfo.h"
 #include "gui_bar.h"
 #include "gui_rx.h"
+#include <complex>
+#include <complex.h>
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
 
 static std::chrono::high_resolution_clock::time_point starttime1 {};
+
+extern double get_rxsamplerate();
 
 AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)
 	: Demodulator(ifrate, source_buffer, audioOutputBuffer), receiverMode(mode)
@@ -23,7 +27,8 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	float bandwidth{2500}; // SSB
 	float sample_ratio{0.0}, sample_ratio1{0.0};
 
-	sample_ratio1 = (1.05 * (float)audio_output->get_samplerate()) / ifrate;
+	// 1.05
+	sample_ratio1 = ((float)audio_output->get_samplerate()) / ifrate;
 	std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
 	sscanf(sampleratio.c_str(), "%f", &sample_ratio);
 
@@ -95,8 +100,11 @@ void AMDemodulator::operator()()
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastPrintIQ = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point now, start1, start2;
-	
+	auto DownSampleT = std::chrono::high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point  now, start1, start2;
+	std::chrono::microseconds phasetime;
+	long SampleT;
+
 	AudioProcessor Agc;
 	
 	int lowPassAudioFilterCutOffFrequency {-1}, droppedFrames {0};
@@ -106,6 +114,8 @@ void AMDemodulator::operator()()
 	long long pr_time{0};
 	long noRfSamples{0}, noAfSamples{0};
 	int vsize, passes{0};
+	int phase = 0, pcount = 0;
+	float resamplerate = 0.0, sample_ratio= 0.0;
 
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
@@ -113,6 +123,7 @@ void AMDemodulator::operator()()
 	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 2);
 	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
 
+	resamplerate = sample_ratio = ((float)audio_output->get_samplerate()) / ifrate;
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
 	pXanr = make_unique<Xanr>();
@@ -139,14 +150,10 @@ void AMDemodulator::operator()()
 			setLowPassAudioFilter(audioSampleRate, lowPassAudioFilterCutOffFrequency);
 		}
 
-		dc_iqsamples = receiveIQBuffer->pull();
-		if (dc_iqsamples.empty())
-		{
-			//printf("No samples queued 2\n");
-			usleep(5000);
+		iqsamples = receiveIQBuffer->pull();
+		if (iqsamples.empty())
 			continue;
-		}
-		dc_filter(dc_iqsamples,iqsamples);
+		dc_filter(iqsamples);
 		int nosamples = iqsamples.size();
 		noRfSamples += nosamples;
 		passes++;
@@ -164,6 +171,7 @@ void AMDemodulator::operator()()
 			Agc.setThresholdDB(gagc.get_threshold());
 			Agc.processBlock(audioSamples);
 		}
+		
 		// Set nominal audio volume.
 		audioOutputBuffer->adjust_gain(audioSamples);
 		int noaudiosamples = audioSamples.size();
@@ -198,11 +206,13 @@ void AMDemodulator::operator()()
 					}
 					audioOutputBuffer->write(audioStereoSamples);
 					audioFrames.clear();
+					audioFrames.reserve(audioOutputBuffer->get_framesize());
 				}
 				else
 				{
 					droppedFrames++;
 					audioFrames.clear();
+					audioFrames.reserve(audioOutputBuffer->get_framesize());
 				}
 			}
 		}
@@ -227,6 +237,7 @@ void AMDemodulator::operator()()
 			printf("IQ Balance I %f Q %f correlation %f error %f gain %f phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_CorrelationNorm(), error, gain, phase);
 		}
 */
+
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
 			timeLastPrint = now;
@@ -235,10 +246,10 @@ void AMDemodulator::operator()()
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
 			printf("rms %f db %f envelope %f suppression %f db\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope(), getSuppression());
 			printf("RF samples %ld Af samples %ld ratio %f \n", noRfSamples, noAfSamples, (float)noAfSamples / (float)noRfSamples);
-			printf("Process time %lld Samples %d\n", pr_time, nosamples);
+			//printf("Process time %lld Samples %d\n", pr_time, nosamples);
 			noRfSamples = noAfSamples = 0L;
 			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
-			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
+			//std::cout << " sample rate " << get_rxsamplerate() << "\n";
 			pr_time = 0;
 			passes = 0;
 			
@@ -247,17 +258,14 @@ void AMDemodulator::operator()()
 				float resamplerate = Demodulator::adjust_resample_rate(-0.0005 * droppedFrames); //-0.002
 				std::string str1 = std::to_string(resamplerate);
 				printf("dropframes resamplerate %s %f\n", str1.c_str(), -0.0005 * droppedFrames);
-				Settings_file.save_string(default_radio, "resamplerate", str1);
-				Settings_file.write_settings();
 			}
 			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
 			{
 				float resamplerate = Demodulator::adjust_resample_rate(0.0005 * audioOutputBuffer->get_underrun());
 				std::string str1 = std::to_string(resamplerate);
-				printf("underrun resamplerate %s %f\n", str1.c_str(), -0.0005 * droppedFrames);
-				Settings_file.save_string(default_radio, "resamplerate", str1);
-				Settings_file.write_settings();
+				printf("underrun resamplerate %s %f\n", str1.c_str(), -0.0005 * audioOutputBuffer->get_underrun());
 			}
+			
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;	
 		}
@@ -266,14 +274,13 @@ void AMDemodulator::operator()()
 	starttime1 = std::chrono::high_resolution_clock::now();
 }
 
-void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audio)
+void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 {
-	IQSampleVector		filter1, filter2, filter3;
-		
+	IQSampleVector filter1,filter2, filter3;
+	
 	// mix to correct frequency
-	mix_down(samples_in, filter1);
-	Resample(filter1, filter2);
-	filter1.clear();
+	mix_down(samples_in);
+	Resample(samples_in, filter2);
 	if (get_noise())
 	{
 		NoiseFilterProcess(filter2, filter3);
@@ -286,7 +293,6 @@ void AMDemodulator::process(const IQSampleVector&	samples_in, SampleVector& audi
 	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
-	
 	for (auto col : filter1)
 	{
 		float v;

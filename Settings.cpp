@@ -326,25 +326,6 @@ int Settings::volume()
 		return 0;
 }
 
-int Settings::if_gain()
-{
-	if (radio.find("if-gain") != radio.end())
-	{
-		auto s = radio.find("if-gain");
-		return atoi((const char *)s->second.c_str());
-	}
-	else
-		return 0;
-}
-
-int Settings::if_gain(string sdrdevice)
-{
-	auto option = config->getSection(sdrdevice);
-	auto s = option.find("if-gain");
-	string st = s->second;
-	return atoi((const char *)st.c_str());
-}
-
 int Settings::gain(string sdrdevice)
 {
 	auto option = config->getSection(sdrdevice);
@@ -510,13 +491,6 @@ void Settings::save()
 	config->writeToFile(file.c_str());
 }
 
-void Settings::save_ifgain(int ifgain)
-{
-	config->useSection("Radio");
-	auto &col = (*config)("if-gain");
-	col = ifgain;
-}
-
 void Settings::save_vol(int vol)
 {
 	config->useSection("Radio");
@@ -543,13 +517,6 @@ void Settings::save_vfo(int vfo, long freq)
 	}
 	auto &col = (*config)("freq");
 	col = freq;
-}
-
-void Settings::save_span(int span)
-{
-	config->useSection("Radio");
-	auto &col = (*config)("span");
-	col = span;
 }
 
 // New functions

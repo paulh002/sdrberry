@@ -3,9 +3,11 @@
 #include "PeakLevelDetector.h"
 #include "gui_ft8bar.h"
 #include "gui_speech.h"
+#include "gui_setup.h"
 #include <chrono>
 #include "date.h"
 #include "sdrstream.h"
+#include "sdrberry.h"
 
 extern DataBuffer<IQSample> source_buffer_rx;
 extern DataBuffer<IQSample> source_buffer_tx;
@@ -30,7 +32,7 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	guift8bar.WaterfallSetMaxMin(500.0, 0);
 	sp_ammod = make_shared<AMModulator>(param, source_buffer_tx, audio_input);
 	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
-	TX_Stream::create_tx_streaming_thread(default_radio, param.txChannel, source_buffer_tx, ifrate_tx);
+	TX_Stream::create_tx_streaming_thread(ifrate, default_radio, param.txChannel, source_buffer_tx, ifrate_tx, gsetup.get_decimation());
 
 	now = std::chrono::system_clock::now();
 	cout << "Start TX stream running " << date::make_time(now - today) << endl;
@@ -55,7 +57,7 @@ void DigitalTransmission::operator()()
 	std::cout << "finished sending at " << date::make_time(end - today)
 			  << " elapsed time: " << elapsed_seconds.count() << "s"
 			  << std::endl;
-	RX_Stream::create_rx_streaming_thread(default_radio, param.rxChannel, Source_buffer_rx);
+	RX_Stream::create_rx_streaming_thread(ifrate, default_radio, param.rxChannel, Source_buffer_rx, gsetup.get_decimation());
 	vfo.vfo_rxtx(true, false);
 }
 

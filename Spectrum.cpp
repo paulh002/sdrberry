@@ -14,6 +14,7 @@
 #include "gui_setup.h"
 #include "screen.h"
 #include "WebServer.h"
+#include "gui_rx.h"
 
 Spectrum SpectrumGraph;
 
@@ -280,13 +281,12 @@ void Spectrum::setWaterfallSize(int waterfallsize)
 	waterfall->Size(heightChart + fontsize, heightWaterfall - fontsize);
 }
 
-void Spectrum::DrawDisplay(int ns)
+void Spectrum::DrawDisplay()
 {
-	noisefloor = ns;
 	upload_fft();
 	load_data();
 	if (waterfall)
-		waterfall->Draw((float)noisefloor);
+		waterfall->Draw(guirx.get_waterfallgain());
 
 	if (webserver.isEnabled())
 	{
@@ -337,7 +337,7 @@ void Spectrum::SetFftParts()
 
 void Spectrum::set_signal_strength(double strength)
 {
-	signal_strength = 40 * log10(strength) + signal_strength_offset + noisefloor;
+	signal_strength = 40 * log10(strength) + signal_strength_offset;
 	//printf("S %f offset %d \n", signal_strength.load(), signal_strength_offset);
 }
 
@@ -353,7 +353,6 @@ void Spectrum::set_pos(int32_t offset)
 	int pos;
 	float d;
 	int span = vfo.get_span();
-	
 
 	if (!data_set.size())
 		return;
@@ -415,6 +414,7 @@ void Spectrum::load_data()
 void Spectrum::upload_fft()
 {
 	int i{0};
+	int noisefloor = guirx.get_spectrumgain();
 	std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 
 	switch (span_ex.first)
@@ -426,10 +426,11 @@ void Spectrum::upload_fft()
 			std::vector<float> fft_output = fft->GetLineatSquaredBins();
 			data_set.resize(fft_output.size() / 2);
 			data_set_peak.resize(fft_output.size() / 2);
+			data_set_nonfiltered.resize(fft_output.size() / 2);
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
-				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
+				value = noisefloor +(lv_coord_t)(20.0 * log10(col));
 				if (value > (float)s_points_max)
 					value = (float)s_points_max;
 				if (i % 2)
@@ -449,6 +450,7 @@ void Spectrum::upload_fft()
 			std::vector<float> fft_output = fft->GetSquaredBins();
 			data_set.resize(fft_output.size() / 2);
 			data_set_peak.resize(fft_output.size() / 2);
+			data_set_nonfiltered.resize(fft_output.size() / 2);
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{

@@ -24,8 +24,8 @@ public:
 
 	AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~AMDemodulator();
-	void	process(const IQSampleVector&	samples_in, SampleVector& audio);
-	void	operator()() override;
+	void	process(IQSampleVector&	samples_in, SampleVector& audio);
+	void	operator()();
 	
 	atomic<bool>		stop_flag {false};
 	std::thread			amdemod_thread;

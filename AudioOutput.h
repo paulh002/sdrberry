@@ -6,6 +6,7 @@
 #include "Settings.h"
 #include <map>
 #include <string>
+#include <chrono>
 
 class AudioOutput : public RtAudio
 {
@@ -22,7 +23,11 @@ class AudioOutput : public RtAudio
 	DataBuffer<Sample> databuffer;
 	SampleVector underrunSamples;
 	std::atomic<bool> copyUnderrun{false};
+	std::atomic<std::chrono::high_resolution_clock::time_point> SampleTimeNow;
+	std::atomic <std::chrono::microseconds> duration;
+	std::chrono::high_resolution_clock::time_point SampleTime;
 	int Audioout_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
+	
 
   public:
 	AudioOutput(int pcmrate, unsigned int bufferFrames_, RtAudio::Api api = UNSPECIFIED);
@@ -50,6 +55,8 @@ class AudioOutput : public RtAudio
 
 	static bool createAudioDevice(int Samplerate, unsigned int bufferFrames);
 	void CopyUnderrunSamples(bool copySamples);
+	long GetSampleDuration();
+	std::chrono::high_resolution_clock::time_point GetSampleTime();
 
   protected:
 	void samplesToInt16(const SampleVector &samples,

@@ -51,13 +51,15 @@ class Demodulator
 
 	void gain_phasecorrection(IQSampleVector &samples_in, float vol);
 	void adjust_calibration(IQSampleVector &samples_in);
+	float adjust_resample_rate1(float rateAjustFraction);
 	void tune_offset(long offset);
 	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
 	void Resample(IQSampleVector &filter_in, IQSampleVector &filter_out);
-	virtual void operator()() = 0;
+	//virtual void operator()() = 0;
 	void lowPassAudioFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void lowPassAudioFilter(IQSampleVector &filter_in);
 	void set_resample_rate(float resample_rate);
-	void mix_down(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void mix_down(IQSampleVector &filter_in);
 	void mix_up(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void calc_if_level(const IQSampleVector &samples_in);
 	void calc_signal_level(const IQSampleVector& samples_in);
@@ -75,7 +77,7 @@ class Demodulator
 	void calc_af_level(const SampleVector &samples_in);
 	void setBandPassFilter(float high, float mid_high, float mid_low, float low);
 	void executeBandpassFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
-	void dc_filter(IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void dc_filter(IQSampleVector &filter_in);
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();
 	bool get_gain_phase_correction();
@@ -94,6 +96,7 @@ class Demodulator
 	float getSuppression();
 	int get_noise() { return noisefilter.load(); }
 	void NoiseFilterProcess(IQSampleVector &filter_in, IQSampleVector &filter_out);
+	float getResampleRate() { return resampleRate; }
 
   private:
 	EnergyCalculator ifEnergy, afEnergy, SignalStrength;

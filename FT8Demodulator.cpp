@@ -162,15 +162,14 @@ void FT8Demodulator::operator()()
 	starttime1 = std::chrono::high_resolution_clock::now();
 }
 
-void FT8Demodulator::process(const IQSampleVector &samples_in, SampleVector &audio)
+void FT8Demodulator::process(IQSampleVector &samples_in, SampleVector &audio)
 {
 	IQSampleVector filter1, filter2;
 	SampleVector audio_mono;
 
 	// mix to correct frequency
-	mix_down(samples_in, filter1);
-	Resample(filter1, filter2);
-	filter1.clear();
+	mix_down(samples_in);
+	Resample(samples_in, filter2);
 	lowPassAudioFilter(filter2, filter1);
 	calc_signal_level(filter1);
 	guift8bar.Process(filter1);

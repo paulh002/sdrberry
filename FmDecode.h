@@ -264,8 +264,8 @@ class FMBroadBandDemodulator : public Demodulator
 
 	FMBroadBandDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int stereo);
 	~FMBroadBandDemodulator();
-	void process(const IQSampleVector &samples_in, SampleVector &audio);
-	void operator()() override;
+	void process(IQSampleVector &samples_in, SampleVector &audio);
+	void operator()();
 	atomic<bool> stop_flag{false};
 
   private:

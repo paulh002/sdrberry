@@ -19,8 +19,8 @@ public:
 
 	FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output);
 	~FMDemodulator();
-	void	process(const IQSampleVector&	samples_in, SampleVector& audio) ;
-	void	operator()() override;
+	void	process(IQSampleVector&	samples_in, SampleVector& audio) ;
+	void	operator()();
 	atomic<bool> stop_flag{false};		
 	
 private:

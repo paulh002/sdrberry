@@ -125,7 +125,7 @@ void Demodulator::set_resample_rate(float resample_rate)
 
 float Demodulator::adjust_resample_rate(float rateAjustFraction)
 {
-	if ((resampleRate + resampleRate * rateAjustFraction) < 0)
+	if ((resampleRate + resampleRate * rateAjustFraction) <= 0.0)
 		return resampleRate;
 	resampleRate = resampleRate + resampleRate * rateAjustFraction;
 	struct msresamp_rrrf_s
@@ -167,6 +167,59 @@ float Demodulator::adjust_resample_rate(float rateAjustFraction)
 		}
 		msresamp_crcf_print(resampleHandle);
 	}
+	std::string str1 = std::to_string(resampleRate);
+	Settings_file.save_string(default_radio, "resamplerate", str1);
+	Settings_file.write_settings();
+	return resampleRate;
+}
+
+float Demodulator::adjust_resample_rate1(float rateAjustFraction)
+{
+	if ((abs(resampleRate - rateAjustFraction) / resampleRate) < 0.01)
+		return resampleRate;
+	resampleRate = rateAjustFraction;
+	struct msresamp_rrrf_s
+		{
+			// user-defined parameters
+			float rate; // re-sampling rate
+			float As;	// filter stop-band attenuation [dB]
+
+			// type: interpolator or decimator
+			int type; // run half-band resamplers as interp or decim
+
+			// half-band resampler parameters
+			unsigned int num_halfband_stages; // number of halfband stages
+			msresamp2_rrrf halfband_resamp;	  // multi-stage halfband resampler
+			float rate_halfband;			  // halfband rate
+
+			// arbitrary resampler parameters
+			resamp_rrrf arbitrary_resamp; // arbitrary resampling object
+			float rate_arbitrary;		  // clean-up resampling rate, in (0.5, 2.0)
+
+			// internal buffers (ping-pong)
+			unsigned int buffer_len;   // length of each buffer
+			float *buffer;			   // buffer[0]
+			unsigned int buffer_index; // index of buffer
+		};
+
+	msresamp_rrrf_s *_q = (msresamp_rrrf_s *)resampleHandle;
+	if (_q != nullptr)
+	{
+		if (_q->type == LIQUID_RESAMP_DECIM)
+		{
+			float fraction = resampleRate / _q->rate, arbitraryRate;
+			resamp_rrrf_adjust_rate(_q->arbitrary_resamp, fraction);
+			_q->rate = resampleRate;
+			arbitraryRate = resampleRate;
+			for (int i = 0; i < _q->num_halfband_stages; i++)
+				arbitraryRate *= 2.0;
+			_q->rate_arbitrary = arbitraryRate;
+		}
+		msresamp_crcf_print(resampleHandle);
+	}
+	//std::string str1 = std::to_string(resampleRate);
+	//Settings_file.save_string(default_radio, "resamplerate", str1);
+	//Settings_file.write_settings();
 	return resampleRate;
 }
 
@@ -321,9 +374,12 @@ void Demodulator::Resample(IQSampleVector &filter_in,
 
 	if (resampleHandle)
 	{
-		float nx = (float)filter_in.size() * resampleRate * 2;
-		filter_out.reserve((int)ceilf(nx));
-		filter_out.resize((int)ceilf(nx));
+		if (filter_out.size() == 0)
+		{
+			float nx = (float)filter_in.size() * resampleRate * 2;
+			filter_out.reserve((int)ceilf(nx));
+			filter_out.resize((int)ceilf(nx));
+		}
 		msresamp_crcf_execute(resampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
 		filter_out.resize(num_written);
 	}
@@ -346,8 +402,18 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 	}
 }
 
-void Demodulator::dc_filter(IQSampleVector &filter_in,
-							IQSampleVector &filter_out)
+void Demodulator::lowPassAudioFilter(IQSampleVector &filter_in)
+{
+	for (auto &col : filter_in)
+	{
+		complex<float> v, z;
+
+		iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
+		col =  v;
+	}
+}
+
+void Demodulator::dc_filter(IQSampleVector &filter_in)
 {
 	if (dcBlockHandle && dcBlockSwitch)
 	{
@@ -357,17 +423,12 @@ void Demodulator::dc_filter(IQSampleVector &filter_in,
 
 			firfilt_crcf_push(dcBlockHandle, col);
 			firfilt_crcf_execute(dcBlockHandle, &v);
-			filter_out.insert(filter_out.end(), v);
+			col = v;
 		}
-	}
-	else
-	{
-		filter_out = std::move(filter_in);
 	}
 }
 
-void Demodulator::mix_down(const IQSampleVector &filter_in,
-						   IQSampleVector &filter_out)
+void Demodulator::mix_down(IQSampleVector &filter_in)
 {
 	if (tuneNCO)
 	{
@@ -377,12 +438,8 @@ void Demodulator::mix_down(const IQSampleVector &filter_in,
 
 			nco_crcf_step(tuneNCO);
 			nco_crcf_mix_down(tuneNCO, col, &v);
-			filter_out.push_back(v);
+			col = v;
 		}
-	}
-	else
-	{
-		filter_out = filter_in;
 	}
 }
 
@@ -402,7 +459,7 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 	}
 	else
 	{
-		filter_out = filter_in;
+		filter_out = std::move(filter_in);
 	}
 }
 

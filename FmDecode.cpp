@@ -10,6 +10,7 @@
 #include "FmDecode.h"
 #include <liquid/liquid.h>
 #include <complex>
+#include <complex.h>
 #include <vector>
 #include <mutex>
 #include "Spectrum.h"
@@ -382,7 +383,7 @@ void FmDecoder::process(const IQSampleVector& samples_in,
 
     // Downsample baseband signal to reduce processing.
     if (m_downsample > 1) {
-        SampleVector tmp(move(m_buf_baseband));
+		SampleVector tmp(std::move(m_buf_baseband));
         m_resample_baseband.process(tmp, m_buf_baseband);
     }
 
@@ -433,7 +434,7 @@ void FmDecoder::process(const IQSampleVector& samples_in,
     } else {
 
         // Just return mono channel.
-        audio = move(m_buf_mono);
+		audio = std::move(m_buf_mono);
 
     }
 }
@@ -492,7 +493,7 @@ void FMBroadBandDemodulator::operator()()
 {
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point now, start1, start2;
+	std::chrono::high_resolution_clock::time_point now, start1, start2, SampleTimeStart, SampleTimeNow;
 
 	int ifilter{-1}, lowPassAudioFilterCutOffFrequency{200000};
 	int droppedFrames{0};
@@ -500,6 +501,7 @@ void FMBroadBandDemodulator::operator()()
 	SampleVector audiosamples, audioframes;
 	long long pr_time{0};
 	int vsize, passes{0};
+	int phase = 0;
 
 	int thresholdDroppedFrames = Settings_file.get_int(default_radio, "thresholdDroppedFrames", 2);
 	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
@@ -515,6 +517,7 @@ void FMBroadBandDemodulator::operator()()
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
 	setLowPassAudioFilter(ifrate, lowPassAudioFilterCutOffFrequency);
+	SampleTimeStart = SampleTimeNow = std::chrono::high_resolution_clock::now();
 	while (!stop_flag.load())
 	{
 		span = vfo.get_span();
@@ -524,14 +527,18 @@ void FMBroadBandDemodulator::operator()()
 			tune_offset(vfo.get_vfo_offset());
 		}
 
-		IQSampleVector iqsamples;
-		IQSampleVector dc_iqsamples = receiveIQBuffer->pull();
-		if (dc_iqsamples.empty())
+		IQSampleVector iqsamples = receiveIQBuffer->pull();
+		if (iqsamples.empty())
 		{
 			usleep(500);
 			continue;
 		}
-		dc_filter(dc_iqsamples, iqsamples);
+		// Measure time between samples
+		SampleTimeNow = std::chrono::high_resolution_clock::now();
+		auto SampleTime = std::chrono::duration_cast<std::chrono::microseconds>(SampleTimeNow - SampleTimeStart);
+		SampleTimeStart = std::chrono::high_resolution_clock::now();
+		
+		dc_filter(iqsamples);
 		int nosamples = iqsamples.size();
 		calc_if_level(iqsamples);
 		limiter.Process(iqsamples);
@@ -539,14 +546,6 @@ void FMBroadBandDemodulator::operator()()
 		perform_fft(iqsamples);
 		set_signal_strength();
 		process(iqsamples, audiosamples);
-		if (gagc.get_agc_mode())
-		{
-			Agc.setRelease(gagc.get_release());
-			Agc.setRatio(gagc.get_ratio());
-			Agc.setAtack(gagc.get_atack());
-			Agc.setThresholdDB(gagc.get_threshold());
-			Agc.processBlock(audiosamples);
-		}
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
 		int noaudiosamples = audiosamples.size();
@@ -556,7 +555,10 @@ void FMBroadBandDemodulator::operator()()
 			audioframes.insert(audioframes.end(), col);
 			if (audioframes.size() == (2 * audio_output->get_framesize()))
 			{
-				if ((audioOutputBuffer->queued_samples()) < get_audioBufferSize())
+				phase++;
+				if (phase > 100)
+					phase = 0;
+				if ((audioOutputBuffer->queued_samples()) < 100 * get_audioBufferSize())
 				{
 					audio_output->write(audioframes);
 					audioframes.clear();
@@ -589,20 +591,6 @@ void FMBroadBandDemodulator::operator()()
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;
 			passes = 0;
-			if (droppedFrames > thresholdDroppedFrames && audioOutputBuffer->get_underrun() == 0)
-			{
-				float resamplerate = Demodulator::adjust_resample_rate(-0.0005 * droppedFrames); //-0.002
-				std::string str1 = std::to_string(resamplerate);
-				Settings_file.save_string(default_radio, "resamplerate", str1);
-				Settings_file.write_settings();
-			}
-			if ((audioOutputBuffer->get_underrun() > thresholdUnderrun) && droppedFrames == 0)
-			{
-				float resamplerate = Demodulator::adjust_resample_rate(0.0005 * audioOutputBuffer->get_underrun());
-				std::string str1 = std::to_string(resamplerate);
-				Settings_file.save_string(default_radio, "resamplerate", str1);
-				Settings_file.write_settings();
-			}
 			audioOutputBuffer->clear_underrun();
 			droppedFrames = 0;
 		}
@@ -610,15 +598,12 @@ void FMBroadBandDemodulator::operator()()
 	audioOutputBuffer->CopyUnderrunSamples(false);
 }
 
-void FMBroadBandDemodulator::process(const IQSampleVector &samples_in, SampleVector &audio)
+void FMBroadBandDemodulator::process(IQSampleVector &samples_in, SampleVector &audio)
 {
-	IQSampleVector filter1, filter2;
-
 	// mix to correct frequency
-	mix_down(samples_in, filter1);
-	lowPassAudioFilter(filter1, filter2);
-	calc_signal_level(filter2);
-	pfm->process(filter2, audio);
+	mix_down(samples_in);
+	calc_signal_level(samples_in);
+	pfm->process(samples_in, audio);
 }
 
 

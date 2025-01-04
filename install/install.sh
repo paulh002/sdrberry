@@ -87,7 +87,7 @@ cd $wrkdir || exit
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp || exit
-git switch v1.6.0
+git checkout v1.6.0
 ./bootstrap.sh
 ./configure
 make -j4

@@ -249,11 +249,9 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 
 void gui_setup::add_sample_rate(int samplerate)
 {
-	char	str[30];
-	
 	sample_rates.push_back(samplerate);
-	sprintf(str, "%d Khz", samplerate / 1000);
-	lv_dropdown_add_option(d_samplerate, str, LV_DROPDOWN_POS_LAST);
+	std::string buf = strlib::sprintf("%d Khz", samplerate / 1000);
+	lv_dropdown_add_option(d_samplerate, buf.c_str(), LV_DROPDOWN_POS_LAST);
 }
 
 void gui_setup::set_sample_rate(int rate)
@@ -288,11 +286,9 @@ void gui_setup::init_bandwidth()
 
 		for (int i = 0; i < SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0); i++)
 		{
-			char buf[80];
-
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, i);
-			sprintf(buf, "%ld Khz", bw / 1000);
-			lv_dropdown_add_option(d_bandwitdth, buf, LV_DROPDOWN_POS_LAST);
+			std::string buf = strlib::sprintf("%ld Khz", bw / 1000);
+			lv_dropdown_add_option(d_bandwitdth, buf.c_str(), LV_DROPDOWN_POS_LAST);
 			if (i == 0)
 				lv_dropdown_set_selected(d_bandwitdth, 0);
 		}
@@ -444,7 +440,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_obj_set_width(brightness_slider, w / 2 - 50);
 	lv_obj_align_to(brightness_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
 	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_slider_set_range(brightness_slider, 0, 255);
+	lv_slider_set_range(brightness_slider, 0, get_maxbrightness());
 	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
 
 	brightness_slider_label = lv_label_create(settings_main);
@@ -501,7 +497,7 @@ void gui_setup::set_group()
 
 void gui_setup::set_span_value(long span)
 {
-	char	buf[30];
+	std::string	buf;
 	
 	int maxv = lv_slider_get_max_value(span_slider);
 	int v = span / 48000;
@@ -514,23 +510,23 @@ void gui_setup::set_span_value(long span)
 		{
 			lv_slider_set_value(span_slider, maxv, LV_ANIM_ON);
 			span = ifrate;
-			sprintf(buf, "span %ld Khz", span / 1000);
+			buf = strlib::sprintf("span %ld Khz", span / 1000);
 			gui_vfo_inst.set_span(span / 1000);			
 		}
 		else
 		{
 			lv_slider_set_value(span_slider, v, LV_ANIM_ON);
-			sprintf(buf, "span %d Khz", v * 48);
+			buf = strlib::sprintf("span %d Khz", v * 48);
 			gui_vfo_inst.set_span(v * 48);
 		}
 	}
 	else
 	{
 		lv_slider_set_value(span_slider, 1, LV_ANIM_ON);
-		sprintf(buf, "span %ld Khz", span / 1000);		
+		buf = strlib::sprintf("span %ld Khz", span / 1000);		
 		gui_vfo_inst.set_span(span / 1000);
 	}
-	lv_label_set_text(span_slider_label, buf);
+	lv_label_set_text(span_slider_label, buf.c_str());
 	// store in atomic<int> so demodulator thread can request it
 	gui_setup::span = span;
 	vfo.set_span(span);
@@ -543,8 +539,6 @@ void gui_setup::set_span_value(long span)
 
 void gui_setup::set_span_range(long span)
 {
-	char	buf[30];
-	
 	int v = span / 48000;
 	int m = span % 48000;
 	if (v < 0 || v > 80)
@@ -559,7 +553,6 @@ void gui_setup::set_span_range(long span)
 void gui_setup::set_brightness(int brightness)
 {
 	std::string			f{"/sys/class/backlight/10-0045/brightness"};
-	char				buf[20];
 	std::ofstream		myfile;
 		
 	myfile.open(f);
@@ -568,8 +561,13 @@ void gui_setup::set_brightness(int brightness)
 		f = "/sys/class/backlight/rpi_backlight/brightness";
 		myfile.open(f);	
 	}
-	sprintf(buf,"%d", brightness);
-	myfile << std::string(buf);
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/11-0045/brightness";
+		myfile.open(f);
+	}
+	std::string buf = strlib::sprintf("%d", brightness);
+	myfile << buf;
 }
 
 int gui_setup::get_brightness()
@@ -585,7 +583,38 @@ int gui_setup::get_brightness()
 		f = "/sys/class/backlight/rpi_backlight/actual_brightness";
 		myfile.open(f);	
 	}
-	myfile >> s;
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/11-0045/actual_brightness";
+		myfile.open(f);
+
+		myfile >> s;
+	}
 	brightness = atoi(s.c_str());
+	return brightness;
+}
+
+int gui_setup::get_maxbrightness()
+{
+	int brightness = 50;
+	std::string f{"/sys/class/backlight/10-0045/max_brightness"};
+	std::string s;
+	std::ifstream myfile;
+
+	myfile.open(f);
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/rpi_backlight/max_brightness";
+		myfile.open(f);
+	}
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/11-0045/max_brightness";
+		myfile.open(f);
+
+		myfile >> s;
+	}
+	if (myfile.is_open())
+		brightness = atoi(s.c_str());
 	return brightness;
 }

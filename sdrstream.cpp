@@ -112,18 +112,14 @@ void RX_Stream::operator()()
 			dfactor = floor(pow(2, decimatorFactor));
 			resampleData.resize(default_block_length / dfactor);
 		}
-		// SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		try
 		{
 			stoptReadTime = std::chrono::high_resolution_clock::now();
 			ret = SdrDevices.SdrDevices.at(radio)->readStream(rx_stream, buffs, default_block_length, flags, time_ns, 1e6);
 			if (ret > 0)
 			{
-
 				timePassed = std::chrono::duration_cast<std::chrono::microseconds>(stoptReadTime - startReadTime);
-				// timePassed_avg += timePassed.count() ;
-				// timePassed_avg = timePassed_avg / 2;
-				samples_read = ret; //(ret + samples_read) / 2;
+				samples_read = ret; 
 				rx_nosample = ret;
 				rx_sampleRate = timePassed.count();
 				startReadTime = stoptReadTime;

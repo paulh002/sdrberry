@@ -116,13 +116,12 @@ void gui_rx::get_buttons(vector<long> &array)
 
 void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 {
-	char buf[80];
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		sprintf(buf, "Waterfallsize level %d", lv_slider_get_value(obj));
-		lv_label_set_text(waterfallsize_slider_label, buf);
+		std::string buf = strlib::sprintf("Waterfallsize level %d", lv_slider_get_value(obj));
+		lv_label_set_text(waterfallsize_slider_label, buf.c_str());
 		waterfallsize = lv_slider_get_value(obj);
 		Settings_file.save_int("Radio", "waterfallsize", waterfallsize);
 		SpectrumGraph.setWaterfallSize(waterfallsize);
@@ -131,14 +130,13 @@ void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 
 void gui_rx::signal_strength_offset_event_class(lv_event_t *e)
 {
-	char buf[80];
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int signal_strength_offset = lv_slider_get_value(obj);
-		sprintf(buf, "signal strength offset %d", signal_strength_offset);
-		lv_label_set_text(signal_strength_offset_slider_label, buf);
+		std::string buf = strlib::sprintf("s meter offset %d", signal_strength_offset);
+		lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
 		Settings_file.save_int("Radio", "s-meter-offset", signal_strength_offset);
 		SpectrumGraph.setSignalStrenthOffset(signal_strength_offset);
 	}
@@ -300,11 +298,9 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_align(noise_slider_label, LV_ALIGN_TOP_MID, 0, y_margin + ibutton_y * button_height_margin);
 
 	//lv_obj_center(noise_slider_label);
-	char buf[80];
-	int ii = Settings_file.get_int("Radio", "NoiseThreshold");
-	sprintf(buf, "noise thresshold %d db", ii);
-	lv_label_set_text(noise_slider_label, buf);
-	Demodulator::set_noise_threshold(ii);
+	std::string buf = strlib::sprintf("noise thresshold %d db", Settings_file.get_int("Radio", "NoiseThreshold"));
+	lv_label_set_text(noise_slider_label, buf.c_str());
+	Demodulator::set_noise_threshold(Settings_file.get_int("Radio", "NoiseThreshold"));
 	
 	noise_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(noise_slider, w / 2 - 50);
@@ -325,8 +321,8 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_slider_set_value(waterfall_slider, waterfallgain, LV_ANIM_OFF);
 
 	waterfall_slider_label = lv_label_create(o_tab);
-	sprintf(buf, "Waterfall level %d db", waterfallgain);
-	lv_label_set_text(waterfall_slider_label, buf);
+	buf = strlib::sprintf("Waterfall level %d db", waterfallgain);
+	lv_label_set_text(waterfall_slider_label, buf.c_str());
 	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	waterfall_hold = lv_checkbox_create(o_tab);
@@ -348,8 +344,8 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_slider_set_value(waterfallsize_slider, waterfallsize, LV_ANIM_OFF);
 
 	waterfallsize_slider_label = lv_label_create(o_tab);
-	sprintf(buf, "Waterfallsize level %d", waterfallsize);
-	lv_label_set_text(waterfallsize_slider_label, buf);
+	buf = strlib::sprintf("Waterfallsize level %d", waterfallsize);
+	lv_label_set_text(waterfallsize_slider_label, buf.c_str());
 	lv_obj_align_to(waterfallsize_slider_label, waterfallsize_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	int signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 200);
@@ -362,8 +358,8 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_slider_set_value(signal_strength_offset_slider, signal_strength_offset, LV_ANIM_OFF);
 
 	signal_strength_offset_slider_label = lv_label_create(o_tab);
-	sprintf(buf, "signal strength offset %d", signal_strength_offset);
-	lv_label_set_text(signal_strength_offset_slider_label, buf);
+	buf = strlib::sprintf("s meter offset %d", signal_strength_offset);
+	lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
 	lv_obj_align_to(signal_strength_offset_slider_label, signal_strength_offset_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	int spectrumgain = Settings_file.get_int("Radio", "Spectrumgain", 0);
@@ -376,8 +372,8 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_slider_set_value(spectrum_slider, spectrumgain, LV_ANIM_OFF);
 
 	spectrum_slider_label = lv_label_create(o_tab);
-	sprintf(buf, "Spectrum level %d db", spectrumgain);
-	lv_label_set_text(spectrum_slider_label, buf);
+	buf = strlib::sprintf("Spectrum level %d db", spectrumgain);
+	lv_label_set_text(spectrum_slider_label, buf.c_str());
 	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	
@@ -387,10 +383,9 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
-	char buf[30];
 
-	sprintf(buf, "noise thresshold %d db", lv_slider_get_value(slider));
-	lv_label_set_text(noise_slider_label, buf);
+	std::string buf = strlib::sprintf("noise thresshold %d db", lv_slider_get_value(slider));
+	lv_label_set_text(noise_slider_label, buf.c_str());
 	lv_obj_align_to(noise_slider_label, slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	Settings_file.save_int("Radio","NoiseThreshold",lv_slider_get_value(slider));
 	if (gbar.get_noise())
@@ -402,10 +397,9 @@ void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 void gui_rx::waterfall_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
-	char buf[30];
 
-	sprintf(buf, "Waterfall level %d db", lv_slider_get_value(slider));
-	lv_label_set_text(waterfall_slider_label, buf);
+	std::string buf = strlib::sprintf("Waterfall level %d db", lv_slider_get_value(slider));
+	lv_label_set_text(waterfall_slider_label, buf.c_str());
 	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	waterfallgain = lv_slider_get_value(slider);
 	Settings_file.save_int("Radio", "Waterfallgain", waterfallgain);
@@ -415,10 +409,9 @@ void gui_rx::waterfall_slider_event_cb_class(lv_event_t *e)
 void gui_rx::spectrum_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
-	char buf[30];
 
-	sprintf(buf, "Spectrum level %d db", lv_slider_get_value(slider));
-	lv_label_set_text(spectrum_slider_label, buf);
+	std::string buf = strlib::sprintf("Spectrum level %d db", lv_slider_get_value(slider));
+	lv_label_set_text(spectrum_slider_label, buf.c_str());
 	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	spectrumgain = lv_slider_get_value(slider);
 	Settings_file.save_int("Radio", "Spectrumgain", spectrumgain);

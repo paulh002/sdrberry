@@ -35,6 +35,7 @@ class gui_setup
 	void cal_button_handler_class(lv_event_t *e);
 	void webbox_event_class(lv_event_t *e);
 	void decimate_button_handler_class(lv_event_t *e);
+	int get_maxbrightness();
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice);

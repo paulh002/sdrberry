@@ -138,7 +138,8 @@ class CVfo
 	void setRit(int rit, int active_vfo);
 	std::string getMode(int active_vfo);
 	std::vector<int16_t> Legend();
-	
+	void set_frequency_to_left(long long freq, int active_vfo, bool update );
+
   private:
 	struct vfo_settings_struct vfo_setting;
 	int m_delay_counter = 0;

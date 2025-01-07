@@ -197,6 +197,7 @@ void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 	data->point.x = state.x;
 	data->point.y = state.y;
 	rotary_rotation = state.Rotated;
+	data->btn_id = state.btn_id;
 	
 	/*Get whether the mouse button is pressed or released*/
 	if (state.pressed)
@@ -219,7 +220,7 @@ void mouse_keyboard_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 	rotary_rotation = state.Rotated;
 
 	/*Get whether the mouse button is pressed or released*/
-	if (state.pressed)
+	if (state.pressed && state.btn_id == BTN_LEFT)
 	{
 		data->state = LV_INDEV_STATE_PR;
 	}

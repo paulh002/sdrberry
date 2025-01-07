@@ -184,7 +184,7 @@ MouseState Mouse::GetMouseState()
 		screen_h = screenHeight;
 	}
 
-		if (fd > 0 && ioctl(fd, EVIOCGNAME(sizeof(name)), name) < 0)
+	if (fd > 0 && ioctl(fd, EVIOCGNAME(sizeof(name)), name) < 0)
 	{
 		fd = 0;
 		printf("Mouse Removed \n");
@@ -245,12 +245,31 @@ MouseState Mouse::GetMouseState()
 				}
 			}
 
+			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_RIGHT)
+			{
+				//printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
+				if (mouse_event.value == 1)
+				{
+					state.pressed = LV_INDEV_STATE_PR;
+					state.MouseActivity = true;
+					state.btn_id = BTN_RIGHT;
+				}
+
+				if (mouse_event.value == 0)
+				{
+					state.pressed = LV_INDEV_STATE_REL;
+					state.MouseActivity = true;
+					state.btn_id = BTN_RIGHT;
+				}
+			}
+
 			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_LEFT)
 			{
 				//printf("type %d code %d value %d\n", mouse_event.type, mouse_event.code, mouse_event.value);
 
 				if (mouse_event.value == 1)
 				{
+					state.btn_id = BTN_LEFT;
 					state.pressed = LV_INDEV_STATE_PR;
 					state.MouseActivity = true;
 					std::chrono::time_point<std::chrono::system_clock> current_time = std::chrono::system_clock::now();
@@ -275,6 +294,7 @@ MouseState Mouse::GetMouseState()
 				{
 					state.pressed = LV_INDEV_STATE_REL;
 					state.MouseActivity = true;
+					state.btn_id = BTN_LEFT;
 				}
 			}
 		bytes = read(fd, (void *)&mouse_event, sizeof(struct input_event));

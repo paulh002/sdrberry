@@ -39,6 +39,11 @@ class Spectrum
 	std::vector<int> peaks;
 	int active_markers{0};
 	int drag_marker{0};
+	int drag_marker_rightbutton{0};
+	long long drag_frequency_shift{0LL};
+	long long drag_frequency{0LL};
+	long long newspanstartfreq;
+	lv_point_t p_drag{0};
 	bool hold_peak{false};
 	lv_coord_t height, width, xx, yy;
 	int heightChart, fontsize , heightWaterfall;

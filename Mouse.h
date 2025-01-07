@@ -18,6 +18,7 @@ struct MouseState
 	bool MouseActivity;
 	bool doubleclick;
 	int Rotated;
+	int btn_id;
 };
 
 class Mouse

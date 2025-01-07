@@ -191,6 +191,31 @@ void CVfo::set_span(long span)
 	rx_set_sdr_freq();
 }
 
+void CVfo::set_frequency_to_left(long long freq, int active_vfo, bool update)
+{
+	span_offset_frequency = 0;
+	long span = vfo_setting.span;
+
+	if (ifrate <= span)
+	{
+		vfo_setting.vfo_freq_sdr[active_vfo] = vfo_setting.vfo_freq_sdr[active_vfo] + vfo_setting.vfo_freq_sdr[active_vfo] - freq;
+		vfo_setting.offset[active_vfo] = vfo_setting.vfo_freq[active_vfo] - vfo_setting.vfo_freq_sdr[0];
+	}
+	else if (span >= ifrate / 2)
+	{
+		vfo_setting.vfo_freq_sdr[active_vfo] = freq - span_offset_frequency;
+		vfo_setting.offset[active_vfo] = vfo_setting.vfo_freq[active_vfo] - vfo_setting.vfo_freq_sdr[0];
+	}
+	else
+	{
+		vfo_setting.vfo_freq_sdr[active_vfo] = freq;
+		vfo_setting.offset[active_vfo] = vfo_setting.vfo_freq[active_vfo] - vfo_setting.vfo_freq_sdr[active_vfo];
+	}
+	if (update)
+		rx_set_sdr_freq();
+	//printf("sdr freq: %lld\n", vfo_setting.vfo_freq_sdr[active_vfo]);
+}
+
 bool CVfo::compare_span()
 {
 	if ((ifrate - (double)vfo_setting.span) < 0.1)

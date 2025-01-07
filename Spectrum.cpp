@@ -15,6 +15,8 @@
 #include "screen.h"
 #include "WebServer.h"
 #include "gui_rx.h"
+#include "gui_bar.h"
+#include <linux/input.h>
 
 Spectrum SpectrumGraph;
 
@@ -53,17 +55,58 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 
 	lv_indev_t *indev = lv_indev_get_act();
 	lv_indev_type_t indev_type = lv_indev_get_type(indev);
+	uint32_t btn_id = lv_indev_get_button(indev);
+
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && btn_id == BTN_RIGHT)
+	{
+		drag_marker_rightbutton = 0;
+		vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), true);
+		vfo.set_vfo(vfo.get_frequency());
+		//SpectrumGraph.SetFftParts();
+		gbar.updateweb();
+	}
+
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && btn_id == BTN_RIGHT)
+	{
+		lv_point_t p;
+		lv_indev_get_point(indev, &p);
+
+		if (lv_indev_get_button(indev) == BTN_RIGHT && p.x != p_drag.x)
+		{
+			p_drag = p;
+			long long df{0LL}, spanfreq;
+			int span = vfo.get_span();
+			spanfreq = vfo.get_sdr_span_frequency();
+			df = p.x * (span / screenWidth);
+			if (!drag_marker_rightbutton)
+			{
+				drag_frequency_shift = df;
+				drag_marker_rightbutton = 1;
+			}
+			else
+			{
+				drag_frequency = df - drag_frequency_shift;
+				drag_frequency_shift = df;
+			}
+			//printf("freq %lld df %lld\n", drag_frequency, df);
+			newspanstartfreq = spanfreq - drag_frequency;
+			vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), false);
+			vfo.set_vfo(vfo.get_frequency());
+		}
+		return;
+	}
 	
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED)
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && btn_id == BTN_LEFT)
 	{
 		// make sure only the marker is dragged, fast mouse movements will skipp multiple x possitions
 		drag_marker = 0;
 	}
-	
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING)
+
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && btn_id == BTN_LEFT)
 	{
 		lv_point_t p;
 		lv_indev_get_point(indev, &p);
+
 		if (p.x > 0)
 		{
 			auto ret = cursor_intersect(p);

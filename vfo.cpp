@@ -658,8 +658,9 @@ void CVfo::setRit(int rit, int active_vfo)
 
 std::string CVfo::getMode(int active_vfo)
 {
-	char str[80], str1[80];
+	char str[80];
 
+	strcpy(str, "");
 	switch (vfo_setting.mode[active_vfo])
 	{
 	case mode_broadband_fm:
@@ -668,6 +669,7 @@ std::string CVfo::getMode(int active_vfo)
 	case mode_lsb:
 		strcpy(str, "LSB");
 		break;
+	case mode_ft4:
 	case mode_ft8:
 	case mode_usb:
 		strcpy(str, "USB");

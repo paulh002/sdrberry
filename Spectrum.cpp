@@ -76,7 +76,7 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 			p_drag = p;
 			long long df{0LL}, spanfreq;
 			int span = vfo.get_span();
-			spanfreq = vfo.get_sdr_span_frequency();
+			spanfreq = vfo.get_sdr_frequency(); // vfo.get_sdr_span_frequency(); // f max left
 			df = p.x * (span / screenWidth);
 			if (!drag_marker_rightbutton)
 			{

@@ -96,12 +96,16 @@ The install script can install DSI, Raspberry PI Touch 2 7inch 1280x720 ,  Waves
 SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device
 If you want to install the devices using current packages add Y to the install command
 install DEVICE LCD PACKAGE Y/N
+
+DSI is 16 bit color depth display (DSI / HDMI) the resolution is configurable in the setting file see the wiki. 
+https://github.com/paulh002/sdrberry/wiki/Screen-resolution
+
 ```
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
 chmod +x install.sh
 ./install.sh HFB DSI
 ```
-Raspberry PI Touch 2 with Radioberry
+Raspberry PI Touch 2 with Radioberry (32 bit colordepth !)
 ```
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
 chmod +x install.sh

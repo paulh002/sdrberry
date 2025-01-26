@@ -362,7 +362,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
 	lv_obj_align_to(signal_strength_offset_slider_label, signal_strength_offset_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	int spectrumgain = Settings_file.get_int("Radio", "Spectrumgain", 0);
+	spectrumgain = Settings_file.get_int("Radio", "Spectrumgain", 0);
 	spectrum_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(spectrum_slider, w / 2 - 50);
 	lv_slider_set_range(spectrum_slider, -50, 50);

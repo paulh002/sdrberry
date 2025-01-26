@@ -294,6 +294,10 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
       data->point.x = drv->disp->driver->hor_res - 1;
     if(data->point.y >= drv->disp->driver->ver_res)
       data->point.y = drv->disp->driver->ver_res - 1;
+
+	if (data->state == LV_INDEV_STATE_PR)
+	  printf("touch x: %d y %d\n", data->point.x, data->point.y);
+
 	return ;
 }
 

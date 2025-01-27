@@ -345,28 +345,8 @@ int main(int argc, char *argv[])
 	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
 	evdev_touch_swap(touchswapxy);
 	evdev_touch_driver(touchscreen.c_str());
-	printf("Screen resolution %d x %d touch swap setting %d\n", screenWidth, screenHeight, touchswapxy);
+	printf("Screen resolution %d x %d screenRotate %d touch_swap setting %d\n", screenWidth, screenHeight, screenRotate, touchswapxy);
 
-	//Args args{{argc, argv}}; // Get the arguments from command line
-	/*if (args.sdrRadio.size() > 0)
-	{
-		if (args.sdrRadio == "radioberry")
-			default_radio = "radioberry";
-		if (args.sdrRadio == "hifiberry")
-			default_radio = "hifiberry";
-		if (args.sdrRadio == "pluto")
-			default_radio = "pluto";
-		if (args.sdrRadio == "hackrf")
-			default_radio = "hackrf";
-		if (args.sdrRadio == "rtlsdr")
-			default_radio = "rtlsdr";
-		if (args.sdrRadio == "sdrplay")
-			default_radio = "sdrplay";
-		
-		Settings_file.save_string("SDR Receivers", "default", default_radio);
-		Settings_file.write_settings();
-	}
-*/
 	wsjtx = make_unique<wsjtx_lib>();
 	KeyboardDevice.init_keyboard();
 	Mouse_dev.init_mouse();

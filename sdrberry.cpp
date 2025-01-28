@@ -44,6 +44,7 @@
 #include "CustomEvents.h"
 #include "WebServer.h"
 #include <nlohmann/json.hpp>
+#include <sys/file.h>
 
 using json = nlohmann::json;
 
@@ -68,6 +69,29 @@ struct Args : MainArguments<Args>
 	p.address = true;
 	p.print(st, stdout);
 */
+#define LOCK_FILE "/tmp/sdrberry.lock"
+
+bool isAlreadyRunning()
+{
+	int fd = open(LOCK_FILE, O_CREAT | O_RDWR, 0666);
+	if (fd == -1)
+	{
+		std::cerr << "Failed to open lock file.\n";
+		return true;
+	}
+
+	if (flock(fd, LOCK_EX | LOCK_NB) == -1)
+	{
+		std::cerr << "Another instance of sdrberry is already running.\n";
+		std::cerr << "Reboot and start sdrberry again\n";
+		if (fd > 0)
+			close(fd);
+		return true;
+	}
+
+	// Keep the lock file open to maintain the lock
+	return false;
+}
 
 #define BACKWARD_HAS_BFD 1
 #define BACKWARD_HAS_DW 1
@@ -329,8 +353,10 @@ static void tabview_event_cb(lv_event_t *e)
 
 int main(int argc, char *argv[])
 {
+	if (isAlreadyRunning())
+		return 0;
+
 	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
-	
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	default_radio = Settings_file.find_sdr("default");
 

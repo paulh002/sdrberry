@@ -411,15 +411,6 @@ gui_bar::gui_bar()
 
 gui_bar::~gui_bar()
 {
-	for (int i = 0; i < ibuttons; i++)
-	{
-		if (button[i] != nullptr)
-			lv_obj_del(button[i]);
-	}
-	lv_obj_del(vol_slider);
-	lv_obj_del(vol_slider_label);
-	lv_obj_del(gain_slider);
-	lv_obj_del(gain_slider_label);
 }
 
 void gui_bar::set_gain_slider(int gain, bool web)

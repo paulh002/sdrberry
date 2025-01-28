@@ -273,6 +273,16 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
 		data->point.y = x;
 	}
 
+	if (swap_xy == 4)
+	{
+		int x = data->point.x;
+		data->point.x = data->point.y;
+		data->point.y = x;
+
+		data->point.x = drv->disp->driver->hor_res - data->point.x;
+		data->point.y = drv->disp->driver->ver_res - data->point.y;
+	}
+
 	// x inverted
 	if (swap_xy == 2)
 	{
@@ -286,6 +296,9 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
 		data->point.y = drv->disp->driver->ver_res - data->point.y;
 	}
 
+	if ((data->state == LV_INDEV_STATE_PR) && (data->point.x < 0 || data->point.y < 0 || data->point.x >= drv->disp->driver->hor_res || data->point.y >= drv->disp->driver->ver_res))
+	  printf("touch x: %d y %d hor_res %d ver_res %d\n", data->point.x, data->point.y, drv->disp->driver->hor_res, drv->disp->driver->ver_res);
+
 	if(data->point.x < 0)
       data->point.x = 0;
     if(data->point.y < 0)
@@ -294,10 +307,7 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
       data->point.x = drv->disp->driver->hor_res - 1;
     if(data->point.y >= drv->disp->driver->ver_res)
       data->point.y = drv->disp->driver->ver_res - 1;
-
-	if (data->state == LV_INDEV_STATE_PR)
-	  printf("touch x: %d y %d\n", data->point.x, data->point.y);
-
+	
 	return ;
 }
 

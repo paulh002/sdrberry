@@ -41,6 +41,7 @@ int evdev_button;
 
 int evdev_key_val;
 int swap_xy = 0;
+int debug_xy = 0;
 char touch_driver[80];
 /**********************
  *      MACROS
@@ -49,9 +50,10 @@ char touch_driver[80];
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void evdev_touch_swap(int swap)
+void evdev_touch_swap(int swap, int debug)
 {
 	swap_xy = swap;
+	debug_xy = debug;
 }
 
 void evdev_touch_driver(const char *driver)
@@ -308,8 +310,8 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
     if(data->point.y >= drv->disp->driver->ver_res)
       data->point.y = drv->disp->driver->ver_res - 1;
 
-	if (data->state == LV_INDEV_STATE_PR)
-	  printf("touch x: %d y %d hor_res %d ver_res %d\n", data->point.x, data->point.y, drv->disp->driver->hor_res, drv->disp->driver->ver_res);
+	if (data->state == LV_INDEV_STATE_PR && debug_xy)
+		printf("touch x: %d y %d hor_res %d ver_res %d\n", data->point.x, data->point.y, drv->disp->driver->hor_res, drv->disp->driver->ver_res);
 
 	return ;
 }

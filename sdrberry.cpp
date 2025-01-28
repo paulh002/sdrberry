@@ -342,8 +342,9 @@ int main(int argc, char *argv[])
 	tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 
 	int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
+	int debugswapxy = Settings_file.get_int("input", "touch_debug", 0);
 	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
-	evdev_touch_swap(touchswapxy);
+	evdev_touch_swap(touchswapxy, debugswapxy);
 	evdev_touch_driver(touchscreen.c_str());
 	printf("Screen resolution %d x %d screenRotate %d touch_swap setting %d\n", screenWidth, screenHeight, screenRotate, touchswapxy);
 

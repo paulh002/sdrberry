@@ -1,6 +1,6 @@
 #!/bin/bash
 wrkdir='/home/pi'
-usrdir='/home/pi'
+usrdir=$HOME
 OS=`uname -m`
 bits=`getconf LONG_BIT`
 echo ""
@@ -297,7 +297,7 @@ wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry
 mv sdrberry_settings_radioberry.cfg $usrdir/sdrberry_settings.cfg
 fi
 if [[ $LCD == 'T2' ]]; then
-sed -i '/resolution = 0/c\resolution = 3' $usrdir/sdrberry_settings.cfg
+sed -i '/resolution = 0/c\resolution = 4' $usrdir/sdrberry_settings.cfg
 sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
 fi
 cp ./sdrberry/install/sdrstart.sh $usrdir

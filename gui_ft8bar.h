@@ -88,6 +88,7 @@ class gui_ft8bar
 	void set_frequency(json message);
 	void Log();
 	void web_call(std::string msg);
+	void SetTxButtons();
 
 	static constexpr auto ft8bar_button_handler = EventHandler<gui_ft8bar, &gui_ft8bar::ft8bar_button_handler_class>::staticHandler;
 	static constexpr auto filter_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::filter_event_handler_class>::staticHandler;

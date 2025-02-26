@@ -89,6 +89,7 @@ class gui_bar
 	bool get_noise();
 	void web_filterfreq();
 	void websetfilter(std::string message);
+	void setTxButtons();
 
 	lv_obj_t *get_button_obj(int i)
 	{

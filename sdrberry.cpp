@@ -597,6 +597,7 @@ int main(int argc, char *argv[])
 		int default_rx_channel = 0;
 		int default_tx_channel = 0;
 
+		guift8bar.SetTxButtons();
 		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
 			default_tx_channel = -1;
 		else
@@ -1329,6 +1330,8 @@ void switch_sdrreceiver(std::string receiver)
 		gbar.set_gain_range();
 		gbar.set_gain_slider(Settings_file.gain());
 		gbar.hidetx();
+		guift8bar.SetTxButtons();
+		gbar.setTxButtons();
 		//vfo.set_vfo(freq, false);
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
 		{

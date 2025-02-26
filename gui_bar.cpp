@@ -563,13 +563,13 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				lv_obj_add_flag(button[buttontx], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "TX");
 				if (SdrDevices.get_tx_channels(default_radio) == 0)
-					lv_obj_add_flag(button[buttontx], LV_OBJ_FLAG_HIDDEN);
+					lv_obj_add_state(button[buttontx], LV_STATE_DISABLED);
 				break;
 			case buttontune:
 				lv_obj_add_flag(button[buttontune], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "Tune");
 				if (SdrDevices.get_tx_channels(default_radio) == 0)
-					lv_obj_add_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
+					lv_obj_add_state(button[buttontune], LV_STATE_DISABLED);
 				break;
 			case buttonmode:
 				strcpy(str, "Mode");
@@ -1010,4 +1010,17 @@ void gui_bar::websetfilter(std::string message)
 		}
 		filter++;
 	}
+}
+
+void gui_bar::setTxButtons()
+{
+	if (SdrDevices.get_tx_channels(default_radio) == 0)
+		lv_obj_add_state(button[buttontx], LV_STATE_DISABLED);
+	else
+		lv_obj_clear_state(button[buttontx], LV_STATE_DISABLED);
+
+	if (SdrDevices.get_tx_channels(default_radio) == 0)
+		lv_obj_add_state(button[buttontune], LV_STATE_DISABLED);
+	else
+		lv_obj_clear_state(button[buttontune], LV_STATE_DISABLED);
 }

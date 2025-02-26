@@ -199,7 +199,8 @@ void gui_ft8bar::SetFrequency()
 	int selection = lv_dropdown_get_selected(frequence);
 	int modeselection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
 	gbar.set_vfo(0);
-	Gui_tx.set_split(false);
+	if (SdrDevices.get_tx_channels(default_radio) != 0)
+		Gui_tx.set_split(false);
 
 	switch (modeselection)
 	{
@@ -1034,4 +1035,15 @@ void gui_ft8bar::Log()
 	ClearMessage();
 }
 
+void gui_ft8bar::SetTxButtons()
+{
+	if (SdrDevices.get_tx_channels(default_radio) == 0)
+		lv_obj_add_state(button[txbutton], LV_STATE_DISABLED);
+	else
+		lv_obj_clear_state(button[txbutton], LV_STATE_DISABLED);
 
+	if (SdrDevices.get_tx_channels(default_radio) == 0)
+		lv_obj_add_state(button[rxbutton], LV_STATE_DISABLED);
+	else
+		lv_obj_clear_state(button[txbutton], LV_STATE_DISABLED);
+}

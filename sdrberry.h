@@ -22,8 +22,6 @@ extern double ifrate;
 extern double ifrate_tx;
 extern SdrDeviceVector SdrDevices;
 extern std::string default_radio;
-extern int default_rx_channel;
-extern int default_tx_channel;
 
 void select_mode(int s_mode, bool bvfo = true, int channel = 0);
 bool select_mode_tx(int s_mode, audioTone tone = audioTone::NoTone, int cattx = TX_MAN, int channel  = 0);

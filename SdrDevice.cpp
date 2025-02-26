@@ -731,7 +731,7 @@ int	SdrDeviceVector::get_tx_channels(std::string name)
 	{ 
 		return SdrDevices[name]->get_txchannels();
 	}
-	return -1;
+	return 0;
 }
 
 int SdrDeviceVector::get_rx_channels(std::string name)

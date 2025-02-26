@@ -29,9 +29,10 @@ if [[ $1 = "HRF" ]]; then sdrboard='HRF'
 elif [[ $1 = "HFB" ]]; then sdrboard='HFB'
 elif [[ $1 = "PLT" ]]; then sdrboard='PLT'
 elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
+elif [[ $1 = "SDP" ]]; then sdrboard='SDP'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
-   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / No = No device"
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
@@ -159,6 +160,17 @@ fi
 if [[ $sdrboard == RDB ]] ; then
 git clone https://github.com/paulh002/SoapyRadioberry
 cd SoapyRadioberry || exit
+mkdir build
+cd build || exit
+cmake ..
+make
+sudo make install
+sudo ldconfig
+fi
+
+if [[ $sdrboard == SDP ]] ; then
+git clone https://github.com/pothosware/SoapySDRPlay3
+cd SoapySDRPlay3 || exit
 mkdir build
 cd build || exit
 cmake ..

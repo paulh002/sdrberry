@@ -596,8 +596,14 @@ int main(int argc, char *argv[])
 	{
 		int default_rx_channel = 0;
 		int default_tx_channel = 0;
-		
-		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
+
+		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
+			default_tx_channel = -1;
+		else
+		{
+			default_tx_channel = 0;
+			Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
+		}
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		SoapySDR::Range r;
 		if (SdrDevices.get_rx_channels(default_radio) < 1)
@@ -617,10 +623,10 @@ int main(int argc, char *argv[])
 		std::string stop_freq(str);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		GuiTopBar.set_label_status(s.c_str());
-		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
-			default_tx_channel = -1;
-		else
-			default_tx_channel = 0;
+		//if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
+		//	default_tx_channel = -1;
+		//else
+		//	default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, gsetup.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try

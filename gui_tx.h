@@ -15,6 +15,7 @@ class gui_tx
 	int ibuttons;
 	const int number_of_buttons{7};
 	lv_group_t *m_button_group{nullptr};
+	bool disabled;
 
 	lv_obj_t *get_button_obj(int i);
 	void mic_slider_event_cb_class(lv_event_t *e);
@@ -23,7 +24,7 @@ class gui_tx
 	void digital_slider_event_cb_class(lv_event_t *e);
 	
   public:
-	void gui_tx_init(lv_obj_t *o_tab, lv_coord_t w);
+	void gui_tx_init(lv_obj_t *o_tab, lv_coord_t w, bool disable);
 	void set_mic_slider(int volume);
 	void set_digital_slider(int volume);
 	void set_drv_slider(int drive);
@@ -36,6 +37,7 @@ class gui_tx
 	void set_group();
 	int get_drv_pos();
 	void set_split(bool _split);
+	void enable_tx(bool enable);
 
 	static constexpr auto mic_slider_event_cb = EventHandler<gui_tx, &gui_tx::mic_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_button_handler = EventHandler<gui_tx, &gui_tx::tx_button_handler_class>::staticHandler;

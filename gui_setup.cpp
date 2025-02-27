@@ -225,6 +225,8 @@ void gui_setup::bandwidth_button_handler_class(lv_event_t *e)
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
 			//vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), bw);
 			//printf("setBandwidth %ld \n", bw);
+			Settings_file.save_int(default_radio, "bandwidth", sel);
+			Settings_file.write_settings();
 		}
 	}
 }
@@ -283,15 +285,19 @@ void gui_setup::init_bandwidth()
 	lv_dropdown_clear_options(d_bandwitdth);
 	try
 	{
-
 		for (int i = 0; i < SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0); i++)
 		{
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, i);
 			std::string buf = strlib::sprintf("%ld Khz", bw / 1000);
 			lv_dropdown_add_option(d_bandwitdth, buf.c_str(), LV_DROPDOWN_POS_LAST);
-			if (i == 0)
-				lv_dropdown_set_selected(d_bandwitdth, 0);
 		}
+		if (SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0) > 0)
+			lv_dropdown_set_selected(d_bandwitdth, 0);
+
+		//int ii = Settings_file.get_int(default_radio, "bandwidth");
+		//lv_dropdown_set_selected(d_bandwitdth, ii);
+		//long bw = SdrDevices.SdrDevices.at(default_radio)->get_bandwith(0, ii);
+		//SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
 	}
 	catch (const std::exception &e)
 	{
@@ -417,7 +423,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_obj_set_width(d_bandwitdth, button_width); // 2*
 	lv_dropdown_clear_options(d_bandwitdth);
 	lv_obj_add_event_cb(d_bandwitdth, bandwidth_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
-
+	
 	ibutton_y++;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	int brightness_y = 15 + y_margin + 2 * button_height_margin;

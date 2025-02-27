@@ -27,7 +27,7 @@ int drv_max = 15;
 
 gui_tx	Gui_tx;
 
-void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
+void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 {
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 10;
@@ -39,7 +39,8 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w)
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
 	int button_height = 40;
 	int button_height_margin = button_height + y_margin;
-	
+
+	disabled = disable;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -324,6 +325,8 @@ void gui_tx::set_drv_range()
 
 void gui_tx::set_drv_slider(int drive)
 {
+	if (disabled)
+		return;
 	int max_gain, min_gain;
 	try
 	{
@@ -411,6 +414,8 @@ lv_obj_t* gui_tx::get_button_obj(int i)
 
 void gui_tx::set_split(bool _split)
 {
+	if (disabled)
+		return;
 	if (_split)
 	{
 		gui_vfo_inst.set_split(true);
@@ -421,4 +426,12 @@ void gui_tx::set_split(bool _split)
 		gui_vfo_inst.set_split(false);
 		lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED);
 	}
+}
+
+void gui_tx::enable_tx(bool enable)
+{
+	if (enable)
+		disabled = false;
+	else
+		disabled = true;
 }

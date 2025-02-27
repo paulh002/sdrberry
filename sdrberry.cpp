@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
-	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_HIDDEN);
+	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 
 	static lv_style_t style_btn;
 	lv_style_init(&style_btn);
@@ -603,8 +603,8 @@ int main(int argc, char *argv[])
 		else
 		{
 			default_tx_channel = 0;
-			Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
 		}
+		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3, default_tx_channel < 0);
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		SoapySDR::Range r;
 		if (SdrDevices.get_rx_channels(default_radio) < 1)
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
-				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_HIDDEN);
+				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 				Gui_tx.set_drv_range();
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 				{
@@ -705,10 +705,10 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		gsetup.init_bandwidth();
 		gsetup.set_span_range(ifrate);
 		int span = Settings_file.get_int(default_radio, "span", (int)ifrate / 1000) * 1000;
 		gsetup.set_span_value(span);
+		gsetup.init_bandwidth();
 		gagc.set_sdr_state();
 		gbar.set_mode(mode);
 		select_mode(mode); // start streaming
@@ -718,7 +718,7 @@ int main(int argc, char *argv[])
 		SoapySDR::Range r1(35000000, 40000000);
 		SoapySDR::RangeList RangeList;
 		RangeList.push_back(r1);
-		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3);
+		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3, true);
 		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, tabHeight - buttonHeight, RangeList);
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		GuiTopBar.set_label_status("No SDR Device Found");
@@ -1232,7 +1232,7 @@ void switch_sdrreceiver(std::string receiver)
 	Settings_file.save_string("SDR Receivers", "default", default_radio);
 	Settings_file.write_settings();
 	// Hide TX page
-	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_HIDDEN);
+	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 	if (SdrDevices.MakeDevice(default_radio))
 	{
 		float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
@@ -1263,13 +1263,14 @@ void switch_sdrreceiver(std::string receiver)
 			default_tx_channel = -1;
 		else
 			default_tx_channel = 0;
+		Gui_tx.enable_tx(default_tx_channel > 0);
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), gsetup.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
-				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_HIDDEN);
+				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 				Gui_tx.clear_sample_rate();
 				Gui_tx.set_drv_range();
 				Gui_tx.set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
@@ -1336,6 +1337,7 @@ void switch_sdrreceiver(std::string receiver)
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
 		{
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, 0);
+			bw = Settings_file.get_int(default_radio, "bandwidth");
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
 			vfo.vfo_re_init(ifrate, defaultAudioSampleRate, gsetup.get_span(), bw);
 			printf("setBandwidth %ld \n", bw);

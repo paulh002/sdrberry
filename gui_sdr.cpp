@@ -384,10 +384,10 @@ void gui_sdr::init_antenna()
 	{
 		for (auto col : SdrDevices.SdrDevices.at(default_radio)->get_antennas(0))
 		{
-			lv_dropdown_add_option(d_bandwitdth, col.c_str(), LV_DROPDOWN_POS_LAST);
+			lv_dropdown_add_option(d_antenna, col.c_str(), LV_DROPDOWN_POS_LAST);
 		}
 		int ii = Settings_file.get_int(default_radio, "antenna");
-		lv_dropdown_set_selected(d_bandwitdth, ii);
+		lv_dropdown_set_selected(d_antenna, ii);
 	}
 	catch (const std::exception &e)
 	{

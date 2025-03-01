@@ -355,6 +355,9 @@
     <ClCompile Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.c">
       <Filter>Source files\lv_drivers</Filter>
     </ClCompile>
+    <ClCompile Include="gui_sdr.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -786,6 +789,9 @@
       <Filter>Source files\lv_drivers</Filter>
     </ClInclude>
     <ClInclude Include="screen.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_sdr.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -27,6 +27,7 @@ class SdrDeviceChannel
 	bool get_agc() { return agc; }
 	int get_bandwith_count() { return bandwidth_range.size(); }
 	long get_bandwith(int no) { return bandwidth_range[no].minimum(); }
+	std::vector<std::string> get_antennas() { return antennas;}
 
   private:
 	SoapySDR::Device *soapyDevice{nullptr};
@@ -40,7 +41,7 @@ class SdrDeviceChannel
 	double fullScale{0.0};
 	std::string Native_format;
 	std::string streamArgs;
-	std::string antennas;
+	std::vector <std::string> antennas;
 	std::vector<std::string> correctionsList;
 	SoapySDR::Range full_gain_range;
 	std::vector<std::string> gainsList;
@@ -72,7 +73,7 @@ class SdrDevice
 	int get_rxchannels() { return numRxChans; }
 	int get_bandwith_count(int channel) { return rx_channels.at(channel)->get_bandwith_count(); }
 	long get_bandwith(int channel, int no) { return rx_channels.at(channel)->get_bandwith(no); }
-
+	std::vector<std::string> get_antennas(int channel) { return rx_channels.at(channel)->get_antennas(); }
 	size_t getStreamMTU(SoapySDR::Stream *stream)
 	{
 		return soapyDevice->getStreamMTU(stream);
@@ -105,7 +106,7 @@ class SdrDevice
 			return;
 		return soapyDevice->setBandwidth(direction, channel, bw);
 	}
-
+		
 	void setGain(const int direction, const size_t channel, const double value)
 	{
 		if (direction == SOAPY_SDR_TX && numTxChans < 1)
@@ -184,6 +185,8 @@ class SdrDevice
 
 	void setAntenna(const int direction, const size_t channel, const std::string &name)
 	{
+		if (direction == SOAPY_SDR_TX && numTxChans < 1)
+			return;
 		return soapyDevice->setAntenna(direction, channel, name);
 	}
 

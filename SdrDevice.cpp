@@ -382,9 +382,12 @@ std::string SdrDeviceChannel::probeChannel()
 	if (not streamArgs.empty()) ss << "  Stream args:" << std::endl << streamArgs;
 
 	//antennas
-	antennas = toString(soapyDevice->listAntennas(dir, chan));
-	if (not antennas.empty()) ss << "  Antennas: " << antennas << std::endl;
-
+	antennas = soapyDevice->listAntennas(dir, chan);
+	for (auto col : antennas)
+	{
+		ss << "  Antennas: " << col << std::endl;
+	}
+	
 	//corrections
 	if (soapyDevice->hasDCOffsetMode(dir, chan)) correctionsList.push_back("DC removal");
 	if (soapyDevice->hasDCOffset(dir, chan)) correctionsList.push_back("DC offset");

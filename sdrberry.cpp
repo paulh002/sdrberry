@@ -26,6 +26,7 @@
 #include "gui_ft8.h"
 #include "gui_bottom_bar.h"
 #include "Gui_band.h"
+#include "gui_sdr.h"
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "Catinterface.h"
@@ -543,6 +544,7 @@ int main(int argc, char *argv[])
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
 	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
+	tab["sdr"] = (lv_tabview_add_tab(tabview_mid, "Sdr"));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
@@ -553,6 +555,7 @@ int main(int argc, char *argv[])
 	gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
+	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 
@@ -629,7 +632,7 @@ int main(int argc, char *argv[])
 		//else
 		//	default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());
-		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, gsetup.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -649,7 +652,7 @@ int main(int argc, char *argv[])
 			std::cout << e.what();
 		}
 
-		gsetup.set_radio(default_radio);
+		guisdr.set_radio(default_radio);
 		try
 		{
 			if (default_rx_channel >= 0)
@@ -657,7 +660,7 @@ int main(int argc, char *argv[])
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_rx_sample_rates(default_rx_channel))
 				{
 					int v = (int)col;
-					gsetup.add_sample_rate(v);
+					guisdr.add_sample_rate(v);
 				}
 			}
 			else
@@ -667,7 +670,7 @@ int main(int argc, char *argv[])
 					for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 					{
 						int v = (int)col;
-						gsetup.add_sample_rate(v);
+						guisdr.add_sample_rate(v);
 					}
 				}
 			}
@@ -676,7 +679,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		gsetup.set_sample_rate(ifrate * decimate);
+		guisdr.set_sample_rate(ifrate * decimate);
 		try
 		{
 			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate * decimate);
@@ -705,10 +708,11 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		gsetup.set_span_range(ifrate);
+		guisdr.set_span_range(ifrate);
 		int span = Settings_file.get_int(default_radio, "span", (int)ifrate / 1000) * 1000;
-		gsetup.set_span_value(span);
-		gsetup.init_bandwidth();
+		guisdr.set_span_value(span);
+		guisdr.init_bandwidth();
+		guisdr.init_antenna();
 		gagc.set_sdr_state();
 		gbar.set_mode(mode);
 		select_mode(mode); // start streaming
@@ -722,7 +726,7 @@ int main(int argc, char *argv[])
 		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, tabHeight - buttonHeight, RangeList);
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		GuiTopBar.set_label_status("No SDR Device Found");
-		gsetup.set_radio(default_radio);
+		guisdr.set_radio(default_radio);
 	}
 
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
@@ -1071,7 +1075,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		FMDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
 		{
-			RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, gsetup.get_decimation());
+			RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 			stream_rx_on = true;
 		}
 		else
@@ -1087,7 +1091,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		FMBroadBandDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, stereo);
 		if (!stream_rx_on)
 		{
-			RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, gsetup.get_decimation());
+			RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 			stream_rx_on = true;
 		}
 		else
@@ -1109,7 +1113,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		AMDemodulator::create_demodulator(mode, ifrate, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
 		{
-			RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, gsetup.get_decimation());
+			RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 			stream_rx_on = true;
 		}
 		else
@@ -1123,7 +1127,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		guift8bar.setmonitor(true);
 		vfo.set_step(10, 0);
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
-		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, gsetup.get_decimation());
+		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;
 	case mode_echo:
 		EchoAudio::create_modulator(audio_output,audio_input);
@@ -1172,7 +1176,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 
 	case mode_narrowband_fm:
 		FMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, gsetup.get_decimation());
+		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation());
 		break;
 
 	case mode_cw:
@@ -1185,7 +1189,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		param.tone = tone;
 		param.ifrate = ifrate_tx;
 		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, gsetup.get_decimation());
+		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation());
 		break;
 	
 	case mode_echo:
@@ -1265,7 +1269,7 @@ void switch_sdrreceiver(std::string receiver)
 			default_tx_channel = 0;
 		Gui_tx.enable_tx(default_tx_channel > 0);
 		vfo.set_vfo_range(r.minimum(), r.maximum());
-		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), gsetup.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -1287,7 +1291,7 @@ void switch_sdrreceiver(std::string receiver)
 			std::cout << e.what();
 		}
 		// Rx sample rates
-		gsetup.clear_sample_rate();
+		guisdr.clear_sample_rate();
 		try
 		{
 			if (default_rx_channel >= 0)
@@ -1295,7 +1299,7 @@ void switch_sdrreceiver(std::string receiver)
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_rx_sample_rates(default_rx_channel))
 				{
 					int v = (int)col;
-					gsetup.add_sample_rate(v);
+					guisdr.add_sample_rate(v);
 				}
 			}
 			else
@@ -1305,7 +1309,7 @@ void switch_sdrreceiver(std::string receiver)
 					for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 					{
 						int v = (int)col;
-						gsetup.add_sample_rate(v);
+						guisdr.add_sample_rate(v);
 					}
 				}
 			}
@@ -1315,7 +1319,7 @@ void switch_sdrreceiver(std::string receiver)
 			std::cout << e.what();
 		}
 
-		gsetup.set_sample_rate((int)ifrate * decimate);
+		guisdr.set_sample_rate((int)ifrate * decimate);
 		try
 		{
 			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate * decimate);
@@ -1339,10 +1343,11 @@ void switch_sdrreceiver(std::string receiver)
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, 0);
 			bw = Settings_file.get_int(default_radio, "bandwidth");
 			SdrDevices.SdrDevices[default_radio]->setBandwidth(SOAPY_SDR_RX, 0, bw);
-			vfo.vfo_re_init(ifrate, defaultAudioSampleRate, gsetup.get_span(), bw);
+			vfo.vfo_re_init(ifrate, defaultAudioSampleRate, guisdr.get_span(), bw);
 			printf("setBandwidth %ld \n", bw);
 		}
-		gsetup.init_bandwidth();
+		guisdr.init_bandwidth();
+		guisdr.init_antenna();
 		select_mode(mode); // start streaming
 	}
 }

@@ -12,6 +12,7 @@
 #include "sma.h"
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
+#include "gui_sdr.h"
 #include "screen.h"
 #include "WebServer.h"
 #include "gui_rx.h"
@@ -186,7 +187,7 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 		if (dsc->part == LV_PART_TICKS && dsc->id == LV_CHART_AXIS_PRIMARY_X)
 		{
 			std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
-			int span = gsetup.get_span();
+			int span = guisdr.get_span();
 			int ii; 
 			double offset{0}, f{};
 

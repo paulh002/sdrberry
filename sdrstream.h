@@ -15,7 +15,7 @@ extern int gettxNoSamples();
 class RX_Stream
 {
   public:
-	RX_Stream(double ifrate_, std::string sradio, int chan, DataBuffer<IQSample> *source_buffer, unsigned int decimator_factor);
+	RX_Stream(double ifrate_, std::string sradio, int chan, std::string antenna_, long bandwidth_, DataBuffer<IQSample> *source_buffer, unsigned int decimator_factor);
 	static bool create_rx_streaming_thread(double ifrate_, std::string sradio, int chan, DataBuffer<IQSample> *source_buffer, unsigned int decimator_factor);
 	static void destroy_rx_streaming_thread();
 	void operator()();
@@ -28,6 +28,8 @@ class RX_Stream
 	DataBuffer<IQSample> *receiveIQBuffer;
 	msresamp2_crcf decimator{nullptr};
 	unsigned int decimatorFactor;
+	std::string antenna;
+	long bandwidth;
 };
 
 extern atomic_bool pause_flag;

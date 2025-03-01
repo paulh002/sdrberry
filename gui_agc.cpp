@@ -4,6 +4,7 @@
 #include "gui_vfo.h"
 #include "gui_setup.h"
 #include "screen.h"
+#include "gui_sdr.h"
 
 Gui_agc gagc;
 
@@ -20,9 +21,9 @@ void Gui_agc::agc_button_handler_class(lv_event_t * e)
 			{
 				try
 				{
-					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
+					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
 					{
-						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), true);
+						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), true);
 					}
 				}
 				catch (const std::exception &e)
@@ -34,9 +35,9 @@ void Gui_agc::agc_button_handler_class(lv_event_t * e)
 			{
 				try
 				{
-					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
+					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
 					{
-						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), false);
+						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), false);
 					}
 				}
 				catch (const std::exception &e)
@@ -281,7 +282,7 @@ void Gui_agc::set_group()
 
 void Gui_agc::set_sdr_state()
 {
-	if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
+	if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
 	{
 		lv_obj_clear_state(button[4], LV_STATE_DISABLED);
 	}

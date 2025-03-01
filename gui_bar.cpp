@@ -4,6 +4,7 @@
 #include "gui_ft8bar.h"
 #include "gui_rx.h"
 #include "gui_setup.h"
+#include "gui_sdr.h"
 #include "Spectrum.h"
 #include <memory>
 #include "screen.h"
@@ -391,7 +392,7 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	updateweb();
 	try
 	{
-		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), lv_slider_get_value(slider));
+		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), lv_slider_get_value(slider));
 	}
 	catch (const std::exception &e)
 	{
@@ -420,8 +421,8 @@ void gui_bar::set_gain_slider(int gain, bool web)
 
 	try
 	{
-		max_gain = (double)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_full_gain_range().maximum();
-		min_gain = (double)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_full_gain_range().minimum();
+		max_gain = (double)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_full_gain_range().maximum();
+		min_gain = (double)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_full_gain_range().minimum();
 	}
 	catch (const std::exception &e)
 	{
@@ -440,7 +441,7 @@ void gui_bar::set_gain_slider(int gain, bool web)
 		updateweb();
 	try
 	{
-		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), (double)gain);
+		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), (double)gain);
 	}
 	catch (const std::exception &e)
 	{
@@ -476,8 +477,8 @@ void gui_bar::set_gain_range()
 
 	try
 	{
-		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_full_gain_range().maximum();
-		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_full_gain_range().minimum();
+		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_full_gain_range().maximum();
+		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_full_gain_range().minimum();
 	}
 	catch (const std::exception &e)
 	{
@@ -673,14 +674,14 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 
 	try
 	{
-		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_agc())
+		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
 		{
 			string sagc = Settings_file.get_string(default_radio, "AGC");
 			if (sagc == "off")
-				SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, gsetup.get_current_rx_channel(), false);
+				SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), false);
 			else
 			{
-				bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, gsetup.get_current_rx_channel());
+				bool bAgc = SdrDevices.SdrDevices.at(default_radio)->getGainMode(SOAPY_SDR_RX, guisdr.get_current_rx_channel());
 				if (bAgc)
 					lv_obj_add_state(button[9], LV_STATE_CHECKED);
 			}
@@ -949,8 +950,8 @@ void gui_bar::get_gain_range(int &max_gain, int &min_gain)
 {
 	try
 	{
-		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_full_gain_range().maximum();
-		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(gsetup.get_current_rx_channel())->get_full_gain_range().minimum();
+		max_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_full_gain_range().maximum();
+		min_gain = (int)SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_full_gain_range().minimum();
 	}
 	catch (const std::exception &e)
 	{

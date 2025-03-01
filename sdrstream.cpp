@@ -3,6 +3,7 @@
 #include "SdrDevice.h"
 #include "gui_bar.h"
 #include "gui_setup.h"
+#include "gui_sdr.h"
 #include "gui_tx.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
@@ -83,6 +84,8 @@ void RX_Stream::operator()()
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		rx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
 		SdrDevices.SdrDevices.at(radio)->activateStream(rx_stream);
+		SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_RX, 0, bandwidth); 
+		SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_RX, 0, antenna);
 	}
 	catch (const std::exception &e)
 	{
@@ -233,7 +236,8 @@ void RX_Stream::operator()()
 	}
 }
 
-RX_Stream::RX_Stream(double ifrate_, std::string sradio, int chan, DataBuffer<IQSample> *source_buffer, unsigned int decimator_factor)
+RX_Stream::RX_Stream(double ifrate_, std::string sradio, int chan, std::string antenna_, long bandwidth_, DataBuffer<IQSample> *source_buffer, unsigned int decimator_factor)
+	: antenna(antenna_), bandwidth(bandwidth_)
 {
 	ifrate = ifrate_;
 	radio = sradio;
@@ -262,7 +266,7 @@ bool RX_Stream::create_rx_streaming_thread(double ifrate_, std::string radio, in
 		return false;
 	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, chan, ifrate_);
 	SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, chan, gbar.get_rf_gain());
-	ptr_rx_stream = make_shared<RX_Stream>(ifrate_, radio, chan, source_buffer, decimator_factor);
+	ptr_rx_stream = make_shared<RX_Stream>(ifrate_, radio, chan, guisdr.getAntenna(), guisdr.getBandwidth() ,source_buffer, decimator_factor);
 	rx_thread = std::thread(&RX_Stream::operator(), ptr_rx_stream);
 	return true;
 }

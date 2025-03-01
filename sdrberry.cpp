@@ -595,7 +595,15 @@ int main(int argc, char *argv[])
 	ifrate = rx_rate * 1000.0 / decimate;
 	ifrate_tx = tx_rate * 1000 / decimate;
 	printf("samperate rx %d samplerate tx %d decimation %f ifrate %f\n", rx_rate, tx_rate, decimate, ifrate);
-	
+	if (rx_rate == 0)
+	{
+		if (fd_lock_file > 0)
+			close(fd_lock_file);
+		remove(LOCK_FILE);
+		std::cout << "\n samplerate not set,please update sdrberry_settings.cfg exiting gracefully...\n";
+		exit(0); // Exit program
+	}
+
 	std::cout << "default sdr: " << Settings_file.find_sdr("default").c_str() << std::endl;
 	SoapySDR::ModuleManager mm(false);
 	SoapySDR::loadModules();

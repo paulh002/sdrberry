@@ -14,7 +14,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 
 	const lv_coord_t x_page_margin = 5;
 	const lv_coord_t x_margin = 10;
-	const lv_coord_t y_margin = 5;
+	const lv_coord_t y_margin = 10;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin = 20;
 
@@ -54,6 +54,10 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_width(d_samplerate, button_width);
 
+	lv_obj_t *sample_label = lv_label_create(o_tab);
+	lv_label_set_text(sample_label, "Samplerate");
+	lv_obj_align_to(sample_label, d_samplerate, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+
 	int xpos = x_page_margin + button_width + x_margin;
 	d_decimate = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_decimate);
@@ -68,6 +72,10 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	}
 	lv_dropdown_set_selected(d_decimate, Settings_file.get_int(default_radio, "decimate", 0));
 
+	lv_obj_t *dec_label = lv_label_create(o_tab);
+	lv_label_set_text(dec_label, "Decimate");
+	lv_obj_align_to(dec_label, d_decimate, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+
 	xpos = 0.5 * button_width + xpos + x_margin;
 	d_receivers = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_receivers);
@@ -81,6 +89,10 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	}
 	lv_obj_set_width(d_receivers, button_width);
 
+	lv_obj_t *sdr_label = lv_label_create(o_tab);
+	lv_label_set_text(sdr_label, "SDR");
+	lv_obj_align_to(sdr_label, d_receivers, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+	
 	xpos = xpos + x_margin + button_width;
 	d_bandwitdth = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_bandwitdth);
@@ -89,6 +101,10 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_dropdown_clear_options(d_bandwitdth);
 	lv_obj_add_event_cb(d_bandwitdth, bandwidth_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 
+	lv_obj_t *bw_label = lv_label_create(o_tab);
+	lv_label_set_text(bw_label, "Bandwidth");
+	lv_obj_align_to(bw_label, d_bandwitdth, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+	
 	xpos = xpos + x_margin + button_width;
 	d_antenna = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_antenna);
@@ -97,6 +113,10 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_dropdown_clear_options(d_antenna);
 	lv_obj_add_event_cb(d_antenna, antenna_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 
+	lv_obj_t *ant_label = lv_label_create(o_tab);
+	lv_label_set_text(ant_label, "Antenna");
+	lv_obj_align_to(ant_label, d_antenna, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+	
 	ibutton_y++;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	int brightness_y = 15 + y_margin + 2 * button_height_margin;

@@ -71,27 +71,41 @@ struct Args : MainArguments<Args>
 	p.print(st, stdout);
 */
 #define LOCK_FILE "/tmp/sdrberry.lock"
+int fd_lock_file = 0;
 
 bool isAlreadyRunning()
 {
-	int fd = open(LOCK_FILE, O_CREAT | O_RDWR, 0666);
-	if (fd == -1)
+	fd_lock_file = open(LOCK_FILE, O_CREAT | O_RDWR, 0666);
+	if (fd_lock_file == -1)
 	{
 		std::cerr << "Failed to open lock file.\n";
 		return true;
 	}
 
-	if (flock(fd, LOCK_EX | LOCK_NB) == -1)
+	if (flock(fd_lock_file, LOCK_EX | LOCK_NB) == -1)
 	{
 		std::cerr << "Another instance of sdrberry is already running.\n";
 		std::cerr << "Reboot and start sdrberry again\n";
-		if (fd > 0)
-			close(fd);
+		if (fd_lock_file > 0)
+			close(fd_lock_file);
 		return true;
 	}
 
 	// Keep the lock file open to maintain the lock
 	return false;
+}
+
+void handle_signal(int signal)
+{
+	if (signal == SIGINT)
+	{
+		if (fd_lock_file > 0)
+			close(fd_lock_file);
+		remove(LOCK_FILE);
+		std::cout << "\nCaught Ctrl+C (SIGINT), exiting gracefully..." << std::endl;
+		// You can perform cleanup or any other actions here
+		exit(0); // Exit program
+	}
 }
 
 #define BACKWARD_HAS_BFD 1
@@ -356,7 +370,8 @@ int main(int argc, char *argv[])
 {
 	if (isAlreadyRunning())
 		return 0;
-
+	signal(SIGINT, handle_signal); // Catch Ctrl+C (SIGINT)
+	
 	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	default_radio = Settings_file.find_sdr("default");

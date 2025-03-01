@@ -304,10 +304,12 @@ int gui_setup::get_brightness()
 	{
 		f = "/sys/class/backlight/11-0045/actual_brightness";
 		myfile.open(f);
-
-		myfile >> s;
 	}
-	brightness = atoi(s.c_str());
+	if (myfile.is_open())
+	{
+		myfile >> s;
+		brightness = atoi(s.c_str());
+	}
 	return brightness;
 }
 
@@ -328,10 +330,11 @@ int gui_setup::get_maxbrightness()
 	{
 		f = "/sys/class/backlight/11-0045/max_brightness";
 		myfile.open(f);
-
-		myfile >> s;
 	}
 	if (myfile.is_open())
+	{
+		myfile >> s;
 		brightness = atoi(s.c_str());
+	}
 	return brightness;
 }

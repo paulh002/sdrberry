@@ -207,6 +207,11 @@ class SdrDevice
 		return settingsList;
 	}
 
+	void writeSetting(const std::string &key, const std::string &value)
+	{
+		soapyDevice->writeSetting(key, value);
+	}
+		
 	std::vector<std::unique_ptr<SdrDeviceChannel>> rx_channels;
 	std::vector<std::unique_ptr<SdrDeviceChannel>> tx_channels;
 

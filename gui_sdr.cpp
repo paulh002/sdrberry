@@ -9,6 +9,56 @@ gui_sdr guisdr;
 
 extern void switch_sdrreceiver(std::string receiver);
 
+void gui_sdr::settings_press_part_event_cb_class(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	uint16_t row, col;
+	int db, length;
+
+	int count = lv_table_get_row_cnt(obj);
+	lv_table_get_selected_cell(obj, &row, &col);
+	if (col == 1 && row > 0 && row < count)
+	{
+		std::string str(lv_table_get_cell_value(obj, row, 1));
+		size_t i = str.find("true");
+		if (i != string::npos)
+		{
+			lv_table_set_cell_value(settingsTable, row, col, "false");
+		}
+		else
+		{
+			lv_table_set_cell_value(settingsTable, row, col, "true");
+		}
+	}
+}
+
+void gui_sdr::settings_draw_part_event_cb_class(lv_event_t *e)
+{
+	lv_obj_t *obj = lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	/*If the cells are drawn...*/
+	if (dsc->part == LV_PART_ITEMS)
+	{
+		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
+		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+
+		/*Make the texts in the first cell center aligned*/
+		if (row == 0)
+		{
+			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_CYAN), dsc->rect_dsc->bg_color, LV_OPA_10);
+			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+		}
+		/*MAke every 2nd row grayish*/
+		if ((row != 0 && row % 2) == 0)
+		{
+			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREY), dsc->rect_dsc->bg_color, LV_OPA_10);
+			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+		}
+	}
+}
+
 void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 {
 
@@ -134,7 +184,26 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	// lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
 	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-
+	settingsTable = lv_table_create(o_tab);
+	lv_obj_align_to(settingsTable, span_slider, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+	lv_obj_add_event_cb(settingsTable, settings_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(settingsTable, settings_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
+	lv_style_init(&settings_style);
+	lv_style_set_radius(&settings_style, 0);
+	lv_style_set_bg_color(&settings_style, lv_color_black());
+	lv_obj_add_style(settingsTable, &settings_style, 0);
+	lv_obj_set_style_pad_top(settingsTable, 5, LV_PART_MAIN);
+	lv_obj_set_style_pad_bottom(settingsTable, 5, LV_PART_MAIN);
+	lv_obj_set_style_pad_left(settingsTable, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_right(settingsTable, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_ver(settingsTable, 5, LV_PART_ITEMS);
+	
+	lv_table_set_cell_value(settingsTable, 0, 0, "Setting");
+	lv_table_set_col_width(settingsTable, 0, w / 6);
+	lv_table_set_cell_value(settingsTable, 0, 1, "value");
+	lv_table_set_col_width(settingsTable, 1, w / 16);
+	lv_obj_set_size(settingsTable, w / 6 + w / 16, h / 2);
+	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 
@@ -412,6 +481,20 @@ void gui_sdr::init_antenna()
 	catch (const std::exception &e)
 	{
 		std::cout << e.what();
+	}
+}
+
+void gui_sdr::init_settings()
+{
+	int row = 1;
+	lv_table_set_row_cnt(settingsTable, 1);
+	for (auto col : SdrDevices.SdrDevices.at(default_radio)->getSettingsList())
+	{
+		if (col.type == SoapySDR::ArgInfo::BOOL)
+		{
+			lv_table_set_cell_value(settingsTable, row, 0, col.name.c_str());
+			lv_table_set_cell_value(settingsTable, row++, 1, col.value.c_str());
+		}
 	}
 }
 

@@ -1014,26 +1014,27 @@ void gui_ft8bar::Log()
 	std::ofstream outfile;
 	std::string buf;
 
-	if (ft8status != ft8status_t::monitor)
-		return;
-	outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
-	if (!outfile.fail())
+	if (ft8status == ft8status_t::monitor || ft8status == ft8status_t::idle)
 	{
-		auto today = date::year_month_weekday{date::floor<date::days>(std::chrono::high_resolution_clock::now())};
-		outfile << today << ",";
-		buf.resize(20);
-		lv_dropdown_get_selected_str(frequence, (char *)buf.c_str(), 20);
-		buf.resize(strlen(buf.c_str()));
-		outfile << buf << ",";
-		int rows = gft8.getQsoLogRows();
-		for (int i = 0; i < rows; i++)
+		outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
+		if (!outfile.fail())
 		{
-			std::string line = gft8.getQso(i);
-			outfile << line << std::endl;
+			auto today = date::year_month_weekday{date::floor<date::days>(std::chrono::high_resolution_clock::now())};
+			outfile << today << ",";
+			buf.resize(20);
+			lv_dropdown_get_selected_str(frequence, (char *)buf.c_str(), 20);
+			buf.resize(strlen(buf.c_str()));
+			outfile << buf << ",";
+			int rows = gft8.getQsoLogRows();
+			for (int i = 0; i < rows; i++)
+			{
+				std::string line = gft8.getQso(i);
+				outfile << line << std::endl;
+			}
+			outfile.close();
 		}
-		outfile.close();
+		ClearMessage();
 	}
-	ClearMessage();
 }
 
 void gui_ft8bar::SetTxButtons()

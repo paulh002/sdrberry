@@ -27,7 +27,8 @@ class SdrDeviceChannel
 	bool get_agc() { return agc; }
 	int get_bandwith_count() { return bandwidth_range.size(); }
 	long get_bandwith(int no) { return bandwidth_range[no].minimum(); }
-	std::vector<std::string> get_antennas() { return antennas;}
+	std::vector<std::string> get_antennas() { return antennas; }
+	SoapySDR::ArgInfoList get_settings_list() { return settingsList; }
 
   private:
 	SoapySDR::Device *soapyDevice{nullptr};
@@ -41,7 +42,7 @@ class SdrDeviceChannel
 	double fullScale{0.0};
 	std::string Native_format;
 	std::string streamArgs;
-	std::vector <std::string> antennas;
+	std::vector<std::string> antennas;
 	std::vector<std::string> correctionsList;
 	SoapySDR::Range full_gain_range;
 	std::vector<std::string> gainsList;
@@ -55,6 +56,7 @@ class SdrDeviceChannel
 	SoapySDR::RangeList bandwidth_range;
 	std::string sensors;
 	std::string settings;
+	SoapySDR::ArgInfoList settingsList;
 };
 
 class SdrDevice
@@ -106,7 +108,7 @@ class SdrDevice
 			return;
 		return soapyDevice->setBandwidth(direction, channel, bw);
 	}
-		
+
 	void setGain(const int direction, const size_t channel, const double value)
 	{
 		if (direction == SOAPY_SDR_TX && numTxChans < 1)
@@ -200,6 +202,11 @@ class SdrDevice
 		return soapyDevice->getFullDuplex(direction, channel);
 	}
 
+	SoapySDR::ArgInfoList getSettingsList()
+	{
+		return settingsList;
+	}
+
 	std::vector<std::unique_ptr<SdrDeviceChannel>> rx_channels;
 	std::vector<std::unique_ptr<SdrDeviceChannel>> tx_channels;
 
@@ -221,6 +228,7 @@ class SdrDevice
 	std::string settings;
 	std::string gpios;
 	std::string uarts;
+	SoapySDR::ArgInfoList settingsList;
 };
 
 class SdrDeviceVector

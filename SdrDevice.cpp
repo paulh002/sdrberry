@@ -304,6 +304,7 @@ std::string SdrDevice::SoapySDRDeviceProbe()
 	registers = toString(soapyDevice->listRegisterInterfaces());
 	if (not registers.empty()) ss << "  Registers: " << registers << std::endl;
 
+	settingsList = soapyDevice->getSettingInfo();
 	settings = toString(soapyDevice->getSettingInfo());
 	if (not settings.empty()) ss << "  Other Settings:" << std::endl << settings;
 
@@ -442,6 +443,7 @@ std::string SdrDeviceChannel::probeChannel()
 	ss << channelSensorReadings(soapyDevice, dir, chan);
 
 	//settings
+	settingsList = soapyDevice->getSettingInfo(dir, chan);
 	settings = toString(soapyDevice->getSettingInfo(dir, chan));
 	if (not settings.empty()) ss << "  Other Settings:" << std::endl << settings;
 

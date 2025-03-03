@@ -358,6 +358,9 @@
     <ClCompile Include="gui_sdr.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_sdr_settings.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -792,6 +795,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_sdr.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_sdr_settings.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

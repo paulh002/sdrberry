@@ -11,6 +11,7 @@ class gui_sdr
 	long span;
 	lv_style_t style_btn, style_tile, settings_style;
 	vector<int> sample_rates;
+	lv_obj_t *tileview, *main_tile, *settings_tile;
 	lv_obj_t *d_samplerate, *d_decimate;
 	lv_obj_t *d_receivers;
 	lv_obj_t *span_slider_label, *span_slider;
@@ -23,9 +24,7 @@ class gui_sdr
 	void samplerate_button_handler_class(lv_event_t *e);
 	void decimate_button_handler_class(lv_event_t *e);
 	void antenna_button_handler_class(lv_event_t *e);
-	void settings_draw_part_event_cb_class(lv_event_t *e);
-	void settings_press_part_event_cb_class(lv_event_t *e);
-	
+
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h);
 	void add_sample_rate(int samplerate);
@@ -54,10 +53,7 @@ class gui_sdr
 	static constexpr auto bandwidth_button_handler = EventHandler<gui_sdr, &gui_sdr::bandwidth_button_handler_class>::staticHandler;
 	static constexpr auto samplerate_button_handler = EventHandler<gui_sdr, &gui_sdr::samplerate_button_handler_class>::staticHandler;
 	static constexpr auto decimate_button_handler = EventHandler<gui_sdr, &gui_sdr::decimate_button_handler_class>::staticHandler;
-	static constexpr auto antenna_button_handler = EventHandler<gui_sdr, &gui_sdr::antenna_button_handler_class>::staticHandler;
-	static constexpr auto settings_draw_part_event_cb = EventHandler<gui_sdr, &gui_sdr::settings_draw_part_event_cb_class>::staticHandler;
-	static constexpr auto settings_press_part_event_cb = EventHandler<gui_sdr, &gui_sdr::settings_press_part_event_cb_class>::staticHandler;
-	
+	static constexpr auto antenna_button_handler = EventHandler<gui_sdr, &gui_sdr::antenna_button_handler_class>::staticHandler;	
 };
 
 extern gui_sdr guisdr;

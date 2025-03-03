@@ -1,5 +1,5 @@
 #pragma once
-
+const inline int small_res = 800;
 extern int screenWidth;
 extern int screenHeight;
 extern const int bottomHeight;

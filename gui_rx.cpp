@@ -340,7 +340,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	waterfall_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(waterfall_slider, w / 2 - 50);
 	lv_slider_set_range(waterfall_slider, -20, 100);
-	lv_obj_align(waterfall_slider, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, 5 * y_margin);
+	lv_obj_align(waterfall_slider, LV_ALIGN_TOP_MID, 0, 5 * y_margin);
 
 	//lv_obj_align_to(waterfall_slider, noise_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
 	lv_obj_add_event_cb(waterfall_slider, waterfall_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);

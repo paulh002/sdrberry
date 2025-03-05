@@ -201,6 +201,18 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	int button_height_margin = button_height + y_margin;
 	int ibutton_x = 0, ibutton_y = 0;
 	
+	lv_obj_set_style_pad_top(o_tab, 10, LV_PART_MAIN);
+	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
+	lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
+	
+	tileview = lv_tileview_create(o_tab);
+	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
+
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
+	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+
+	lv_obj_set_style_pad_top(settings_tile, 0, LV_PART_MAIN);
+
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -212,7 +224,9 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
-	//lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(main_tile, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(settings_tile, LV_OBJ_FLAG_SCROLLABLE);
 
 	button_group = lv_group_create();
 	int ibuttons = number_of_buttons;
@@ -223,9 +237,9 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 		char str[80];
 
 		if (i < array_long.size())
-			buttons.push_back(std::make_pair(lv_btn_create(o_tab), (long long)array_long.at(i)));
+			buttons.push_back(std::make_pair(lv_btn_create(main_tile), (long long)array_long.at(i)));
 		else
-			buttons.push_back(std::make_pair(lv_btn_create(o_tab), (long long)0));
+			buttons.push_back(std::make_pair(lv_btn_create(main_tile), (long long)0));
 		lv_group_add_obj(button_group, buttons.back().first);
 		lv_obj_add_style(buttons.back().first, &style_btn, 0);
 		lv_obj_add_event_cb(buttons.back().first, rx_button_handler, (lv_event_code_t)LV_EVENT_ALL /*(LV_EVENT_CLICKED | LV_EVENT_LONG_PRESSED)*/, (void*)this);
@@ -268,11 +282,11 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 		}
 	}
 
-	lv_obj_t *noise_label = lv_label_create(o_tab);
+	lv_obj_t *noise_label = lv_label_create(main_tile);
 	lv_label_set_text(noise_label, "Noise suppression");
 	lv_obj_align(noise_label, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
 
-	drp_noise = lv_dropdown_create(o_tab);
+	drp_noise = lv_dropdown_create(main_tile);
 	lv_obj_align(drp_noise, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * 1.5 *  button_height_margin);
 	lv_dropdown_clear_options(drp_noise);
 	lv_group_add_obj(button_group, drp_noise);
@@ -286,23 +300,15 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_dropdown_set_selected(drp_noise, noise);
 	lv_obj_add_event_cb(drp_noise, noise_handler, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void*)this);
 
-	check_cw = lv_checkbox_create(o_tab);
-	lv_group_add_obj(button_group, check_cw);
-	lv_checkbox_set_text(check_cw, "Morse Decoder");
-	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, (void *)this);
-	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, 1 * button_width_margin, y_margin + ibutton_y * button_height_margin);
-	lv_group_add_obj(button_group, check_cw);
-
-	ibutton_y++;
-	noise_slider_label = lv_label_create(o_tab);
+	noise_slider_label = lv_label_create(main_tile);
 	lv_obj_align(noise_slider_label, LV_ALIGN_TOP_MID, 0, y_margin + ibutton_y * button_height_margin);
 
 	//lv_obj_center(noise_slider_label);
 	std::string buf = strlib::sprintf("noise thresshold %d db", Settings_file.get_int("Radio", "NoiseThreshold"));
 	lv_label_set_text(noise_slider_label, buf.c_str());
 	Demodulator::set_noise_threshold(Settings_file.get_int("Radio", "NoiseThreshold"));
-	
-	noise_slider = lv_slider_create(o_tab);
+
+	noise_slider = lv_slider_create(main_tile);
 	lv_obj_set_width(noise_slider, w / 2 - 50);
 	lv_slider_set_range(noise_slider, -100, 0);
 	lv_obj_align_to(noise_slider, noise_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
@@ -310,32 +316,44 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(button_group, noise_slider);
 
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+	
+	ibutton_y++;
+	ibutton_y++;
 
-	waterfallgain = Settings_file.get_int("Radio", "Waterfallgain", 35);
-	waterfall_slider = lv_slider_create(o_tab);
-	lv_obj_set_width(waterfall_slider, w / 2 - 50);
-	lv_slider_set_range(waterfall_slider, -20, 100);
-	lv_obj_align_to(waterfall_slider, noise_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
-	lv_obj_add_event_cb(waterfall_slider, waterfall_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_group_add_obj(button_group, waterfall_slider);
-	lv_slider_set_value(waterfall_slider, waterfallgain, LV_ANIM_OFF);
+	check_cw = lv_checkbox_create(main_tile);
+	lv_group_add_obj(button_group, check_cw);
+	lv_checkbox_set_text(check_cw, "Morse Decoder");
+	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, (void *)this);
+	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
+	lv_group_add_obj(button_group, check_cw);
 
-	waterfall_slider_label = lv_label_create(o_tab);
-	buf = strlib::sprintf("Waterfall level %d db", waterfallgain);
-	lv_label_set_text(waterfall_slider_label, buf.c_str());
-	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-
-	waterfall_hold = lv_checkbox_create(o_tab);
+	waterfall_hold = lv_checkbox_create(main_tile);
 	lv_group_add_obj(button_group, waterfall_hold);
 	lv_checkbox_set_text(waterfall_hold, "Spectrum hold");
 	lv_obj_add_event_cb(waterfall_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_add_flag(waterfall_hold, LV_OBJ_FLAG_CHECKABLE);
-	lv_obj_align_to(waterfall_hold, waterfall_slider, LV_ALIGN_OUT_RIGHT_TOP, 30, 0);
-	//lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, 1 * button_width_margin, y_margin + ibutton_y * button_height_margin);
+
+	lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin + button_width_margin, y_margin + ibutton_y * button_height_margin);
 	lv_group_add_obj(button_group, waterfall_hold);
 
+	waterfallgain = Settings_file.get_int("Radio", "Waterfallgain", 35);
+	waterfall_slider = lv_slider_create(settings_tile);
+	lv_obj_set_width(waterfall_slider, w / 2 - 50);
+	lv_slider_set_range(waterfall_slider, -20, 100);
+	lv_obj_align(waterfall_slider, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, 5 * y_margin);
+
+	//lv_obj_align_to(waterfall_slider, noise_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_add_event_cb(waterfall_slider, waterfall_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(button_group, waterfall_slider);
+	lv_slider_set_value(waterfall_slider, waterfallgain, LV_ANIM_OFF);
+
+	waterfall_slider_label = lv_label_create(settings_tile);
+	buf = strlib::sprintf("Waterfall level %d db", waterfallgain);
+	lv_label_set_text(waterfall_slider_label, buf.c_str());
+	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+
 	waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
-	waterfallsize_slider = lv_slider_create(o_tab);
+	waterfallsize_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(waterfallsize_slider, w / 2 - 50);
 	lv_slider_set_range(waterfallsize_slider, 0, 10);
 	lv_obj_align_to(waterfallsize_slider, waterfall_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
@@ -343,13 +361,13 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(button_group, waterfallsize_slider);
 	lv_slider_set_value(waterfallsize_slider, waterfallsize, LV_ANIM_OFF);
 
-	waterfallsize_slider_label = lv_label_create(o_tab);
+	waterfallsize_slider_label = lv_label_create(settings_tile);
 	buf = strlib::sprintf("Waterfallsize level %d", waterfallsize);
 	lv_label_set_text(waterfallsize_slider_label, buf.c_str());
 	lv_obj_align_to(waterfallsize_slider_label, waterfallsize_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	int signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 200);
-	signal_strength_offset_slider = lv_slider_create(o_tab);
+	signal_strength_offset_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(signal_strength_offset_slider, w / 2 - 50);
 	lv_slider_set_range(signal_strength_offset_slider, 0, 400);
 	lv_obj_align_to(signal_strength_offset_slider, waterfallsize_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
@@ -357,13 +375,13 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(button_group, signal_strength_offset_slider);
 	lv_slider_set_value(signal_strength_offset_slider, signal_strength_offset, LV_ANIM_OFF);
 
-	signal_strength_offset_slider_label = lv_label_create(o_tab);
+	signal_strength_offset_slider_label = lv_label_create(settings_tile);
 	buf = strlib::sprintf("s meter offset %d", signal_strength_offset);
 	lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
 	lv_obj_align_to(signal_strength_offset_slider_label, signal_strength_offset_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	spectrumgain = Settings_file.get_int("Radio", "Spectrumgain", 0);
-	spectrum_slider = lv_slider_create(o_tab);
+	spectrum_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(spectrum_slider, w / 2 - 50);
 	lv_slider_set_range(spectrum_slider, -50, 50);
 	lv_obj_align_to(spectrum_slider, signal_strength_offset_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
@@ -371,12 +389,11 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(button_group, spectrum_slider);
 	lv_slider_set_value(spectrum_slider, spectrumgain, LV_ANIM_OFF);
 
-	spectrum_slider_label = lv_label_create(o_tab);
+	spectrum_slider_label = lv_label_create(settings_tile);
 	buf = strlib::sprintf("Spectrum level %d db", spectrumgain);
 	lv_label_set_text(spectrum_slider_label, buf.c_str());
 	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 

@@ -20,6 +20,7 @@ private:
 	lv_obj_t *noise_slider_label, *waterfall_slider_label, *waterfallsize_slider, *waterfallsize_slider_label;
 	int waterfallgain, waterfallsize, spectrumgain;
 	lv_obj_t *spectrum_slider_label, *spectrum_slider;
+	lv_obj_t *tileview, *main_tile, *settings_tile;
 
 	void get_buttons(vector<long>& array);
 	vector<pair<lv_obj_t*, long long>> get_buttons();

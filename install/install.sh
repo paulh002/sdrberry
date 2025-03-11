@@ -50,7 +50,10 @@ else
    echo "If you want to compile from code use ./install.sh RDB DSI"
    exit
 fi
-
+if [[ $1 = "SDP" ]]; then 
+   echo "Please install SDRPlay API first press ctrl-C to stop this script"
+   sleep 5
+fi
 if [[ $3 = "Y" ]]; then PACKAGES='YES'
 else
    echo "No packages"
@@ -307,6 +310,9 @@ mv sdrberry_settings_pluto.cfg $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'RDB' ]]; then
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_radioberry.cfg
 mv sdrberry_settings_radioberry.cfg $usrdir/sdrberry_settings.cfg
+elif [[ $sdrboard == 'SDP' ]]; then
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_sdrplay.cfg
+mv sdrberry_settings_sdrplay.cfg $usrdir/sdrberry_settings.cfg
 fi
 if [[ $LCD == 'T2' ]]; then
 sed -i '/resolution = 0/c\resolution = 4' $usrdir/sdrberry_settings.cfg

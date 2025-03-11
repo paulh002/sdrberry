@@ -30,6 +30,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	int ibutton_x = 0, ibutton_y = 0;
 
 	button_group = lv_group_create();
+	lv_obj_set_style_pad_top(o_tab, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
 	
@@ -57,7 +58,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	o_tab = main_tile;
 	d_samplerate = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_samplerate);
-	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, x_page_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_samplerate, LV_ALIGN_TOP_LEFT, x_page_margin, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
 	lv_dropdown_clear_options(d_samplerate);
 	lv_obj_add_event_cb(d_samplerate, samplerate_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_width(d_samplerate, button_width);
@@ -69,7 +70,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	int xpos = x_page_margin + button_width + x_margin;
 	d_decimate = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_decimate);
-	lv_obj_align(d_decimate, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_decimate, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
 	lv_dropdown_clear_options(d_decimate);
 	lv_obj_add_event_cb(d_decimate, decimate_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_width(d_decimate, 0.5 * button_width);
@@ -87,7 +88,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	xpos = 0.5 * button_width + xpos + x_margin;
 	d_receivers = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_receivers);
-	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_receivers, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
 	lv_dropdown_clear_options(d_receivers);
 	lv_obj_add_event_cb(d_receivers, receivers_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	std::string def = Settings_file.find_sdr("default");
@@ -104,7 +105,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	xpos = xpos + x_margin + button_width;
 	d_bandwitdth = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_bandwitdth);
-	lv_obj_align(d_bandwitdth, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_bandwitdth, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
 	lv_obj_set_width(d_bandwitdth, button_width); // 2*
 	lv_dropdown_clear_options(d_bandwitdth);
 	lv_obj_add_event_cb(d_bandwitdth, bandwidth_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -116,7 +117,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	xpos = xpos + x_margin + button_width;
 	d_antenna = lv_dropdown_create(o_tab);
 	lv_group_add_obj(button_group, d_antenna);
-	lv_obj_align(d_antenna, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(d_antenna, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
 	lv_obj_set_width(d_antenna, button_width); // 2*
 	lv_dropdown_clear_options(d_antenna);
 	lv_obj_add_event_cb(d_antenna, antenna_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -126,7 +127,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_align_to(ant_label, d_antenna, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 	
 	ibutton_y++;
-	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin;
 	int brightness_y = 15 + y_margin + 2 * button_height_margin;
 	span_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(button_group, span_slider);

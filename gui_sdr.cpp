@@ -99,7 +99,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_set_width(d_receivers, button_width);
 
 	lv_obj_t *sdr_label = lv_label_create(o_tab);
-	lv_label_set_text(sdr_label, "SDR");
+	lv_label_set_text(sdr_label, "SDR Device");
 	lv_obj_align_to(sdr_label, d_receivers, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 	
 	xpos = xpos + x_margin + button_width;

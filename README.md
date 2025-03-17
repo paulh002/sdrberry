@@ -21,8 +21,8 @@ installation instruction in install_guide.txt
 install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
 
 ## Hardware requirements
-- Raspberry pi 4 Model B 
-- LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector
+- Raspberry pi 4 Model B or Pi 5
+- LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector or the new raspberry Touch 2 7 inch display
 - It is prefered not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
 - Generic USB Audio adaptor for audio in and output
 
@@ -89,6 +89,11 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - nlohmann json
 
 # Installation
+## Preperation before install
+Take a good quality USB drive and install the latest 64 bit Raspberry OS on it.
+I advise not to use SD cards, these are very slow and often fail in a short time.
+Use raspi-config to switch to console auto logon startup.
+Update the OS with the latest raspberry pi OS patches
 
 ## Install and compile with cmake
 Download the install file in pi home directory (the install script supports different SDR's)

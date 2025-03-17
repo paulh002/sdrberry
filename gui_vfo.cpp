@@ -11,6 +11,7 @@
 #include "cmeter.h"
 #include "Modes.h"
 #include "screen.h"
+#include "Settings.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
@@ -111,6 +112,8 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 	lv_obj_align_to(rxtx_label2, vfo2_frequency, LV_ALIGN_OUT_BOTTOM_LEFT, 200, 10);
 	lv_obj_add_style(rxtx_label2, &label_style, 0);
 	lv_label_set_recolor(rxtx_label2, true);
+
+	smeter_delay = Settings_file.get_int("Radio", "s-meter-delay", 0);
 }
 
 void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band)
@@ -321,7 +324,25 @@ void gui_vfo::set_s_meter(double value)
 	//value = 30.0 + value;
 	//value = value + 200.0;
 	//printf(" value s%f \n", value);
-	cmeter_ptr->lv_meter_set_indicator_value(smeter_indic, value);
+
+	uint32_t s_value = value;
+	switch (smeter_delay)
+	{
+	case 1:
+		s_value = smeter2(value);
+		break;
+	case 2:
+		s_value = smeter4(value);
+		break;
+	case 3:
+		s_value = smeter6(value);
+		break;
+	case 4:
+		s_value = smeter8(value);
+		break;	
+	}
+	// cmeter_ptr->lv_meter_set_indicator_value(smeter_indic, value);
+	cmeter_ptr->lv_meter_set_indicator_value(smeter_indic, s_value);
 }
 
 void gui_vfo::set_span(int span)

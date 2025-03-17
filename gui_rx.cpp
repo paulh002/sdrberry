@@ -1,5 +1,6 @@
 #include "gui_rx.h"
 #include "gui_bar.h"
+#include "gui_vfo.h"
 #include "Catinterface.h"
 #include "Demodulator.h"
 #include "Spectrum.h"
@@ -169,6 +170,21 @@ void gui_rx::event_handler_hold_class(lv_event_t *e)
 	else
 	{
 		SpectrumGraph.enable_second_data_series(false);
+	}
+}
+
+void gui_rx::smeter_delay_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		int delay = lv_slider_get_value(obj);
+		std::string buf = strlib::sprintf("s meter delay %d", delay);
+		Settings_file.save_int("Radio", "s-meter-delay", delay);
+		lv_label_set_text(smeter_delay_slider_label, buf.c_str());
+		gui_vfo_inst.set_smeter_delay(delay);
+		printf("smeter delay %d\n", delay);
 	}
 }
 
@@ -380,11 +396,25 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
 	lv_obj_align_to(signal_strength_offset_slider_label, signal_strength_offset_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
+	int smeter_delay = Settings_file.get_int("Radio", "s-meter-delay", 0);
+	smeter_delay_slider = lv_slider_create(settings_tile);
+	lv_obj_set_width(smeter_delay_slider, w / 2 - 50);
+	lv_slider_set_range(smeter_delay_slider, 0, 4);
+	lv_obj_align_to(smeter_delay_slider, signal_strength_offset_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_add_event_cb(smeter_delay_slider, smeter_delay_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(button_group, smeter_delay_slider);
+	lv_slider_set_value(smeter_delay_slider, smeter_delay, LV_ANIM_OFF);
+	
+	smeter_delay_slider_label = lv_label_create(settings_tile);
+	buf = strlib::sprintf("s meter delay %d", smeter_delay);
+	lv_label_set_text(smeter_delay_slider_label, buf.c_str());
+	lv_obj_align_to(smeter_delay_slider_label, smeter_delay_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+	
 	spectrumgain = Settings_file.get_int("Radio", "Spectrumgain", 0);
 	spectrum_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(spectrum_slider, w / 2 - 50);
 	lv_slider_set_range(spectrum_slider, -50, 50);
-	lv_obj_align_to(spectrum_slider, signal_strength_offset_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_align_to(spectrum_slider, smeter_delay_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
 	lv_obj_add_event_cb(spectrum_slider, spectrum_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_group_add_obj(button_group, spectrum_slider);
 	lv_slider_set_value(spectrum_slider, spectrumgain, LV_ANIM_OFF);

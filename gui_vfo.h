@@ -2,6 +2,7 @@
 #include <memory>
 #include "lvgl_.h"
 #include "cmeter.h"
+#include "sma.h"
 
 class gui_vfo
 {
@@ -25,6 +26,11 @@ class gui_vfo
 	bool rxtx{true};
 	bool split{false};
 	int mode[2];
+	SMA<2> smeter2;
+	SMA<4> smeter4;
+	SMA<6> smeter6;
+	SMA<8> smeter8;
+	int smeter_delay;
 
 	void set_smeter_img(lv_obj_t *box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
 	void set_smeter_value(int32_t v);
@@ -37,6 +43,7 @@ class gui_vfo
 	void set_split(bool _split);
 	bool get_split();
 	void set_s_meter(double value);
+	void set_smeter_delay(int delay) { smeter_delay = delay; }
 	static constexpr auto smeter_event_cb = EventHandler<gui_vfo, &gui_vfo::smeter_event_cb_class>::staticHandler;
 };
 

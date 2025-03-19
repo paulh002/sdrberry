@@ -12,6 +12,7 @@
 #include "Modes.h"
 #include "screen.h"
 #include "Settings.h"
+#include "VfoKeyPad.h"
 
 LV_FONT_DECLARE(FreeSansOblique42);
 LV_FONT_DECLARE(FreeSansOblique32);
@@ -31,6 +32,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 	lv_obj_set_pos(bg_tuner1, 0, topHeight);
 	lv_obj_set_size(bg_tuner1, 2 * (LV_HOR_RES / 6) - 3, tunerHeight);
 	lv_obj_clear_flag(bg_tuner1, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_add_event_cb(bg_tuner1, bg_tuner1_clickevent_cb, LV_EVENT_CLICKED, (void *)this);
 
 	bg_tuner2 = lv_obj_create(scr);
 	lv_obj_add_style(bg_tuner2, &tuner_style, 0);
@@ -365,4 +367,14 @@ void gui_vfo::set_split(bool _split)
 bool gui_vfo::get_split()
 {
 	return split;
+}
+
+void gui_vfo::bg_tuner1_clickevent_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_CLICKED)
+	{
+		CreateVfoKeyPadWindow(lv_scr_act());
+	}
 }

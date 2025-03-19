@@ -361,6 +361,9 @@
     <ClCompile Include="gui_sdr_settings.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="VfoKeyPad.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -798,6 +801,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_sdr_settings.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="VfoKeyPad.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

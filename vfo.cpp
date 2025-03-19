@@ -293,6 +293,9 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 	if (pausevfo)
 		return 0;
 	
+	if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
+		return 0;
+	
 	if (ActiveVfo != (vfo_activevfo)vfo_setting.active_vfo && ActiveVfo != vfo_activevfo::None)
 	{
 		if (vfo_setting.band[vfo_setting.active_vfo] != ActiveVfo)
@@ -760,4 +763,18 @@ void CVfo::updateweb()
 		message.emplace("data",Legend());
 		webserver.SendMessage(message);
 	}
+}
+
+bool CVfo::checkVfoBandRange(long long freq)
+{
+	bool range = false;
+	for (auto col : vfo_setting.bands)
+	{
+		if (freq >= col.f_low && freq <= col.f_high)
+		{
+			range = true;
+			break;
+		}
+	}
+	return range;
 }

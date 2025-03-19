@@ -1,5 +1,6 @@
 #!/bin/bash
 sudo pkill sdrberry
+sudo rm /tmp/sdrberry.lock
 #sudo modprobe -r radioberry
 #sudo modprobe radioberry
 #sudo cp /tmp/VisualGDB/c/Users/paulh/OneDrive/source/SoapyRadioberry/VisualGDB/Release/libSoapyRadioberrySDR.so /usr/local/lib/arm-linux-gnueabihf/SoapySDR/modules0.8/.

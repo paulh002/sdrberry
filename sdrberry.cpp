@@ -810,6 +810,29 @@ int main(int argc, char *argv[])
 			GuiMessage msg = guiQueue.front();
 			switch (msg.message)
 			{
+			case GuiMessage::setvfo: {
+				float freqf;
+				long freq;
+				std::string buf;
+
+				printf("Message %s \n", msg.text.c_str());
+				buf = msg.text;
+				if (msg.text.find(" ") != string::npos)
+				{
+					buf = msg.text.substr(0, msg.text.find(" "));
+				}
+
+				freqf = std::stof(buf);
+				if (msg.text.find("Mhz") != string::npos)
+					freqf = freqf * 1000000;
+				if (msg.text.find("Khz") != string::npos)
+					freqf = freqf * 1000;
+				freq = freqf;
+				if (vfo.checkVfoBandRange(freq))
+					vfo.set_vfo(freq);
+				break;
+			}
+
 			case GuiMessage::step:
 				vfo.step_vfo(msg.data);
 				break;

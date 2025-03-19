@@ -35,6 +35,7 @@ class gui_vfo
 	void set_smeter_img(lv_obj_t *box, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
 	void set_smeter_value(int32_t v);
 	void smeter_event_cb_class(lv_event_t *e);
+	void bg_tuner1_clickevent_cb_class(lv_event_t *e);
 
   public:
 	void gui_vfo_init(lv_obj_t *scr);
@@ -45,6 +46,8 @@ class gui_vfo
 	void set_s_meter(double value);
 	void set_smeter_delay(int delay) { smeter_delay = delay; }
 	static constexpr auto smeter_event_cb = EventHandler<gui_vfo, &gui_vfo::smeter_event_cb_class>::staticHandler;
+	static constexpr auto bg_tuner1_clickevent_cb = EventHandler<gui_vfo, &gui_vfo::bg_tuner1_clickevent_cb_class>::staticHandler;
+	
 };
 
 extern gui_vfo gui_vfo_inst;

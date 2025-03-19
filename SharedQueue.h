@@ -99,7 +99,8 @@ class GuiMessage
 		clearWsjtx,
 		scrollWsjtx,
 		wsjtxMessage,
-		TranceiverMessage
+		TranceiverMessage,
+		setvfo
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

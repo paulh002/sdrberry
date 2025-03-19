@@ -188,6 +188,7 @@
     <ClCompile Include="TCA9548.cpp" />
     <ClCompile Include="ui_img_btn_knob_png.c" />
     <ClCompile Include="vfo.cpp" />
+    <ClCompile Include="VfoKeyPad.cpp" />
     <ClCompile Include="Waterfall.cpp" />
     <ClCompile Include="wave.cpp" />
     <ClCompile Include="WebRestHandler.cpp" />
@@ -324,6 +325,7 @@
     <ClInclude Include="table.h" />
     <ClInclude Include="TCA9548.h" />
     <ClInclude Include="vfo.h" />
+    <ClInclude Include="VfoKeyPad.h" />
     <ClInclude Include="Waterfall.h" />
     <ClInclude Include="wave.h" />
     <ClInclude Include="WebRestHandler.h" />

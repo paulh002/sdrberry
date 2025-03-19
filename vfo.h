@@ -35,8 +35,8 @@ struct bands_t
 {
 	int meters;
 	string label;
-	long f_low;
-	long f_high;
+	long long f_low;
+	long long f_high;
 	int f_mode;
 };
 
@@ -139,7 +139,8 @@ class CVfo
 	std::string getMode(int active_vfo);
 	std::vector<int16_t> Legend();
 	void set_frequency_to_left(long long freq, int active_vfo, bool update );
-
+	bool checkVfoBandRange(long long freq);
+	
   private:
 	struct vfo_settings_struct vfo_setting;
 	int m_delay_counter = 0;

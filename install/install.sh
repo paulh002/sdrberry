@@ -36,6 +36,7 @@ else
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
+   echo "If you want to use the build branch add build like ./install.sh RDB DSI build"
    echo "If you want to compile from code use ./install.sh RDB DSI"
    exit
 fi

@@ -296,8 +296,9 @@ cd $wrkdir || exit
 #Remove if not planning to use bluetooth.
 #sudo apt-get remove -y pulseaudio
 
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
-mv sdrberry_settings.cfg $usrdir/sdrberry_settings.cfg
+#wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
+#mv sdrberry_settings.cfg $usrdir/sdrberry_settings.cfg
+cp ./sdrberry/install/sdrberry_settings.cfg $usrdir
 if [[ $sdrboard == 'HRF' ]]; then
 sed -i '/default = "radioberry"/c\default = "hackrf"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'HFB' ]]; then
@@ -316,7 +317,7 @@ fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh
 cp ./sdrberry/install/crontab $usrdir
-crontab ./sdrberry/install/crontab
+#crontab ./sdrberry/install/crontab
 
 #Do LCD Screen Setup
 #if [[ $LCD == '5' || $LCD == '7' || $LCD == '7b' ]]; then

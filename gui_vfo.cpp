@@ -39,6 +39,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr)
 	lv_obj_set_pos(bg_tuner2, 2 * (LV_HOR_RES / 6) , topHeight);
 	lv_obj_set_size(bg_tuner2, 2 * (LV_HOR_RES / 6) - 3, tunerHeight);
 	lv_obj_clear_flag(bg_tuner2, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_add_event_cb(bg_tuner2, bg_tuner1_clickevent_cb, LV_EVENT_CLICKED, (void *)this);
 
 	lv_obj_t *bg_tuner3 = lv_obj_create(scr);
 	lv_obj_add_style(bg_tuner3, &tuner_style, 0);

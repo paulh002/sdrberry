@@ -295,24 +295,18 @@ cd $wrkdir || exit
 #Remove if not planning to use bluetooth.
 #sudo apt-get remove -y pulseaudio
 
-if [[ $sdrboard == 'HRF' ]]; then
-# put sdrberry config in users home dir
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_hackrf.cfg
-mv sdrberry_settings_hackrf.cfg $usrdir/sdrberry_settings.cfg
-elif [[ $sdrboard == 'HFB' ]]; then
-# put sdrberry config in users home dir
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 mv sdrberry_settings.cfg $usrdir/sdrberry_settings.cfg
+if [[ $sdrboard == 'HRF' ]]; then
+sed -i '/default = "radioberry"/c\default = "hackrf"' $usrdir/sdrberry_settings.cfg
+elif [[ $sdrboard == 'HFB' ]]; then
+sed -i '/default = "radioberry"/c\default = "hifiberry"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'PLT' ]]; then
-# put sdrberry config in users home dir
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_pluto.cfg
-mv sdrberry_settings_pluto.cfg $usrdir/sdrberry_settings.cfg
+sed -i '/default = "radioberry"/c\default = "plutosdr"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'RDB' ]]; then
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_radioberry.cfg
-mv sdrberry_settings_radioberry.cfg $usrdir/sdrberry_settings.cfg
+sed -i '/default = "radioberry"/c\default = "radioberry"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'SDP' ]]; then
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings_sdrplay.cfg
-mv sdrberry_settings_sdrplay.cfg $usrdir/sdrberry_settings.cfg
+sed -i '/default = "radioberry"/c\default = "sdrplay"' $usrdir/sdrberry_settings.cfg
 fi
 if [[ $LCD == 'T2' ]]; then
 sed -i '/resolution = 0/c\resolution = 4' $usrdir/sdrberry_settings.cfg
@@ -320,6 +314,8 @@ sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
 fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh
+cp ./sdrberry/install/crontab $usrdir
+crontab ./sdrberry/install/crontab
 
 #Do LCD Screen Setup
 #if [[ $LCD == '5' || $LCD == '7' || $LCD == '7b' ]]; then

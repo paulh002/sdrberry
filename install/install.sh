@@ -30,6 +30,7 @@ elif [[ $1 = "HFB" ]]; then sdrboard='HFB'
 elif [[ $1 = "PLT" ]]; then sdrboard='PLT'
 elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
 elif [[ $1 = "SDP" ]]; then sdrboard='SDP'
+elif [[ $1 = "RTL" ]]; then sdrboard='RTL'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / No = No device"

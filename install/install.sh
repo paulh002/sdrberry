@@ -32,7 +32,7 @@ elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
 elif [[ $1 = "SDP" ]]; then sdrboard='SDP'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
-   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / No = No device"
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / No = No device"
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
@@ -151,6 +151,18 @@ sudo sed -i '$a\dtoverlay=hifiberry-dacplusadcpro' /boot/config.txt
 fi
 
 if [[ $sdrboard == PLT ]] ; then
+git clone https://github.com/pothosware/SoapyPlutoSDR
+cd SoapyPlutoSDR || exit
+mkdir build
+cd build || exit
+cmake ..
+make
+sudo make install
+sudo ldconfig
+fi
+
+if [[ $sdrboard == RTL ]] ; then
+sudo apt -y install rtl-sdr librtlsdr-dev
 git clone https://github.com/pothosware/SoapyPlutoSDR
 cd SoapyPlutoSDR || exit
 mkdir build
@@ -309,6 +321,8 @@ elif [[ $sdrboard == 'RDB' ]]; then
 sed -i '/default = "radioberry"/c\default = "radioberry"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'SDP' ]]; then
 sed -i '/default = "radioberry"/c\default = "sdrplay"' $usrdir/sdrberry_settings.cfg
+elif [[ $sdrboard == 'RTL' ]]; then
+sed -i '/default = "radioberry"/c\default = "rtlsdr"' $usrdir/sdrberry_settings.cfg
 fi
 if [[ $LCD == 'T2' ]]; then
 sed -i '/resolution = 0/c\resolution = 4' $usrdir/sdrberry_settings.cfg

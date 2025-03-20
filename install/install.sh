@@ -164,8 +164,8 @@ fi
 
 if [[ $sdrboard == RTL ]] ; then
 sudo apt -y install rtl-sdr librtlsdr-dev
-git clone https://github.com/pothosware/SoapyPlutoSDR
-cd SoapyPlutoSDR || exit
+git clone https://github.com/pothosware/SoapyRTLSDR.git
+cd SoapyRTLSDR || exit
 mkdir build
 cd build || exit
 cmake ..

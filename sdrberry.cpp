@@ -1315,6 +1315,7 @@ void switch_sdrreceiver(std::string receiver)
 		else
 			default_tx_channel = 0;
 		Gui_tx.enable_tx(default_tx_channel > 0);
+		guift8bar.SetTxButtons();
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		try
@@ -1381,7 +1382,6 @@ void switch_sdrreceiver(std::string receiver)
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
 		gbar.set_gain_slider(Settings_file.gain());
-		gbar.hidetx();
 		guift8bar.SetTxButtons();
 		gbar.setTxButtons();
 		//vfo.set_vfo(freq, false);

@@ -98,7 +98,7 @@ Update the OS with the latest raspberry pi OS patches
 ## Install and compile with cmake
 Download the install file in pi home directory (the install script supports different SDR's)
 The install script can install DSI, Raspberry PI Touch 2 7inch 1280x720 ,  Waveshare 7 inch display
-SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device
+SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay = SDP /RTLSDR RTL / No = No device
 If you want to install the devices using current packages add Y to the install command
 install DEVICE LCD PACKAGE Y/N
 

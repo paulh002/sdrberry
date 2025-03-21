@@ -291,13 +291,13 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					{
 						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						{
-							vfo.set_active_vfo(1);
+							vfo.set_active_vfo(vfo_activevfo::Two);
 							std::string txt = std::string("VFO 2");
 							lv_label_set_text(label[buttonvfo], txt.c_str());
 						}
 						else
 						{
-							vfo.set_active_vfo(0);
+							vfo.set_active_vfo(vfo_activevfo::One);
 							std::string txt = std::string("VFO 1");
 							lv_label_set_text(label[buttonvfo], txt.c_str());
 						}

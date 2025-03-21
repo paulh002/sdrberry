@@ -293,9 +293,6 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 	if (pausevfo)
 		return 0;
 	
-	if (freq < vfo_setting.vfo_low || freq > vfo_setting.vfo_high)
-		return 0;
-	
 	if (ActiveVfo != (vfo_activevfo)vfo_setting.active_vfo && ActiveVfo != vfo_activevfo::None)
 	{
 		if (vfo_setting.band[vfo_setting.active_vfo] != ActiveVfo)

@@ -19,9 +19,9 @@ LV_FONT_DECLARE(FreeSansOblique32);
 
 gui_vfo gui_vfo_inst;
 
-void gui_vfo::gui_vfo_init(lv_obj_t *scr)
+void gui_vfo::gui_vfo_init(lv_obj_t *scr, lv_group_t *keyboard_group)
 {
-
+	keyboardgroup = keyboard_group;
 	lv_style_init(&tuner_style);
 	lv_style_set_radius(&tuner_style, 0);
 	lv_style_set_bg_color(&tuner_style, lv_color_black());
@@ -376,6 +376,6 @@ void gui_vfo::bg_tuner1_clickevent_cb_class(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
-		CreateVfoKeyPadWindow(lv_scr_act());
+		CreateVfoKeyPadWindow(lv_scr_act(), keyboardgroup);
 	}
 }

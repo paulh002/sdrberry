@@ -517,7 +517,7 @@ int main(int argc, char *argv[])
 	scr = lv_scr_act();
 
 	GuiTopBar.setup_top_bar(scr);
-	gui_vfo_inst.gui_vfo_init(scr);
+	gui_vfo_inst.gui_vfo_init(scr, keyboard_group);
 
 	static lv_style_t background_style;
 
@@ -820,16 +820,30 @@ int main(int argc, char *argv[])
 				if (msg.text.find(" ") != string::npos)
 				{
 					buf = msg.text.substr(0, msg.text.find(" "));
+					if (buf.length() == 0)
+						buf = msg.text.substr(0, msg.text.find("M"));
+					if (buf.length() == 0)
+						buf = msg.text.substr(0, msg.text.find("m"));
+					if (buf.length() == 0)
+						buf = msg.text.substr(0, msg.text.find("K"));
+					if (buf.length() == 0)
+						buf = msg.text.substr(0, msg.text.find("k"));
 				}
-
-				freqf = std::stof(buf);
-				if (msg.text.find("Mhz") != string::npos)
-					freqf = freqf * 1000000;
-				if (msg.text.find("Khz") != string::npos)
-					freqf = freqf * 1000;
-				freq = freqf;
-				if (vfo.checkVfoBandRange(freq))
-					vfo.set_vfo(freq);
+				if (buf.length() > 0)
+				{
+					freqf = std::stof(buf);
+					if (msg.text.find("M") != string::npos)
+						freqf = freqf * 1000000;
+					if (msg.text.find("K") != string::npos)
+						freqf = freqf * 1000;
+					if (msg.text.find("m") != string::npos)
+						freqf = freqf * 1000000;
+					if (msg.text.find("k") != string::npos)
+						freqf = freqf * 1000;
+					freq = freqf;
+					if (vfo.checkVfoBandRange(freq))
+						vfo.set_vfo(freq);
+				}
 				break;
 			}
 

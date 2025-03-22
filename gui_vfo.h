@@ -23,6 +23,7 @@ class gui_vfo
 	lv_meter_scale_c *scale, *scale2;
 	lv_meter_indicator_c *smeter_indic;
 	std::unique_ptr<cmeter> cmeter_ptr;
+	lv_group_t *keyboardgroup;
 	bool rxtx{true};
 	bool split{false};
 	int mode[2];
@@ -38,7 +39,7 @@ class gui_vfo
 	void bg_tuner1_clickevent_cb_class(lv_event_t *e);
 
   public:
-	void gui_vfo_init(lv_obj_t *scr);
+	void gui_vfo_init(lv_obj_t *scr, lv_group_t * keyboard_group);
 	void set_vfo_gui(int vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band);
 	void set_span(int span);
 	void set_split(bool _split);

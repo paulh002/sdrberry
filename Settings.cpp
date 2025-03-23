@@ -12,12 +12,12 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"samplerate", {{"radioberry", cfg::makeOption(384)}, {"plutosdr", cfg::makeOption(1000)}, {"rtlsdr", cfg::makeOption(1000)}, {"sdrplay", cfg::makeOption(1000)}}},
 	{"samplerate_tx", {{"radioberry", cfg::makeOption(384)}}},
 	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"volume", cfg::makeOption(50)}, {"refresh", cfg::makeOption(50)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}, {"if-gain", cfg::makeOption(30)}, {"noise", cfg::makeOption(4)}, {"noisefloor", cfg::makeOption(30)}, {"waterfallsize", cfg::makeOption(3)}, {"s-meter-offset", cfg::makeOption(200)}}},
-	{"radioberry", {{"gain", cfg::makeOption(10)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("48")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"correction_tx", cfg::makeOption(0)}, {"correction_rx", cfg::makeOption(0)}, {"buffersize", cfg::makeOption(504)}}},
-	{"hifiberry", {{"gain", cfg::makeOption(0)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("192")}, {"samplerate_tx", cfg::makeOption("192")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"dc", cfg::makeOption(1)}}},
-	{"sdrplay", {{"gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
-	{"rtlsdr", {{"gain", cfg::makeOption(40)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(60)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}}},
-	{"hackrf", {{"gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(3)}, {"samplerate", cfg::makeOption("2000")}, {"samplerate_tx", cfg::makeOption("384")}, {"span", cfg::makeOption(384)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
-	{"plutosdr", {{"gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("384")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(384)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"audiobuffer", cfg::makeOption(4096)}}},
+	{"radioberry", {{"rf-gain", cfg::makeOption(10)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("48")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"correction_tx", cfg::makeOption(0)}, {"correction_rx", cfg::makeOption(0)}, {"buffersize", cfg::makeOption(504)}}},
+	{"hifiberry", {{"rf-gain", cfg::makeOption(0)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("192")}, {"samplerate_tx", cfg::makeOption("192")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"dc", cfg::makeOption(1)}}},
+	{"sdrplay", {{"rf-gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
+	{"rtlsdr", {{"rf-gain", cfg::makeOption(40)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(60)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}}},
+	{"hackrf", {{"rf-gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(3)}, {"samplerate", cfg::makeOption("2000")}, {"samplerate_tx", cfg::makeOption("384")}, {"span", cfg::makeOption(384)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
+	{"plutosdr", {{"rf-gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("384")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(384)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"audiobuffer", cfg::makeOption(4096)}}},
 	{"VFO1", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"VFO2", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"Audio", {{"device", cfg::makeOption("USB Audio Device")}}},
@@ -326,38 +326,6 @@ int Settings::volume()
 		return 0;
 }
 
-int Settings::gain(string sdrdevice)
-{
-	auto option = config->getSection(sdrdevice);
-	auto s = option.find("gain");
-	string st = s->second;
-	return atoi((const char *)st.c_str());
-}
-
-int Settings::gain()
-{
-	if (radio.find("gain") != radio.end())
-	{
-		auto s = radio.find("gain");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-void Settings::set_gain(int gain)
-{
-	if (radio.find("gain") != radio.end())
-	{
-		auto s = radio.find("gain");
-		s->second = to_string(gain);
-		return;
-	}
-	else 
-		return;
-}
-
-
 int Settings::drive()
 {
 	if (radio.find("drive") != radio.end())
@@ -496,13 +464,6 @@ void Settings::save_vol(int vol)
 	config->useSection("Radio");
 	auto &col = (*config)("volume");
 	col = vol;
-}
-
-void Settings::save_rf(int rf)
-{
-	config->useSection("Radio");
-	auto &col = (*config)("gain");
-	col = rf;
 }
 
 void Settings::save_vfo(int vfo, long freq)

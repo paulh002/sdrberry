@@ -24,14 +24,12 @@ class Settings
 	string find_sdr(string key);
 	long long find_vfo1_freq(string key);
 	int volume();
-	int gain();
 	int txgain();
 	int drive();
 	int getagc(string key);
 	int getspeech(string key);
 	void set_drive(int drive);
 	void set_txgain(int gain);
-	void set_gain(int gain);
 	string find_input(string key);
 	string find_cat(string key);
 	int convert_mode(string s);
@@ -41,7 +39,6 @@ class Settings
 	void save_speech(std::string key, int value);
 	void save();
 	void save_vol(int vol);
-	void save_rf(int rf);
 	void save_vfo(int vfo, long freq);
 	int gain(string sdrdevice);
 	int get_int(string section, string key, int defaultValue = 0);

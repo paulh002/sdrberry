@@ -388,8 +388,8 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface.SetRG(lv_slider_get_value(slider));
-	Settings_file.save_rf(lv_slider_get_value(slider));
-	updateweb();
+	Settings_file.save_int(default_radio, "rf-gain", lv_slider_get_value(slider));
+	Settings_file.write_settings();updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), lv_slider_get_value(slider));
@@ -435,7 +435,8 @@ void gui_bar::set_gain_slider(int gain, bool web)
 		gain = min_gain;
 	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
-	Settings_file.save_rf(gain);
+	Settings_file.save_int(default_radio, "rf-gain", gain);
+	Settings_file.write_settings();
 	catinterface.SetRG(gain);
 	if (web)
 		updateweb();

@@ -280,17 +280,19 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	
 	// mix to correct frequency
 	mix_down(samples_in);
-	Resample(samples_in, filter2);
+	Resample(samples_in, filter1);
 	if (get_noise())
 	{
-		NoiseFilterProcess(filter2, filter3);
-		lowPassAudioFilter(filter3, filter1);
+		lowPassAudioFilter(filter1);
+		calc_signal_level(filter1);
+		NoiseFilterProcess(filter1, filter2);
+		filter1 = filter2;
 	}
 	else
 	{
-		lowPassAudioFilter(filter2, filter1);
+		lowPassAudioFilter(filter1);
+		calc_signal_level(filter1);
 	}
-	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)

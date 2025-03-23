@@ -8,6 +8,7 @@
 #include "DataBuffer.h"
 #include "AudioOutput.h"
 #include "Demodulator.h"
+#include "AgcProcessor.h"
 
 class FMDemodulator : public Demodulator
 {
@@ -25,4 +26,7 @@ public:
 	
 private:
 	freqdem	demodFM {nullptr};
+	AgcProcessor AgcProc;
+	int threshold = -100;
+	int squelch_mode = 0;
 };

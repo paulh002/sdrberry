@@ -27,6 +27,7 @@
 #include "gui_bottom_bar.h"
 #include "Gui_band.h"
 #include "gui_sdr.h"
+#include "gui_squelch.h"
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "Catinterface.h"
@@ -555,6 +556,7 @@ int main(int argc, char *argv[])
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
 	//tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
 	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
+	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
@@ -573,6 +575,7 @@ int main(int argc, char *argv[])
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+	guisquelch.init(tab["squelch"], lv_tabview_get_tab_btns(tabview_mid), LV_HOR_RES - 3);
 
 	static lv_style_t style_btn;
 	lv_style_init(&style_btn);

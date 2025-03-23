@@ -56,7 +56,7 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 			lv_obj_set_user_data(button[i], NULL);
 			break;
 		case 1:
-			strcpy(str, "On");
+			strcpy(str, "Agc");
 			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(button[i], NULL);
 			break;
@@ -92,7 +92,6 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	lv_label_set_text(bandwidth_slider_label, "bandwidth");
 	lv_obj_align_to(bandwidth_slider_label, bandwidth_slider, LV_ALIGN_TOP_MID, 0, -20);
 	set_bandwidth_slider(Settings_file.get_int("Squelch", "bandwidth", 0));
-	bandwidth = Settings_file.get_int("Squelch", "bandwidth", 0);
 
 	// lv_obj_align_to(threshold_slider_label, o_tab, LV_ALIGN_CENTER, 0, -40);
 	threshold_slider_label = lv_label_create(o_tab);
@@ -124,7 +123,7 @@ void gui_squelch::set_threshold_slider(int _threshold)
 	threshold = _threshold;
 	std::string buf = strlib::sprintf("threshold %d db", threshold.load());
 	lv_label_set_text(threshold_slider_label, buf.c_str());
-	lv_slider_set_value(threshold_slider, bandwidth, LV_ANIM_ON);
+	lv_slider_set_value(threshold_slider, threshold, LV_ANIM_ON);
 	Settings_file.save_int("Squelch", "threshold", threshold.load());
 }
 

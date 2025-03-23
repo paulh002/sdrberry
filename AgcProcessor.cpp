@@ -47,7 +47,7 @@ void AgcProcessor::SetSquelchThreshold(float _threshold)
 {
 	threshold = _threshold;
 	if (agc_object)
-		agc_crcf_squelch_set_threshold(agc_object, threshold);
+		agc_crcf_squelch_set_threshold(agc_object, (float)threshold / 10.0);
 }
 
 float AgcProcessor::getRssi()

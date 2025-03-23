@@ -13,6 +13,7 @@
 #include "LMSNoisereducer.h"
 #include "SpectralNoiseReduction.h"
 #include "Agc_class.h"
+#include "AgcProcessor.h"
 
 class AMDemodulator : public Demodulator
 {
@@ -39,5 +40,8 @@ public:
 	unique_ptr<Xanr> pXanr;
 	unique_ptr<SpectralNoiseReduction> pNoisesp;
 	int receiverMode;
+	AgcProcessor AgcProc;
+	int threshold = -100;
+	int squelch_mode = 0;
 };
 

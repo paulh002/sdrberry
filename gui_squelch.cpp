@@ -99,10 +99,10 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 
 	threshold_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(threshold_slider, w / 2 - 50);
-	lv_slider_set_range(threshold_slider, -100, 0);
+	lv_slider_set_range(threshold_slider, -1000, 0);
 	lv_obj_align_to(threshold_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(threshold_slider, threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	set_threshold_slider(Settings_file.get_int("Squelch", "threshold", -100));
+	set_threshold_slider(Settings_file.get_int("Squelch", "threshold", -1000));
 	lv_group_add_obj(m_button_group, threshold_slider);
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
 
@@ -121,7 +121,7 @@ void gui_squelch::set_bandwidth_slider(int _bandwidth)
 void gui_squelch::set_threshold_slider(int _threshold)
 {
 	threshold = _threshold;
-	std::string buf = strlib::sprintf("threshold %d db", threshold.load());
+	std::string buf = strlib::sprintf("threshold %4.1f db", (float)threshold.load() / 10.0);
 	lv_label_set_text(threshold_slider_label, buf.c_str());
 	lv_slider_set_value(threshold_slider, threshold, LV_ANIM_ON);
 	Settings_file.save_int("Squelch", "threshold", threshold.load());
@@ -156,7 +156,7 @@ void gui_squelch::threshold_slider_event_cb_class(lv_event_t *e)
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		threshold.store(lv_slider_get_value(obj));
-		std::string buf = strlib::sprintf("threshold %d db", threshold.load());
+		std::string buf = strlib::sprintf("threshold %4.1f db", (float)threshold.load() / 10.0);
 		lv_label_set_text(threshold_slider_label, buf.c_str());
 		Settings_file.save_int("Squelch", "threshold", threshold.load());
 	}

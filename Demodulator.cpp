@@ -582,9 +582,9 @@ void Demodulator::NoiseFilterProcess(IQSampleVector &filter_in,
 
 void Demodulator::SquelchProcess(IQSampleVector &filter)
 {
-	if (guisquelch.get_mode())
+	int s = guisquelch.get_mode();
+	if (s != squelch_mode || s > 0)
 	{
-		int s = guisquelch.get_mode();
 		if (s == 2 && s != squelch_mode)
 		{
 			squelch_mode = s;
@@ -601,7 +601,9 @@ void Demodulator::SquelchProcess(IQSampleVector &filter)
 			AgcProc.SetSquelchThreshold(t);
 			threshold = t;
 		}
-		AgcProc.Process(filter);
+		squelch_mode = s;
+		if (s > 0)
+			AgcProc.Process(filter);
 	}
 }
 

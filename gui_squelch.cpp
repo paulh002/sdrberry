@@ -142,7 +142,10 @@ void gui_squelch::button_handler_class(lv_event_t *e)
 				lv_obj_clear_state(button[i], LV_STATE_CHECKED);
 			}
 			else
+			{
 				squelch_mode = i;
+				Settings_file.save_int("Squelch", "enabled", squelch_mode.load());
+			}
 		}
 	}
 }

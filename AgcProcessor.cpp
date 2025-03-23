@@ -37,7 +37,6 @@ void AgcProcessor::SetSquelch(bool squelch)
 	{
 		if (squelch)
 			agc_crcf_squelch_enable(agc_object);
-
 		else
 			agc_crcf_squelch_disable(agc_object);
 	}

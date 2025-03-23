@@ -7,6 +7,7 @@
 #include "sdrberry.h"
 #include "NoiseFilter.h"
 #include <tuple>
+#include "gui_squelch.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -577,4 +578,39 @@ void Demodulator::NoiseFilterProcess(IQSampleVector &filter_in,
 	NoiseFilter nf;
 
 	nf.Process(filter_in, filter_out);
+}
+
+void Demodulator::SquelchProcess(IQSampleVector &filter)
+{
+	if (guisquelch.get_mode())
+	{
+		int s = guisquelch.get_mode();
+		if (s == 2 && s != squelch_mode)
+		{
+			squelch_mode = s;
+			AgcProc.SetSquelch(true);
+		}
+		if ((s == 0 || s == 1) && s != squelch_mode)
+		{
+			squelch_mode = s;
+			AgcProc.SetSquelch(false);
+		}
+		int t = guisquelch.get_threshold();
+		if (t != threshold)
+		{
+			AgcProc.SetSquelchThreshold(t);
+			threshold = t;
+		}
+		AgcProc.Process(filter);
+	}
+}
+
+bool Demodulator::Squelch()
+{
+	return AgcProc.squelch();
+}
+
+void Demodulator::SquelchPrint()
+{
+	AgcProc.print();
 }

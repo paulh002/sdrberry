@@ -10,7 +10,7 @@
 #include "gui_rx.h"
 #include <complex>
 #include <complex.h>
-#include "gui_squelch.h"
+
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -245,7 +245,7 @@ void AMDemodulator::operator()()
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
-			AgcProc.print();
+			SquelchPrint();
 			printf("rms %f db %f envelope %f suppression %f db\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope(), getSuppression());
 			printf("RF samples %ld Af samples %ld ratio %f \n", noRfSamples, noAfSamples, (float)noAfSamples / (float)noRfSamples);
 			//printf("Process time %lld Samples %d\n", pr_time, nosamples);
@@ -283,23 +283,7 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	// mix to correct frequency
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
-	if (guisquelch.get_mode())
-	{
-		int s = guisquelch.get_mode();
-		if (s == 2 || s != squelch_mode)
-		{
-			squelch_mode = s;
-			AgcProc.SetSquelch(true);
-		}
-
-		int t = guisquelch.get_threshold();
-		if (t != threshold)
-		{
-			AgcProc.SetSquelchThreshold(t);
-			threshold = t;
-		}
-		AgcProc.Process(filter1);
-	}
+	SquelchProcess(filter1);
 	if (get_noise())
 	{
 		lowPassAudioFilter(filter1);
@@ -319,7 +303,7 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 		float v;
 
 		ampmodem_demodulate(demodulatorHandle, (liquid_float_complex)col, &v);
-		if (AgcProc.squelch())
+		if (Squelch())
 			audio.push_back(0.0);
 		else
 			audio.push_back(v);

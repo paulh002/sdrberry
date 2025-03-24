@@ -317,15 +317,21 @@ static void tabview_event_cb(lv_event_t *e)
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
-		gagc.set_group();
+		guisquelch.set_group();
 		break;
 	case 4:
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
-		Gui_tx.set_group();
+		gagc.set_group();
 		break;
 	case 5:
+		gcal.hide(true);
+		gbar.hide(false);
+		guift8bar.hide(true);
+		Gui_tx.set_group();
+		break;
+	case 6:
 		if (gsetup.get_calibration())
 		{
 			gcal.hide(false);
@@ -339,13 +345,19 @@ static void tabview_event_cb(lv_event_t *e)
 		guift8bar.hide(true);
 		gspeech.set_group();
 		break;
-	case 6:
+	case 7:
 		gcal.hide(true);
 		gbar.hide(true);
 		guift8bar.hide(false);
-		gft8.set_group();
+		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
-	case 7:
+	case 8:
+		gcal.hide(true);
+		gbar.hide(false);
+		guift8bar.hide(true);
+		guisdr.set_group();
+		break;
+	case 9:
 		if (gsetup.get_calibration())
 		{
 			gcal.hide(false);
@@ -356,12 +368,6 @@ static void tabview_event_cb(lv_event_t *e)
 			gcal.hide(true);
 			gbar.hide(false);
 		}
-		guift8bar.hide(true);
-		lv_indev_set_group(encoder_indev_t, button_group);
-		break;
-	case 8:
-		gcal.hide(true);
-		gbar.hide(false);
 		guift8bar.hide(true);
 		guift8setting.set_group();
 		break;

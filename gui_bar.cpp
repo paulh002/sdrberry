@@ -31,6 +31,29 @@ static const char *opts = "0.5 Kc\n"
 						  "3.5 Kc\n"
 						  "4.0 Kc";
 
+static const char *steps = "1 Hz\n"
+						   "10 Hz\n"
+						   "50 Hz\n"
+						   "100 Hz\n"
+						   "250 Hz\n"
+						   "500 Hz\n"
+						   "1 kHz\n"
+						   "2.5 kHz\n"
+						   "3.125 kHz\n"
+						   "5 kHz\n"
+						   "6.25 kHz\n"
+						   "7.5 kHz\n"
+						   "8.33 kHz\n"
+						   "9 kHz\n"
+						   "10 kHz\n"
+						   "12.5 kHz\n"
+						   "15 kHz\n"
+						   "20 kHz\n"
+						   "25 kHz\n"
+						   "50 kHz\n"
+						   "100 kHz\n"
+						   "200 kHz\n";
+
 std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz"};
 std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000};
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};

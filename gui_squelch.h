@@ -30,6 +30,7 @@ class gui_squelch
 	  int get_threshold() { return threshold.load(); }
 	  int get_bandwidth() { return bandwidth.load(); }
 	  int get_mode() { return squelch_mode.load(); }
+	  void set_group();
 
 	  static constexpr auto button_handler = EventHandler<gui_squelch, &gui_squelch::button_handler_class>::staticHandler;
 	  static constexpr auto threshold_slider_event_cb = EventHandler<gui_squelch, &gui_squelch::threshold_slider_event_cb_class>::staticHandler;

@@ -3,6 +3,7 @@
 #include "vfo.h"
 #include "gui_vfo.h"
 #include "screen.h"
+#include "sdrberry.h"
 
 gui_squelch guisquelch;
 
@@ -107,6 +108,12 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
 
 	lv_group_add_obj(m_button_group, tabbuttons);
+}
+
+void gui_squelch::set_group()
+{
+	lv_indev_set_group(encoder_indev_t, m_button_group);
+	lv_group_focus_obj(button[0]);
 }
 
 void gui_squelch::set_bandwidth_slider(int _bandwidth)

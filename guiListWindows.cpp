@@ -11,8 +11,8 @@ guiListWindows::guiListWindows(lv_obj_t *parent, void *thisptr, std::string name
 	{
 		listWindowObj = lv_win_create(lv_scr_act(), windowsliderbar);
 		lv_win_add_title(listWindowObj, name.c_str());
-		lv_obj_t *btn = lv_win_add_btn(listWindowObj, LV_SYMBOL_CLOSE, 60);
-		lv_obj_add_event_cb(btn, btnWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
+		//lv_obj_t *btn = lv_win_add_btn(listWindowObj, LV_SYMBOL_CLOSE, 60);
+		//lv_obj_add_event_cb(btn, btnWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_t *btnok = lv_win_add_btn(listWindowObj, LV_SYMBOL_OK, 60);
 		lv_obj_add_event_cb(btnok, btnokWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_set_size(listWindowObj, width, height);

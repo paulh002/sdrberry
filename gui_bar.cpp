@@ -218,6 +218,8 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		txt += std::string("\n#0fff0f ") + stepsTypes[i] + std::string("#");
 		lv_label_set_text(label[buttonsteps], txt.c_str());
 		lv_obj_clear_state(get_button_obj(buttonsteps), LV_STATE_CHECKED);
+		Settings_file.save_int("Radio", "steps", i);
+		Settings_file.write_settings();
 		return;
 	}
 
@@ -394,7 +396,8 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface.SetRG(lv_slider_get_value(slider));
 	Settings_file.save_int(default_radio, "rf-gain", lv_slider_get_value(slider));
-	Settings_file.write_settings();updateweb();
+	Settings_file.write_settings();
+	updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), lv_slider_get_value(slider));
@@ -524,6 +527,8 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	ifilters.push_back(4500);
 	ifilters.push_back(5000);
 
+	steps_value = Settings_file.get_int("Radio", "steps", 0);
+
 	barview = o_parent;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
@@ -588,13 +593,16 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				lv_obj_add_flag(button[buttonvfo], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "VFO 1");
 				break;
-			case buttonsteps:
-				lv_obj_add_flag(button[buttonsteps], LV_OBJ_FLAG_CHECKABLE);
-				strcpy(str, "Steps");
-				lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK), (void *)this);
-				lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM), (void *)this);
-				
+			case buttonsteps: 
+				{
+					lv_obj_add_flag(button[buttonsteps], LV_OBJ_FLAG_CHECKABLE);
+					std::string txt = std::string("Steps");
+					txt += std::string("\n#0fff0f ") + stepsTypes[steps_value] + std::string("#");
+					strcpy(str, txt.c_str());
+					lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CLICKED), (void *)this);
+					lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK), (void *)this);
+					lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM), (void *)this);
+				}
 				break;
 			case buttonatt:
 				lv_obj_add_flag(button[buttonatt], LV_OBJ_FLAG_CHECKABLE);

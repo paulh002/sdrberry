@@ -39,7 +39,7 @@ class gui_bar
 	std::unique_ptr<guiSliderWindows> ritWindow;
 	std::unique_ptr<guiListWindows> stepsWindow;
 	int rit_value;
-	int steps_value{1};
+	int steps_value{0};
 
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);

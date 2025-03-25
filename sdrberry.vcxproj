@@ -120,6 +120,7 @@
     <ClCompile Include="FT8Processor.cpp" />
     <ClCompile Include="guiButtonWindows.cpp" />
     <ClCompile Include="GuiFt8Setting.cpp" />
+    <ClCompile Include="guiListWindows.cpp" />
     <ClCompile Include="guiSliderWindows.cpp" />
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
@@ -233,6 +234,7 @@
     <ClInclude Include="FT8Processor.h" />
     <ClInclude Include="guiButtonWindows.h" />
     <ClInclude Include="GuiFt8Setting.h" />
+    <ClInclude Include="guiListWindows.h" />
     <ClInclude Include="guiSliderWindows.h" />
     <ClInclude Include="gui_agc.h" />
     <ClInclude Include="Gui_band.h" />

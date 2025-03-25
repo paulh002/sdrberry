@@ -8,6 +8,7 @@
 #include "vfo.h"
 #include "guiButtonWindows.h"
 #include "guiSliderWindows.h"
+#include "guiListWindows.h"
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -36,7 +37,9 @@ class gui_bar
 	bool ifStyleState{false};
 	std::unique_ptr<guiButtonWindows> attenuatorWindow, preampWindow, modeWindow, MarkerWindow;
 	std::unique_ptr<guiSliderWindows> ritWindow;
+	std::unique_ptr<guiListWindows> stepsWindow;
 	int rit_value;
+	int steps_value{1};
 
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);
@@ -90,6 +93,7 @@ class gui_bar
 	void web_filterfreq();
 	void websetfilter(std::string message);
 	void setTxButtons();
+	float get_step_value();
 
 	lv_obj_t *get_button_obj(int i)
 	{

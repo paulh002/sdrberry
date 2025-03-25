@@ -84,7 +84,7 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	ibutton_y++;
 	bandwidth_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(bandwidth_slider, w / 2 - 50);
-	lv_slider_set_range(bandwidth_slider, 1, 100);
+	lv_slider_set_range(bandwidth_slider, 1, 1000);
 	lv_obj_align_to(bandwidth_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(bandwidth_slider, bandwidth_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_group_add_obj(m_button_group, bandwidth_slider);
@@ -92,7 +92,7 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	bandwidth_slider_label = lv_label_create(o_tab);
 	lv_label_set_text(bandwidth_slider_label, "bandwidth");
 	lv_obj_align_to(bandwidth_slider_label, bandwidth_slider, LV_ALIGN_TOP_MID, 0, -20);
-	set_bandwidth_slider(Settings_file.get_int("Squelch", "bandwidth", 0));
+	set_bandwidth_slider(Settings_file.get_int("Squelch", "bandwidth", 1));
 
 	// lv_obj_align_to(threshold_slider_label, o_tab, LV_ALIGN_CENTER, 0, -40);
 	threshold_slider_label = lv_label_create(o_tab);
@@ -119,7 +119,7 @@ void gui_squelch::set_group()
 void gui_squelch::set_bandwidth_slider(int _bandwidth)
 {
 	bandwidth = _bandwidth;
-	std::string buf = strlib::sprintf("bandwidth %d hz", bandwidth.load());
+	std::string buf = strlib::sprintf("attack & release %d ms", bandwidth.load());
 	lv_label_set_text(bandwidth_slider_label, buf.c_str());
 	lv_slider_set_value(bandwidth_slider, bandwidth, LV_ANIM_ON);
 	Settings_file.save_int("Squelch", "bandwidth", bandwidth.load());
@@ -176,7 +176,7 @@ void gui_squelch::bandwidth_slider_event_cb_class(lv_event_t *e)
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		bandwidth.store(lv_slider_get_value(obj));
-		std::string buf = strlib::sprintf("bandwidth %d Hz", bandwidth.load());
+		std::string buf = strlib::sprintf("attack & release %d ms", bandwidth.load());
 		lv_label_set_text(bandwidth_slider_label, buf.c_str());
 		Settings_file.save_int("Squelch", "bandwidth", bandwidth.load());
 	}

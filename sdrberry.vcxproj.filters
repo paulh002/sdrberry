@@ -370,6 +370,9 @@
     <ClCompile Include="gui_squelch.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="guiListWindows.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -816,6 +819,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_squelch.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="guiListWindows.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

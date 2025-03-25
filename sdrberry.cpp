@@ -445,10 +445,13 @@ int main(int argc, char *argv[])
 		disp_drv.ver_res = screenHeight;
 	}
 	lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
-	if (screenRotate)
+	if (screenRotate == 1)
 	{
 			disp_drv.sw_rotate = 1;
 			lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+	} else if (screenRotate == 3) {
+			disp_drv.sw_rotate = 1;
+			lv_disp_set_rotation(disp, LV_DISP_ROT_90);
 	}
 	// Initialize and register a pointer device driver
 	static lv_indev_drv_t indev_drv;

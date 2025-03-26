@@ -21,12 +21,13 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"VFO1", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"VFO2", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"Audio", {{"device", cfg::makeOption("USB Audio Device")}}},
-	{"screen", {{"resolution", cfg::makeOption(9)}}},
-	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}},
-	{"Speech", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(12)}, {"threshold", cfg::makeOption(0)}, {"bass", cfg::makeOption(0)}, {"treble", cfg::makeOption(0)}}},
-	{"wsjtx", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}, {"tx", cfg::makeOption("1200")}, {"rx", cfg::makeOption("1200")}, {"tableviewsize", cfg::makeOption("50")}}}
-};
-
+	{"screen", {{"resolution", cfg::makeOption(0)}, {"rotation", cfg::makeOption(0)} }}, 
+	{"Agc", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(10)}, {"threshold", cfg::makeOption(10)}}}, 
+	{"Speech", {{"mode", cfg::makeOption(1)}, {"ratio", cfg::makeOption(12)}, {"threshold", cfg::makeOption(0)}, 
+	{"bass", cfg::makeOption(0)}, {"treble", cfg::makeOption(0)}}}, 
+	{"wsjtx", {{"call", cfg::makeOption("PA0PHH")}, {"locator", cfg::makeOption("JO22")}, 
+	{"tx", cfg::makeOption("1200")}, {"rx", cfg::makeOption("1200")}, 
+	{"tableviewsize", cfg::makeOption("50")}}}};
 
 void Settings::write_settings()
 {	

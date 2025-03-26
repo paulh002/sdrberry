@@ -672,6 +672,7 @@ int main(int argc, char *argv[])
 		//	default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.set_step(gbar.get_step_value(), 0);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -863,7 +864,10 @@ int main(int argc, char *argv[])
 				}
 				break;
 			}
-
+			case GuiMessage::change_step:
+				gbar.change_step(-1);
+				break;
+			
 			case GuiMessage::step:
 				vfo.step_vfo(msg.data);
 				break;
@@ -1186,7 +1190,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		if (mode != mode_cw)
 			guirx.set_cw(false);
 		guift8bar.setmonitor(false);
-		vfo.set_step(10, 0);
+		vfo.set_step(gbar.get_step_value(), 0);
 		printf("Start AMDemodulator\n");
 		AMDemodulator::create_demodulator(mode, ifrate, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
@@ -1203,7 +1207,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		catinterface.MuteFA(true);
 		vfo.pause_step(true);
 		guift8bar.setmonitor(true);
-		vfo.set_step(10, 0);
+		vfo.set_step(gbar.get_step_value(), 0);
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;

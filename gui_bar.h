@@ -93,7 +93,9 @@ class gui_bar
 	void web_filterfreq();
 	void websetfilter(std::string message);
 	void setTxButtons();
-	float get_step_value();
+	int get_step_value();
+	void change_step(int i);
+	void update_step_button(int step);
 
 	lv_obj_t *get_button_obj(int i)
 	{

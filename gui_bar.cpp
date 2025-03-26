@@ -34,7 +34,7 @@ static const char *opts = "0.5 Kc\n"
 std::vector<std::string> stepsTypes{"1 Hz", "10 Hz", "50 Hz", "100 Hz", "250 Hz", "500 Hz", "1 kHz",
 									"2.5 kHz", "3.125 kHz", "5 kHz", "6.25 kHz", "7.5 kHz", "8.33 kHz",
 									"9 kHz", "10 kHz", "12.5 kHz", "15 kHz", "20 kHz", "25 kHz", "50 kHz", "100 kHz", "200 kHz"};
-std::vector<float> stepsValues{1, 10, 50, 100, 250, 500, 1000,2500, 3125, 5000, 6250, 7500, 8330,9000, 10000, 125000, 15000, 20000, 25000, 50000, 100000, 200000};
+std::vector<int> stepsValues{1, 10, 50, 100, 250, 500, 1000,2500, 3125, 5000, 6250, 7500, 8330,9000, 10000, 125000, 15000, 20000, 25000, 50000, 100000, 200000};
 std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz"};
 std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000};
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};
@@ -46,10 +46,18 @@ std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_ds
 
 gui_bar gbar;
 
-float gui_bar::get_step_value() 	
+int gui_bar::get_step_value() 	
 { 
 	return stepsValues[steps_value]; 
 }
+
+void gui_bar::change_step(int i)
+{
+	if (steps_value > 0)
+		steps_value--;
+	update_step_button(steps_value);
+}
+
 
 void gui_bar::web_filterfreq()
 {
@@ -213,13 +221,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 	if (code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CLICKED))
 	{
 		long i = (long)e->param;
-		steps_value = i;
-		std::string txt = std::string("Steps");
-		txt += std::string("\n#0fff0f ") + stepsTypes[i] + std::string("#");
-		lv_label_set_text(label[buttonsteps], txt.c_str());
-		lv_obj_clear_state(get_button_obj(buttonsteps), LV_STATE_CHECKED);
-		Settings_file.save_int("Radio", "steps", i);
-		Settings_file.write_settings();
+		update_step_button(i);
 		return;
 	}
 
@@ -365,6 +367,19 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 			}
 		}
 	}
+}
+
+void gui_bar::update_step_button(int step)
+{
+	steps_value = step;
+	std::string txt = std::string("Steps");
+	txt += std::string("\n#0fff0f ") + stepsTypes[step] + std::string("#");
+	lv_label_set_text(label[buttonsteps], txt.c_str());
+	lv_obj_clear_state(get_button_obj(buttonsteps), LV_STATE_CHECKED);
+	if (steps_value < stepsValues.size())
+		vfo.set_step(stepsValues.at(steps_value), 0);
+	Settings_file.save_int("Radio", "steps", steps_value);
+	Settings_file.write_settings();
 }
 
 void gui_bar::vol_slider_event_class(lv_event_t *e)
@@ -528,7 +543,6 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	ifilters.push_back(5000);
 
 	steps_value = Settings_file.get_int("Radio", "steps", 0);
-
 	barview = o_parent;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);

@@ -755,7 +755,7 @@ int main(int argc, char *argv[])
 		guisdr.init_bandwidth();
 		guisdr.init_antenna();
 		guisdr.init_settings();
-		gagc.set_sdr_state();
+		//gagc.set_sdr_state();
 		gbar.set_mode(mode);
 		select_mode(mode); // start streaming
 	}

@@ -6,7 +6,7 @@
 #include "screen.h"
 #include "gui_sdr.h"
 
-Gui_agc gagc;
+//Gui_agc gagc;
 
 void Gui_agc::agc_button_handler_class(lv_event_t * e)
 {

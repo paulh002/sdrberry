@@ -27,5 +27,6 @@ class AgcProcessor
 	void Lock(bool lock);
 	void print();
 	bool squelch();
+	void set_bandwidth(float bt);
 };
 

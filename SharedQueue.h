@@ -100,7 +100,8 @@ class GuiMessage
 		scrollWsjtx,
 		wsjtxMessage,
 		TranceiverMessage,
-		setvfo
+		setvfo,
+		change_step
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

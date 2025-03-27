@@ -508,11 +508,7 @@ void FMBroadBandDemodulator::operator()()
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
 	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
-	AudioProcessor Agc;
 
-	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
-	Agc.setThresholdDB(gagc.get_threshold());
-	Agc.setRatio(10);
 	receiveIQBuffer->clear();
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
@@ -585,7 +581,7 @@ void FMBroadBandDemodulator::operator()()
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
-			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(), Agc.getRelease());
+			//printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(), Agc.getRelease());
 			printf("rms %f db %f envelope %f\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope());
 			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";

@@ -110,3 +110,9 @@ bool AgcProcessor::squelch()
 		return true;
 	return false;
 }
+
+void AgcProcessor::set_bandwidth(float bt)
+{
+	if (bt <= 1.0 && bt > 0.0)
+		agc_crcf_set_bandwidth(agc_object, bt);
+}

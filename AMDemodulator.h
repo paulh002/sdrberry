@@ -12,7 +12,6 @@
 #include "MorseDecoder.h"
 #include "LMSNoisereducer.h"
 #include "SpectralNoiseReduction.h"
-#include "Agc_class.h"
 
 class AMDemodulator : public Demodulator
 {
@@ -33,7 +32,6 @@ public:
 	
   private:
 	ampmodem		demodulatorHandle {nullptr};
-	Agc_class		agc;
 	unique_ptr<MorseDecoder> pMDecoder;
 	unique_ptr<LMSNoisereducer> pLMS;
 	unique_ptr<Xanr> pXanr;

@@ -319,19 +319,19 @@ static void tabview_event_cb(lv_event_t *e)
 		guift8bar.hide(true);
 		guisquelch.set_group();
 		break;
-	case 4:
+	/*case 4:
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		gagc.set_group();
-		break;
-	case 5:
+		break;*/
+	case 4:
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		Gui_tx.set_group();
 		break;
-	case 6:
+	case 5:
 		if (gsetup.get_calibration())
 		{
 			gcal.hide(false);
@@ -345,19 +345,19 @@ static void tabview_event_cb(lv_event_t *e)
 		guift8bar.hide(true);
 		gspeech.set_group();
 		break;
-	case 7:
+	case 6:
 		gcal.hide(true);
 		gbar.hide(true);
 		guift8bar.hide(false);
 		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
-	case 8:
+	case 7:
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		guisdr.set_group();
 		break;
-	case 9:
+	case 8:
 		if (gsetup.get_calibration())
 		{
 			gcal.hide(false);
@@ -455,11 +455,13 @@ int main(int argc, char *argv[])
 	lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
 	if (screenRotate == 1)
 	{
-			disp_drv.sw_rotate = 1;
-			lv_disp_set_rotation(disp, LV_DISP_ROT_270);
-	} else if (screenRotate == 3) {
-			disp_drv.sw_rotate = 1;
-			lv_disp_set_rotation(disp, LV_DISP_ROT_90);
+		disp_drv.sw_rotate = 1;
+		lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+	}
+	else if (screenRotate == 3)
+	{
+		disp_drv.sw_rotate = 1;
+		lv_disp_set_rotation(disp, LV_DISP_ROT_90);
 	}
 	// Initialize and register a pointer device driver
 	static lv_indev_drv_t indev_drv;
@@ -566,7 +568,7 @@ int main(int argc, char *argv[])
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
 	//tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
 	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
-	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
+	//tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
@@ -579,7 +581,7 @@ int main(int argc, char *argv[])
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, tabHeight - buttonHeight,*audio_output);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
-	gagc.init(tab["agc"], LV_HOR_RES - 3);
+	//gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
@@ -670,6 +672,7 @@ int main(int argc, char *argv[])
 		//	default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.set_step(gbar.get_step_value(), 0);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -752,7 +755,7 @@ int main(int argc, char *argv[])
 		guisdr.init_bandwidth();
 		guisdr.init_antenna();
 		guisdr.init_settings();
-		gagc.set_sdr_state();
+		guisquelch.set_sdr_state();
 		gbar.set_mode(mode);
 		select_mode(mode); // start streaming
 	}
@@ -861,7 +864,10 @@ int main(int argc, char *argv[])
 				}
 				break;
 			}
-
+			case GuiMessage::change_step:
+				gbar.change_step(-1);
+				break;
+			
 			case GuiMessage::step:
 				vfo.step_vfo(msg.data);
 				break;
@@ -1184,7 +1190,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		if (mode != mode_cw)
 			guirx.set_cw(false);
 		guift8bar.setmonitor(false);
-		vfo.set_step(10, 0);
+		vfo.set_step(gbar.get_step_value(), 0);
 		printf("Start AMDemodulator\n");
 		AMDemodulator::create_demodulator(mode, ifrate, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
@@ -1201,7 +1207,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		catinterface.MuteFA(true);
 		vfo.pause_step(true);
 		guift8bar.setmonitor(true);
-		vfo.set_step(10, 0);
+		vfo.set_step(gbar.get_step_value(), 0);
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;
@@ -1426,6 +1432,7 @@ void switch_sdrreceiver(std::string receiver)
 		}
 		guisdr.init_bandwidth();
 		guisdr.init_antenna();
+		guisquelch.set_sdr_state();
 		select_mode(mode); // start streaming
 	}
 }

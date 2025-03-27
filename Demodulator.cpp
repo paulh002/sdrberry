@@ -601,6 +601,13 @@ void Demodulator::SquelchProcess(IQSampleVector &filter)
 			AgcProc.SetSquelchThreshold(t);
 			threshold = t;
 		}
+		int b = guisquelch.get_bandwidth();
+		if (b != bandwidth)
+		{
+			AgcProc.set_bandwidth((float)b / 1000.0);
+			bandwidth = b;
+		}
+			
 		squelch_mode = s;
 		if (s > 0)
 			AgcProc.Process(filter);

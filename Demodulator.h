@@ -142,5 +142,6 @@ class Demodulator
 
 	AgcProcessor AgcProc;
 	int threshold = -100;
+	int bandwidth = 1;
 	int squelch_mode = 0;
 };

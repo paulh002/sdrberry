@@ -755,7 +755,7 @@ int main(int argc, char *argv[])
 		guisdr.init_bandwidth();
 		guisdr.init_antenna();
 		guisdr.init_settings();
-		//gagc.set_sdr_state();
+		guisquelch.set_sdr_state();
 		gbar.set_mode(mode);
 		select_mode(mode); // start streaming
 	}
@@ -1432,6 +1432,7 @@ void switch_sdrreceiver(std::string receiver)
 		}
 		guisdr.init_bandwidth();
 		guisdr.init_antenna();
+		guisquelch.set_sdr_state();
 		select_mode(mode); // start streaming
 	}
 }

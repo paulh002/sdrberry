@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "vfo.h"
 #include "gui_vfo.h"
+#include "gui_sdr.h"
 #include "screen.h"
 #include "sdrberry.h"
 
@@ -66,6 +67,13 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(button[i], NULL);
 			break;
+		case 3:
+			buttonsdragc = i;
+			strcpy(str, "SDR Agc");
+			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+			lv_obj_set_user_data(button[i], NULL);
+			lv_obj_add_state(button[i], LV_STATE_DISABLED);
+			break;
 		}
 		lv_label_set_text(lv_label, str);
 		lv_obj_center(lv_label);
@@ -110,6 +118,20 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	lv_group_add_obj(m_button_group, tabbuttons);
 }
 
+void gui_squelch::set_sdr_state()
+{
+	if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
+	{
+		lv_obj_clear_state(button[buttonsdragc], LV_STATE_DISABLED);
+		lv_obj_clear_flag(button[buttonsdragc], LV_OBJ_FLAG_HIDDEN);
+	}
+	else
+	{
+		lv_obj_add_state(button[buttonsdragc], LV_STATE_DISABLED);
+		lv_obj_add_flag(button[buttonsdragc], LV_OBJ_FLAG_HIDDEN);
+	}
+}
+
 void gui_squelch::set_group()
 {
 	lv_indev_set_group(encoder_indev_t, m_button_group);
@@ -141,16 +163,51 @@ void gui_squelch::button_handler_class(lv_event_t *e)
 
 	if (code == LV_EVENT_CLICKED)
 	{
-		for (int i = 0; i < ibuttons; i++)
+		if (obj == button[buttonsdragc])
 		{
-			if ((obj != button[i]) && (lv_obj_has_flag(button[i], LV_OBJ_FLAG_CHECKABLE)))
+			// SDR button
+			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
-				lv_obj_clear_state(button[i], LV_STATE_CHECKED);
+				try
+				{
+					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
+					{
+						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), true);
+					}
+				}
+				catch (const std::exception &e)
+				{
+					std::cout << e.what();
+				}
 			}
 			else
 			{
-				squelch_mode = i;
-				Settings_file.save_int("Squelch", "enabled", squelch_mode.load());
+				try
+				{
+					if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
+					{
+						SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), false);
+					}
+				}
+				catch (const std::exception &e)
+				{
+					std::cout << e.what();
+				}
+			}
+		}
+		else
+		{
+			for (int i = 0; i < ibuttons -1; i++)
+			{
+				if ((obj != button[i]) && (lv_obj_has_flag(button[i], LV_OBJ_FLAG_CHECKABLE)))
+				{
+					lv_obj_clear_state(button[i], LV_STATE_CHECKED);
+				}
+				else
+				{
+					squelch_mode = i;
+					Settings_file.save_int("Squelch", "enabled", squelch_mode.load());
+				}
 			}
 		}
 	}

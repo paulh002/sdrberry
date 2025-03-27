@@ -10,10 +10,11 @@ class gui_squelch
 	lv_obj_t *threshold_slider_label, *threshold_slider;
 	lv_obj_t *button[10];
 	int ibuttons{0};
-	const int number_of_buttons{3};
+	const int number_of_buttons{4};
 	const int top_y{10};
 	std::atomic<int> squelch_mode{0};
 	lv_group_t *m_button_group{nullptr};
+	int buttonsdragc;
 
 	std::atomic<int> bandwidth;
 	std::atomic<int> threshold;
@@ -31,6 +32,7 @@ class gui_squelch
 	  int get_bandwidth() { return bandwidth.load(); }
 	  int get_mode() { return squelch_mode.load(); }
 	  void set_group();
+	  void set_sdr_state();
 
 	  static constexpr auto button_handler = EventHandler<gui_squelch, &gui_squelch::button_handler_class>::staticHandler;
 	  static constexpr auto threshold_slider_event_cb = EventHandler<gui_squelch, &gui_squelch::threshold_slider_event_cb_class>::staticHandler;

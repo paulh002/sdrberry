@@ -1,9 +1,7 @@
 #include "FMDemodulator.h"
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
-#include "gui_agc.h"
 #include "gui_bar.h"
-#include "Agc_class.h"
 #include "sdrberry.h"
 #include <thread>
 
@@ -36,11 +34,7 @@ void FMDemodulator::operator()()
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
 	Limiter limiter(limiterAtack, limiterDecay, ifSampleRate);
-	AudioProcessor Agc;
 
-	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
-	Agc.setThresholdDB(gagc.get_threshold());
-	Agc.setRatio(10);
 	receiveIQBuffer->clear();
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
@@ -74,14 +68,7 @@ void FMDemodulator::operator()()
 		perform_fft(iqsamples);
 		set_signal_strength();
 		process(iqsamples, audiosamples);
-		if (gagc.get_agc_mode())
-		{
-			Agc.setRelease(gagc.get_release());
-			Agc.setRatio(gagc.get_ratio());
-			Agc.setAtack(gagc.get_atack());
-			Agc.setThresholdDB(gagc.get_threshold());
-			Agc.processBlock(audiosamples);
-		}
+
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
 		int noaudiosamples = audiosamples.size();
@@ -120,7 +107,8 @@ void FMDemodulator::operator()()
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
-			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(), Agc.getRelease());
+			// printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(), Agc.getRelease());
+			SquelchPrint();
 			printf("rms %f db %f envelope %f\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope());
 			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
@@ -150,22 +138,24 @@ void FMDemodulator::operator()()
 
 void FMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 {
-	IQSampleVector		filter1, filter2;
+	IQSampleVector		filter1;
 		
 	// mix to correct frequency
 	mix_down(samples_in);
-	Resample(samples_in, filter2);
-	lowPassAudioFilter(filter2, filter1);
-	filter2.clear();
+	Resample(samples_in, filter1);
+	lowPassAudioFilter(filter1);
+	SquelchProcess(filter1);
 	calc_signal_level(filter1);
 	for (auto col : filter1)
 	{
 		float v;
 		
 		freqdem_demodulate(demodFM, col, &v);
-		audio.push_back(v);
+		if (Squelch())
+			audio.push_back(0.0);
+		else
+			audio.push_back(v);
 	}	
-	filter1.clear();
 }
 
 FMDemodulator::~FMDemodulator()

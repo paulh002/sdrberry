@@ -56,4 +56,4 @@ class Gui_agc
 	//const int	max_threshold {200};
 };
 
-extern Gui_agc gagc;
+//extern Gui_agc gagc;

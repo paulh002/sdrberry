@@ -1,6 +1,5 @@
 #include <thread>
 #include "AMDemodulator.h"
-#include "gui_agc.h"
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 #include "SharedQueue.h"
@@ -10,6 +9,7 @@
 #include "gui_rx.h"
 #include <complex>
 #include <complex.h>
+
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -104,8 +104,6 @@ void AMDemodulator::operator()()
 	std::chrono::high_resolution_clock::time_point  now, start1, start2;
 	std::chrono::microseconds phasetime;
 	long SampleT;
-
-	AudioProcessor Agc;
 	
 	int lowPassAudioFilterCutOffFrequency {-1}, droppedFrames {0};
 	SampleVector            audioSamples, audioFrames;
@@ -127,9 +125,6 @@ void AMDemodulator::operator()()
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
 	pXanr = make_unique<Xanr>();
-	Agc.prepareToPlay(audioOutputBuffer->get_samplerate());
-	Agc.setThresholdDB(gagc.get_threshold());
-	Agc.setRatio(10);
 	receiveIQBuffer->clear();
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
@@ -163,15 +158,6 @@ void AMDemodulator::operator()()
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
 		set_signal_strength();
-		if (gagc.get_agc_mode())
-		{
-			Agc.setRelease(gagc.get_release());
-			Agc.setRatio(gagc.get_ratio());
-			Agc.setAtack(gagc.get_atack());
-			Agc.setThresholdDB(gagc.get_threshold());
-			Agc.processBlock(audioSamples);
-		}
-		
 		// Set nominal audio volume.
 		audioOutputBuffer->adjust_gain(audioSamples);
 		int noaudiosamples = audioSamples.size();
@@ -243,7 +229,7 @@ void AMDemodulator::operator()()
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
-			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(),Agc.getRelease());
+			SquelchPrint();
 			printf("rms %f db %f envelope %f suppression %f db\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope(), getSuppression());
 			printf("RF samples %ld Af samples %ld ratio %f \n", noRfSamples, noAfSamples, (float)noAfSamples / (float)noRfSamples);
 			//printf("Process time %lld Samples %d\n", pr_time, nosamples);
@@ -280,17 +266,20 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	
 	// mix to correct frequency
 	mix_down(samples_in);
-	Resample(samples_in, filter2);
+	Resample(samples_in, filter1);
+	SquelchProcess(filter1);
 	if (get_noise())
 	{
-		NoiseFilterProcess(filter2, filter3);
-		lowPassAudioFilter(filter3, filter1);
+		lowPassAudioFilter(filter1);
+		calc_signal_level(filter1);
+		NoiseFilterProcess(filter1, filter2);
+		filter1 = filter2;
 	}
 	else
 	{
-		lowPassAudioFilter(filter2, filter1);
+		lowPassAudioFilter(filter1);
+		calc_signal_level(filter1);
 	}
-	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)
@@ -298,7 +287,10 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 		float v;
 
 		ampmodem_demodulate(demodulatorHandle, (liquid_float_complex)col, &v);
-		audio.push_back(v);
+		if (Squelch())
+			audio.push_back(0.0);
+		else
+			audio.push_back(v);
 	}
 }
 	

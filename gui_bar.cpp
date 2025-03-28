@@ -14,7 +14,7 @@ const int buttontx = 0;
 const int buttontune = 1;
 const int buttonmode = 2;
 const int buttonvfo = 3;
-const int buttonpreamp = 4;
+const int buttonsteps = 4;
 const int buttonatt = 5;
 const int buttonnoise = 6;
 const int buttonrit = 7;
@@ -31,6 +31,10 @@ static const char *opts = "0.5 Kc\n"
 						  "3.5 Kc\n"
 						  "4.0 Kc";
 
+std::vector<std::string> stepsTypes{"1 Hz", "10 Hz", "50 Hz", "100 Hz", "250 Hz", "500 Hz", "1 kHz",
+									"2.5 kHz", "3.125 kHz", "5 kHz", "6.25 kHz", "7.5 kHz", "8.33 kHz",
+									"9 kHz", "10 kHz", "12.5 kHz", "15 kHz", "20 kHz", "25 kHz", "50 kHz", "100 kHz", "200 kHz"};
+std::vector<int> stepsValues{1, 10, 50, 100, 250, 500, 1000,2500, 3125, 5000, 6250, 7500, 8330, 9000, 10000, 12500, 15000, 20000, 25000, 50000, 100000, 200000};
 std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz"};
 std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000};
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};
@@ -41,6 +45,19 @@ std::vector<std::string> MarkerTypes{"off", "M 1", "M 2"};
 std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}};
 
 gui_bar gbar;
+
+int gui_bar::get_step_value() 	
+{ 
+	return stepsValues[steps_value]; 
+}
+
+void gui_bar::change_step(int i)
+{
+	if (steps_value > 0)
+		steps_value--;
+	update_step_button(steps_value);
+}
+
 
 void gui_bar::web_filterfreq()
 {
@@ -123,7 +140,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 
-	if (code == customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK))
+	if (code == customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK) || code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK) || code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM))
 	{
 		if (attenuatorWindow != nullptr)
 		{
@@ -137,11 +154,11 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 			modeWindow = nullptr;
 			lv_obj_clear_state(get_button_obj(buttonmode), LV_STATE_CHECKED);
 		}
-		if (preampWindow != nullptr)
+		if (stepsWindow != nullptr)
 		{
-			preampWindow.reset();
-			preampWindow = nullptr;
-			lv_obj_clear_state(get_button_obj(buttonpreamp), LV_STATE_CHECKED);
+			stepsWindow.reset();
+			stepsWindow = nullptr;
+			lv_obj_clear_state(get_button_obj(buttonsteps), LV_STATE_CHECKED);
 		}
 		if (MarkerWindow != nullptr)
 		{
@@ -201,18 +218,10 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		return;
 	}
 
-	if (code == customLVevents.getCustomEvent(LV_EVENT_PREAMP_CLICKED))
+	if (code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CLICKED))
 	{
-		preampWindow.reset();
-		preampWindow = nullptr;
 		long i = (long)e->param;
-		std::string txt = std::string("PreAmp");
-		if (i)
-		{
-			txt += std::string("\n#0fff0f ") + preamTypes[i] + std::string("#");
-		}
-		lv_label_set_text(label[buttonpreamp], txt.c_str());
-		lv_obj_clear_state(get_button_obj(buttonpreamp), LV_STATE_CHECKED);
+		update_step_button(i);
 		return;
 	}
 
@@ -307,10 +316,10 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 						lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					}
 					break;
-				case buttonpreamp:
-					if (preampWindow == nullptr)
+				case buttonsteps:
+					if (stepsWindow == nullptr)
 					{
-						preampWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Preamp", preamTypes, -1, customLVevents.getCustomEvent(LV_EVENT_PREAMP_CLICKED), 300, 150);
+						stepsWindow = std::make_unique<guiListWindows>(obj, (void *)this, "Steps", stepsTypes, steps_value, customLVevents.getCustomEvent(LV_EVENT_STEPS_CLICKED), 200, 300);
 					}
 					break;
 				case buttonatt:
@@ -360,6 +369,19 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 	}
 }
 
+void gui_bar::update_step_button(int step)
+{
+	steps_value = step;
+	std::string txt = std::string("Steps");
+	txt += std::string("\n#0fff0f ") + stepsTypes[step] + std::string("#");
+	lv_label_set_text(label[buttonsteps], txt.c_str());
+	lv_obj_clear_state(get_button_obj(buttonsteps), LV_STATE_CHECKED);
+	if (steps_value < stepsValues.size())
+		vfo.set_step(stepsValues.at(steps_value), 0);
+	Settings_file.save_int("Radio", "steps", steps_value);
+	Settings_file.write_settings();
+}
+
 void gui_bar::vol_slider_event_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
@@ -388,7 +410,8 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 
 	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface.SetRG(lv_slider_get_value(slider));
-	Settings_file.save_rf(lv_slider_get_value(slider));
+	Settings_file.save_int(default_radio, "rf-gain", lv_slider_get_value(slider));
+	Settings_file.write_settings();
 	updateweb();
 	try
 	{
@@ -435,7 +458,8 @@ void gui_bar::set_gain_slider(int gain, bool web)
 		gain = min_gain;
 	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
-	Settings_file.save_rf(gain);
+	Settings_file.save_int(default_radio, "rf-gain", gain);
+	Settings_file.write_settings();
 	catinterface.SetRG(gain);
 	if (web)
 		updateweb();
@@ -518,6 +542,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	ifilters.push_back(4500);
 	ifilters.push_back(5000);
 
+	steps_value = Settings_file.get_int("Radio", "steps", 0);
 	barview = o_parent;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
@@ -582,11 +607,16 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 				lv_obj_add_flag(button[buttonvfo], LV_OBJ_FLAG_CHECKABLE);
 				strcpy(str, "VFO 1");
 				break;
-			case buttonpreamp:
-				lv_obj_add_flag(button[buttonpreamp], LV_OBJ_FLAG_CHECKABLE);
-				strcpy(str, "PreAmp");
-				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_PREAMP_CLICKED), (void *)this);
-				lv_obj_add_event_cb(button[buttonpreamp], bar_button_handler, customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM), (void *)this);
+			case buttonsteps: 
+				{
+					lv_obj_add_flag(button[buttonsteps], LV_OBJ_FLAG_CHECKABLE);
+					std::string txt = std::string("Steps");
+					txt += std::string("\n#0fff0f ") + stepsTypes[steps_value] + std::string("#");
+					strcpy(str, txt.c_str());
+					lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CLICKED), (void *)this);
+					lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK), (void *)this);
+					lv_obj_add_event_cb(button[buttonsteps], bar_button_handler, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM), (void *)this);
+				}
 				break;
 			case buttonatt:
 				lv_obj_add_flag(button[buttonatt], LV_OBJ_FLAG_CHECKABLE);

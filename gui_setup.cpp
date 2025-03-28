@@ -124,6 +124,8 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 		audio_input->open(std::string(buf));
 		audio_output->open(std::string(buf));
 		select_mode(mode, false);
+		Settings_file.save_string("Audio", "device", std::string(buf));
+		Settings_file.write_settings();
 	}
 }
 

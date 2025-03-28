@@ -146,6 +146,12 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 
+void gui_sdr::set_group()
+{
+	lv_indev_set_group(encoder_indev_t, button_group);
+	lv_group_focus_obj(d_samplerate);
+}
+
 void gui_sdr::receivers_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);

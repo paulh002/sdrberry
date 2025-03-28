@@ -13,6 +13,7 @@
 #include "DataBuffer.h"
 #include "SharedQueue.h"
 #include "NoiseFilter.h"
+#include "AgcProcessor.h"
 
 extern atomic<double> correlationMeasurement, errorMeasurement;
 
@@ -98,6 +99,10 @@ class Demodulator
 	void NoiseFilterProcess(IQSampleVector &filter_in, IQSampleVector &filter_out);
 	float getResampleRate() { return resampleRate; }
 
+	void SquelchProcess(IQSampleVector &filter);
+	bool Squelch();
+	void SquelchPrint();
+
   private:
 	EnergyCalculator ifEnergy, afEnergy, SignalStrength;
 	mode_enum rxTxMode;
@@ -134,4 +139,9 @@ class Demodulator
 	static std::atomic<int> noisefilter;
 	static std::atomic<float> noiseThresshold;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
+
+	AgcProcessor AgcProc;
+	int threshold = -100;
+	int bandwidth = 1;
+	int squelch_mode = 0;
 };

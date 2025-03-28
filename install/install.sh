@@ -74,6 +74,7 @@ binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
 libboost-all-dev python3 libfftw3-dev \
 libglfw3-dev vim libxkbcommon-dev
+libglfw3-dev vim libxkbcommon-dev
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 
@@ -149,6 +150,23 @@ make
 sudo make install
 sudo ldconfig
 sudo sed -i '$a\dtoverlay=hifiberry-dacplusadcpro' /boot/config.txt
+fi
+
+#cd to work dir . If does not exist exit script
+cd $wrkdir || exit
+
+if [[ $sdrboard == PLT ]] ; then
+if [[ $PACKAGES == 'YES' ]]; then
+sudo apt install -y libad9361-dev libad9361-0 libusb-1.0-0-dev
+else
+git clone https://github.com/analogdevicesinc/libad9361-iio
+cd libad9361-iio || exit
+cmake ./CMakeLists.txt
+mkdir build
+make -j4
+sudo make install
+sudo ldconfig
+fi
 fi
 
 if [[ $sdrboard == PLT ]] ; then
@@ -284,23 +302,6 @@ echo ""
 echo "Radioberry driver installed."
 
 #-----------------------------------------------------------------------------
-fi
-
-#cd to work dir . If does not exist exit script
-cd $wrkdir || exit
-
-if [[ $sdrboard == PLT ]] ; then
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt install libad9361-dev libad9361-0 python3-ad9361
-else
-git clone https://github.com/analogdevicesinc/libad9361-iio
-cd libad9361-iio || exit
-cmake ./CMakeLists.txt
-mkdir build
-make -j4
-sudo make install
-sudo ldconfig
-fi
 fi
 
 #cd to work dir . If does not exist exit script

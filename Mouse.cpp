@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <dirent.h>
+#include "SharedQueue.h"
 
 #define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
 #define NBITS(x) ((((x)-1) / (sizeof(long) * 8)) + 1)
@@ -201,9 +202,7 @@ MouseState Mouse::GetMouseState()
 
 			if (mouse_event.type == EV_KEY && mouse_event.code == BTN_MIDDLE && mouse_event.value == 1)
 			{
-					step = step * 10;
-					if (step > 100)
-						step = 1;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::change_step, count));
 			}
 			
 			if (mouse_event.type == EV_REL && mouse_event.code == REL_WHEEL)

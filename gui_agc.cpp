@@ -6,7 +6,7 @@
 #include "screen.h"
 #include "gui_sdr.h"
 
-Gui_agc gagc;
+//Gui_agc gagc;
 
 void Gui_agc::agc_button_handler_class(lv_event_t * e)
 {
@@ -196,7 +196,7 @@ void Gui_agc::init(lv_obj_t* o_tab, lv_coord_t w)
 			lv_obj_set_user_data(button[i], (void *)mode_narrowband_fm);
 			break;
 		case 4:
-			strcpy(str, "SDR");
+			strcpy(str, "SDR Agc");
 			lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 			lv_obj_set_user_data(button[i], (void *)4);
 			lv_obj_add_state(button[i], LV_STATE_DISABLED);

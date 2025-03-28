@@ -27,6 +27,7 @@
 #include "gui_bottom_bar.h"
 #include "Gui_band.h"
 #include "gui_sdr.h"
+#include "gui_squelch.h"
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "Catinterface.h"
@@ -152,7 +153,8 @@ const int bottombutton_width1 = (screenWidth / nobuttons);
 const int buttonHeight = 40;
 int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
-const int hidetx{5};
+const int hidetx{4};
+const int hidespeech{5};
 
 lv_color_t *display_buf;
 lv_obj_t *scr;
@@ -315,8 +317,14 @@ static void tabview_event_cb(lv_event_t *e)
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
-		gagc.set_group();
+		guisquelch.set_group();
 		break;
+	/*case 4:
+		gcal.hide(true);
+		gbar.hide(false);
+		guift8bar.hide(true);
+		gagc.set_group();
+		break;*/
 	case 4:
 		gcal.hide(true);
 		gbar.hide(false);
@@ -341,9 +349,15 @@ static void tabview_event_cb(lv_event_t *e)
 		gcal.hide(true);
 		gbar.hide(true);
 		guift8bar.hide(false);
-		gft8.set_group();
+		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
 	case 7:
+		gcal.hide(true);
+		gbar.hide(false);
+		guift8bar.hide(true);
+		guisdr.set_group();
+		break;
+	case 8:
 		if (gsetup.get_calibration())
 		{
 			gcal.hide(false);
@@ -354,12 +368,6 @@ static void tabview_event_cb(lv_event_t *e)
 			gcal.hide(true);
 			gbar.hide(false);
 		}
-		guift8bar.hide(true);
-		lv_indev_set_group(encoder_indev_t, button_group);
-		break;
-	case 8:
-		gcal.hide(true);
-		gbar.hide(false);
 		guift8bar.hide(true);
 		guift8setting.set_group();
 		break;
@@ -445,10 +453,15 @@ int main(int argc, char *argv[])
 		disp_drv.ver_res = screenHeight;
 	}
 	lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
-	if (screenRotate)
+	if (screenRotate == 1)
 	{
-			disp_drv.sw_rotate = 1;
-			lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+		disp_drv.sw_rotate = 1;
+		lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+	}
+	else if (screenRotate == 3)
+	{
+		disp_drv.sw_rotate = 1;
+		lv_disp_set_rotation(disp, LV_DISP_ROT_90);
 	}
 	// Initialize and register a pointer device driver
 	static lv_indev_drv_t indev_drv;
@@ -554,9 +567,10 @@ int main(int argc, char *argv[])
 	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
 	//tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
-	tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
-	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
+	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
+	//tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
+	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
 	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	tab["sdr"] = (lv_tabview_add_tab(tabview_mid, "Sdr"));
@@ -567,12 +581,14 @@ int main(int argc, char *argv[])
 	gsetup.init(tab["settings"], LV_HOR_RES - 3, tabHeight - buttonHeight,*audio_output);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
-	gagc.init(tab["agc"], LV_HOR_RES - 3);
+	//gagc.init(tab["agc"], LV_HOR_RES - 3);
 	gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
+	guisquelch.init(tab["squelch"], lv_tabview_get_tab_btns(tabview_mid), LV_HOR_RES - 3);
 
 	static lv_style_t style_btn;
 	lv_style_init(&style_btn);
@@ -656,11 +672,13 @@ int main(int argc, char *argv[])
 		//	default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		vfo.set_step(gbar.get_step_value(), 0);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
 				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 				Gui_tx.set_drv_range();
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 				{
@@ -716,7 +734,7 @@ int main(int argc, char *argv[])
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
-		gbar.set_gain_slider(Settings_file.gain(default_radio));
+		gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
 		vfo.set_vfo(0LL, vfo_activevfo::One);
 		try
 		{
@@ -737,7 +755,7 @@ int main(int argc, char *argv[])
 		guisdr.init_bandwidth();
 		guisdr.init_antenna();
 		guisdr.init_settings();
-		gagc.set_sdr_state();
+		guisquelch.set_sdr_state();
 		gbar.set_mode(mode);
 		select_mode(mode); // start streaming
 	}
@@ -846,7 +864,10 @@ int main(int argc, char *argv[])
 				}
 				break;
 			}
-
+			case GuiMessage::change_step:
+				gbar.change_step(-1);
+				break;
+			
 			case GuiMessage::step:
 				vfo.step_vfo(msg.data);
 				break;
@@ -1169,7 +1190,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		if (mode != mode_cw)
 			guirx.set_cw(false);
 		guift8bar.setmonitor(false);
-		vfo.set_step(10, 0);
+		vfo.set_step(gbar.get_step_value(), 0);
 		printf("Start AMDemodulator\n");
 		AMDemodulator::create_demodulator(mode, ifrate, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
@@ -1186,7 +1207,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		catinterface.MuteFA(true);
 		vfo.pause_step(true);
 		guift8bar.setmonitor(true);
-		vfo.set_step(10, 0);
+		vfo.set_step(gbar.get_step_value(), 0);
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;
@@ -1298,6 +1319,7 @@ void switch_sdrreceiver(std::string receiver)
 	Settings_file.write_settings();
 	// Hide TX page
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 	if (SdrDevices.MakeDevice(default_radio))
 	{
 		float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
@@ -1337,6 +1359,7 @@ void switch_sdrreceiver(std::string receiver)
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
 				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 				Gui_tx.clear_sample_rate();
 				Gui_tx.set_drv_range();
 				Gui_tx.set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
@@ -1395,7 +1418,7 @@ void switch_sdrreceiver(std::string receiver)
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
-		gbar.set_gain_slider(Settings_file.gain());
+		gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
 		guift8bar.SetTxButtons();
 		gbar.setTxButtons();
 		//vfo.set_vfo(freq, false);
@@ -1409,6 +1432,7 @@ void switch_sdrreceiver(std::string receiver)
 		}
 		guisdr.init_bandwidth();
 		guisdr.init_antenna();
+		guisquelch.set_sdr_state();
 		select_mode(mode); // start streaming
 	}
 }

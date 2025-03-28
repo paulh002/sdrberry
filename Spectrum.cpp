@@ -13,6 +13,7 @@
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
 #include "gui_sdr.h"
+#include "gui_bar.h"
 #include "screen.h"
 #include "WebServer.h"
 #include "gui_rx.h"
@@ -130,7 +131,11 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 				f = vfo.get_sdr_span_frequency();
 				f = p.x * (span / screenWidth) + f;
 				if (vfo.get_frequency() != f)
+				{
+					f = f / gbar.get_step_value();
+					f = f * gbar.get_step_value();
 					vfo.set_vfo(f);
+				}
 			}
 		}
 	}

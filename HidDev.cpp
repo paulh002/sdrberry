@@ -34,7 +34,7 @@ HidDev::HidDev()
 {
 	m_fd = -1;
 	numIndex = 2;
-	step = 5;// steps of 100 Hz
+	step = 1;// steps managed by user
 	bstep = false;
 	last_val = 0;
 	speed = 0;

@@ -46,8 +46,8 @@ class gui_sdr
 	int get_current_tx_channel();
 	std::string getAntenna();
 	long getBandwidth();
-	
-	
+	void set_group();
+
 	static constexpr auto receivers_button_handler = EventHandler<gui_sdr, &gui_sdr::receivers_button_handler_class>::staticHandler;
 	static constexpr auto span_slider_event_cb = EventHandler<gui_sdr, &gui_sdr::span_slider_event_cb_class>::staticHandler;
 	static constexpr auto bandwidth_button_handler = EventHandler<gui_sdr, &gui_sdr::bandwidth_button_handler_class>::staticHandler;

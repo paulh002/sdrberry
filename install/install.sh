@@ -74,7 +74,6 @@ binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
 libboost-all-dev python3 libfftw3-dev \
 libglfw3-dev vim libxkbcommon-dev
-libglfw3-dev vim libxkbcommon-dev
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 
@@ -156,9 +155,12 @@ fi
 cd $wrkdir || exit
 
 if [[ $sdrboard == PLT ]] ; then
+sudo apt install -y libad9361-dev libad9361-0 libusb-1.0-0-dev libserialport0 
+sudo apt install -y libavahi-client-dev libxml2-dev
+sudo apt install -y flex bison libaio-dev
 git clone https://github.com/analogdevicesinc/libiio
 cd libiio || exit
-git checkout 0.21
+git switch 0.21
 mkdir build
 cmake ..
 make -j4
@@ -170,9 +172,9 @@ fi
 cd $wrkdir || exit
 
 if [[ $sdrboard == PLT ]] ; then
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt install -y libad9361-dev libad9361-0 libusb-1.0-0-dev
-else
+#sudo apt install -y libad9361-dev libad9361-0 libusb-1.0-0-dev libserialport0 
+#sudo apt install -y libavahi-client-dev libxml2-dev
+#sudo apt install -y flex bison libaio-dev
 git clone https://github.com/analogdevicesinc/libad9361-iio
 cd libad9361-iio || exit
 cmake ./CMakeLists.txt
@@ -180,7 +182,6 @@ mkdir build
 make -j4
 sudo make install
 sudo ldconfig
-fi
 fi
 
 if [[ $sdrboard == PLT ]] ; then

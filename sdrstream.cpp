@@ -286,24 +286,30 @@ void RX_Stream::destroy_rx_streaming_thread()
 	cout << "Stoptime RX_Stream:" << timePassed.count() << endl;
 }
 
+static SoapySDR::Stream *tx_stream{nullptr};
+static bool restart_stream{false};
+
 void TX_Stream::operator()()
 {
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
-
+	
 	IQSampleVector iqsamples, resampleData;
-	SoapySDR::Stream *tx_stream;
+	
 	int ret, dfactor, streammtu;
 	
 	try
 	{
 		// SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
 		// SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_TX, 0, string("A"));
-		tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CF32);
-		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
-		SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
+		if (tx_stream == nullptr || restart_stream)
+		{
+			tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CF32);
+			SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
+			SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
+		}
 		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 		SdrDevices.SdrDevices.at(radio)->activateStream(tx_stream);
 	}
@@ -328,7 +334,7 @@ void TX_Stream::operator()()
 		iqsamples = receiveIQBuffer->pull();
 		if (iqsamples.empty())
 			continue;
-		// printf("samples %d %d %d \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
+		//printf("samples %ld %ld %ld \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		samples_transmit = iqsamples.size();
 		complex<float> *buffs[5]{};
 		buffs[0] = (complex<float> *)iqsamples.data();
@@ -340,13 +346,22 @@ void TX_Stream::operator()()
 			int size = dfactor * samples_transmit;
 			resampleData.resize(size);
 			buffs[0] = (complex<float> *)resampleData.data();
+			//printf("input samples %ld out sample size %ld streammtu %d \n", iqsamples.size(), resampleData.size(), streammtu);
+
 			for (int ii = 0; ii < shuncks; ii++)
 			{
 				for (int i = 0; i < shunckdiv; i++)
 				{
 					msresamp2_crcf_execute(decimator, &iqsamples.data()[i + shunckdiv * ii], &resampleData.data()[i * dfactor]);
 				}
-				ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, shunckSize, flags, time_ns, 1e5);
+				int num_samples = shunckSize;
+				ret = 1;
+				while (num_samples > 0 && ret > 0)
+				{
+					ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
+					buffs[0] += ret;
+					num_samples -= ret;
+				}
 			}
 			int reststart = shuncks * shunckdiv;
 			int amount = samples_transmit * dfactor - reststart * dfactor;
@@ -356,6 +371,7 @@ void TX_Stream::operator()()
 			}
 			int num_samples = amount;
 			ret = 1;
+			buffs[0] = (complex<float> *)resampleData.data();
 			while (num_samples > 0 && ret > 0)
 			{
 				ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
@@ -413,7 +429,8 @@ void TX_Stream::operator()()
 	try
 	{
 		SdrDevices.SdrDevices.at(radio)->deactivateStream(tx_stream);
-		SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
+		if (restart_stream)
+			SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
 	}
 	catch (const std::exception &e)
 	{
@@ -449,10 +466,11 @@ TX_Stream::TX_Stream(double ifrate_, std::string sradio, int chan, DataBuffer<IQ
 	}
 }
 
-bool TX_Stream::create_tx_streaming_thread(double ifrate_, std::string radio, int chan, DataBuffer<IQSample> *source_buffer, double ifrate, unsigned int decimator_factor)
+bool TX_Stream::create_tx_streaming_thread(double ifrate_, std::string radio, int chan, DataBuffer<IQSample> *source_buffer, double ifrate, unsigned int decimator_factor, bool restart)
 {
 	if (ptr_tx_stream != nullptr)
 		return false;
+	restart_stream = restart;
 	ptr_tx_stream = make_shared<TX_Stream>(ifrate_, radio, chan, source_buffer, decimator_factor);
 	tx_thread = std::thread(&TX_Stream::operator(), ptr_tx_stream);
 	return true;

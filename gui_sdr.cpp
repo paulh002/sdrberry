@@ -64,7 +64,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_set_width(d_samplerate, button_width);
 
 	lv_obj_t *sample_label = lv_label_create(o_tab);
-	lv_label_set_text(sample_label, "Samplerate");
+	lv_label_set_text(sample_label, "Samplerate rx");
 	lv_obj_align_to(sample_label, d_samplerate, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 
 	int xpos = x_page_margin + button_width + x_margin;
@@ -129,12 +129,27 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	ibutton_y++;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin;
 	int brightness_y = 15 + y_margin + 2 * button_height_margin;
+
+	lv_obj_t *sampletx_label = lv_label_create(o_tab);
+	lv_label_set_text(sampletx_label, "Samplerate tx");
+	//lv_obj_align_to(sampletx_label, d_samplerate_tx, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+	lv_obj_align(sampletx_label, LV_ALIGN_TOP_LEFT, x_page_margin, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
+
+	d_samplerate_tx = lv_dropdown_create(o_tab);
+	lv_group_add_obj(button_group, d_samplerate);
+	lv_obj_align_to(d_samplerate_tx, sampletx_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+
+	//lv_obj_align(d_samplerate_tx, LV_ALIGN_TOP_LEFT, x_page_margin, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
+	lv_dropdown_clear_options(d_samplerate_tx);
+	lv_obj_add_event_cb(d_samplerate_tx, tx_samplerate_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_set_width(d_samplerate_tx, button_width);
+
 	span_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(button_group, span_slider);
 	lv_obj_set_width(span_slider, w / 2 - 50);
 	// lv_obj_center(span_slider);
 	// lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
-	lv_obj_align_to(span_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, y_span);
+	lv_obj_align_to(span_slider, o_tab, LV_ALIGN_TOP_LEFT, x_page_margin + button_width + x_margin, y_span);
 
 	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 
@@ -151,6 +166,42 @@ void gui_sdr::set_group()
 	lv_indev_set_group(encoder_indev_t, button_group);
 	lv_group_focus_obj(d_samplerate);
 }
+
+void gui_sdr::add_tx_sample_rate(int samplerate)
+{
+	char str[30];
+
+	tx_sample_rates.push_back(samplerate);
+	sprintf(str, "%d Khz", samplerate / 1000);
+	lv_dropdown_add_option(d_samplerate_tx, str, LV_DROPDOWN_POS_LAST);
+}
+
+void gui_sdr::set_tx_sample_rate(int rate)
+{
+	int i;
+	for (i = 0; i < tx_sample_rates.size(); i++)
+	{
+		if (tx_sample_rates[i] == rate)
+			break;
+	}
+	lv_dropdown_set_selected(d_samplerate_tx, i);
+}
+
+void gui_sdr::tx_samplerate_button_handler_class(lv_event_t *e)
+{
+	lv_obj_t *slider = lv_event_get_target(e);
+
+	int i = lv_dropdown_get_selected(slider);
+	Settings_file.save_int(default_radio, "samplerate_tx", sample_rates[i] / 1000);
+	Settings_file.write_settings();
+
+}
+
+void gui_sdr::clear_tx_sample_rate()
+{
+	lv_dropdown_clear_options(d_samplerate_tx);
+}
+
 
 void gui_sdr::receivers_button_handler_class(lv_event_t *e)
 {

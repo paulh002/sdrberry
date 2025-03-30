@@ -354,11 +354,25 @@ void TX_Stream::operator()()
 			{
 				msresamp2_crcf_execute(decimator, &iqsamples.data()[i + reststart], &resampleData.data()[i * dfactor]);
 			}
-			ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, amount, flags, time_ns, 1e5);
+			int num_samples = amount;
+			ret = 1;
+			while (num_samples > 0 && ret > 0)
+			{
+				ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
+				buffs[0] += ret;
+				num_samples -= ret;
+			}
 		}
 		else
 		{
-			ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, samples_transmit, flags, time_ns, 1e5);
+			int num_samples = samples_transmit;
+			ret = 1; 
+			while (num_samples > 0 && ret > 0)
+			{
+				ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
+				buffs[0] += ret;
+				num_samples -= ret;
+			}
 		}
 		if (ret == SOAPY_SDR_TIMEOUT)
 		{

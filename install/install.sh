@@ -156,6 +156,20 @@ fi
 cd $wrkdir || exit
 
 if [[ $sdrboard == PLT ]] ; then
+git clone https://github.com/analogdevicesinc/libiio
+cd libiio || exit
+git checkout 0.21
+mkdir build
+cmake ..
+make -j4
+sudo make install
+sudo ldconfig
+fi
+
+#cd to work dir . If does not exist exit script
+cd $wrkdir || exit
+
+if [[ $sdrboard == PLT ]] ; then
 if [[ $PACKAGES == 'YES' ]]; then
 sudo apt install -y libad9361-dev libad9361-0 libusb-1.0-0-dev
 else

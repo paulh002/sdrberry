@@ -338,8 +338,11 @@ void TX_Stream::operator()()
 		samples_transmit = iqsamples.size();
 		complex<float> *buffs[5]{};
 		buffs[0] = (complex<float> *)iqsamples.data();
+		
+
 		if (decimator)
 		{
+			//int samples_send = 0;
 			const int shunckSize = streammtu; //131072; // 65536;
 			const int shunckdiv = shunckSize / dfactor;
 			const int shuncks = samples_transmit / shunckdiv;
@@ -348,6 +351,7 @@ void TX_Stream::operator()()
 			buffs[0] = (complex<float> *)resampleData.data();
 			//printf("input samples %ld out sample size %ld streammtu %d \n", iqsamples.size(), resampleData.size(), streammtu);
 
+			//printf("streammtu %d shuncks %d input samples %d out sample size %d factor %d shunckdiv %d\n", streammtu, shuncks,samples_transmit, size, dfactor, shunckdiv);
 			for (int ii = 0; ii < shuncks; ii++)
 			{
 				for (int i = 0; i < shunckdiv; i++)
@@ -361,6 +365,7 @@ void TX_Stream::operator()()
 					ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
 					buffs[0] += ret;
 					num_samples -= ret;
+					//samples_send += ret;
 				}
 			}
 			int reststart = shuncks * shunckdiv;
@@ -377,7 +382,9 @@ void TX_Stream::operator()()
 				ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
 				buffs[0] += ret;
 				num_samples -= ret;
+				//samples_send += ret;
 			}
+			//printf("input samples %d out sample size %d samples send %d\n", samples_transmit, size, samples_send);
 		}
 		else
 		{
@@ -462,7 +469,7 @@ TX_Stream::TX_Stream(double ifrate_, std::string sradio, int chan, DataBuffer<IQ
 		decimatorFactor = decimator_factor;
 		decimator = msresamp2_crcf_create(type, decimator_factor, fc, f0, As);
 		msresamp2_crcf_print(decimator);
-		printf("TX STREAM Interpoloation %d\n", (int)pow(2, decimator_factor));
+		printf("TX STREAM Interpoloation %d ifrate %d\n", (int)pow(2, decimator_factor), (int)ifrate);
 	}
 }
 

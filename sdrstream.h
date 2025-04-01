@@ -42,7 +42,8 @@ class TX_Stream
   public:
 	TX_Stream(double ifrate_, std::string sradio, int chan, DataBuffer<IQSample> *source_buffer, unsigned int decimator_factor);
 	static bool create_tx_streaming_thread(double ifrate_, std::string sradio, int chan, DataBuffer<IQSample> *source_buffer, double ifrate, unsigned int decimator_factor, bool restart);
-	static void destroy_tx_streaming_thread();
+	static void destroy_tx_streaming_thread(bool close_stream = false);
+	void close_tx_stream();
 	void operator()();
 	atomic<bool> stop_flag{false};
 

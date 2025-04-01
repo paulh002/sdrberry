@@ -309,8 +309,8 @@ void TX_Stream::operator()()
 			tx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_TX, SOAPY_SDR_CF32);
 			SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_TX, 0, ifrate);
 			SdrDevices.SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, (double)vfo.get_tx_frequency());
+			SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 		}
-		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_TX, 0, Gui_tx.get_drv_pos());
 		SdrDevices.SdrDevices.at(radio)->activateStream(tx_stream);
 	}
 	catch (const std::exception &e)
@@ -389,8 +389,8 @@ void TX_Stream::operator()()
 		else
 		{
 			int num_samples = samples_transmit;
-			ret = 1; 
-			while (num_samples > 0 && ret > 0)
+			ret = 1;
+			while (num_samples > 0 && ret > 0 && !stop_flag.load())
 			{
 				ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
 				buffs[0] += ret;
@@ -483,7 +483,7 @@ bool TX_Stream::create_tx_streaming_thread(double ifrate_, std::string radio, in
 	return true;
 }
 
-void TX_Stream::destroy_tx_streaming_thread()
+void TX_Stream::destroy_tx_streaming_thread(bool close_stream)
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -491,9 +491,19 @@ void TX_Stream::destroy_tx_streaming_thread()
 		return;
 	ptr_tx_stream->stop_flag = true;
 	tx_thread.join();
+	if (close_stream)
+		ptr_tx_stream->close_tx_stream();
 	ptr_tx_stream.reset();
 
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "Stoptime TX_Stream:" << timePassed.count() << endl;
 }
+
+void TX_Stream::close_tx_stream()
+{
+	if (tx_stream)
+		SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
+	tx_stream = nullptr;
+}
+

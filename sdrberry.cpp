@@ -1081,7 +1081,7 @@ uint32_t custom_tick_get(void)
 
 static bool stream_rx_on{false};
 
-void destroy_demodulators(bool all)
+void destroy_demodulators(bool all, bool close_stream)
 {
 	FMDemodulator::destroy_demodulator();
 	AMDemodulator::destroy_demodulator();
@@ -1096,7 +1096,7 @@ void destroy_demodulators(bool all)
 		stream_rx_on = false;
 		pause_flag = false;
 	}
-	TX_Stream::destroy_tx_streaming_thread();
+	TX_Stream::destroy_tx_streaming_thread(close_stream);
 }
 
 void update_filter(int bandwidth)
@@ -1238,11 +1238,11 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	int halfduplex = Settings_file.get_int(default_radio, "halfduplex", 0);
 	if (halfduplex)
 	{
-		destroy_demodulators(true);
+		destroy_demodulators(true, false);
 	}
 	else
 	{
-		destroy_demodulators(false);
+		destroy_demodulators(false, false);
 	}
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
@@ -1317,7 +1317,7 @@ void switch_sdrreceiver(std::string receiver)
 	int default_tx_channel = 0;
 	
 	/// First switchoff current receiver
-	destroy_demodulators(true);
+	destroy_demodulators(true, true);
 	SdrDevices.UnMakeDevice(default_radio);
 	default_radio = receiver;
 	Settings_file.save_string("SDR Receivers", "default", default_radio);

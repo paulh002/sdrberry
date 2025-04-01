@@ -25,7 +25,7 @@ extern std::string default_radio;
 
 void select_mode(int s_mode, bool bvfo = true, int channel = 0);
 bool select_mode_tx(int s_mode, audioTone tone = audioTone::NoTone, int cattx = TX_MAN, int channel  = 0);
-void destroy_demodulators(bool all = false);
+void destroy_demodulators(bool all = false, bool close_stream = false);
 void update_filter(int bandwidth);
 bool IsDigtalMode();
 int IsScreenRotated();

@@ -496,6 +496,8 @@ void gui_sdr::clear_sample_rate()
 {
 	sample_rates.clear();
 	lv_dropdown_clear_options(d_samplerate);
+	tx_sample_rates.clear();
+	lv_dropdown_clear_options(d_samplerate_tx);
 }
 
 void gui_sdr::set_radio(std::string name)

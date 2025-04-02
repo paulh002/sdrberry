@@ -1359,6 +1359,7 @@ void switch_sdrreceiver(std::string receiver)
 		guift8bar.SetTxButtons();
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		guisdr.clear_sample_rate();
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -1381,7 +1382,6 @@ void switch_sdrreceiver(std::string receiver)
 			std::cout << e.what();
 		}
 		// Rx sample rates
-		guisdr.clear_sample_rate();
 		try
 		{
 			if (default_rx_channel >= 0)

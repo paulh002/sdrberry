@@ -1,14 +1,14 @@
 # sdrberry
-Raspberry pi SDR tranceiver / fronted using lvgl gui 
+Raspberry pi SDR transceiver / frontend using lvgl gui 
 !!! This is an ongoing project code only for information purpose only. 
 The main goal for this project is to learn about c++ programming, liquid dsp, and for most the use of the GUI toolkit LVGL v8
-Functionalit is in beta currently
+Functionality is in beta currently
 
 This source code is still in development.  
 Goal is to support Adalm pluto SDR, Radioberry, RTL-SDR, SDRPlay etc but it should also support other SDR receivers based on SoapySDR.
 Also the goal is to support optical encoder and support I2C / serial interface for bandpass filtering
-I use an ESP32 as CAT controler with a service for an optical encoder.
-Alternative a Contour Shuttle express can be used as rotary controler and or a mouse. 
+I use an ESP32 as CAT controller with a service for an optical encoder.
+Alternative a Contour Shuttle express can be used as rotary controller and or a mouse. 
 
 To install you need to configure rasberry pi OS in text only mode (64 bit Bullseye), create a sd card or even better a usb stick sd cards tend to fail after a while,
 with 64 bit bullseye CLI mode. Configure wifi and use raspi-config to switch on I2C and boot to CLI only with logon. 
@@ -23,8 +23,8 @@ install script install.sh installs all components based on a fresh raspberry pi 
 ## Hardware requirements
 - Raspberry pi 4 Model B or Pi 5
 - LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector or the new raspberry Touch 2 7 inch display
-- It is prefered not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
-- Generic USB Audio adaptor for audio in and output
+- It is preferred not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
+- Generic USB Audio adapter for audio in and output
 
 ## This software makes use of opensource libraries like
 - Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction  adapted for raspberry pi
@@ -37,11 +37,11 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - webserver
 
 ## ToDo
-- Support for Midi contoler
-- Cheap USB Hid controlers
+- Support for Midi controller
+- Cheap USB Hid controllers
 - Optical encoder direct on GPIO (some hardware adaption needed) 
 - Setup screen for Network and Wifi
-- Different noise reduction schemas like lms etc.
+- Different noise reduction schemes like lms etc.
 - codec2 implementation (FreeDV)
 
 ## Done
@@ -55,22 +55,22 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - FM Narrowband
 - SSB support
 - Transmitter part
-- USB CAT interface support (config serial controler in cfg file example ESP32 as CAT controler)
+- USB CAT interface support (config serial controller in cfg file example ESP32 as CAT controller)
 - i2c filter support for PCF8574
-- USB Controler with ESP32 (Optical contoler for vfo and 2 mechanical encoders for volume and gain etc)
+- USB controller with ESP32 (Optical controller for vfo and 2 mechanical encoders for volume and gain etc)
 - Add audio device selection
-- TFT brightness controll
+- TFT brightness control
 - Support both Raspberry pi buster and Bullseye
 - CMake compilation
 - Morse code decoder
 - Support for Contour Shuttle Express
 - Receive, transmit FT8
 - Noise reduction (spectral noise reduction, Kim)
-- Support for audio sdr using Tayloe directsdr (Hifiberry)
+- Support for audio sdr using Taylor directsdr (Hifiberry)
 - Mouse support
 - Keyboard for FT8
 - waterfall display
-- Cheap USB Hid Volume controlers as tuning controler
+- Cheap USB Hid Volume controllers as tuning controller
 - Add setup page for I2C configuration
 
 ## Installation of libraries is necessary:
@@ -89,7 +89,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - nlohmann json
 
 # Installation
-## Preperation before install
+## Preparation before install
 Take a good quality USB drive and install the latest 64 bit Raspberry OS on it.
 I advise not to use SD cards, these are very slow and often fail in a short time.
 Use raspi-config to switch to console auto logon startup.
@@ -117,7 +117,7 @@ chmod +x install.sh
 ./install.sh RDB T2
 ```
 ## start sdrberry  
-sdrberry can be started in usermode or as root, this depends on the device beeing used for radioberry use sudo
+sdrberry can be started in user mode or as root, this depends on the device being used for radioberry use sudo
 ```
 sudo sdrberry > sdrberry.log 2>&1
 ```
@@ -144,9 +144,9 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 ![sdrberry](images/IMG_20231015_131803.jpg)
 
 # Web Server on port 8081
-First version of sdrberry webserver, goal is to remote controle the functions of sdrberry.
+First version of sdrberry webserver, goal is to remote control the functions of sdrberry.
 This is still an experiment / beta version. To see what is the best way to integrate web with C++ application.
-WEB pages are build with VUE JS 3 and Primevui source code will be shared later in seperate github repo.
+WEB pages are build with VUE JS 3 and Primevue source code will be shared later in separate github repo.
 
 Copy sdrweb directory to pi home dir 
 Open the WSJTX webpage on http://raspberry_pi_ip:8081

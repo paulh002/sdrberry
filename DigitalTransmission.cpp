@@ -33,7 +33,8 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	guift8bar.WaterfallSetMaxMin(500.0, 0);
 	sp_ammod = make_shared<AMModulator>(param, source_buffer_tx, audio_input);
 	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
-	TX_Stream::create_tx_streaming_thread(ifrate, default_radio, param.txChannel, source_buffer_tx, ifrate_tx, guisdr.get_decimation());
+	bool restart = (bool)Settings_file.get_int(default_radio, "restart_tx", 1);
+	TX_Stream::create_tx_streaming_thread(ifrate, default_radio, param.txChannel, source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 
 	now = std::chrono::system_clock::now();
 	cout << "Start TX stream running " << date::make_time(now - today) << endl;

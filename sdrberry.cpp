@@ -683,9 +683,9 @@ int main(int argc, char *argv[])
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 				{
 					int v = (int)col;
-					Gui_tx.add_sample_rate(v);
+					guisdr.add_tx_sample_rate(v);
 				}
-				Gui_tx.set_sample_rate((int)ifrate_tx);
+				guisdr.set_tx_sample_rate((int)ifrate_tx);
 			}
 		}
 		catch (const std::exception &e)
@@ -1081,7 +1081,7 @@ uint32_t custom_tick_get(void)
 
 static bool stream_rx_on{false};
 
-void destroy_demodulators(bool all)
+void destroy_demodulators(bool all, bool close_stream)
 {
 	FMDemodulator::destroy_demodulator();
 	AMDemodulator::destroy_demodulator();
@@ -1096,7 +1096,7 @@ void destroy_demodulators(bool all)
 		stream_rx_on = false;
 		pause_flag = false;
 	}
-	TX_Stream::destroy_tx_streaming_thread();
+	TX_Stream::destroy_tx_streaming_thread(close_stream);
 }
 
 void update_filter(int bandwidth)
@@ -1238,17 +1238,22 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	int halfduplex = Settings_file.get_int(default_radio, "halfduplex", 0);
 	if (halfduplex)
 	{
-		destroy_demodulators(true);
+		destroy_demodulators(true, false);
 	}
 	else
 	{
-		destroy_demodulators(false);
+		destroy_demodulators(false, false);
 	}
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());
 	vfo.set_vfo(0, vfo_activevfo::None);
-	printf("select_mode_tx start tx threads\n");
+	int tx_rate = Settings_file.get_int(default_radio, "samplerate_tx");
+	float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
+	ifrate_tx = tx_rate * 1000 / decimate;
+
+	bool restart = (bool)Settings_file.get_int(default_radio, "restart_tx", 1);
+	printf("select_mode_tx start tx threads samplerate %f10.0 restart %d\n", ifrate_tx, restart);
 	switch (mode)
 	{
 	case mode_broadband_fm:
@@ -1258,7 +1263,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 
 	case mode_narrowband_fm:
 		FMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation());
+		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 		break;
 
 	case mode_cw:
@@ -1271,7 +1276,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		param.tone = tone;
 		param.ifrate = ifrate_tx;
 		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
-		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation());
+		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 		break;
 	
 	case mode_echo:
@@ -1312,7 +1317,7 @@ void switch_sdrreceiver(std::string receiver)
 	int default_tx_channel = 0;
 	
 	/// First switchoff current receiver
-	destroy_demodulators(true);
+	destroy_demodulators(true, true);
 	SdrDevices.UnMakeDevice(default_radio);
 	default_radio = receiver;
 	Settings_file.save_string("SDR Receivers", "default", default_radio);
@@ -1354,21 +1359,22 @@ void switch_sdrreceiver(std::string receiver)
 		guift8bar.SetTxButtons();
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
+		guisdr.clear_sample_rate();
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
 				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
-				Gui_tx.clear_sample_rate();
+				guisdr.clear_sample_rate();
 				Gui_tx.set_drv_range();
 				Gui_tx.set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 				{
 					int v = (int)col;
-					Gui_tx.add_sample_rate(v);
+					guisdr.add_tx_sample_rate(v);
 				}
-				Gui_tx.set_sample_rate((int)ifrate_tx);
+				guisdr.set_tx_sample_rate((int)ifrate_tx);
 			}
 		}
 		catch (const std::exception &e)
@@ -1376,7 +1382,6 @@ void switch_sdrreceiver(std::string receiver)
 			std::cout << e.what();
 		}
 		// Rx sample rates
-		guisdr.clear_sample_rate();
 		try
 		{
 			if (default_rx_channel >= 0)

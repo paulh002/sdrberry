@@ -10,13 +10,14 @@ class gui_sdr
   private:
 	long span;
 	lv_style_t style_btn, style_tile, settings_style;
-	vector<int> sample_rates;
+	std::vector<int> sample_rates;
 	lv_obj_t *tileview, *main_tile, *settings_tile;
-	lv_obj_t *d_samplerate, *d_decimate;
+	lv_obj_t *d_samplerate, *d_decimate, *d_samplerate_tx;
 	lv_obj_t *d_receivers;
 	lv_obj_t *span_slider_label, *span_slider;
 	lv_obj_t *d_bandwitdth, *d_antenna, *settingsTable;
 	lv_group_t *button_group{nullptr};
+	std::vector<int> tx_sample_rates;
 
 	void receivers_button_handler_class(lv_event_t *e);
 	void span_slider_event_cb_class(lv_event_t *e);
@@ -24,11 +25,15 @@ class gui_sdr
 	void samplerate_button_handler_class(lv_event_t *e);
 	void decimate_button_handler_class(lv_event_t *e);
 	void antenna_button_handler_class(lv_event_t *e);
+	void tx_samplerate_button_handler_class(lv_event_t *e);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h);
 	void add_sample_rate(int samplerate);
 	void set_sample_rate(int rate);
+	void set_tx_sample_rate(int rate);
+	void add_tx_sample_rate(int samplerate);
+	void clear_tx_sample_rate();
 	void set_samplerate();
 	int get_sample_rate(int rate);
 	int get_decimation();
@@ -53,7 +58,9 @@ class gui_sdr
 	static constexpr auto bandwidth_button_handler = EventHandler<gui_sdr, &gui_sdr::bandwidth_button_handler_class>::staticHandler;
 	static constexpr auto samplerate_button_handler = EventHandler<gui_sdr, &gui_sdr::samplerate_button_handler_class>::staticHandler;
 	static constexpr auto decimate_button_handler = EventHandler<gui_sdr, &gui_sdr::decimate_button_handler_class>::staticHandler;
-	static constexpr auto antenna_button_handler = EventHandler<gui_sdr, &gui_sdr::antenna_button_handler_class>::staticHandler;	
+	static constexpr auto antenna_button_handler = EventHandler<gui_sdr, &gui_sdr::antenna_button_handler_class>::staticHandler;
+	static constexpr auto tx_samplerate_button_handler = EventHandler<gui_sdr, &gui_sdr::tx_samplerate_button_handler_class>::staticHandler;
+	
 };
 
 extern gui_sdr guisdr;

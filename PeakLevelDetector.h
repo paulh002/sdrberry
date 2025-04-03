@@ -75,7 +75,7 @@ class AudioProcessor
 	float peakOut;
 	float peakSum;
 	float peakSumDb;
-	float gainDb;
+	float gainDb{0.0};
 	float thresholdDb;
 	
 	std::unique_ptr<PeakLevelDetector> LevelDetector;

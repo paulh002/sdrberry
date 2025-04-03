@@ -143,12 +143,6 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 	lv_group_add_obj(m_button_group, drv_slider);
 
 	ibutton_y++;
-	drp_samplerate = lv_dropdown_create(o_tab);
-	lv_obj_align(drp_samplerate, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
-	lv_dropdown_clear_options(drp_samplerate);
-	lv_group_add_obj(m_button_group, drp_samplerate);
-
-	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 
 void gui_tx::set_group()
@@ -379,31 +373,6 @@ void gui_tx::set_tx_state(bool state)
 		lv_obj_clear_state(tx_button[0], LV_STATE_CHECKED); 		
 		//vfo.set_active_vfo(0);
 	}
-}
-
-void gui_tx::clear_sample_rate()
-{
-	lv_dropdown_clear_options(drp_samplerate);
-}
-
-void gui_tx::add_sample_rate(int samplerate)
-{
-	char	str[30];
-	
-	sample_rates.push_back(samplerate);
-	sprintf(str, "%d Khz", samplerate / 1000);
-	lv_dropdown_add_option(drp_samplerate, str, LV_DROPDOWN_POS_LAST);
-}
-
-void gui_tx::set_sample_rate(int rate)
-{
-	int i;
-	for (i = 0; i < sample_rates.size(); i++)
-	{
-		if (sample_rates[i] == rate)
-			break;
-	}
-	lv_dropdown_set_selected(drp_samplerate, i);
 }
 
 lv_obj_t* gui_tx::get_button_obj(int i)

@@ -77,7 +77,6 @@ void RX_Stream::operator()()
 		default_block_length = 65536;
 	rx_sampleRate = ifrate / 1000000.0;
 	default_block_length = Settings_file.get_int(default_radio, "buffersize", default_block_length);
-
 	printf("default block length is set to %d ifrate %f\n", default_block_length, ifrate);
 	try
 	{

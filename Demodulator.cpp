@@ -168,8 +168,11 @@ float Demodulator::adjust_resample_rate(float rateAjustFraction)
 		}
 		msresamp_crcf_print(resampleHandle);
 	}
-	std::string str1 = std::to_string(resampleRate);
-	Settings_file.save_string(default_radio, "resamplerate", str1);
+	std::vector<std::string> resamplerate_setting;
+	resamplerate_setting.push_back(std::to_string(resampleRate));
+	resamplerate_setting.push_back(std::to_string(Settings_file.get_int(default_radio, "samplerate", 0)));
+	resamplerate_setting.push_back(to_string(Settings_file.get_int(default_radio, "decimate", 0)));
+	Settings_file.set_array_string(default_radio, "resample_rate", resamplerate_setting);
 	Settings_file.write_settings();
 	return resampleRate;
 }

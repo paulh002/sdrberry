@@ -25,16 +25,24 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	int						suppressed_carrier;
 	liquid_ampmodem_type	am_mode;
 	float bandwidth{2500}; // SSB
-	float sample_ratio{0.0}, sample_ratio1{0.0};
+	float sample_ratio{0.0};
+	std::vector<std::string> resamplerate_setting;
 
 	// 1.05
-	sample_ratio1 = ((float)audio_output->get_samplerate()) / ifrate;
-	std::string sampleratio = Settings_file.get_string(default_radio, "resamplerate");
-	sscanf(sampleratio.c_str(), "%f", &sample_ratio);
-
-	if (abs(sample_ratio1 - sample_ratio) > 0.1 || sampleratio.length() == 0)
-		sample_ratio = sample_ratio1;
-
+	sample_ratio = ((float)audio_output->get_samplerate()) / ifrate;
+	resamplerate_setting = Settings_file.get_array_string(default_radio, "resample_rate");
+	if (resamplerate_setting.size() == 3)
+	{
+		if (std::stoi(resamplerate_setting.at(1)) == (int)round(ifrate / 1000.0))
+		{
+			int decimate = Settings_file.get_int(default_radio, "decimate",0);
+			if (std::stoi(resamplerate_setting.at(2)) == decimate)
+			{
+				sscanf(resamplerate_setting.at(0).c_str(), "%f", &sample_ratio);
+				printf("Sampleratio %f\n", sample_ratio);
+			}
+		}
+	}
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
 
 	switch (mode)

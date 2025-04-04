@@ -270,6 +270,7 @@ void gui_sdr::set_samplerate()
 
 	Settings_file.save_int(default_radio, "samplerate", get_sample_rate(rate) / 1000);
 	Settings_file.write_settings();
+	destroy_demodulators(true, true);
 
 	float rx_ifrate = ifrate * pow(2, decimate);
 	printf("ifrate %f rxifrate %f \n", ifrate, rx_ifrate);
@@ -286,16 +287,6 @@ void gui_sdr::set_samplerate()
 	else
 		vfo.vfo_re_init((long)ifrate, span, audio_output->get_samplerate(), 0L);
 
-	destroy_demodulators(true);
-	try
-	{
-		SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, get_current_rx_channel(), rx_ifrate);
-	}
-	catch (const std::exception &e)
-	{
-		std::cout << e.what() << endl;
-		return;
-	}
 	select_mode(mode);
 	set_span_range(ifrate);
 	set_span_value(ifrate);

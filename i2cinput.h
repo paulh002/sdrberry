@@ -16,6 +16,7 @@ class i2cinput
 	static void create_i2c_input_thread();
 	static void destroy_i2c_input_thread();
 	static uint16_t get_data();
+	static uint16_t get_pin(int pin);
 
   private:
 	atomic<bool> stop_flag{false};

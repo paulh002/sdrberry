@@ -113,3 +113,13 @@ uint16_t i2cinput::get_data()
 		return ptr_i2cinput_thread->data.load();
 	return 0;
 }
+
+uint16_t i2cinput::get_pin(int pin)
+{
+	if (ptr_i2cinput_thread != nullptr)
+	{
+		return (ptr_i2cinput_thread->data.load() & (0x01 << pin));
+	}
+
+	return 0;
+}

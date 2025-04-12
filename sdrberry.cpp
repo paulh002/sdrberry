@@ -818,8 +818,8 @@ int main(int argc, char *argv[])
 		
 		if (!IsDigtalMode())
 		{
-			uint16_t input_data = i2cinput::get_data();
-			if ((input_data & 0x01) == 0)
+		//	uint16_t input_data = i2cinput::get_data();
+			if (i2cinput::get_pin(0) == 0)
 			{
 				if (!mode_state_rxtx && default_tx_channel >= 0)
 				{

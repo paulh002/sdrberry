@@ -376,6 +376,7 @@ void gui_i2csetup::Save()
 		list.push_back(col);
 	}
 	Settings_file.set_array_string("i2c", "address", list);
+	Settings_file.write_settings();
 }
 
 void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *bg)

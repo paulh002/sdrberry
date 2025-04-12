@@ -47,6 +47,7 @@
 #include "WebServer.h"
 #include <nlohmann/json.hpp>
 #include <sys/file.h>
+#include "i2cinput.h"
 
 using json = nlohmann::json;
 
@@ -175,6 +176,10 @@ std::mutex gui_mutex;
 int mode = mode_broadband_fm;
 double ifrate = 0.53e6; //1.0e6;//
 double ifrate_tx;
+int mode_state_rxtx = 0;
+int default_rx_channel = 0;
+int default_tx_channel = 0;
+
 //double freq = 89800000;
 //double	tuner_freq = freq + 0.25 * ifrate;
 //double	tuner_offset = freq - tuner_freq;
@@ -578,7 +583,7 @@ int main(int argc, char *argv[])
 	
 	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
-	gsetup.init(tab["settings"], LV_HOR_RES - 3, tabHeight - buttonHeight,*audio_output);
+	gsetup.init(tab["settings"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight,*audio_output);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//gagc.init(tab["agc"], LV_HOR_RES - 3);
@@ -634,11 +639,10 @@ int main(int argc, char *argv[])
 		SdrDevices.AddDevice(con, probe);
 	}
 	
+	i2cinput::create_i2c_input_thread();
+
 	if (SdrDevices.MakeDevice(default_radio))
 	{
-		int default_rx_channel = 0;
-		int default_tx_channel = 0;
-
 		guift8bar.SetTxButtons();
 		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
 			default_tx_channel = -1;
@@ -685,7 +689,7 @@ int main(int argc, char *argv[])
 					int v = (int)col;
 					guisdr.add_tx_sample_rate(v);
 				}
-				guisdr.set_tx_sample_rate((int)ifrate_tx);
+				guisdr.set_tx_sample_rate((int)tx_rate * 1000);
 			}
 		}
 		catch (const std::exception &e)
@@ -809,8 +813,30 @@ int main(int argc, char *argv[])
 			{
 				gcal.SetErrorCorrelation(errorMeasurement,correlationMeasurement);
 			}
-		}
 
+		}
+		
+		if (!IsDigtalMode())
+		{
+			uint16_t input_data = i2cinput::get_data();
+			if ((input_data & 0x01) == 0)
+			{
+				if (!mode_state_rxtx && default_tx_channel >= 0)
+				{
+					select_mode_tx(mode, audioTone::NoTone, 0);
+					mode_state_rxtx = 1;
+				}
+			}
+			else
+			{
+				if (mode_state_rxtx)
+				{
+					select_mode(mode);
+					mode_state_rxtx = 0;
+				}
+			}
+		}
+		
 		while (wsjtx->pullMessage(msg))
 		{
 			gft8.add_line(msg.hh,
@@ -1313,8 +1339,8 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 void switch_sdrreceiver(std::string receiver)
 {
 	SoapySDR::Range r;
-	int default_rx_channel = 0;
-	int default_tx_channel = 0;
+	default_rx_channel = 0;
+	default_tx_channel = 0;
 	
 	/// First switchoff current receiver
 	destroy_demodulators(true, true);
@@ -1374,7 +1400,7 @@ void switch_sdrreceiver(std::string receiver)
 					int v = (int)col;
 					guisdr.add_tx_sample_rate(v);
 				}
-				guisdr.set_tx_sample_rate((int)ifrate_tx);
+				guisdr.set_tx_sample_rate((int)tx_rate * 1000);
 			}
 		}
 		catch (const std::exception &e)

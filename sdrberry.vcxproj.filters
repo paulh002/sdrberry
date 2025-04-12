@@ -373,6 +373,12 @@
     <ClCompile Include="guiListWindows.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_i2c_input.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="i2cinput.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -822,6 +828,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="guiListWindows.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_i2c_input.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="i2cinput.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

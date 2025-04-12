@@ -22,6 +22,7 @@ class TCA9548V2
 {
   public:
 	// address = 0x70 .. 0x77
+	TCA9548V2() = default;
 	TCA9548V2(const uint8_t deviceAddress = 0x70);
 	bool begin(uint8_t mask = 0x00);   // default no channels enabled
 	bool isConnected();				   // find multiplexer on I2C bus

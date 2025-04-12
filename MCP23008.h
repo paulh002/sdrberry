@@ -35,6 +35,7 @@
 class MCP23008
 {
   public:
+	MCP23008() = default;
 	MCP23008(uint8_t address);
 
 	bool begin();

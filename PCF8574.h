@@ -38,6 +38,7 @@
 class PCF8574
 {
   public:
+	PCF8574() = default;
 	explicit PCF8574(const uint8_t deviceAddress);
 
 #if defined(ESP8266) || defined(ESP32)

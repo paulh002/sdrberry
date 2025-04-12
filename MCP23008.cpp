@@ -21,6 +21,7 @@
 #define MCP23008_GPIO_A 0x09	//   General Purpose IO A           P 19
 #define MCP23008_OLAT_A 0x0A	//   NOT USED output latch          P 20
 
+
 MCP23008::MCP23008(uint8_t address)
 {
 	_address = address;

@@ -28,3 +28,7 @@ ffplay -f lavfi -i "sine=frequency=1000" -nodisp
 sudo apt-get install sox
 export AUDIODEV=hw:0,0
 play -r 192k -n synth sine 10000
+
+//store volume
+alsamixer
+sudo alsactl store

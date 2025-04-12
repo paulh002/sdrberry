@@ -9,6 +9,7 @@
 #include "gui_ft8bar.h"
 #include "gui_bar.h"
 #include "gui_i2csetup.h"
+#include "gui_i2c_input.h"
 #include "Demodulator.h"
 #include "screen.h"
 #include "WebServer.h"
@@ -129,8 +130,7 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 	}
 }
 
-
-void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice)
+void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice)
 {
 
 	const lv_coord_t x_page_margin = 5;
@@ -161,9 +161,16 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	
 	settings_i2c = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
 	i2csetup.init(settings_i2c, w, h,button_group);
-
+	
+	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
+	gui_i2cinput.init(settings_i2c_input, w, h, button_group);
+	
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
-
+	
+	lv_style_init(&text_style);
+	lv_style_set_radius(&text_style, 0);
+	lv_style_set_bg_color(&text_style, lv_color_black());
+	
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -179,9 +186,31 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	
 	int xpos = 0;
 
+	qra_textarea = lv_textarea_create(settings_main);
+	lv_obj_add_style(qra_textarea, &text_style, 0);
+	lv_textarea_set_one_line(qra_textarea, true);
+	lv_obj_align(qra_textarea, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
+	lv_obj_add_event_cb(qra_textarea, qra_textarea_event_handler, LV_EVENT_ALL, qra_textarea);
+	lv_obj_add_state(qra_textarea, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
+	//lv_obj_set_width(qra_textarea, button_width - 20);
+	lv_obj_set_size(qra_textarea, button_width - 20, button_height - 10);
+	lv_obj_set_style_pad_top(qra_textarea, 4, LV_PART_MAIN);
+	lv_obj_set_style_pad_bottom(qra_textarea, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_left(qra_textarea, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_right(qra_textarea, 2, LV_PART_MAIN);
+	if (keyboard_group != nullptr)
+		lv_group_add_obj(keyboard_group, qra_textarea);
+	std::string call = Settings_file.get_string("wsjtx", "call");
+	//locator = Settings_file.get_string("wsjtx", "locator");
+	lv_textarea_add_text(qra_textarea, call.c_str());
+
+	text_label = lv_label_create(settings_main);
+	lv_label_set_text(text_label, "QRA");
+	lv_obj_align_to(text_label, qra_textarea, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+	
 	d_audio = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, d_audio);
-	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
+	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, xpos + button_width +x_margin, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
 	lv_obj_set_width(d_audio, 2 * button_width); // 2*
 	lv_dropdown_clear_options(d_audio);
 	lv_obj_add_event_cb(d_audio, audio_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -206,7 +235,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	int y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	calibration_dropdown = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, calibration_dropdown);
-	lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2, y_cal);
+	lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
 	lv_obj_set_width(calibration_dropdown, button_width); // 2*
 	lv_dropdown_clear_options(calibration_dropdown);
 	lv_obj_add_event_cb(calibration_dropdown, cal_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -217,6 +246,9 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_dropdown_set_selected(calibration_dropdown, Settings_file.get_int(default_radio, "correction", 0));
 	Demodulator::set_autocorrection(Settings_file.get_int(default_radio, "correction", 0));
 
+	ibutton_y++;
+	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	
 	calbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
 	lv_checkbox_set_text(calbox, "cal");
@@ -244,7 +276,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 		Demodulator::set_dc_filter(false);
 	}
 
-	ibutton_y++;
+	//ibutton_y++;
 	// xpos = xpos + x_margin + 2 * button_width;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin ;
 	brightness_slider = lv_slider_create(settings_main);
@@ -261,6 +293,18 @@ void gui_setup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, AudioOutput &a
 	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+}
+
+void gui_setup::qra_textarea_event_handler_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_CLICKED && kb == nullptr)
+	{
+		//kb = lv_keyboard_create(lv_scr_act());
+		//lv_keyboard_set_textarea(kb, qra_textarea);
+		//Settings_file.save();
+	}
 }
 
 void gui_setup::set_group()

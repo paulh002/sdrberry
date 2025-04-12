@@ -78,7 +78,7 @@ bool PCF8574::isConnected()
 
 uint8_t PCF8574::read8()
 {
-	int ret = wiringPiI2CReadReg8(_address, (uint8_t)1);
+	int ret = wiringPiI2CReadReg8(fd, (uint8_t)1);
 	if (ret < 0)
       {
         _error = PCF8574_I2C_ERROR;

@@ -56,6 +56,7 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 	for (auto col : ids)
 	{
 		dev = getDeviceInfo(col);
+		printf("device %s out %d in %d \n", dev.name.c_str(), dev.outputChannels, dev.inputChannels);
 		if (dev.outputChannels > 0 && dev.inputChannels > 0)
 			devices.push_back(dev.name);
 	}

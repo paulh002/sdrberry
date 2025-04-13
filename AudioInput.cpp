@@ -50,17 +50,13 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 
 void AudioInput::listDevices(std::vector<std::string> &devices)
 {
-	int noDevices = this->getDeviceCount();
 	struct DeviceInfo	dev;
 		
-	if (noDevices < 1) {
-		std::cout << "\nNo audio devices found!\n";
-		return ;
-	}
-	for (int i = 0; i < noDevices; i++)
+	std::vector<unsigned int> ids = this->getDeviceIds();	
+	for (auto col : ids)
 	{
-		dev = getDeviceInfo(i);
-		if (dev.outputChannels > 0 || dev.inputChannels > 0)
+		dev = getDeviceInfo(col);
+		if (dev.outputChannels > 0 && dev.inputChannels > 0)
 			devices.push_back(dev.name);
 	}
 }

@@ -32,7 +32,7 @@ class gui_setup
 	int get_maxbrightness();
 	
   public:
-	void init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice);
+	void init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h);
 	void set_brightness(int brightness);
 	int get_brightness();
 	bool get_calibration() { return (lv_obj_get_state(calbox) & LV_STATE_CHECKED); }

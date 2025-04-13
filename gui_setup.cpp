@@ -130,7 +130,7 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 	}
 }
 
-void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h, AudioOutput &audioDevice)
+void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h)
 {
 
 	const lv_coord_t x_page_margin = 5;
@@ -214,7 +214,9 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	lv_obj_set_width(d_audio, 2 * button_width); // 2*
 	lv_dropdown_clear_options(d_audio);
 	lv_obj_add_event_cb(d_audio, audio_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
-	std::vector<std::string> devices = audio_output->getDeviceNames();
+	// std::vector<std::string> devices = audio_output->getDeviceNames();
+	std::vector<std::string> devices;
+	audio_input->listDevices(devices);
 	string s = Settings_file.find_audio("device");
 	for (int i = 0; i < devices.size(); i++)
 	{

@@ -97,14 +97,14 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		}
 		return;
 	}
-	
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && btn_id == BTN_LEFT)
+
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && (btn_id == BTN_LEFT || btn_id == 0))
 	{
 		// make sure only the marker is dragged, fast mouse movements will skipp multiple x possitions
 		drag_marker = 0;
 	}
 
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && btn_id == BTN_LEFT)
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (btn_id == BTN_LEFT || btn_id == 0))
 	{
 		lv_point_t p;
 		lv_indev_get_point(indev, &p);

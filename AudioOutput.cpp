@@ -19,16 +19,21 @@ void AudioOutput::CopyUnderrunSamples(bool copyUnderrun_)
 	copyUnderrun = copyUnderrun_;
 }
 
-bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames)
+bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames, int deviceID)
 {
 	auto RtApi = RtAudio::LINUX_ALSA;
+	std::string dev;
 
-	string s = Settings_file.find_audio("device");
+	if (!deviceID)
+	{
+		dev = Settings_file.find_audio("device");
+		deviceID = audio_output->getAudioDevice(dev);
+	}
 	audio_output = new AudioOutput(SampleRate,bufferFrames, RtApi);
 	if (audio_output)
 	{
 		audio_output->set_volume(50);
-		audio_output->open(s);
+		audio_output->open(deviceID);
 		return true;
 	}
 	fprintf(stderr, "ERROR: AudioOutput\n");
@@ -94,7 +99,7 @@ int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned 
 	return 0;
 }
 
-int AudioOutput::getDevices(std::string device)
+int AudioOutput::getAudioDevice(std::string device)
 {
 	std::vector<unsigned int> ids = getDeviceIds();
 	if (ids.size() == 0)
@@ -135,25 +140,21 @@ AudioOutput::AudioOutput(int pcmrate, unsigned int bufferFrames_, RtAudio::Api a
  * Use samplerate which is optimized for device 
  **/
 
-bool AudioOutput::open(std::string device)
+bool AudioOutput::open(int deviceId)
 {
 	int retry{0};
 	RtAudioErrorType err;
 	StreamOptions option{{0}, {0}, {0}, {0}};
 	option.flags = RTAUDIO_MINIMIZE_LATENCY;
 
-	parameters.deviceId = 0;
+	parameters.deviceId = deviceId;
 	parameters.firstChannel = 0;
 	parameters.nChannels = 2;
-	if (device == "default")
-		parameters.deviceId = getDefaultOutputDevice(); //getDefaultOutputDevice(); 
-	else
-		parameters.deviceId = getDevices(device);
 	info = getDeviceInfo(parameters.deviceId);
 	if (info.preferredSampleRate)
 		sampleRate = info.preferredSampleRate;
 	parameters.nChannels = info.outputChannels;
-	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), sampleRate, parameters.nChannels);
+	printf("audio device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
 	err = openStream(&parameters, NULL, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, NULL);
 	if (err != RTAUDIO_NO_ERROR)
 	{

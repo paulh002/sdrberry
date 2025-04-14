@@ -122,8 +122,8 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 		destroy_demodulators();
 		audio_input->close();
 		audio_output->close();
-		audio_input->open(std::string(buf));
-		audio_output->open(std::string(buf));
+		audio_input->open(audio_input->getAudioDevice(std::string(buf)));
+		audio_output->open(audio_input->getAudioDevice(std::string(buf)));
 		select_mode(mode, false);
 		Settings_file.save_string("Audio", "device", std::string(buf));
 		Settings_file.write_settings();

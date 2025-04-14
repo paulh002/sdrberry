@@ -3,19 +3,32 @@
 
 AudioInput *audio_input;
 
-bool AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames)
+int AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames)
 {
 	auto RtApi = RtAudio::LINUX_ALSA;
+	int deviceID = 0;
+	struct DeviceInfo devinfo;
+	std::vector<std::string> devices;
+
 	audio_input = new AudioInput(SampleRate, bufferFrames, false, RtApi);
 	if (audio_input)
 	{
-		string s = Settings_file.find_audio("device");
-		audio_input->open(s);
+		std::string dev = Settings_file.find_audio("device");
+		deviceID = audio_input->getAudioDevice(dev);
+		if (!deviceID)
+		{
+			audio_input->listDevices(devices);
+			if (devices.size() == 0)
+				return 0;
+			dev = devices.at(0);
+			deviceID = audio_input->getAudioDevice(dev);
+		}
+		audio_input->open(deviceID);
 		audio_input->set_volume(Settings_file.get_int("Radio", "micgain", 85));
-		return true;
+		return deviceID;
 	}
 	fprintf(stderr, "ERROR: Cannot create AudioInputDevice\n");
-	return false;
+	return 0; // 0 is no device found
 }
 
 int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status)
@@ -53,17 +66,25 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 	struct DeviceInfo	dev;
 		
 	std::vector<unsigned int> ids = this->getDeviceIds();	
+	printf("List devices: \n");
 	for (auto col : ids)
 	{
 		dev = getDeviceInfo(col);
 		printf("device %s out %d in %d \n", dev.name.c_str(), dev.outputChannels, dev.inputChannels);
+		if (dev.name.find("Default ALSA Device") != std::string::npos || dev.name.find("PulseAudio Sound Server") != std::string::npos)
+		{
+			printf("skip %d device: %s \n", col, dev.name.c_str());
+			continue;
+		}
+		
 		if (dev.outputChannels > 0 && dev.inputChannels > 0)
 			devices.push_back(dev.name);
 	}
 }
 
-int AudioInput::getDevices(std::string device)
+int AudioInput::getAudioDevice(std::string device)
 {
+	int devno = 0;
 	std::vector<unsigned int> ids = getDeviceIds();
 	if (ids.size() == 0)
 	{
@@ -71,22 +92,21 @@ int AudioInput::getDevices(std::string device)
 		return 0;
 	}
 
-	RtAudio::DeviceInfo info;
+	RtAudio::DeviceInfo dev;
 	for (auto col : ids)
 	{
-		info = getDeviceInfo(col);
-		printf("%d device: %s input %d output %d\n", col, info.name.c_str(), info.inputChannels, info.outputChannels);
-
-		if (info.name.find(device) != std::string::npos && info.inputChannels > 0)
+		dev = getDeviceInfo(col);
+		if (dev.name == device && dev.inputChannels > 0)
 		{
-			if (info.outputChannels < parameters.nChannels)
-				parameters.nChannels = info.outputChannels;
+			if (dev.outputChannels < parameters.nChannels)
+				parameters.nChannels = dev.outputChannels;
 			return col;
 		}
 	}
 	std::cout << "No matching device found." << std::endl;
-	return 0; // return default device
+	return devno; // return default device
 }
+
 
 AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool stereo_, RtAudio::Api api)
 	: RtAudio(api), parameters{}, sampleRate{pcmrate}, bufferFrames{bufferFrames_}, volume{0.5}, asteps{}, tune_tone{audioTone::NoTone}, stereo{stereo_}
@@ -112,20 +132,12 @@ std::vector<RtAudio::Api> AudioInput::listApis()
 	return apis;
 }
 
-bool AudioInput::open(std::string device)
+bool AudioInput::open(int deviceId)
 {
 	RtAudioErrorType err;
 
-	if (getDeviceCount() < 1)
-	{
-		std::cout << "\nNo audio devices found!\n";
-		return false;
-	}
-	if (device != "default")
-		parameters.deviceId = getDevices(device);
-	else
-		parameters.deviceId = getDefaultInputDevice();
-
+	parameters.deviceId = deviceId;
+	info = getDeviceInfo(parameters.deviceId);
 	err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, AudioIn, (void *)this);
 	if (err != RTAUDIO_NO_ERROR)
 	{
@@ -133,7 +145,7 @@ bool AudioInput::open(std::string device)
 		return false;
 	}
 	startStream();
-	printf("audio input device = %d %s samplerate %d channels %d\n", parameters.deviceId, device.c_str(), sampleRate, parameters.nChannels);
+	printf("audio input device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
 	return true;	
 }
 

@@ -40,10 +40,10 @@ class AudioInput : public RtAudio
 
   public:
 	AudioInput(unsigned int pcmrate, unsigned int bufferFrames, bool stereo, RtAudio::Api api = UNSPECIFIED);
-	static bool createAudioInputDevice(int Samplerate, unsigned int bufferFrames);
+	static int createAudioInputDevice(int Samplerate, unsigned int bufferFrames);
 	static constexpr auto AudioIn = AudioCallbackHandler<AudioInput, &AudioInput::AudioIn_class>::staticCallbackHandler;
-	
-	bool open(std::string device);
+
+	bool open(int deviceId);
 	void adjust_gain(SampleVector &samples);
 	bool read(SampleVector &samples);
 	void close();
@@ -54,7 +54,7 @@ class AudioInput : public RtAudio
 	void ToneBuffer();
 	bool get_stereo() { return stereo; };
 	int queued_samples();
-	int getDevices(std::string device);
+	int getAudioDevice(std::string device);
 	void listDevices(std::vector<std::string> &devices);
 	void set_tone(audioTone tone) { tune_tone = tone; }
 	audioTone get_tone() { return tune_tone; }

@@ -32,7 +32,7 @@ class AudioOutput : public RtAudio
   public:
 	AudioOutput(int pcmrate, unsigned int bufferFrames_, RtAudio::Api api = UNSPECIFIED);
 	static constexpr auto Audioout_ = AudioCallbackHandler<AudioOutput, &AudioOutput::Audioout_class>::staticCallbackHandler;
-	bool open(std::string device);
+	bool open(int deviceId);
 	bool write(SampleVector &samples);
 	void adjust_gain(SampleVector &samples);
 	void adjust_gain(SampleVector &samples_in, SampleVector &samples_out);
@@ -42,7 +42,7 @@ class AudioOutput : public RtAudio
 	void set_volume(int vol);
 	unsigned int get_framesize() { return bufferFrames; }
 	int queued_samples();
-	int getDevices(std::string device);
+	int getAudioDevice(std::string device);
 	void inc_underrun() { underrun++; }
 	void clear_underrun() { underrun = 0; }
 	int get_underrun() { return underrun.load(); }
@@ -53,7 +53,7 @@ class AudioOutput : public RtAudio
 	void mono_to_left_right(const SampleVector &samples_mono,
 					   SampleVector &audio);
 
-	static bool createAudioDevice(int Samplerate, unsigned int bufferFrames);
+	static bool createAudioDevice(int Samplerate, unsigned int bufferFrames, int deviceID);
 	void CopyUnderrunSamples(bool copySamples);
 	long GetSampleDuration();
 	std::chrono::high_resolution_clock::time_point GetSampleTime();

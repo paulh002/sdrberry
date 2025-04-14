@@ -267,6 +267,12 @@ void HidDev::step_vfo()
 		case -600:
 			value = -4;
 			break;
+		case -720:
+			value = -5;
+			break;
+		case -840:
+			value = -6;
+			break;
 		case 240:
 			value = 1;
 			break;
@@ -279,6 +285,12 @@ void HidDev::step_vfo()
 		case 600:
 			value = 4;
 			break;
+		case 720:
+			value = 5;
+			break;
+		case 840:
+			value = 6;
+			break;
 		}
 	}
 
@@ -286,7 +298,9 @@ void HidDev::step_vfo()
 	if (bevent && in_event.type == EV_REL && in_event.code == 11 && (in_event.value == 120 || in_event.value == -120))
 		value = 0;
 
-	
+	if (in_event.type == 2)
+		printf("type %d code %d value %d\n", in_event.type, in_event.code, in_event.value);
+
 	if (value != 0)
 	{
 		auto now = std::chrono::high_resolution_clock::now();
@@ -311,6 +325,16 @@ void HidDev::step_vfo()
 			vfo.step_vfo(1.5 * step);
 			last_time = now;
 		}
+		if (timePassed.count() > 1 && value == 5)
+		{
+			vfo.step_vfo(3 * step);
+			last_time = now;
+		}
+		if (timePassed.count() > 1 && value == 6)
+		{
+			vfo.step_vfo(9 * step);
+			last_time = now;
+		}
 		if (timePassed.count() > 20 && value == -1)
 		{
 			vfo.step_vfo(-1 * step);
@@ -329,6 +353,16 @@ void HidDev::step_vfo()
 		if (timePassed.count() > 1 && value == -4)
 		{
 			vfo.step_vfo(-1.5 * step);
+			last_time = now;
+		}
+		if (timePassed.count() > 1 && value == -5)
+		{
+			vfo.step_vfo(-3 * step);
+			last_time = now;
+		}
+		if (timePassed.count() > 1 && value == -6)
+		{
+			vfo.step_vfo(-9 * step);
 			last_time = now;
 		}
 		return;

@@ -17,9 +17,11 @@ class i2cinput
 	static void destroy_i2c_input_thread();
 	static uint16_t get_data();
 	static uint16_t get_pin(int pin);
+	static bool connected();
 
   private:
 	atomic<bool> stop_flag{false};
+	bool isconnected{false};
 	void operator()();
 	void initI2Cdevice();
 	std::variant<PCF8574, TCA9548V2, MCP23008> i2cDevice;

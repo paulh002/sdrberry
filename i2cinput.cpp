@@ -19,6 +19,7 @@ void i2cinput::initI2Cdevice()
 			i2cDevice = i2cdevice;
 			printf("Connected to PCF8574(A) %x \n", (int)i2cdevice.getAddress());
 			i2cdevice.write8(0xFF);
+			isconnected = true;
 		}
 		else
 		{
@@ -34,6 +35,7 @@ void i2cinput::initI2Cdevice()
 		{
 			i2cDevice = i2cdevice;
 			printf("Connected to TCA9548 %x \n", (int)i2cdevice.getAddress());
+			isconnected = true;
 		}
 		else
 		{
@@ -51,6 +53,7 @@ void i2cinput::initI2Cdevice()
 			i2cdevice.pinMode8(MCP23008_INPUT);
 			i2cdevice.write8(0x00);
 			printf("Connected to MCP23008 %x \n", (int)i2cdevice.getAddress());
+			isconnected = true;
 		}
 		else
 		{
@@ -122,4 +125,14 @@ uint16_t i2cinput::get_pin(int pin)
 	}
 
 	return 0;
+}
+
+bool i2cinput::connected()
+{
+	if (ptr_i2cinput_thread != nullptr)
+	{
+		return (ptr_i2cinput_thread->isconnected);
+	}
+
+	return false;
 }

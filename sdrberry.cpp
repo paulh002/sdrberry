@@ -815,10 +815,9 @@ int main(int argc, char *argv[])
 			}
 
 		}
-		
-		if (!IsDigtalMode())
+
+		if (!IsDigtalMode() && i2cinput::connected())
 		{
-		//	uint16_t input_data = i2cinput::get_data();
 			if (i2cinput::get_pin(0) == 0)
 			{
 				if (!mode_state_rxtx && default_tx_channel >= 0)

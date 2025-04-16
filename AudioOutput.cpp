@@ -23,15 +23,19 @@ bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames, i
 {
 	auto RtApi = RtAudio::LINUX_ALSA;
 	std::string dev;
+	std::vector<std::string> devices;
 
-	if (!deviceID)
-	{
-		dev = Settings_file.find_audio("device");
-		deviceID = audio_output->getAudioDevice(dev);
-	}
 	audio_output = new AudioOutput(SampleRate,bufferFrames, RtApi);
 	if (audio_output)
 	{
+		if (!deviceID)
+		{
+			audio_output->listDevices(devices);
+			if (devices.size() == 0)
+				return 0;
+			dev = devices.at(0);
+			deviceID = audio_output->getAudioDevice(dev);
+		}
 		audio_output->set_volume(50);
 		audio_output->open(deviceID);
 		return true;
@@ -99,6 +103,27 @@ int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned 
 	return 0;
 }
 
+void AudioOutput::listDevices(std::vector<std::string> &devices)
+{
+	struct DeviceInfo dev;
+
+	std::vector<unsigned int> ids = this->getDeviceIds();
+	printf("List devices: \n");
+	for (auto col : ids)
+	{
+		dev = getDeviceInfo(col);
+		printf("device %s out %d in %d \n", dev.name.c_str(), dev.outputChannels, dev.inputChannels);
+		if (dev.name.find("Default ALSA Device") != std::string::npos || dev.name.find("PulseAudio Sound Server") != std::string::npos)
+		{
+			printf("skip %d device: %s \n", col, dev.name.c_str());
+			continue;
+		}
+
+		if (dev.outputChannels > 0 || dev.inputChannels > 0)
+			devices.push_back(dev.name);
+	}
+}
+
 int AudioOutput::getAudioDevice(std::string device)
 {
 	std::vector<unsigned int> ids = getDeviceIds();
@@ -153,7 +178,7 @@ bool AudioOutput::open(int deviceId)
 	info = getDeviceInfo(parameters.deviceId);
 	if (info.preferredSampleRate)
 		sampleRate = info.preferredSampleRate;
-	parameters.nChannels = info.outputChannels;
+	//parameters.nChannels = info.outputChannels;
 	printf("audio output device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
 	err = openStream(&parameters, NULL, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, NULL);
 	if (err != RTAUDIO_NO_ERROR)

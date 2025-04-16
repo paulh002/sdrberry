@@ -28,10 +28,10 @@ class AudioOutput : public RtAudio
 	std::chrono::high_resolution_clock::time_point SampleTime;
 	int Audioout_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
 	
-
   public:
 	AudioOutput(int pcmrate, unsigned int bufferFrames_, RtAudio::Api api = UNSPECIFIED);
 	static constexpr auto Audioout_ = AudioCallbackHandler<AudioOutput, &AudioOutput::Audioout_class>::staticCallbackHandler;
+	void listDevices(std::vector<std::string> &devices);
 	bool open(int deviceId);
 	bool write(SampleVector &samples);
 	void adjust_gain(SampleVector &samples);

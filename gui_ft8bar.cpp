@@ -1039,13 +1039,13 @@ void gui_ft8bar::Log()
 
 void gui_ft8bar::SetTxButtons()
 {
-	if (SdrDevices.get_tx_channels(default_radio) == 0)
-		lv_obj_add_state(button[txbutton], LV_STATE_DISABLED);
+	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
+		lv_obj_add_state(button[buttontx], LV_STATE_DISABLED);
 	else
-		lv_obj_clear_state(button[txbutton], LV_STATE_DISABLED);
+		lv_obj_clear_state(button[buttontx], LV_STATE_DISABLED);
 
-	if (SdrDevices.get_tx_channels(default_radio) == 0)
-		lv_obj_add_state(button[rxbutton], LV_STATE_DISABLED);
+	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
+		lv_obj_add_state(button[buttoncq], LV_STATE_DISABLED);
 	else
-		lv_obj_clear_state(button[txbutton], LV_STATE_DISABLED);
+		lv_obj_clear_state(button[buttoncq], LV_STATE_DISABLED);
 }

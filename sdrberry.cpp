@@ -817,7 +817,7 @@ int main(int argc, char *argv[])
 
 		}
 
-		if (!IsDigtalMode() && i2cinput::connected())
+		if (!IsDigtalMode() && i2cinput::connected() && SdrDevices.get_tx_channels(default_radio) > 0 && audio_input->isStreamOpen())
 		{
 			if (i2cinput::get_pin(0) == 0)
 			{
@@ -1145,6 +1145,25 @@ bool IsDigtalMode()
 	return false;
 }
 
+void set_tx_buttons()
+{
+	guift8bar.SetTxButtons();
+	gbar.setTxButtons();
+	
+	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
+	{
+		lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+		lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
+		Gui_tx.enable_tx(false);
+	}
+	else
+	{
+		lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+		lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
+		Gui_tx.enable_tx(true);	
+	}
+}
+
 void select_mode(int s_mode, bool bvfo, int channel)
 {
 	bool stereo{false}, dc{false};
@@ -1152,6 +1171,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 
 	if (!SdrDevices.isValid(default_radio))
 		return;
+	set_tx_buttons();
 	catinterface.SetTX(TX_OFF);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
@@ -1252,6 +1272,8 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	if (!SdrDevices.isValid(default_radio))
 		return false;
 	if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
+		return false;
+	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 		return false;
 	catinterface.SetTX(cattx);
 	catinterface.Pause_Cat(true);

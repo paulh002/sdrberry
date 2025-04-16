@@ -69,8 +69,6 @@ class AudioInput : public RtAudio
 	void StartDigitalMode(vector<float> &signal);
 	void StopDigitalMode();
 	int getbufferFrames() { return bufferFrames; }
-
-
 };
 
 extern AudioInput *audio_input;

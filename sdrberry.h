@@ -29,3 +29,4 @@ void destroy_demodulators(bool all = false, bool close_stream = false);
 void update_filter(int bandwidth);
 bool IsDigtalMode();
 int IsScreenRotated();
+void set_tx_buttons();

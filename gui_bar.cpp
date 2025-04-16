@@ -1045,12 +1045,12 @@ void gui_bar::websetfilter(std::string message)
 
 void gui_bar::setTxButtons()
 {
-	if (SdrDevices.get_tx_channels(default_radio) == 0)
+	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 		lv_obj_add_state(button[buttontx], LV_STATE_DISABLED);
 	else
 		lv_obj_clear_state(button[buttontx], LV_STATE_DISABLED);
 
-	if (SdrDevices.get_tx_channels(default_radio) == 0)
+	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 		lv_obj_add_state(button[buttontune], LV_STATE_DISABLED);
 	else
 		lv_obj_clear_state(button[buttontune], LV_STATE_DISABLED);

@@ -77,7 +77,7 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 			continue;
 		}
 		
-		if (dev.outputChannels > 0 && dev.inputChannels > 0)
+		if (dev.outputChannels > 0 || dev.inputChannels > 0)
 			devices.push_back(dev.name);
 	}
 }
@@ -138,15 +138,19 @@ bool AudioInput::open(int deviceId)
 
 	parameters.deviceId = deviceId;
 	info = getDeviceInfo(parameters.deviceId);
-	err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, AudioIn, (void *)this);
-	if (err != RTAUDIO_NO_ERROR)
+	if (info.inputChannels > 0)
 	{
-		printf("Cannot open audio input stream\n");
-		return false;
+		err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, AudioIn, (void *)this);
+		if (err != RTAUDIO_NO_ERROR)
+		{
+			printf("Cannot open audio input stream\n");
+			return false;
+		}
+		startStream();
+		printf("audio input device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
+		return true;
 	}
-	startStream();
-	printf("audio input device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
-	return true;	
+	return false;
 }
 
 void AudioInput::set_volume(int vol)

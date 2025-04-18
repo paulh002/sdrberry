@@ -38,7 +38,6 @@ install script install.sh installs all components based on a fresh raspberry pi 
 
 ## ToDo
 - Support for Midi controller
-- Cheap USB Hid controllers
 - Optical encoder direct on GPIO (some hardware adaption needed) 
 - Setup screen for Network and Wifi
 - Different noise reduction schemes like lms etc.
@@ -72,6 +71,9 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - waterfall display
 - Cheap USB Hid Volume controllers as tuning controller
 - Add setup page for I2C configuration
+- Cheap USB Hid controllers
+- Support for output only audio devices
+- I2C RX/TX switch support
 
 ## Installation of libraries is necessary:
 - Liquid DSP

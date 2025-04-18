@@ -176,9 +176,6 @@ bool AudioOutput::open(int deviceId)
 	parameters.firstChannel = 0;
 	parameters.nChannels = 2;
 	info = getDeviceInfo(parameters.deviceId);
-	if (info.preferredSampleRate)
-		sampleRate = info.preferredSampleRate;
-	//parameters.nChannels = info.outputChannels;
 	printf("audio output device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
 	err = openStream(&parameters, NULL, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, NULL);
 	if (err != RTAUDIO_NO_ERROR)

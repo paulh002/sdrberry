@@ -540,6 +540,7 @@ void Settings::set_array_long(std::string section, std::string key, vector<long>
 	int i = 0;
 	config->useSection(section);
 	auto &val = (*config)(key);
+	val.reset();
 	for (auto col : array)
 	{
 		if (val.size() <= i)
@@ -570,7 +571,7 @@ void Settings::set_array_int(std::string section, std::string key, vector<int> &
 	// new keys are automaticly created
 	config->useSection(section);
 	auto &val = (*config)(key);
-
+	val.reset();
 	for (auto col : array)
 	{
 		if (val.size() <= i)
@@ -601,8 +602,7 @@ void Settings::set_array_string(std::string section, std::string key, const vect
 	// new keys are automaticly created
 	config->useSection(section);
 	auto &val = (*config)(key);
-
-	val.clear();
+	val.reset();
 	for (auto col : array)
 	{
 		if (val.size() <= i)

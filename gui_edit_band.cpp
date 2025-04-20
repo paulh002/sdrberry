@@ -152,9 +152,6 @@ void gui_edit_band::fill_band_table()
 
 void gui_edit_band::save_button_handler_class(lv_event_t *e)
 {
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-
 	int count = lv_table_get_row_cnt(table);
 	Settings_file.meters.clear();
 	Settings_file.labels.clear();
@@ -176,9 +173,6 @@ void gui_edit_band::save_button_handler_class(lv_event_t *e)
 
 void gui_edit_band::cancel_button_handler_class(lv_event_t *e)
 {
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-	
 	lv_table_set_row_cnt(table, 1);
 	fill_band_table();
 }
@@ -252,7 +246,6 @@ void gui_edit_band::table_press_part_event_cb_class(lv_event_t *e)
 void gui_edit_band::table_custom_keypad_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
 	long f = (long)lv_event_get_param(e);
 
 	if (code == customLVevents.getCustomEvent(LV_KEYPAD_EVENT_CUSTOM))
@@ -305,9 +298,6 @@ void gui_edit_band::table_draw_part_event_cb_class(lv_event_t *e)
 
 void gui_edit_band::add_button_handler_class(lv_event_t *e)
 {
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-
 	int count = lv_table_get_row_cnt(table);
 	lv_table_set_row_cnt(table, count + 1);
 	if (selected > 0)
@@ -326,9 +316,6 @@ void gui_edit_band::add_button_handler_class(lv_event_t *e)
 
 void gui_edit_band::del_button_handler_class(lv_event_t *e)
 {
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-
 	int count = lv_table_get_row_cnt(table);
 	
 	if (selected > 0 && count > 1)

@@ -556,7 +556,7 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	lv_obj_set_size(bandDropdown, button_width, button_height + y_margin);
 	
 	int i = 0;
-	for (auto col : Settings_file.meters)
+	for (auto col : Settings_file.labels)
 	{
 		char str[80];
 

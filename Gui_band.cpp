@@ -5,6 +5,7 @@
 #include "vfo.h"
 #include "WebServer.h"
 #include "screen.h"
+#include "gui_edit_band.h"
 
 Gui_band gui_band_instance;
 
@@ -46,7 +47,7 @@ void Gui_band::band_event_handler_class(lv_event_t *e)
 	}
 }
 
-void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, SoapySDR::RangeList r)
+void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_group_t *keyboard_group,lv_coord_t w, lv_coord_t h, SoapySDR::RangeList r)
 {
 	int band, i = 0;
 	std::string label;
@@ -75,23 +76,34 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 		lv_style_set_border_opa(&style_btn, 255);
 		lv_style_set_outline_color(&style_btn, lv_color_black());
 		lv_style_set_outline_opa(&style_btn, 255);
+		lv_obj_set_style_pad_top(o_tab, 5, LV_PART_MAIN);
+		lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
+		lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
+		
+		tileview = lv_tileview_create(o_tab);
+		lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
+
+		main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
+		edit_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+		guieditband.init(edit_tile, w, h, NULL, keyboard_group);
 	}
 
 	// lv_coord_t w = lv_obj_get_width(o_tab);
-	long f_min = r.front().minimum();
-	long f_max = r.front().maximum();
+	f_min = r.front().minimum();
+	f_max = r.front().maximum();
 
-	int max_rows = 5;
-	const lv_coord_t x_margin = 10;
-	const lv_coord_t y_margin = 10;
-	const int x_number_buttons = 5;
-	const lv_coord_t tab_margin = 20;
+	// constants
+	max_rows = 5;
+	x_margin = 10;
+	y_margin = 10;
+	x_number_buttons = 5;
+	tab_margin = 20;
 
 	if (screenHeight < 500)
 		max_rows = 4;
 
-	button_width_margin = ((w - tab_margin) / x_number_buttons);
-	button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
+	button_width_margin = (((w -15) - tab_margin) / x_number_buttons);
+	button_width = (((w - 15) - tab_margin) / x_number_buttons) - x_margin;
 	button_height = h / max_rows - y_margin - y_margin; // 40;
 	button_height_margin = button_height + y_margin;
 
@@ -112,7 +124,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 		// place button
 		if (label.length() && f_low >= f_min && f_low <= f_max)
 		{
-			button.push_back(lv_btn_create(o_tab));
+			button.push_back(lv_btn_create(main_tile));
 			lv_group_add_obj(m_button_group, button[i]);
 			lv_obj_add_style(button.back(), &style_btn, 0);
 			lv_obj_add_event_cb(button.back(), band_button, LV_EVENT_CLICKED, (void *)this);
@@ -138,8 +150,8 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 			i++;
 		}
 	}
-	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
-	limitvfocheckbox = lv_checkbox_create(o_tab);
+	lv_obj_clear_flag(main_tile, LV_OBJ_FLAG_SCROLLABLE);
+	limitvfocheckbox = lv_checkbox_create(main_tile);
 	lv_group_add_obj(m_button_group, limitvfocheckbox);
 	lv_checkbox_set_text(limitvfocheckbox, "limit vfo to band");
 	lv_obj_add_event_cb(limitvfocheckbox, ham_event_handler, LV_EVENT_ALL, (void *)this);
@@ -150,7 +162,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 	if (vfo.limit_ham_band)
 		lv_obj_add_state(limitvfocheckbox, LV_STATE_CHECKED);
 
-	bandfiltercheckbox = lv_checkbox_create(o_tab);
+	bandfiltercheckbox = lv_checkbox_create(main_tile);
 	lv_group_add_obj(m_button_group, bandfiltercheckbox);
 	lv_checkbox_set_text(bandfiltercheckbox, "band filter off");
 	lv_obj_add_event_cb(bandfiltercheckbox, band_event_handler, LV_EVENT_ALL, (void *)this);
@@ -158,6 +170,57 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, Soap
 
 	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
 	update_web();
+}
+
+void Gui_band::reload_buttons()
+{
+	int ibutton_x = 0, ibutton_y = 0;
+	int band, i = 0;
+	std::string label;
+
+	for (auto col : button)
+		lv_obj_del(col);
+	button.clear();
+	
+	auto it_m = begin(Settings_file.labels);
+	auto it_f_low = begin(Settings_file.f_low);
+	for (auto col : Settings_file.meters)
+	{
+		band = col;
+		label = (string)*it_m;
+		long f_low = (long)*it_f_low;
+		it_m++;
+		it_f_low++;
+
+		// place button
+		if (label.length() && f_low >= f_min && f_low <= f_max)
+		{
+			button.push_back(lv_btn_create(main_tile));
+			lv_group_add_obj(m_button_group, button[i]);
+			lv_obj_add_style(button.back(), &style_btn, 0);
+			lv_obj_add_event_cb(button.back(), band_button, LV_EVENT_CLICKED, (void *)this);
+			lv_obj_align(button.back(), LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
+			lv_obj_add_flag(button.back(), LV_OBJ_FLAG_CHECKABLE);
+			lv_obj_set_size(button.back(), button_width, button_height);
+			lv_obj_t *lv_label = lv_label_create(button[i]);
+
+			char str[20];
+
+			string s = RemoveChar(label, 0x22);
+			sprintf(str, "%d %s", band, (char *)s.c_str());
+			lv_label_set_text(lv_label, str);
+			lv_obj_center(lv_label);
+			buttons.push_back(str);
+
+			ibutton_x++;
+			if (ibutton_x >= x_number_buttons)
+			{
+				ibutton_x = 0;
+				ibutton_y++;
+			}
+			i++;
+		}
+	}
 }
 
 void Gui_band::set_group()

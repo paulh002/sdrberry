@@ -379,6 +379,12 @@
     <ClCompile Include="i2cinput.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_edit_band.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Keypad.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -834,6 +840,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="i2cinput.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_edit_band.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keypad.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

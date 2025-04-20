@@ -734,7 +734,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << e.what();
 		}
-		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
+		gui_band_instance.init_button_gui(tab["band"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
@@ -770,7 +770,7 @@ int main(int argc, char *argv[])
 		SoapySDR::RangeList RangeList;
 		RangeList.push_back(r1);
 		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3, true);
-		gui_band_instance.init_button_gui(tab["band"], LV_HOR_RES - 3, tabHeight - buttonHeight, RangeList);
+		gui_band_instance.init_button_gui(tab["band"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight, RangeList);
 		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		GuiTopBar.set_label_status("No SDR Device Found");
 		guisdr.set_radio(default_radio);
@@ -1466,7 +1466,7 @@ void switch_sdrreceiver(std::string receiver)
 		{
 			std::cout << e.what();
 		}
-		gui_band_instance.init_button_gui(nullptr, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
+		gui_band_instance.init_button_gui(nullptr, keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));

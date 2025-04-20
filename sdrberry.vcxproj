@@ -127,6 +127,7 @@
     <ClCompile Include="gui_bar.cpp" />
     <ClCompile Include="gui_bottom_bar.cpp" />
     <ClCompile Include="gui_cal.cpp" />
+    <ClCompile Include="gui_edit_band.cpp" />
     <ClCompile Include="gui_ft8.cpp" />
     <ClCompile Include="gui_ft8bar.cpp" />
     <ClCompile Include="gui_i2csetup.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="IQGenerator.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="KeyboardTranslator.cpp" />
+    <ClCompile Include="Keypad.cpp" />
     <ClCompile Include="Limiter.cpp" />
     <ClCompile Include="LMSNoisereducer.cpp" />
     <ClCompile Include="lv_drivers\display\drm.c" />
@@ -243,6 +245,7 @@
     <ClInclude Include="gui_bar.h" />
     <ClInclude Include="gui_bottom_bar.h" />
     <ClInclude Include="gui_cal.h" />
+    <ClInclude Include="gui_edit_band.h" />
     <ClInclude Include="gui_ft8.h" />
     <ClInclude Include="gui_ft8bar.h" />
     <ClInclude Include="gui_i2csetup.h" />
@@ -264,6 +267,7 @@
     <ClInclude Include="IQGenerator.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="KeyboardTranslator.h" />
+    <ClInclude Include="Keypad.h" />
     <ClInclude Include="Limiter.h" />
     <ClInclude Include="LMSNoisereducer.h" />
     <ClInclude Include="lvgl_.h" />

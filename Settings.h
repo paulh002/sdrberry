@@ -52,7 +52,8 @@ class Settings
 	void get_array_int(string section, std::string key, vector<int> &array);
 	std::vector<std::string> get_array_string(std::string section, std::string key);
 	void set_array_string(std::string section, std::string key, const vector<std::string> &array);
-
+	void save_band();
+	
 	vector<int> meters;
 	vector<string> labels;
 	vector<long> f_low;

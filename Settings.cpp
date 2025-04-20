@@ -613,3 +613,13 @@ void Settings::set_array_string(std::string section, std::string key, const vect
 	}
 	write_settings();
 }
+
+void Settings::save_band()
+{
+	set_array_int("bands", "meters", meters);
+	set_array_string("bands", "labels", labels);
+	set_array_long("bands", "f_low", f_low);
+	set_array_long("bands", "f_high", f_high);
+	set_array_string("bands", "mode", mode);
+	write_settings();
+}

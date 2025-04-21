@@ -112,6 +112,12 @@ wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.
 chmod +x install.sh
 ./install.sh HFB DSI
 ```
+Raspberry PI Touch 1 with Radioberry (32 bit colordepth !)
+```
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
+chmod +x install.sh
+./install.sh RDB T1
+```
 Raspberry PI Touch 2 with Radioberry (32 bit colordepth !)
 ```
 wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh

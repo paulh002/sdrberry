@@ -34,7 +34,7 @@ elif [[ $1 = "RTL" ]]; then sdrboard='RTL'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / No = No device"
-   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
+   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 1 T1, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
    echo "If you want to use the build branch add build like ./install.sh RDB DSI build"
@@ -44,9 +44,10 @@ fi
 if [[ $2 = "DSI" ]]; then LCD='DSI'
 elif [[ $2 = "WC12" ]]; then LCD='7c'
 elif [[ $2 = "T2" ]]; then LCD='T2'
+elif [[ $2 = "T1" ]]; then LCD='T1'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
-   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 2 T2, Waveshare 7 inch 1200x600 WC12"
+   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 1 T1, Raspberry PI Touch 2 T2, Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
    echo "If you want to compile from code use ./install.sh RDB DSI"
@@ -110,6 +111,10 @@ if [[ $BUILD == 'YES' ]]; then
 git switch build
 fi
 if [[ $LCD == 'T2' ]]; then
+rm lv_conf.h
+mv lv_conf32.h lv_conf.h
+fi
+if [[ $LCD == 'T1' ]]; then
 rm lv_conf.h
 mv lv_conf32.h lv_conf.h
 fi

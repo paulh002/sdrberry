@@ -35,7 +35,7 @@ elif [[ $1 = "No" ]]; then sdrboard='No'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / No = No device"
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 1 T1, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
-   echo "./install.sh Device LCD PACKAGE Y/N "
+   echo "./install.sh Device LCD"
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
    echo "If you want to use the build branch add build like ./install.sh RDB DSI build"
    echo "If you want to compile from code use ./install.sh RDB DSI"
@@ -48,7 +48,6 @@ elif [[ $2 = "T1" ]]; then LCD='T1'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 1 T1, Raspberry PI Touch 2 T2, Waveshare 7 inch 1200x600 WC12"
-   echo "./install.sh Device LCD PACKAGE Y/N "
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
    echo "If you want to compile from code use ./install.sh RDB DSI"
    exit
@@ -57,11 +56,6 @@ if [[ $1 = "SDP" ]]; then
    echo "Please install SDRPlay API first press ctrl-C to stop this script"
    sleep 5
 fi
-if [[ $3 = "Y" ]]; then PACKAGES='YES'
-else
-   echo "No packages"
-fi
-
 if [[ $3 = "build" ]]; then BUILD='YES'
    echo "build branch"
 else
@@ -127,9 +121,6 @@ sudo make install
 cd $wrkdir || exit
 
 if [[ $sdrboard == HRF ]] ; then
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt install soapysdr0.8-module-hackrf
-else
 git clone https://github.com/pothosware/SoapyHackRF
 cd SoapyHackRF || exit
 mkdir build
@@ -138,7 +129,6 @@ cmake ..
 make
 sudo make install
 sudo ldconfig
-fi
 fi
 
 #cd to work dir . If does not exist exit script
@@ -160,9 +150,6 @@ fi
 cd $wrkdir || exit
 
 if [[ $sdrboard == PLT ]] ; then
-if [[ $PACKAGES == 'YES' ]]; then
-sudo apt install -y libad9361-dev libad9361-0
-else
 git clone https://github.com/analogdevicesinc/libad9361-iio
 cd libad9361-iio || exit
 cmake ./CMakeLists.txt
@@ -170,7 +157,6 @@ mkdir build
 make -j4
 sudo make install
 sudo ldconfig
-fi
 fi
 
 if [[ $sdrboard == PLT ]] ; then

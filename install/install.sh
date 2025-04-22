@@ -109,8 +109,8 @@ rm lv_conf.h
 mv lv_conf32.h lv_conf.h
 fi
 if [[ $LCD == 'T1' ]]; then
-rm lv_conf.h
-mv lv_conf32.h lv_conf.h
+#rm lv_conf.h
+#mv lv_conf32.h lv_conf.h
 fi
 mkdir build
 cd build && cmake .. && make -j4

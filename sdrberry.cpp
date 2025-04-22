@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
 	lv_disp_drv_init(&disp_drv);
 	disp_drv.draw_buf = &disp_buf;
 	disp_drv.flush_cb = fbdev_flush;
-	if (screenRotate)
+	if (screenRotate == 1 || screenRotate == 3)
 	{
 		disp_drv.hor_res = screenHeight;
 		disp_drv.ver_res = screenWidth;
@@ -463,6 +463,11 @@ int main(int argc, char *argv[])
 	{
 		disp_drv.sw_rotate = 1;
 		lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+	}
+	else if (screenRotate == 2)
+	{
+		disp_drv.sw_rotate = 1;
+		lv_disp_set_rotation(disp, LV_DISP_ROT_180);
 	}
 	else if (screenRotate == 3)
 	{

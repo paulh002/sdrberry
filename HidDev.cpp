@@ -298,8 +298,8 @@ void HidDev::step_vfo()
 	if (bevent && in_event.type == EV_REL && in_event.code == 11 && (in_event.value == 120 || in_event.value == -120))
 		value = 0;
 
-	if (in_event.type == 2)
-		printf("type %d code %d value %d\n", in_event.type, in_event.code, in_event.value);
+	//if (in_event.type == 2)
+	//	printf("type %d code %d value %d\n", in_event.type, in_event.code, in_event.value);
 
 	if (value != 0)
 	{

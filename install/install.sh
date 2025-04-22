@@ -108,10 +108,6 @@ if [[ $LCD == 'T2' ]]; then
 rm lv_conf.h
 mv lv_conf32.h lv_conf.h
 fi
-if [[ $LCD == 'T1' ]]; then
-#rm lv_conf.h
-#mv lv_conf32.h lv_conf.h
-fi
 mkdir build
 cd build && cmake .. && make -j4
 make sdrweb
@@ -319,6 +315,9 @@ fi
 if [[ $LCD == 'T2' ]]; then
 sed -i '/resolution = 0/c\resolution = 4' $usrdir/sdrberry_settings.cfg
 sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
+fi
+if [[ $LCD == 'T1' ]]; then
+sed -i '/rotation = 0/c\rotation = 2' $usrdir/sdrberry_settings.cfg
 fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh

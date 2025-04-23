@@ -317,7 +317,7 @@ sed -i '/resolution = 0/c\resolution = 4' $usrdir/sdrberry_settings.cfg
 sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
 fi
 if [[ $LCD == 'T1' ]]; then
-sed -i '/rotation = 0/c\rotation = 2' $usrdir/sdrberry_settings.cfg
+sudo sed -i 's/$/ video=DSI-1:800x480@60,rotate=180/' /boot/firmware/cmdline.txt
 fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh

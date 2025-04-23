@@ -213,7 +213,7 @@ MouseState Mouse::GetMouseState()
 
 			if (mouse_event.type == EV_REL && mouse_event.code == rel_1 )
 			{
-				if (IsScreenRotated())
+				if (IsScreenRotated() == 1 || IsScreenRotated() == 3)
 					state.x = state.x + mouse_event.value * -1;
 				else
 					state.x = state.x + mouse_event.value;

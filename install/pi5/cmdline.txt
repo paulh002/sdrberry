@@ -1,1 +1,0 @@
-console=serial0,115200 console=tty1 root=PARTUUID=fb78368c-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles cfg80211.ieee80211_regdom=NL usbhid.mousepoll=2 video=DSI-2:720x1280@60,rotate=270

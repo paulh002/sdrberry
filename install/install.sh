@@ -3,6 +3,7 @@ wrkdir='/home/pi'
 usrdir=$HOME
 OS=`uname -m`
 bits=`getconf LONG_BIT`
+MODEL=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
 echo ""
 echo ""
 echo "============================================"
@@ -21,6 +22,20 @@ if [ $bits = "32" ] && [ $OS = "aarch64" ]; then
         echo "	64 kernel and 32 bit OS not supported"
 		echo "============================================"
         exit
+fi
+echo "Detected model: $MODEL"
+# Check for specific models
+if [[ "$MODEL" == *"Raspberry Pi 4 Model B"* ]]; then
+    echo "This is a Raspberry Pi 4 Model B."
+elif [[ "$MODEL" == *"Raspberry Pi 3 Model B"* ]]; then
+    echo "This is a Raspberry Pi 3 Model B."
+	echo "Raspberry Pi 3 Model B. is not supported"
+	exit
+elif [[ "$MODEL" == *"Raspberry Pi 5"* ]]; then
+    echo "This is a Raspberry Pi 5."
+else
+    echo "Unknown or unsupported Raspberry Pi model."
+	exit
 fi
 echo "============================================"
 echo ""

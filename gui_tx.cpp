@@ -139,7 +139,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	drv_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	set_drv_slider(Settings_file.drive());
+	set_drv_slider(Settings_file.get_int(default_radio, "drive", 50));
 	lv_group_add_obj(m_button_group, drv_slider);
 
 	ibutton_y++;
@@ -285,7 +285,8 @@ void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 	
 	sprintf(buf, "drive %d", lv_slider_get_value(slider));
 	lv_label_set_text(drv_slider_label, buf);
-	Settings_file.set_drive(lv_slider_get_value(slider));
+	Settings_file.save_int(default_radio, "drive", lv_slider_get_value(slider));
+	Settings_file.write_settings();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, guisdr.get_current_tx_channel(), (double)lv_slider_get_value(slider));
@@ -299,7 +300,8 @@ void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 void gui_tx::step_drv_slider(int step)
 {
 	set_drv_slider(lv_slider_get_value(drv_slider) + step);
-	Settings_file.set_drive(lv_slider_get_value(drv_slider));
+	Settings_file.save_int(default_radio,"drive",lv_slider_get_value(drv_slider));
+	Settings_file.write_settings();
 }
 
 void gui_tx::set_drv_range()
@@ -315,7 +317,7 @@ void gui_tx::set_drv_range()
 		min_gain = 0;
 	}
 	lv_slider_set_range(drv_slider, min_gain, max_gain);
-	set_drv_slider(Settings_file.drive());
+	set_drv_slider(Settings_file.get_int(default_radio, "drive", 50));
 }
 
 void gui_tx::set_drv_slider(int drive)
@@ -354,7 +356,7 @@ void gui_tx::set_drv_slider(int drive)
 
 int gui_tx::get_drv_pos()
 {
-	return Settings_file.drive();
+	return Settings_file.get_int(default_radio, "drive", 50);
 }
 
 void gui_tx::set_tx_state(bool state)

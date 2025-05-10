@@ -25,10 +25,8 @@ class Settings
 	long long find_vfo1_freq(string key);
 	int volume();
 	int txgain();
-	int drive();
 	int getagc(string key);
 	int getspeech(string key);
-	void set_drive(int drive);
 	void set_txgain(int gain);
 	string find_input(string key);
 	string find_cat(string key);

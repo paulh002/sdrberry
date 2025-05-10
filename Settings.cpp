@@ -327,29 +327,6 @@ int Settings::volume()
 		return 0;
 }
 
-int Settings::drive()
-{
-	if (radio.find("drive") != radio.end())
-	{
-		auto s = radio.find("drive");
-		return atoi((const char *)s->second.c_str());
-	}
-	else 
-		return 0;
-}
-
-void Settings::set_drive(int drive)
-{
-	if (radio.find("drive") != radio.end())
-	{
-		auto s = radio.find("drive");
-		s->second = to_string(drive);
-		return;
-	}
-	else 
-		return;
-}
-
 string Settings::find_input(string key)
 {
 	if (input_dev.find(key) != input_dev.end())

@@ -33,9 +33,6 @@ elif [[ "$MODEL" == *"Raspberry Pi 3 Model B"* ]]; then
 	exit
 elif [[ "$MODEL" == *"Raspberry Pi 5"* ]]; then
     echo "This is a Raspberry Pi 5."
-else
-    echo "Unknown or unsupported Raspberry Pi model."
-	exit
 fi
 echo "============================================"
 echo ""

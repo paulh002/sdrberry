@@ -1196,7 +1196,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	vfo.vfo_rxtx(true, false);
 	if (bvfo)
 	{
-		vfo.set_mode(0, mode);
+		vfo.set_mode(vfo.get_active_vfo(), mode);
 		vfo.set_vfo(0);
 	}
 	printf("select_mode_rx start rx threads\n");

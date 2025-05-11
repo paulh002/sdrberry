@@ -119,7 +119,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, lv_group_t *keyboard_group)
 	smeter_delay = Settings_file.get_int("Radio", "s-meter-delay", 0);
 }
 
-void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band)
+void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band, int vfo_band_index)
 {
 	char str[30];
 
@@ -140,7 +140,7 @@ void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mo
 	{
 		lv_label_set_text(vfo1_frequency, str);
 	}
-	sprintf(str, "%d m", vfo_band);
+	sprintf(str, "%d %s", vfo_band, Settings_file.labels.at(vfo_band_index).c_str());
 	if (active_vfo)
 		lv_label_set_text(band_label2, str);
 	else

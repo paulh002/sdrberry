@@ -115,7 +115,7 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
 	if (code == LV_EVENT_VALUE_CHANGED) 
-	{	char buf[30];
+	{	char buf[80];
 		
 		int item = lv_dropdown_get_selected(obj);
 		lv_dropdown_get_selected_str(obj,buf, sizeof(buf));

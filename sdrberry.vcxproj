@@ -132,6 +132,7 @@
     <ClCompile Include="gui_ft8bar.cpp" />
     <ClCompile Include="gui_i2csetup.cpp" />
     <ClCompile Include="gui_i2c_input.cpp" />
+    <ClCompile Include="gui_i2c_output.cpp" />
     <ClCompile Include="gui_rx.cpp" />
     <ClCompile Include="gui_sdr.cpp" />
     <ClCompile Include="gui_sdr_settings.cpp" />
@@ -143,6 +144,7 @@
     <ClCompile Include="gui_vfo.cpp" />
     <ClCompile Include="HexKeyboardWindow.cpp" />
     <ClCompile Include="HidDev.cpp" />
+    <ClCompile Include="i2cgeneric.cpp" />
     <ClCompile Include="i2cinput.cpp" />
     <ClCompile Include="imKStoUCS.c" />
     <ClCompile Include="IQGenerator.cpp" />
@@ -250,6 +252,7 @@
     <ClInclude Include="gui_ft8bar.h" />
     <ClInclude Include="gui_i2csetup.h" />
     <ClInclude Include="gui_i2c_input.h" />
+    <ClInclude Include="gui_i2c_output.h" />
     <ClInclude Include="gui_rx.h" />
     <ClInclude Include="gui_sdr.h" />
     <ClInclude Include="gui_sdr_settings.h" />
@@ -262,6 +265,7 @@
     <ClInclude Include="HexKeyboardWindow.h" />
     <ClInclude Include="HidDev.h" />
     <ClInclude Include="HidThread.h" />
+    <ClInclude Include="i2cgeneric.h" />
     <ClInclude Include="i2cinput.h" />
     <ClInclude Include="imKStoUCS.h" />
     <ClInclude Include="IQGenerator.h" />

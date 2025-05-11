@@ -1154,7 +1154,7 @@ void set_tx_buttons()
 {
 	guift8bar.SetTxButtons();
 	gbar.setTxButtons();
-	
+
 	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 	{
 		lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);

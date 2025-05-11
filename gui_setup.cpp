@@ -10,6 +10,7 @@
 #include "gui_bar.h"
 #include "gui_i2csetup.h"
 #include "gui_i2c_input.h"
+#include "gui_i2c_output.h"
 #include "Demodulator.h"
 #include "screen.h"
 #include "WebServer.h"
@@ -115,7 +116,7 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e); 
 	if (code == LV_EVENT_VALUE_CHANGED) 
-	{	char buf[30];
+	{	char buf[80];
 		
 		int item = lv_dropdown_get_selected(obj);
 		lv_dropdown_get_selected_str(obj,buf, sizeof(buf));
@@ -164,7 +165,10 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	
 	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
 	gui_i2cinput.init(settings_i2c_input, w, h, button_group);
-	
+
+	settings_i2c_output = lv_tileview_add_tile(tileview, 0, 3, LV_DIR_BOTTOM | LV_DIR_TOP);
+	gui_i2coutput.init(settings_i2c_output, w, h, button_group);
+
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	
 	lv_style_init(&text_style);

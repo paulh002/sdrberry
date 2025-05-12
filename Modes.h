@@ -1,4 +1,5 @@
 #pragma once
+#include<string>
 
 const int mode_lsb = 1;
 const int mode_usb = 2;
@@ -31,3 +32,5 @@ enum tranceiverMode
 	modefreedv,
 	modewspr
 };
+
+extern std::string mode_string(int mode);

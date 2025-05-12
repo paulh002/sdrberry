@@ -168,36 +168,11 @@ void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mo
 	if (mode[active_vfo] != vfo_mode_no)
 	{
 		mode[active_vfo] = vfo_mode_no;
-		switch (mode[active_vfo])
-		{
-		case mode_narrowband_fm:
-			strcpy(str, "FM");
-			break;
-		case mode_broadband_fm:
-			strcpy(str, "bFM");
-			break;
-		case mode_lsb:
-			strcpy(str, "LSB");
-			break;
-		case mode_ft8:
-		case mode_ft4:
-		case mode_usb:
-			strcpy(str, "USB");
-			break;
-		case mode_dsb:
-			strcpy(str, "DSB");
-			break;
-		case mode_am:
-			strcpy(str, "AM");
-			break;
-		case mode_cw:
-			strcpy(str, "CW");
-			break;
-		}
+		std::string mode_str = mode_string(mode[active_vfo]);
 		if (active_vfo)
-			lv_label_set_text(mode_label2, str);
+			lv_label_set_text(mode_label2, mode_str.c_str());
 		else
-			lv_label_set_text(mode_label, str);
+			lv_label_set_text(mode_label, mode_str.c_str());
 	}
 	if (split)
 		lv_label_set_text(mode_split2, "#00ff00 Split#");

@@ -48,6 +48,11 @@ std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_ds
 
 gui_bar gbar;
 
+std::string mode_string(int mode)
+{
+	return ModesTypes.at(ModesMap.at(mode));
+}
+
 int gui_bar::get_step_value() 	
 { 
 	return stepsValues[steps_value]; 

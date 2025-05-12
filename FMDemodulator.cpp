@@ -13,7 +13,7 @@ FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer,
 	int lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
 	Demodulator::set_resample_rate(audio_output->get_samplerate() / ifrate); // down sample to pcmrate
 	Demodulator::setLowPassAudioFilter(audio_output->get_samplerate(), lowPassAudioFilterCutOffFrequency);
-	demodFM = freqdem_create(0.5);
+	demodFM = freqdem_create(0.2);
 }
 	
 void FMDemodulator::operator()()

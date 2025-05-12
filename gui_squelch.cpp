@@ -90,17 +90,17 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 		squelch_mode = 0;
 	lv_obj_add_state(button[squelch_mode], LV_STATE_CHECKED);
 	ibutton_y++;
-	bandwidth_slider = lv_slider_create(o_tab);
-	lv_obj_set_width(bandwidth_slider, w / 2 - 50);
-	lv_slider_set_range(bandwidth_slider, 1, 1000);
-	lv_obj_align_to(bandwidth_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, ibutton_y * button_height_margin + 10);
-	lv_obj_add_event_cb(bandwidth_slider, bandwidth_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_group_add_obj(m_button_group, bandwidth_slider);
+	attack_release_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(attack_release_slider, w / 2 - 50);
+	lv_slider_set_range(attack_release_slider, 1, 1000);
+	lv_obj_align_to(attack_release_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, ibutton_y * button_height_margin + 10);
+	lv_obj_add_event_cb(attack_release_slider, attack_release_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(m_button_group, attack_release_slider);
 
-	bandwidth_slider_label = lv_label_create(o_tab);
-	lv_label_set_text(bandwidth_slider_label, "bandwidth");
-	lv_obj_align_to(bandwidth_slider_label, bandwidth_slider, LV_ALIGN_TOP_MID, 0, -20);
-	set_bandwidth_slider(Settings_file.get_int("Squelch", "bandwidth", 1));
+	attack_release_slider_label = lv_label_create(o_tab);
+	lv_label_set_text(attack_release_slider_label, "attack_release");
+	lv_obj_align_to(attack_release_slider_label, attack_release_slider, LV_ALIGN_TOP_MID, 0, -20);
+	set_attack_release_slider(Settings_file.get_int("Squelch", "attack_release", 1));
 
 	// lv_obj_align_to(threshold_slider_label, o_tab, LV_ALIGN_CENTER, 0, -40);
 	threshold_slider_label = lv_label_create(o_tab);
@@ -138,13 +138,14 @@ void gui_squelch::set_group()
 	lv_group_focus_obj(button[0]);
 }
 
-void gui_squelch::set_bandwidth_slider(int _bandwidth)
+void gui_squelch::set_attack_release_slider(int _attack_release)
 {
-	bandwidth = _bandwidth;
-	std::string buf = strlib::sprintf("attack & release %d ms", bandwidth.load());
-	lv_label_set_text(bandwidth_slider_label, buf.c_str());
-	lv_slider_set_value(bandwidth_slider, bandwidth, LV_ANIM_ON);
-	Settings_file.save_int("Squelch", "bandwidth", bandwidth.load());
+	attack_release = _attack_release;
+	std::string buf = strlib::sprintf("attack & release %d ms", attack_release.load());
+	lv_label_set_text(attack_release_slider_label, buf.c_str());
+	lv_slider_set_value(attack_release_slider, attack_release, LV_ANIM_ON);
+	Settings_file.save_int("Squelch", "attack_release", attack_release.load());
+	Settings_file.write_settings();
 }
 
 void gui_squelch::set_threshold_slider(int _threshold)
@@ -154,6 +155,7 @@ void gui_squelch::set_threshold_slider(int _threshold)
 	lv_label_set_text(threshold_slider_label, buf.c_str());
 	lv_slider_set_value(threshold_slider, threshold, LV_ANIM_ON);
 	Settings_file.save_int("Squelch", "threshold", threshold.load());
+	Settings_file.write_settings();
 }
 
 void gui_squelch::button_handler_class(lv_event_t *e)
@@ -207,6 +209,7 @@ void gui_squelch::button_handler_class(lv_event_t *e)
 				{
 					squelch_mode = i;
 					Settings_file.save_int("Squelch", "enabled", squelch_mode.load());
+					Settings_file.write_settings();
 				}
 			}
 		}
@@ -226,15 +229,15 @@ void gui_squelch::threshold_slider_event_cb_class(lv_event_t *e)
 	}
 }
 
-void gui_squelch::bandwidth_slider_event_cb_class(lv_event_t *e)
+void gui_squelch::attack_release_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		bandwidth.store(lv_slider_get_value(obj));
-		std::string buf = strlib::sprintf("attack & release %d ms", bandwidth.load());
-		lv_label_set_text(bandwidth_slider_label, buf.c_str());
-		Settings_file.save_int("Squelch", "bandwidth", bandwidth.load());
+		attack_release.store(lv_slider_get_value(obj));
+		std::string buf = strlib::sprintf("attack & release %d ms", attack_release.load());
+		lv_label_set_text(attack_release_slider_label, buf.c_str());
+		Settings_file.save_int("Squelch", "attack_release", attack_release.load());
 	}
 }

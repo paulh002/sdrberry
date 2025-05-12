@@ -604,11 +604,11 @@ void Demodulator::SquelchProcess(IQSampleVector &filter)
 			AgcProc.SetSquelchThreshold(t);
 			threshold = t;
 		}
-		int b = guisquelch.get_bandwidth();
-		if (b != bandwidth)
+		int a = guisquelch.get_attack_release();
+		if (a!= attack_release)
 		{
-			AgcProc.set_bandwidth((float)b / 1000.0);
-			bandwidth = b;
+			AgcProc.set_bandwidth((float)a / 1000.0);
+			attack_release = a;
 		}
 			
 		squelch_mode = s;

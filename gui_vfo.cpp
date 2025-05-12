@@ -170,25 +170,28 @@ void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mo
 		mode[active_vfo] = vfo_mode_no;
 		switch (mode[active_vfo])
 		{
-		case mode_broadband_fm:
+		case mode_narrowband_fm:
 			strcpy(str, "FM");
+			break;
+		case mode_broadband_fm:
+			strcpy(str, "bFM");
 			break;
 		case mode_lsb:
 			strcpy(str, "LSB");
 			break;
+		case mode_ft8:
+		case mode_ft4:
 		case mode_usb:
 			strcpy(str, "USB");
 			break;
 		case mode_dsb:
 			strcpy(str, "DSB");
+			break;
 		case mode_am:
 			strcpy(str, "AM");
 			break;
 		case mode_cw:
 			strcpy(str, "CW");
-			break;
-		case mode_ft8:
-			strcpy(str, "FT8");
 			break;
 		}
 		if (active_vfo)

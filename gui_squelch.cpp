@@ -226,6 +226,7 @@ void gui_squelch::threshold_slider_event_cb_class(lv_event_t *e)
 		std::string buf = strlib::sprintf("threshold %4.1f db", (float)threshold.load() / 10.0);
 		lv_label_set_text(threshold_slider_label, buf.c_str());
 		Settings_file.save_int("Squelch", "threshold", threshold.load());
+		Settings_file.write_settings();
 	}
 }
 
@@ -239,5 +240,6 @@ void gui_squelch::attack_release_slider_event_cb_class(lv_event_t *e)
 		std::string buf = strlib::sprintf("attack & release %d ms", attack_release.load());
 		lv_label_set_text(attack_release_slider_label, buf.c_str());
 		Settings_file.save_int("Squelch", "attack_release", attack_release.load());
+		Settings_file.write_settings();
 	}
 }

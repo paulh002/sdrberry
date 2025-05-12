@@ -135,8 +135,8 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	rx_set_sdr_freq();
 	//tx_set_sdr_freq();	
 	bpf.SetBand(vfo_setting.band[0], vfo_setting.rx);
-	gui_vfo_inst.set_vfo_gui(0, vfo_setting.vfo_freq[0], get_rx(), get_mode_no(0), get_band_no(0));
-	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1], get_rx(), get_mode_no(1), get_band_no(1));
+	gui_vfo_inst.set_vfo_gui(0, vfo_setting.vfo_freq[0], get_rx(), get_mode_no(0), get_band_no(0), getBandIndex(get_band_no(0)));
+	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1], get_rx(), get_mode_no(1), get_band_no(1), getBandIndex(get_band_no(0)));
 	catinterface.SetBand(get_band_in_meters());
 	catinterface.SetFA(vfo_setting.vfo_freq[0]);
 	gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
@@ -353,7 +353,8 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		}
 	}
 	//printf("freq %lld, sdr %lld offset %ld maxoffset %ld step %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.frq_step);
-	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo));
+	get_band(vfo_setting.active_vfo);
+	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo), getBandIndex(get_band_no(vfo_setting.active_vfo)));
 	SpectrumGraph.set_pos(vfo_setting.offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)
 	{ // Band Change?
@@ -376,7 +377,7 @@ long CVfo::get_vfo_absolute_offset()
 void CVfo::sync_rx_vfo()
 {
 	vfo_setting.vfo_freq[1] = vfo_setting.vfo_freq[0] ;
-	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1], get_rx(), get_mode_no(1), get_band_no(1));
+	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1], get_rx(), get_mode_no(1), get_band_no(1), getBandIndex(get_band_no(1)));
 }
 	
 void CVfo::step_vfo(long icount)

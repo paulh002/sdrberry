@@ -131,7 +131,7 @@ void gui_i2c_output::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_
 	setAdressList(str);
 
 	lv_roller_set_selected(addressObj, 0, LV_ANIM_OFF);
-	str = Settings_file.get_string("i2c", "input_address");
+	str = Settings_file.get_string("i2c", "output_address");
 	for (int i = 0; i < lv_roller_get_option_cnt(addressObj); i++)
 	{
 		std::string buf;
@@ -183,7 +183,7 @@ void gui_i2c_output::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_
 	lv_table_set_cell_value(gpiotable, 0, 1, "Function");
 	lv_table_set_col_width(gpiotable, 1, cWidth * fraction1 - (cWidth / 12));
 	lv_table_set_cell_value(gpiotable, 1, 0, "0");
-	lv_table_set_cell_value(gpiotable, 1, 1, "TX/RX");
+	lv_table_set_cell_value(gpiotable, 1, 1, "RX/TX");
 	lv_table_set_cell_value(gpiotable, 2, 0, "1");
 	lv_table_set_cell_value(gpiotable, 2, 1, "Antenna 1");
 	lv_table_set_cell_value(gpiotable, 3, 0, "2");
@@ -191,11 +191,11 @@ void gui_i2c_output::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_
 	lv_table_set_cell_value(gpiotable, 4, 0, "3");
 	lv_table_set_cell_value(gpiotable, 4, 1, "Antenna 3");
 	lv_table_set_cell_value(gpiotable, 5, 0, "4");
-	lv_table_set_cell_value(gpiotable, 5, 1, "Antenna 4");
+	lv_table_set_cell_value(gpiotable, 5, 1, "ATT 1");
 	lv_table_set_cell_value(gpiotable, 6, 0, "5");
-	lv_table_set_cell_value(gpiotable, 6, 1, "Antenna 5");
+	lv_table_set_cell_value(gpiotable, 6, 1, "ATT 2");
 	lv_table_set_cell_value(gpiotable, 7, 0, "6");
-	lv_table_set_cell_value(gpiotable, 7, 1, "Antenna 6");
+	lv_table_set_cell_value(gpiotable, 7, 1, "ATT 3");
 
 	lv_group_add_obj(bg, addressObj);
 }

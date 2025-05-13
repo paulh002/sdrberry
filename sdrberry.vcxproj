@@ -146,6 +146,7 @@
     <ClCompile Include="HidDev.cpp" />
     <ClCompile Include="i2cgeneric.cpp" />
     <ClCompile Include="i2cinput.cpp" />
+    <ClCompile Include="i2coutput.cpp" />
     <ClCompile Include="imKStoUCS.c" />
     <ClCompile Include="IQGenerator.cpp" />
     <ClCompile Include="Keyboard.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="HidThread.h" />
     <ClInclude Include="i2cgeneric.h" />
     <ClInclude Include="i2cinput.h" />
+    <ClInclude Include="i2coutput.h" />
     <ClInclude Include="imKStoUCS.h" />
     <ClInclude Include="IQGenerator.h" />
     <ClInclude Include="Keyboard.h" />

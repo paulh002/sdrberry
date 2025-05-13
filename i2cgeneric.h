@@ -12,14 +12,14 @@
 class i2cgeneric
 {
   public:
-	i2cgeneric();
 	bool connected();
 	int read();
-	void write(int data);
-
-  private:
-	bool isconnected{false};
+	void write(uint8_t data);
+	void write_pin(uint8_t pin, uint8_t data);
 	void initI2Cdevice(std::string device_name, std::string i2c_address);
+
+  protected:
+	bool isconnected{false};
 	std::variant<PCF8574, TCA9548V2, MCP23008> i2cDevice;
 	
 };

@@ -959,7 +959,7 @@ void gui_bar::set_filter_slider(int ifilter)
 {
 	int filter = 7;
 
-	if (ifilter < 500 || ifilter > 4000)
+	if (ifilter < 500 || ifilter > 110000)
 	{
 		printf("set filter out of range %d\n", ifilter);
 		return;
@@ -978,11 +978,15 @@ void gui_bar::set_filter_slider(int ifilter)
 		filter = 5;
 	if (ifilter >= 3500 && ifilter < 4000)
 		filter = 6;
-	if (ifilter >= 4000)
+	if (ifilter >= 4000 && ifilter < 11000)
 		filter = 7;
+	if (ifilter >= 11000 && ifilter < 16000)
+		filter = 8;
+	if (ifilter >= 16000)
+		filter = 9;
 
-	if (filter < 0 || filter > 7)
-		filter = 7;
+	if (filter < 0 || filter > 9)
+		filter = 9;
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
 	catinterface.SetSH(ifilters[filter]);

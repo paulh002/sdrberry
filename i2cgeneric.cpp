@@ -77,13 +77,16 @@ int i2cgeneric::read()
 	return data;
 }
 
-void i2cgeneric::write(int data)
+void i2cgeneric::write(uint8_t data)
 {
 	switch (i2cDevice.index())
 	{
 	case 0:
 		if (std::get<PCF8574>(i2cDevice).getConnected())
+		{
 			std::get<PCF8574>(i2cDevice).write8(data);
+			printf("PCF8574 write8 %x\n", data);
+		}
 		break;
 	case 1:
 		//if (std::get<TCA9548V2>(i2cDevice).getConnected())
@@ -94,4 +97,31 @@ void i2cgeneric::write(int data)
 			std::get<MCP23008>(i2cDevice).write8(data);
 		break;
 	}
+}
+
+void i2cgeneric::write_pin(uint8_t pin, uint8_t data)
+{
+	switch (i2cDevice.index())
+	{
+	case 0:
+		if (std::get<PCF8574>(i2cDevice).getConnected())
+		{
+			std::get<PCF8574>(i2cDevice).write(pin, data);
+			printf("PCF8574 write8 %x\n", data);
+		}
+		break;
+	case 1:
+		// if (std::get<TCA9548V2>(i2cDevice).getConnected())
+		//	std::get<TCA9548V2>(i2cDevice).getChannelMask();
+		break;
+	case 2:
+		if (std::get<MCP23008>(i2cDevice).getConnected())
+			std::get<MCP23008>(i2cDevice).digitalWrite(pin, data);
+		break;
+	}
+}
+
+bool i2cgeneric::connected()
+{
+	return isconnected;
 }

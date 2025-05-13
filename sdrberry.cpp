@@ -48,6 +48,7 @@
 #include <nlohmann/json.hpp>
 #include <sys/file.h>
 #include "i2cinput.h"
+#include "i2coutput.h"
 
 using json = nlohmann::json;
 
@@ -193,8 +194,7 @@ BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
 WebServer webserver;
-
-
+i2coutput i2c_output;
 
 MidiControle *midicontrole = nullptr;
 auto startTime = std::chrono::high_resolution_clock::now();
@@ -422,6 +422,14 @@ int main(int argc, char *argv[])
 
 	std::string smode = Settings_file.get_string("VFO1","Mode");
 	mode = Settings_file.convert_mode(smode);
+
+	std::string i2c_output_device = Settings_file.get_string("i2c", "output_device");
+	std::string i2c_output_address = Settings_file.get_string("i2c", "output_address");
+	if (i2c_output_device.size() > 0 && i2c_output_address.size() > 0)
+	{
+		i2c_output.initI2Cdevice(i2c_output_device, i2c_output_address);
+		i2c_output.clear();
+	}
 
 	/*LittlevGL init*/
 	lv_init();
@@ -1180,6 +1188,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	catinterface.SetTX(TX_OFF);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
+	i2c_output.set_rxtx(false);
 	vfo.pause_step(false);
 	// wait for threads to finish
 	printf("select_mode_rx stop all threads\n");
@@ -1283,6 +1292,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	catinterface.SetTX(cattx);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
+	i2c_output.set_rxtx(true);
 	vfo.pause_step(false);
 	startTime = std::chrono::high_resolution_clock::now();
 	auto now = std::chrono::high_resolution_clock::now();

@@ -23,10 +23,12 @@ bool Comm::begin()
 	device = Settings_file.find_cat("USB");
 	if (device.length() == 0)
 		device = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0";
-	speed = 115200;
+	speed = Settings_file.get_int("CAT", "rate", 115200);
 	serialport = serialOpen(device.c_str(), speed);
+	printf("Connecting to ESP32 CAT interface %d baud\n", speed);
 	if (serialport < 0)
 	{
+		printf("ESP32 CAT interface not found\n");
 		serialport = 0;
 		return false;
 	}

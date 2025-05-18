@@ -50,7 +50,10 @@ gui_bar gbar;
 
 std::string mode_string(int mode)
 {
-	return ModesTypes.at(ModesMap.at(mode));
+	if (!IsDigtalMode(mode))
+		return ModesTypes.at(ModesMap.at(mode));
+	else
+		return ModesTypes.at(ModesMap.at(mode_usb));
 }
 
 int gui_bar::get_step_value() 	
@@ -264,7 +267,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 				switch (i)
 				{
 				case buttontx:
-					if (!IsDigtalMode())
+					if (!IsDigtalMode(mode))
 					{
 						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						{
@@ -280,7 +283,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					}
 					break;
 				case buttontune:
-					if (!IsDigtalMode())
+					if (!IsDigtalMode(mode))
 					{
 						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						{
@@ -296,14 +299,14 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					}
 					break;
 				case buttonmode:
-					if (modeWindow == nullptr && !IsDigtalMode())
+					if (modeWindow == nullptr && !IsDigtalMode(mode))
 					{
 						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModesTypes, ModesMap.at(mode), customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
 					}
 					lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					break;
 				case buttonvfo:
-					if (!IsDigtalMode())
+					if (!IsDigtalMode(mode))
 					{
 						int m = vfo.get_mode_no(vfo.get_active_vfo());
 						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -343,7 +346,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					break;
 				case buttonnoise:
 					// Noise
-					if (!IsDigtalMode())
+					if (!IsDigtalMode(mode))
 					{
 						if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 						{
@@ -360,7 +363,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					}
 					break;
 				case buttonrit:
-					if (!IsDigtalMode())
+					if (!IsDigtalMode(mode))
 					{
 						if (ritWindow == nullptr)
 						{
@@ -493,7 +496,7 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		if (!IsDigtalMode())
+		if (!IsDigtalMode(mode))
 		{
 
 			int sel = lv_dropdown_get_selected(obj);

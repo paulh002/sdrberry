@@ -830,7 +830,7 @@ int main(int argc, char *argv[])
 
 		}
 
-		if (!IsDigtalMode() && i2cinput::connected() && SdrDevices.get_tx_channels(default_radio) > 0 && audio_input->isStreamOpen())
+		if (!IsDigtalMode(mode) && i2cinput::connected() && SdrDevices.get_tx_channels(default_radio) > 0 && audio_input->isStreamOpen())
 		{
 			if (i2cinput::get_pin(0) == 0)
 			{
@@ -983,7 +983,7 @@ int main(int argc, char *argv[])
 						}
 						guift8bar.get_buttons();
 					}
-					if (IsDigtalMode())
+					if (IsDigtalMode(mode))
 					{
 						try
 						{
@@ -1147,7 +1147,8 @@ void update_filter(int bandwidth)
 }
 
 extern std::chrono::high_resolution_clock::time_point starttime1;
-bool IsDigtalMode()
+
+bool IsDigtalMode(int mode)
 {
 	if (mode == mode_ft8)
 		return true;

@@ -353,8 +353,6 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		}
 	}
 	//printf("freq %lld, sdr %lld offset %ld maxoffset %ld step %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.frq_step);
-	get_band(vfo_setting.active_vfo);
-	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo), getBandIndex(get_band_no(vfo_setting.active_vfo)));
 	SpectrumGraph.set_pos(vfo_setting.offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)
 	{ // Band Change?
@@ -364,6 +362,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		printf("vfo band change\n");
 		retval = 1;
 	}
+	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo), getBandIndex(get_band_no(vfo_setting.active_vfo)));
 	gui_band_instance.set_gui(vfo_setting.band[0]);
 	updateweb();
 	return retval;

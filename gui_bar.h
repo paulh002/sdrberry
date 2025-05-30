@@ -40,7 +40,8 @@ class gui_bar
 	std::unique_ptr<guiListWindows> stepsWindow;
 	int rit_value;
 	int steps_value{1};
-
+	atomic<float> ifgain;
+	
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);
 	void if_slider_event_class(lv_event_t *e);
@@ -104,7 +105,6 @@ class gui_bar
 		return button[i];
 	}
 	void get_filter_range(vector<string> &filters);
-	atomic<float> ifgain;
 };
 
 extern gui_bar gbar;

@@ -349,15 +349,6 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
 	lv_group_add_obj(button_group, check_cw);
 
-	waterfall_hold = lv_checkbox_create(main_tile);
-	lv_group_add_obj(button_group, waterfall_hold);
-	lv_checkbox_set_text(waterfall_hold, "Spectrum hold");
-	lv_obj_add_event_cb(waterfall_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_obj_add_flag(waterfall_hold, LV_OBJ_FLAG_CHECKABLE);
-
-	lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin + button_width_margin, y_margin + ibutton_y * button_height_margin);
-	lv_group_add_obj(button_group, waterfall_hold);
-
 	waterfallgain = Settings_file.get_int("Radio", "Waterfallgain", 35);
 	waterfall_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(waterfall_slider, w / 2 - 50);
@@ -431,6 +422,16 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_label_set_text(spectrum_slider_label, buf.c_str());
 	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
+	waterfall_hold = lv_checkbox_create(settings_tile);
+	lv_group_add_obj(button_group, waterfall_hold);
+	lv_checkbox_set_text(waterfall_hold, "Spectrum hold");
+	lv_obj_add_event_cb(waterfall_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_add_flag(waterfall_hold, LV_OBJ_FLAG_CHECKABLE);
+
+	lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
+	//lv_obj_align_to(spectrum_slider, waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin + 2 * button_width_margin, 0);
+	lv_group_add_obj(button_group, waterfall_hold);
+	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 }

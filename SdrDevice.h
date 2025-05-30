@@ -140,6 +140,21 @@ class SdrDevice
 		return soapyDevice->setGain(direction, channel, name, value);
 	}
 
+	double getGain(const int direction, const size_t channel, const std::string &name) const
+	{
+		return soapyDevice->getGain(direction, channel, name);
+	}
+
+	std::vector<std::string> listGains(const int direction, const size_t channel) const
+	{
+		return soapyDevice->listGains(direction, channel);
+	}
+
+	SoapySDR::Range getGainRange(const int direction, const size_t channel, const std::string &name) const
+	{
+		return soapyDevice->getGainRange(direction, channel, name);
+	}
+	
 	bool hasGainMode(const int direction, const size_t channel) const
 	{
 		return soapyDevice->hasGainMode(direction, channel);

@@ -146,10 +146,15 @@ bool AudioInput::open(int deviceId)
 			printf("Cannot open audio input stream\n");
 			return false;
 		}
-		startStream();
-		printf("audio input device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
+		int streamerror = startStream();
+		printf("audio input device = %d %s samplerate %d channels %d streamerror %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels, streamerror);
+		if (streamerror)
+		{
+			exit(0);
+		}
 		return true;
 	}
+	printf("No audio input device \n");
 	return false;
 }
 

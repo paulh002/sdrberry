@@ -130,6 +130,7 @@
     <ClCompile Include="gui_edit_band.cpp" />
     <ClCompile Include="gui_ft8.cpp" />
     <ClCompile Include="gui_ft8bar.cpp" />
+    <ClCompile Include="gui_gain.cpp" />
     <ClCompile Include="gui_i2csetup.cpp" />
     <ClCompile Include="gui_i2c_input.cpp" />
     <ClCompile Include="gui_i2c_output.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="gui_edit_band.h" />
     <ClInclude Include="gui_ft8.h" />
     <ClInclude Include="gui_ft8bar.h" />
+    <ClInclude Include="gui_gain.h" />
     <ClInclude Include="gui_i2csetup.h" />
     <ClInclude Include="gui_i2c_input.h" />
     <ClInclude Include="gui_i2c_output.h" />

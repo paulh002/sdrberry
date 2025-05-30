@@ -9,6 +9,7 @@
 #include <memory>
 #include "screen.h"
 #include "WebServer.h"
+#include "gui_gain.h"
 
 const int buttontx = 0;
 const int buttontune = 1;
@@ -411,9 +412,9 @@ void gui_bar::vol_slider_event_class(lv_event_t *e)
 void gui_bar::if_slider_event_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
-	lv_label_set_text_fmt(gbar.get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
+	lv_label_set_text_fmt(get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	int sl = lv_slider_get_value(slider);
-	gbar.ifgain = std::pow(10.0, (float)sl / 20.0);
+	ifgain.store(std::pow(10.0, (float)sl / 20.0));
 	catinterface.SetIG(lv_slider_get_value(slider));
 	Settings_file.save_int(default_radio, "if-gain",lv_slider_get_value(slider));
 	guift8bar.set_if(sl);
@@ -424,8 +425,9 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 {
 	lv_obj_t *slider = lv_event_get_target(e);
 
-	lv_label_set_text_fmt(gbar.get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
+	lv_label_set_text_fmt(get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface.SetRG(lv_slider_get_value(slider));
+	guigain.set_gains();
 	Settings_file.save_int(default_radio, "rf-gain", lv_slider_get_value(slider));
 	Settings_file.write_settings();
 	updateweb();
@@ -445,7 +447,7 @@ void gui_bar::step_gain_slider(int step)
 }
 
 gui_bar::gui_bar()
-	: ifgain{1000}, rit_value(0)
+	: rit_value(0)
 {
 }
 
@@ -476,6 +478,7 @@ void gui_bar::set_gain_slider(int gain, bool web)
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
 	Settings_file.save_int(default_radio, "rf-gain", gain);
 	Settings_file.write_settings();
+	guigain.set_gains();
 	catinterface.SetRG(gain);
 	if (web)
 		updateweb();
@@ -885,14 +888,14 @@ int gui_bar::get_vol_range()
 	return max_volume;
 }
 
-float gui_bar::get_if()
-{
-	return ifgain.load();
-}
-
 int gui_bar::get_if_slider()
 {
 	return lv_slider_get_value(if_slider);
+}
+
+float gui_bar::get_if()
+{
+	return ifgain.load();
 }
 
 void gui_bar::set_if(int ifg, bool web)

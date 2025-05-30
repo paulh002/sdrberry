@@ -10,7 +10,6 @@
 #include <complex>
 #include <complex.h>
 
-
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
 

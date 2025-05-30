@@ -5,6 +5,7 @@
 #include "Demodulator.h"
 #include "Spectrum.h"
 #include "screen.h"
+#include "gui_gain.h"
 
 gui_rx guirx;
 
@@ -121,11 +122,12 @@ void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		std::string buf = strlib::sprintf("Waterfallsize level %d", lv_slider_get_value(obj));
+		std::string buf = strlib::sprintf("Waterfallsize %d", lv_slider_get_value(obj));
 		lv_label_set_text(waterfallsize_slider_label, buf.c_str());
 		waterfallsize = lv_slider_get_value(obj);
 		Settings_file.save_int("Radio", "waterfallsize", waterfallsize);
 		SpectrumGraph.setWaterfallSize(waterfallsize);
+		Settings_file.write_settings();
 	}
 }
 
@@ -139,6 +141,7 @@ void gui_rx::signal_strength_offset_event_class(lv_event_t *e)
 		std::string buf = strlib::sprintf("s meter offset %d", signal_strength_offset);
 		lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
 		Settings_file.save_int("Radio", "s-meter-offset", signal_strength_offset);
+		Settings_file.write_settings();
 		SpectrumGraph.setSignalStrenthOffset(signal_strength_offset);
 	}
 }
@@ -151,6 +154,7 @@ void gui_rx::noise_handler_class(lv_event_t *e)
 	{
 		int noise = get_noise();
 		Settings_file.save_int("Radio", "noise", noise);
+		Settings_file.write_settings();
 		if (gbar.get_noise())
 		{
 			Demodulator::set_noise_filter(noise + 1);
@@ -182,6 +186,7 @@ void gui_rx::smeter_delay_event_cb_class(lv_event_t *e)
 		int delay = lv_slider_get_value(obj);
 		std::string buf = strlib::sprintf("s meter delay %d", delay);
 		Settings_file.save_int("Radio", "s-meter-delay", delay);
+		Settings_file.write_settings();
 		lv_label_set_text(smeter_delay_slider_label, buf.c_str());
 		gui_vfo_inst.set_smeter_delay(delay);
 		printf("smeter delay %d\n", delay);
@@ -223,12 +228,13 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-
-	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
-	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
-
+	gain_tile = lv_tileview_add_tile(tileview, 0, 3, LV_DIR_BOTTOM | LV_DIR_TOP);
+	guigain.init(gain_tile, w, screenWidth);
+	main_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	settings_tile = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
+	
+	
 	lv_obj_set_style_pad_top(settings_tile, 0, LV_PART_MAIN);
-
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -379,7 +385,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_slider_set_value(waterfallsize_slider, waterfallsize, LV_ANIM_OFF);
 
 	waterfallsize_slider_label = lv_label_create(settings_tile);
-	buf = strlib::sprintf("Waterfallsize level %d", waterfallsize);
+	buf = strlib::sprintf("Waterfallsize %d", waterfallsize);
 	lv_label_set_text(waterfallsize_slider_label, buf.c_str());
 	lv_obj_align_to(waterfallsize_slider_label, waterfallsize_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
@@ -426,6 +432,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 }
 
 void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
@@ -436,6 +443,7 @@ void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 	lv_label_set_text(noise_slider_label, buf.c_str());
 	lv_obj_align_to(noise_slider_label, slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	Settings_file.save_int("Radio","NoiseThreshold",lv_slider_get_value(slider));
+	Settings_file.write_settings();
 	if (gbar.get_noise())
 	{
 		Demodulator::set_noise_threshold(lv_slider_get_value(slider));

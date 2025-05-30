@@ -1,0 +1,12 @@
+// used to build hackrf libs from git
+
+sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig \
+binutils-dev libdw-dev gfortran g++ swig libfftw3-dev \
+ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
+libboost-all-dev python3 libfftw3-dev \
+libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev
+
+
+sudo apt-get install gcc-arm-none-eabi
+git clone https://github.com/greatscottgadgets/hackrf
+git clone https://github.com/mossmann/libopencm3

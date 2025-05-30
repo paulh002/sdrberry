@@ -49,6 +49,7 @@
 #include <sys/file.h>
 #include "i2cinput.h"
 #include "i2coutput.h"
+#include "gui_gain.h"
 
 using json = nlohmann::json;
 
@@ -107,6 +108,8 @@ void handle_signal(int signal)
 		remove(LOCK_FILE);
 		std::cout << "\nCaught Ctrl+C (SIGINT), exiting gracefully..." << std::endl;
 		// You can perform cleanup or any other actions here
+		audio_input->close();
+		audio_output->close();
 		exit(0); // Exit program
 	}
 }
@@ -775,6 +778,7 @@ int main(int argc, char *argv[])
 		guisdr.init_settings();
 		guisquelch.set_sdr_state();
 		gbar.set_mode(mode);
+		guigain.reset_gains();
 		select_mode(mode); // start streaming
 	}
 	else
@@ -1386,6 +1390,7 @@ void switch_sdrreceiver(std::string receiver)
 	default_radio = receiver;
 	Settings_file.save_string("SDR Receivers", "default", default_radio);
 	Settings_file.write_settings();
+	
 	// Hide TX page
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
@@ -1400,7 +1405,6 @@ void switch_sdrreceiver(std::string receiver)
 		ifrate = rx_rate * 1000.0 / decimate;
 		ifrate_tx = tx_rate * 1000 / decimate;
 		printf("samperate rx %d samplerate tx %d decimation %f ifrate %f\n", rx_rate, tx_rate, decimate, ifrate);
-		
 		// set top line with receiver information
 		if (SdrDevices.get_rx_channels(default_radio) < 1)
 		{
@@ -1490,6 +1494,7 @@ void switch_sdrreceiver(std::string receiver)
 		gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
 		guift8bar.SetTxButtons();
 		gbar.setTxButtons();
+		guigain.reset_gains();
 		//vfo.set_vfo(freq, false);
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
 		{

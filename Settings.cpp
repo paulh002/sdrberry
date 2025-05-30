@@ -6,9 +6,9 @@ Settings	Settings_file;
 const cfg::File::ConfigMap defaultOptions = {
 	{"SDR Receivers", {{"default", cfg::makeOption("radioberry")}}},
 	{"input", {{"mouse", cfg::makeOption("Mouse")}, {"touchscreen", cfg::makeOption("ft5x06")}, {"touch_swap_xy", cfg::makeOption(0)}}},
-	{"probes", {{"plutosdr", cfg::makeOption("driver=plutosdr,hostname=192.168.100.1")}, {"radioberry", cfg::makeOption("driver=radioberry")}, {"rtlsdr", cfg::makeOption("driver=rtlsdr")}, {"sdrplay", cfg::makeOption("driver=sdrplay")}, {"hifiberry", cfg::makeOption("driver=hifiberry")}}},
+	{"probes", {{"plutosdr", cfg::makeOption("driver=plutosdr,hostname=192.168.100.1")}, {"radioberry", cfg::makeOption("driver=radioberry")}, {"rtlsdr", cfg::makeOption("driver=rtlsdr")}, {"sdrplay", cfg::makeOption("driver=sdrplay")}, {"hifiberry", cfg::makeOption("driver=hifiberry")}, {"hackrf", cfg::makeOption("driver=hackrf")}}},
 	{"ESP32", {{"mac address", cfg::makeOption("")}}},
-	{"CAT", {{"USB", cfg::makeOption("/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0")}}},
+	{"CAT", {{"USB", cfg::makeOption("/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0")}, {"rate", cfg::makeOption(921600)}}},
 	{"samplerate", {{"radioberry", cfg::makeOption(384)}, {"plutosdr", cfg::makeOption(1000)}, {"rtlsdr", cfg::makeOption(1000)}, {"sdrplay", cfg::makeOption(1000)}}},
 	{"samplerate_tx", {{"radioberry", cfg::makeOption(384)}}},
 	{"Radio", {{"gain", cfg::makeOption(0, 0, 100)}, {"volume", cfg::makeOption(50)}, {"refresh", cfg::makeOption(50)}, {"drive", cfg::makeOption(89)}, {"micgain", cfg::makeOption(50)}, {"band", cfg::makeOption("ham")}, {"AGC", cfg::makeOption("off")}, {"if-gain", cfg::makeOption(30)}, {"noise", cfg::makeOption(4)}, {"noisefloor", cfg::makeOption(30)}, {"waterfallsize", cfg::makeOption(3)}, {"s-meter-offset", cfg::makeOption(200)}}},
@@ -16,7 +16,7 @@ const cfg::File::ConfigMap defaultOptions = {
 	{"hifiberry", {{"rf-gain", cfg::makeOption(0)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(40)}, {"samplerate", cfg::makeOption("192")}, {"samplerate_tx", cfg::makeOption("192")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(96)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"dc", cfg::makeOption(1)}}},
 	{"sdrplay", {{"rf-gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"AGC", cfg::makeOption("off")}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}, {"audiobuffer", cfg::makeOption(4096)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
 	{"rtlsdr", {{"rf-gain", cfg::makeOption(40)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(60)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"samplerate", cfg::makeOption("1000")}, {"span", cfg::makeOption(384)}}},
-	{"hackrf", {{"rf-gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(3)}, {"samplerate", cfg::makeOption("2000")}, {"samplerate_tx", cfg::makeOption("384")}, {"span", cfg::makeOption(384)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
+	{"hackrf", {{"rf-gain", cfg::makeOption(30)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(3)}, {"samplerate", cfg::makeOption("4000")}, {"samplerate_tx", cfg::makeOption("4000")}, {"span", cfg::makeOption(192)}, {"decimate", cfg::makeOption("3")}, {"halfduplex", cfg::makeOption("1")}, {"restart_tx", cfg::makeOption("1")},{"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}}},
 	{"plutosdr", {{"rf-gain", cfg::makeOption(60)}, {"drive", cfg::makeOption(89)}, {"if-gain", cfg::makeOption(30)}, {"samplerate", cfg::makeOption("384")}, {"samplerate_tx", cfg::makeOption("384")}, {"AGC", cfg::makeOption("off")}, {"span", cfg::makeOption(384)}, {"thresholdDroppedFrames", cfg::makeOption(2)}, {"thresholdUnderrun", cfg::makeOption(2)}, {"audiobuffer", cfg::makeOption(4096)}}},
 	{"VFO1", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
 	{"VFO2", {{"freq", cfg::makeOption(3500000)}, {"Mode", cfg::makeOption("LSB")}}},
@@ -42,6 +42,7 @@ void Settings::default_settings()
 	(*config)("receivers").push(cfg::makeOption("rtlsdr"));
 	(*config)("receivers").push(cfg::makeOption("sdrplay"));
 	(*config)("receivers").push(cfg::makeOption("hifiberry"));
+	(*config)("receivers").push(cfg::makeOption("hackrf"));
 
 	config->useSection("Agc");
 	(*config)("fast").push(cfg::makeOption(10));

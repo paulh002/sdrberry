@@ -26,6 +26,17 @@ void gui_gain::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_add_flag(pageobj, LV_OBJ_FLAG_HIDDEN);
 	// lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
 	// lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+
+	store_gain_settings = lv_checkbox_create(o_tab);
+	lv_group_add_obj(button_group, store_gain_settings);
+	lv_checkbox_set_text(store_gain_settings, "store settings");
+	lv_obj_add_event_cb(store_gain_settings, event_handler_store, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_add_flag(store_gain_settings, LV_OBJ_FLAG_CHECKABLE);
+	lv_obj_align(store_gain_settings, LV_ALIGN_BOTTOM_LEFT, width / 2, 0);
+
+	int store_gain = Settings_file.get_int(default_radio, "store_gain_settings", 0);
+	if (store_gain)
+		lv_obj_add_state(store_gain_settings, LV_STATE_CHECKED);
 }
 
 void gui_gain::reset_gains()
@@ -72,6 +83,7 @@ void gui_gain::reset_gains()
 		lv_obj_del(col);
 	}
 
+	int store_gain = Settings_file.get_int(default_radio, "store_gain_settings",0);
 	int i = 0, x_column = 0;
 	for (auto col : rxgains)
 	{
@@ -82,7 +94,14 @@ void gui_gain::reset_gains()
 		lv_obj_align(obj_slider, LV_ALIGN_TOP_LEFT, x_margin + x_column, 5 * y_margin + ibutton_y * button_height_margin);
 		lv_obj_add_event_cb(obj_slider, gain_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 		lv_group_add_obj(button_group, obj_slider);
-		lv_slider_set_value(obj_slider, (int)SdrDevices.SdrDevices.at(default_radio)->getGain(SOAPY_SDR_RX, 0, rxgains.at(i)) / rxRanges.at(i).step(), LV_ANIM_OFF);			
+		if (!store_gain)
+			lv_slider_set_value(obj_slider, (int)SdrDevices.SdrDevices.at(default_radio)->getGain(SOAPY_SDR_RX, 0, rxgains.at(i)) / rxRanges.at(i).step(), LV_ANIM_OFF);
+		else
+		{
+			int gain = Settings_file.get_int(default_radio, rxgains.at(i), 0);
+			lv_slider_set_value(obj_slider, gain, LV_ANIM_OFF);
+			SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, channel, rxgains.at(i), (float)gain * rxRanges.at(i).step());
+		}
 		lv_obj_t *obj = lv_label_create(pageobj);
 		gain_labels.push_back(obj);
 		lv_label_set_text(obj, col.c_str());
@@ -113,6 +132,8 @@ void gui_gain::gain_slider_event_cb_class(lv_event_t *e)
 			i++;
 		}
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, channel, rxgains.at(i), (float)lv_slider_get_value(obj) * rxRanges.at(i).step());
+		Settings_file.save_int(default_radio, rxgains.at(i), lv_slider_get_value(obj));
+		Settings_file.write_settings();
 	}
 }
 
@@ -129,4 +150,26 @@ void gui_gain::set_gains()
 int gui_gain::gains_count()
 {
 	return rxRanges.size();
+}
+
+void gui_gain::event_handler_store_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+
+	if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+	{
+		Settings_file.save_int(default_radio, "store_gain_settings", 1);
+		Settings_file.write_settings();
+	}
+	else
+	{
+		Settings_file.save_int(default_radio, "store_gain_settings", 0);
+		Settings_file.write_settings();
+	}	
+}
+
+void gui_gain::clear_store_class()
+{
+	lv_obj_clear_state(store_gain_settings, LV_STATE_CHECKED);
 }

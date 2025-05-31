@@ -430,6 +430,7 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	guigain.set_gains();
 	Settings_file.save_int(default_radio, "rf-gain", lv_slider_get_value(slider));
 	Settings_file.write_settings();
+	guigain.clear_store_class();
 	updateweb();
 	try
 	{

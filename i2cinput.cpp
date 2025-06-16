@@ -92,11 +92,17 @@ void i2cinput::operator()()
 
 void i2cinput::create_i2c_input_thread()
 {
-	if (ptr_i2cinput_thread == nullptr)
+	std::string input_device = Settings_file.get_string("i2c", "input_device");
+	std::string input_address = Settings_file.get_string("i2c", "input_address");
+
+	if (input_device.size() > 0 && input_address.size() > 0)
 	{
-		ptr_i2cinput_thread = make_shared<i2cinput>();
-		ptr_i2cinput_thread->stop_flag.store(false);
-		i2cinput_thread = std::thread(&i2cinput::operator(), ptr_i2cinput_thread);
+		if (ptr_i2cinput_thread == nullptr)
+		{
+			ptr_i2cinput_thread = make_shared<i2cinput>();
+			ptr_i2cinput_thread->stop_flag.store(false);
+			i2cinput_thread = std::thread(&i2cinput::operator(), ptr_i2cinput_thread);
+		}
 	}
 }
 

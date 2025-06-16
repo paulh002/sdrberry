@@ -213,7 +213,7 @@ MouseState Mouse::GetMouseState()
 
 			if (mouse_event.type == EV_REL && mouse_event.code == rel_1 )
 			{
-				if (IsScreenRotated() == 1 || IsScreenRotated() == 3)
+				if (IsScreenRotated() == 1) // || IsScreenRotated() == 3
 					state.x = state.x + mouse_event.value * -1;
 				else
 					state.x = state.x + mouse_event.value;
@@ -226,7 +226,10 @@ MouseState Mouse::GetMouseState()
 			}
 			if (mouse_event.type == EV_REL && mouse_event.code == rel_2)
 			{
-				state.y = state.y + mouse_event.value;
+				if (IsScreenRotated() == 3) // added this to invert the values
+					state.y = state.y + mouse_event.value * -1;
+				else
+					state.y = state.y + mouse_event.value;
 				if (state.y >= screen_h)
 					state.y = screen_h - 1;
 				if (state.y < 0)

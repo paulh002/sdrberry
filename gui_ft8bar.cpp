@@ -915,6 +915,7 @@ void gui_ft8bar::ClearTransmit()
 	transmitting = false;
 	WaterfallReset();
 	get_buttons();
+	ft8status = ft8status_t::monitor;
 }
 
 void gui_ft8bar::web_wsjtxfreq()

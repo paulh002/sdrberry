@@ -14,6 +14,30 @@ void gui_sdr_settings::settings_press_part_event_cb_class(lv_event_t *e)
 
 	int count = lv_table_get_row_cnt(obj);
 	lv_table_get_selected_cell(obj, &row, &col);
+	std::string targetname(lv_table_get_cell_value(obj, row, 0));
+	
+	auto settingsList = SdrDevices.SdrDevices.at(default_radio)->getSettingsList();
+	auto it = std::find_if(settingsList.begin(), settingsList.end(), [&targetname](const SoapySDR::ArgInfo obj) { return obj.name == targetname; });
+	if (it != settingsList.end())
+	{
+		SoapySDR::ArgInfo setting = *it;
+		if (setting.type == SoapySDR::ArgInfo::STRING)
+		{
+			std::string value(lv_table_get_cell_value(obj, row, 1));
+			auto it_setting = std::find(setting.options.begin(), setting.options.end(), value);
+			it_setting++;
+			if (it_setting == setting.options.end())
+				it_setting = setting.options.begin();
+			value = *it_setting;
+			lv_table_set_cell_value(obj, row, col, value.c_str());
+			SdrDevices.SdrDevices.at(default_radio)->writeSetting(it->key, value);
+			Settings_file.save_string(default_radio, it->key, value);
+			Settings_file.write_settings();
+			return;
+		}
+	}
+
+	
 	if (col == 1 && row > 0 && row < count)
 	{
 		std::string str(lv_table_get_cell_value(obj, row, 1));
@@ -109,16 +133,33 @@ void gui_sdr_settings::init_settings()
 			lv_table_set_cell_value(settingsTable, row, 0, col.name.c_str());
 			lv_table_set_cell_value(settingsTable, row, 1, col.value.c_str());
 
-			std::string key(lv_table_get_cell_value(settingsTable, row, 0));
 			std::string value(lv_table_get_cell_value(settingsTable, row, 1));
-			std::string def_value = Settings_file.get_string(default_radio, key);
+			std::string def_value = Settings_file.get_string(default_radio, col.key);
 			if (def_value == "true")
 				value = "true";
 			if (def_value == "false")
 				value = "false";
 
 			lv_table_set_cell_value(settingsTable, row, 1, value.c_str());
-			SdrDevices.SdrDevices.at(default_radio)->writeSetting(key, value);
+			SdrDevices.SdrDevices.at(default_radio)->writeSetting(col.key, value);
+			row++;
+		}
+
+		if (col.type == SoapySDR::ArgInfo::STRING)
+		{
+			lv_table_set_cell_value(settingsTable, row, 0, col.name.c_str());
+			lv_table_set_cell_value(settingsTable, row, 1, col.value.c_str());
+
+			std::string value;
+			if (col.options.size())
+			{
+				value = col.options.at(0);
+			}
+			std::string def_value = Settings_file.get_string(default_radio, col.key);
+			if (def_value.size())
+				value = def_value;
+			lv_table_set_cell_value(settingsTable, row, 1, value.c_str());
+			SdrDevices.SdrDevices.at(default_radio)->writeSetting(col.key, value);
 			row++;
 		}
 	}

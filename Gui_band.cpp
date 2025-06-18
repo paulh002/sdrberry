@@ -89,6 +89,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_group_t *keyboard_group,lv_co
 	}
 
 	// lv_coord_t w = lv_obj_get_width(o_tab);
+
 	f_min = r.front().minimum();
 	f_max = r.front().maximum();
 

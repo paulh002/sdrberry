@@ -12,6 +12,7 @@
 #include <getopt.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "Settings.h"
 
 #include "SdrDevice.h"
 
@@ -756,7 +757,6 @@ SoapySDR::RangeList SdrDeviceVector::get_full_frequency_range_list(std::string n
 
 	if (get_rx_channels(name) > chan)
 		return SdrDevices[name]->rx_channels[chan]->get_full_frequency_range_list();
-
 	if (get_tx_channels(name) > chan)
 		return SdrDevices[name]->tx_channels[chan]->get_full_frequency_range_list();
 	return r;

@@ -681,6 +681,7 @@ int main(int argc, char *argv[])
 		}
 
 		char str[80];
+
 		sprintf(str, "%0.2f", r.minimum() / 1.0e6);
 		std::string	start_freq(str);
 		sprintf(str, "%0.2f", r.maximum() / 1.0e6);

@@ -592,6 +592,47 @@ void Settings::set_array_string(std::string section, std::string key, const vect
 	write_settings();
 }
 
+void Settings::set_map_string(std::string section, std::string key, const std::map<std::string, int> &value_map)
+{
+	int i = 0;
+
+	// new keys are automaticly created
+	config->useSection(section);
+	auto &val = (*config)(key);
+	val.reset();
+	for (auto const &[band, gain] : value_map)
+	{
+		if (val.size() <= i)
+		{
+			val.push(cfg::makeOption(band));
+			val.push(cfg::makeOption(std::to_string(gain)));
+			i++;
+			i++;
+		}
+		else
+		{
+				val[i++] = band;
+				val[i++] = gain;
+		}
+	}
+	write_settings();
+}
+
+std::map<std::string, int> Settings::get_map_string(std::string section, std::string key)
+{
+	int i = 0;
+	
+	std::map<std::string, int> result;
+	config->useSection(section);
+	auto &val_array = (*config)(key);
+	while (i < val_array.size())
+	{
+		std::string band = val_array[i++];
+		result[band] = std::stoi(val_array[i++]);
+	}
+	return result;
+}
+
 void Settings::save_band()
 {
 	set_array_int("bands", "meters", meters);

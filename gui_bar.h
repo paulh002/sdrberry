@@ -41,7 +41,8 @@ class gui_bar
 	int rit_value;
 	int steps_value{1};
 	atomic<float> ifgain;
-	
+	std::map<std::string, int> rf_gain;
+
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);
 	void if_slider_event_class(lv_event_t *e);
@@ -97,6 +98,7 @@ class gui_bar
 	void change_step(int i);
 	void update_step_button(int step);
 	void get_gain_range(int &max_gain, int &min_gain);
+	void set_gain_slider_band_from_config(bool web = true);
 
 	lv_obj_t *get_button_obj(int i)
 	{

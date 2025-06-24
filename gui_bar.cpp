@@ -10,6 +10,7 @@
 #include "screen.h"
 #include "WebServer.h"
 #include "gui_gain.h"
+#include "vfo.h"
 
 const int buttontx = 0;
 const int buttontune = 1;
@@ -428,8 +429,8 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	lv_label_set_text_fmt(get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface.SetRG(lv_slider_get_value(slider));
 	guigain.set_gains();
-	Settings_file.save_int(default_radio, "rf-gain", lv_slider_get_value(slider));
-	Settings_file.write_settings();
+	rf_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = lv_slider_get_value(slider);
+	Settings_file.set_map_string(default_radio, "rf-gain-map", rf_gain);
 	guigain.clear_store_class();
 	updateweb();
 	try
@@ -456,6 +457,15 @@ gui_bar::~gui_bar()
 {
 }
 
+void gui_bar::set_gain_slider_band_from_config(bool web)
+{
+	int gain = 10;
+
+	rf_gain = Settings_file.get_map_string(default_radio, "rf-gain-map");
+	gain = rf_gain[to_string(vfo.get_band_in_meters()) + "m"];
+	set_gain_slider(gain, web);
+}
+
 void gui_bar::set_gain_slider(int gain, bool web)
 {
 	double max_gain{0.0};
@@ -477,8 +487,8 @@ void gui_bar::set_gain_slider(int gain, bool web)
 		gain = min_gain;
 	lv_label_set_text_fmt(gain_slider_label, "rf %d db", gain);
 	lv_slider_set_value(gain_slider, gain, LV_ANIM_ON);
-	Settings_file.save_int(default_radio, "rf-gain", gain);
-	Settings_file.write_settings();
+	rf_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = gain;
+	Settings_file.set_map_string(default_radio, "rf-gain-map", rf_gain);
 	guigain.set_gains();
 	catinterface.SetRG(gain);
 	if (web)

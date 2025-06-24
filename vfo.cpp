@@ -359,6 +359,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 		catinterface.SetBand(get_band_in_meters());
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
 		gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
+		gbar.set_gain_slider_band_from_config();
 		printf("vfo band change\n");
 		retval = 1;
 	}

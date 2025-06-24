@@ -66,6 +66,7 @@ int Comm::Read(char c, std::string &s)
 		}
 		i++;
 	} while (chr != c && i < 80);
+	//printf("ESP32 CAT: %s\n",s.c_str());
 	return s.length();
 }
 

@@ -756,7 +756,8 @@ int main(int argc, char *argv[])
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
-		gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
+		//gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
+		gbar.set_gain_slider_band_from_config();
 		vfo.set_vfo(0LL, vfo_activevfo::One);
 		try
 		{
@@ -1492,7 +1493,8 @@ void switch_sdrreceiver(std::string receiver)
 		catinterface.SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
-		gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
+		//gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
+		gbar.set_gain_slider_band_from_config();
 		guift8bar.SetTxButtons();
 		gbar.setTxButtons();
 		guigain.reset_gains();

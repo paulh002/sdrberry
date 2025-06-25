@@ -49,6 +49,9 @@ std::string join(T&& elements, const std::string& sepStr);
 std::string remove_non_digits(const std::string &input);
 std::string remove_spaces(const std::string &input);
 std::string removeCharacters(std::string str, char c);
+
+bool has_any_digits(const std::string &s);
+
 /// File operations ===========================================================
 
 // Splits a string into separate lines using the CR and/or LF characters

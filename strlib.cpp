@@ -152,6 +152,11 @@ inline bool not_digit(char ch)
 	return '0' <= ch && ch <= '9';
 }
 
+bool has_any_digits(const std::string &s)
+{
+	return std::any_of(s.begin(), s.end(), ::isdigit);
+}
+
 std::string remove_non_digits(const std::string &input)
 {
 	std::string result;

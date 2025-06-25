@@ -50,6 +50,7 @@
 #include "i2cinput.h"
 #include "i2coutput.h"
 #include "gui_gain.h"
+#include "strlib.h"
 
 using json = nlohmann::json;
 
@@ -892,7 +893,7 @@ int main(int argc, char *argv[])
 					if (buf.length() == 0)
 						buf = msg.text.substr(0, msg.text.find("k"));
 				}
-				if (buf.length() > 0)
+				if (buf.length() > 0 && strlib::has_any_digits(buf))
 				{
 					freqf = std::stof(buf);
 					if (msg.text.find("M") != string::npos)

@@ -43,9 +43,10 @@ elif [[ $1 = "PLT" ]]; then sdrboard='PLT'
 elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
 elif [[ $1 = "SDP" ]]; then sdrboard='SDP'
 elif [[ $1 = "RTL" ]]; then sdrboard='RTL'
+elif [[ $1 = "RTLD" ]]; then sdrboard='RTLD'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
-   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / No = No device"
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / RTLSDR direct sampling RTLD/ No = No device"
    echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 1 T1, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
    echo "./install.sh Device LCD"
    echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
@@ -181,6 +182,18 @@ fi
 if [[ $sdrboard == RTL ]] ; then
 sudo apt -y install rtl-sdr librtlsdr-dev
 git clone https://github.com/pothosware/SoapyRTLSDR.git
+cd SoapyRTLSDR || exit
+mkdir build
+cd build || exit
+cmake ..
+make
+sudo make install
+sudo ldconfig
+fi
+
+if [[ $sdrboard == RTLD ]] ; then
+sudo apt -y install rtl-sdr librtlsdr-dev
+git clone https://github.com/paulh002/SoapyRTLSDR.git
 cd SoapyRTLSDR || exit
 mkdir build
 cd build || exit

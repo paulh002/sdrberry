@@ -242,12 +242,13 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	int waterfallsize = Settings_file.get_int("Radio", "waterfallsize", 3);
 	signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 200);
 
+	parent = scr;
 	height = h;
 	width = w;
 	xx = x;
 	yy = y;
 	fontsize = 20;
-	if (waterfallsize < 0 || waterfallsize > 10 || waterfallsize == 1)
+	if (waterfallsize < 0 || waterfallsize > 10)
 		waterfallsize = 0;
 
 	lv_style_init(&Spectrum_style);
@@ -263,7 +264,12 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	{
 		lv_obj_set_pos(chart, x, y + fontsize);
 		heightChart = h - (h * waterfallsize) / 10;
-		heightWaterfall = (h * waterfallsize) / 10;
+		heightWaterfall = (h * waterfallsize) / 10 - fontsize;
+		if (waterfallsize == 1)
+		{
+			heightWaterfall = 5;
+			heightChart -= 5;
+		}
 		lv_obj_set_size(chart, w, heightChart);
 		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_SECONDARY_X, 0, 0, vert_lines, 1, true, 100);
 	}
@@ -304,7 +310,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	fft = std::make_unique<FastFourier>(nfft_samples, 0, 0);
 	if (waterfallsize > 0)
 	{
-		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall - fontsize, 0.0, down, allparts, 12);
+		waterfall = std::make_unique<Waterfall>(scr, x, heightChart + fontsize, w, heightWaterfall, 0.0, down, allparts, 12);
 	}
 	SetFftParts();
 }
@@ -313,21 +319,34 @@ void Spectrum::setWaterfallSize(int waterfallsize)
 {
 	if (waterfallsize)
 	{
+		int h;
+		
 		lv_obj_set_pos(chart, xx, yy + fontsize);
 		heightChart = height - (height * waterfallsize) / 10;
 		heightWaterfall = (height * waterfallsize) / 10;
 		lv_obj_set_size(chart, width, heightChart);
 		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_SECONDARY_X, 0, 0, vert_lines, 1, true, 100);
-		
+		if (heightWaterfall - fontsize > 0)
+			h = heightWaterfall - fontsize;
+		else
+		{
+			h = 5;
+			heightChart -= h;
+		}
+		if (waterfall != nullptr)
+			waterfall->Size(heightChart + fontsize, h);
+		else
+			waterfall = std::make_unique<Waterfall>(parent, xx, heightChart + fontsize, width, h, 0.0, down, allparts, 12);
 	}
-	else
+	
+	if (waterfallsize == 0 && waterfall != nullptr)
 	{
+		waterfall.reset();
 		lv_obj_set_pos(chart, xx, yy);
 		lv_obj_set_size(chart, width, height - fontsize);
 		lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 0, 0, vert_lines, 1, true, 100);
 	}
-	
-	waterfall->Size(heightChart + fontsize, heightWaterfall - fontsize);
+
 }
 
 void Spectrum::DrawDisplay()

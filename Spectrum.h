@@ -18,7 +18,7 @@
 class Spectrum
 {
   private:
-	lv_obj_t *chart;
+	lv_obj_t *chart, *parent;
 	lv_chart_series_t *ser, *peak_ser{nullptr};
 	lv_style_t Spectrum_style;
 	lv_chart_cursor_t *FrequencyCursor;

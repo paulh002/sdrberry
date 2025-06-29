@@ -348,10 +348,10 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 
 	lv_obj_t *noise_label = lv_label_create(main_tile);
 	lv_label_set_text(noise_label, "Noise suppression");
-	lv_obj_align(noise_label, LV_ALIGN_TOP_LEFT, 0, y_margin + (ibutton_y +2) * button_height_margin);
+	lv_obj_align(noise_label, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin + ibutton_y * button_height_margin);
 
 	drp_noise = lv_dropdown_create(main_tile);
-	lv_obj_align(drp_noise, LV_ALIGN_TOP_LEFT, 0, y_margin + (ibutton_y + 2.5) *  button_height_margin);
+	lv_obj_align(drp_noise, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin + ibutton_y * 1.5 *  button_height_margin);
 	lv_dropdown_clear_options(drp_noise);
 	lv_group_add_obj(button_group, drp_noise);
 	lv_dropdown_add_option(drp_noise, "Leaky LMS", LV_DROPDOWN_POS_LAST);

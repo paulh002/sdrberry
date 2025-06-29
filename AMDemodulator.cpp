@@ -43,7 +43,9 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 		}
 	}
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
-
+	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
+	Demodulator::set_filter_type(Settings_file.get_int("Radio", "filter_type"));
+	guirx.enable_filter_settings(true);
 	switch (mode)
 	{
 	case mode_usb:

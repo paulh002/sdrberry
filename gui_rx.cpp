@@ -162,6 +162,33 @@ void gui_rx::noise_handler_class(lv_event_t *e)
 	}
 }
 
+void gui_rx::filter_type_handler_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		int filter_type = lv_dropdown_get_selected(obj);
+		Settings_file.save_int("Radio", "filter_type", filter_type);
+		Settings_file.write_settings();
+		Demodulator::set_filter_type(filter_type);
+	}
+}
+
+void gui_rx::filter_slider_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		std::string buf = strlib::sprintf("filter offset %d", 10 * lv_slider_get_value(obj));
+		lv_label_set_text(filter_slider_label, buf.c_str());
+		Settings_file.save_int("Radio", "filter_offset", 10 * lv_slider_get_value(obj));
+		Settings_file.write_settings();
+		Demodulator::set_filter_offset(10 * lv_slider_get_value(obj));
+	}
+}
+
 void gui_rx::event_handler_hold_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -304,12 +331,27 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 		}
 	}
 
+	lv_obj_t *filter_type_label = lv_label_create(main_tile);
+	lv_label_set_text(filter_type_label, "Filter type");
+	lv_obj_align(filter_type_label, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
+
+	filter_type_dropdown = lv_dropdown_create(main_tile);
+	lv_obj_align(filter_type_dropdown, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * 1.5 * button_height_margin);
+	lv_dropdown_clear_options(filter_type_dropdown);
+	lv_group_add_obj(button_group, filter_type_dropdown);
+	lv_dropdown_set_options(filter_type_dropdown, "Butterworth\n" "Chebyshev - 1\n" "Chebyshev - 2\n" "Elliptic");
+	int filter_type = Settings_file.get_int("Radio", "filter_type");
+	Demodulator::set_filter_type(filter_type);
+	lv_dropdown_set_selected(filter_type_dropdown, filter_type);
+	lv_obj_add_event_cb(filter_type_dropdown, filter_type_handler_cb, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_set_width(filter_type_dropdown, button_width_margin);
+
 	lv_obj_t *noise_label = lv_label_create(main_tile);
 	lv_label_set_text(noise_label, "Noise suppression");
-	lv_obj_align(noise_label, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(noise_label, LV_ALIGN_TOP_LEFT, 0, y_margin + (ibutton_y +2) * button_height_margin);
 
 	drp_noise = lv_dropdown_create(main_tile);
-	lv_obj_align(drp_noise, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * 1.5 *  button_height_margin);
+	lv_obj_align(drp_noise, LV_ALIGN_TOP_LEFT, 0, y_margin + (ibutton_y + 2.5) *  button_height_margin);
 	lv_dropdown_clear_options(drp_noise);
 	lv_group_add_obj(button_group, drp_noise);
 	lv_dropdown_add_option(drp_noise, "Leaky LMS", LV_DROPDOWN_POS_LAST);
@@ -322,11 +364,25 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_dropdown_set_selected(drp_noise, noise);
 	lv_obj_add_event_cb(drp_noise, noise_handler, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void*)this);
 
+	filter_slider_label = lv_label_create(main_tile);
+	lv_obj_align(filter_slider_label, LV_ALIGN_TOP_MID, 0, y_margin + ibutton_y * button_height_margin);
+	std::string buf = strlib::sprintf("filter offset %d hz", Settings_file.get_int("Radio", "filter_offset"));
+	lv_label_set_text(filter_slider_label, buf.c_str());
+
+	filter_slider = lv_slider_create(main_tile);
+	lv_obj_set_width(filter_slider, w / 2 - 50);
+	lv_slider_set_range(filter_slider, 0, 100);
+	lv_obj_align_to(filter_slider, filter_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+	lv_obj_add_event_cb(filter_slider, filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(button_group, filter_slider);
+	lv_slider_set_value(filter_slider, Settings_file.get_int("Radio", "filter_offset") / 10, LV_ANIM_OFF);
+	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
+
+	ibutton_y++;
 	noise_slider_label = lv_label_create(main_tile);
 	lv_obj_align(noise_slider_label, LV_ALIGN_TOP_MID, 0, y_margin + ibutton_y * button_height_margin);
 
-	//lv_obj_center(noise_slider_label);
-	std::string buf = strlib::sprintf("noise thresshold %d db", Settings_file.get_int("Radio", "NoiseThreshold"));
+	buf = strlib::sprintf("noise thresshold %d db", Settings_file.get_int("Radio", "NoiseThreshold"));
 	lv_label_set_text(noise_slider_label, buf.c_str());
 	Demodulator::set_noise_threshold(Settings_file.get_int("Radio", "NoiseThreshold"));
 
@@ -346,7 +402,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(button_group, check_cw);
 	lv_checkbox_set_text(check_cw, "Morse Decoder");
 	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, (void *)this);
-	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, x_margin, y_margin + (ibutton_y + 1) * button_height_margin);
 	lv_group_add_obj(button_group, check_cw);
 
 	waterfallgain = Settings_file.get_int("Radio", "Waterfallgain", 35);
@@ -434,6 +490,20 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
+}
+
+void gui_rx::enable_filter_settings(bool enable)
+{
+	if (enable)
+	{
+		lv_obj_clear_state(filter_type_dropdown, LV_STATE_DISABLED);
+		lv_obj_clear_state(filter_slider, LV_STATE_DISABLED);
+	}
+	else
+	{
+		lv_obj_add_state(filter_type_dropdown, LV_STATE_DISABLED);
+		lv_obj_add_state(filter_slider, LV_STATE_DISABLED);
+	}
 }
 
 void gui_rx::noise_slider_event_cb_class(lv_event_t *e)

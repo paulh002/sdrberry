@@ -4,6 +4,7 @@
 #include "date.h"
 #include "gui_ft8bar.h"
 #include "gui_bar.h"
+#include "gui_rx.h"
 #include "sdrberry.h"
 #include <assert.h>
 #include <chrono>
@@ -62,6 +63,10 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 
 	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
 	gbar.set_filter_slider(m_bandwidth);
+	Demodulator::set_filter_offset(0);
+	Demodulator::set_filter_type(0);
+	Demodulator::set_filter_order(6);
+	guirx.enable_filter_settings(false);
 	Demodulator::setLowPassAudioFilter(ft8_rate, m_bandwidth);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();

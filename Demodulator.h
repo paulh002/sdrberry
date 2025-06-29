@@ -40,6 +40,9 @@ class Demodulator
 	static void set_noise_filter(int noise);
 	static void set_noise_threshold(int threshold);
 	static float get_threshold() { return noiseThresshold; }
+	static void set_filter_type(int type);
+	static void set_filter_offset(int offset);
+	static void set_filter_order(int order);
 
 	void setLowPassAudioFilterCutOffFrequency(int band_width);
 
@@ -82,7 +85,8 @@ class Demodulator
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();
 	bool get_gain_phase_correction();
-	int get_lowPassAudioFilterCutOffFrequency() { return lowPassAudioFilterCutOffFrequency.load(); }
+	int get_lowPassAudioFilterCutOffFrequency();
+	bool get_lowPassAudioFilterChange();
 	float adjust_resample_rate(float rateAjustFraction);
 	DataBuffer<IQSample> *receiveIQBuffer{nullptr};
 	AudioOutput *audioOutputBuffer{nullptr};
@@ -98,6 +102,7 @@ class Demodulator
 	int get_noise() { return noisefilter.load(); }
 	void NoiseFilterProcess(IQSampleVector &filter_in, IQSampleVector &filter_out);
 	float getResampleRate() { return resampleRate; }
+
 
 	void SquelchProcess(IQSampleVector &filter);
 	bool Squelch();
@@ -137,6 +142,10 @@ class Demodulator
 
 	std::atomic<int> lowPassAudioFilterCutOffFrequency;
 	static std::atomic<int> noisefilter;
+	static std::atomic<int> filter_type;
+	static std::atomic<int> filter_offset;
+	static std::atomic<int> filter_order;
+	static std::atomic<bool> filter_change;
 	static std::atomic<float> noiseThresshold;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 

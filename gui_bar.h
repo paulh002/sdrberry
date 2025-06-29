@@ -40,7 +40,7 @@ class gui_bar
 	std::unique_ptr<guiListWindows> stepsWindow;
 	int rit_value;
 	int steps_value{1};
-	atomic<float> ifgain;
+	std::atomic<float> ifgain;
 	std::map<std::string, int> rf_gain;
 
 	void bar_button_handler_class(lv_event_t *e);

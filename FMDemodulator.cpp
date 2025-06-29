@@ -2,6 +2,7 @@
 #include "PeakLevelDetector.h"
 #include "Limiter.h"
 #include "gui_bar.h"
+#include "gui_rx.h"
 #include "sdrberry.h"
 #include <thread>
 
@@ -10,6 +11,10 @@ FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer,
 {
 	gbar.set_filter_slider(11000);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, 11000);
+	Demodulator::set_filter_offset(0);
+	Demodulator::set_filter_type(0);
+	Demodulator::set_filter_order(6);
+	guirx.enable_filter_settings(false);
 	int lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
 	Demodulator::set_resample_rate(audio_output->get_samplerate() / ifrate); // down sample to pcmrate
 	Demodulator::setLowPassAudioFilter(audio_output->get_samplerate(), lowPassAudioFilterCutOffFrequency);

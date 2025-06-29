@@ -6,6 +6,7 @@
 #include "vfo.h"
 #include "gui_vfo.h"
 
+
 class gui_rx
 {
 private:
@@ -16,6 +17,7 @@ private:
 	lv_obj_t* drp_noise;
 	lv_obj_t *check_cw, *waterfall_hold;
 	lv_obj_t *noise_slider, *waterfall_slider;
+	lv_obj_t *filter_slider, *filter_slider_label, *filter_type_label, *filter_type_dropdown;
 	lv_obj_t *signal_strength_offset_slider_label, *signal_strength_offset_slider;
 	lv_obj_t *noise_slider_label, *waterfall_slider_label, *waterfallsize_slider, *waterfallsize_slider_label;
 	int waterfallgain, waterfallsize, spectrumgain;
@@ -27,7 +29,9 @@ private:
 	void rx_button_handler_class(lv_event_t* e);
 	void event_handler_morse_class(lv_event_t* e);
 	void noise_handler_class(lv_event_t* e);
+	void filter_type_handler_cb_class(lv_event_t *e);
 	void noise_slider_event_cb_class(lv_event_t *e);
+	void filter_slider_event_cb_class(lv_event_t *e);
 	void waterfall_slider_event_cb_class(lv_event_t *e);
 	void event_handler_hold_class(lv_event_t *e);
 	void waterfallsize_slider_event_class(lv_event_t *e);
@@ -44,11 +48,14 @@ private:
 	int get_noise();
 	int get_waterfallgain() { return waterfallgain; }
 	int get_spectrumgain() { return spectrumgain; }
+	void enable_filter_settings(bool enable);
 
 	static constexpr auto rx_button_handler = EventHandler<gui_rx, &gui_rx::rx_button_handler_class>::staticHandler;
 	static constexpr auto event_handler_morse = EventHandler<gui_rx, &gui_rx::event_handler_morse_class>::staticHandler;
 	static constexpr auto noise_handler = EventHandler<gui_rx, &gui_rx::noise_handler_class>::staticHandler;
+	static constexpr auto filter_type_handler_cb = EventHandler<gui_rx, &gui_rx::filter_type_handler_cb_class>::staticHandler;
 	static constexpr auto noise_slider_event_cb = EventHandler<gui_rx, &gui_rx::noise_slider_event_cb_class>::staticHandler;
+	static constexpr auto filter_slider_event_cb = EventHandler<gui_rx, &gui_rx::filter_slider_event_cb_class>::staticHandler;
 	static constexpr auto waterfall_slider_event_cb = EventHandler<gui_rx, &gui_rx::waterfall_slider_event_cb_class>::staticHandler;
 	static constexpr auto event_handler_hold = EventHandler<gui_rx, &gui_rx::event_handler_hold_class>::staticHandler;
 	static constexpr auto waterfallsize_slider_event_cb = EventHandler<gui_rx, &gui_rx::waterfallsize_slider_event_class>::staticHandler;

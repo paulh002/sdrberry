@@ -42,6 +42,7 @@ class gui_bar
 	int steps_value{1};
 	std::atomic<float> ifgain;
 	std::map<std::string, int> rf_gain;
+	std::map<std::string, int> filter_to_mode_cutoff_frequencies;
 
 	void bar_button_handler_class(lv_event_t *e);
 	void gain_slider_event_class(lv_event_t *e);
@@ -99,6 +100,7 @@ class gui_bar
 	void update_step_button(int step);
 	void get_gain_range(int &max_gain, int &min_gain);
 	void set_gain_slider_band_from_config(bool web = true);
+	int get_filter_frequency(int mode);
 
 	lv_obj_t *get_button_obj(int i)
 	{

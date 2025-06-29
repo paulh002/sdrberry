@@ -572,6 +572,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	ifilters.push_back(4500);
 	ifilters.push_back(5000);
 
+	filter_to_mode_cutoff_frequencies = Settings_file.get_map_string("Radio", "Audiofilter");
 	steps_value = Settings_file.get_int("Radio", "steps", 0);
 	barview = o_parent;
 	lv_style_init(&style_btn);
@@ -966,11 +967,10 @@ void gui_bar::set_vfo(int active_vfo)
 	}
 }
 
-#define BACKWARD_HAS_BFD 1
-#define BACKWARD_HAS_DW 1
-#include "backward.hpp"
-
-using namespace backward;
+int gui_bar::get_filter_frequency(int mode)
+{
+	return filter_to_mode_cutoff_frequencies.at(ModesTypes.at(mode));
+}
 
 void gui_bar::set_filter_slider(int ifilter)
 {
@@ -1007,6 +1007,8 @@ void gui_bar::set_filter_slider(int ifilter)
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
 	catinterface.SetSH(ifilters[filter]);
+	filter_to_mode_cutoff_frequencies[ModesTypes.at(mode)] = ifilter;
+	Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
 	updateweb();
 }
 

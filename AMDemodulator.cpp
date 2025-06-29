@@ -46,34 +46,40 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
 	Demodulator::set_filter_type(Settings_file.get_int("Radio", "filter_type"));
 	guirx.enable_filter_settings(true);
+	bandwidth = gbar.get_filter_frequency(mode);
 	switch (mode)
 	{
 	case mode_usb:
-		bandwidth = 2500; // SSB
+		if (bandwidth == 0)
+			bandwidth = 2500; // SSB
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
 		printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);		
 		break;
 	case mode_cw:
-		bandwidth = 500; // CW
+		if (bandwidth == 0)
+			bandwidth = 500; // CW
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_LSB;
 		printf("mode CW LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
 		break;
 	case mode_lsb:
-		bandwidth = 2500; // SSB
+		if (bandwidth == 0)
+			bandwidth = 2500; // SSB
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_LSB;
 		printf("mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);		
 		break;
 	case mode_am:
-		bandwidth = 5000; // SSB
+		if (bandwidth == 0)
+			bandwidth = 5000; // SSB
 		suppressed_carrier = 0;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		
 		break;
 	case mode_dsb:
-		bandwidth = 5000; // SSB
+		if (bandwidth == 0)
+			bandwidth = 5000; // SSB
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		

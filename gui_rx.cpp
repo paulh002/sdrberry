@@ -396,8 +396,6 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	
 	ibutton_y++;
-	ibutton_y++;
-
 	check_cw = lv_checkbox_create(main_tile);
 	lv_group_add_obj(button_group, check_cw);
 	lv_checkbox_set_text(check_cw, "Morse Decoder");

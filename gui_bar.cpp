@@ -969,7 +969,10 @@ void gui_bar::set_vfo(int active_vfo)
 
 int gui_bar::get_filter_frequency(int mode)
 {
-	return filter_to_mode_cutoff_frequencies.at(ModesTypes.at(mode));
+	if (filter_to_mode_cutoff_frequencies.find(ModesTypes.at(mode)) != filter_to_mode_cutoff_frequencies.end())
+		return filter_to_mode_cutoff_frequencies.at(ModesTypes.at(mode));
+	else
+		return 0;
 }
 
 void gui_bar::set_filter_slider(int ifilter)

@@ -1320,11 +1320,11 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());
 	vfo.set_vfo(0, vfo_activevfo::None);
 	int tx_rate = Settings_file.get_int(default_radio, "samplerate_tx");
-	float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
+	float decimate = (int)pow(2.0, (float)Settings_file.get_int(default_radio, "decimate"));
 	ifrate_tx = tx_rate * 1000 / decimate;
 
 	bool restart = (bool)Settings_file.get_int(default_radio, "restart_tx", 1);
-	printf("select_mode_tx start tx threads samplerate %f10.0 restart %d\n", ifrate_tx, restart);
+	printf("select_mode_tx start tx threads samplerate %f10.0 decimation %f2.0 restart %d\n", ifrate_tx, decimate, restart);
 	switch (mode)
 	{
 	case mode_broadband_fm:

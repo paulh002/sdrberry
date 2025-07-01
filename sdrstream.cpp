@@ -321,7 +321,7 @@ void TX_Stream::operator()()
 	receiveIQBuffer->clear();
 
 	streammtu = SdrDevices.SdrDevices.at(radio)->getStreamMTU(tx_stream);
-	dfactor = floor(pow(2, decimatorFactor));
+	dfactor = floor(pow(2.0, decimatorFactor));
 	while (!stop_flag.load())
 	{
 		unsigned int overflows(0);
@@ -337,53 +337,22 @@ void TX_Stream::operator()()
 		samples_transmit = iqsamples.size();
 		complex<float> *buffs[5]{};
 		buffs[0] = (complex<float> *)iqsamples.data();
-		
-
 		if (decimator)
 		{
-			//int samples_send = 0;
-			const int shunckSize = streammtu; //131072; // 65536;
-			const int shunckdiv = shunckSize / dfactor;
-			const int shuncks = samples_transmit / shunckdiv;
-			int size = dfactor * samples_transmit;
-			resampleData.resize(size);
+			int num_samples = dfactor * samples_transmit;
+			resampleData.resize(num_samples);
 			buffs[0] = (complex<float> *)resampleData.data();
-			//printf("input samples %ld out sample size %ld streammtu %d \n", iqsamples.size(), resampleData.size(), streammtu);
-
-			//printf("streammtu %d shuncks %d input samples %d out sample size %d factor %d shunckdiv %d\n", streammtu, shuncks,samples_transmit, size, dfactor, shunckdiv);
-			for (int ii = 0; ii < shuncks; ii++)
+			for (int i = 0; i < samples_transmit; i++)
 			{
-				for (int i = 0; i < shunckdiv; i++)
-				{
-					msresamp2_crcf_execute(decimator, &iqsamples.data()[i + shunckdiv * ii], &resampleData.data()[i * dfactor]);
-				}
-				int num_samples = shunckSize;
-				ret = 1;
-				while (num_samples > 0 && ret > 0)
-				{
-					ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
-					buffs[0] += ret;
-					num_samples -= ret;
-					//samples_send += ret;
-				}
+				msresamp2_crcf_execute(decimator, &iqsamples.data()[i], &resampleData.data()[i * dfactor]);
 			}
-			int reststart = shuncks * shunckdiv;
-			int amount = samples_transmit * dfactor - reststart * dfactor;
-			for (int i = 0; i < samples_transmit - reststart; i++)
-			{
-				msresamp2_crcf_execute(decimator, &iqsamples.data()[i + reststart], &resampleData.data()[i * dfactor]);
-			}
-			int num_samples = amount;
 			ret = 1;
-			buffs[0] = (complex<float> *)resampleData.data();
 			while (num_samples > 0 && ret > 0)
 			{
 				ret = SdrDevices.SdrDevices.at(radio)->writeStream(tx_stream, (const void *const *)buffs, num_samples, flags, time_ns, 1e5);
 				buffs[0] += ret;
 				num_samples -= ret;
-				//samples_send += ret;
 			}
-			//printf("input samples %d out sample size %d samples send %d\n", samples_transmit, size, samples_send);
 		}
 		else
 		{

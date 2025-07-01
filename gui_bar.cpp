@@ -1010,7 +1010,7 @@ void gui_bar::set_filter_slider(int ifilter)
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
 	catinterface.SetSH(ifilters[filter]);
-	filter_to_mode_cutoff_frequencies[ModesTypes.at(mode)] = ifilter;
+	filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
 	Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
 	updateweb();
 }

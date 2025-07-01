@@ -74,7 +74,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_dropdown_clear_options(d_decimate);
 	lv_obj_add_event_cb(d_decimate, decimate_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_width(d_decimate, 0.5 * button_width);
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 7; i++)
 	{
 		std::string decimation = std::to_string((int)floor(pow(2, i)));
 		lv_dropdown_add_option(d_decimate, decimation.c_str(), LV_DROPDOWN_POS_LAST);

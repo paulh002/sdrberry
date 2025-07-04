@@ -56,7 +56,7 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 			buf.push_back(f);
 	}
 	databuffer.clear();
-	databuffer.push(move(buf));
+	databuffer.push(std::move(buf));
 	return 0;
 }
 
@@ -237,7 +237,7 @@ void AudioInput::ToneBuffer()
 		}
 		buf.push_back(f);
 	}
-	databuffer.push(move(buf));
+	databuffer.push(std::move(buf));
 }
 
 void AudioInput::StartDigitalMode(vector<float> &signal)

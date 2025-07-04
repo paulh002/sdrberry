@@ -53,7 +53,7 @@ void EchoAudio::operator()()
 	std::chrono::high_resolution_clock::time_point now, start1;
 	
 	SampleVector audiosamples, audioframes,filter;
-	IQSampleVector buf_mod, buf_filter;
+	IQSampleVector buf_mod;
 	AudioProcessor Speech;
 
 	liquid_ampmodem_type am_mode{LIQUID_AMPMODEM_USB};
@@ -96,15 +96,15 @@ void EchoAudio::operator()()
 			buf_mod.push_back(f);
 		}
 		audiosamples.clear();
-		executeBandpassFilter(buf_mod, buf_filter);
+		executeBandpassFilter(buf_mod);
 		buf_mod.clear();
-		for (auto col : buf_filter)
+		for (auto col : buf_mod)
 		{
 			float v;
 			ampmodem_demodulate(demod, (liquid_float_complex)col, &v);
 			audiosamples.push_back(v);
 		}
-		buf_filter.clear();
+		buf_mod.clear();
 
 		calc_af_level(audiosamples);
 		set_signal_strength();

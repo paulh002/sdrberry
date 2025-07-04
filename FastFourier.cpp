@@ -1,4 +1,5 @@
 #include "FastFourier.h"
+#include <iostream>
 
 FastFourier::FastFourier()
 	: numberOffBins(0), resampleRate(0)
@@ -67,6 +68,9 @@ FastFourier::~FastFourier()
 	if (ncoMixerHandle != nullptr)
 		nco_crcf_destroy(ncoMixerHandle);
 }
+
+#define DEBUG_VECTOR(v) std::cout << #v << " size: " << v.size() << ", capacity: " << v.capacity() << '\n';
+
 
 void FastFourier::Process(const IQSampleVector &input)
 {

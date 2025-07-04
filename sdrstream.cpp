@@ -24,6 +24,9 @@
 #include <time.h>
 #include <unistd.h>
 
+#define DEBUG_VECTOR(v) std::cout << #v << " size: " << v.size() << ", capacity: " << v.capacity() << '\n';
+
+
 std::atomic<double> rx_sampleRate{0.0};
 std::atomic<double> tx_sampleRate{0};
 std::atomic<int> rx_nosample{0};
@@ -48,7 +51,12 @@ std::thread tx_thread;
 shared_ptr<RX_Stream> ptr_rx_stream;
 shared_ptr<TX_Stream> ptr_tx_stream;
 std::mutex rxstream_mutex;
-atomic_bool pause_flag{false};
+atomic_bool RX_Stream::pause_flag{false};
+
+void RX_Stream::pause_rx_stream(bool enable)
+{
+	pause_flag = enable;
+}
 
 void RX_Stream::operator()()
 {
@@ -330,7 +338,7 @@ void TX_Stream::operator()()
 		long long time_ns(0);
 		int samples_transmit = 0;
 
-		iqsamples = receiveIQBuffer->pull();
+		iqsamples = std::move(receiveIQBuffer->pull());
 		if (iqsamples.empty())
 			continue;
 		//printf("samples %ld %ld %ld \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());

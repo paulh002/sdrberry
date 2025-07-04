@@ -516,6 +516,8 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 			int sel = lv_dropdown_get_selected(obj);
 			catinterface.SetSH(ifilters.at(sel));
 			update_filter(ifilters.at(sel));
+			filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilters.at(sel);
+			Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
 			updateweb();
 		}
 		else

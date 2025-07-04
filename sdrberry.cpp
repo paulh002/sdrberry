@@ -1140,7 +1140,7 @@ void destroy_demodulators(bool all, bool close_stream)
 	{
 		RX_Stream::destroy_rx_streaming_thread();
 		stream_rx_on = false;
-		pause_flag = false;
+		RX_Stream::pause_rx_stream(false);
 	}
 	TX_Stream::destroy_tx_streaming_thread(close_stream);
 }
@@ -1229,7 +1229,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 			stream_rx_on = true;
 		}
 		else
-			pause_flag = false;
+			RX_Stream::pause_rx_stream(false);
 		break;
 
 	case mode_broadband_fm:
@@ -1245,7 +1245,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 			stream_rx_on = true;
 		}
 		else
-			pause_flag = false;
+			RX_Stream::pause_rx_stream(false);
 		break;
 		
 	case mode_cw:
@@ -1267,7 +1267,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 			stream_rx_on = true;
 		}
 		else
-			pause_flag = false;
+			RX_Stream::pause_rx_stream(false);
 		break;
 	case mode_ft8:
 	case mode_ft4:
@@ -1315,6 +1315,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	{
 		destroy_demodulators(false, false);
 	}
+	RX_Stream::pause_rx_stream(true);
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());

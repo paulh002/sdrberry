@@ -397,6 +397,28 @@ void Demodulator::Resample(IQSampleVector &filter_in,
 	}
 }
 
+IQSampleVector Demodulator::Resample(IQSampleVector &filter_in)
+{
+	unsigned int num_written;
+	IQSampleVector filter_out;
+	
+	if (resampleHandle)
+	{
+		if (filter_out.size() == 0)
+		{
+			float nx = (float)filter_in.size() * resampleRate * 2;
+			filter_out.reserve((int)ceilf(nx));
+			filter_out.resize((int)ceilf(nx));
+		}
+		msresamp_crcf_execute(resampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
+		filter_out.resize(num_written);
+	}
+	else
+	{
+		return filter_in;
+	}
+	return filter_out;
+}
 // audio filter 500 hz - 4.0 Khz
 void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 									 IQSampleVector &filter_out)
@@ -477,6 +499,21 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 	}
 }
 
+void Demodulator::mix_up(IQSampleVector &in)
+{
+	if (tuneNCO)
+	{
+		for (auto &col : in)
+		{
+			complex<float> v;
+
+			nco_crcf_step(tuneNCO);
+			nco_crcf_mix_up(tuneNCO, col, &v);
+			col = v;
+		}
+	}
+}
+
 void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 {
 	lowPassAudioFilterCutOffFrequency = band_width;
@@ -543,25 +580,22 @@ void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, f
 	iirfilt_crcf_print(highPassHandle);
 }
 
-void Demodulator::executeBandpassFilter(const IQSampleVector &filter_in,
-										IQSampleVector &filter_out)
+void Demodulator::executeBandpassFilter(IQSampleVector &filter_in)
 {
-	if (bandPassHandle == nullptr || lowPassHandle == nullptr || highPassHandle == nullptr)
+	if (bandPassHandle != nullptr && lowPassHandle != nullptr && highPassHandle != nullptr)
 	{
-		filter_out = std::move(filter_in);
-		return;
-	}
-	float bass_gain = dB2mag(gspeech.get_bass());
-	float treble_gain = dB2mag(gspeech.get_treble());
-	for (auto &col : filter_in)
-	{
-		complex<float> v, w, u, z;
+		float bass_gain = dB2mag(gspeech.get_bass());
+		float treble_gain = dB2mag(gspeech.get_treble());
+		for (auto &col : filter_in)
+		{
+			complex<float> v, w, u, z;
 
-		iirfilt_crcf_execute(bandPassHandle, col, &v);
-		iirfilt_crcf_execute(lowPassHandle, col, &w);
-		iirfilt_crcf_execute(highPassHandle, col, &u);
-		v = v + w * bass_gain + u * treble_gain;
-		filter_out.insert(filter_out.end(), v);
+			iirfilt_crcf_execute(bandPassHandle, col, &v);
+			iirfilt_crcf_execute(lowPassHandle, col, &w);
+			iirfilt_crcf_execute(highPassHandle, col, &u);
+			v = v + w * bass_gain + u * treble_gain;
+			col = v;
+		}
 	}
 }
 

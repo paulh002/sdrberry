@@ -65,6 +65,7 @@ class Demodulator
 	void set_resample_rate(float resample_rate);
 	void mix_down(IQSampleVector &filter_in);
 	void mix_up(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void mix_up(IQSampleVector &in);
 	void calc_if_level(const IQSampleVector &samples_in);
 	void calc_signal_level(const IQSampleVector& samples_in);
 	double get_if_level() { return ifEnergy.getEnergyLevel(); }
@@ -80,7 +81,7 @@ class Demodulator
 	void perform_fft(const IQSampleVector &iqsamples);
 	void calc_af_level(const SampleVector &samples_in);
 	void setBandPassFilter(float high, float mid_high, float mid_low, float low);
-	void executeBandpassFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void executeBandpassFilter(IQSampleVector &filter_in);
 	void dc_filter(IQSampleVector &filter_in);
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();
@@ -102,7 +103,7 @@ class Demodulator
 	int get_noise() { return noisefilter.load(); }
 	void NoiseFilterProcess(IQSampleVector &filter_in, IQSampleVector &filter_out);
 	float getResampleRate() { return resampleRate; }
-
+	IQSampleVector Resample(IQSampleVector &filter_in);
 
 	void SquelchProcess(IQSampleVector &filter);
 	bool Squelch();

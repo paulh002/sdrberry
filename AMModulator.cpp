@@ -11,6 +11,8 @@
 
 shared_ptr<AMModulator> sp_ammod;
 
+#define DEBUG_VECTOR(v) std::cout << #v << " size: " << v.size() << ", capacity: " << v.capacity() << '\n';
+
 void AMModulator::setsignal(vector<float> &signal)
 {
 	signal = std::move(signal);
@@ -189,7 +191,6 @@ void AMModulator::operator()()
 		int number_of_audio_samples = audiosamples.size();
 		transmitIQBuffer->push(std::move(samples_out));
 		audiosamples.clear();
-		
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
@@ -210,7 +211,7 @@ void AMModulator::operator()()
 
 void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_out)
 {
-	IQSampleVector buf_mod, buf_filter, buf_out;
+	IQSampleVector buf_mod;
 	unsigned int num_written;
 
 	// Modulate audio to USB, LSB or DSB;
@@ -223,9 +224,9 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 	}
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
-	executeBandpassFilter(buf_mod, buf_filter);
-	Resample(buf_filter, buf_out ); //buf_out
-	mix_up(buf_out, samples_out); // Mix up to vfo freq
+	executeBandpassFilter(buf_mod);
+	samples_out = std::move(Resample(buf_mod));
+	mix_up(samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);
 }
 

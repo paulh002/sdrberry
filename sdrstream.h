@@ -20,6 +20,7 @@ class RX_Stream
 	static void destroy_rx_streaming_thread();
 	void operator()();
 	atomic_bool stop_flag{false};
+	static void pause_rx_stream(bool enable);
 
   private:
 	double ifrate;
@@ -30,6 +31,7 @@ class RX_Stream
 	unsigned int decimatorFactor;
 	std::string antenna;
 	long bandwidth;
+	static std::atomic_bool pause_flag;
 };
 
 extern atomic_bool pause_flag;

@@ -397,6 +397,9 @@
     <ClCompile Include="gui_gain.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="CatTcpServer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -870,6 +873,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_gain.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="CatTcpServer.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

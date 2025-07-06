@@ -28,9 +28,9 @@ void Gui_band::ham_event_handler_class(lv_event_t *e)
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-			vfo.limit_ham_band = true;
+			vfo.set_vfo_limit_ham_band(true);
 		else
-			vfo.limit_ham_band = false;
+			vfo.set_vfo_limit_ham_band(false);
 	}
 }
 
@@ -160,7 +160,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_group_t *keyboard_group,lv_co
 		ibutton_y++;
 	lv_obj_align(limitvfocheckbox, LV_ALIGN_TOP_LEFT, tab_margin, ibutton_y * button_height_margin);
 
-	if (vfo.limit_ham_band)
+	if (vfo.is_vfo_limit_ham_band())
 		lv_obj_add_state(limitvfocheckbox, LV_STATE_CHECKED);
 
 	bandfiltercheckbox = lv_checkbox_create(main_tile);
@@ -276,7 +276,7 @@ void Gui_band::band_button_class(lv_event_t *e)
 			int f_band = Settings_file.meters.at(index);
 			vfo.set_band(f_band, f_low);
 			gbar.set_mode(mode);
-			catinterface.SetBand(i);
+			catinterface->SetBand(i);
 		}
 
 		for (auto col : button)

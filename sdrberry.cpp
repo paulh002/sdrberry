@@ -31,6 +31,7 @@
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "Catinterface.h"
+#include "CatTcpServer.h"
 #include "DataBuffer.h"
 #include "Filter.h"
 #include "FmDecode.h"
@@ -191,6 +192,7 @@ int default_tx_channel = 0;
 
 mutex fm_finish;
 Catinterface catinterface;
+CatTcpServer cattcpserver;
 Keyboard KeyboardDevice;
 Mouse Mouse_dev;
 HidDev HidDev_dev, HidDev_dev1, HidDev_dev2;
@@ -417,6 +419,10 @@ int main(int argc, char *argv[])
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
+
+	cattcpserver.StartServer();
+	std::thread thread_cattcpserver(std::ref(cattcpserver));
+	thread_cattcpserver.detach();
 	
 	int audiodevID;
 	audiodevID = AudioInput::createAudioInputDevice(defaultAudioSampleRate, 2048);
@@ -754,7 +760,7 @@ int main(int argc, char *argv[])
 		}
 		gui_band_instance.init_button_gui(tab["band"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
 		gbar.set_vol_slider(Settings_file.volume());
-		catinterface.SetAG(Settings_file.volume());
+		catinterface->SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
 		//gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
@@ -824,7 +830,7 @@ int main(int argc, char *argv[])
 			timeLastStatus = now;
 			double s = SpectrumGraph.get_signal_strength();
 			gui_vfo_inst.set_s_meter(s);
-			catinterface.SetSM((uint8_t)s);
+			catinterface->SetSM((uint8_t)s);
 			if (mode == mode_freedv)
 				freeDVTab.DrawWaterfall();
 			if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
@@ -879,7 +885,7 @@ int main(int argc, char *argv[])
 				long freq;
 				std::string buf;
 
-				printf("Message %s \n", msg.text.c_str());
+				//printf("Message %s \n", msg.text.c_str());
 				buf = msg.text;
 				if (msg.text.find(" ") != string::npos)
 				{
@@ -905,9 +911,18 @@ int main(int argc, char *argv[])
 					if (msg.text.find("k") != string::npos)
 						freqf = freqf * 1000;
 					freq = freqf;
-					if (vfo.checkVfoBandRange(freq))
+					if (vfo.is_vfo_limit_ham_band())
+					{
+						if (vfo.checkVfoBandRange(freq))
+						{
+							vfo.set_band_freq(freq);
+						}
+					}
+					else
+					{
 						vfo.set_vfo(freq);
-				}
+					}
+			}
 				break;
 			}
 			case GuiMessage::change_step:
@@ -1193,7 +1208,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	if (!SdrDevices.isValid(default_radio))
 		return;
 	set_tx_buttons();
-	catinterface.SetTX(TX_OFF);
+	catinterface->SetTX(TX_OFF);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
 	i2c_output.set_rxtx(false);
@@ -1297,7 +1312,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		return false;
 	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 		return false;
-	catinterface.SetTX(cattx);
+	catinterface->SetTX(cattx);
 	catinterface.Pause_Cat(true);
 	catinterface.MuteFA(false);
 	i2c_output.set_rxtx(true);
@@ -1492,7 +1507,7 @@ void switch_sdrreceiver(std::string receiver)
 		}
 		gui_band_instance.init_button_gui(nullptr, keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
 		gbar.set_vol_slider(Settings_file.volume());
-		catinterface.SetAG(Settings_file.volume());
+		catinterface->SetAG(Settings_file.volume());
 		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
 		//gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);

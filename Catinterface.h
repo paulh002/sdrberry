@@ -31,20 +31,11 @@ class Catinterface
 	void checkCAT();
 	void begin();
 	void operator()();
-	uint8_t Getag();
-	long long Getfa();
-	uint8_t GetRG();
 	void SetBand(uint16_t band);
-	void SetAG(uint8_t volume);
-	void SetSH(int bandwidth);
-	void SetFA(uint32_t freq);
 	void Pause_Cat(bool pause) { bpause_cat = pause; }
 	void MuteFA(bool pause) { muteFA = pause; }
-	void SetSM(uint8_t sm);
-	uint8_t GetIG();
-	void SetIG(int ig);
-	void SetRG(int rg);
-	void SetTX(int tx);
+
+	FT891_CAT *operator->() { return &cat_message; }
 
   private:
 	FT891_CAT cat_message;

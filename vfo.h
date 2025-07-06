@@ -88,6 +88,7 @@ class CVfo
 	void set_active_vfo(int active_vfo);
 	void set_vfo_range(long long low, long long high);
 	void set_band(int band, long long freq);
+	void set_band_freq(long long freq);
 	void sync_rx_vfo();
 	void vfo_rxtx(bool brx, bool btx, bool split = false);
 	void pause_step(bool pause) {pausevfo = pause;}
@@ -132,9 +133,10 @@ class CVfo
 	void return_bands(vector<int> &bands);
 	long get_span() { return vfo_setting.span;}
 	void updateweb();
-	
+	bool is_vfo_limit_ham_band() { return limit_ham_band; }
+	void set_vfo_limit_ham_band(bool value) { limit_ham_band = value; }
 	std::atomic_bool tune_flag{false};
-	bool limit_ham_band;
+	
 	void setRit(int rit, int active_vfo);
 	std::string getMode(int active_vfo);
 	std::vector<int16_t> Legend();
@@ -151,7 +153,8 @@ class CVfo
 	int rx_channel, tx_channel;
 	long span_offset_frequency;
 	bool pausevfo{false};
-
+	bool limit_ham_band;
+	
 	int get_band(int active_vfo);
 	void rx_set_sdr_freq();
 	void tx_set_sdr_freq();

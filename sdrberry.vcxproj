@@ -95,6 +95,7 @@
     <ClCompile Include="BandFilter.cpp" />
     <ClCompile Include="BandPassFilter.cpp" />
     <ClCompile Include="Catinterface.cpp" />
+    <ClCompile Include="CatTcpServer.cpp" />
     <ClCompile Include="CivetServer.cpp" />
     <ClCompile Include="civetweb.c" />
     <ClCompile Include="cmeter.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="BandPassFilter.h" />
     <ClInclude Include="blepp\pretty_printers.h" />
     <ClInclude Include="Catinterface.h" />
+    <ClInclude Include="CatTcpServer.h" />
     <ClInclude Include="CivetServer.h" />
     <ClInclude Include="civetweb.h" />
     <ClInclude Include="cmeter.h" />

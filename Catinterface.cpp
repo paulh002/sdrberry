@@ -181,7 +181,6 @@ void Catinterface::checkCAT()
 			if (!muteFA.load())
 			{
 				guiQueue.push_back(GuiMessage(GuiMessage::action::step, count));
-				cat_message.SetFA(vfo.get_active_vfo_freq());
 			}
 		}
 		count = cat_message.GetIG();
@@ -238,54 +237,4 @@ void Catinterface::operator()()
 	{
 		checkCAT();
 	}
-}
-
-void Catinterface::SetBand(uint16_t band)
-{
-	cat_message.SetBand(band);
-}
-
-void Catinterface::SetAG(uint8_t volume)
-{
-	cat_message.SetAG(volume);
-}
-
-void Catinterface::SetSH(int bandwidth)
-{
-	cat_message.SetSH(0, bandwidth);
-}
-
-void Catinterface::SetFA(uint32_t freq)
-{
-	cat_message.SetFA(freq);
-}
-
-void Catinterface::SetSM(uint8_t sm)
-{
-	cat_message.SetSM(sm);
-}
-
-uint8_t Catinterface::GetIG()
-{
-	return cat_message.GetIG();
-}
-
-void Catinterface::SetIG(int ig)
-{
-	cat_message.SetIG((uint8_t)ig);
-}
-
-void Catinterface::SetRG(int rg)
-{
-	cat_message.SetRG((uint8_t)rg);
-}
-
-uint8_t Catinterface::GetRG()
-{
-	return cat_message.GetRG();
-}
-
-void Catinterface::SetTX(int tx)
-{
-	cat_message.SetTX((uint8_t)tx);
 }

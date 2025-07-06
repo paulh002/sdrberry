@@ -181,6 +181,7 @@ class FT891_CAT // Class name
 	void SetSH(int status, int bandwidth);
 	void SetSM(uint8_t sm);
 	void SetIG(uint8_t ig);
+	void SetAI(uint16_t ai);
 
 	uint32_t GetFA();   // Get VFO-A frequency
 	uint32_t GetFB();   // Get VFO-B frequency

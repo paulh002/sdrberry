@@ -137,8 +137,9 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	bpf.SetBand(vfo_setting.band[0], vfo_setting.rx);
 	gui_vfo_inst.set_vfo_gui(0, vfo_setting.vfo_freq[0], get_rx(), get_mode_no(0), get_band_no(0), getBandIndex(get_band_no(0)));
 	gui_vfo_inst.set_vfo_gui(1, vfo_setting.vfo_freq[1], get_rx(), get_mode_no(1), get_band_no(1), getBandIndex(get_band_no(0)));
-	catinterface.SetBand(get_band_in_meters());
-	catinterface.SetFA(vfo_setting.vfo_freq[0]);
+	catinterface->SetBand(get_band_in_meters());
+	catinterface->SetFA(vfo_setting.vfo_freq[0]);
+	catinterface->SetFB(vfo_setting.vfo_freq[1]);
 	gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
 	//printf("Vfo init: freq %lld, sdr %lld offset %ld maxoffset %ld\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 }
@@ -356,7 +357,7 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 	SpectrumGraph.set_pos(vfo_setting.offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)
 	{ // Band Change?
-		catinterface.SetBand(get_band_in_meters());
+		catinterface->SetBand(get_band_in_meters());
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
 		gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
 		gbar.set_gain_slider_band_from_config();
@@ -365,6 +366,10 @@ int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
 	}
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo), getBandIndex(get_band_no(vfo_setting.active_vfo)));
 	gui_band_instance.set_gui(vfo_setting.band[0]);
+	if (vfo_setting.active_vfo == 0)
+		catinterface->SetFA(vfo_setting.vfo_freq[0]);
+	else
+		catinterface->SetFB(vfo_setting.vfo_freq[1]);
 	updateweb();
 	return retval;
 }
@@ -468,6 +473,25 @@ void CVfo::set_vfo_range(long long low, long long high)
 	vfo_setting.vfo_high = high;
 }
 
+void CVfo::set_band_freq(long long freq)
+{
+	int band = 0;
+
+	auto it_high = Settings_file.f_high.begin();
+	auto it_band = Settings_file.meters.begin();
+	for (auto &col : Settings_file.f_low)
+	{
+		if ((freq >= col) && (freq <= *it_high))
+		{
+			band = *it_band;
+		}
+		it_high++;
+		it_band++;
+	}
+	if (band != 0)
+		vfo.set_band(band, freq);
+}
+
 void CVfo::set_band(int band, long long freq)
 {
 	int index = getBandIndex(band);
@@ -478,6 +502,7 @@ void CVfo::set_band(int band, long long freq)
 			vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.bands[index].f_mode;
 			set_vfo(freq);
 			select_mode(vfo_setting.mode[vfo_setting.active_vfo], false);
+			gbar.set_mode(mode);
 			return;
 		}
 	}

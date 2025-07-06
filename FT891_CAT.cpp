@@ -207,8 +207,8 @@ int FT891_CAT::CheckCAT (bool bwait)
 			return 0;							// We're done
 
 		ParseMsg ();							// Separate any data in the message
-		//if (newMessage.ID == MSG_SH)
-		//	printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
+//		if (newMessage.ID == MSG_IF)
+//			printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
 
 		if ( newMessage.Type == MSG_CMD )		// Command?
 		{
@@ -277,7 +277,7 @@ int FT891_CAT::GetMessage(bool bwait)
 		if (catcommunicator_->Read(TERM_CH, catMessage) < 0)
 			return -1;
 	}
-
+	
 	if (catMessage.size() > 0)
 	{
 		// There is a new message
@@ -427,6 +427,11 @@ bool FT891_CAT::ProcessCmd ()
 
 	switch ( newMessage.ID )							// Make decisions based on message ID
 	{
+		case MSG_AI:
+			tempFT = atoi(dataBuff); // Convert into temporary place
+			SetAI(tempFT);			 // Update radioStatus.FT
+			cmdProcessed = true;
+			break;
 		case MSG_AB:									// Copy VFO-A to VFO-B (and mode)
 			radioStatus.FB  = radioStatus.FA;			// VFO-A frequency now in VFO-B
 			radioStatus.MDB = radioStatus.MDA;			// And mode
@@ -611,13 +616,13 @@ void FT891_CAT::ProcessStatus ()
 	{
 		case MSG_IF:									// Information request
 			sprintf ( tempBuff,							// Format response
-					"IF000%09lu+000000%1X00000;",
+					"IF000%09u+000000%1X00000;",
 					radioStatus.FA, radioStatus.MDA );
 			break;
 
 		case MSG_OI:									// Opposite Band Information request
 			sprintf ( tempBuff,							// Format response
-					"OI000%09lu+000000%1X00000;",
+					"OI000%09u+000000%1X00000;",
 					radioStatus.FB, radioStatus.MDB );
 			break;
 
@@ -804,7 +809,8 @@ void FT891_CAT::SetFB ( uint32_t freq )			// Set VFO-B frequency
 
 uint32_t FT891_CAT::GetFA ()					// Get VFO-A frequency
 {
-	catcommunicator_->Send("FA;");				// Send AG command
+	if (!bVFOmode)
+		catcommunicator_->Send("FA;");				// Send AG command
 	return radioStatus.FA;						// Done!
 }
 
@@ -1007,6 +1013,20 @@ void FT891_CAT::SetIG(uint8_t ig) // Set and send encoder step
 		s.push_back(str[i]);
 	catcommunicator_->Send(s);
 	radioStatus.IG = ig; // Done!
+}
+
+void FT891_CAT::SetAI(uint16_t ai)
+{
+	char str[20];
+	std::string s;
+
+	if (ai > 1 || ai < 0)
+		ai = 0;
+	sprintf(str, "%s%d;", msgTable[MSG_AI].Name, ai);
+	for (int i = 0; i < strlen(str); i++)
+		s.push_back(str[i]);
+	catcommunicator_->Send(s);
+	radioStatus.AI = ai; // Done!
 }
 
 uint8_t FT891_CAT::GetIG() // Get if gain

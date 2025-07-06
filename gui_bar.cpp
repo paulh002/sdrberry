@@ -405,7 +405,7 @@ void gui_bar::vol_slider_event_class(lv_event_t *e)
 	lv_obj_t *slider = lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_vol_slider_label(), "vol %d", lv_slider_get_value(slider));
 	audio_output->set_volume(lv_slider_get_value(slider));
-	catinterface.SetAG(lv_slider_get_value(slider));
+	catinterface->SetAG(lv_slider_get_value(slider));
 	Settings_file.save_vol(lv_slider_get_value(slider));
 	updateweb();
 }
@@ -416,7 +416,7 @@ void gui_bar::if_slider_event_class(lv_event_t *e)
 	lv_label_set_text_fmt(get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	int sl = lv_slider_get_value(slider);
 	ifgain.store(std::pow(10.0, (float)sl / 20.0));
-	catinterface.SetIG(lv_slider_get_value(slider));
+	catinterface->SetIG(lv_slider_get_value(slider));
 	Settings_file.save_int(default_radio, "if-gain",lv_slider_get_value(slider));
 	guift8bar.set_if(sl);
 	updateweb();
@@ -427,7 +427,7 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	lv_obj_t *slider = lv_event_get_target(e);
 
 	lv_label_set_text_fmt(get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
-	catinterface.SetRG(lv_slider_get_value(slider));
+	catinterface->SetRG(lv_slider_get_value(slider));
 	guigain.set_gains();
 	rf_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = lv_slider_get_value(slider);
 	Settings_file.set_map_string(default_radio, "rf-gain-map", rf_gain);
@@ -490,7 +490,7 @@ void gui_bar::set_gain_slider(int gain, bool web)
 	rf_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = gain;
 	Settings_file.set_map_string(default_radio, "rf-gain-map", rf_gain);
 	guigain.set_gains();
-	catinterface.SetRG(gain);
+	catinterface->SetRG(gain);
 	if (web)
 		updateweb();
 	try
@@ -514,7 +514,7 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 		{
 
 			int sel = lv_dropdown_get_selected(obj);
-			catinterface.SetSH(ifilters.at(sel));
+			catinterface->SetSH(0,ifilters.at(sel));
 			update_filter(ifilters.at(sel));
 			filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilters.at(sel);
 			Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
@@ -883,7 +883,7 @@ void gui_bar::set_vol_slider(int volume, bool web)
 	lv_slider_set_value(vol_slider, volume, LV_ANIM_ON);
 	lv_label_set_text_fmt(vol_slider_label, "vol %d", volume);
 	audio_output->set_volume(volume);
-	catinterface.SetAG(volume);
+	catinterface->SetAG(volume);
 	Settings_file.write_settings();
 	Settings_file.save_vol(volume);
 	if (web)
@@ -919,7 +919,7 @@ void gui_bar::set_if(int ifg, bool web)
 	ifgain.store(std::pow(10.0, (float)ifg / 20.0));
 	lv_slider_set_value(if_slider, ifg, LV_ANIM_ON);
 	lv_label_set_text_fmt(if_slider_label, "if %d db", ifg);
-	catinterface.SetIG(ifg);
+	catinterface->SetIG(ifg);
 	Settings_file.save_int(default_radio,"if-gain",ifg);
 	Settings_file.write_settings();
 	guift8bar.set_if(ifg);
@@ -1011,7 +1011,7 @@ void gui_bar::set_filter_slider(int ifilter)
 		filter = 9;
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
-	catinterface.SetSH(ifilters[filter]);
+	catinterface->SetSH(0,ifilters[filter]);
 	filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
 	Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
 	updateweb();
@@ -1078,7 +1078,7 @@ void gui_bar::websetfilter(std::string message)
 		{
 			lv_dropdown_set_selected(button[button_filter], filter);
 			update_filter(ifilters[filter]);
-			catinterface.SetSH(ifilters[filter]);
+			catinterface->SetSH(0,ifilters[filter]);
 		}
 		filter++;
 	}

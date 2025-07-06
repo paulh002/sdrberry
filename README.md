@@ -74,6 +74,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Cheap USB Hid controllers
 - Support for output only audio devices
 - I2C RX/TX switch support
+- CAT support for N1MM (tcp connection)
 
 ## Installation of libraries is necessary:
 - Liquid DSP

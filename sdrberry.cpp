@@ -979,7 +979,7 @@ int main(int argc, char *argv[])
 				gbar.set_cw_message(msg.text);
 				break;
 			case GuiMessage::filter:
-				gbar.set_filter_slider(msg.data);
+				gbar.set_filter_number(msg.data);
 				break;
 			case GuiMessage::clearWsjtx:
 				break;
@@ -1242,7 +1242,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	{
 	case mode_narrowband_fm:
 		guift8bar.setmonitor(false);
-		gbar.set_filter_slider(4000);
+		gbar.set_filter_dropdown(4000);
 		FMDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output);
 		if (!stream_rx_on)
 		{

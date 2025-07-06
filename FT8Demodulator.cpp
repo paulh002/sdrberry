@@ -62,7 +62,7 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	const auto startTime = std::chrono::high_resolution_clock::now();
 
 	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
-	gbar.set_filter_slider(m_bandwidth);
+	gbar.set_filter_dropdown(m_bandwidth);
 	Demodulator::set_filter_offset(0);
 	Demodulator::set_filter_type(0);
 	Demodulator::set_filter_order(6);

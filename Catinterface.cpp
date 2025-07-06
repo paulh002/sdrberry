@@ -221,8 +221,8 @@ void Catinterface::checkCAT()
 				}
 			}
 		}
-		count = cat_message.GetSH();
-		guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
+		//count = cat_message.GetSH();
+		//guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
 		count = cat_message.GetBand();
 		if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
 		{

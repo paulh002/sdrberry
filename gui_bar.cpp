@@ -514,10 +514,11 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 		{
 
 			int sel = lv_dropdown_get_selected(obj);
-			catinterface->SetSH(0,ifilters.at(sel));
+			catinterface->SetNA(sel);
 			update_filter(ifilters.at(sel));
 			filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilters.at(sel);
 			Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
+			catinterface->SetNA(sel);
 			updateweb();
 		}
 		else
@@ -977,7 +978,7 @@ int gui_bar::get_filter_frequency(int mode)
 		return 0;
 }
 
-void gui_bar::set_filter_slider(int ifilter)
+void gui_bar::set_filter_dropdown(int ifilter)
 {
 	int filter = 7;
 
@@ -1011,10 +1012,17 @@ void gui_bar::set_filter_slider(int ifilter)
 		filter = 9;
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
-	catinterface->SetSH(0,ifilters[filter]);
+	catinterface->SetNA(filter);
 	filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
 	Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
 	updateweb();
+}
+
+void gui_bar::set_filter_number(int sel)
+{
+	if (sel < 0 || sel >= FilterValues.size())
+		return;
+	set_filter_dropdown(FilterValues.at(sel));
 }
 
 void gui_bar::get_gain_range(int &max_gain, int &min_gain)
@@ -1078,7 +1086,7 @@ void gui_bar::websetfilter(std::string message)
 		{
 			lv_dropdown_set_selected(button[button_filter], filter);
 			update_filter(ifilters[filter]);
-			catinterface->SetSH(0,ifilters[filter]);
+			catinterface->SetNA(filter);
 		}
 		filter++;
 	}

@@ -113,7 +113,7 @@ msg msgTable[] =
 		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
 		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
 		{"MD0", MSG_MD, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
-		{"NA0", MSG_NA, MSG_STS},  // Request narrow IF shift
+		{"NA0", MSG_NA, MSG_BOTH},  // Request narrow IF shift
 		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
 		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status
 		{"RM", MSG_RM, MSG_STS},   // Read meter
@@ -419,6 +419,7 @@ bool FT891_CAT::ProcessCmd ()
 	uint8_t		catMode;								// Used to look for CAT mode
 	uint8_t		oldMode;								// Ditto
 	uint16_t	tempBND;
+	uint8_t		tempNA;
 	int			tempFT;
 
 	bool		cmdProcessed = false;					// True if we actually did something
@@ -487,6 +488,12 @@ bool FT891_CAT::ProcessCmd ()
 		case MSG_BS:
 			tempBND = atoi(dataBuff);					// Convert into temporary place
 			radioStatus.BND = tempBND;  				// Update radioStatus.BND
+			cmdProcessed = true;
+			break;
+
+		case MSG_NA:
+			tempNA = atoi(dataBuff);					// Convert into temporary place
+			radioStatus.NA = tempNA;					// Update radioStatus.BND
 			cmdProcessed = true;
 			break;
 
@@ -864,6 +871,15 @@ uint8_t FT891_CAT::GetMDB ()					// Get VFO-B mode
 	return radioStatus.MDB;						// Done!
 }
 
+void FT891_CAT::SetNA(uint8_t na) // Get VFO-A mode
+{
+	radioStatus.NA = na; // Done!
+}
+
+uint8_t FT891_CAT::GetNA() // Get VFO-A mode
+{
+	return radioStatus.NA; // Done!
+}
 
 /*
  *	Allow the main program to set or get the transmit/receive status:

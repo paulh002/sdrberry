@@ -182,7 +182,8 @@ class FT891_CAT // Class name
 	void SetSM(uint8_t sm);
 	void SetIG(uint8_t ig);
 	void SetAI(uint16_t ai);
-
+	void SetNA(uint8_t na);
+	
 	uint32_t GetFA();   // Get VFO-A frequency
 	uint32_t GetFB();   // Get VFO-B frequency
 	uint8_t GetMDA();   // Get VFO-A mode
@@ -195,6 +196,7 @@ class FT891_CAT // Class name
 	uint8_t GetRG();
 	int GetSH();
 	uint8_t GetIG();
+	uint8_t GetNA();
 	
 	void SendInformation(int info);
 	void SendCatMessage(int fd, std::string message);

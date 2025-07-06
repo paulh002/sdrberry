@@ -65,7 +65,8 @@ class gui_bar
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
 	void set_vol_slider(int volume, bool web = true);
 	void set_focus();
-	void set_filter_slider(int filter);
+	void set_filter_dropdown(int filter);
+	void set_filter_number(int filter);
 	void step_vol_slider(int step);
 	void step_gain_slider(int step);
 	void select_option(int option);

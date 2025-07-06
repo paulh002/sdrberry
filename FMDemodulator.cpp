@@ -9,7 +9,7 @@
 FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 	: Demodulator(ifrate, source_buffer, audio_output)
 {
-	gbar.set_filter_slider(11000);
+	gbar.set_filter_dropdown(11000);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, 11000);
 	Demodulator::set_filter_offset(0);
 	Demodulator::set_filter_type(0);

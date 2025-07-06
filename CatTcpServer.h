@@ -36,6 +36,7 @@ class CatTcpServer
   private:
 	CatTcpComm cattcpcomm;
 	FT891_CAT cat_message;
-	uint32_t vfo_a;
+	uint32_t vfo_a, vfo_b;
+	uint16_t filter;
 };
 

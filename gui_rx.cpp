@@ -38,15 +38,13 @@ void gui_rx::toggle_cw()
 	{
 		int bandwidth{2500};
 		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
-		gbar.set_filter_slider(bandwidth);
-		catinterface->SetSH(0,bandwidth);
+		gbar.set_filter_dropdown(bandwidth);
 	}
 	else
 	{
 		int bandwidth{500};
 		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
-		gbar.set_filter_slider(bandwidth);
-		catinterface->SetSH(0,bandwidth);
+		gbar.set_filter_dropdown(bandwidth);
 	}
 	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
 }

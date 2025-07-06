@@ -59,7 +59,7 @@ void CatTcpComm::Send(std::string response)
 	if (connected)
 	{
 		send(tcp_socket, response.c_str(), response.length(), 0);
-		printf("Cat response %s\n", response.c_str());
+		//printf("Cat response %s\n", response.c_str());
 	}
 }
 
@@ -97,8 +97,8 @@ int CatTcpComm::Read(char c, std::string &message)
 		message.push_back((char)chr);
 	} while (chr != c);
 
-	if (message.size())
-		printf("Cat message %s\n", message.c_str());
+	//if (message.size())
+	//	printf("Cat message %s\n", message.c_str());
 	return message.size();
 }
 
@@ -119,6 +119,8 @@ bool CatTcpComm::IsCommuncationPortOpen()
 
 bool CatTcpServer::StartServer()
 {
+	vfo_a = 50260000UL;
+	vfo_b = 50260000UL;
 
 	if (cattcpcomm.begin())
 	{
@@ -148,6 +150,13 @@ void CatTcpServer::operator()()
 				vfo_a = count;
 				sprintf(str, "%d", count);
 				guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo, str));
+			}
+			count = cat_message.GetNA();
+			if (count && filter != count)
+			{
+				filter = count;
+				printf("NA CAT filter %d \n", filter);
+				guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
 			}
 		}
 	}

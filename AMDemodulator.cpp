@@ -89,14 +89,13 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 		return;
 	}
 	const auto startTime = std::chrono::high_resolution_clock::now();
-	gbar.set_filter_slider(bandwidth);
+	gbar.set_filter_dropdown(bandwidth);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, bandwidth);
 	demodulatorHandle = ampmodem_create(modulationIndex, am_mode, suppressed_carrier);
 	pMDecoder = make_unique<MorseDecoder>(audioSampleRate);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
-	//catinterface.SetSH(m_bandwidth);
 }
 
 

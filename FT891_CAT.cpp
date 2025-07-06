@@ -446,6 +446,7 @@ bool FT891_CAT::ProcessCmd ()
 			break;
 
 		case MSG_EX:									// FT-891 "Menu" commands (ignored)
+			SetEX(dataBuff);
 			cmdProcessed = true;						// Command was processed
 			break;
 
@@ -683,12 +684,12 @@ void FT891_CAT::ProcessStatus ()
 
 		case MSG_FA:									// Request VFO-A frequency
 			sprintf ( tempBuff,							// Format message
-					"FA%09lu;", radioStatus.FA );
+					"FA%09u;", radioStatus.FA );
 			break;
 
 		case MSG_FB:									// Request VFO-B frequency
 			sprintf ( tempBuff,							// Format message
-					"FB%09lu;", radioStatus.FB );
+					"FB%09u;", radioStatus.FB );
 			break;
 
 		case MSG_MD:									// Request mode (USB, LSB, CW, etc.)
@@ -1050,4 +1051,23 @@ uint8_t FT891_CAT::GetIG() // Get if gain
 	if (!bVFOmode)
 		catcommunicator_->Send("IG;"); // Send IG command
 	return radioStatus.IG;
+}
+
+// for now set 0 RIT = RX
+void FT891_CAT::SetEX(char *buf)
+{
+	char str[20];
+	std::string s;
+
+	char *ptr = strchr(buf, ';');
+	if (ptr)
+		*ptr = '\0';
+	if (atoi(buf) == 518)
+	{
+		sprintf(str, "%s%s0;", msgTable[MSG_EX].Name, buf);
+		for (int i = 0; i < strlen(str); i++)
+			s.push_back(str[i]);
+		catcommunicator_->Send(s);
+		// radioStatus.AI = ai; // Done!
+	}
 }

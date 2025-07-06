@@ -917,12 +917,18 @@ int main(int argc, char *argv[])
 						{
 							vfo.set_band_freq(freq);
 						}
+						else
+						{
+							static const char *btns[] = {""};
+							lv_obj_t *mbox1 = lv_msgbox_create(NULL, "VFO", "Out of Ham band range", btns, true);
+							lv_obj_center(mbox1);
+						}
 					}
 					else
 					{
 						vfo.set_vfo(freq);
 					}
-			}
+				}
 				break;
 			}
 			case GuiMessage::change_step:

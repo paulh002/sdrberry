@@ -40,7 +40,7 @@ std::vector<std::string> stepsTypes{"1 Hz", "10 Hz", "50 Hz", "100 Hz", "250 Hz"
 									"9 kHz", "10 kHz", "12.5 kHz", "15 kHz", "20 kHz", "25 kHz", "50 kHz", "100 kHz", "200 kHz"};
 std::vector<int> stepsValues{1, 10, 50, 100, 250, 500, 1000,2500, 3125, 5000, 6250, 7500, 8330, 9000, 10000, 12500, 15000, 20000, 25000, 50000, 100000, 200000};
 std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz", "11.0 Khz", "16.0 Khz"};
-std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 11000};
+std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 11000, 16000};
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};
 std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm};
 std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
@@ -1013,8 +1013,11 @@ void gui_bar::set_filter_dropdown(int ifilter)
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
 	catinterface->SetNA(filter);
-	filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
-	Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
+	if (!IsDigtalMode(mode))
+	{
+		filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
+		Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
+	}
 	updateweb();
 }
 

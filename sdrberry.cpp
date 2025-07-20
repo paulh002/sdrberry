@@ -52,6 +52,7 @@
 #include "i2coutput.h"
 #include "gui_gain.h"
 #include "strlib.h"
+#include "tz.h"
 
 using json = nlohmann::json;
 
@@ -207,6 +208,7 @@ auto startTime = std::chrono::high_resolution_clock::now();
 
 SdrDeviceVector SdrDevices;
 std::string default_radio;
+
 
 static std::string keysRed;
 
@@ -389,10 +391,27 @@ int main(int argc, char *argv[])
 {
 	if (isAlreadyRunning())
 		return 0;
+
+	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
+	std::string timezone = Settings_file.get_string("Radio", "timezone");
+	auto t = make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+	if (timezone.size())
+	{
+		try
+		{
+			auto zone = date::locate_zone(timezone);
+			t = make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+		}
+		catch (const date::nonexistent_local_time &e)
+		{
+			std::cout << e.what() << '\n';
+		}
+	}
+	std::cout << t << '\n'; // 2016-05-14 18:33:24.205 EDT
+
 	signal(SIGINT, handle_signal); // Catch Ctrl+C (SIGINT)
 	
 	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
-	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	default_radio = Settings_file.find_sdr("default");
 
 	screenSelect = Settings_file.get_int("screen","resolution", 0);
@@ -812,6 +831,7 @@ int main(int argc, char *argv[])
 	if (Settings_file.get_int("web", "enabled", 0))
 		webserver.StartServer();
 	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 50);
+
 	while (1)
 	{
 		WsjtxMessage msg;

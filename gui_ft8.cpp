@@ -4,8 +4,57 @@
 #include "strlib.h"
 #include "screen.h"
 #include "WebServer.h"
+#include "FT8UdpClient.h"
+#include "FT8Processor.h"
+#include "vfo.h"
 
+extern std::unique_ptr<FT8UdpClient> ft8udpclient;
 gui_ft8 gft8;
+
+std::ostream &operator<<(std::ostream &os, const qso_logging &qso)
+{
+	// Format decode_time: convert to sys_time, then to std::tm
+	os << "Time: " << qso.decode_time << '\n'
+	   << "Frequency: " << qso.freq << '\n'
+	   << "DX Call: " << qso.dxCall << '\n'
+	   << "Message: " << qso.message << '\n'
+	   << "Report Received: " << qso.report_received << '\n'
+	   << "Report Sent: " << qso.report_send << '\n'
+	   << "Frequency Offset: " << qso.frequency_offset << " Hz" << '\n'
+	   << "dxGrid: " << qso.dxGrid << '\n';
+	return os;
+}
+
+bool is_report(const std::string &word) 
+{
+	if (word.size() == 3 && (word[0] == '+' || word[0] == '-') &&
+		isdigit(word[1]) && isdigit(word[2]))
+	{
+		return true;
+	}
+	if (word.size() == 4 && word[0] == 'R' &&
+		(word[1] == '+' || word[1] == '-') &&
+		isdigit(word[2]) && isdigit(word[3]))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool is_dxGrid(const std::string &word)
+{
+	if (word.size() != 4 && word.size() != 6)
+		return false;
+	if (!isupper(word[0]) || !isupper(word[1]))
+		return false;
+	if (!isdigit(word[2]) || !isdigit(word[3]))
+		return false;
+	if (word.size() == 6)
+	{
+		return isupper(word[4]) && isupper(word[5]);
+	}
+	return true;
+}
 
 void gui_ft8::qso_press_part_event_class(lv_event_t *e)
 {
@@ -257,9 +306,24 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_cell_value(cqTable, 0, 3, "Message");
 	lv_table_set_col_width(cqTable, 3, w / 2 - (w / 12 + w / 16 + w / 12) - 10);
 	cqRowCount++;
-
+	
+	std::string timezone = Settings_file.get_string("Radio", "timezone");
+	set_decode_start_time(make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
+	if (timezone.size())
+	{
+		try
+		{
+			auto zone = date::locate_zone(timezone);
+			set_decode_start_time(make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
+		}
+		catch (const date::nonexistent_local_time &e)
+		{
+			std::cout << e.what() << '\n';
+		}
+	}
+	/*
 	// DK7ZT
-/*	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	add_cq(m);
 
 	message m1{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF R-03"};
@@ -274,6 +338,8 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	for (int i = 0; i < 20; i++)
 	{
 		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF KO21"));
+		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF R-12"));
+		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF 73"));
 	}
 	for (int i = 0; i < 100; i++)
 	{
@@ -309,7 +375,42 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		}
 		lv_table_remove_rows(table, row, 1);
 	}
+	
+	if (msg.find(call) != std::string::npos)
+	{
+		qso_logging log_item, old_log_item;
 
+		//"PA0PHH M0ZMF KO21"
+			
+		log_item.decode_time = decode_start_time;
+		int start_pos_dxcall  = msg.find(' ') + 1;
+		int end_pos_dxcall = msg.find_last_of(' ');
+		log_item.dxCall = msg.substr(start_pos_dxcall, end_pos_dxcall - start_pos_dxcall);
+		int start_pos_report = msg.find_last_of(' ') + 1;
+		std::string s = msg.substr(start_pos_report, msg.size());
+		if (is_report(s))
+			log_item.report_received = s;
+		if (is_dxGrid(s))
+			log_item.dxGrid = s;
+		log_item.frequency_offset = hz0;
+		log_item.report_send = "R" + std::to_string(snr);
+		log_item.message = msg;
+		log_item.freq = vfo.get_active_vfo_freq();
+		if (qso_logging_map.find(log_item.dxCall) == qso_logging_map.end())
+			qso_logging_map[log_item.dxCall] = log_item;
+		else
+		{
+			old_log_item = qso_logging_map[log_item.dxCall];
+			if (log_item.report_received.size())
+				old_log_item.report_received = log_item.report_received;
+			if (is_dxGrid(log_item.dxGrid))
+				old_log_item.dxGrid = log_item.dxGrid;
+			old_log_item.decode_time_off = decode_start_time;
+			qso_logging_map[log_item.dxCall] = old_log_item;
+		}
+		std::cout << qso_logging_map[log_item.dxCall] << '\n';
+	}
+	
 	if ((msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0) ||
 		(msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) == std::string::npos))
 	{
@@ -344,6 +445,12 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	lv_table_set_cell_value(table, row, 3, msg.c_str());
 	ScrollLatestItem();
 
+	uint32_t in_milliseconds_since_midnight = (hh * 3600 + min * 60 + sec) * 1000;
+	double deltaTime = 0.0;
+
+	if (ft8udpclient != nullptr)
+		ft8udpclient->SendDecode(true, in_milliseconds_since_midnight, (int32_t)snr, deltaTime, (uint32_t)hz0, mode, msg, false, false);
+	
 	message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 	web_message(m);
 }
@@ -484,6 +591,21 @@ std::string gui_ft8::getQso(int row)
 	s += ",";
 	s += std::string(lv_table_get_cell_value(qsoTable, row, 3));
 	return s;
+}
+
+std::string gui_ft8::getQso_dxCall()
+{
+	std::string dxCall;
+	
+	int rows = lv_table_get_row_cnt(qsoTable);
+	if (rows > 1)
+	{
+		std::string line = std::string(lv_table_get_cell_value(qsoTable, 1, 3));
+		int start_pos_dxcall = line.find(' ') + 1;
+		int end_pos_dxcall = line.find_last_of(' ');
+		dxCall = line.substr(start_pos_dxcall, end_pos_dxcall - start_pos_dxcall);
+	}
+	return dxCall;
 }
 
 void gui_ft8::clr_qso()
@@ -726,4 +848,12 @@ void gui_ft8::web_cq()
 	}
 }
 
+void gui_ft8::set_decode_start_time(date::zoned_time<std::chrono::seconds> time)
+{
+	decode_start_time = time;
+}
 
+qso_entry gui_ft8::get_qso_entry(std::string dxCall)
+{
+	return qso_logging_map[dxCall];
+}

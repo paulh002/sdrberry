@@ -14,8 +14,11 @@
 #include "strlib.h"
 #include "screen.h"
 #include "WebServer.h"
+#include "FT8UdpClient.h"
 
 extern std::unique_ptr<wsjtx_lib> wsjtx;
+extern std::unique_ptr<FT8UdpClient> ft8udpclient;
+
 
 const int buttonmonitor = 0;
 const int buttonlog = 1;
@@ -1010,6 +1013,35 @@ void gui_ft8bar::LogButton()
 	Log();
 }
 
+/*
+std::ofstream &operator<<(std::ofstream &of, const qso_logging &qso)
+{
+	// Format decode_time: convert to sys_time, then to std::tm
+	of << "Time: " << qso.decode_time << ','
+	   << "Frequency: " << qso.freq << ','
+	   << "DX Call: " << qso.dxCall << ','
+	   << "Message: " << qso.message << ','
+	   << "Report Received: " << qso.report_received << ','
+	   << "Report Sent: " << qso.report_send << ','
+	   << "Frequency Offset: " << qso.frequency_offset << " Hz" << ','
+	   << "dxGrid: " << qso.dxGrid << '\n';
+	return of;
+}
+*/
+std::ofstream &operator<<(std::ofstream &of, const qso_logging &qso)
+{
+	// Format decode_time: convert to sys_time, then to std::tm
+	of << qso.decode_time << ','
+	   << qso.freq << ','
+	   << qso.dxCall << ','
+	   << qso.message << ','
+	   << qso.report_received << ','
+	   << qso.report_send << ','
+	   << qso.frequency_offset << " Hz" << ','
+	   << qso.dxGrid << '\n';
+	return of;
+}
+
 void gui_ft8bar::Log()
 {
 	std::ofstream outfile;
@@ -1017,23 +1049,52 @@ void gui_ft8bar::Log()
 
 	if (ft8status == ft8status_t::monitor || ft8status == ft8status_t::idle)
 	{
-		outfile.open("/home/pi/qso-log.csv", std::ios::out | std::ios::app);
+		std::string filename{"/home/pi/qso-log.csv"};
+		
+		bool exist = std::filesystem::exists(filename);
+
+		outfile.open(filename, std::ios::out | std::ios::app);
 		if (!outfile.fail())
 		{
-			auto today = date::year_month_weekday{date::floor<date::days>(std::chrono::high_resolution_clock::now())};
-			outfile << today << ",";
-			buf.resize(20);
-			lv_dropdown_get_selected_str(frequence, (char *)buf.c_str(), 20);
-			buf.resize(strlen(buf.c_str()));
-			outfile << buf << ",";
-			int rows = gft8.getQsoLogRows();
-			for (int i = 0; i < rows; i++)
+			if (!exist)
 			{
-				std::string line = gft8.getQso(i);
-				outfile << line << std::endl;
+				outfile << "Time,"
+						<< "Frequency,"
+						<< "DX Call,"
+						<< "Message,"
+						<< "Report Received,"
+						<< "Report Sent,:"
+						<< "Frequency Offset Hz,"
+						<< "dxGrid" << '\n';
+			}
+
+			std::string dxCall = gft8.getQso_dxCall();
+			if (dxCall.size() > 1)
+			{
+				qso_entry log_item = gft8.get_qso_entry(dxCall);
+				if (log_item.dxCall.size() > 0)
+				{
+					outfile << log_item;
+					std::string comments = "";
+					std::string name = "";
+					std::string exchangeSent = "";
+					std::string exchangeReceived = "";
+					std::string adifPropagationMode = "";
+
+					if (ft8udpclient != nullptr)
+						ft8udpclient->SendQso(log_item.decode_time, log_item.decode_time_off, log_item.dxCall, log_item.dxGrid, log_item.freq, mode, log_item.report_send, log_item.report_received,
+											  Settings_file.get_string("wsjtx", "txPower"), comments, name, call,
+											  call, locator, exchangeSent, exchangeReceived, adifPropagationMode);
+				}
 			}
 			outfile.close();
 		}
+		
+		std::chrono::time_point<std::chrono::system_clock> qso_time;
+		
+
+		
+		
 		ClearMessage();
 	}
 }

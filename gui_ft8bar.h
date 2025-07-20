@@ -100,4 +100,5 @@ class gui_ft8bar
 	static constexpr auto press_part_event_cb = EventHandler<gui_ft8bar, &gui_ft8bar::press_part_event_cb_class>::staticHandler;
 };
 
+extern bool stdCall(std::string const &w);
 extern gui_ft8bar guift8bar;

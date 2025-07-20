@@ -5,12 +5,14 @@
 #include <map>
 #include <regex>
 #include <string>
+#include "tz.h"
 
 std::mutex cycle_mu;
 int cycle_count;
 time_t saved_cycle_start;
 std::map<std::string, bool> cycle_already;
 extern unique_ptr<wsjtx_lib> wsjtx;
+std::unique_ptr<FT8UdpClient> ft8udpclient;
 
 std::string remove_trailing_whitespace(const std::string &str)
 {
@@ -27,6 +29,7 @@ bool FT8Processor::create_modulator(std::shared_ptr<FT8Processor> &ft8processor,
 	gft8.reset();
 	ft8processor = std::make_shared<FT8Processor>(mode);
 	ft8processor->ft8processor_thread = std::thread(&FT8Processor::operator(), ft8processor);
+	ft8udpclient = std::make_unique<FT8UdpClient>(mode);
 	return true;
 }
 
@@ -38,6 +41,7 @@ void FT8Processor::destroy_modulator(std::shared_ptr<FT8Processor> &ft8processor
 	ft8processor->Stop();
 	ft8processor->ft8processor_thread.join();
 	ft8processor.reset();
+	ft8udpclient.reset();
 }
 
 FT8Processor::FT8Processor(int wmode)
@@ -69,7 +73,8 @@ void FT8Processor::operator()()
 		decodeMode = wsjtxMode::WSPR;
 		break;
 	}
-
+	std::string timezone = Settings_file.get_string("Radio", "timezone");
+	
 	while (!stop_flag.load())
 	{
 		IntWsjTxVector samples;
@@ -81,7 +86,21 @@ void FT8Processor::operator()()
 		{
 			samples.push_back((audiosamples[i] * 32768.0f));
 		}
+		gft8.set_decode_start_time(make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
+		if (timezone.size())
+		{
+			try
+			{
+				auto zone = date::locate_zone(timezone);
+				gft8.set_decode_start_time(make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
+			}
+			catch (const date::nonexistent_local_time &e)
+			{
+				std::cout << e.what() << '\n';
+			}
+		}
 		wsjtx->decode(decodeMode, samples, 1000, nothreads);
+		ft8udpclient->SendHeartBeat();
 		audiosamples.clear();
 		samples.clear();
 	}
@@ -89,7 +108,7 @@ void FT8Processor::operator()()
 
 void FT8Processor::AddaudioSample(SampleVector &audiosamples)
 {
-	samplebuffer.push(move(audiosamples));
+	samplebuffer.push(std::move(audiosamples));
 }
 
 void FT8Processor::Stop()

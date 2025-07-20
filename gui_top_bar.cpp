@@ -8,9 +8,12 @@
 #include <stdlib.h>
 #include <ctime>
 #include <string>
+#include <chrono>
+#include <tz.h>
 #include "lvgl.h"
 #include "gui_top_bar.h"
 #include "screen.h"
+#include "Settings.h"
 
 gui_top_bar GuiTopBar;
 
@@ -42,11 +45,23 @@ void gui_top_bar::setup_top_bar(lv_obj_t* scr)
 
 void gui_top_bar::set_time_label()
 {
-	std::time_t result = std::time(nullptr);
-	std::string s = std::asctime(std::localtime(&result));
-	char& back = s.back();
-	back = '\0';
-	lv_label_set_text(label_date_time, s.c_str());
+	std::stringstream ss;
+	std::string timezone = Settings_file.get_string("Radio", "timezone");
+	auto t = make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+	if (timezone.size())
+	{
+		try
+		{
+			auto zone = date::locate_zone(timezone);
+			t = make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+		}
+		catch (const date::nonexistent_local_time &e)
+		{
+			std::cout << e.what() << '\n';
+		}
+	}
+	ss << t;
+	lv_label_set_text(label_date_time, ss.str().c_str());
 }
 
 void gui_top_bar::set_label_status(std::string s)

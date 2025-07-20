@@ -81,7 +81,7 @@ sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy s
 binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
 libboost-all-dev python3 libfftw3-dev python3-yaml \
-libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev
+libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev libcurl4-openssl-dev
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 
@@ -374,4 +374,11 @@ sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/firmware/config.txt
 #Do Cleanup
 #rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*
 
-sudo reboot
+while true; do
+read -p "Reboot or stop and inspect install log: 1 = Reboot or 2 = Stop? " type
+case $type in
+	[1]* ) sudo reboot; break;;
+	[2]* ) echo "Stop, please reboot before using sdrberry"; break;;
+	* ) echo "Please answer 1 = reboot or 2 = stop script.";
+esac
+done

@@ -38,6 +38,9 @@
     <Filter Include="Source files\config">
       <UniqueIdentifier>{5acfd74a-f56e-4735-9dec-f3752ff1d4f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header files\date">
+      <UniqueIdentifier>{d5854bd4-45d7-439f-bde2-22152dc5e6fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdrberry.cpp">
@@ -400,6 +403,12 @@
     <ClCompile Include="CatTcpServer.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="FT8UdpClient.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="tz.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -749,9 +758,6 @@
     <ClInclude Include="wave.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="date.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="IQGenerator.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -877,6 +883,39 @@
     </ClInclude>
     <ClInclude Include="CatTcpServer.h">
       <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FT8UdpClient.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="date\chrono_io.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\date.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\ios.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\islamic.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\iso_week.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\julian.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\ptz.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\solar_hijri.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\tz.h">
+      <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\tz_private.h">
+      <Filter>Header files\date</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

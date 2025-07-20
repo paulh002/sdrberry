@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include "sdrberry.h"
 #include <nlohmann/json.hpp>
+#include "tz.h"
 
 using json = nlohmann::json;
 
@@ -20,17 +21,35 @@ class message
 	std::string msg;
 };
 
+class qso_logging
+{
+  public:
+	date::zoned_time<std::chrono::seconds> decode_time;
+	date::zoned_time<std::chrono::seconds> decode_time_off;
+	std::string dxCall;
+	std::string message;
+	std::string report_received;
+	std::string report_send;
+	std::string dxGrid;
+	uint32_t frequency_offset;
+	uint64_t freq;
+};
+
+using qso_entry = qso_logging;
+
 class gui_ft8
 {
   private:
 	lv_obj_t *table, *table_label, *qsoTable, *qsoLabel, *cqTable;
 	lv_style_t style_btn, ft8_style;
 	std::vector<message> messages, qsoMessages;
+	std::map<std::string, qso_logging> qso_logging_map;
 	int  qsoRowCount{0}, cqRowCount{0};
 	int tableviewsize;
 	void Scroll(lv_obj_t *table, lv_coord_t currScrollPos);
 	std::string call;
 	std::mutex mutex_;
+	date::zoned_time<std::chrono::seconds> decode_start_time;
 
 	std::string getcall() { return call; }
 	void cpy_qso(int row);
@@ -52,8 +71,7 @@ class gui_ft8
 	void cq_press_part_event_class(lv_event_t *e);
 	void cpy_conversationtoqso();
 	void add_cq(json msg);
-	void add_qso(json msg);
-	
+	void add_qso(json msg);	
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
@@ -71,6 +89,9 @@ class gui_ft8
 	void SelectMessage(json jsonMessage);
 	void web_messages();
 	void web_message(message m);
+	void set_decode_start_time(date::zoned_time<std::chrono::seconds> time);
+	qso_entry get_qso_entry(std::string dxCall);
+	std::string getQso_dxCall();
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

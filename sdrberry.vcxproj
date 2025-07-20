@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/libhackrf;/home/pi/SoapySDRPlay3;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./date;archive/api;/usr/include/arm-linux-gnueabihf/c++/10;/usr/include/c++/10;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/libhackrf;/home/pi/SoapySDRPlay3;./date/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;NO_SSL=1;USE_WEBSOCKET=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3/;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
@@ -66,7 +66,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;NO_SSL=1;USE_WEBSOCKET=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -80,7 +80,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
@@ -119,6 +119,7 @@
     <ClCompile Include="FT891_CAT.cpp" />
     <ClCompile Include="FT8Demodulator.cpp" />
     <ClCompile Include="FT8Processor.cpp" />
+    <ClCompile Include="FT8UdpClient.cpp" />
     <ClCompile Include="guiButtonWindows.cpp" />
     <ClCompile Include="GuiFt8Setting.cpp" />
     <ClCompile Include="guiListWindows.cpp" />
@@ -198,6 +199,7 @@
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="table.cpp" />
     <ClCompile Include="TCA9548.cpp" />
+    <ClCompile Include="tz.cpp" />
     <ClCompile Include="ui_img_btn_knob_png.c" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="VfoKeyPad.cpp" />
@@ -226,7 +228,16 @@
     <ClInclude Include="configoption.h" />
     <ClInclude Include="CustomEvents.h" />
     <ClInclude Include="DataBuffer.h" />
-    <ClInclude Include="date.h" />
+    <ClInclude Include="date\chrono_io.h" />
+    <ClInclude Include="date\date.h" />
+    <ClInclude Include="date\ios.h" />
+    <ClInclude Include="date\islamic.h" />
+    <ClInclude Include="date\iso_week.h" />
+    <ClInclude Include="date\julian.h" />
+    <ClInclude Include="date\ptz.h" />
+    <ClInclude Include="date\solar_hijri.h" />
+    <ClInclude Include="date\tz.h" />
+    <ClInclude Include="date\tz_private.h" />
     <ClInclude Include="Demodulator.h" />
     <ClInclude Include="DigitalTransmission.h" />
     <ClInclude Include="DouglasPeucker.h" />
@@ -242,6 +253,7 @@
     <ClInclude Include="FT8Demodulator.h" />
     <ClInclude Include="FT8Generator.h" />
     <ClInclude Include="FT8Processor.h" />
+    <ClInclude Include="FT8UdpClient.h" />
     <ClInclude Include="guiButtonWindows.h" />
     <ClInclude Include="GuiFt8Setting.h" />
     <ClInclude Include="guiListWindows.h" />

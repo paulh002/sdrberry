@@ -22,7 +22,7 @@
       <UserName>pi</UserName>
     </BuildHost>
     <DeploymentHost>
-      <HostName>192.168.88.13</HostName>
+      <HostName>192.168.88.50</HostName>
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </DeploymentHost>
@@ -50,6 +50,7 @@
       <TransferNewFilesOnly>false</TransferNewFilesOnly>
       <IncludeSubdirectories>true</IncludeSubdirectories>
       <SelectedDirectories>
+        <string>date</string>
         <string>lv_drivers</string>
         <string>*</string>
       </SelectedDirectories>

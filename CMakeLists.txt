@@ -23,7 +23,7 @@ target_compile_definitions(sdrberry PRIVATE RELEASE=1 __LINUX_ALSA__ LV_LVGL_H_I
 target_compile_options(sdrberry PRIVATE -O3 -ggdb -Wno-unused-parameter -Wno-reorder -Wno-unused-variable -Wno-deprecated -Wno-deprecated-declarations -I "." )
 target_compile_options(sdrberry PRIVATE )
 target_link_libraries(sdrberry PRIVATE wsjtx_lib)
-target_include_directories(sdrberry PRIVATE /usr/local/include/liquid build/_deps/wsjtx_lib-src ${CMAKE_BINARY_DIR}/include)
+target_include_directories(sdrberry PRIVATE ./date/ /usr/local/include/liquid build/_deps/wsjtx_lib-src ${CMAKE_BINARY_DIR}/include)
 target_link_libraries(sdrberry PRIVATE "${LIBRARIES_FROM_REFERENCES}")
 target_link_libraries(sdrberry PRIVATE lvgl::lvgl)
 target_link_libraries(sdrberry PRIVATE nlohmann_json::nlohmann_json)

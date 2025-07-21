@@ -47,6 +47,7 @@ std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
 std::vector<std::string> attnTypes{"off", "-10db", "-20db", "-30db", "-40db"};
 std::vector<std::string> MarkerTypes{"off", "M 1", "M 2"};
 std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}};
+std::map<int, int> ModesReverseMap{{0,mode_usb}, {1, mode_lsb}, {2, mode_cw}, {3, mode_dsb}, {4, mode_am}, {5, mode_narrowband_fm}, {6, mode_broadband_fm}};
 
 gui_bar gbar;
 
@@ -938,6 +939,8 @@ void gui_bar::get_filter_range(vector<string> &filters)
 	filters.push_back("3 Khz");
 	filters.push_back("3.5 Khz");
 	filters.push_back("4 Khz");
+	filters.push_back("11 Khz");
+	filters.push_back("16 Khz");
 }
 
 void gui_bar::hide(bool hide)
@@ -972,8 +975,8 @@ void gui_bar::set_vfo(int active_vfo)
 
 int gui_bar::get_filter_frequency(int mode)
 {
-	if (filter_to_mode_cutoff_frequencies.find(ModesTypes.at(mode)) != filter_to_mode_cutoff_frequencies.end())
-		return filter_to_mode_cutoff_frequencies.at(ModesTypes.at(mode));
+	if (filter_to_mode_cutoff_frequencies.find(ModesTypes.at(ModesMap.at(mode))) != filter_to_mode_cutoff_frequencies.end())
+		return filter_to_mode_cutoff_frequencies.at(ModesTypes.at(ModesMap.at(mode)));
 	else
 		return 0;
 }

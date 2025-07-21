@@ -314,7 +314,7 @@ void FT8UdpClient::SendQso(std::chrono::time_point<std::chrono::system_clock> qs
 		const auto qso_day_off = date::floor<date::days>(qso_time_off);
 		const julian::year_month_day j_today_off{qso_day_off};
 		const date::year_month_day g_today_off{qso_day_off};
-		const auto jdn_off = qso_day_off.time_since_epoch().count() + 2440587.5;
+		const auto jdn_off = qso_day_off.time_since_epoch().count() + 2440588;
 		qso_msg.dateOff = jdn_off;
 		
 		// auto now_time = std::chrono::system_clock::now();

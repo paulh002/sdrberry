@@ -199,6 +199,9 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	int button_height_margin = button_height + y_margin;
 	int ibutton_x = 0, ibutton_y = 0;
 
+	qsoRowCount = 0;
+	cqRowCount = 0;
+
 	tableviewsize = Settings_file.get_int("wsjtx", "tableviewsize", 50);
 	lv_style_init(&ft8_style);
 	lv_style_set_radius(&ft8_style, 0);
@@ -324,18 +327,18 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 		}
 	}
 	*/
-	
-	
+
+	/*
 	// DK7ZT
 	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	add_cq(m);
 
 	message m1{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF R-03"};
 	add_cq(m1);
-	
+
 	message m2{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	add_cq(m2);
-	
+
 	message m3{12, 1, 1, 1, 1, 1, 1000, "PA0PHH M0ZMF KO21"};
 	add_cq(m3);
 
@@ -350,7 +353,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 		add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 	}
 add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-
+*/
 }
 
 

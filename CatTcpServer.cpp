@@ -59,7 +59,8 @@ void CatTcpComm::Send(std::string response)
 	if (connected)
 	{
 		send(tcp_socket, response.c_str(), response.length(), 0);
-		//printf("Cat response %s\n", response.c_str());
+		if (Settings_file.get_int("CAT", "debug", 0))
+			printf("Cat response %s\n", response.c_str());
 	}
 }
 
@@ -97,8 +98,8 @@ int CatTcpComm::Read(char c, std::string &message)
 		message.push_back((char)chr);
 	} while (chr != c);
 
-	//if (message.size())
-	//	printf("Cat message %s\n", message.c_str());
+	if (message.size() && Settings_file.get_int("CAT", "debug", 0))
+		printf("Cat message %s\n", message.c_str());
 	return message.size();
 }
 

@@ -71,7 +71,7 @@ struct	status {
 	uint8_t			NA		 = 0;				// Narrow filter mode on or off
 	uint8_t			RM		 = 0;				// Meter reading
 	uint8_t			SH_STAT	 = 1;				// Adjustable filter width on
-	int32_t			SH_VALUE = 2500;			// Adjustable filter width value = 2,500
+	int32_t			SH_VALUE = 15;			// Adjustable filter width value = 2,500
 	uint8_t			SM		 = 0;				// S-meter reading
 	uint8_t			ST		 = 0;				// Split mode off
 	uint8_t			TX		 = 0;				// Transmitter off
@@ -80,6 +80,7 @@ struct	status {
 	int				FT		 = 0;				// Step frequency
 	uint8_t			RG		 = 0;				// RF Gain
 	uint8_t			IG		 = 0;
+	uint8_t			PS		 = 1;				// Power
 } radioStatus;
 
 
@@ -113,7 +114,7 @@ msg msgTable[] =
 		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
 		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
 		{"MD0", MSG_MD, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
-		{"NA0", MSG_NA, MSG_BOTH},  // Request narrow IF shift
+		{"NA0", MSG_NA, MSG_BOTH}, // Request narrow IF shift
 		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
 		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status
 		{"RM", MSG_RM, MSG_STS},   // Read meter
@@ -126,7 +127,8 @@ msg msgTable[] =
 		{"AG", MSG_AG, MSG_BOTH},  // Set Volume
 		{"RG", MSG_RG, MSG_BOTH},  // Set rf gain
 		{"GT", MSG_GT, MSG_BOTH},  // Get command 0 = Max Volume, 1 Max Gain, 2 List bands, 3 List Filter
-		{"IG", MSG_IG, MSG_BOTH}
+		{"IG", MSG_IG, MSG_BOTH},
+		{"PS", MSG_PS, MSG_STS}		// Power status
 	};
 
 
@@ -712,6 +714,11 @@ void FT891_CAT::ProcessStatus ()
 
 		case MSG_ID:									// Request radio's ID (0650 for the FT-891)
 			strcpy ( tempBuff, "ID0650;" );				// Format message
+			break;
+
+		case MSG_PS:					 // Request radio's ID (0650 for the FT-891)
+			sprintf(tempBuff,			 // Format message
+					"PS%1X;", radioStatus.PS);
 			break;
 		
 		case MSG_GT:									// Get information command

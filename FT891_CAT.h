@@ -105,6 +105,8 @@ struct msg // Keeps everything together
 #define MSG_RG 23  // Set or request rf gain
 #define MSG_GT 24  // Get information command
 #define MSG_IG 25  // Get and set if command
+#define MSG_PS 26  // Power status
+
 
 /*
  *	Miscellaneous definitions:

@@ -1030,8 +1030,24 @@ std::ofstream &operator<<(std::ofstream &of, const qso_logging &qso)
 */
 std::ofstream &operator<<(std::ofstream &of, const qso_logging &qso)
 {
+	auto decode_time = date::floor<std::chrono::seconds>(qso.decode_time);
+	auto zoned_time = make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(decode_time));
+	std::string timezone = Settings_file.get_string("Radio", "timezone");
+	if (timezone.size())
+	{
+		try
+		{
+			auto zone = date::locate_zone(timezone);
+			zoned_time = make_zoned(zone, date::floor<std::chrono::seconds>(decode_time));
+		}
+		catch (const date::nonexistent_local_time &e)
+		{
+			std::cout << e.what() << '\n';
+		}
+	}
+	
 	// Format decode_time: convert to sys_time, then to std::tm
-	of << qso.decode_time << ','
+	of << zoned_time << ',' // date::format("%F %H:%M:%S", decode_time)
 	   << qso.freq << ','
 	   << qso.dxCall << ','
 	   << qso.message << ','
@@ -1085,6 +1101,7 @@ void gui_ft8bar::Log()
 						ft8udpclient->SendQso(log_item.decode_time, log_item.decode_time_off, log_item.dxCall, log_item.dxGrid, log_item.freq, mode, log_item.report_send, log_item.report_received,
 											  Settings_file.get_string("wsjtx", "txPower"), comments, name, call,
 											  call, locator, exchangeSent, exchangeReceived, adifPropagationMode);
+					gft8.delete_qso_entry(dxCall);
 				}
 			}
 			outfile.close();

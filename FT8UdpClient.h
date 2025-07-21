@@ -107,7 +107,7 @@ class FT8UdpClient
   public:
 	~FT8UdpClient();
 	FT8UdpClient(int wsjtx_mode);
-	void SendQso(date::zoned_time<std::chrono::seconds> utc_time, date::zoned_time<std::chrono::seconds> utc_time_off, std::string dxCall, std::string dxGrid, uint64_t txFrequency, int mode, std::string reportSent,
+	void SendQso(std::chrono::time_point<std::chrono::system_clock> utc_time, std::chrono::time_point<std::chrono::system_clock> utc_time_off, std::string dxCall, std::string dxGrid, uint64_t txFrequency, int mode, std::string reportSent,
 				 std::string reportReceived, std::string txPower, std::string comments, std::string name, std::string operatorCall, std::string myCall,
 				 std::string myGrid, std::string exchangeSent, std::string exchangeReceived, std::string adifPropagationMode);
 	void SendHeartBeat();

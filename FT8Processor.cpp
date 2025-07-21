@@ -73,8 +73,7 @@ void FT8Processor::operator()()
 		decodeMode = wsjtxMode::WSPR;
 		break;
 	}
-	std::string timezone = Settings_file.get_string("Radio", "timezone");
-	
+
 	while (!stop_flag.load())
 	{
 		IntWsjTxVector samples;
@@ -86,19 +85,7 @@ void FT8Processor::operator()()
 		{
 			samples.push_back((audiosamples[i] * 32768.0f));
 		}
-		gft8.set_decode_start_time(make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
-		if (timezone.size())
-		{
-			try
-			{
-				auto zone = date::locate_zone(timezone);
-				gft8.set_decode_start_time(make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
-			}
-			catch (const date::nonexistent_local_time &e)
-			{
-				std::cout << e.what() << '\n';
-			}
-		}
+		gft8.set_decode_start_time(std::chrono::system_clock::now());
 		wsjtx->decode(decodeMode, samples, 1000, nothreads);
 		ft8udpclient->SendHeartBeat();
 		audiosamples.clear();

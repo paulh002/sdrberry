@@ -13,8 +13,10 @@ gui_ft8 gft8;
 
 std::ostream &operator<<(std::ostream &os, const qso_logging &qso)
 {
+	auto decode_time = date::floor<std::chrono::seconds>(qso.decode_time);
+	
 	// Format decode_time: convert to sys_time, then to std::tm
-	os << "Time: " << qso.decode_time << '\n'
+	os << "Time: " << date::format("%F %H:%M:%S", decode_time) << '\n'
 	   << "Frequency: " << qso.freq << '\n'
 	   << "DX Call: " << qso.dxCall << '\n'
 	   << "Message: " << qso.message << '\n'
@@ -306,8 +308,8 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_cell_value(cqTable, 0, 3, "Message");
 	lv_table_set_col_width(cqTable, 3, w / 2 - (w / 12 + w / 16 + w / 12) - 10);
 	cqRowCount++;
-	
-	std::string timezone = Settings_file.get_string("Radio", "timezone");
+	set_decode_start_time(std::chrono::system_clock::now());
+	/*std::string timezone = Settings_file.get_string("Radio", "timezone");
 	set_decode_start_time(make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
 	if (timezone.size())
 	{
@@ -321,7 +323,9 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 			std::cout << e.what() << '\n';
 		}
 	}
-	/*
+	*/
+	
+	
 	// DK7ZT
 	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	add_cq(m);
@@ -346,7 +350,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 		add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 	}
 add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-*/
+
 }
 
 
@@ -848,7 +852,7 @@ void gui_ft8::web_cq()
 	}
 }
 
-void gui_ft8::set_decode_start_time(date::zoned_time<std::chrono::seconds> time)
+void gui_ft8::set_decode_start_time(std::chrono::time_point<std::chrono::system_clock> time)
 {
 	decode_start_time = time;
 }
@@ -856,4 +860,9 @@ void gui_ft8::set_decode_start_time(date::zoned_time<std::chrono::seconds> time)
 qso_entry gui_ft8::get_qso_entry(std::string dxCall)
 {
 	return qso_logging_map[dxCall];
+}
+
+void gui_ft8::delete_qso_entry(std::string dxCall)
+{
+	qso_logging_map.erase(dxCall);
 }

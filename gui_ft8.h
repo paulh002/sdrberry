@@ -24,8 +24,8 @@ class message
 class qso_logging
 {
   public:
-	date::zoned_time<std::chrono::seconds> decode_time;
-	date::zoned_time<std::chrono::seconds> decode_time_off;
+	std::chrono::time_point<std::chrono::system_clock> decode_time;
+	std::chrono::time_point<std::chrono::system_clock> decode_time_off;
 	std::string dxCall;
 	std::string message;
 	std::string report_received;
@@ -49,7 +49,7 @@ class gui_ft8
 	void Scroll(lv_obj_t *table, lv_coord_t currScrollPos);
 	std::string call;
 	std::mutex mutex_;
-	date::zoned_time<std::chrono::seconds> decode_start_time;
+	std::chrono::time_point<std::chrono::system_clock> decode_start_time;
 
 	std::string getcall() { return call; }
 	void cpy_qso(int row);
@@ -89,9 +89,10 @@ class gui_ft8
 	void SelectMessage(json jsonMessage);
 	void web_messages();
 	void web_message(message m);
-	void set_decode_start_time(date::zoned_time<std::chrono::seconds> time);
+	void set_decode_start_time(std::chrono::time_point<std::chrono::system_clock> time);
 	qso_entry get_qso_entry(std::string dxCall);
 	std::string getQso_dxCall();
+	void delete_qso_entry(std::string dxCall);
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

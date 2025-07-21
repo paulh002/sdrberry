@@ -273,7 +273,7 @@ void FT8UdpClient::SendDecode(bool isNew, uint32_t now_ms, int32_t snr, double d
 	}
 }
 
-void FT8UdpClient::SendQso(date::zoned_time<std::chrono::seconds> utc_time, date::zoned_time<std::chrono::seconds> utc_time_off, std::string dxCall, std::string dxGrid, uint64_t txFrequency, int mode, std::string reportSent,
+void FT8UdpClient::SendQso(std::chrono::time_point<std::chrono::system_clock> qso_time, std::chrono::time_point<std::chrono::system_clock> qso_time_off, std::string dxCall, std::string dxGrid, uint64_t txFrequency, int mode, std::string reportSent,
 						   std::string reportReceived, std::string txPower, std::string comments, std::string name, std::string operatorCall, std::string myCall,
 						   std::string myGrid, std::string exchangeSent, std::string exchangeReceived, std::string adifPropagationMode)
 {
@@ -289,9 +289,6 @@ void FT8UdpClient::SendQso(date::zoned_time<std::chrono::seconds> utc_time, date
 		// Get current time for timestamps
 		// const auto now = std::chrono::system_clock::now();
 		// const auto today = date::floor<date::days>(now);
-
-		std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> qso_time = utc_time.get_sys_time();
-		std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> qso_time_off = utc_time_off.get_sys_time();
 
 		const auto qso_day = date::floor<date::days>(qso_time);
 		const julian::year_month_day j_today{qso_day};
@@ -310,7 +307,7 @@ void FT8UdpClient::SendQso(date::zoned_time<std::chrono::seconds> utc_time, date
 		// The Julian Day Number for a given sys_days is the count of days
 		// since the date library's epoch (1970-01-01) plus the JDN of that epoch.
 		// The JDN of 1970-01-01 is 2440587.5.
-		const auto jdn = qso_day.time_since_epoch().count() + 2440587.5;
+		const auto jdn = qso_day.time_since_epoch().count() + 2440588; // 2440587.5
 		std::cout << "The Julian Day Number for today is: " << std::fixed << jdn << std::endl;
 		qso_msg.dateOn = jdn;
 

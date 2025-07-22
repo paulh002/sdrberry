@@ -103,3 +103,6 @@ class gui_ft8
 };
 
 extern gui_ft8 gft8;
+
+std::ostream &operator<<(std::ostream &os, const qso_logging &qso);
+std::ostream &operator<<(std::ostream &os, const message &msg);

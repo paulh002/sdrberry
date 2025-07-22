@@ -51,8 +51,6 @@ struct vfo_settings_struct
 	int band[2];
 	int frq_step;
 	int active_vfo;
-	unsigned long current_freq_vfo1[MAX_NUM_BAND];
-	unsigned long current_freq_vfo2[MAX_NUM_BAND];
 	double tuner_offset;
 	bool tx;
 	bool rx;

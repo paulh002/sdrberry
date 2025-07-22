@@ -27,6 +27,20 @@ std::ostream &operator<<(std::ostream &os, const qso_logging &qso)
 	return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const message &msg)
+{
+	// Format decode_time: convert to sys_time, then to std::tm
+	os << msg.hh << ':'
+	   << msg.min << ':'
+	   << msg.sec << ' '
+	   << "snr: " << msg.snr << ' '
+	   << "correct_bits: " << msg.correct_bits << ' '
+	   << "off: " << msg.off << ' '
+	   << "hz0: " << msg.hz0 << " Hz" << '\n'
+	   << "Message: " << msg.msg << '\n';
+	return os;
+}
+
 bool is_report(const std::string &word) 
 {
 	if (word.size() == 3 && (word[0] == '+' || word[0] == '-') &&
@@ -327,7 +341,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 		}
 	}
 	*/
-
+	
 	/*
 	// DK7ZT
 	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
@@ -382,13 +396,14 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		}
 		lv_table_remove_rows(table, row, 1);
 	}
-	
+
+	//std::cout << msg;
 	if (msg.find(call) != std::string::npos)
 	{
 		qso_logging log_item, old_log_item;
 
 		//"PA0PHH M0ZMF KO21"
-			
+		//std::cout << "PA0PHH CALL FOUND: " << msg << '\n';
 		log_item.decode_time = decode_start_time;
 		int start_pos_dxcall  = msg.find(' ') + 1;
 		int end_pos_dxcall = msg.find_last_of(' ');
@@ -403,6 +418,9 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		log_item.report_send = "R" + std::to_string(snr);
 		log_item.message = msg;
 		log_item.freq = vfo.get_active_vfo_freq();
+		if (log_item.freq == 0) // this is for test reasons
+			log_item.freq = 7074000L;
+
 		if (qso_logging_map.find(log_item.dxCall) == qso_logging_map.end())
 			qso_logging_map[log_item.dxCall] = log_item;
 		else
@@ -415,7 +433,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 			old_log_item.decode_time_off = decode_start_time;
 			qso_logging_map[log_item.dxCall] = old_log_item;
 		}
-		std::cout << qso_logging_map[log_item.dxCall] << '\n';
+		//std::cout << qso_logging_map[log_item.dxCall] << '\n';
 	}
 	
 	if ((msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0) ||

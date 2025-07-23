@@ -57,6 +57,38 @@ bool is_report(const std::string &word)
 	return false;
 }
 
+int which_report(const std::string msg)
+{
+	std::string word;
+
+	int end_pos = msg.find_last_of(' ') +1;
+	word = msg.substr(end_pos, msg.size() - end_pos);
+
+	if (word.size() == 3 && (word[0] == '+' || word[0] == '-') &&
+		isdigit(word[1]) && isdigit(word[2]))
+	{
+		return 3;
+	}
+	
+	if (word.size() == 4 && word[0] == 'R' &&
+		(word[1] == '+' || word[1] == '-') &&
+		isdigit(word[2]) && isdigit(word[3]))
+	{
+		return 4;
+	}
+	
+	if (word.size() == 3 && word[0] == 'R' && word[1] == 'R')
+	{
+		return 5;
+	}
+
+	if (word.size() == 2 && word[0] == '7' && word[1] == '3')
+	{
+		return 5;
+	}
+	return 2;
+}
+
 bool is_dxGrid(const std::string &word)
 {
 	if (word.size() != 4 && word.size() != 6)
@@ -94,7 +126,7 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 	size_t q = str.rfind(' ');
 	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
 	{
-		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, 2);
+		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, which_report(str));
 		cpy_conversationtoqso();
 		// copy conversation to qso pane
 		//if (qsoRowCount == 1)
@@ -342,7 +374,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	}
 	*/
 	
-	/*
+
 	// DK7ZT
 	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	add_cq(m);
@@ -359,6 +391,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	for (int i = 0; i < 20; i++)
 	{
 		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF KO21"));
+		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF -12"));
 		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF R-12"));
 		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF 73"));
 	}
@@ -367,7 +400,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 		add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 	}
 add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-*/
+
 }
 
 

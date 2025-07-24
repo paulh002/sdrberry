@@ -75,6 +75,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - Support for output only audio devices
 - I2C RX/TX switch support
 - CAT support for N1MM (tcp connection)
+- WSJT-X UDP client support. Sdrberry will send Heartbeat, Decode and QSO messages to designated ip
 
 ## Installation of libraries is necessary:
 - Liquid DSP
@@ -90,6 +91,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - fftw
 - civetweb
 - nlohmann json
+- HowardHinnant date.h library
 
 # Installation
 ## Preparation before install
@@ -147,6 +149,11 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 
 # I2C configuration
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/setup_it2c.jpg)
+
+# WSJT-X & CAT integration for logging software
+Sdrberry sends messages to Qlog (or other logging software like NN1MM)
+And can be remote controled by logging software using CAT FT-981 commands.
+![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/qlog.jpg)
 
 # ESP32 Remote control for raspberry pi
 ![sdrberry](images/IMG_20231015_131803.jpg)

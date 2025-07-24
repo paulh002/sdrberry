@@ -145,7 +145,7 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/IMG_20220203_ft8.jpg)
 
-[![Radioberry demo](https://i9.ytimg.com/vi_webp/ycU_IUmV8j4/mq1.webp?sqp=CMC2268G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGBggSih_MA8=&rs=AOn4CLC4GjVI4ExJf2BNTO02C6DS9CYR2g)](https://youtu.be/ycU_IUmV8j4?si=ixo44dyJ-GQGvl-Y)
+[![Radioberry demo](https://i9.ytimg.com/vi_webp/ycU_IUmV8j4/mq1.webp?sqp=CMC2268G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGBggSih_MA8=&rs=AOn4CLC4GjVI4ExJf2BNTO02C6DS9CYR2g)](https://youtu.be/ycU_IUmV8j4?si=OBtShvy_Tcid1Znn)
 
 # I2C configuration
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/setup_it2c.jpg)
@@ -153,7 +153,7 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 # WSJT-X & CAT integration for logging software
 Sdrberry sends messages to Qlog (or other logging software like NN1MM)
 And can be remote controled by logging software using CAT FT-981 commands.
-![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/qlog.jpg)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/qlog.png)
 
 # ESP32 Remote control for raspberry pi
 ![sdrberry](images/IMG_20231015_131803.jpg)

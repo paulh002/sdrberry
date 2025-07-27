@@ -160,7 +160,7 @@ bool AudioInput::open(int deviceId)
 void AudioInput::set_volume(int vol)
 {
 	// log volume
-	volume = exp(((double)vol * 6.908) / 100.0) / 5.0;
+	volume = exp(((double)vol * 6.908) / 100.0) / 100.0;
 	//printf("mic vol %f\n", (float)volume);
 }
 
@@ -214,7 +214,7 @@ double AudioInput::Nexttone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 64) asteps = 0;
-	return sin(angle) / 210.0;
+	return sin(angle) / 10.0;
 }
 
 void AudioInput::ToneBuffer()

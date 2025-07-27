@@ -51,7 +51,6 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	float					mod_index = 0.99f; // modulation index (bandwidth)
 	float					As = 60.0f; // resampling filter stop-band attenuation [dB]
 	int						suppressed_carrier;
-	liquid_ampmodem_type	am_mode;
 
 	digitalmode = false;
 	switch (param.mode)
@@ -222,7 +221,7 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 	//printf("audio max %f \n", maxf);
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
-	executeBandpassFilter(buf_mod);
+	executeBandpassFilter(buf_mod, );
 	samples_out = std::move(Resample(buf_mod));
 	mix_up(samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);

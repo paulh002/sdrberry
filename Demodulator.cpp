@@ -580,7 +580,7 @@ void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, f
 	iirfilt_crcf_print(highPassHandle);
 }
 
-void Demodulator::executeBandpassFilter(IQSampleVector &filter_in)
+void Demodulator::executeBandpassFilter(IQSampleVector &filter_in, bool conjugation)
 {
 	if (bandPassHandle != nullptr && lowPassHandle != nullptr && highPassHandle != nullptr)
 	{
@@ -588,11 +588,15 @@ void Demodulator::executeBandpassFilter(IQSampleVector &filter_in)
 		float treble_gain = dB2mag(gspeech.get_treble());
 		for (auto &col : filter_in)
 		{
-			complex<float> v, w, u, z;
+			complex<float> x, v, w, u, z;
 
-			iirfilt_crcf_execute(bandPassHandle, col, &v);
-			iirfilt_crcf_execute(lowPassHandle, col, &w);
-			iirfilt_crcf_execute(highPassHandle, col, &u);
+			if (conjugation)
+				x = col;
+			else
+				x = col;
+			iirfilt_crcf_execute(bandPassHandle, x, &v);
+			iirfilt_crcf_execute(lowPassHandle, x, &w);
+			iirfilt_crcf_execute(highPassHandle, x, &u);
 			v = v + w * bass_gain + u * treble_gain;
 			col = v;
 		}

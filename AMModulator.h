@@ -21,6 +21,7 @@ class AMModulator : public Demodulator
 
   private:
 	ampmodem AMmodulatorHandle{nullptr};
+	liquid_ampmodem_type am_mode;
 	bool even;
 	bool digitalmode;
 	nco_crcf m_fft{nullptr};

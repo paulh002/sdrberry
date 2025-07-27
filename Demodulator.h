@@ -81,7 +81,7 @@ class Demodulator
 	void perform_fft(const IQSampleVector &iqsamples);
 	void calc_af_level(const SampleVector &samples_in);
 	void setBandPassFilter(float high, float mid_high, float mid_low, float low);
-	void executeBandpassFilter(IQSampleVector &filter_in);
+	void executeBandpassFilter(IQSampleVector &filter_in, bool conjugation);
 	void dc_filter(IQSampleVector &filter_in);
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();

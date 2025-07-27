@@ -62,9 +62,6 @@ void EchoAudio::operator()()
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
 	audioInputBuffer->clear();
-	if (gspeech.get_speech_mode())
-		audioInputBuffer->set_gain(20);
-
 	float mod_index = 0.99f; // modulation index (bandwidth)
 	ampmodem modAM = ampmodem_create(mod_index, am_mode, 1);
 	ampmodem demod = ampmodem_create(mod_index, am_mode, 1);
@@ -78,15 +75,12 @@ void EchoAudio::operator()()
 
 		if (gspeech.get_speech_mode())
 		{
-			audioInputBuffer->set_gain(20);
 			Speech.setRelease(gspeech.get_release());
 			Speech.setRatio(gspeech.get_ratio());
 			Speech.setAtack(gspeech.get_atack());
 			Speech.setThresholdDB(gspeech.get_threshold());
 			Speech.processBlock(audiosamples);
 		}
-		else
-			audioInputBuffer->set_gain(0);
 
 		for (auto &col : audiosamples)
 		{

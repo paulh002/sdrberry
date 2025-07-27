@@ -31,7 +31,6 @@ class AudioInput : public RtAudio
 	double Nexttone();
 	double NextTwotone();
 	audioTone tune_tone;
-	int gaindb;
 	int bufferFramesSend;
 	std::atomic<bool> digitalmode, bufferempty;
 	std::vector<float> digitalmodesignal;
@@ -61,7 +60,6 @@ class AudioInput : public RtAudio
 	operator bool() const { return error.empty(); }
 	void clear() { databuffer.clear(); }
 	std::vector<RtAudio::Api> listApis();
-	void set_gain(int g) { gaindb = g; }
 	unsigned int get_samplerate() { return sampleRate; }
 	bool IsdigitalMode();
 	bool IsBufferEmpty();

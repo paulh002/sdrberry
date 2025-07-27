@@ -63,8 +63,6 @@ void FMModulator::operator()()
 	IQSampleVector			dummy;
 
 	audioInputBuffer->clear();
-	if (gspeech.get_speech_mode())
-		audioInputBuffer->set_gain(0);
 	while (!stop_flag.load())
 	{
 		if (vfo.tune_flag)

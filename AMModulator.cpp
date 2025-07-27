@@ -135,12 +135,8 @@ void AMModulator::operator()()
 	Speech.setRatio(gspeech.get_ratio());
 	tune_offset(vfo.get_vfo_offset_tx());
 	audioInputBuffer->clear();
-	if (gspeech.get_speech_mode())
-		audioInputBuffer->set_gain(0);
 	if (digitalmode)
 	{
-		//cout << "Wait for Timeslot \n";
-		//WaitForTimeSlot();
 		audioInputBuffer->clear();
 		audioInputBuffer->StartDigitalMode(signal);
 		cout << "Start digital transmit \n";
@@ -171,8 +167,6 @@ void AMModulator::operator()()
 			Speech.setThresholdDB(gspeech.get_threshold());
 			Speech.processBlock(audiosamples);
 		}
-		else
-			audioInputBuffer->set_gain(0);
 
 		calc_af_level(audiosamples);
 		set_signal_strength();
@@ -213,15 +207,19 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 {
 	IQSampleVector buf_mod;
 	unsigned int num_written;
+	//float maxf = 0.0;
 
 	// Modulate audio to USB, LSB or DSB;
 	for (auto &col : samples)
 	{
 		complex<float> f;
+		//if (col > maxf)
+		//	maxf = col;
 		ampmodem_modulate(AMmodulatorHandle, col, &f);
 		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f); 
 	}
+	//printf("audio max %f \n", maxf);
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
 	executeBandpassFilter(buf_mod);

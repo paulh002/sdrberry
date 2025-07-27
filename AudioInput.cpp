@@ -113,7 +113,6 @@ AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool st
 {
 	parameters.nChannels = 1;
 	parameters.firstChannel = 0;
-	gaindb = 0;
 	digitalmode = false;
 	bufferempty = false;
 	bufferFramesSend = 0;
@@ -168,7 +167,7 @@ void AudioInput::set_volume(int vol)
 void AudioInput::set_digital_volume(int vol)
 {
 	// log volume
-	digitalvolume = exp(((double)vol * 6.908) / 100.0) / 5.0;
+	digitalvolume = exp(((double)vol * 6.908) / 100.0) / 1000.0;
 }
 
 void AudioInput::adjust_gain(SampleVector& samples)
@@ -176,15 +175,14 @@ void AudioInput::adjust_gain(SampleVector& samples)
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
 		if (digitalmode)
 		{
-			samples[i] *= digitalvolume * dB2mag(gaindb);
+			samples[i] *= digitalvolume;
 		}
 		else
 		{
-			samples[i] *= volume * dB2mag(gaindb);
+			samples[i] *= volume;
 		}
 	}
 }
-
 
 bool AudioInput::read(SampleVector& samples)
 {
@@ -216,7 +214,7 @@ double AudioInput::Nexttone()
 {
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 64) asteps = 0;
-	return sin(angle) / 200.0;
+	return sin(angle) / 210.0;
 }
 
 void AudioInput::ToneBuffer()

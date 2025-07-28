@@ -276,7 +276,7 @@ void gui_speech::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_label_set_text(bass_slider_label, "bass");
 	lv_obj_align_to(bass_slider_label, atack_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, y1_margin);
 	bass_slider = lv_slider_create(o_tab);
-	lv_slider_set_range(bass_slider, -10, 10);
+	lv_slider_set_range(bass_slider, -100, 100);
 	lv_obj_set_width(bass_slider, w / 2 - 50);
 	lv_obj_align_to(bass_slider, bass_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, y1_margin);
 	lv_obj_add_event_cb(bass_slider, bass_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
@@ -289,7 +289,7 @@ void gui_speech::init(lv_obj_t *o_tab, lv_coord_t w)
 	treble_slider = lv_slider_create(o_tab);
 	lv_group_add_obj(m_button_group, treble_slider);
 	set_treble_slider(Settings_file.getspeech("treble"));
-	lv_slider_set_range(treble_slider, -10, 10);
+	lv_slider_set_range(treble_slider, -100, 100);
 	lv_obj_set_width(treble_slider, w / 2 - 50);
 	lv_obj_align_to(treble_slider, treble_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, y1_margin);
 	lv_obj_add_event_cb(treble_slider, treble_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);

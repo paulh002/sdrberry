@@ -41,11 +41,6 @@ EchoAudio::~EchoAudio()
 
 }
 
-void EchoAudio::process(const IQSampleVector &samples_in, SampleVector &audio)
-{
-	
-}
-
 void EchoAudio::operator()()
 {
 	const auto startTime = std::chrono::high_resolution_clock::now();
@@ -66,7 +61,7 @@ void EchoAudio::operator()()
 	ampmodem modAM = ampmodem_create(mod_index, am_mode, 1);
 	ampmodem demod = ampmodem_create(mod_index, am_mode, 1);
 
-	setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+	setBandPassFilter( 3000.0f, 100.0f);
 
 	while (!stop_flag.load())
 	{
@@ -82,6 +77,7 @@ void EchoAudio::operator()()
 			Speech.processBlock(audiosamples);
 		}
 
+		executeBandpassFilter(audiosamples);
 		for (auto &col : audiosamples)
 		{
 			complex<float> f;
@@ -90,8 +86,7 @@ void EchoAudio::operator()()
 			buf_mod.push_back(f);
 		}
 		audiosamples.clear();
-		executeBandpassFilter(buf_mod);
-		buf_mod.clear();
+		SpectrumGraph.ProcessWaterfall(buf_mod);
 		for (auto col : buf_mod)
 		{
 			float v;

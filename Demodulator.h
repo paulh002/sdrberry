@@ -15,6 +15,8 @@
 #include "NoiseFilter.h"
 #include "AgcProcessor.h"
 
+#define EQ_NTABS 129
+
 extern atomic<double> correlationMeasurement, errorMeasurement;
 
 enum mode_enum
@@ -57,9 +59,7 @@ class Demodulator
 	void adjust_calibration(IQSampleVector &samples_in);
 	float adjust_resample_rate1(float rateAjustFraction);
 	void tune_offset(long offset);
-	//virtual void process(const IQSampleVector &samples_in, SampleVector &audio) = 0;
 	void Resample(IQSampleVector &filter_in, IQSampleVector &filter_out);
-	//virtual void operator()() = 0;
 	void lowPassAudioFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void lowPassAudioFilter(IQSampleVector &filter_in);
 	void set_resample_rate(float resample_rate);
@@ -80,8 +80,8 @@ class Demodulator
 	void set_span(long span);
 	void perform_fft(const IQSampleVector &iqsamples);
 	void calc_af_level(const SampleVector &samples_in);
-	void setBandPassFilter(float high, float mid_high, float mid_low, float low);
-	void executeBandpassFilter(IQSampleVector &filter_in, bool conjugation);
+	void setBandPassFilter(float high, float low);
+	void executeBandpassFilter(SampleVector &filter_in);
 	void dc_filter(IQSampleVector &filter_in);
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();
@@ -121,9 +121,7 @@ class Demodulator
 
 	iirfilt_crcf lowPassAudioFilterHandle{nullptr};
 	
-	iirfilt_crcf bandPassHandle{nullptr};
-	iirfilt_crcf lowPassHandle{nullptr};
-	iirfilt_crcf highPassHandle{nullptr};
+
 	firfilt_crcf dcBlockHandle{nullptr};
 
 	static atomic<bool> dcBlockSwitch;
@@ -140,7 +138,14 @@ class Demodulator
 	float centerFrequency; 
 	float passBandRipple;
 	float StopBandAttenuation;
-
+	float h_low[EQ_NTABS];
+	float h_mid[EQ_NTABS];
+	float h_high[EQ_NTABS];
+	firfilt_rrrf bandPassHandle{nullptr};
+	firfilt_rrrf lowPassHandle{nullptr};
+	firfilt_rrrf highPassHandle{nullptr};
+	
+	
 	std::atomic<int> lowPassAudioFilterCutOffFrequency;
 	static std::atomic<int> noisefilter;
 	static std::atomic<int> filter_type;

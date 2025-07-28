@@ -101,11 +101,11 @@ Demodulator::~Demodulator()
 	lowPassAudioFilterHandle = nullptr;
 
 	if (bandPassHandle)
-		iirfilt_crcf_destroy(bandPassHandle);
+		firfilt_rrrf_destroy(bandPassHandle);
 	if (lowPassHandle)
-		iirfilt_crcf_destroy(lowPassHandle);
+		firfilt_rrrf_destroy(lowPassHandle);
 	if (highPassHandle)
-		iirfilt_crcf_destroy(highPassHandle);
+		firfilt_rrrf_destroy(highPassHandle);
 	if (dcBlockHandle)
 		firfilt_crcf_destroy(dcBlockHandle);
 	bandPassHandle = nullptr;
@@ -551,54 +551,67 @@ float Demodulator::getSuppression()
 	return SpectrumGraph.getSuppression();
 }
 
-void Demodulator::setBandPassFilter(float high, float mid_high, float mid_low, float low)
+void Demodulator::setBandPassFilter(float high, float low)
 {
-	cutOffFrequency = mid_low / (float)audioSampleRate;  // cutoff frequency
-	centerFrequency = mid_high / (float)audioSampleRate; // center frequency
-	passBandRipple = 1.0f;								 // pass-band ripple
-	StopBandAttenuation = 40.0f;						 // stop-band attenuation
-	filterOrder = 4;
+	StopBandAttenuation = 60.0f; // stop-band attenuation in db
+	float fc_high = high / (float)audioSampleRate;
+	float fc_low = low / (float)audioSampleRate;
+	float h_tmp1[EQ_NTABS];
+	float h_tmp2[EQ_NTABS];
 
+	liquid_firdes_kaiser(EQ_NTABS, fc_low, StopBandAttenuation, 0.0f, h_low);
+
+	// LPF at f_high
+	liquid_firdes_kaiser(EQ_NTABS, fc_high, StopBandAttenuation, 0.0f, h_tmp1);
+
+	// LPF at f_low (for band-pass difference)
+	liquid_firdes_kaiser(EQ_NTABS, fc_low, StopBandAttenuation, 0.0f, h_tmp2);
+
+	// High-pass = delta - LPF(f_high)
+	for (unsigned int i = 0; i < EQ_NTABS; i++)
+	{
+		h_high[i] = (i == (EQ_NTABS - 1) / 2 ? 1.0f : 0.0f) - h_tmp1[i];
+	}
+
+	//Mid band = LPF(f_high) - LPF(f_low)
+	for (unsigned int i = 0; i < EQ_NTABS; i++)
+	{
+		h_mid[i] = h_tmp1[i] - h_tmp2[i];
+	}
+	
+	
 	if (bandPassHandle)
-		iirfilt_crcf_destroy(bandPassHandle);
+		firfilt_rrrf_destroy(bandPassHandle);
 	if (lowPassHandle)
-		iirfilt_crcf_destroy(lowPassHandle);
+		firfilt_rrrf_destroy(lowPassHandle);
 	if (highPassHandle)
-		iirfilt_crcf_destroy(highPassHandle);
+		firfilt_rrrf_destroy(highPassHandle);
 
-	bandPassHandle = iirfilt_crcf_create_prototype(butterwurthType, bandFilterType, sosFormat, filterOrder, cutOffFrequency, centerFrequency, passBandRipple, StopBandAttenuation);
-	iirfilt_crcf_print(bandPassHandle);
-
-	cutOffFrequency = low / (float)audioSampleRate;		// cutoff frequency
-	centerFrequency = mid_low / (float)audioSampleRate; // center frequency
-	lowPassHandle = iirfilt_crcf_create_prototype(butterwurthType, bandFilterType, sosFormat, filterOrder, cutOffFrequency, centerFrequency, passBandRipple, StopBandAttenuation);
-	iirfilt_crcf_print(lowPassHandle);
-
-	cutOffFrequency = mid_high / (float)audioSampleRate; // cutoff frequency
-	centerFrequency = high / (float)audioSampleRate;	 // center frequency
-	highPassHandle = iirfilt_crcf_create_prototype(butterwurthType, bandFilterType, sosFormat, filterOrder, cutOffFrequency, centerFrequency, passBandRipple, StopBandAttenuation);
-	iirfilt_crcf_print(highPassHandle);
+	lowPassHandle = firfilt_rrrf_create(h_low, EQ_NTABS);
+	bandPassHandle = firfilt_rrrf_create(h_mid, EQ_NTABS);
+	highPassHandle = firfilt_rrrf_create(h_high, EQ_NTABS);
+	//firfilt_rrrf_print(lowPassHandle);
+	//firfilt_rrrf_print(bandPassHandle);
+	//firfilt_rrrf_print(highPassHandle);
 }
 
-void Demodulator::executeBandpassFilter(IQSampleVector &filter_in, bool conjugation)
-{
+void Demodulator::executeBandpassFilter(SampleVector &filter_in)
+{ 
 	if (bandPassHandle != nullptr && lowPassHandle != nullptr && highPassHandle != nullptr)
 	{
-		float bass_gain = dB2mag(gspeech.get_bass());
-		float treble_gain = dB2mag(gspeech.get_treble());
+		float bass_gain = dB2mag(gspeech.get_bass() / 10.0);
+		float treble_gain = dB2mag(gspeech.get_treble() / 10.0);
 		for (auto &col : filter_in)
 		{
-			complex<float> x, v, w, u, z;
+			float yL, yM, yH;
 
-			if (conjugation)
-				x = col;
-			else
-				x = col;
-			iirfilt_crcf_execute(bandPassHandle, x, &v);
-			iirfilt_crcf_execute(lowPassHandle, x, &w);
-			iirfilt_crcf_execute(highPassHandle, x, &u);
-			v = v + w * bass_gain + u * treble_gain;
-			col = v;
+			firfilt_rrrf_push(lowPassHandle, col);
+			firfilt_rrrf_execute(lowPassHandle, &yL);
+			firfilt_rrrf_push(bandPassHandle, col);
+			firfilt_rrrf_execute(bandPassHandle, &yM);
+			firfilt_rrrf_push(highPassHandle, col);
+			firfilt_rrrf_execute(highPassHandle, &yH);
+			col = yM + yL * bass_gain + yH * treble_gain;
 		}
 	}
 }

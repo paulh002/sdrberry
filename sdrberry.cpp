@@ -1313,6 +1313,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;
+	//case mode_am:
 	case mode_echo:
 		EchoAudio::create_modulator(audio_output,audio_input);
 		break;

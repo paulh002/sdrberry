@@ -69,13 +69,13 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
 		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	case mode_lsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_LSB;
 		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	case mode_cw:
 		suppressed_carrier = 1;
@@ -86,13 +86,13 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		suppressed_carrier = 0;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	case mode_dsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	default:
 		printf("Mode not correct\n");		
@@ -202,13 +202,14 @@ void AMModulator::operator()()
 	printf("exit am_mod_thread %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 }
 
-void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_out)
+void AMModulator::process(SampleVector &samples, IQSampleVector &samples_out)
 {
 	IQSampleVector buf_mod;
 	unsigned int num_written;
 	//float maxf = 0.0;
 
 	// Modulate audio to USB, LSB or DSB;
+	executeBandpassFilter(samples);
 	for (auto &col : samples)
 	{
 		complex<float> f;
@@ -221,7 +222,6 @@ void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_o
 	//printf("audio max %f \n", maxf);
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
-	executeBandpassFilter(buf_mod, );
 	samples_out = std::move(Resample(buf_mod));
 	mix_up(samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);

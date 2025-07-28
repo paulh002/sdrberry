@@ -8,9 +8,7 @@ class AMModulator : public Demodulator
 	AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	~AMModulator();
 
-	void process(const SampleVector &samples, IQSampleVector &samples_out);
 	void setsignal(vector<float> &signal);
-
 	void operator()();
 	static void destroy_modulator();
 	static bool create_modulator(ModulatorParameters param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
@@ -31,6 +29,7 @@ class AMModulator : public Demodulator
 	void audio_feedback(const SampleVector &audiosamples);
 	void WaitForTimeSlot();
 	vector<float> signal;
+	void process(SampleVector &samples, IQSampleVector &samples_out);
 };
 
 extern shared_ptr<AMModulator> sp_ammod;

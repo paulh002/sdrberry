@@ -51,7 +51,6 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	float					mod_index = 0.99f; // modulation index (bandwidth)
 	float					As = 60.0f; // resampling filter stop-band attenuation [dB]
 	int						suppressed_carrier;
-	liquid_ampmodem_type	am_mode;
 
 	digitalmode = false;
 	switch (param.mode)
@@ -70,13 +69,13 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_USB;
 		printf("tx mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	case mode_lsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_LSB;
 		printf("tx mode LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	case mode_cw:
 		suppressed_carrier = 1;
@@ -87,13 +86,13 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		suppressed_carrier = 0;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	case mode_dsb:
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("tx mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);
-		setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+		setBandPassFilter(3000.0f, 100.0f);
 		break;
 	default:
 		printf("Mode not correct\n");		
@@ -135,12 +134,8 @@ void AMModulator::operator()()
 	Speech.setRatio(gspeech.get_ratio());
 	tune_offset(vfo.get_vfo_offset_tx());
 	audioInputBuffer->clear();
-	if (gspeech.get_speech_mode())
-		audioInputBuffer->set_gain(0);
 	if (digitalmode)
 	{
-		//cout << "Wait for Timeslot \n";
-		//WaitForTimeSlot();
 		audioInputBuffer->clear();
 		audioInputBuffer->StartDigitalMode(signal);
 		cout << "Start digital transmit \n";
@@ -171,8 +166,6 @@ void AMModulator::operator()()
 			Speech.setThresholdDB(gspeech.get_threshold());
 			Speech.processBlock(audiosamples);
 		}
-		else
-			audioInputBuffer->set_gain(0);
 
 		calc_af_level(audiosamples);
 		set_signal_strength();
@@ -209,22 +202,26 @@ void AMModulator::operator()()
 	printf("exit am_mod_thread %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 }
 
-void AMModulator::process(const SampleVector &samples, IQSampleVector &samples_out)
+void AMModulator::process(SampleVector &samples, IQSampleVector &samples_out)
 {
 	IQSampleVector buf_mod;
 	unsigned int num_written;
+	//float maxf = 0.0;
 
 	// Modulate audio to USB, LSB or DSB;
+	executeBandpassFilter(samples);
 	for (auto &col : samples)
 	{
 		complex<float> f;
+		//if (col > maxf)
+		//	maxf = col;
 		ampmodem_modulate(AMmodulatorHandle, col, &f);
 		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f); 
 	}
+	//printf("audio max %f \n", maxf);
 	if (digitalmode)
 		guift8bar.Process(buf_mod);
-	executeBandpassFilter(buf_mod);
 	samples_out = std::move(Resample(buf_mod));
 	mix_up(samples_out); // Mix up to vfo freq
 	SpectrumGraph.ProcessWaterfall(samples_out);

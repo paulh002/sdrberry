@@ -129,7 +129,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 	lv_obj_add_event_cb(digital_slider, digital_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	digital_slider_label = lv_label_create(o_tab);
 	lv_obj_align_to(digital_slider_label, digital_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	set_digital_slider(Settings_file.get_int("Radio", "digitalgain", 15));
+	set_digital_slider(Settings_file.get_int("Radio", "digitalgain", 80));
 	lv_group_add_obj(m_button_group, digital_slider);
 	
 	drv_slider = lv_slider_create(o_tab);

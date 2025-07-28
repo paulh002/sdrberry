@@ -41,11 +41,6 @@ EchoAudio::~EchoAudio()
 
 }
 
-void EchoAudio::process(const IQSampleVector &samples_in, SampleVector &audio)
-{
-	
-}
-
 void EchoAudio::operator()()
 {
 	const auto startTime = std::chrono::high_resolution_clock::now();
@@ -62,14 +57,11 @@ void EchoAudio::operator()()
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
 	audioInputBuffer->clear();
-	if (gspeech.get_speech_mode())
-		audioInputBuffer->set_gain(20);
-
 	float mod_index = 0.99f; // modulation index (bandwidth)
 	ampmodem modAM = ampmodem_create(mod_index, am_mode, 1);
 	ampmodem demod = ampmodem_create(mod_index, am_mode, 1);
 
-	setBandPassFilter(2700.0f, 2000.0f, 500.0f, 150.0f);
+	setBandPassFilter( 3000.0f, 100.0f);
 
 	while (!stop_flag.load())
 	{
@@ -78,16 +70,14 @@ void EchoAudio::operator()()
 
 		if (gspeech.get_speech_mode())
 		{
-			audioInputBuffer->set_gain(20);
 			Speech.setRelease(gspeech.get_release());
 			Speech.setRatio(gspeech.get_ratio());
 			Speech.setAtack(gspeech.get_atack());
 			Speech.setThresholdDB(gspeech.get_threshold());
 			Speech.processBlock(audiosamples);
 		}
-		else
-			audioInputBuffer->set_gain(0);
 
+		executeBandpassFilter(audiosamples);
 		for (auto &col : audiosamples)
 		{
 			complex<float> f;
@@ -96,8 +86,7 @@ void EchoAudio::operator()()
 			buf_mod.push_back(f);
 		}
 		audiosamples.clear();
-		executeBandpassFilter(buf_mod);
-		buf_mod.clear();
+		SpectrumGraph.ProcessWaterfall(buf_mod);
 		for (auto col : buf_mod)
 		{
 			float v;

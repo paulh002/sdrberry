@@ -178,7 +178,6 @@ lv_group_t *keyboard_group{nullptr};
 extern lv_img_dsc_t mouse_cursor_icon;
 
 using namespace std;
-std::mutex gui_mutex;
 
 int mode = mode_broadband_fm;
 double ifrate = 0.53e6; //1.0e6;//
@@ -411,9 +410,7 @@ int main(int argc, char *argv[])
 
 	signal(SIGINT, handle_signal); // Catch Ctrl+C (SIGINT)
 	
-	gui_mutex.lock(); // Lock gui changes until GUI is created and initialized
 	default_radio = Settings_file.find_sdr("default");
-
 	screenSelect = Settings_file.get_int("screen","resolution", 0);
 	screenRotate = Settings_file.get_int("screen", "rotation", 0);
 	screenWidth = screenResolutionsWidth.at(screenSelect);
@@ -822,8 +819,6 @@ int main(int argc, char *argv[])
 	}
 
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
-
-	gui_mutex.unlock(); // Start GUI updates
 	/*Handle LitlevGL tasks (tickless mode)*/
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
@@ -835,8 +830,7 @@ int main(int argc, char *argv[])
 	while (1)
 	{
 		WsjtxMessage msg;
-
-		gui_mutex.lock();
+		
 		lv_task_handler();
 		//Mouse_dev.step_vfo();
 		HidDev_dev.step_vfo();
@@ -1114,7 +1108,6 @@ int main(int argc, char *argv[])
 			}
 			guiQueue.pop_front();
 		}
-		gui_mutex.unlock();
 		usleep(500);
 		fflush(stdout);
 	}
@@ -1320,6 +1313,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;
+	//case mode_am:
 	case mode_echo:
 		EchoAudio::create_modulator(audio_output,audio_input);
 		break;

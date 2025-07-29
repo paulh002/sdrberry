@@ -89,6 +89,7 @@ void FT8Processor::operator()()
 		gft8.set_decode_start_time(std::chrono::system_clock::now());
 		wsjtx->decode(decodeMode, samples, 1000, nothreads);
 		ft8udpclient->SendHeartBeat();
+		guift8bar.send_status(true);
 		audiosamples.clear();
 		samples.clear();
 	}

@@ -38,6 +38,7 @@ class gui_ft8bar
 	int rxtxmode;
 	ft8status_t ft8status;
 	struct StatusMessage status;
+	
 
 	void ft8bar_button_handler_class(lv_event_t *e);
 	void filter_event_handler_class(lv_event_t *e);
@@ -91,7 +92,7 @@ class gui_ft8bar
 	void Log();
 	void web_call(std::string msg);
 	void SetTxButtons();
-	void send_status();
+	void send_status(bool decoding = false);
 
 	static constexpr auto ft8bar_button_handler = EventHandler<gui_ft8bar, &gui_ft8bar::ft8bar_button_handler_class>::staticHandler;
 	static constexpr auto filter_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::filter_event_handler_class>::staticHandler;

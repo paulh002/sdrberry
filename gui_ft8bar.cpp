@@ -99,7 +99,9 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 		b73 = true;
 	
 	printf("Mycall: %s %s Hiscall: %s %s\n", call.c_str(), bMyCall ? "true" : "false", callsign.c_str(), bHisCall ? "true" : "false");
-	
+
+	status.dxCall = callsign;
+	status.report = "";
 	Message = callsign + " " + call + " ";
 	if (!bMyCall)
 		Message = callsign + " <" + call + "> ";
@@ -117,12 +119,16 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 	if (!bHisCall)
 		Message = "<" + callsign + "> " + call + " ";
 	if (db > 0)
+	{
 		Message += "+";
+		status.report = "+";
+	}
 	Message += std::to_string(db);
+	status.report = std::to_string(db);
 	lv_table_set_cell_value(table, 2, 1, Message.c_str());
 	if (row == 2)
 		SetTxMessage(Message);
-
+	
 	Message = callsign + " " + call + " R";
 	if (!bHisCall and bMyCall)
 		Message = "<" + callsign + "> " + call + " R";
@@ -170,10 +176,6 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 	}
 	SetFilter(callsign);
 	messageToSend = row;
-
-	status.dxCall = callsign;
-	int start_pos_report = Message.find_last_of(' ') + 1;
-	status.report = Message.substr(start_pos_report, Message.size());
 	web_txmessage();
 }
 
@@ -1148,14 +1150,16 @@ void gui_ft8bar::SetTxButtons()
 		status.txEnabled = true;
 }
 
-void gui_ft8bar::send_status()
+void gui_ft8bar::send_status(bool decoding)
 {
+	
 	status.rxDF = 0;
 	status.txWatchdog = false;
 	status.fastMode = false;
 	status.specialOperationMode = 0;
 	status.frequencyTolerance = 0;
 	status.trPeriod = 0;
+	status.decoding = decoding;
 	if (ft8udpclient != nullptr)
 		ft8udpclient->SendStatus(status, mode);
 }

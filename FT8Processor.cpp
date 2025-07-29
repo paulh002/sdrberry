@@ -30,6 +30,7 @@ bool FT8Processor::create_modulator(std::shared_ptr<FT8Processor> &ft8processor,
 	ft8processor = std::make_shared<FT8Processor>(mode);
 	ft8processor->ft8processor_thread = std::thread(&FT8Processor::operator(), ft8processor);
 	ft8udpclient = std::make_unique<FT8UdpClient>(mode);
+	guift8bar.send_status();
 	return true;
 }
 

@@ -4,6 +4,7 @@
 #include "AMModulator.h"
 #include "Waterfall.h"
 #include <nlohmann/json.hpp>
+#include "FT8UdpClient.h"
 
 using json = nlohmann::json;
 
@@ -36,6 +37,7 @@ class gui_ft8bar
 	std::string msgsend;
 	int rxtxmode;
 	ft8status_t ft8status;
+	struct StatusMessage status;
 
 	void ft8bar_button_handler_class(lv_event_t *e);
 	void filter_event_handler_class(lv_event_t *e);
@@ -45,7 +47,7 @@ class gui_ft8bar
 	void tx_slider_event_cb_class(lv_event_t *e);
 	void freq_event_handler_class(lv_event_t *e);
 	void press_part_event_cb_class(lv_event_t *e);
-	
+
   public:
 	gui_ft8bar();
 	~gui_ft8bar();
@@ -89,6 +91,7 @@ class gui_ft8bar
 	void Log();
 	void web_call(std::string msg);
 	void SetTxButtons();
+	void send_status();
 
 	static constexpr auto ft8bar_button_handler = EventHandler<gui_ft8bar, &gui_ft8bar::ft8bar_button_handler_class>::staticHandler;
 	static constexpr auto filter_event_handler = EventHandler<gui_ft8bar, &gui_ft8bar::filter_event_handler_class>::staticHandler;

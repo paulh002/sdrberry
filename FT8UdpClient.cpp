@@ -73,6 +73,63 @@ std::vector<char> FT8UdpClient::serialize_heartbeat_message(const HeartbeatMessa
 	return buffer;
 }
 
+// Function to serialize the StatusMessage
+std::vector<char> serialize_status_message(const StatusMessage &msg)
+{
+	std::vector<char> buffer;
+	buffer.reserve(BUFFER_SIZE);
+
+	uint32_t magic = htonl(msg.magic);
+	append_to_buffer<uint32_t>(buffer, magic);
+
+	uint32_t schema = htonl(msg.Schema);
+	append_to_buffer<uint32_t>(buffer, schema);
+
+	uint32_t msg_type = htonl(msg.messageType);
+	append_to_buffer<uint32_t>(buffer, msg_type);
+
+	append_string_to_buffer(buffer, msg.id);
+
+	uint64_t dial_freq = htobe64(msg.dialFrequency);
+	append_to_buffer<uint64_t>(buffer, dial_freq);
+
+	append_string_to_buffer(buffer, msg.mode);
+	append_string_to_buffer(buffer, msg.dxCall);
+	append_string_to_buffer(buffer, msg.report);
+	append_string_to_buffer(buffer, msg.txMode);
+
+	append_to_buffer<bool>(buffer, msg.txEnabled);
+	append_to_buffer<bool>(buffer, msg.transmitting);
+	append_to_buffer<bool>(buffer, msg.decoding);
+
+	uint32_t rx_df = htonl(msg.rxDF);
+	append_to_buffer<uint32_t>(buffer, rx_df);
+
+	uint32_t tx_df = htonl(msg.txDF);
+	append_to_buffer<uint32_t>(buffer, tx_df);
+
+	append_string_to_buffer(buffer, msg.deCall);
+	append_string_to_buffer(buffer, msg.deGrid);
+	append_string_to_buffer(buffer, msg.dxGrid);
+
+	append_to_buffer<bool>(buffer, msg.txWatchdog);
+	append_string_to_buffer(buffer, msg.subMode);
+	append_to_buffer<bool>(buffer, msg.fastMode);
+
+	append_to_buffer(buffer, msg.specialOperationMode);
+
+	uint32_t freq_tol = htonl(msg.frequencyTolerance);
+	append_to_buffer<uint32_t>(buffer, freq_tol);
+
+	uint32_t tr_period = htonl(msg.trPeriod);
+	append_to_buffer<uint32_t>(buffer, tr_period);
+
+	append_string_to_buffer(buffer, msg.configurationName);
+	append_string_to_buffer(buffer, msg.txMessage);
+
+	return buffer;
+}
+
 // Function to serialize the DecodeMessage
 std::vector<char> FT8UdpClient::serialize_decode_message(const DecodeMessage &msg)
 {
@@ -358,5 +415,36 @@ void FT8UdpClient::SendQso(std::chrono::time_point<std::chrono::system_clock> qs
 			exit(EXIT_FAILURE);
 		}
 		std::cout << "QSO Logged message sent." << std::endl;
+	}
+}
+
+void FT8UdpClient::SendStatus(struct StatusMessage status, int mode)
+{
+
+	if (sockfd > 0)
+	{
+		status.magic = MAGIC_NUMBER;
+		status.Schema = 2;
+		status.messageType = 1;
+		status.id = "WSJT-X";
+
+		if (mode == mode_ft8)
+			status.mode = "FT8";
+		if (mode == mode_ft4)
+			status.mode = "FT4";
+		if (mode == mode_wspr)
+			status.mode = "WSPR";
+
+		std::vector<char> packet = serialize_status_message(status);
+
+		if (sendto(sockfd, packet.data(), packet.size(),
+				   MSG_CONFIRM, (const struct sockaddr *)&servaddr,
+				   sizeof(servaddr)) < 0)
+		{
+			perror("sendto failed");
+			close(sockfd);
+			exit(EXIT_FAILURE);
+		}
+		std::cout << "Status message sent." << std::endl;	
 	}
 }

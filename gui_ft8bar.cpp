@@ -26,7 +26,6 @@ const int buttoncq = 3;
 const int buttonclear = 4;
 const int buttonmode = 5;
 
-
 /*R"(
         ^\s*                                      # optional leading spaces
         ( [A-Z]{0,2} | [A-Z][0-9] | [0-9][A-Z] )  # part 1
@@ -86,7 +85,7 @@ void gui_ft8bar::setmonitor(bool mon)
 		lv_obj_clear_state(button[0], LV_STATE_CHECKED);
 }
 
-void gui_ft8bar::setMessage(std::string callsign, int db, int row)
+void gui_ft8bar::setMessage(std::string callsign, int db, int row, std::string dxGrid)
 {
 	std::string s73 = Settings_file.get_string("wsjtx", "73");
 	std::string Message;
@@ -102,6 +101,7 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 
 	status.dxCall = callsign;
 	status.report = "";
+	status.dxGrid = dxGrid;
 	Message = callsign + " " + call + " ";
 	if (!bMyCall)
 		Message = callsign + " <" + call + "> ";
@@ -1162,4 +1162,5 @@ void gui_ft8bar::send_status(bool decoding)
 	status.decoding = decoding;
 	if (ft8udpclient != nullptr)
 		ft8udpclient->SendStatus(status, mode);
+	std::cout << status;
 }

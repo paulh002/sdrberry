@@ -56,7 +56,7 @@ class gui_ft8bar
 	void hide(bool hide);
 	int getbuttons() { return number_of_buttons; }
 	void setmonitor(bool mon);
-	void setMessage(std::string callsign, int db, int row = 1);
+	void setMessage(std::string callsign, int db, int row = 1, std::string dxGrid = "");
 	void SetFrequency();
 	int Transmit(lv_obj_t * obj);
 	void SetTxMessage(std::string msg = "");

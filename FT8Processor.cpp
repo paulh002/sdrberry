@@ -86,10 +86,10 @@ void FT8Processor::operator()()
 		{
 			samples.push_back((audiosamples[i] * 32768.0f));
 		}
+		guift8bar.send_status(true);
 		gft8.set_decode_start_time(std::chrono::system_clock::now());
 		wsjtx->decode(decodeMode, samples, 1000, nothreads);
 		ft8udpclient->SendHeartBeat();
-		guift8bar.send_status(true);
 		audiosamples.clear();
 		samples.clear();
 	}

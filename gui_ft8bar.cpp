@@ -14,7 +14,6 @@
 #include "strlib.h"
 #include "screen.h"
 #include "WebServer.h"
-#include "FT8UdpClient.h"
 
 extern std::unique_ptr<wsjtx_lib> wsjtx;
 extern std::unique_ptr<FT8UdpClient> ft8udpclient;
@@ -26,7 +25,6 @@ const int buttontx = 2;
 const int buttoncq = 3;
 const int buttonclear = 4;
 const int buttonmode = 5;
-
 
 /*R"(
         ^\s*                                      # optional leading spaces
@@ -87,7 +85,7 @@ void gui_ft8bar::setmonitor(bool mon)
 		lv_obj_clear_state(button[0], LV_STATE_CHECKED);
 }
 
-void gui_ft8bar::setMessage(std::string callsign, int db, int row)
+void gui_ft8bar::setMessage(std::string callsign, int db, int row, std::string dxGrid)
 {
 	std::string s73 = Settings_file.get_string("wsjtx", "73");
 	std::string Message;
@@ -100,7 +98,10 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 		b73 = true;
 	
 	printf("Mycall: %s %s Hiscall: %s %s\n", call.c_str(), bMyCall ? "true" : "false", callsign.c_str(), bHisCall ? "true" : "false");
-	
+
+	status.dxCall = callsign;
+	status.report = "";
+	status.dxGrid = dxGrid;
 	Message = callsign + " " + call + " ";
 	if (!bMyCall)
 		Message = callsign + " <" + call + "> ";
@@ -118,12 +119,16 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row)
 	if (!bHisCall)
 		Message = "<" + callsign + "> " + call + " ";
 	if (db > 0)
+	{
 		Message += "+";
+		status.report = "+";
+	}
 	Message += std::to_string(db);
+	status.report = std::to_string(db);
 	lv_table_set_cell_value(table, 2, 1, Message.c_str());
 	if (row == 2)
 		SetTxMessage(Message);
-
+	
 	Message = callsign + " " + call + " R";
 	if (!bHisCall and bMyCall)
 		Message = "<" + callsign + "> " + call + " R";
@@ -217,6 +222,8 @@ void gui_ft8bar::SetFrequency()
 		vfo.set_vfo(freqencies.at(selection) * 1000L);
 		break;
 	}
+	status.dialFrequency = freqencies.at(selection) * 1000L;
+	send_status();
 }
 
 void gui_ft8bar::textarea_event_handler_class(lv_event_t *e)
@@ -301,7 +308,6 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				gbar.set_mode(guift8bar.getrxtxmode());
 				setmodeclickable(false);
 				ft8status = ft8status_t::monitor;
-				
 			}
 			else
 			{
@@ -381,6 +387,8 @@ void gui_ft8bar::MonitorButton()
 		gbar.set_mode(guift8bar.getrxtxmode());
 		setmodeclickable(false);
 		ft8status = ft8status_t::monitor;
+		status.transmitting = false;
+		send_status();
 	}
 	else
 	{
@@ -570,6 +578,7 @@ void gui_ft8bar::tx_slider_event_cb_class(lv_event_t *e)
 		lv_obj_t *tx_slider_label = (lv_obj_t *)lv_event_get_user_data(e);
 		lv_label_set_text_fmt(tx_slider_label, "tx %d Hz", 50 * lv_slider_get_value(slider));
 		Settings_file.save_int("wsjtx", "tx", lv_slider_get_value(slider) * 50);
+		status.txDF = lv_slider_get_value(slider) * 50;
 	}
 }
 
@@ -771,6 +780,9 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	cq = "CQ " + call + " " + locator;
 	lv_textarea_add_text(Textfield, cq.c_str());
 
+	status.deCall = call;
+	status.deGrid = locator;
+	
 	ibutton_x++;
 	ibutton_x++;
 	ibutton_x++;
@@ -812,7 +824,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_align(tx_slider, LV_ALIGN_TOP_LEFT, 10, tx_y);
 	lv_obj_add_event_cb(tx_slider, tx_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)tx_slider_label);
 	lv_slider_set_value(tx_slider, freq / 50, LV_ANIM_ON);
-	
+	status.txDF = freq;
 	
 	lv_table_set_cell_value(table, 1, 0, "1");
 	lv_table_set_cell_value(table, 1, 1, "");
@@ -864,6 +876,8 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 				{
 					printf("tx mode canceld\n");
 					transmitting = false;
+					status.transmitting = false;
+					send_status();
 					retval = 1;
 				}
 				else
@@ -902,11 +916,15 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 			param.signal = wsjtx->encode(wstx_mode, frequency, message, msgsend);
 			save_wav(param.signal.data(), (int)param.signal.size(), 48000, "./wave.wav");
 			DigitalTransmission::StartDigitalTransmission(std::move(param));
+			status.transmitting = true;
+			status.txMessage = message;
+			send_status();
 		}
 	}
 	else
 	{	
 		retval = 1;
+		status.transmitting = false;
 	}
 	return retval;
 }
@@ -916,9 +934,11 @@ void gui_ft8bar::ClearTransmit()
 	lv_obj_clear_state(button[txbutton], LV_STATE_CHECKED);
 	lv_obj_clear_state(button[rxbutton], LV_STATE_CHECKED);
 	transmitting = false;
+	status.transmitting = false;
 	WaterfallReset();
 	get_buttons();
 	ft8status = ft8status_t::monitor;
+	send_status();
 }
 
 void gui_ft8bar::web_wsjtxfreq()
@@ -1108,10 +1128,6 @@ void gui_ft8bar::Log()
 		}
 		
 		std::chrono::time_point<std::chrono::system_clock> qso_time;
-		
-
-		
-		
 		ClearMessage();
 	}
 }
@@ -1127,4 +1143,24 @@ void gui_ft8bar::SetTxButtons()
 		lv_obj_add_state(button[buttoncq], LV_STATE_DISABLED);
 	else
 		lv_obj_clear_state(button[buttoncq], LV_STATE_DISABLED);
+
+	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
+		status.txEnabled = false;
+	else
+		status.txEnabled = true;
+}
+
+void gui_ft8bar::send_status(bool decoding)
+{
+	
+	status.rxDF = 0;
+	status.txWatchdog = false;
+	status.fastMode = false;
+	status.specialOperationMode = 0;
+	status.frequencyTolerance = 0;
+	status.trPeriod = 0;
+	status.decoding = decoding;
+	if (ft8udpclient != nullptr)
+		ft8udpclient->SendStatus(status, mode);
+	std::cout << status;
 }

@@ -5,6 +5,7 @@
 #include "sdrberry.h"
 #include <nlohmann/json.hpp>
 #include "tz.h"
+#include "FT8UdpClient.h"
 
 using json = nlohmann::json;
 
@@ -106,3 +107,4 @@ extern gui_ft8 gft8;
 
 std::ostream &operator<<(std::ostream &os, const qso_logging &qso);
 std::ostream &operator<<(std::ostream &os, const message &msg);
+std::ostream &operator<<(std::ostream &os, const struct StatusMessage &statusmessage);

@@ -112,7 +112,7 @@ class FT8UdpClient
 				 std::string myGrid, std::string exchangeSent, std::string exchangeReceived, std::string adifPropagationMode);
 	void SendHeartBeat();
 	void SendDecode(bool isNew, uint32_t now_ms, int32_t snr, double deltaTime, uint32_t deltaFrequency, int mode, std::string message, bool lowConfidence, bool offAir);
-	void SendStatus();
+	void SendStatus(struct StatusMessage status, int mode);
 	
   private:
 	int sockfd;

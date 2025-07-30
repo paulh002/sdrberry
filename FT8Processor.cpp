@@ -30,6 +30,7 @@ bool FT8Processor::create_modulator(std::shared_ptr<FT8Processor> &ft8processor,
 	ft8processor = std::make_shared<FT8Processor>(mode);
 	ft8processor->ft8processor_thread = std::thread(&FT8Processor::operator(), ft8processor);
 	ft8udpclient = std::make_unique<FT8UdpClient>(mode);
+	guift8bar.send_status();
 	return true;
 }
 
@@ -85,6 +86,7 @@ void FT8Processor::operator()()
 		{
 			samples.push_back((audiosamples[i] * 32768.0f));
 		}
+		guift8bar.send_status(true);
 		gft8.set_decode_start_time(std::chrono::system_clock::now());
 		wsjtx->decode(decodeMode, samples, 1000, nothreads);
 		ft8udpclient->SendHeartBeat();

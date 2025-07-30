@@ -4,12 +4,23 @@
 #include "strlib.h"
 #include "screen.h"
 #include "WebServer.h"
-#include "FT8UdpClient.h"
 #include "FT8Processor.h"
 #include "vfo.h"
 
 extern std::unique_ptr<FT8UdpClient> ft8udpclient;
 gui_ft8 gft8;
+
+std::ostream &operator<<(std::ostream &os, const struct StatusMessage &statusmessage)
+{
+	// Format decode_time: convert to sys_time, then to std::tm
+	os << "Frequency: " << statusmessage.dialFrequency << '\n'
+	   << "Mode: " << statusmessage.mode << '\n'
+	   << "Call: " << statusmessage.dxCall << '\n'
+	   << "Grid: " << statusmessage.dxGrid << '\n'
+	   << "Report: " << statusmessage.report << '\n'
+	   << "Tx: " << statusmessage.txEnabled << '\n';
+	return os;
+}
 
 std::ostream &operator<<(std::ostream &os, const qso_logging &qso)
 {
@@ -126,13 +137,15 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 	size_t q = str.rfind(' ');
 	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
 	{
-		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, which_report(str));
+		std::string dxGrid;
+		int start_pos_report = str.find_last_of(' ') + 1;
+		std::string s = str.substr(start_pos_report, str.size());
+		if (is_dxGrid(s))
+		{
+			dxGrid = s;
+		}
+		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, which_report(str), dxGrid);
 		cpy_conversationtoqso();
-		// copy conversation to qso pane
-		//if (qsoRowCount == 1)
-		//{
-		//	cpy_cqtoqso(row);
-		//}
 	}
 }
 
@@ -154,15 +167,24 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 	str.erase(new_end, str.end());
 	if (str.rfind("CQ ", 0) == 0 && guift8bar.get_status() == ft8status_t::monitor)
 	{
+		std::string dxGrid;
+		int start_pos_report = str.find_last_of(' ') + 1;
+		std::string s = str.substr(start_pos_report, str.size());
+		if (is_dxGrid(s))
+		{
+			dxGrid = s;
+		}
+
 		int i = str.find(' ',3) - 3;
 		if (i > 0)
-			guift8bar.setMessage(str.substr(3, i), db);
+			guift8bar.setMessage(str.substr(3, i), db, 1, dxGrid);
 		else
-			guift8bar.setMessage(str.substr(3), db);
+			guift8bar.setMessage(str.substr(3), db, 1, dxGrid);
 		clr_qso();
 		clr_cq();
 		cpy_qso(row);
 		QsoScrollLatestItem();
+		
 		//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 		//add_cq(m);
 	}
@@ -444,9 +466,13 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		int start_pos_report = msg.find_last_of(' ') + 1;
 		std::string s = msg.substr(start_pos_report, msg.size());
 		if (is_report(s))
+		{
 			log_item.report_received = s;
+		}
 		if (is_dxGrid(s))
+		{
 			log_item.dxGrid = s;
+		}
 		log_item.frequency_offset = hz0;
 		log_item.report_send = "R" + std::to_string(snr);
 		log_item.message = msg;

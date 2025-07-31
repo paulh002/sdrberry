@@ -140,7 +140,7 @@ class CVfo
 	std::vector<int16_t> Legend();
 	void set_frequency_to_left(long long freq, int active_vfo, bool update );
 	bool checkVfoBandRange(long long freq);
-	
+
   private:
 	struct vfo_settings_struct vfo_setting;
 	int m_delay_counter = 0;

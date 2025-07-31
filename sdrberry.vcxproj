@@ -136,6 +136,7 @@
     <ClCompile Include="gui_i2csetup.cpp" />
     <ClCompile Include="gui_i2c_input.cpp" />
     <ClCompile Include="gui_i2c_output.cpp" />
+    <ClCompile Include="gui_preset.cpp" />
     <ClCompile Include="gui_rx.cpp" />
     <ClCompile Include="gui_sdr.cpp" />
     <ClCompile Include="gui_sdr_settings.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="gui_i2csetup.h" />
     <ClInclude Include="gui_i2c_input.h" />
     <ClInclude Include="gui_i2c_output.h" />
+    <ClInclude Include="gui_preset.h" />
     <ClInclude Include="gui_rx.h" />
     <ClInclude Include="gui_sdr.h" />
     <ClInclude Include="gui_sdr_settings.h" />

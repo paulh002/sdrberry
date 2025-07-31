@@ -160,7 +160,7 @@
     </AdditionalGDBSettings>
     <LaunchGDBSettings xsi:type="GDBLaunchParametersNewInstance">
       <DebuggedProgram>$(TargetPath)</DebuggedProgram>
-      <GDBServerPort>2000</GDBServerPort>
+      <GDBServerPort>3333</GDBServerPort>
       <ProgramArguments />
       <WorkingDirectory>/home/pi</WorkingDirectory>
       <ArgumentEscapingMode>Auto</ArgumentEscapingMode>

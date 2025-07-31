@@ -3,6 +3,7 @@
 #include "VfoKeyPad.h"
 #include "table.h"
 #include "Settings.h"
+#include "sdrberry.h"
 
 gui_preset guipreset;
 
@@ -342,22 +343,25 @@ void gui_preset::display_press_part_event_class(lv_event_t *e)
 	std::string s = std::string(lv_table_get_cell_value(display_table, row, 2));
 	s = strlib::remove_non_digits(s);
 	long freq = std::atol(s.c_str()) * 10;
-	if (vfo.is_vfo_limit_ham_band())
+	if (!IsDigtalMode(mode))
 	{
-		if (vfo.checkVfoBandRange(freq))
+		if (vfo.is_vfo_limit_ham_band())
 		{
-			vfo.set_band_freq(freq);
+			if (vfo.checkVfoBandRange(freq))
+			{
+				vfo.set_band_freq(freq);
+			}
+			else
+			{
+				static const char *btns[] = {""};
+				lv_obj_t *mbox1 = lv_msgbox_create(NULL, "VFO", "Out of Ham band range", btns, true);
+				lv_obj_center(mbox1);
+			}
 		}
 		else
 		{
-			static const char *btns[] = {""};
-			lv_obj_t *mbox1 = lv_msgbox_create(NULL, "VFO", "Out of Ham band range", btns, true);
-			lv_obj_center(mbox1);
+			vfo.set_vfo(freq);
 		}
-	}
-	else
-	{
-		vfo.set_vfo(freq);
 	}
 }
 	

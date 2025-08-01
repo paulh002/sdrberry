@@ -190,13 +190,14 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_set_style_pad_top(o_tab, 10, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
-	
+	lv_obj_set_style_pad_left(o_tab, 5, LV_PART_MAIN);
+
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-	gain_tile = lv_tileview_add_tile(tileview, 0, 3, LV_DIR_BOTTOM | LV_DIR_TOP);
+	gain_tile = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
 	guigain.init(gain_tile, w, screenWidth);
-	main_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
-	settings_tile = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
+	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
 	
 	
 	lv_obj_set_style_pad_top(settings_tile, 0, LV_PART_MAIN);
@@ -219,10 +220,10 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	
 	lv_obj_t *filter_type_label = lv_label_create(main_tile);
 	lv_label_set_text(filter_type_label, "Filter type");
-	lv_obj_align(filter_type_label, LV_ALIGN_TOP_LEFT, 0, y_margin);
+	lv_obj_align(filter_type_label, LV_ALIGN_TOP_LEFT, x_margin, y_margin);
 
 	filter_type_dropdown = lv_dropdown_create(main_tile);
-	lv_obj_align(filter_type_dropdown, LV_ALIGN_TOP_LEFT, 0, y_margin + button_height_margin * 0.5);
+	lv_obj_align(filter_type_dropdown, LV_ALIGN_TOP_LEFT, x_margin, y_margin + button_height_margin * 0.5);
 	lv_dropdown_clear_options(filter_type_dropdown);
 	lv_group_add_obj(button_group, filter_type_dropdown);
 	lv_dropdown_set_options(filter_type_dropdown, "Butterworth\n" "Chebyshev - 1\n" "Chebyshev - 2\n" "Elliptic");

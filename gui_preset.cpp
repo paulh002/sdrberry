@@ -28,7 +28,8 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 	lv_obj_set_style_pad_top(o_tab, 10, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
-
+	lv_obj_set_style_pad_left(o_tab, 5, LV_PART_MAIN);
+	
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
 	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);

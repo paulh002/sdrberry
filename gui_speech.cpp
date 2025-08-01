@@ -170,7 +170,7 @@ void gui_speech::init(lv_obj_t *o_tab, lv_coord_t w)
 		lv_group_add_obj(m_button_group, button[i]);
 		lv_obj_add_style(button[i], &style_btn, 0);
 		lv_obj_add_event_cb(button[i], speech_button_handler, LV_EVENT_CLICKED, NULL);
-		lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
+		lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, x_margin + ibutton_x * button_width_margin, ibutton_y * button_height_margin);
 		lv_obj_set_size(button[i], button_width, button_height);
 		lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 
@@ -225,7 +225,7 @@ void gui_speech::init(lv_obj_t *o_tab, lv_coord_t w)
 	ratio_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(ratio_slider, w / 2 - 50);
 	lv_slider_set_range(ratio_slider, 1, 100);
-	lv_obj_align_to(ratio_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, ibutton_y * button_height_margin + 10);
+	lv_obj_align_to(ratio_slider, o_tab, LV_ALIGN_TOP_LEFT, x_margin, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(ratio_slider, ratio_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	lv_group_add_obj(m_button_group, ratio_slider);
 

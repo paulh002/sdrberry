@@ -45,7 +45,7 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 		lv_group_add_obj(m_button_group, button[i]);
 		lv_obj_add_style(button[i], &style_btn, 0);
 		lv_obj_add_event_cb(button[i], button_handler, LV_EVENT_CLICKED, (void *)this);
-		lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
+		lv_obj_align(button[i], LV_ALIGN_TOP_LEFT, x_margin + ibutton_x * button_width_margin, ibutton_y * button_height_margin);
 		lv_obj_set_size(button[i], button_width, button_height);
 		lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
 
@@ -93,7 +93,7 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	attack_release_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(attack_release_slider, w / 2 - 50);
 	lv_slider_set_range(attack_release_slider, 1, 1000);
-	lv_obj_align_to(attack_release_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, ibutton_y * button_height_margin + 10);
+	lv_obj_align_to(attack_release_slider, o_tab, LV_ALIGN_TOP_LEFT, x_margin, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(attack_release_slider, attack_release_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_group_add_obj(m_button_group, attack_release_slider);
 

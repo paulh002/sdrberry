@@ -330,26 +330,15 @@ static void tabview_event_cb(lv_event_t *e)
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
+		guisquelch.set_group();
 		break;
 	case 4:
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
-		guisquelch.set_group();
-		break;
-	/*case 4:
-		gcal.hide(true);
-		gbar.hide(false);
-		guift8bar.hide(true);
-		gagc.set_group();
-		break;*/
-	case 5:
-		gcal.hide(true);
-		gbar.hide(false);
-		guift8bar.hide(true);
 		Gui_tx.set_group();
 		break;
-	case 6:
+	case 5:
 		if (gsetup.get_calibration())
 		{
 			gcal.hide(false);
@@ -363,19 +352,19 @@ static void tabview_event_cb(lv_event_t *e)
 		guift8bar.hide(true);
 		gspeech.set_group();
 		break;
-	case 7:
+	case 6:
 		gcal.hide(true);
 		gbar.hide(true);
 		guift8bar.hide(false);
 		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
-	case 8:
+	case 7:
 		gcal.hide(true);
 		gbar.hide(false);
 		guift8bar.hide(true);
 		guisdr.set_group();
 		break;
-	case 9:
+	case 8:
 		if (gsetup.get_calibration())
 		{
 			gcal.hide(false);
@@ -622,7 +611,7 @@ int main(int argc, char *argv[])
 	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
 	//tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
-	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
+	//tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
 	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	tab["sdr"] = (lv_tabview_add_tab(tabview_mid, "Sdr"));
@@ -634,7 +623,7 @@ int main(int argc, char *argv[])
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//gagc.init(tab["agc"], LV_HOR_RES - 3);
-	gspeech.init(tab["speech"], LV_HOR_RES - 3);
+	//gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
 	guipreset.init(tab["Preset"], LV_HOR_RES - 3, tabHeight - buttonHeight, button_group, keyboard_group);

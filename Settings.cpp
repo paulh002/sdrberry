@@ -633,6 +633,50 @@ std::map<std::string, int> Settings::get_map_string(std::string section, std::st
 	return result;
 }
 
+std::map<int, std::pair<std::string, long>> Settings::get_map_string_pair(std::string section, std::string key)
+{
+	int i = 0, ii = 1;
+
+	std::map<int, std::pair<std::string, long>> result;
+	config->useSection(section);
+	auto &val_array = (*config)(key);
+	while (i < val_array.size())
+	{
+		std::pair<std::string, long> p;
+
+		p.first = val_array[i++];
+		p.second = val_array[i++].toLong();
+		result[ii++] = p;
+	}
+	return result;
+}
+
+void Settings::set_map_string_pair(std::string section, std::string key, const std::map<int, std::pair<std::string, long>> &value_map)
+{
+	int i = 1;
+
+	// new keys are automaticly created
+	config->useSection(section);
+	auto &val = (*config)(key);
+	val.reset();
+	for (auto const &[no, p] : value_map)
+	{
+		if (val.size() <= i)
+		{
+				val.push(cfg::makeOption(p.first));
+				val.push(cfg::makeOption(p.second));
+				i++;
+				i++;
+		}
+		else
+		{
+				val[i++] = p.first;
+				val[i++] = p.second;
+		}
+	}
+	write_settings();
+}
+
 void Settings::save_band()
 {
 	set_array_int("bands", "meters", meters);

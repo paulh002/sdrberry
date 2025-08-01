@@ -409,6 +409,9 @@
     <ClCompile Include="tz.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_preset.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -916,6 +919,9 @@
     </ClInclude>
     <ClInclude Include="date\tz_private.h">
       <Filter>Header files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_preset.h">
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

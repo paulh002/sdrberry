@@ -28,6 +28,7 @@
 #include "Gui_band.h"
 #include "gui_sdr.h"
 #include "gui_squelch.h"
+#include "gui_preset.h"
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "Catinterface.h"
@@ -331,12 +332,6 @@ static void tabview_event_cb(lv_event_t *e)
 		guift8bar.hide(true);
 		guisquelch.set_group();
 		break;
-	/*case 4:
-		gcal.hide(true);
-		gbar.hide(false);
-		guift8bar.hide(true);
-		gagc.set_group();
-		break;*/
 	case 4:
 		gcal.hide(true);
 		gbar.hide(false);
@@ -355,7 +350,7 @@ static void tabview_event_cb(lv_event_t *e)
 			gbar.hide(false);
 		}
 		guift8bar.hide(true);
-		gspeech.set_group();
+		Gui_tx.set_group();
 		break;
 	case 6:
 		gcal.hide(true);
@@ -610,12 +605,13 @@ int main(int argc, char *argv[])
 	
 	tab["spectrum"] = (lv_tabview_add_tab(tabview_mid, "Spectrum"));
 	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
+	tab["Preset"] = (lv_tabview_add_tab(tabview_mid, "Presets"));
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
 	//tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
 	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
 	//tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
-	tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
+	//tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
 	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	tab["sdr"] = (lv_tabview_add_tab(tabview_mid, "Sdr"));
@@ -627,9 +623,11 @@ int main(int argc, char *argv[])
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	//gagc.init(tab["agc"], LV_HOR_RES - 3);
-	gspeech.init(tab["speech"], LV_HOR_RES - 3);
+	//gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
+	guipreset.init(tab["Preset"], LV_HOR_RES - 3, tabHeight - buttonHeight, button_group, keyboard_group);
+
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);

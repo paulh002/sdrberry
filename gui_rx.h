@@ -12,7 +12,6 @@ class gui_rx
 private:
 	lv_group_t* button_group{ nullptr };
 	lv_style_t style_btn;
-	vector<pair<lv_obj_t*, long long>> buttons;
 	const int number_of_buttons{ 5 };
 	lv_obj_t* drp_noise;
 	lv_obj_t *check_cw, *waterfall_hold;
@@ -24,9 +23,6 @@ private:
 	lv_obj_t *spectrum_slider_label, *spectrum_slider, *smeter_delay_slider_label, *smeter_delay_slider;
 	lv_obj_t *tileview, *main_tile, *settings_tile, *gain_tile;
 
-	void get_buttons(vector<long>& array);
-	vector<pair<lv_obj_t*, long long>> get_buttons();
-	void rx_button_handler_class(lv_event_t* e);
 	void event_handler_morse_class(lv_event_t* e);
 	void noise_handler_class(lv_event_t* e);
 	void filter_type_handler_cb_class(lv_event_t *e);
@@ -50,7 +46,6 @@ private:
 	int get_spectrumgain() { return spectrumgain; }
 	void enable_filter_settings(bool enable);
 
-	static constexpr auto rx_button_handler = EventHandler<gui_rx, &gui_rx::rx_button_handler_class>::staticHandler;
 	static constexpr auto event_handler_morse = EventHandler<gui_rx, &gui_rx::event_handler_morse_class>::staticHandler;
 	static constexpr auto noise_handler = EventHandler<gui_rx, &gui_rx::noise_handler_class>::staticHandler;
 	static constexpr auto filter_type_handler_cb = EventHandler<gui_rx, &gui_rx::filter_type_handler_cb_class>::staticHandler;

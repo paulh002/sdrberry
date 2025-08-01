@@ -22,7 +22,7 @@
       <UserName>pi</UserName>
     </BuildHost>
     <DeploymentHost>
-      <HostName>192.168.88.13</HostName>
+      <HostName>192.168.88.50</HostName>
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </DeploymentHost>
@@ -160,7 +160,7 @@
     </AdditionalGDBSettings>
     <LaunchGDBSettings xsi:type="GDBLaunchParametersNewInstance">
       <DebuggedProgram>$(TargetPath)</DebuggedProgram>
-      <GDBServerPort>2000</GDBServerPort>
+      <GDBServerPort>3333</GDBServerPort>
       <ProgramArguments />
       <WorkingDirectory>/home/pi</WorkingDirectory>
       <ArgumentEscapingMode>Auto</ArgumentEscapingMode>

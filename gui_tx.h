@@ -8,12 +8,13 @@ class gui_tx
   private:
 	lv_obj_t *mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label, *drp_samplerate;
 	lv_obj_t *digital_slider, *digital_slider_label;
+	lv_obj_t *tileview, *speech_tile, *tx_tile;
 
 	lv_style_t style_btn;
 	lv_obj_t *tx_button[10];
 	vector<int> sample_rates;
 	int ibuttons;
-	const int number_of_buttons{7};
+	const int number_of_buttons{6};
 	lv_group_t *m_button_group{nullptr};
 	bool disabled;
 

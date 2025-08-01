@@ -52,6 +52,8 @@ class Settings
 	void set_array_string(std::string section, std::string key, const vector<std::string> &array);
 	void save_band();
 	void set_map_string(std::string section, std::string key, const std::map<std::string, int> &value);
+	std::map<int, std::pair<std::string, long>> get_map_string_pair(std::string section, std::string key);
+	void set_map_string_pair(std::string section, std::string key, const std::map<int, std::pair<std::string, long>> &value_map);
 	std::map<std::string, int> get_map_string(std::string section, std::string key);
 	vector<int> meters;
 	vector<string> labels;

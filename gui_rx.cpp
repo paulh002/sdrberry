@@ -63,57 +63,6 @@ bool gui_rx::get_cw()
 	return lv_obj_get_state(check_cw) & LV_STATE_CHECKED;
 }
 
-void gui_rx::rx_button_handler_class(lv_event_t *e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-	if (code == LV_EVENT_CLICKED)
-	{
-		for (auto con : get_buttons())
-		{
-			if (con.first == obj)
-			{
-				if (con.second > 0L)
-					vfo.set_vfo(con.second);
-			}
-			else
-			{
-				lv_obj_clear_state(con.first, LV_STATE_CHECKED);	
-			}
-		}
-	}
-	if (code == LV_EVENT_LONG_PRESSED)
-	{
-		for (auto con : get_buttons())
-		{
-			if (con.first == obj)
-			{
-				vector<long> array;
-				set_freq(con.first, vfo.get_frequency());
-				get_buttons(array);
-				Settings_file.set_array_long("preselect", "buttons", array);
-			}
-			else
-			{
-			}
-		}
-	}
-	
-}
-
-vector<pair<lv_obj_t *, long long>> gui_rx::get_buttons() 
-{
-	return buttons;
-}
-
-void gui_rx::get_buttons(vector<long> &array)
-{
-	for (auto con : buttons)
-	{
-		array.push_back(con.second);
-	}
-}
-
 void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -218,15 +167,6 @@ void gui_rx::smeter_delay_event_cb_class(lv_event_t *e)
 	}
 }
 
-void gui_rx::set_freq(lv_obj_t *obj, long long freq)
-{
-	for (auto &con : buttons)
-	{
-		if (con.first == obj)
-			con.second = freq;
-	}
-}
-
 int gui_rx::get_noise()
 {
 	return lv_dropdown_get_selected(drp_noise);
@@ -250,13 +190,14 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_set_style_pad_top(o_tab, 10, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
-	
+	lv_obj_set_style_pad_left(o_tab, 5, LV_PART_MAIN);
+
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-	gain_tile = lv_tileview_add_tile(tileview, 0, 3, LV_DIR_BOTTOM | LV_DIR_TOP);
+	gain_tile = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
 	guigain.init(gain_tile, w, screenWidth);
-	main_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
-	settings_tile = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
+	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
 	
 	
 	lv_obj_set_style_pad_top(settings_tile, 0, LV_PART_MAIN);
@@ -276,65 +217,13 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_clear_flag(settings_tile, LV_OBJ_FLAG_SCROLLABLE);
 
 	button_group = lv_group_create();
-	int ibuttons = number_of_buttons;
-	vector<long> array_long;
-	Settings_file.get_array_long("preselect", "buttons", array_long);
-	for (int i = 0; i < ibuttons; i++)
-	{
-		char str[80];
-
-		if (i < array_long.size())
-			buttons.push_back(std::make_pair(lv_btn_create(main_tile), (long long)array_long.at(i)));
-		else
-			buttons.push_back(std::make_pair(lv_btn_create(main_tile), (long long)0));
-		lv_group_add_obj(button_group, buttons.back().first);
-		lv_obj_add_style(buttons.back().first, &style_btn, 0);
-		lv_obj_add_event_cb(buttons.back().first, rx_button_handler, (lv_event_code_t)LV_EVENT_ALL /*(LV_EVENT_CLICKED | LV_EVENT_LONG_PRESSED)*/, (void*)this);
-		lv_obj_align(buttons.back().first, LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
-		//lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
-		lv_obj_set_size(buttons.back().first, button_width, button_height);
-
-		lv_obj_t *lv_label = lv_label_create(buttons.back().first);
-		switch (i)
-		{
-		case 0:
-			strcpy(str, "Pre 1");
-			lv_obj_add_flag(buttons.back().first, LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 1:
-			strcpy(str, "Pre 2");
-			lv_obj_add_flag(buttons.back().first, LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 2:
-			strcpy(str, "Pre 3");
-			lv_obj_add_flag(buttons.back().first, LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 3:
-			strcpy(str, "Pre 4");
-			lv_obj_add_flag(buttons.back().first, LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 4:
-			strcpy(str, "Pre 5");
-			lv_obj_add_flag(buttons.back().first, LV_OBJ_FLAG_CHECKABLE);
-			break;
-		}
-		lv_label_set_text(lv_label, str);
-		lv_obj_center(lv_label);
-
-		ibutton_x++;
-		if (ibutton_x >= x_number_buttons)
-		{
-			ibutton_x = 0;
-			ibutton_y++;
-		}
-	}
-
+	
 	lv_obj_t *filter_type_label = lv_label_create(main_tile);
 	lv_label_set_text(filter_type_label, "Filter type");
-	lv_obj_align(filter_type_label, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(filter_type_label, LV_ALIGN_TOP_LEFT, x_margin, y_margin);
 
 	filter_type_dropdown = lv_dropdown_create(main_tile);
-	lv_obj_align(filter_type_dropdown, LV_ALIGN_TOP_LEFT, 0, y_margin + ibutton_y * 1.5 * button_height_margin);
+	lv_obj_align(filter_type_dropdown, LV_ALIGN_TOP_LEFT, x_margin, y_margin + button_height_margin * 0.5);
 	lv_dropdown_clear_options(filter_type_dropdown);
 	lv_group_add_obj(button_group, filter_type_dropdown);
 	lv_dropdown_set_options(filter_type_dropdown, "Butterworth\n" "Chebyshev - 1\n" "Chebyshev - 2\n" "Elliptic");
@@ -346,10 +235,10 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 
 	lv_obj_t *noise_label = lv_label_create(main_tile);
 	lv_label_set_text(noise_label, "Noise suppression");
-	lv_obj_align(noise_label, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align(noise_label, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin);
 
 	drp_noise = lv_dropdown_create(main_tile);
-	lv_obj_align(drp_noise, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin + ibutton_y * 1.5 *  button_height_margin);
+	lv_obj_align(drp_noise, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin + 0.5 *  button_height_margin);
 	lv_dropdown_clear_options(drp_noise);
 	lv_group_add_obj(button_group, drp_noise);
 	lv_dropdown_add_option(drp_noise, "Leaky LMS", LV_DROPDOWN_POS_LAST);
@@ -479,7 +368,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_checkbox_set_text(waterfall_hold, "Spectrum hold");
 	lv_obj_add_event_cb(waterfall_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_add_flag(waterfall_hold, LV_OBJ_FLAG_CHECKABLE);
-
+	ibutton_y++;
 	lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
 	//lv_obj_align_to(spectrum_slider, waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin + 2 * button_width_margin, 0);
 	lv_group_add_obj(button_group, waterfall_hold);

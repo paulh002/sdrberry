@@ -6,6 +6,7 @@
 #include "gui_bar.h"
 #include "gui_setup.h"
 #include "gui_sdr.h"
+#include "gui_speech.h"
 #include "screen.h"
 
 const int micgain {100};
@@ -28,7 +29,7 @@ int drv_max = 15;
 
 gui_tx	Gui_tx;
 
-void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
+void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 {
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 10;
@@ -41,6 +42,18 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 	int button_height = 40;
 	int button_height_margin = button_height + y_margin;
 
+	lv_obj_set_style_pad_top(tx_tile, 10, LV_PART_MAIN);
+	lv_obj_set_style_pad_bottom(tx_tile, 5, LV_PART_MAIN);
+	lv_obj_set_style_pad_right(tx_tile, 5, LV_PART_MAIN);
+	lv_obj_set_style_pad_left(tx_tile, 5, LV_PART_MAIN);
+
+	tileview = lv_tileview_create(tx_tile);
+	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
+	tx_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
+	speech_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	gspeech.init(speech_tile, w);
+	
+	
 	disabled = disable;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
@@ -53,7 +66,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 	lv_style_set_border_opa(&style_btn, 255);
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
-	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(tx_tile, LV_OBJ_FLAG_SCROLLABLE);
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
 	
@@ -62,7 +75,7 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 	for (int i = 0; i < ibuttons; i++)
 	{	char	str[80];
 		
-		tx_button[i] = lv_btn_create(o_tab);
+		tx_button[i] = lv_btn_create(tx_tile);
 		lv_group_add_obj(m_button_group, tx_button[i]);
 		lv_obj_add_style(tx_button[i], &style_btn, 0); 
 		lv_obj_add_event_cb(tx_button[i], tx_button_handler, LV_EVENT_CLICKED, (void *)this);
@@ -89,14 +102,10 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
 		case 4:
-			strcpy(str, "Tune");
-			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 5:
 			strcpy(str, "2 Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
-		case 6:
+		case 5:
 			strcpy(str, "4 Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
@@ -112,36 +121,36 @@ void gui_tx::gui_tx_init(lv_obj_t* o_tab, lv_coord_t w, bool disable)
 		}
 	}
 	
-	mic_slider = lv_slider_create(o_tab);
+	mic_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(mic_slider, w / 2 - 50); 
 	lv_slider_set_range(mic_slider, 0, micgain);
 	lv_obj_center(mic_slider);
 	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
-	mic_slider_label = lv_label_create(o_tab);
+	mic_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
 	set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
 	lv_group_add_obj(m_button_group, mic_slider);
 
-	digital_slider = lv_slider_create(o_tab);
+	digital_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(digital_slider, w / 2 - 50);
 	lv_slider_set_range(digital_slider, 0, micgain);
 	lv_obj_align_to(digital_slider, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 15);
 	lv_obj_add_event_cb(digital_slider, digital_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	digital_slider_label = lv_label_create(o_tab);
+	digital_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(digital_slider_label, digital_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
 	set_digital_slider(Settings_file.get_int("Radio", "digitalgain", 80));
 	lv_group_add_obj(m_button_group, digital_slider);
 	
-	drv_slider = lv_slider_create(o_tab);
+	drv_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(drv_slider, w / 2 - 50); 
 	lv_slider_set_range(drv_slider, 0, 15);
 	lv_obj_align_to(drv_slider, digital_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 15);
 	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
-	drv_slider_label = lv_label_create(o_tab);
+	drv_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
 	set_drv_slider(Settings_file.get_int(default_radio, "drive", 50));
 	lv_group_add_obj(m_button_group, drv_slider);
-
+	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	ibutton_y++;
 }
 

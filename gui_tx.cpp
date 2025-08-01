@@ -102,14 +102,10 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
 		case 4:
-			strcpy(str, "Tune");
-			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 5:
 			strcpy(str, "2 Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
-		case 6:
+		case 5:
 			strcpy(str, "4 Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
@@ -154,7 +150,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
 	set_drv_slider(Settings_file.get_int(default_radio, "drive", 50));
 	lv_group_add_obj(m_button_group, drv_slider);
-
+	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	ibutton_y++;
 }
 

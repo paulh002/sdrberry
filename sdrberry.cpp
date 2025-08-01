@@ -350,7 +350,7 @@ static void tabview_event_cb(lv_event_t *e)
 			gbar.hide(false);
 		}
 		guift8bar.hide(true);
-		gspeech.set_group();
+		Gui_tx.set_group();
 		break;
 	case 6:
 		gcal.hide(true);

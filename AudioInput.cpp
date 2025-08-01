@@ -301,7 +301,7 @@ double AudioInput::NextTwotone()
 	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	double angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 64) asteps = 0;
-	return (0.5 * sin(angle) + 0.5 * sin(angle2)) / 400.0;
+	return (sin(angle) + sin(angle2)) / 10.0;
 }
 
 int	 AudioInput::queued_samples()

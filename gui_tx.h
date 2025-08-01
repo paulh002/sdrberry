@@ -14,7 +14,7 @@ class gui_tx
 	lv_obj_t *tx_button[10];
 	vector<int> sample_rates;
 	int ibuttons;
-	const int number_of_buttons{7};
+	const int number_of_buttons{6};
 	lv_group_t *m_button_group{nullptr};
 	bool disabled;
 

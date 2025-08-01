@@ -43,6 +43,7 @@ bool MCP23008::begin()
 	//  Force INPUT_PULLUP
 	if (!writeReg(MCP23008_PUR_A, 0xFF))
 		return false;
+	_connected = true;
 	return true;
 }
 

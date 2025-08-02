@@ -8,6 +8,7 @@
 #include "gui_sdr.h"
 #include "gui_speech.h"
 #include "screen.h"
+#include <memory>
 
 const int micgain {100};
 
@@ -152,12 +153,23 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_group_add_obj(m_button_group, drv_slider);
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	ibutton_y++;
+	tempSensor::start_read_out();
+	//if (tempSensor::count_tempsensors() > 0)
+	//{
+		temp_meter = tempmeter.init(tx_tile, 100, 100);
+		tempmeter.set_pos(x_margin, button_height_margin + y_margin);	
+	//}
 }
 
 void gui_tx::set_group()
 {
 	lv_indev_set_group(encoder_indev_t, m_button_group);
 	lv_group_focus_obj(tx_button[0]);
+}
+
+void gui_tx::get_measurements()
+{
+	tempmeter.set_indicator(tempSensor::get_temperature(0));
 }
 
 void gui_tx::mic_slider_event_cb_class(lv_event_t * e)

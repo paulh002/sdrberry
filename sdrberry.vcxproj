@@ -200,6 +200,8 @@
     <ClCompile Include="strlib.cpp" />
     <ClCompile Include="table.cpp" />
     <ClCompile Include="TCA9548.cpp" />
+    <ClCompile Include="tempMeter.cpp" />
+    <ClCompile Include="tempSensor.cpp" />
     <ClCompile Include="tz.cpp" />
     <ClCompile Include="ui_img_btn_knob_png.c" />
     <ClCompile Include="vfo.cpp" />
@@ -362,6 +364,8 @@
     <ClInclude Include="strlib.h" />
     <ClInclude Include="table.h" />
     <ClInclude Include="TCA9548.h" />
+    <ClInclude Include="tempMeter.h" />
+    <ClInclude Include="tempSensor.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="VfoKeyPad.h" />
     <ClInclude Include="Waterfall.h" />

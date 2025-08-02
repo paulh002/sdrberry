@@ -1,3 +1,5 @@
+![example event parameter](https://github.com/paulh002/sdrberry/actions/workflows/build-arm64.yml/badge.svg?branch=build)
+
 # sdrberry
 Raspberry pi SDR transceiver / frontend using lvgl gui 
 !!! This is an ongoing project code only for information purpose only. 
@@ -19,6 +21,7 @@ Check the event number for the touch and keyboard device and adjust the device n
 
 installation instruction in install_guide.txt
 install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
+
 
 ## Hardware requirements
 - Raspberry pi 4 Model B or Pi 5

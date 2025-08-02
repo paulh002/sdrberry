@@ -12,7 +12,6 @@
 #include "Agc_class.h"
 #include "DataBuffer.h"
 #include "SharedQueue.h"
-#include "NoiseFilter.h"
 #include "AgcProcessor.h"
 
 #define EQ_NTABS 129
@@ -101,7 +100,6 @@ class Demodulator
 	void FlashGainSlider(float envelope);
 	float getSuppression();
 	int get_noise() { return noisefilter.load(); }
-	void NoiseFilterProcess(IQSampleVector &filter_in, IQSampleVector &filter_out);
 	float getResampleRate() { return resampleRate; }
 	IQSampleVector Resample(IQSampleVector &filter_in);
 

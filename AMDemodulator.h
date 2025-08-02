@@ -12,6 +12,8 @@
 #include "MorseDecoder.h"
 #include "LMSNoisereducer.h"
 #include "SpectralNoiseReduction.h"
+#include "FastFourier.h"
+#include "NoiseFilter.h"
 
 class AMDemodulator : public Demodulator
 {
@@ -36,6 +38,7 @@ public:
 	unique_ptr<LMSNoisereducer> pLMS;
 	unique_ptr<Xanr> pXanr;
 	unique_ptr<SpectralNoiseReduction> pNoisesp;
+	unique_ptr<NoiseFilter> nf;
 	int receiverMode;
 };
 

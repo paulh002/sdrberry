@@ -245,7 +245,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	//lv_dropdown_add_option(drp_noise, "LMS", LV_DROPDOWN_POS_LAST);
 	lv_dropdown_add_option(drp_noise, "Spectral", LV_DROPDOWN_POS_LAST);
 	lv_dropdown_add_option(drp_noise, "Kim", LV_DROPDOWN_POS_LAST);
-	lv_dropdown_add_option(drp_noise, "fft", LV_DROPDOWN_POS_LAST);
+	//lv_dropdown_add_option(drp_noise, "fft", LV_DROPDOWN_POS_LAST);
 
 	int noise = Settings_file.get_int("Radio", "noise");
 	lv_dropdown_set_selected(drp_noise, noise);

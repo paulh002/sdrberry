@@ -79,6 +79,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - I2C RX/TX switch support
 - CAT support for N1MM (tcp connection)
 - WSJT-X UDP client support. Sdrberry will send Heartbeat, Decode and QSO messages to designated ip
+- Shutdown button for save shutdown of the pi
 
 ## Installation of libraries is necessary:
 - Liquid DSP

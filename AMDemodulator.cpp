@@ -137,8 +137,9 @@ void AMDemodulator::operator()()
 
 	resamplerate = sample_ratio = ((float)audio_output->get_samplerate()) / ifrate;
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
-	//pLMS = make_unique<LMSNoisereducer>(); switched off memory leak in library
+	pLMS = make_unique<LMSNoisereducer>(); //switched off memory leak in library
 	pXanr = make_unique<Xanr>();
+	nf = make_unique<NoiseFilter>();
 	receiveIQBuffer->clear();
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
@@ -282,11 +283,11 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
 	SquelchProcess(filter1);
-	if (get_noise())
+	if (get_noise() == 4)
 	{
 		lowPassAudioFilter(filter1);
 		calc_signal_level(filter1);
-		NoiseFilterProcess(filter1, filter2);
+		nf->Process(filter1, filter2);
 		filter1 = filter2;
 	}
 	else

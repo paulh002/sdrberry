@@ -1,7 +1,8 @@
 #pragma once
 #include "AudioInput.h"
 #include "lvgl_.h"
-
+#include "tempMeter.h"
+#include "tempSensor.h"
 
 class gui_tx
 {
@@ -9,7 +10,11 @@ class gui_tx
 	lv_obj_t *mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label, *drp_samplerate;
 	lv_obj_t *digital_slider, *digital_slider_label;
 	lv_obj_t *tileview, *speech_tile, *tx_tile;
+	lv_obj_t *temp_meter;
 
+	tempMeter tempmeter;
+	unique_ptr<tempSensor> tempsensor;
+	
 	lv_style_t style_btn;
 	lv_obj_t *tx_button[10];
 	vector<int> sample_rates;
@@ -39,6 +44,7 @@ class gui_tx
 	int get_drv_pos();
 	void set_split(bool _split);
 	void enable_tx(bool enable);
+	void get_measurements();
 
 	static constexpr auto mic_slider_event_cb = EventHandler<gui_tx, &gui_tx::mic_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_button_handler = EventHandler<gui_tx, &gui_tx::tx_button_handler_class>::staticHandler;

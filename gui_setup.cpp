@@ -14,6 +14,9 @@
 #include "Demodulator.h"
 #include "screen.h"
 #include "WebServer.h"
+#include <unistd.h>
+#include <sys/reboot.h>
+#include <linux/reboot.h>
 
 gui_setup	gsetup;
 extern 		void switch_sdrreceiver(std::string receiver);
@@ -131,6 +134,48 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 	}
 }
 
+void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_current_target(e);
+	
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		const char *ptr = lv_msgbox_get_active_btn_text(obj);
+		if (strcmp(ptr, "Shutdown") == 0)
+		{
+			sync(); // flush filesystem buffers
+			if (reboot(LINUX_REBOOT_CMD_RESTART) < 0)
+			{
+				static const char *btns[] = {""};
+				
+				lv_msgbox_close(obj);
+				lv_obj_t *mbox1 = lv_msgbox_create(NULL, "Sdrberry", "No permission", btns, true);
+				lv_obj_center(mbox1);
+			}
+			perror("reboot");
+		}
+		else
+		{
+			lv_msgbox_close(obj);
+		}
+	}
+}
+
+void gui_setup::shutdown_button_handler_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_CLICKED)
+	{
+		static const char *btns[] = {"Shutdown", "Cancel", ""};
+
+		lv_obj_t *mbox1 = lv_msgbox_create(NULL, "Sdrberry", "Shutdown Sdrberry?", btns, true);
+		lv_obj_add_event_cb(mbox1, do_shutdown_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+		lv_obj_center(mbox1);
+	}
+}
+
 void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h)
 {
 
@@ -239,9 +284,11 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	lv_obj_align_to(audio_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 	
 	int y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	int x_cal = xpos + button_width + x_margin + 2 * button_width + x_margin;
 	calibration_dropdown = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, calibration_dropdown);
-	lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
+	// lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
+	lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_obj_set_width(calibration_dropdown, button_width); // 2*
 	lv_dropdown_clear_options(calibration_dropdown);
 	lv_obj_add_event_cb(calibration_dropdown, cal_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -252,6 +299,17 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	lv_dropdown_set_selected(calibration_dropdown, Settings_file.get_int(default_radio, "correction", 0));
 	Demodulator::set_autocorrection(Settings_file.get_int(default_radio, "correction", 0));
 
+	//shutdown button
+	shutdownbutton = lv_btn_create(settings_main);
+	//lv_group_add_obj(m_button_group, shutdownbutton);
+	lv_obj_add_style(shutdownbutton, &style_btn, 0);
+	lv_obj_set_size(shutdownbutton, button_width * 0.8, button_height * 0.8);
+	lv_obj_add_event_cb(shutdownbutton, shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
+	lv_obj_align(shutdownbutton, LV_ALIGN_TOP_LEFT, x_cal + button_width + x_margin, y_cal);
+	lv_obj_t *lv_label = lv_label_create(shutdownbutton);
+	lv_label_set_text(lv_label, "Shutdown");
+	lv_obj_center(lv_label);
+	
 	ibutton_y++;
 	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	
@@ -300,6 +358,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
+
 
 void gui_setup::qra_textarea_event_handler_class(lv_event_t *e)
 {

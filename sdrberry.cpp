@@ -55,8 +55,9 @@
 #include "strlib.h"
 #include "tz.h"
 
-using json = nlohmann::json;
 
+using json = nlohmann::json;
+// test
 //#include "quick_arg_parser.hpp"
 
 //#include "HidThread.h"
@@ -164,6 +165,8 @@ int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
 const int hidetx{4};
 const int hidespeech{5};
+
+std::mutex gui_mutex;
 
 lv_color_t *display_buf;
 lv_obj_t *scr;
@@ -828,8 +831,11 @@ int main(int argc, char *argv[])
 	while (1)
 	{
 		WsjtxMessage msg;
-		
+
+		gui_mutex.lock();
 		lv_task_handler();
+		gui_mutex.unlock();
+		
 		//Mouse_dev.step_vfo();
 		HidDev_dev.step_vfo();
 		HidDev_dev1.step_vfo();
@@ -852,7 +858,7 @@ int main(int argc, char *argv[])
 			{
 				gcal.SetErrorCorrelation(errorMeasurement,correlationMeasurement);
 			}
-
+			Gui_tx.get_measurements();
 		}
 
 		if (!IsDigtalMode(mode) && i2cinput::connected() && SdrDevices.get_tx_channels(default_radio) > 0 && audio_input->isStreamOpen())

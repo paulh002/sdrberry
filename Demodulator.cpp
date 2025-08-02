@@ -4,10 +4,10 @@
 #include "gui_cal.h"
 #include "Spectrum.h"
 #include "vfo.h"
-#include "sdrberry.h"
-#include "NoiseFilter.h"
 #include <tuple>
 #include "gui_squelch.h"
+#include "SdrberryTypeDefs.h"
+#include "sdrberry.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -679,14 +679,6 @@ return false;
 void Demodulator::set_noise_threshold(int threshold)
 {
 	noiseThresshold = threshold;
-}
-
-void Demodulator::NoiseFilterProcess(IQSampleVector &filter_in,
-						   IQSampleVector &filter_out)
-{
-	NoiseFilter nf;
-
-	nf.Process(filter_in, filter_out);
 }
 
 void Demodulator::SquelchProcess(IQSampleVector &filter)

@@ -1,0 +1,7 @@
+At the bottom of the file edit the dtoverlay=w1-gpio line to dtoverlay=w1-gpio,gpiopin=X where X is the required GPIO pin number.
+also add 
+
+// for radioberry
+dtoverlay=radioberry
+enable_uart=0
+dtoverlay=w1-gpio,gpiopin=14

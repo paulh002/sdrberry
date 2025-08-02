@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <complex.h>
-
+#include "FastFourier.h"
 #include <liquid/liquid.h>
 #include "EchoAudio.h"
 #include "Spectrum.h"

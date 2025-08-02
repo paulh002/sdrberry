@@ -51,8 +51,10 @@ void DigitalTransmission::operator()()
 	startTX = false;
 	sp_ammod.reset();
 	TX_Stream::destroy_tx_streaming_thread();
-	guift8bar.ClearTransmit();
-
+	{
+		std::unique_lock<std::mutex> gui_lock(gui_mutex);
+		guift8bar.ClearTransmit();
+	}
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 

@@ -13,7 +13,7 @@ class gui_setup
   private:
 	long span;
 	lv_style_t style_btn, style_tile, text_style;
-	lv_obj_t *brightness_slider_label, *brightness_slider;
+	lv_obj_t *brightness_slider_label, *brightness_slider, *shutdownbutton;
 	lv_obj_t *d_audio, *audio_label;
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *cal_label, *calibration_dropdown;
@@ -29,6 +29,8 @@ class gui_setup
 	void cal_button_handler_class(lv_event_t *e);
 	void webbox_event_class(lv_event_t *e);
 	void qra_textarea_event_handler_class(lv_event_t *e);
+	void shutdown_button_handler_class(lv_event_t *e);
+	void do_shutdown_button_handler_class(lv_event_t *e);
 	int get_maxbrightness();
 	
   public:
@@ -46,6 +48,8 @@ class gui_setup
 	static constexpr auto cal_button_handler = EventHandler<gui_setup, &gui_setup::cal_button_handler_class>::staticHandler;
 	static constexpr auto webbox_event_cb = EventHandler<gui_setup, &gui_setup::webbox_event_class>::staticHandler;
 	static constexpr auto qra_textarea_event_handler = EventHandler<gui_setup, &gui_setup::qra_textarea_event_handler_class>::staticHandler;
+	static constexpr auto shutdown_button_handler = EventHandler<gui_setup, &gui_setup::shutdown_button_handler_class>::staticHandler;
+	static constexpr auto do_shutdown_button_handler = EventHandler<gui_setup, &gui_setup::do_shutdown_button_handler_class>::staticHandler;
 	
 };
 

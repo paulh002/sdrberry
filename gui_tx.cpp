@@ -158,7 +158,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	tempmeter.set_pos(x_margin, button_height_margin + y_margin);
 	if (tempSensor::count_tempsensors() == 0)
 	{
-		lv_obj_add_flag(temp_meter, LV_OBJ_FLAG_HIDDEN);
+		tempmeter.hide(true);
 	}
 }
 

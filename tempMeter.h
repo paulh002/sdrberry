@@ -24,7 +24,8 @@ class tempMeter
 	void set_section(int32_t min, int32_t max, lv_style_t *section_part_style);
 	void set_labels(const char *txt_src[]);
 	void set_section_range(int32_t start, int32_t end);
-	
+	void hide(bool hide);
+
 	static constexpr auto draw_event_cb = EventHandler<tempMeter, &tempMeter::draw_event_cb_class>::staticHandler;
 };
 

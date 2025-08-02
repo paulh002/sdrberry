@@ -90,3 +90,17 @@ void tempMeter::set_section_range(int32_t start, int32_t end)
 {
 	//lv_scale_section_set_range(section, start, end);
 }
+
+void tempMeter::hide(bool hide)
+{
+	if (hide)
+	{
+		lv_obj_add_flag(meter, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(temp_label, LV_OBJ_FLAG_HIDDEN);
+	}
+	else
+	{
+		lv_obj_clear_flag(meter, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_clear_flag(temp_label, LV_OBJ_FLAG_HIDDEN);
+	}
+}

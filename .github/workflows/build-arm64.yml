@@ -55,7 +55,7 @@ jobs:
           sudo make install
           sudo ldconfig
 
-      # 5. Configure your project with CMake
+      # 5. Configure sdrberry with CMake
       - name: Configure CMake
         run: |
           cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release

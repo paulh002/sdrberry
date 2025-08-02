@@ -32,6 +32,7 @@ FT8UdpClient::FT8UdpClient(int wsjtx_mode)
 	// Creating socket file descriptor
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
+		sockfd = 0;
 		perror("socket creation failed");
 		return;
 	}
@@ -277,7 +278,8 @@ void FT8UdpClient::SendHeartBeat()
 		{
 			perror("sendto failed");
 			close(sockfd);
-			sockfd = -1;
+			sockfd = 0;
+			return;
 		}
 		else
 		{
@@ -324,7 +326,8 @@ void FT8UdpClient::SendDecode(bool isNew, uint32_t now_ms, int32_t snr, double d
 		{
 			perror("sendto failed");
 			close(sockfd);
-			exit(EXIT_FAILURE);
+			sockfd = 0;
+			return;
 		}
 		// std::cout << "Decode message sent." << std::endl;
 	}
@@ -373,7 +376,7 @@ void FT8UdpClient::SendQso(std::chrono::time_point<std::chrono::system_clock> qs
 		const date::year_month_day g_today_off{qso_day_off};
 		const auto jdn_off = qso_day_off.time_since_epoch().count() + 2440588;
 		qso_msg.dateOff = jdn_off;
-		
+
 		// auto now_time = std::chrono::system_clock::now();
 		uint32_t time_qso = std::chrono::duration_cast<std::chrono::milliseconds>(qso_time - date::floor<date::days>(qso_time)).count();
 		qso_msg.timeOn = time_qso;
@@ -412,7 +415,8 @@ void FT8UdpClient::SendQso(std::chrono::time_point<std::chrono::system_clock> qs
 		{
 			perror("sendto failed");
 			close(sockfd);
-			exit(EXIT_FAILURE);
+			sockfd = 0;
+			return;
 		}
 		std::cout << "QSO Logged message sent." << std::endl;
 	}
@@ -443,8 +447,9 @@ void FT8UdpClient::SendStatus(struct StatusMessage status, int mode)
 		{
 			perror("sendto failed");
 			close(sockfd);
-			exit(EXIT_FAILURE);
+			sockfd = 0;
+			return;
 		}
-		std::cout << "Status message sent." << std::endl;	
+		std::cout << "Status message sent." << std::endl;
 	}
 }

@@ -1,3 +1,5 @@
+![example event parameter](https://github.com/paulh002/sdrberry/actions/workflows/build-arm64.yml/badge.svg?branch=build)
+
 # sdrberry
 Raspberry pi SDR transceiver / frontend using lvgl gui 
 !!! This is an ongoing project code only for information purpose only. 

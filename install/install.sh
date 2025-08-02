@@ -373,7 +373,7 @@ sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/firmware/config.txt
 
 #Do Cleanup
 #rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*
-
+sudo setcap cap_sys_boot+ep /usr/local/bin/sdrberry
 while true; do
 read -p "Reboot or stop and inspect install log: 1 = Reboot or 2 = Stop? " type
 case $type in

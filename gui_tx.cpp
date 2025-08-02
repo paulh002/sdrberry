@@ -154,11 +154,12 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	ibutton_y++;
 	tempSensor::start_read_out();
-	//if (tempSensor::count_tempsensors() > 0)
-	//{
-		temp_meter = tempmeter.init(tx_tile, 100, 100);
-		tempmeter.set_pos(x_margin, button_height_margin + y_margin);	
-	//}
+	temp_meter = tempmeter.init(tx_tile, 100, 100);
+	tempmeter.set_pos(x_margin, button_height_margin + y_margin);
+	if (tempSensor::count_tempsensors() == 0)
+	{
+		lv_obj_add_flag(temp_meter, LV_OBJ_FLAG_HIDDEN);
+	}
 }
 
 void gui_tx::set_group()

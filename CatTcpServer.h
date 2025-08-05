@@ -21,7 +21,7 @@ class CatTcpComm : public Cat_communicator
 	int server_fd, tcp_socket;
 	int port;
 	struct sockaddr_in address;
-	bool connected;
+	bool connected, accepted;
 };
 
 class CatTcpServer

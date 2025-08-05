@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <ctype.h>
 #include "Settings.h"
 #include "SharedQueue.h"
 
@@ -50,7 +51,9 @@ bool CatTcpComm::begin()
 		printf("listen error\n");
 		return false;
 	}
+	printf("TCP CAT interface listen on port %d\n", port);
 	connected = false;
+	accepted = false;
 	return true;
 }
 
@@ -77,22 +80,28 @@ int CatTcpComm::Read(char c, std::string &message)
 			usleep(1000);
 			return 0;
 		}
+		printf("TCP CAT interface accept connection on port %d\n", port);
 		connected = true;
+		accepted = true;
 	}
 
 	int i = 0;
-	char chr;
-		
+	char chr{0};
+
 	//memset(buffer, 0, BUFFER_SIZE);
 	do
 	{
+		//printf("TCP CAT read %x\n", chr);
 		int valread = read(tcp_socket, &chr, 1);
 		if (valread <= 0)
 		{
+			close(tcp_socket);
 			connected = false;
 			std::cout << "Client disconnected" << std::endl;
 			return -1;
 		}
+		if (!isascii(chr))
+			continue;
 		if (chr == '\n' || chr == '\r')
 			continue;
 		message.push_back((char)chr);
@@ -141,7 +150,7 @@ void CatTcpServer::operator()()
 	while (1)
 	{
 		int ret = cat_message.CheckCAT(false);
-		if (ret)
+		if (ret > 0)
 		{
 			count = cat_message.GetFA();
 			if (count && vfo_a != count)

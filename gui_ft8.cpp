@@ -429,6 +429,7 @@ add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,int hz0, string msg)
 {
 	std::unique_lock<std::mutex> mlock(mutex_);
+	std::unique_lock<std::mutex> glock(gui_mutex);
 
 	char str[128];
 	

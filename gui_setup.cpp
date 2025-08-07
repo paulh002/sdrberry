@@ -144,6 +144,11 @@ void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
 		const char *ptr = lv_msgbox_get_active_btn_text(obj);
 		if (strcmp(ptr, "Shutdown") == 0)
 		{
+			long freq1 = vfo.get_vfo_frequency(vfo_activevfo::One);
+			long freq2 = vfo.get_vfo_frequency(vfo_activevfo::Two);
+			Settings_file.save_string(std::string("VFO1"), std::string("freq"), std::to_string(freq1));
+			Settings_file.save_string(std::string("VFO2"), std::string("freq"), std::to_string(freq2));
+			Settings_file.write_settings();
 			sync(); // flush filesystem buffers
 			if (reboot(LINUX_REBOOT_CMD_RESTART) < 0)
 			{
@@ -235,31 +240,9 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	
 	int xpos = 0;
 
-	qra_textarea = lv_textarea_create(settings_main);
-	lv_obj_add_style(qra_textarea, &text_style, 0);
-	lv_textarea_set_one_line(qra_textarea, true);
-	lv_obj_align(qra_textarea, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
-	lv_obj_add_event_cb(qra_textarea, qra_textarea_event_handler, LV_EVENT_ALL, qra_textarea);
-	lv_obj_add_state(qra_textarea, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
-	//lv_obj_set_width(qra_textarea, button_width - 20);
-	lv_obj_set_size(qra_textarea, button_width - 20, button_height - 10);
-	lv_obj_set_style_pad_top(qra_textarea, 4, LV_PART_MAIN);
-	lv_obj_set_style_pad_bottom(qra_textarea, 2, LV_PART_MAIN);
-	lv_obj_set_style_pad_left(qra_textarea, 2, LV_PART_MAIN);
-	lv_obj_set_style_pad_right(qra_textarea, 2, LV_PART_MAIN);
-	if (keyboard_group != nullptr)
-		lv_group_add_obj(keyboard_group, qra_textarea);
-	std::string call = Settings_file.get_string("wsjtx", "call");
-	//locator = Settings_file.get_string("wsjtx", "locator");
-	lv_textarea_add_text(qra_textarea, call.c_str());
-
-	text_label = lv_label_create(settings_main);
-	lv_label_set_text(text_label, "QRA");
-	lv_obj_align_to(text_label, qra_textarea, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
-	
 	d_audio = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, d_audio);
-	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, xpos + button_width +x_margin, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
+	lv_obj_align(d_audio, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
 	lv_obj_set_width(d_audio, 2 * button_width); // 2*
 	lv_dropdown_clear_options(d_audio);
 	lv_obj_add_event_cb(d_audio, audio_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -284,7 +267,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	lv_obj_align_to(audio_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 	
 	int y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
-	int x_cal = xpos + button_width + x_margin + 2 * button_width + x_margin;
+	int x_cal = xpos + 2 * (button_width + x_margin);
 	calibration_dropdown = lv_dropdown_create(settings_main);
 	lv_group_add_obj(button_group, calibration_dropdown);
 	// lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
@@ -310,24 +293,26 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	lv_label_set_text(lv_label, "Shutdown");
 	lv_obj_center(lv_label);
 	
-	ibutton_y++;
-	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
-	
-	calbox = lv_checkbox_create(settings_main);
-	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
-	lv_checkbox_set_text(calbox, "cal");
-	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-
+	y_cal = y_margin + button_height_margin / 2;
+	x_cal = w / 2 + w / 4 + w / 16;
 	webbox = lv_checkbox_create(settings_main);
-	lv_obj_align_to(webbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4 + w / 8, y_cal);
+	lv_obj_align_to(webbox, settings_main, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_checkbox_set_text(webbox, "web");
 	lv_obj_add_event_cb(webbox, webbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	if (Settings_file.get_int("web", "enabled"))
 	{
 		lv_obj_add_state(webbox, LV_STATE_CHECKED);
-	}	
+	}
+
+	y_cal += button_height_margin ;
+
+	calbox = lv_checkbox_create(settings_main);
+	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
+	lv_checkbox_set_text(calbox, "cal");
+	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	
 	dcbox = lv_checkbox_create(settings_main);
-	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal + 50);
+	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, x_cal, y_cal + 50);
 	lv_checkbox_set_text(dcbox, "dc filter");
 	lv_obj_add_event_cb(dcbox, dcbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	if (Settings_file.get_int(default_radio, "dc"))
@@ -340,7 +325,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 		Demodulator::set_dc_filter(false);
 	}
 
-	//ibutton_y++;
+	ibutton_y++;
 	// xpos = xpos + x_margin + 2 * button_width;
 	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin ;
 	brightness_slider = lv_slider_create(settings_main);
@@ -359,18 +344,6 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 }
 
-
-void gui_setup::qra_textarea_event_handler_class(lv_event_t *e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
-	if (code == LV_EVENT_CLICKED && kb == nullptr)
-	{
-		//kb = lv_keyboard_create(lv_scr_act());
-		//lv_keyboard_set_textarea(kb, qra_textarea);
-		//Settings_file.save();
-	}
-}
 
 void gui_setup::set_group()
 {

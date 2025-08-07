@@ -19,8 +19,6 @@ class gui_setup
 	lv_obj_t *cal_label, *calibration_dropdown;
 	lv_obj_t *calbox, *dcbox, *autocalbox, *webbox;
 	lv_obj_t *tileview, *settings_main, *settings_i2c, *settings_i2c_input, *settings_i2c_output;
-	lv_obj_t *qra_textarea, *text_label;
-	lv_obj_t *kb{nullptr};
 
 	void calbox_event_cb_class(lv_event_t *e);
 	void brightness_slider_event_cb_class(lv_event_t *e);
@@ -28,7 +26,6 @@ class gui_setup
 	void dcbox_event_cb_class(lv_event_t *e);
 	void cal_button_handler_class(lv_event_t *e);
 	void webbox_event_class(lv_event_t *e);
-	void qra_textarea_event_handler_class(lv_event_t *e);
 	void shutdown_button_handler_class(lv_event_t *e);
 	void do_shutdown_button_handler_class(lv_event_t *e);
 	int get_maxbrightness();
@@ -47,7 +44,6 @@ class gui_setup
 	static constexpr auto dcbox_event_cb = EventHandler<gui_setup, &gui_setup::dcbox_event_cb_class>::staticHandler;
 	static constexpr auto cal_button_handler = EventHandler<gui_setup, &gui_setup::cal_button_handler_class>::staticHandler;
 	static constexpr auto webbox_event_cb = EventHandler<gui_setup, &gui_setup::webbox_event_class>::staticHandler;
-	static constexpr auto qra_textarea_event_handler = EventHandler<gui_setup, &gui_setup::qra_textarea_event_handler_class>::staticHandler;
 	static constexpr auto shutdown_button_handler = EventHandler<gui_setup, &gui_setup::shutdown_button_handler_class>::staticHandler;
 	static constexpr auto do_shutdown_button_handler = EventHandler<gui_setup, &gui_setup::do_shutdown_button_handler_class>::staticHandler;
 	

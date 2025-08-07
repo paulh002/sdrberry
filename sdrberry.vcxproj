@@ -146,6 +146,7 @@
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
+    <ClCompile Include="gui_wsjtx_setup.cpp" />
     <ClCompile Include="HexKeyboardWindow.cpp" />
     <ClCompile Include="HidDev.cpp" />
     <ClCompile Include="i2cgeneric.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />
+    <ClInclude Include="gui_wsjtx_setup.h" />
     <ClInclude Include="HexKeyboardWindow.h" />
     <ClInclude Include="HidDev.h" />
     <ClInclude Include="HidThread.h" />

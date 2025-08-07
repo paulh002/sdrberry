@@ -624,7 +624,7 @@ int main(int argc, char *argv[])
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
 	gsetup.init(tab["settings"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
-	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
+	gft8.init(tab["wsjtx"], keyboard_group, 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
 	guipreset.init(tab["Preset"], LV_HOR_RES - 3, tabHeight - buttonHeight, button_group, keyboard_group);

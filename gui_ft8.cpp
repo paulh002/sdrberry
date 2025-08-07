@@ -1,5 +1,6 @@
 #include "gui_ft8.h"
 #include "gui_ft8bar.h"
+#include "gui_wsjtx_setup.h"
 #include "table.h"
 #include "strlib.h"
 #include "screen.h"
@@ -252,7 +253,7 @@ void gui_ft8::draw_part_event_class(lv_event_t *e)
 	}
 }
 
-void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
+void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h)
 {
 
 	const lv_coord_t x_margin = 10;
@@ -290,8 +291,14 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	//m_button_group = lv_group_create();
 	lv_obj_set_style_pad_hor(o_tab, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(o_tab, 0, LV_PART_MAIN);
+
+	tileview = lv_tileview_create(o_tab);
+	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
+	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	guiwsjtxsetup.init(settings_tile, keyboard_group, w, h, nullptr);
 	
-	table = lv_table_create(o_tab);
+	table = lv_table_create(main_tile);
 	lv_obj_add_event_cb(table, draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
 	lv_obj_add_event_cb(table, press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 	
@@ -319,7 +326,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 	lv_table_set_cell_value(table, 0, 3, "Message");
 	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12) - 10);
 
-	qsoTable = lv_table_create(o_tab);
+	qsoTable = lv_table_create(main_tile);
 	lv_obj_add_event_cb(qsoTable, qso_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
 	lv_obj_add_event_cb(qsoTable, qso_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
@@ -352,7 +359,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv
 		call = "PA0PHH";
 
 
-	cqTable = lv_table_create(o_tab);
+	cqTable = lv_table_create(main_tile);
 	// lv_obj_add_event_cb(cqTable, cq_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
 	lv_obj_add_event_cb(cqTable, cq_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
@@ -521,16 +528,18 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		}
 	}
 
-	int row = lv_table_get_row_cnt(table);
-	sprintf(str,"%02d:%02d:%02d", hh, min, sec);
-	lv_table_set_cell_value(table, row, 0, str);
-	sprintf(str,"%3d",snr);
-	lv_table_set_cell_value(table, row, 1, str);
-	sprintf(str, "%6d", hz0);
-	lv_table_set_cell_value(table, row, 2, str);
-	lv_table_set_cell_value(table, row, 3, msg.c_str());
-	ScrollLatestItem();
-
+	if (msg.find("CQ") != std::string::npos || !filteroncq)
+	{
+		int row = lv_table_get_row_cnt(table);
+		sprintf(str, "%02d:%02d:%02d", hh, min, sec);
+		lv_table_set_cell_value(table, row, 0, str);
+		sprintf(str, "%3d", snr);
+		lv_table_set_cell_value(table, row, 1, str);
+		sprintf(str, "%6d", hz0);
+		lv_table_set_cell_value(table, row, 2, str);
+		lv_table_set_cell_value(table, row, 3, msg.c_str());
+		ScrollLatestItem();
+	}
 	uint32_t in_milliseconds_since_midnight = (hh * 3600 + min * 60 + sec) * 1000;
 	double deltaTime = 0.0;
 

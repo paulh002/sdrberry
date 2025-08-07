@@ -49,7 +49,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
-	long long freq = Settings_file.get_longlong("VFO1","freq");
+	long freq = Settings_file.get_longlong("VFO1","freq");
 	string ham = Settings_file.find_radio("band");
 	if (ham != "all")
 		vfo.limit_ham_band = true;
@@ -192,7 +192,7 @@ void CVfo::set_span(long span)
 	rx_set_sdr_freq();
 }
 
-void CVfo::set_frequency_to_left(long long freq, int active_vfo, bool update)
+void CVfo::set_frequency_to_left(long freq, int active_vfo, bool update)
 {
 	span_offset_frequency = 0;
 	long span = vfo_setting.span;
@@ -285,7 +285,7 @@ long CVfo::get_vfo_offset_tx()
  * So it need to tuned differently than the receiver.
  **/
 
-int CVfo::set_vfo(long long freq, vfo_activevfo ActiveVfo)
+int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 {
 	//unique_lock<mutex> lock_set_vfo(m_vfo_mutex);
 	int retval{0};
@@ -387,7 +387,7 @@ void CVfo::sync_rx_vfo()
 	
 void CVfo::step_vfo(long icount)
 {
-	long long freq;
+	long freq;
 	if (pausevfo)
 		return;
 	if (m_delay)
@@ -444,7 +444,7 @@ std::string CVfo::get_vfo_str()
 	return s;
 }
 
-long long CVfo::get_tx_frequency()
+long CVfo::get_tx_frequency()
 {
 	int active_vfo = vfo_setting.active_vfo;
 
@@ -467,13 +467,13 @@ void CVfo::set_active_vfo(int active_vfo)
 	set_vfo(0, (vfo_activevfo)min(active_vfo, 1));
 }
 
-void CVfo::set_vfo_range(long long low, long long high)
+void CVfo::set_vfo_range(long low, long high)
 {
 	vfo_setting.vfo_low = low;
 	vfo_setting.vfo_high = high;
 }
 
-void CVfo::set_band_freq(long long freq)
+void CVfo::set_band_freq(long freq)
 {
 	int band = 0;
 
@@ -492,7 +492,7 @@ void CVfo::set_band_freq(long long freq)
 		vfo.set_band(band, freq);
 }
 
-void CVfo::set_band(int band, long long freq)
+void CVfo::set_band(int band, long freq)
 {
 	int index = getBandIndex(band);
 	if (index >= 0 && index < vfo_setting.bands.size())
@@ -513,8 +513,8 @@ void CVfo::set_band(int band, long long freq)
 // update vfo_setting.band[active_vfo] to current band
 int CVfo::get_band(int active_vfo)
 {
-	long long	freq = vfo_setting.vfo_freq[active_vfo];
-	int			band = vfo_setting.band[active_vfo];
+	long freq = vfo_setting.vfo_freq[active_vfo];
+	int	band = vfo_setting.band[active_vfo];
 	
 	auto it_high = Settings_file.f_high.begin();
 	auto it_band = Settings_file.meters.begin();
@@ -534,7 +534,7 @@ int CVfo::get_band(int active_vfo)
 		return 1;
 }
 
-void CVfo::check_band(int dir, long long& freq)
+void CVfo::check_band(int dir, long &freq)
 {
 		// this function let the active vfo jump to next or previous band	
 	int i = 0;
@@ -605,7 +605,7 @@ int CVfo::getBandIndex(int band)
 
 void CVfo::setVfoFrequency(int direction)
 {
-	long long freq;
+	long freq;
 
 	if (direction > 0)
 		freq = vfo_setting.span + vfo_setting.vfo_freq[vfo_setting.active_vfo];
@@ -641,7 +641,7 @@ int CVfo::get_current_mode()
 	return vfo_setting.mode[vfo_setting.active_vfo] = vfo_setting.bands[index].f_mode;
 }
 
-long long CVfo::get_sdr_span_frequency()
+long CVfo::get_sdr_span_frequency()
 {
 	return vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] + vfo_setting.min_offset ; 
 }
@@ -788,7 +788,7 @@ void CVfo::updateweb()
 	}
 }
 
-bool CVfo::checkVfoBandRange(long long freq)
+bool CVfo::checkVfoBandRange(long freq)
 {
 	bool range = false;
 	for (auto col : vfo_setting.bands)

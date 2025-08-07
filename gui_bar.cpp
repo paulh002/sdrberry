@@ -417,7 +417,8 @@ void gui_bar::if_slider_event_class(lv_event_t *e)
 	int sl = lv_slider_get_value(slider);
 	ifgain.store(std::pow(10.0, (float)sl / 20.0));
 	catinterface->SetIG(lv_slider_get_value(slider));
-	Settings_file.save_int(default_radio, "if-gain",lv_slider_get_value(slider));
+	if_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = lv_slider_get_value(slider);
+	Settings_file.set_map_string(default_radio, "if-gain-map", if_gain);
 	guift8bar.set_if(sl);
 	updateweb();
 }
@@ -464,6 +465,10 @@ void gui_bar::set_gain_slider_band_from_config(bool web)
 	rf_gain = Settings_file.get_map_string(default_radio, "rf-gain-map");
 	gain = rf_gain[to_string(vfo.get_band_in_meters()) + "m"];
 	set_gain_slider(gain, web);
+
+	if_gain = Settings_file.get_map_string(default_radio, "if-gain-map");
+	gain = if_gain[to_string(vfo.get_band_in_meters()) + "m"];
+	set_if(gain);
 }
 
 void gui_bar::set_gain_slider(int gain, bool web)
@@ -921,8 +926,8 @@ void gui_bar::set_if(int ifg, bool web)
 	lv_slider_set_value(if_slider, ifg, LV_ANIM_ON);
 	lv_label_set_text_fmt(if_slider_label, "if %d db", ifg);
 	catinterface->SetIG(ifg);
-	Settings_file.save_int(default_radio,"if-gain",ifg);
-	Settings_file.write_settings();
+	if_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = ifg;
+	Settings_file.set_map_string(default_radio, "if-gain-map", if_gain);
 	guift8bar.set_if(ifg);
 	if (web)
 		updateweb();

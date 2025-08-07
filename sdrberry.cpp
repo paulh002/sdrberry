@@ -625,8 +625,6 @@ int main(int argc, char *argv[])
 	gsetup.init(tab["settings"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
 	gft8.init(tab["wsjtx"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
-	//gagc.init(tab["agc"], LV_HOR_RES - 3);
-	//gspeech.init(tab["speech"], LV_HOR_RES - 3);
 	guirx.init(tab["rx"], LV_HOR_RES - 3);
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
 	guipreset.init(tab["Preset"], LV_HOR_RES - 3, tabHeight - buttonHeight, button_group, keyboard_group);
@@ -778,9 +776,7 @@ int main(int argc, char *argv[])
 		gui_band_instance.init_button_gui(tab["band"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface->SetAG(Settings_file.volume());
-		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
-		//gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
 		gbar.set_gain_slider_band_from_config();
 		vfo.set_vfo(0LL, vfo_activevfo::One);
 		try
@@ -1532,9 +1528,7 @@ void switch_sdrreceiver(std::string receiver)
 		gui_band_instance.init_button_gui(nullptr, keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight, SdrDevices.get_full_frequency_range_list(default_radio, max(default_rx_channel, default_tx_channel)));
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface->SetAG(Settings_file.volume());
-		gbar.set_if(Settings_file.get_int(default_radio, "if-gain"));
 		gbar.set_gain_range();
-		//gbar.set_gain_slider(Settings_file.get_int(default_radio, "rf-gain"), 10);
 		gbar.set_gain_slider_band_from_config();
 		guift8bar.SetTxButtons();
 		gbar.setTxButtons();
@@ -1563,3 +1557,19 @@ void switch_sdrreceiver(std::string receiver)
 		printf("create demodulator %lld\n", timePassed.count());
  *
  **/
+
+void my_timer(lv_timer_t *timer)
+{
+	/*Use the user_data*/
+	/*Do something with LVGL*/
+	lv_tabview_set_act(tabview_mid, 0, LV_ANIM_ON);
+	lv_timer_del(timer);
+	timer = NULL;
+}
+
+void create_spectrum_page_time()
+{
+	int time = Settings_file.get_int("Radio", "gui_timer", 0);
+	if (time)
+		lv_timer_t *timer = lv_timer_create(my_timer, time, NULL);
+}

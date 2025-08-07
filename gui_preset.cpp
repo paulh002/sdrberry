@@ -363,6 +363,7 @@ void gui_preset::display_press_part_event_class(lv_event_t *e)
 		{
 			vfo.set_vfo(freq);
 		}
+		create_spectrum_page_time();
 	}
 }
 	

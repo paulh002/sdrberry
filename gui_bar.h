@@ -41,7 +41,7 @@ class gui_bar
 	int rit_value;
 	int steps_value{1};
 	std::atomic<float> ifgain;
-	std::map<std::string, int> rf_gain;
+	std::map<std::string, int> rf_gain, if_gain;
 	std::map<std::string, int> filter_to_mode_cutoff_frequencies;
 
 	void bar_button_handler_class(lv_event_t *e);

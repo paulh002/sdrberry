@@ -27,7 +27,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <GNUConfigurationType>Debug</GNUConfigurationType>
-    <RemoteBuildHost>192.168.88.32</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.62</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -42,7 +42,7 @@
     <GNUToolchainPrefix />
     <GNUCompilerType>GCC</GNUCompilerType>
     <RemoteBuildTool>Ninja</RemoteBuildTool>
-    <RemoteBuildHost>192.168.88.32</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.62</RemoteBuildHost>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
@@ -80,10 +80,11 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;tinyxml2;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
+      <VerboseMode>true</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -190,6 +191,7 @@
     <ClCompile Include="PeakFinder.cpp" />
     <ClCompile Include="PeakLevelDetector.cpp" />
     <ClCompile Include="PeakMeasurement.cpp" />
+    <ClCompile Include="pskreporter.cpp" />
     <ClCompile Include="RtAudio.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
@@ -333,6 +335,7 @@
     <ClInclude Include="PeakFinder.h" />
     <ClInclude Include="PeakLevelDetector.h" />
     <ClInclude Include="PeakMeasurement.h" />
+    <ClInclude Include="pskreporter.h" />
     <ClInclude Include="quick_arg_parser.hpp" />
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />

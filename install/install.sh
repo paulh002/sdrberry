@@ -80,7 +80,7 @@ sudo apt update
 sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig cmake \
 binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
-libboost-all-dev python3 libfftw3-dev python3-yaml \
+libboost-all-dev python3 libfftw3-dev python3-yaml libtinyxml2-dev \
 libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev libcurl4-openssl-dev
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig

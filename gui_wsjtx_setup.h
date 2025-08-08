@@ -5,7 +5,7 @@ class gui_wsjtx_setup
 {
   private:
 	lv_style_t style_btn, settings_style, text_style;
-	lv_obj_t *filter_cq, *text_label, *qra_textarea;
+	lv_obj_t *filter_cq, *text_label, *qra_textarea, *locator_textarea;
 	lv_obj_t *kb{nullptr};
 	void filter_cq_event_cb_class(lv_event_t *e);
 	void qra_textarea_event_handler_class(lv_event_t *e);

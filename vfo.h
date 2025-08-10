@@ -34,10 +34,11 @@ enum vfo_spansetting
 struct bands_t
 {
 	int meters;
-	string label;
+	std::string label;
 	long f_low;
 	long f_high;
 	int f_mode;
+	std::string mode;
 };
 
 struct vfo_settings_struct
@@ -114,7 +115,8 @@ class CVfo
 	}
 
 	std::string get_band_in_text();
-	
+	std::string get_mode_in_text();
+
 	int getCurrentBandIndex()
 	{
 		return getBandIndex(get_band_in_meters());

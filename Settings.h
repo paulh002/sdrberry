@@ -55,6 +55,9 @@ class Settings
 	std::map<int, std::pair<std::string, long>> get_map_string_pair(std::string section, std::string key);
 	void set_map_string_pair(std::string section, std::string key, const std::map<int, std::pair<std::string, long>> &value_map);
 	std::map<std::string, int> get_map_string(std::string section, std::string key);
+	std::map<int, std::tuple<std::string, long, std::string>> get_map_string_tuple(std::string section, std::string key);
+	void set_map_string_tuple(std::string section, std::string key, const std::map<int, std::tuple<std::string, long, std::string>> &value_map);
+
 	vector<int> meters;
 	vector<string> labels;
 	vector<long> f_low;

@@ -2,6 +2,7 @@
 #include "lvgl_.h"
 #include <string>
 #include <map>
+#include <tuple>
 
 class gui_preset
 {
@@ -13,7 +14,7 @@ class gui_preset
 	lv_obj_t *SaveObj, *addButton, *updateButton, *deleteButton;
 	lv_group_t *keyboardgroup;
 	int row_selected, display_row_selected;
-	std::map < int, std::pair<std::string, long>> preset_list;
+	std::map<int, std::tuple<std::string, long, std::string>> preset_list;
 	lv_obj_t *tileview, *main_tile, *edit_tile;
 
 	void save_button_handler_class(lv_event_t *e);

@@ -96,6 +96,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 					b.f_mode = mode_am;
 				if (*it_mode == "dsb")
 					b.f_mode = mode_dsb;
+				b.mode = *it_mode;
 				vfo_setting.bands.push_back(b);
 			}
 		}
@@ -721,6 +722,11 @@ std::string CVfo::get_band_in_text()
 
 	std::string result(str);
 	return result + vfo_setting.bands.at(getCurrentBandIndex()).label;
+}
+
+std::string CVfo::get_mode_in_text()
+{
+	return vfo_setting.bands.at(getCurrentBandIndex()).mode;
 }
 
 std::vector<int16_t> CVfo::Legend()

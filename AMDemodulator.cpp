@@ -137,7 +137,7 @@ void AMDemodulator::operator()()
 
 	resamplerate = sample_ratio = ((float)audio_output->get_samplerate()) / ifrate;
 	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
-	pLMS = make_unique<LMSNoisereducer>(); //switched off memory leak in library
+	//pLMS = make_unique<LMSNoisereducer>(); //switched off memory leak in library
 	pXanr = make_unique<Xanr>();
 	nf = make_unique<NoiseFilter>();
 	receiveIQBuffer->clear();
@@ -156,7 +156,6 @@ void AMDemodulator::operator()()
 		if (lowPassAudioFilterCutOffFrequency != get_lowPassAudioFilterCutOffFrequency())
 		{
 			lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
-			printf("set filter %d\n", lowPassAudioFilterCutOffFrequency);
 			setLowPassAudioFilter(audioSampleRate, lowPassAudioFilterCutOffFrequency);
 		}
 
@@ -277,24 +276,14 @@ void AMDemodulator::operator()()
 
 void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 {
-	IQSampleVector filter1,filter2, filter3;
+	IQSampleVector filter1;
 	
 	// mix to correct frequency
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
 	SquelchProcess(filter1);
-	if (get_noise() == 4)
-	{
-		lowPassAudioFilter(filter1);
-		calc_signal_level(filter1);
-		nf->Process(filter1, filter2);
-		filter1 = filter2;
-	}
-	else
-	{
-		lowPassAudioFilter(filter1);
-		calc_signal_level(filter1);
-	}
+	lowPassAudioFilter(filter1);
+	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)

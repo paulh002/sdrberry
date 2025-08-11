@@ -22,7 +22,7 @@
       <UserName>pi</UserName>
     </BuildHost>
     <DeploymentHost>
-      <HostName>192.168.88.49</HostName>
+      <HostName>192.168.88.32</HostName>
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </DeploymentHost>
@@ -46,6 +46,7 @@
         <string>Makefile</string>
         <string>*.txt</string>
         <string>*.cmake</string>
+        <string>*.inl</string>
       </FileMasks>
       <TransferNewFilesOnly>false</TransferNewFilesOnly>
       <IncludeSubdirectories>true</IncludeSubdirectories>

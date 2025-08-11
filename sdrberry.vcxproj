@@ -80,10 +80,11 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;tinyxml2;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
+      <VerboseMode>true</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -146,6 +147,7 @@
     <ClCompile Include="gui_top_bar.cpp" />
     <ClCompile Include="gui_tx.cpp" />
     <ClCompile Include="gui_vfo.cpp" />
+    <ClCompile Include="gui_wsjtx_setup.cpp" />
     <ClCompile Include="HexKeyboardWindow.cpp" />
     <ClCompile Include="HidDev.cpp" />
     <ClCompile Include="i2cgeneric.cpp" />
@@ -189,6 +191,7 @@
     <ClCompile Include="PeakFinder.cpp" />
     <ClCompile Include="PeakLevelDetector.cpp" />
     <ClCompile Include="PeakMeasurement.cpp" />
+    <ClCompile Include="pskreporter.cpp" />
     <ClCompile Include="RtAudio.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
@@ -283,6 +286,7 @@
     <ClInclude Include="gui_top_bar.h" />
     <ClInclude Include="gui_tx.h" />
     <ClInclude Include="gui_vfo.h" />
+    <ClInclude Include="gui_wsjtx_setup.h" />
     <ClInclude Include="HexKeyboardWindow.h" />
     <ClInclude Include="HidDev.h" />
     <ClInclude Include="HidThread.h" />
@@ -331,6 +335,7 @@
     <ClInclude Include="PeakFinder.h" />
     <ClInclude Include="PeakLevelDetector.h" />
     <ClInclude Include="PeakMeasurement.h" />
+    <ClInclude Include="pskreporter.h" />
     <ClInclude Include="quick_arg_parser.hpp" />
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />

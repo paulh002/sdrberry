@@ -101,7 +101,7 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 	lv_style_set_outline_color(&tablestyle, lv_color_black());
 	lv_style_set_outline_opa(&tablestyle, 255);
 
-	float fraction1 = 60.0f / 80.0f;
+	float fraction1 = 45.0f / 80.0f;
 	preset_table = lv_table_create(edit_tile);
 	lv_obj_add_style(preset_table, &tablestyle, 0);
 	lv_obj_clear_flag(preset_table, LV_OBJ_FLAG_SCROLLABLE);
@@ -120,11 +120,13 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 	lv_obj_set_style_pad_right(preset_table, 0, LV_PART_ITEMS);
 
 	lv_table_set_cell_value(preset_table, 0, 0, "Preset");
-	lv_table_set_col_width(preset_table, 0, cWidth / 10);
+	lv_table_set_col_width(preset_table, 0, cWidth / 8);
 	lv_table_set_cell_value(preset_table, 0, 1, "Band");
-	lv_table_set_col_width(preset_table, 1, cWidth / 10);
+	lv_table_set_col_width(preset_table, 1, cWidth / 8);
 	lv_table_set_cell_value(preset_table, 0, 2, "Frequency");
-	lv_table_set_col_width(preset_table, 2, cWidth * fraction1 - (cWidth / 12));
+	lv_table_set_col_width(preset_table, 2, cWidth / 6);
+	lv_table_set_cell_value(preset_table, 0, 3, "Mode");
+	lv_table_set_col_width(preset_table, 3, cWidth * fraction1 - (cWidth / 12));
 
 	display_table = lv_table_create(main_tile);
 	lv_obj_add_style(display_table, &tablestyle, 0);
@@ -144,26 +146,26 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 	lv_obj_set_style_pad_right(display_table, 0, LV_PART_ITEMS);
 
 	lv_table_set_cell_value(display_table, 0, 0, "Preset");
-	lv_table_set_col_width(display_table, 0, cWidth / 10);
+	lv_table_set_col_width(display_table, 0, cWidth / 8);
 	lv_table_set_cell_value(display_table, 0, 1, "Band");
-	lv_table_set_col_width(display_table, 1, cWidth / 10);
+	lv_table_set_col_width(display_table, 1, cWidth / 8);
 	lv_table_set_cell_value(display_table, 0, 2, "Frequency");
-	lv_table_set_col_width(display_table, 2, cWidth * fraction1 - (cWidth / 12));
+	lv_table_set_col_width(display_table, 2, cWidth / 6);
+	lv_table_set_cell_value(display_table, 0, 3, "Mode");
+	lv_table_set_col_width(display_table, 3, cWidth * fraction1 - (cWidth / 12));
 	
-	
-
-	preset_list = Settings_file.get_map_string_pair("preselect", "list");
+	preset_list = Settings_file.get_map_string_tuple("preselect", "preset");
 	int i = 1;
 	for (auto col : preset_list)
 	{
 		lv_table_set_cell_value(preset_table, i, 0, std::to_string(i).c_str());
-		lv_table_set_cell_value(preset_table, i, 1, col.second.first.c_str());
+		lv_table_set_cell_value(preset_table, i, 1, std::get<0>(col.second).c_str());
 
 		lv_table_set_cell_value(display_table, i, 0, std::to_string(i).c_str());
-		lv_table_set_cell_value(display_table, i, 1, col.second.first.c_str());
+		lv_table_set_cell_value(display_table, i, 1, std::get<0>(col.second).c_str());
 
 		char str[80];
-		long freq = col.second.second;
+		long freq = std::get<1>(col.second);
 		if (freq > 10000000LU)
 		{
 			sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
@@ -174,6 +176,9 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 		}
 		lv_table_set_cell_value(preset_table, i, 2, str);
 		lv_table_set_cell_value(display_table, i, 2, str);
+
+		lv_table_set_cell_value(preset_table, i, 3, std::get<2>(col.second).c_str());
+		lv_table_set_cell_value(display_table, i, 3, std::get<2>(col.second).c_str());
 		i++;
 	}
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
@@ -186,10 +191,10 @@ void gui_preset::reload_display_table()
 	for (auto col : preset_list)
 	{
 		lv_table_set_cell_value(display_table, i, 0, std::to_string(i).c_str());
-		lv_table_set_cell_value(preset_table, i, 1, col.second.first.c_str());
+		lv_table_set_cell_value(display_table, i, 1, std::get<0>(col.second).c_str());
 
 		char str[80];
-		long freq = col.second.second;
+		long freq = std::get<1>(col.second);
 		if (freq > 10000000LU)
 		{
 			sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
@@ -199,6 +204,7 @@ void gui_preset::reload_display_table()
 			sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 		}
 		lv_table_set_cell_value(display_table, i, 2, str);
+		lv_table_set_cell_value(display_table, i, 3, std::get<2>(col.second).c_str());
 		i++;
 	}
 }
@@ -209,7 +215,7 @@ void gui_preset::save_button_handler_class(lv_event_t *e)
 	lv_obj_t *obj = lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
-		Settings_file.set_map_string_pair("preselect", "list", preset_list);
+		Settings_file.set_map_string_tuple("preselect", "preset", preset_list);
 		reload_display_table();
 	}
 }
@@ -240,9 +246,9 @@ void gui_preset::add_button_handler_class(lv_event_t *e)
 		lv_table_set_cell_value(preset_table, preset, 0, std::to_string(row).c_str());
 		lv_table_set_cell_value(preset_table, preset, 1, vfo.get_band_in_text().c_str());
 		lv_table_set_cell_value(preset_table, preset, 2, str);
+		lv_table_set_cell_value(preset_table, preset, 3, vfo.get_mode_in_text().c_str());
 
-		preset_list[preset].first = vfo.get_band_in_text();
-		preset_list[preset].second = freq;
+		preset_list[preset] = std::make_tuple(vfo.get_band_in_text(), freq, vfo.get_mode_in_text().c_str());
 	}
 }
 
@@ -267,9 +273,9 @@ void gui_preset::update_button_handler_class(lv_event_t *e)
 			lv_table_set_cell_value(preset_table, row_selected, 0, std::to_string(row_selected).c_str());
 			lv_table_set_cell_value(preset_table, row_selected, 1, std::to_string(vfo.get_band_in_meters()).c_str());
 			lv_table_set_cell_value(preset_table, row_selected, 2, str);
+			lv_table_set_cell_value(preset_table, row_selected, 3, vfo.get_mode_in_text().c_str());
 
-			preset_list[row_selected].first = vfo.get_band_in_text();
-			preset_list[row_selected].second = freq;
+			preset_list[row_selected] = std::make_tuple(vfo.get_band_in_text(), freq, vfo.get_mode_in_text().c_str());
 			row_selected = 0;
 		}
 	}
@@ -363,6 +369,7 @@ void gui_preset::display_press_part_event_class(lv_event_t *e)
 		{
 			vfo.set_vfo(freq);
 		}
+		create_spectrum_page_time();
 	}
 }
 	

@@ -287,6 +287,7 @@ void Gui_band::band_button_class(lv_event_t *e)
 			}
 		}
 		lv_obj_add_state(obj, LV_STATE_CHECKED);
+		create_spectrum_page_time();
 	}
 }
 

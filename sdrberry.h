@@ -31,3 +31,4 @@ void update_filter(int bandwidth);
 bool IsDigtalMode(int mode);
 int IsScreenRotated();
 void set_tx_buttons();
+void create_spectrum_page_time();

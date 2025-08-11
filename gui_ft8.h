@@ -41,6 +41,7 @@ using qso_entry = qso_logging;
 class gui_ft8
 {
   private:
+	lv_obj_t *settings_tile, *main_tile, *tileview;
 	lv_obj_t *table, *table_label, *qsoTable, *qsoLabel, *cqTable;
 	lv_style_t style_btn, ft8_style;
 	std::vector<message> messages, qsoMessages;
@@ -51,6 +52,7 @@ class gui_ft8
 	std::string call;
 	std::mutex mutex_;
 	std::chrono::time_point<std::chrono::system_clock> decode_start_time;
+	bool filteroncq{false};
 
 	std::string getcall() { return call; }
 	void cpy_qso(int row);
@@ -75,7 +77,7 @@ class gui_ft8
 	void add_qso(json msg);	
 
   public:
-	void init(lv_obj_t *o_tab, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
+	void init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h);
 	void add_line(int hh, int min, int sec, int snr, int correct_bits, double off, int hz0, std::string msg);
 	void set_group();
 	void reset();
@@ -94,6 +96,7 @@ class gui_ft8
 	qso_entry get_qso_entry(std::string dxCall);
 	std::string getQso_dxCall();
 	void delete_qso_entry(std::string dxCall);
+	void filter_on_cq(bool filter) { filteroncq = filter; }
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

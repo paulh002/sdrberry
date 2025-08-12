@@ -528,7 +528,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		}
 	}
 
-	if (msg.find("CQ") != std::string::npos || !filteroncq)
+	if (msg.find("CQ") != std::string::npos || !filteroncq || msg.find(call) != std::string::npos)
 	{
 		int row = lv_table_get_row_cnt(table);
 		sprintf(str, "%02d:%02d:%02d", hh, min, sec);

@@ -441,7 +441,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	}
 	*/
 	
-
+/*
 	// DK7ZT
 	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	add_cq(m);
@@ -468,7 +468,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 		add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 	}
 add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-
+*/
 }
 
 

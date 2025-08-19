@@ -801,6 +801,7 @@ void gui_ft8::set_group()
 void gui_ft8::reset()
 {
 	lv_table_set_row_cnt(table, 1);
+	ScrollFirstItem();
 }
 
 void gui_ft8::ScrollLatestItem()

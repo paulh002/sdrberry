@@ -133,7 +133,7 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 		return;
 	if (lv_table_get_cell_value(obj, row, 1) != nullptr)
 		db = atoi(lv_table_get_cell_value(obj, row, 1));
-	std::string str(lv_table_get_cell_value(obj, row, col));
+	std::string str(lv_table_get_cell_value(obj, row, 3));
 	size_t i = str.find(' ');
 	size_t q = str.rfind(' ');
 	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
@@ -185,18 +185,23 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 		clr_cq();
 		cpy_qso(row);
 		QsoScrollLatestItem();
+		guift8bar.send_status();
 
 		// message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 		// add_cq(m);
 	}
 	else if (str.find(call) != std::string::npos)
 	{
+		int start_pos_dxcall = str.find(' ') + 1;
+		int end_pos_dxcall = str.find_last_of(' ');
+		std::string dxCall = str.substr(start_pos_dxcall, end_pos_dxcall - start_pos_dxcall);
+
 		bool found = false; // prevent double copy qso
 		int rowcount = (int)lv_table_get_row_cnt(cqTable);
 		for (int cqrow = 1; cqrow < rowcount; cqrow++)
 		{
 			std::string msg(lv_table_get_cell_value(cqTable, cqrow, 3));
-			if (msg.find(call) != std::string::npos)
+			if (msg.find(dxCall) != std::string::npos)
 				found = true;
 		}
 		if (!found)
@@ -436,7 +441,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	}
 	*/
 	
-/*
+
 	// DK7ZT
 	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 	add_cq(m);
@@ -463,7 +468,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 		add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 	}
 add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-*/
+
 }
 
 

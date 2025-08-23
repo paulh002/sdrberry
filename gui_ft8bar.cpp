@@ -26,6 +26,8 @@ const int buttoncq = 3;
 const int buttonclear = 4;
 const int buttonmode = 5;
 
+const int ft8_freq_multiplier = 25;
+
 /*R"(
         ^\s*                                      # optional leading spaces
         ( [A-Z]{0,2} | [A-Z][0-9] | [0-9][A-Z] )  # part 1
@@ -576,9 +578,9 @@ void gui_ft8bar::tx_slider_event_cb_class(lv_event_t *e)
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		lv_obj_t *tx_slider_label = (lv_obj_t *)lv_event_get_user_data(e);
-		lv_label_set_text_fmt(tx_slider_label, "tx %d Hz", 50 * lv_slider_get_value(slider));
-		Settings_file.save_int("wsjtx", "tx", lv_slider_get_value(slider) * 50);
-		status.txDF = lv_slider_get_value(slider) * 50;
+		lv_label_set_text_fmt(tx_slider_label, "tx %d Hz", ft8_freq_multiplier * lv_slider_get_value(slider));
+		Settings_file.save_int("wsjtx", "tx", lv_slider_get_value(slider) * ft8_freq_multiplier);
+		status.txDF = lv_slider_get_value(slider) * ft8_freq_multiplier;
 	}
 }
 
@@ -819,11 +821,11 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_label_set_text_fmt(tx_slider_label, "tx %d Hz", freq);
 	lv_obj_align(tx_slider_label, LV_ALIGN_TOP_LEFT, tx_width + 15, tx_y);
 	tx_slider = lv_slider_create(o_parent);
-	lv_slider_set_range(tx_slider, 0, 80);
+	lv_slider_set_range(tx_slider, 0, 100); 
 	lv_obj_set_width(tx_slider, tx_width);
 	lv_obj_align(tx_slider, LV_ALIGN_TOP_LEFT, 10, tx_y);
 	lv_obj_add_event_cb(tx_slider, tx_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)tx_slider_label);
-	lv_slider_set_value(tx_slider, freq / 50, LV_ANIM_ON);
+	lv_slider_set_value(tx_slider, freq / ft8_freq_multiplier, LV_ANIM_ON);
 	status.txDF = freq;
 	
 	lv_table_set_cell_value(table, 1, 0, "1");
@@ -837,7 +839,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	
-	float bandwidth = Settings_file.get_int("wsjtx", "bandwidth", 4000);
+	float bandwidth = Settings_file.get_int("wsjtx", "waterfall_bandwidth", 3000);
 	float resampleRate = bandwidth / ft8_rate;
 	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, down, lowerpart);
 }
@@ -891,7 +893,7 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 		{
 			printf("wsjtx message %s\n", message.c_str());
 			transmitting = true;
-			frequency = lv_slider_get_value(tx_slider) * 50;
+			frequency = lv_slider_get_value(tx_slider) * ft8_freq_multiplier;
 			param.tone = audioTone::NoTone;
 			param.ifrate = ifrate_tx;
 			param.even = true;

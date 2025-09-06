@@ -170,7 +170,7 @@ void CatTcpServer::operator()()
 				printf("NA CAT filter %d \n", filter);
 				guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
 			}
-			if (!(mode == mode_ft8 || mode == mode_ft4))
+			if (!(mode == mode_ft8 || mode == mode_ft4)) // TX
 			{
 				int rxtxCatMessage = cat_message.GetTX();
 				if (m_mode != rxtxCatMessage)

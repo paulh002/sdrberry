@@ -499,6 +499,8 @@ void Spectrum::upload_fft()
 			for (auto &col : fft_output)
 			{
 				value = noisefloor +(lv_coord_t)(20.0 * log10(col));
+				if (value < 0)
+					value = 0;
 				if (value > (float)s_points_max)
 					value = (float)s_points_max;
 				if (i % 2)
@@ -525,6 +527,8 @@ void Spectrum::upload_fft()
 				if (i == (fft_output.size() / 2))
 					break;
 				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
+				if (value < 0)
+					value = 0;
 				if (value > (float)s_points_max)
 					value = (float)s_points_max;
 				data_set[i] = avg_filter[i](value);

@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include "Settings.h"
 #include "SharedQueue.h"
+#include "lvgl_.h"
+#include "sdrberry.h"
 
 const int BUFFER_SIZE = 80;
 
@@ -167,6 +169,26 @@ void CatTcpServer::operator()()
 				filter = count;
 				printf("NA CAT filter %d \n", filter);
 				guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
+			}
+			if (!(mode == mode_ft8 || mode == mode_ft4))
+			{
+				int rxtxCatMessage = cat_message.GetTX();
+				if (m_mode != rxtxCatMessage)
+				{
+					m_mode = rxtxCatMessage;
+					switch (m_mode)
+					{
+					case TX_OFF:
+						select_mode(mode);
+						break;
+					case TX_CAT:
+						select_mode_tx(mode, audioTone::NoTone, TX_CAT);
+						break;
+					case TX_TUNE_CAT:
+						select_mode_tx(mode, audioTone::SingleTone, TX_TUNE_CAT);
+						break;
+					}
+				}
 			}
 		}
 	}

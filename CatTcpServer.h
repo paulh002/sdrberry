@@ -38,5 +38,6 @@ class CatTcpServer
 	FT891_CAT cat_message;
 	uint32_t vfo_a, vfo_b;
 	uint16_t filter;
+	int m_mode{0};
 };
 

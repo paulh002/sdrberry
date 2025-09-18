@@ -281,7 +281,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	}
 	if (waterfallsize > 3)
 		hor_lines = hor_lines_small;
-	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
+	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, -50, 50);
 	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
 	lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
@@ -478,6 +478,7 @@ void Spectrum::load_data()
 		lv_chart_refresh(chart);
 	}
 }
+float min_val = 0;
 
 void Spectrum::upload_fft()
 {

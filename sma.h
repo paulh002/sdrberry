@@ -5,7 +5,7 @@
 #include <cstdint> // uint_fast16_t
 
 
-template <uint8_t N, class input_t = uint32_t, class sum_t = uint32_t>
+template <uint16_t N, class input_t = int32_t, class sum_t = int32_t>
 class SMA
 {
   public:
@@ -16,14 +16,14 @@ class SMA
 		previousInputs[index] = input;
 		if (++index == N)
 			index = 0;
-		return (sum + (N / 2)) / N;
+		// return (sum + (N / 2)) / N;
+		return sum / N;
 	}
 
-	static_assert(
+	/*static_assert(
 		sum_t(0) < sum_t(-1), // Check that `sum_t` is an unsigned type
 		"Error: sum data type should be an unsigned integer, otherwise, "
-		"the rounding operation in the return statement is invalid.");
-
+		"the rounding operation in the return statement is invalid."); */
   private:
 	uint8_t index = 0;
 	input_t previousInputs[N] = {};

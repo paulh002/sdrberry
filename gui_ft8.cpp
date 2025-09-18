@@ -133,7 +133,7 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 		return;
 	if (lv_table_get_cell_value(obj, row, 1) != nullptr)
 		db = atoi(lv_table_get_cell_value(obj, row, 1));
-	std::string str(lv_table_get_cell_value(obj, row, col));
+	std::string str(lv_table_get_cell_value(obj, row, 3));
 	size_t i = str.find(' ');
 	size_t q = str.rfind(' ');
 	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
@@ -176,7 +176,7 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 			dxGrid = s;
 		}
 
-		int i = str.find(' ',3) - 3;
+		int i = str.find(' ', 3) - 3;
 		if (i > 0)
 			guift8bar.setMessage(str.substr(3, i), db, 1, dxGrid);
 		else
@@ -185,9 +185,47 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 		clr_cq();
 		cpy_qso(row);
 		QsoScrollLatestItem();
-		
-		//message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
-		//add_cq(m);
+		guift8bar.send_status();
+
+		// message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+		// add_cq(m);
+	}
+	else if (str.find(call) != std::string::npos)
+	{
+		int start_pos_dxcall = str.find(' ') + 1;
+		int end_pos_dxcall = str.find_last_of(' ');
+		std::string dxCall = str.substr(start_pos_dxcall, end_pos_dxcall - start_pos_dxcall);
+
+		bool found = false; // prevent double copy qso
+		int rowcount = (int)lv_table_get_row_cnt(cqTable);
+		for (int cqrow = 1; cqrow < rowcount; cqrow++)
+		{
+			std::string msg(lv_table_get_cell_value(cqTable, cqrow, 3));
+			if (msg.find(dxCall) != std::string::npos)
+				found = true;
+		}
+		if (!found)
+		{
+			std::string msg(lv_table_get_cell_value(obj, row, 3));
+			int start_pos_dxcall = msg.find(' ') + 1;
+			int end_pos_dxcall = msg.find_last_of(' ');
+			std::string dxCall = msg.substr(start_pos_dxcall, end_pos_dxcall - start_pos_dxcall);
+			rowcount = (int)lv_table_get_row_cnt((lv_obj_t *)table);
+			if (dxCall.size() > 0)
+			{
+				for (int cqrow = 1; cqrow < rowcount; cqrow++)
+				{
+					std::string msg(lv_table_get_cell_value(obj, cqrow, 3));
+					int start_pos_dxcall = msg.find(' ') + 1;
+					int end_pos_dxcall = msg.find_last_of(' ');
+					std::string rowCall = msg.substr(start_pos_dxcall, end_pos_dxcall - start_pos_dxcall);
+					if (rowCall == dxCall && msg.find(call) != std::string::npos)
+					{
+						cpy_cq(cqrow);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -417,8 +455,9 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	message m3{12, 1, 1, 1, 1, 1, 1000, "PA0PHH M0ZMF KO21"};
 	add_cq(m3);
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 1; i++)
 	{
+		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("CQ M0ZMF KO21"));
 		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF KO21"));
 		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF -12"));
 		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF R-12"));
@@ -514,13 +553,13 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	{
 		if (guift8bar.GetFilter().length() > 0)
 		{
-			if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ") == std::string::npos)
+			if (msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ ") == std::string::npos)
 			{
 				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 				add_qso(m);
 			}
 
-			if (msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ") != std::string::npos)
+			if (msg.find(guift8bar.GetFilter()) != std::string::npos && msg.find("CQ ") != std::string::npos)
 			{
 				message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 				add_cq(m);
@@ -762,6 +801,7 @@ void gui_ft8::set_group()
 void gui_ft8::reset()
 {
 	lv_table_set_row_cnt(table, 1);
+	ScrollFirstItem();
 }
 
 void gui_ft8::ScrollLatestItem()

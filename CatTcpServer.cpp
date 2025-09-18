@@ -181,6 +181,7 @@ void CatTcpServer::operator()()
 					case TX_OFF:
 						select_mode(mode);
 						break;
+					case TX_MAN:
 					case TX_CAT:
 						select_mode_tx(mode, audioTone::NoTone, TX_CAT);
 						break;

@@ -415,10 +415,11 @@ IQSampleVector Demodulator::Resample(IQSampleVector &filter_in)
 	}
 	else
 	{
-		return filter_in;
+		return std::move(filter_in);
 	}
 	return filter_out;
 }
+
 // audio filter 500 hz - 4.0 Khz
 void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 									 IQSampleVector &filter_out)

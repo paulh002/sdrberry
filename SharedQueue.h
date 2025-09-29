@@ -101,6 +101,8 @@ class GuiMessage
 		wsjtxMessage,
 		TranceiverMessage,
 		setvfo,
+		setvfo_a,
+		setvfo_b,
 		change_step
 	} ;
 

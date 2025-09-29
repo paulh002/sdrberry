@@ -48,6 +48,7 @@ class Catinterface
 	std::atomic<bool> bpause_cat{false};
 	std::atomic<bool> muteFA{false};
 	int channel{};
+	uint32_t vfo_a, vfo_b;
 };
 
 extern Catinterface catinterface;

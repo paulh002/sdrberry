@@ -39,7 +39,11 @@ bool Comm::begin()
 void Comm::Send(std::string s)
 {
 	if (serialport > 0)
+	{
 		serialPuts(serialport, (const char *)s.c_str());
+		if (Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
+			printf("Cat USB response %s\n", s.c_str());
+	}
 }
 
 bool Comm::IsCommuncationPortOpen()
@@ -66,7 +70,8 @@ int Comm::Read(char c, std::string &s)
 		}
 		i++;
 	} while (chr != c && i < 80);
-	//printf("ESP32 CAT: %s\n",s.c_str());
+	if (s.size() && Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
+		printf("Cat USB message %s\n", s.c_str());
 	return s.length();
 }
 
@@ -154,6 +159,8 @@ void Catinterface::begin()
 	ifgain = 0;
 	volume = 0;
 	rfgain = 0;
+	vfo_a = 50260000UL;
+	vfo_b = 50260000UL;
 }
 
 void Catinterface::checkCAT()
@@ -177,12 +184,39 @@ void Catinterface::checkCAT()
 		int count = cat_message.GetFT();
 		if (count)
 		{
-			//vfo.step_vfo(count, true);
+			// vfo.step_vfo(count, true);
 			if (!muteFA.load())
 			{
 				guiQueue.push_back(GuiMessage(GuiMessage::action::step, count));
 			}
+			vfo_a = cat_message.GetFA();
+			vfo_b = cat_message.GetFB();
 		}
+		else
+		{
+			count = cat_message.GetFA();
+			if (count && vfo_a != count)
+			{
+				char str[80];
+
+				vfo_a = count;
+				sprintf(str, "%d", count);
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo_a, str));
+			}
+			else
+			{
+				count = cat_message.GetFB();
+				if (count && vfo_b != count)
+				{
+					char str[80];
+
+					vfo_b = count;
+					sprintf(str, "%d", count);
+					guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo_b, str));
+				}
+			}
+		}
+		
 		count = cat_message.GetIG();
 		if (count && ifgain != count)
 		{

@@ -5,6 +5,8 @@
 
 extern SharedQueue<GuiMessage> guiQueue;
 
+const int max_cat_message_length = 20;
+
 Comm::~Comm()
 {
 	if (serialport > 0)
@@ -58,7 +60,6 @@ int Comm::Read(char c, std::string &s)
 	s.clear();
 	do
 	{
-		//chr = serialGetchar(serialport);
 		int ret = serialReadchar(serialport, &chr);
 		if (ret < 0)
 			return -1;
@@ -71,7 +72,9 @@ int Comm::Read(char c, std::string &s)
 		i++;
 	} while (chr != c && i < 80);
 	if (s.size() && Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
-		printf("Cat USB message %s\n", s.c_str());
+		printf("Cat USB message size %d %s\n",i, s.c_str());
+	if (i > max_cat_message_length)
+		s.clear();
 	return s.length();
 }
 
@@ -188,9 +191,7 @@ void Catinterface::checkCAT()
 			if (!muteFA.load())
 			{
 				guiQueue.push_back(GuiMessage(GuiMessage::action::step, count));
-			}
-			vfo_a = cat_message.GetFA();
-			vfo_b = cat_message.GetFB();
+			}	
 		}
 		else
 		{

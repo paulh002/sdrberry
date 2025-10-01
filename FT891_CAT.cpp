@@ -831,7 +831,8 @@ uint32_t FT891_CAT::GetFA ()					// Get VFO-A frequency
 
 uint32_t FT891_CAT::GetFB ()					// Get VFO-B frequency
 {
-	catcommunicator_->Send("FB;"); 
+	if (!bVFOmode)
+		catcommunicator_->Send("FB;"); 
 	return radioStatus.FB;						// Done!
 }
 

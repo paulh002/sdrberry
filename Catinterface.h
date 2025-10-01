@@ -32,6 +32,7 @@ class Catinterface
 	void begin();
 	void operator()();
 	void SetBand(uint16_t band);
+	void InitVfo(uint32_t a, uint32_t b);
 	void Pause_Cat(bool pause) { bpause_cat = pause; }
 	void MuteFA(bool pause) { muteFA = pause; }
 

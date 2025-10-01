@@ -166,6 +166,12 @@ void Catinterface::begin()
 	vfo_b = 50260000UL;
 }
 
+void Catinterface::InitVfo(uint32_t a, uint32_t b)
+{
+	vfo_a = a;
+	vfo_b = b;
+}
+
 void Catinterface::checkCAT()
 {
 	if (!comm_port.IsCommuncationPortOpen())

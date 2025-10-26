@@ -113,7 +113,7 @@ msg msgTable[] =
 		{"ID", MSG_ID, MSG_STS},   // Request radio's ID (0650 for the FT-891)
 		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
 		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
-		{"MD0", MSG_MD, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
+		{"MD", MSG_MD, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
 		{"NA0", MSG_NA, MSG_BOTH}, // Request narrow IF shift
 		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
 		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status
@@ -422,6 +422,7 @@ bool FT891_CAT::ProcessCmd ()
 	uint8_t		oldMode;								// Ditto
 	uint16_t	tempBND;
 	uint8_t		tempNA;
+	uint8_t		tempMD;
 	int			tempFT;
 
 	bool		cmdProcessed = false;					// True if we actually did something
@@ -497,6 +498,7 @@ bool FT891_CAT::ProcessCmd ()
 		case MSG_NA:
 			tempNA = atoi(dataBuff);					// Convert into temporary place
 			radioStatus.NA = tempNA;					// Update radioStatus.BND
+			printf("MSG_NA %s %d\n", dataBuff, tempNA);
 			cmdProcessed = true;
 			break;
 
@@ -530,12 +532,14 @@ bool FT891_CAT::ProcessCmd ()
 			}
 			break;
 		
-		case MSG_MD:									// Set mode (USB, LSB, CW, etc.)
-			tempMode = xtoi ( dataBuff );				// Convert to a number
-
-			SetMDA ( tempMode );						// Set in radioStatus
-			SetMDB ( tempMode );						// Both modes for now
-
+		case MSG_MD:
+			dataBuff[2] = '\0';								// Set mode (USB, LSB, CW, etc.)
+			tempMD = xtoi ( &dataBuff[1] );				// Convert to a number
+			if (dataBuff[0] == '0')
+				SetMDA(tempMD );						// Set in radioStatus
+			if (dataBuff[0] == '1')
+				SetMDB(tempMD );						// Both modes for now
+			//printf("MSG_MD %s %d\n", dataBuff, tempMD);
 			cmdProcessed = true;						// Command was processed
 			break;
 
@@ -880,12 +884,12 @@ uint8_t FT891_CAT::GetMDB ()					// Get VFO-B mode
 	return radioStatus.MDB;						// Done!
 }
 
-void FT891_CAT::SetNA(uint8_t na) // Get VFO-A mode
+void FT891_CAT::SetNA(uint8_t na) 
 {
 	radioStatus.NA = na; // Done!
 }
 
-uint8_t FT891_CAT::GetNA() // Get VFO-A mode
+uint8_t FT891_CAT::GetNA() 
 {
 	return radioStatus.NA; // Done!
 }
@@ -1079,3 +1083,4 @@ void FT891_CAT::SetEX(char *buf)
 		// radioStatus.AI = ai; // Done!
 	}
 }
+

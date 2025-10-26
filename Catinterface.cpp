@@ -162,6 +162,8 @@ void Catinterface::begin()
 	ifgain = 0;
 	volume = 0;
 	rfgain = 0;
+	mda = Settings_file.convert_mode(Settings_file.get_string("VFO1", "Mode"));
+	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
 	vfo_a = 50260000UL;
 	vfo_b = 50260000UL;
 }
@@ -242,6 +244,19 @@ void Catinterface::checkCAT()
 			rfgain = count;
 			guiQueue.push_back(GuiMessage(GuiMessage::action::setifgain, count));
 		}
+		count = cat_message.GetMDA();
+		if (count && mda != count)
+		{
+			mda = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_a, decode_mode(count)));
+		}
+		count = cat_message.GetMDB();
+		if (count && mdb != count)
+		{
+			mdb = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_b, decode_mode(count)));
+		}
+		
 		if (!(mode == mode_ft8 || mode == mode_ft4))
 		{
 			int rxtxCatMessage = cat_message.GetTX();
@@ -278,4 +293,41 @@ void Catinterface::operator()()
 	{
 		checkCAT();
 	}
+}
+
+
+int decode_mode(int md)
+{
+	int mode;
+	switch (md)
+	{
+	case 0:
+		mode = mode_lsb;
+		break;
+	case 1:
+		mode = mode_lsb;
+		break;
+	case 2:
+		mode = mode_usb;
+		break;
+	case 3:
+		mode = mode_usb;
+		break;
+	case 4:
+		mode = mode_narrowband_fm;
+		break;
+	case 5:
+		mode = mode_am;
+		break;
+	case 6:
+		mode = mode_usb;
+		break;
+	case 7:
+		mode = mode_usb;
+		break;
+	default:
+		mode = mode_usb;
+		break;
+	}
+return mode;
 }

@@ -21,7 +21,7 @@ class CatTcpComm : public Cat_communicator
 	int server_fd, tcp_socket;
 	int port;
 	struct sockaddr_in address;
-	bool connected, accepted;
+	bool connected;
 };
 
 class CatTcpServer
@@ -37,7 +37,8 @@ class CatTcpServer
 	CatTcpComm cattcpcomm;
 	FT891_CAT cat_message;
 	uint32_t vfo_a, vfo_b;
-	uint16_t filter;
+	int filter;
 	int m_mode{0};
+	int mda, mdb;
 };
 

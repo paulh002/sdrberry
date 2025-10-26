@@ -46,6 +46,7 @@ class Catinterface
 	int ifgain;
 	int volume;
 	int rfgain;
+	int mda, mdb;
 	std::atomic<bool> bpause_cat{false};
 	std::atomic<bool> muteFA{false};
 	int channel{};
@@ -53,3 +54,4 @@ class Catinterface
 };
 
 extern Catinterface catinterface;
+extern int decode_mode(int md);

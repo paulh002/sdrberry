@@ -7,10 +7,12 @@
 #include "SharedQueue.h"
 #include "lvgl_.h"
 #include "sdrberry.h"
+#include "gui_bar.h"
 
 const int BUFFER_SIZE = 80;
 
 extern SharedQueue<GuiMessage> guiQueue;
+extern int decode_mode(int md);
 
 CatTcpComm::~CatTcpComm()
 {
@@ -55,7 +57,6 @@ bool CatTcpComm::begin()
 	}
 	printf("TCP CAT interface listen on port %d\n", port);
 	connected = false;
-	accepted = false;
 	return true;
 }
 
@@ -84,7 +85,6 @@ int CatTcpComm::Read(char c, std::string &message)
 		}
 		printf("TCP CAT interface accept connection on port %d\n", port);
 		connected = true;
-		accepted = true;
 	}
 
 	int i = 0;
@@ -133,6 +133,9 @@ bool CatTcpServer::StartServer()
 {
 	vfo_a = 50260000UL;
 	vfo_b = 50260000UL;
+	filter = gbar.get_filter_frequency(mode);
+	mda = Settings_file.convert_mode(Settings_file.get_string("VFO1", "Mode"));
+	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
 
 	if (cattcpcomm.begin())
 	{
@@ -152,7 +155,11 @@ void CatTcpServer::operator()()
 	while (1)
 	{
 		int ret = cat_message.CheckCAT(false);
-		if (ret > 0)
+		if (ret < 0)
+		{
+			printf("Error reading tcp socket \n");
+		}
+		else if (ret > 0)
 		{
 			count = cat_message.GetFA();
 			if (count && vfo_a != count)
@@ -169,6 +176,18 @@ void CatTcpServer::operator()()
 				filter = count;
 				printf("NA CAT filter %d \n", filter);
 				guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
+			}
+			count = cat_message.GetMDA();
+			if (count && mda != count)
+			{
+				mda = count;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_a, decode_mode(count)));
+			}
+			count = cat_message.GetMDB();
+			if (count && mdb != count)
+			{
+				mdb = count;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_b, decode_mode(count)));
 			}
 			if (!(mode == mode_ft8 || mode == mode_ft4)) // TX
 			{

@@ -980,7 +980,25 @@ int main(int argc, char *argv[])
 			case GuiMessage::setpos:
 				SpectrumGraph.set_pos(vfo.get_vfo_offset());
 				break;
+			
+			case GuiMessage::setmode_vfo_a:
+				if (!IsDigtalMode(mode))
+				{
+					gbar.set_vfo(vfo_activevfo::One);
+					gbar.set_mode(msg.data);
+					select_mode(msg.data);
+				}
+				break;
 				
+			case GuiMessage::setmode_vfo_b:
+				if (!IsDigtalMode(mode))
+				{
+					gbar.set_vfo(vfo_activevfo::Two);
+					gbar.set_mode(msg.data);
+					select_mode(msg.data);
+				}
+				break;
+			
 			case GuiMessage::setband:
 				{
 					gui_band_instance.set_gui(msg.data);

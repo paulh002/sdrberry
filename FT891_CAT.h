@@ -187,7 +187,7 @@ class FT891_CAT // Class name
 	void SetNA(uint8_t na);
 	void SetEX(char *buf);
 
-	uint32_t GetFA();   // Get VFO-A frequency
+	uint32_t GetFA();	// Get VFO-A frequency
 	uint32_t GetFB();   // Get VFO-B frequency
 	uint8_t GetMDA();   // Get VFO-A mode
 	uint8_t GetMDB();   // Get VFO-B mode

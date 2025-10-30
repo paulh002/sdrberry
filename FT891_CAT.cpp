@@ -81,6 +81,8 @@ struct	status {
 	uint8_t			RG		 = 0;				// RF Gain
 	uint8_t			IG		 = 0;
 	uint8_t			PS		 = 1;				// Power
+	uint8_t			RT		 = 0;				// RIT on/off
+	uint32_t		RD		 = 0UL;				// RIT delta frequency
 } radioStatus;
 
 
@@ -113,7 +115,7 @@ msg msgTable[] =
 		{"ID", MSG_ID, MSG_STS},   // Request radio's ID (0650 for the FT-891)
 		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
 		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
-		{"MD", MSG_MD, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
+		{"MD", MSG_MD, MSG_BOTH},  // Set or request mode (USB, LSB, CW, etc.)
 		{"NA0", MSG_NA, MSG_BOTH}, // Request narrow IF shift
 		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
 		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status
@@ -128,12 +130,13 @@ msg msgTable[] =
 		{"RG", MSG_RG, MSG_BOTH},  // Set rf gain
 		{"GT", MSG_GT, MSG_BOTH},  // Get command 0 = Max Volume, 1 Max Gain, 2 List bands, 3 List Filter
 		{"IG", MSG_IG, MSG_BOTH},
-		{"PS", MSG_PS, MSG_STS}		// Power status
-	};
-
+		{"PS", MSG_PS, MSG_STS}, // Power status
+		{"RT", MSG_RT, MSG_BOTH},
+		{"RD", MSG_RD, MSG_BOTH}
+};
 
 	int	 pttPin;							// GPIO pin to key the transmitter
-	//bool addNewline  = false;				// Add a newline to the output if 'true'
+//bool addNewline  = false;				// Add a newline to the output if 'true'
 	
 /*
  *	Only one constructor; nothing to do really.
@@ -591,7 +594,17 @@ bool FT891_CAT::ProcessCmd ()
 			radioStatus.TX = dataBuff[0] - '0';
 			cmdProcessed = true;
 			break;
+
+		case MSG_RT:	// Set RIT status
+			radioStatus.RT = dataBuff[0] - '0';
+			cmdProcessed = true;
+			break;
 		
+		case MSG_RD: // Set RIT status
+			radioStatus.RD = atoi(dataBuff);
+			cmdProcessed = true;
+			break;
+
 		case MSG_GT:									// Get information command
 			if(bVFOmode)
 			{
@@ -894,6 +907,16 @@ uint8_t FT891_CAT::GetNA()
 	return radioStatus.NA; // Done!
 }
 
+uint8_t FT891_CAT::GetRT()
+{
+	return radioStatus.RT; // Done!
+}
+
+uint32_t FT891_CAT::GetRD()
+{
+	return radioStatus.RD; // Done!
+}
+
 /*
  *	Allow the main program to set or get the transmit/receive status:
  */
@@ -1084,3 +1107,16 @@ void FT891_CAT::SetEX(char *buf)
 	}
 }
 
+void FT891_CAT::SetRT(uint8_t rt) // Get if gain
+{
+	if (rt < 0 || rt > 1)
+		return;
+	radioStatus.RT = rt; // Done!
+}
+
+void FT891_CAT::SetRD(uint32_t rd) // Get if gain
+{
+	if (rd < -500 || rd > 500)
+		return;
+	radioStatus.RD = rd; // Done!
+}

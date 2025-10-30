@@ -1,7 +1,7 @@
 #include "guiSliderWindows.h"
 #include "CustomEvents.h"
 
-LV_IMG_DECLARE(ui_img_btn_knob_png); // assets/btn_knob.png
+LV_IMG_DECLARE(btn_knob); // assets/btn_knob.png ui_img_btn_knob_png
 
 const int windowsliderbar = 40;
 
@@ -74,7 +74,7 @@ void guiSliderWindows::create_rotary_button(lv_obj_t *parent, int dy)
 	lv_coord_t height = lv_obj_get_content_height(winAreaObject);
 
 	ui_Image1 = lv_img_create(winAreaObject);
-	lv_img_set_src(ui_Image1, &ui_img_btn_knob_png);
+	lv_img_set_src(ui_Image1, &btn_knob);
 	lv_obj_set_width(ui_Image1, 104);
 	lv_obj_set_height(ui_Image1, 105);
 	lv_obj_set_x(ui_Image1, 0);

@@ -982,7 +982,7 @@ int main(int argc, char *argv[])
 				break;
 			
 			case GuiMessage::setmode_vfo_a:
-				if (!IsDigtalMode(mode))
+				if (!IsDigtalMode(mode) && mode != msg.data)
 				{
 					gbar.set_vfo(vfo_activevfo::One);
 					gbar.set_mode(msg.data);
@@ -991,14 +991,36 @@ int main(int argc, char *argv[])
 				break;
 				
 			case GuiMessage::setmode_vfo_b:
-				if (!IsDigtalMode(mode))
+				if (!IsDigtalMode(mode) && mode != msg.data)
 				{
 					gbar.set_vfo(vfo_activevfo::Two);
 					gbar.set_mode(msg.data);
 					select_mode(msg.data);
 				}
 				break;
-			
+
+			case GuiMessage::rit_onoff:
+				if (!IsDigtalMode(mode))
+				{
+					if (!msg.data)
+					{
+						vfo.setRit(0, vfo.get_active_vfo());
+						gbar.set_rit_button(false, 0);
+					}
+				}
+				break;
+
+			case GuiMessage::rit_delta:
+				if (!IsDigtalMode(mode))
+				{
+					vfo.setRit(msg.data, vfo.get_active_vfo());
+					if (msg.data == 0)
+						gbar.set_rit_button(false, msg.data);
+					else
+						gbar.set_rit_button(true, msg.data);
+				}
+				break;
+
 			case GuiMessage::setband:
 				{
 					gui_band_instance.set_gui(msg.data);

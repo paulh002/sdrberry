@@ -29,7 +29,10 @@ class CatTcpServer
   public:
 	bool StartServer();
 	void StopServer();
-
+	void SetNA(int ft);
+	void SetMDA(int md);
+	void SetMDB(int mode);
+	
 	void operator()();
 	FT891_CAT *operator->() { return &cat_message; }
 	
@@ -40,5 +43,7 @@ class CatTcpServer
 	int filter;
 	int m_mode{0};
 	int mda, mdb;
+	int rit_onoff, rit_delta;
 };
 
+extern CatTcpServer cattcpserver;

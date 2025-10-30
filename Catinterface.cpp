@@ -162,10 +162,31 @@ void Catinterface::begin()
 	ifgain = 0;
 	volume = 0;
 	rfgain = 0;
+	filter = 1;
 	mda = Settings_file.convert_mode(Settings_file.get_string("VFO1", "Mode"));
 	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
 	vfo_a = 50260000UL;
 	vfo_b = 50260000UL;
+	rit_onoff = 0;
+	rit_delta = 0;
+}
+
+void Catinterface::SetNA(int ft)
+{
+	filter = ft;
+	cat_message.SetNA(filter);
+}
+
+void Catinterface::SetMDA(int mode)
+{
+	mda = encode_mode(mode);
+	cat_message.SetMDA(filter);
+}
+
+void Catinterface::SetMDB(int mode)
+{
+	mda = encode_mode(mode);
+	cat_message.SetMDB(filter);
 }
 
 void Catinterface::InitVfo(uint32_t a, uint32_t b)
@@ -225,7 +246,13 @@ void Catinterface::checkCAT()
 				}
 			}
 		}
-		
+		count = cat_message.GetNA();
+		if (count && filter != count)
+		{
+			filter = count;
+			printf("NA CAT filter %d \n", filter);
+			guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
+		}
 		count = cat_message.GetIG();
 		if (count && ifgain != count)
 		{
@@ -256,7 +283,18 @@ void Catinterface::checkCAT()
 			mdb = count;
 			guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_b, decode_mode(count)));
 		}
-		
+		count = cat_message.GetRT();
+		if (count && rit_onoff != count)
+		{
+			rit_onoff = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::rit_onoff, rit_onoff));
+		}
+		count = cat_message.GetRD();
+		if (count && rit_delta != count)
+		{
+			rit_delta = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::rit_delta, rit_delta));
+		}
 		if (!(mode == mode_ft8 || mode == mode_ft4))
 		{
 			int rxtxCatMessage = cat_message.GetTX();
@@ -328,6 +366,30 @@ int decode_mode(int md)
 	default:
 		mode = mode_usb;
 		break;
+	}
+return mode;
+}
+
+int encode_mode(int md)
+{
+	int mode;
+	switch (md)
+	{
+	case mode_lsb:
+			mode = 1;
+			break;
+	case mode_usb:
+			mode = 2;
+			break;
+	case mode_narrowband_fm:
+			mode = 4;
+			break;
+	case mode_am:
+			mode = 5;
+			break;
+	default:
+			mode = 2;
+			break;
 	}
 return mode;
 }

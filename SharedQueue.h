@@ -105,7 +105,9 @@ class GuiMessage
 		setvfo_b,
 		change_step,
 		setmode_vfo_a,
-		setmode_vfo_b
+		setmode_vfo_b,
+		rit_onoff,
+		rit_delta
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

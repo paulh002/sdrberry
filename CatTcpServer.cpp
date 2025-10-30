@@ -214,7 +214,7 @@ void CatTcpServer::operator()()
 				guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_b, decode_mode(count)));
 			}
 			count = cat_message.GetRT();
-			if (count && rit_onoff != count)
+			if (rit_onoff != count)
 			{
 				rit_onoff = count;
 				guiQueue.push_back(GuiMessage(GuiMessage::action::rit_onoff, rit_onoff));

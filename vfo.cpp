@@ -373,8 +373,10 @@ int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 	}
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo), getBandIndex(get_band_no(vfo_setting.active_vfo)));
 	gui_band_instance.set_gui(vfo_setting.band[0]);
-	catinterface->SetFA(vfo_setting.vfo_freq[0]);
-	catinterface->SetFB(vfo_setting.vfo_freq[1]);
+	if (vfo.vfo_setting.active_vfo == vfo_activevfo::One)
+		catinterface->SetFA(vfo_setting.vfo_freq[0]);
+	if (vfo.vfo_setting.active_vfo == vfo_activevfo::Two)
+		catinterface->SetFB(vfo_setting.vfo_freq[1]);
 	catinterface.InitVfo(vfo_setting.vfo_freq[0], vfo_setting.vfo_freq[1]);
 	updateweb();
 	return retval;

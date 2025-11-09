@@ -45,6 +45,7 @@ void Comm::Send(std::string s)
 		serialPuts(serialport, (const char *)s.c_str());
 		if (Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
 			printf("Cat USB response %s\n", s.c_str());
+		serialFlush(serialport);
 	}
 }
 

@@ -106,8 +106,8 @@ struct msg // Keeps everything together
 #define MSG_GT 24  // Get information command
 #define MSG_IG 25  // Get and set if command
 #define MSG_PS 26  // Power status
-
-
+#define MSG_RT 27  // RIT on/off
+#define MSG_RD 28  // RIT delta frequency
 /*
  *	Miscellaneous definitions:
  */
@@ -186,8 +186,10 @@ class FT891_CAT // Class name
 	void SetAI(uint16_t ai);
 	void SetNA(uint8_t na);
 	void SetEX(char *buf);
+	void SetRT(uint8_t rt);
+	void SetRD(uint32_t rd);
 
-	uint32_t GetFA();   // Get VFO-A frequency
+	uint32_t GetFA();	// Get VFO-A frequency
 	uint32_t GetFB();   // Get VFO-B frequency
 	uint8_t GetMDA();   // Get VFO-A mode
 	uint8_t GetMDB();   // Get VFO-B mode
@@ -200,7 +202,9 @@ class FT891_CAT // Class name
 	int GetSH();
 	uint8_t GetIG();
 	uint8_t GetNA();
-	
+	uint8_t GetRT();
+	uint32_t GetRD();
+
 	void SendInformation(int info);
 	void SendCatMessage(int fd, std::string message);
 	int OpenCatChannel();

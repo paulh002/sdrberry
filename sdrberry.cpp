@@ -384,6 +384,58 @@ static void tabview_event_cb(lv_event_t *e)
 	}
 }
 
+void process_vfo_message(GuiMessage msg)
+{
+	float freqf;
+	long freq;
+	std::string buf;
+
+	// printf("Message %s \n", msg.text.c_str());
+	buf = msg.text;
+	if (msg.text.find(" ") != string::npos)
+	{
+		buf = msg.text.substr(0, msg.text.find(" "));
+		if (buf.length() == 0)
+			buf = msg.text.substr(0, msg.text.find("M"));
+		if (buf.length() == 0)
+			buf = msg.text.substr(0, msg.text.find("m"));
+		if (buf.length() == 0)
+			buf = msg.text.substr(0, msg.text.find("K"));
+		if (buf.length() == 0)
+			buf = msg.text.substr(0, msg.text.find("k"));
+	}
+	if (buf.length() > 0 && strlib::has_any_digits(buf))
+	{
+		freqf = std::stof(buf);
+		if (msg.text.find("M") != string::npos)
+			freqf = freqf * 1000000;
+		if (msg.text.find("K") != string::npos)
+			freqf = freqf * 1000;
+		if (msg.text.find("m") != string::npos)
+			freqf = freqf * 1000000;
+		if (msg.text.find("k") != string::npos)
+			freqf = freqf * 1000;
+		freq = freqf;
+		if (vfo.is_vfo_limit_ham_band())
+		{
+			if (vfo.checkVfoBandRange(freq))
+			{
+				vfo.set_band_freq(freq);
+			}
+			else
+			{
+				static const char *btns[] = {""};
+				lv_obj_t *mbox1 = lv_msgbox_create(NULL, "VFO", "Out of Ham band range", btns, true);
+				lv_obj_center(mbox1);
+			}
+		}
+		else
+		{
+			vfo.set_vfo(freq);
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	if (isAlreadyRunning())
@@ -894,57 +946,22 @@ int main(int argc, char *argv[])
 			GuiMessage msg = guiQueue.front();
 			switch (msg.message)
 			{
-			case GuiMessage::setvfo: {
-				float freqf;
-				long freq;
-				std::string buf;
-
-				//printf("Message %s \n", msg.text.c_str());
-				buf = msg.text;
-				if (msg.text.find(" ") != string::npos)
-				{
-					buf = msg.text.substr(0, msg.text.find(" "));
-					if (buf.length() == 0)
-						buf = msg.text.substr(0, msg.text.find("M"));
-					if (buf.length() == 0)
-						buf = msg.text.substr(0, msg.text.find("m"));
-					if (buf.length() == 0)
-						buf = msg.text.substr(0, msg.text.find("K"));
-					if (buf.length() == 0)
-						buf = msg.text.substr(0, msg.text.find("k"));
-				}
-				if (buf.length() > 0 && strlib::has_any_digits(buf))
-				{
-					freqf = std::stof(buf);
-					if (msg.text.find("M") != string::npos)
-						freqf = freqf * 1000000;
-					if (msg.text.find("K") != string::npos)
-						freqf = freqf * 1000;
-					if (msg.text.find("m") != string::npos)
-						freqf = freqf * 1000000;
-					if (msg.text.find("k") != string::npos)
-						freqf = freqf * 1000;
-					freq = freqf;
-					if (vfo.is_vfo_limit_ham_band())
-					{
-						if (vfo.checkVfoBandRange(freq))
-						{
-							vfo.set_band_freq(freq);
-						}
-						else
-						{
-							static const char *btns[] = {""};
-							lv_obj_t *mbox1 = lv_msgbox_create(NULL, "VFO", "Out of Ham band range", btns, true);
-							lv_obj_center(mbox1);
-						}
-					}
-					else
-					{
-						vfo.set_vfo(freq);
-					}
-				}
+			case GuiMessage::setvfo_a: {
+				gbar.set_vfo(vfo_activevfo::One);
+				process_vfo_message(msg);
 				break;
 			}
+			case GuiMessage::setvfo_b: {
+				gbar.set_vfo(vfo_activevfo::Two);
+				process_vfo_message(msg);
+				break;
+			}
+				
+			case GuiMessage::setvfo: {
+				process_vfo_message(msg);
+				break;
+			}
+			
 			case GuiMessage::change_step:
 				gbar.change_step(-1);
 				break;
@@ -952,15 +969,58 @@ int main(int argc, char *argv[])
 			case GuiMessage::step:
 				vfo.step_vfo(msg.data);
 				break;
+			
 			case GuiMessage::blink:
 				if (msg.data)
 					gbar.setIfGainOverflow(true);
 				else
 					gbar.setIfGainOverflow(false);
 				break;
+				
 			case GuiMessage::setpos:
 				SpectrumGraph.set_pos(vfo.get_vfo_offset());
 				break;
+			
+			case GuiMessage::setmode_vfo_a:
+				if (!IsDigtalMode(mode) && mode != msg.data)
+				{
+					gbar.set_vfo(vfo_activevfo::One);
+					gbar.set_mode(msg.data);
+					select_mode(msg.data);
+				}
+				break;
+				
+			case GuiMessage::setmode_vfo_b:
+				if (!IsDigtalMode(mode) && mode != msg.data)
+				{
+					gbar.set_vfo(vfo_activevfo::Two);
+					gbar.set_mode(msg.data);
+					select_mode(msg.data);
+				}
+				break;
+
+			case GuiMessage::rit_onoff:
+				if (!IsDigtalMode(mode))
+				{
+					if (!msg.data)
+					{
+						vfo.setRit(0, vfo.get_active_vfo());
+						gbar.set_rit_button(false, 0);
+					}
+				}
+				break;
+
+			case GuiMessage::rit_delta:
+				if (!IsDigtalMode(mode))
+				{
+					vfo.setRit(msg.data, vfo.get_active_vfo());
+					if (msg.data == 0)
+						gbar.set_rit_button(false, msg.data);
+					else
+						gbar.set_rit_button(true, msg.data);
+				}
+				break;
+
 			case GuiMessage::setband:
 				{
 					gui_band_instance.set_gui(msg.data);
@@ -1573,3 +1633,4 @@ void create_spectrum_page_time()
 	if (time)
 		lv_timer_t *timer = lv_timer_create(my_timer, time, NULL);
 }
+

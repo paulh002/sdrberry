@@ -1,5 +1,6 @@
 #include "vfo.h"
 #include "Catinterface.h"
+#include "CatTcpServer.h"
 #include "BandFilter.h"
 #include "sdrstream.h"
 #include "Spectrum.h"
@@ -141,6 +142,11 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	catinterface->SetBand(get_band_in_meters());
 	catinterface->SetFA(vfo_setting.vfo_freq[0]);
 	catinterface->SetFB(vfo_setting.vfo_freq[1]);
+	catinterface.SetMDA(get_mode_no(0));
+	cattcpserver.SetMDA(get_mode_no(0));
+	catinterface.SetMDB(get_mode_no(1));
+	cattcpserver.SetMDB(get_mode_no(1));
+	
 	gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
 	//printf("Vfo init: freq %lld, sdr %lld offset %ld maxoffset %ld\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 }
@@ -367,10 +373,11 @@ int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 	}
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo), getBandIndex(get_band_no(vfo_setting.active_vfo)));
 	gui_band_instance.set_gui(vfo_setting.band[0]);
-	if (vfo_setting.active_vfo == 0)
+	if (vfo.vfo_setting.active_vfo == vfo_activevfo::One)
 		catinterface->SetFA(vfo_setting.vfo_freq[0]);
-	else
+	if (vfo.vfo_setting.active_vfo == vfo_activevfo::Two)
 		catinterface->SetFB(vfo_setting.vfo_freq[1]);
+	catinterface.InitVfo(vfo_setting.vfo_freq[0], vfo_setting.vfo_freq[1]);
 	updateweb();
 	return retval;
 }

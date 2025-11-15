@@ -102,6 +102,8 @@ class gui_bar
 	void get_gain_range(int &max_gain, int &min_gain);
 	void set_gain_slider_band_from_config(bool web = true);
 	int get_filter_frequency(int mode);
+	int get_filter_index();
+	void set_rit_button(bool rit, int value);
 
 	lv_obj_t *get_button_obj(int i)
 	{

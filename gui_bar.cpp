@@ -1,5 +1,6 @@
 #include "gui_bar.h"
 #include "Catinterface.h"
+#include "CatTcpServer.h"
 #include "CustomEvents.h"
 #include "gui_ft8bar.h"
 #include "gui_rx.h"
@@ -145,6 +146,25 @@ void gui_bar::set_mode(int mode)
 	}
 	std::string txt = std::string("Mode") + std::string("\n#0fff0f ") + ModesTypes[i] + std::string("#");
 	lv_label_set_text(label[buttonmode], txt.c_str());
+	if (vfo.get_active_vfo() == vfo_activevfo::One)
+	{
+		catinterface.SetMDA(i);
+		cattcpserver.SetMDA(i);
+	}
+	else
+	{
+		catinterface.SetMDB(i);
+		cattcpserver.SetMDB(i);
+	}
+}
+
+void gui_bar::set_rit_button(bool rit, int value)
+{
+	rit_value = value;
+	if (rit)
+		lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
+	else
+		lv_obj_clear_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 }
 
 void gui_bar::bar_button_handler_class(lv_event_t *e)
@@ -519,11 +539,13 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 		{
 
 			int sel = lv_dropdown_get_selected(obj);
-			catinterface->SetNA(sel);
+			catinterface.SetNA(sel);
+			cattcpserver.SetNA(sel);
 			update_filter(ifilters.at(sel));
 			filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilters.at(sel);
 			Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
-			catinterface->SetNA(sel);
+			catinterface.SetNA(sel);
+			cattcpserver.SetNA(sel);
 			updateweb();
 		}
 		else
@@ -987,6 +1009,11 @@ int gui_bar::get_filter_frequency(int mode)
 		return 0;
 }
 
+int gui_bar::get_filter_index()
+{
+	return lv_dropdown_get_selected(button[button_filter]);
+}
+
 void gui_bar::set_filter_dropdown(int ifilter)
 {
 	int filter = 7;
@@ -1021,7 +1048,8 @@ void gui_bar::set_filter_dropdown(int ifilter)
 		filter = 9;
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
-	catinterface->SetNA(filter);
+	catinterface.SetNA(filter);
+	cattcpserver.SetNA(filter);
 	if (!IsDigtalMode(mode))
 	{
 		filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
@@ -1099,6 +1127,7 @@ void gui_bar::websetfilter(std::string message)
 			lv_dropdown_set_selected(button[button_filter], filter);
 			update_filter(ifilters[filter]);
 			catinterface->SetNA(filter);
+			cattcpserver.SetNA(filter);
 		}
 		filter++;
 	}

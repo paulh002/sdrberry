@@ -95,6 +95,7 @@
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="BandFilter.cpp" />
     <ClCompile Include="BandPassFilter.cpp" />
+    <ClCompile Include="btn_knob.c" />
     <ClCompile Include="Catinterface.cpp" />
     <ClCompile Include="CatTcpServer.cpp" />
     <ClCompile Include="CivetServer.cpp" />
@@ -206,7 +207,6 @@
     <ClCompile Include="tempMeter.cpp" />
     <ClCompile Include="tempSensor.cpp" />
     <ClCompile Include="tz.cpp" />
-    <ClCompile Include="ui_img_btn_knob_png.c" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="VfoKeyPad.cpp" />
     <ClCompile Include="Waterfall.cpp" />

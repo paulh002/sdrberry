@@ -5,6 +5,8 @@
 
 extern SharedQueue<GuiMessage> guiQueue;
 
+const int max_cat_message_length = 20;
+
 Comm::~Comm()
 {
 	if (serialport > 0)
@@ -39,7 +41,12 @@ bool Comm::begin()
 void Comm::Send(std::string s)
 {
 	if (serialport > 0)
+	{
 		serialPuts(serialport, (const char *)s.c_str());
+		if (Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
+			printf("Cat USB response %s\n", s.c_str());
+		serialFlush(serialport);
+	}
 }
 
 bool Comm::IsCommuncationPortOpen()
@@ -54,7 +61,6 @@ int Comm::Read(char c, std::string &s)
 	s.clear();
 	do
 	{
-		//chr = serialGetchar(serialport);
 		int ret = serialReadchar(serialport, &chr);
 		if (ret < 0)
 			return -1;
@@ -66,7 +72,10 @@ int Comm::Read(char c, std::string &s)
 		}
 		i++;
 	} while (chr != c && i < 80);
-	//printf("ESP32 CAT: %s\n",s.c_str());
+	if (s.size() && Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
+		printf("Cat USB message size %d %s\n",i, s.c_str());
+	if (i > max_cat_message_length)
+		s.clear();
 	return s.length();
 }
 
@@ -154,6 +163,37 @@ void Catinterface::begin()
 	ifgain = 0;
 	volume = 0;
 	rfgain = 0;
+	filter = 1;
+	mda = Settings_file.convert_mode(Settings_file.get_string("VFO1", "Mode"));
+	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
+	vfo_a = 50260000UL;
+	vfo_b = 50260000UL;
+	rit_onoff = 0;
+	rit_delta = 0;
+}
+
+void Catinterface::SetNA(int ft)
+{
+	filter = ft;
+	cat_message.SetNA(filter);
+}
+
+void Catinterface::SetMDA(int mode)
+{
+	mda = encode_mode(mode);
+	cat_message.SetMDA(filter);
+}
+
+void Catinterface::SetMDB(int mode)
+{
+	mda = encode_mode(mode);
+	cat_message.SetMDB(filter);
+}
+
+void Catinterface::InitVfo(uint32_t a, uint32_t b)
+{
+	vfo_a = a;
+	vfo_b = b;
 }
 
 void Catinterface::checkCAT()
@@ -177,11 +217,42 @@ void Catinterface::checkCAT()
 		int count = cat_message.GetFT();
 		if (count)
 		{
-			//vfo.step_vfo(count, true);
+			// vfo.step_vfo(count, true);
 			if (!muteFA.load())
 			{
 				guiQueue.push_back(GuiMessage(GuiMessage::action::step, count));
+			}	
+		}
+		else
+		{
+			count = cat_message.GetFA();
+			if (count && vfo_a != count)
+			{
+				char str[80];
+
+				vfo_a = count;
+				sprintf(str, "%d", count);
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo_a, str));
 			}
+			else
+			{
+				count = cat_message.GetFB();
+				if (count && vfo_b != count)
+				{
+					char str[80];
+
+					vfo_b = count;
+					sprintf(str, "%d", count);
+					guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo_b, str));
+				}
+			}
+		}
+		count = cat_message.GetNA();
+		if (count && filter != count)
+		{
+			filter = count;
+			printf("NA CAT filter %d \n", filter);
+			guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
 		}
 		count = cat_message.GetIG();
 		if (count && ifgain != count)
@@ -200,6 +271,30 @@ void Catinterface::checkCAT()
 		{
 			rfgain = count;
 			guiQueue.push_back(GuiMessage(GuiMessage::action::setifgain, count));
+		}
+		count = cat_message.GetMDA();
+		if (count && mda != count)
+		{
+			mda = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_a, decode_mode(count)));
+		}
+		count = cat_message.GetMDB();
+		if (count && mdb != count)
+		{
+			mdb = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_b, decode_mode(count)));
+		}
+		count = cat_message.GetRT();
+		if (count && rit_onoff != count)
+		{
+			rit_onoff = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::rit_onoff, rit_onoff));
+		}
+		count = cat_message.GetRD();
+		if (count && rit_delta != count)
+		{
+			rit_delta = count;
+			guiQueue.push_back(GuiMessage(GuiMessage::action::rit_delta, rit_delta));
 		}
 		if (!(mode == mode_ft8 || mode == mode_ft4))
 		{
@@ -237,4 +332,65 @@ void Catinterface::operator()()
 	{
 		checkCAT();
 	}
+}
+
+
+int decode_mode(int md)
+{
+	int mode;
+	switch (md)
+	{
+	case 0:
+		mode = mode_lsb;
+		break;
+	case 1:
+		mode = mode_lsb;
+		break;
+	case 2:
+		mode = mode_usb;
+		break;
+	case 3:
+		mode = mode_usb;
+		break;
+	case 4:
+		mode = mode_narrowband_fm;
+		break;
+	case 5:
+		mode = mode_am;
+		break;
+	case 6:
+		mode = mode_usb;
+		break;
+	case 7:
+		mode = mode_usb;
+		break;
+	default:
+		mode = mode_usb;
+		break;
+	}
+return mode;
+}
+
+int encode_mode(int md)
+{
+	int mode;
+	switch (md)
+	{
+	case mode_lsb:
+			mode = 1;
+			break;
+	case mode_usb:
+			mode = 2;
+			break;
+	case mode_narrowband_fm:
+			mode = 4;
+			break;
+	case mode_am:
+			mode = 5;
+			break;
+	default:
+			mode = 2;
+			break;
+	}
+return mode;
 }

@@ -1,4 +1,5 @@
 #include "CatTcpServer.h"
+#include "Catinterface.h"
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -7,10 +8,12 @@
 #include "SharedQueue.h"
 #include "lvgl_.h"
 #include "sdrberry.h"
+#include "gui_bar.h"
 
 const int BUFFER_SIZE = 80;
 
 extern SharedQueue<GuiMessage> guiQueue;
+
 
 CatTcpComm::~CatTcpComm()
 {
@@ -55,7 +58,6 @@ bool CatTcpComm::begin()
 	}
 	printf("TCP CAT interface listen on port %d\n", port);
 	connected = false;
-	accepted = false;
 	return true;
 }
 
@@ -84,7 +86,6 @@ int CatTcpComm::Read(char c, std::string &message)
 		}
 		printf("TCP CAT interface accept connection on port %d\n", port);
 		connected = true;
-		accepted = true;
 	}
 
 	int i = 0;
@@ -133,13 +134,39 @@ bool CatTcpServer::StartServer()
 {
 	vfo_a = 50260000UL;
 	vfo_b = 50260000UL;
-
+	filter = gbar.get_filter_frequency(mode);
+	mda = Settings_file.convert_mode(Settings_file.get_string("VFO1", "Mode"));
+	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
+	rit_onoff = 0;
+	rit_delta = 0;
+	filter = 0;
 	if (cattcpcomm.begin())
 	{
 		cat_message.begin(true, &cattcpcomm, true);
 		return true;
 	}
 	return false;
+}
+
+void CatTcpServer::SetNA(int ft)
+{
+	filter = ft;
+	cat_message.SetNA(filter);
+	printf("set filter %d\n", filter);
+}
+
+void CatTcpServer::SetMDA(int mode)
+{
+	mda = encode_mode(mode);
+	cat_message.SetMDA(filter);
+	printf("set MDA %d\n", filter);
+}
+
+void CatTcpServer::SetMDB(int mode)
+{
+	mda = encode_mode(mode);
+	cat_message.SetMDB(filter);
+	printf("set MDA %d\n", filter);
 }
 
 void CatTcpServer::StopServer()
@@ -152,7 +179,11 @@ void CatTcpServer::operator()()
 	while (1)
 	{
 		int ret = cat_message.CheckCAT(false);
-		if (ret > 0)
+		if (ret < 0)
+		{
+			printf("Error reading tcp socket \n");
+		}
+		else if (ret > 0)
 		{
 			count = cat_message.GetFA();
 			if (count && vfo_a != count)
@@ -169,6 +200,30 @@ void CatTcpServer::operator()()
 				filter = count;
 				printf("NA CAT filter %d \n", filter);
 				guiQueue.push_back(GuiMessage(GuiMessage::action::filter, count));
+			}
+			count = cat_message.GetMDA();
+			if (count && mda != count)
+			{
+				mda = count;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_a, decode_mode(count)));
+			}
+			count = cat_message.GetMDB();
+			if (count && mdb != count)
+			{
+				mdb = count;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_b, decode_mode(count)));
+			}
+			count = cat_message.GetRT();
+			if (rit_onoff != count)
+			{
+				rit_onoff = count;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::rit_onoff, rit_onoff));
+			}
+			count = cat_message.GetRD();
+			if (rit_delta != count)
+			{
+				rit_delta = count;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::rit_delta, rit_delta));
 			}
 			if (!(mode == mode_ft8 || mode == mode_ft4)) // TX
 			{

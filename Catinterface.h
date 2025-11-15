@@ -32,8 +32,12 @@ class Catinterface
 	void begin();
 	void operator()();
 	void SetBand(uint16_t band);
+	void InitVfo(uint32_t a, uint32_t b);
 	void Pause_Cat(bool pause) { bpause_cat = pause; }
 	void MuteFA(bool pause) { muteFA = pause; }
+	void SetNA(int ft);
+	void SetMDA(int md);
+	void SetMDB(int mode);
 
 	FT891_CAT *operator->() { return &cat_message; }
 
@@ -45,9 +49,15 @@ class Catinterface
 	int ifgain;
 	int volume;
 	int rfgain;
+	int mda, mdb;
+	int rit_onoff, rit_delta;
+	int filter;
 	std::atomic<bool> bpause_cat{false};
 	std::atomic<bool> muteFA{false};
 	int channel{};
+	uint32_t vfo_a, vfo_b;
 };
 
 extern Catinterface catinterface;
+extern int decode_mode(int md);
+extern int encode_mode(int md);

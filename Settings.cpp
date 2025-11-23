@@ -487,6 +487,7 @@ void Settings::save_int(string section, string key, int value)
 	config->useSection(section);
 	auto &col = (*config)(key);
 	col = value;
+	write_settings();
 }
 
 string Settings::get_string(string sdrdevice, string key)

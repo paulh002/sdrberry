@@ -47,7 +47,8 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	printf("correction rx %d, tx %d\n", vfo_setting.correction_rx, vfo_setting.correction_tx);
 	vfo_setting.notxoffset = Settings_file.get_int(default_radio, "notxoffset", 0);
 	vfo_setting.maxtxoffset = Settings_file.get_int(default_radio, "maxtxoffset", 0);
-	
+	ppm = ((double)Settings_file.get_int(default_radio, "cal_ppm", 0)) / 10.0;
+
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
 	long freq = Settings_file.get_longlong("VFO1","freq");
@@ -237,20 +238,20 @@ std::pair<vfo_spansetting,double> CVfo::compare_span_ex()
 	return std::pair<vfo_spansetting, double>(span_lower_halfrate, 0.0);
 }
 
-void	CVfo::rx_set_sdr_freq()
+void CVfo::rx_set_sdr_freq()
 {
 	if (SdrDevices && rx_channel >= 0)
 	{
-		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_RX, rx_channel, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] + vfo_setting.correction_rx);
+		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_RX, rx_channel, adjustFrequencyByPpm(vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) + vfo_setting.correction_rx);
 	}
 }
 
-void	CVfo::tx_set_sdr_freq()
+void CVfo::tx_set_sdr_freq()
 {
 	if (SdrDevices && tx_channel >= 0)
 	{
 		printf("TX Freq %lld\n", vfo.get_tx_frequency());
-		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, vfo.get_tx_frequency() + vfo_setting.correction_tx);
+		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, adjustFrequencyByPpm(vfo.get_tx_frequency()) + vfo_setting.correction_tx);
 	}
 }
 
@@ -275,6 +276,17 @@ long CVfo::get_vfo_offset_tx()
 		return 0L;
 	else
 		return vfo_setting.offset[vfo_setting.active_vfo];
+}
+
+long CVfo::adjustFrequencyByPpm(long baseFreqHz)
+{
+	double adjusted = static_cast<double>(baseFreqHz) * (1.0 + ppm / 1'000'000.0);
+	return static_cast<long>(std::round(adjusted));
+}
+
+void CVfo::set_ppm(int _ppm)
+{
+	ppm = ((double)_ppm) / 10.0;
 }
 
 /*

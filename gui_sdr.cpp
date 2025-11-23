@@ -159,7 +159,54 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	// lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, -30, -10);
 	lv_obj_align_to(span_slider_label, span_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
+	cal_ppm_label = lv_label_create(o_tab);
+	lv_label_set_text(cal_ppm_label, "calibration ppm");
+	lv_obj_align(cal_ppm_label, LV_ALIGN_TOP_LEFT, xpos, y_margin + ibutton_y * button_height_margin + button_height_margin / 2);
+
+	cal_ppm = lv_spinbox_create(o_tab);
+	lv_spinbox_set_range(cal_ppm, -999, 999);
+	lv_spinbox_set_digit_format(cal_ppm, 3, 2);
+	lv_spinbox_step_prev(cal_ppm);
+	lv_obj_set_width(cal_ppm, button_width / 2);
+	lv_obj_align_to(cal_ppm, cal_ppm_label, LV_ALIGN_OUT_BOTTOM_LEFT, button_width / 4, 10);
+	lv_coord_t hh = lv_obj_get_height(cal_ppm);
+	lv_spinbox_set_value(cal_ppm, Settings_file.get_int(default_radio, "cal_ppm", 0));
+
+	cal_ppm_inc = lv_btn_create(o_tab);
+	lv_obj_set_height(cal_ppm_inc, hh);
+	//lv_obj_set_size(cal_ppm_inc, h, h);
+	lv_obj_align_to(cal_ppm_inc, cal_ppm_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+	lv_obj_set_style_bg_img_src(cal_ppm_inc, LV_SYMBOL_PLUS, 0);
+	lv_obj_add_event_cb(cal_ppm_inc, cal_ppm_increment_event_cb, LV_EVENT_ALL, this);
+
+	cal_ppm_dec = lv_btn_create(o_tab);
+	lv_obj_set_height(cal_ppm_dec, hh);
+	// lv_obj_set_size(cal_ppm_inc, h, h);
+	lv_obj_align_to(cal_ppm_dec, cal_ppm_label, LV_ALIGN_OUT_BOTTOM_LEFT, button_width - button_width / 4, 10);
+	lv_obj_set_style_bg_img_src(cal_ppm_dec, LV_SYMBOL_MINUS, 0);
+	lv_obj_add_event_cb(cal_ppm_dec, cal_ppm_decrement_event_cb, LV_EVENT_ALL, this);
+	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+}
+
+void gui_sdr::cal_ppm_increment_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
+	{
+		lv_spinbox_increment(cal_ppm);
+		Settings_file.save_int(default_radio, "cal_ppm", lv_spinbox_get_value(cal_ppm));	
+	}	
+}
+
+void gui_sdr::cal_ppm_decrement_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
+	{
+		lv_spinbox_decrement(cal_ppm);
+		Settings_file.save_int(default_radio, "cal_ppm", lv_spinbox_get_value(cal_ppm));
+	}
 }
 
 void gui_sdr::set_group()

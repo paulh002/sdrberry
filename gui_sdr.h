@@ -16,6 +16,7 @@ class gui_sdr
 	lv_obj_t *d_receivers;
 	lv_obj_t *span_slider_label, *span_slider;
 	lv_obj_t *d_bandwitdth, *d_antenna, *settingsTable;
+	lv_obj_t *cal_ppm, *cal_ppm_label, *cal_ppm_inc, *cal_ppm_dec;
 	lv_group_t *button_group{nullptr};
 	std::vector<int> tx_sample_rates;
 
@@ -26,6 +27,8 @@ class gui_sdr
 	void decimate_button_handler_class(lv_event_t *e);
 	void antenna_button_handler_class(lv_event_t *e);
 	void tx_samplerate_button_handler_class(lv_event_t *e);
+	void cal_ppm_increment_event_cb_class(lv_event_t *e);
+	void cal_ppm_decrement_event_cb_class(lv_event_t *e);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h);
@@ -60,7 +63,8 @@ class gui_sdr
 	static constexpr auto decimate_button_handler = EventHandler<gui_sdr, &gui_sdr::decimate_button_handler_class>::staticHandler;
 	static constexpr auto antenna_button_handler = EventHandler<gui_sdr, &gui_sdr::antenna_button_handler_class>::staticHandler;
 	static constexpr auto tx_samplerate_button_handler = EventHandler<gui_sdr, &gui_sdr::tx_samplerate_button_handler_class>::staticHandler;
-	
+	static constexpr auto cal_ppm_increment_event_cb = EventHandler<gui_sdr, &gui_sdr::cal_ppm_increment_event_cb_class>::staticHandler;
+	static constexpr auto cal_ppm_decrement_event_cb = EventHandler<gui_sdr, &gui_sdr::cal_ppm_decrement_event_cb_class>::staticHandler;
 };
 
 extern gui_sdr guisdr;

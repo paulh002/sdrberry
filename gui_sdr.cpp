@@ -151,7 +151,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	// lv_obj_center(span_slider);
 	// lv_obj_align(span_slider, LV_ALIGN_TOP_MID, 0, y_span);
 	lv_obj_align_to(span_slider, o_tab, LV_ALIGN_TOP_LEFT, x_page_margin + button_width + x_margin, y_span);
-
+	lv_obj_set_width(span_slider, lv_obj_get_x(d_bandwitdth) + lv_obj_get_width(d_bandwitdth) - (x_page_margin + button_width + 2 * x_margin));	
 	lv_obj_add_event_cb(span_slider, span_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 
 	span_slider_label = lv_label_create(o_tab);

@@ -54,7 +54,7 @@
 #include "gui_gain.h"
 #include "strlib.h"
 #include "tz.h"
-
+#include "Shuttle.h"
 
 using json = nlohmann::json;
 // test
@@ -200,6 +200,7 @@ CatTcpServer cattcpserver;
 Keyboard KeyboardDevice;
 Mouse Mouse_dev;
 HidDev HidDev_dev, HidDev_dev1, HidDev_dev2;
+Shuttle shuttle;
 BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
@@ -478,7 +479,8 @@ int main(int argc, char *argv[])
 	wsjtx = make_unique<wsjtx_lib>();
 	KeyboardDevice.init_keyboard();
 	Mouse_dev.init_mouse();
-	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
+	//HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
+	shuttle.start();
 	HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
 	HidDev_dev2.init("HID 413d:553a");
 	
@@ -885,7 +887,8 @@ int main(int argc, char *argv[])
 		gui_mutex.unlock();
 		
 		//Mouse_dev.step_vfo();
-		HidDev_dev.step_vfo();
+		//HidDev_dev.step_vfo();
+		shuttle.step_vfo();
 		HidDev_dev1.step_vfo();
 		HidDev_dev2.step_vfo();
 		if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)

@@ -3,6 +3,8 @@
 #include <optional>
 #include <iostream>
 #include <iomanip>
+#include "sdrberry.h"
+#include "gui_bar.h"
 
 Shuttle::Shuttle()
 {
@@ -39,6 +41,7 @@ void Shuttle::step_vfo()
 		printReport(*reports);
 		value = (int8_t)reports->at(0);
 		uint8_t wheel_move = reports->at(1);
+		decode_buttons(reports->at(3), reports->at(4));
 		if (value == 0 && wheel_move != wheel)
 		{
 			if (wheel == 0 && wheel_move == 255)
@@ -128,4 +131,25 @@ void Shuttle::step_vfo()
 		last_time = now;
 	}
 	return;
+}
+
+void Shuttle::decode_buttons(unsigned char a, unsigned char b)
+{
+	if (a || b || button_a || button_b)
+	{
+		if (a & 0x10 || button_a & 0x10)
+		{
+			if (a & 0x10)
+			{
+					select_mode_tx(mode);
+					gbar.set_tx(true);
+			}
+			else
+			{
+					select_mode(mode);
+					gbar.set_tx(false);
+			}
+			button_a = a;
+		}
+	}
 }

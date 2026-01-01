@@ -111,9 +111,9 @@ void gui_bar::web_filterfreq()
 void gui_bar::set_tx(bool tx)
 {
 	if (tx)
-		lv_obj_add_state(button[buttontune], LV_STATE_CHECKED);
+		lv_obj_add_state(button[buttontx], LV_STATE_CHECKED);
 	else
-		lv_obj_clear_state(button[buttontune], LV_STATE_CHECKED);
+		lv_obj_clear_state(button[buttontx], LV_STATE_CHECKED);
 }
 
 void gui_bar::set_mode(int mode)

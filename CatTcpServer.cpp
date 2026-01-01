@@ -158,15 +158,15 @@ void CatTcpServer::SetNA(int ft)
 void CatTcpServer::SetMDA(int mode)
 {
 	mda = encode_mode(mode);
-	cat_message.SetMDA(filter);
-	printf("set MDA %d\n", filter);
+	cat_message.SetMDA(mda);
+	printf("set MDA %d\n", mda);
 }
 
 void CatTcpServer::SetMDB(int mode)
 {
-	mda = encode_mode(mode);
-	cat_message.SetMDB(filter);
-	printf("set MDA %d\n", filter);
+	mdb = encode_mode(mode);
+	cat_message.SetMDB(mdb);
+	printf("set MDB %d\n", mdb);
 }
 
 void CatTcpServer::StopServer()

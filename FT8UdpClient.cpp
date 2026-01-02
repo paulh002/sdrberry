@@ -376,7 +376,6 @@ void FT8UdpClient::SendQso(std::chrono::time_point<std::chrono::system_clock> qs
 		const date::year_month_day g_today_off{qso_day_off};
 		const auto jdn_off = qso_day_off.time_since_epoch().count() + 2440588;
 		qso_msg.dateOff = jdn_off;
-		
 		// auto now_time = std::chrono::system_clock::now();
 		uint32_t time_qso = std::chrono::duration_cast<std::chrono::milliseconds>(qso_time - date::floor<date::days>(qso_time)).count();
 		qso_msg.timeOn = time_qso;
@@ -450,6 +449,6 @@ void FT8UdpClient::SendStatus(struct StatusMessage status, int mode)
 			sockfd = 0;
 			return;
 		}
-		std::cout << "Status message sent." << std::endl;	
+		std::cout << "Status message sent." << std::endl;
 	}
 }

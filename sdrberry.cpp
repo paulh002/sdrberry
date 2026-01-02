@@ -482,8 +482,12 @@ int main(int argc, char *argv[])
 	//HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
 	shuttle.start();
 	HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
-	HidDev_dev2.init("HID 413d:553a");
-	
+	std::string hid_device = "HID " + Settings_file.get_string("input", "hiddevice");
+	if (hid_device.length())
+		HidDev_dev2.init(hid_device);
+	else
+		HidDev_dev2.init("HID 413d:553a");
+
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();

@@ -164,7 +164,7 @@ const int buttonHeight = 40;
 int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
 const int hidetx{4};
-const int hidespeech{5};
+//const int hidespeech{5};
 
 std::mutex gui_mutex;
 
@@ -689,7 +689,6 @@ int main(int argc, char *argv[])
 
 	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
-	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 	guisquelch.init(tab["squelch"], lv_tabview_get_tab_btns(tabview_mid), LV_HOR_RES - 3);
 
 	static lv_style_t style_btn;
@@ -780,7 +779,6 @@ int main(int argc, char *argv[])
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
 				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
-				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 				Gui_tx.set_drv_range();
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 				{
@@ -1275,13 +1273,11 @@ void set_tx_buttons()
 	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 	{
 		lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
-		lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 		Gui_tx.enable_tx(false);
 	}
 	else
 	{
 		lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
-		lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 		Gui_tx.enable_tx(true);	
 	}
 }
@@ -1499,7 +1495,6 @@ void switch_sdrreceiver(std::string receiver)
 	
 	// Hide TX page
 	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
-	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 	if (SdrDevices.MakeDevice(default_radio))
 	{
 		float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
@@ -1539,7 +1534,6 @@ void switch_sdrreceiver(std::string receiver)
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
 				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
-				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidespeech, LV_BTNMATRIX_CTRL_DISABLED);
 				guisdr.clear_sample_rate();
 				Gui_tx.set_drv_range();
 				Gui_tx.set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));

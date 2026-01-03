@@ -12,6 +12,7 @@ Shuttle::Shuttle()
 	wheel = 0;
 	last_time = std::chrono::high_resolution_clock::now();
 	device = std::make_unique<HIDDeviceMonitor>("ShuttleXpress", 0x0b33, 0x0020);
+	debugflag = Settings_file.get_int("input", "debug", 0);
 }
 
 void Shuttle::start()
@@ -38,7 +39,8 @@ void Shuttle::step_vfo()
 
 	if (reports)
 	{
-		printReport(*reports);
+		if (debugflag)
+			printReport(*reports);
 		value = (int8_t)reports->at(0);
 		uint8_t wheel_move = reports->at(1);
 		decode_buttons(reports->at(3), reports->at(4));

@@ -12,12 +12,13 @@ Shuttle::Shuttle()
 	wheel = 0;
 	last_time = std::chrono::high_resolution_clock::now();
 	device = std::make_unique<HIDDeviceMonitor>("ShuttleXpress", 0x0b33, 0x0020);
-	debugflag = Settings_file.get_int("input", "debug", 0);
+	debugflag = 0;
 }
 
 void Shuttle::start()
 {
 	device->start();
+	debugflag = Settings_file.get_int("input", "debug", 0);
 }
 
 void printReport(const std::vector<unsigned char> &report)

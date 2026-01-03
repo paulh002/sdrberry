@@ -23,6 +23,14 @@ if [ $bits = "32" ] && [ $OS = "aarch64" ]; then
 		echo "============================================"
         exit
 fi
+if [ "$USER" = "pi" ]; then
+    echo "Current user is pi."
+else
+    echo "Current user is not pi."
+    echo "Installation user has to be pi"
+	echo "============================================"
+    exit
+fi
 echo "Detected model: $MODEL"
 # Check for specific models
 if [[ "$MODEL" == *"Raspberry Pi 4 Model B"* ]]; then
@@ -308,7 +316,10 @@ sudo chmod 666 /dev/radioberry
 sudo modinfo radioberry
 sudo groupadd radioberry
 sudo usermod -aG radioberry pi
-sudo sed -i '1i\SUBSYSTEM=="radioberry", GROUP="radioberry", MODE="0660"' /etc/udev/rules.d/99-com.rules
+#sudo sed -i '1i\SUBSYSTEM=="radioberry", GROUP="radioberry", MODE="0660"' /etc/udev/rules.d/99-com.rules
+sudo tee /etc/udev/rules.d/99-radioberry.rules > /dev/null <<EOF
+SUBSYSTEM=="radioberry", MODE="0660", GROUP="radioberry"
+EOF
 echo ""
 echo "Radioberry driver installed."
 

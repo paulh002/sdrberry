@@ -424,6 +424,9 @@
     <ClCompile Include="btn_knob.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Shuttle.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -945,6 +948,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="pskreporter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shuttle.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSaveQueue.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="HIDDeviceMonitor.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

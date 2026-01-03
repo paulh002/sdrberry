@@ -199,6 +199,7 @@
     <ClCompile Include="SdrDevice.cpp" />
     <ClCompile Include="sdrstream.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="Shuttle.cpp" />
     <ClCompile Include="SpectralNoiseReduction.cpp" />
     <ClCompile Include="Spectrum.cpp" />
     <ClCompile Include="strlib.cpp" />
@@ -289,6 +290,7 @@
     <ClInclude Include="gui_wsjtx_setup.h" />
     <ClInclude Include="HexKeyboardWindow.h" />
     <ClInclude Include="HidDev.h" />
+    <ClInclude Include="HIDDeviceMonitor.h" />
     <ClInclude Include="HidThread.h" />
     <ClInclude Include="i2cgeneric.h" />
     <ClInclude Include="i2cinput.h" />
@@ -348,6 +350,7 @@
     <ClInclude Include="sdrstream.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SharedQueue.h" />
+    <ClInclude Include="Shuttle.h" />
     <ClInclude Include="sma.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
     <ClInclude Include="SoapySDR\Constants.h" />
@@ -371,6 +374,7 @@
     <ClInclude Include="TCA9548.h" />
     <ClInclude Include="tempMeter.h" />
     <ClInclude Include="tempSensor.h" />
+    <ClInclude Include="ThreadSaveQueue.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="VfoKeyPad.h" />
     <ClInclude Include="Waterfall.h" />

@@ -202,7 +202,7 @@ void HidDev::step_vfo()
 			break;
 		case 261:
 			// 2nd key hotkey for CW decoding
-			if (in_event.value == 1)
+			if (in_event.value == 1 && !IsDigtalMode(mode))
 			{
 				guirx.toggle_cw();
 			}
@@ -215,24 +215,13 @@ void HidDev::step_vfo()
 				enc_pressed = false;
 			break;
 		case 263:
-			if (in_event.value == 1 && SdrDevices.get_tx_channels(default_radio))
+			if (in_event.value == 1)
 			{
-				if (!txstate)
-				{
-					txstate = true;
-					select_mode_tx(mode, audioTone::SingleTone);
-				}
-				else
-				{
-					txstate = false;
-					select_mode(mode);
-				}
-				gbar.set_tx(txstate);
 			}
 			break;
 		case 264:
 			// Txset_tx_state
-			if (in_event.value == 1 && SdrDevices.get_tx_channels(default_radio))
+			if (in_event.value == 1 && SdrDevices.get_tx_channels(default_radio) && !IsDigtalMode(mode))
 			{
 				if (!txstate)
 				{

@@ -146,6 +146,7 @@ class CVfo
 	std::vector<int16_t> Legend();
 	void set_frequency_to_left(long freq, int active_vfo, bool update );
 	bool checkVfoBandRange(long freq);
+	void set_ppm(int _ppm);
 
   private:
 	struct vfo_settings_struct vfo_setting;
@@ -158,11 +159,12 @@ class CVfo
 	long span_offset_frequency;
 	bool pausevfo{false};
 	bool limit_ham_band;
+	double ppm;
 	
 	int get_band(int active_vfo);
 	void rx_set_sdr_freq();
 	void tx_set_sdr_freq();
-	
+	long adjustFrequencyByPpm(long baseFreqHz);
 };
 
 extern CVfo vfo;

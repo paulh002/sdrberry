@@ -163,7 +163,7 @@ const int bottombutton_width1 = (screenWidth / nobuttons);
 const int buttonHeight = 40;
 int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
-const int hidetx{4};
+const int hidetx{5};
 //const int hidespeech{5};
 
 std::mutex gui_mutex;

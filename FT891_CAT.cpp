@@ -212,8 +212,8 @@ int FT891_CAT::CheckCAT (bool bwait)
 			return 0;							// We're done
 
 		ParseMsg ();							// Separate any data in the message
-//		if (newMessage.ID == MSG_IF)
-//			printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
+		if (newMessage.ID == MSG_MD) //IF
+			printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
 
 		if ( newMessage.Type == MSG_CMD )		// Command?
 		{
@@ -542,7 +542,7 @@ bool FT891_CAT::ProcessCmd ()
 				SetMDA(tempMD );						// Set in radioStatus
 			if (dataBuff[0] == '1')
 				SetMDB(tempMD );						// Both modes for now
-			//printf("MSG_MD %s %d\n", dataBuff, tempMD);
+			printf("MSG_MD %s %d\n", dataBuff, tempMD);
 			cmdProcessed = true;						// Command was processed
 			break;
 

@@ -115,7 +115,8 @@ msg msgTable[] =
 		{"ID", MSG_ID, MSG_STS},   // Request radio's ID (0650 for the FT-891)
 		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
 		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
-		{"MD", MSG_MD, MSG_BOTH},  // Set or request mode (USB, LSB, CW, etc.)
+		{"MD0", MSG_MD0, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
+		{"MD1", MSG_MD1, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
 		{"NA0", MSG_NA, MSG_BOTH}, // Request narrow IF shift
 		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
 		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status
@@ -212,8 +213,8 @@ int FT891_CAT::CheckCAT (bool bwait)
 			return 0;							// We're done
 
 		ParseMsg ();							// Separate any data in the message
-		if (newMessage.ID == MSG_MD) //IF
-			printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
+		//if (newMessage.ID == MSG_MD) //IF
+		//	printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
 
 		if ( newMessage.Type == MSG_CMD )		// Command?
 		{
@@ -387,7 +388,6 @@ bool FT891_CAT::ParseMsg ()
 /*
  *	Case #3: It must be a status request.
  */
-
 	newMessage.Type = MSG_STS;						// Indicate so
 	return hasData;									// Which is "false"
 }
@@ -535,17 +535,22 @@ bool FT891_CAT::ProcessCmd ()
 			}
 			break;
 		
-		case MSG_MD:
+		case MSG_MD0:
 			dataBuff[2] = '\0';								// Set mode (USB, LSB, CW, etc.)
-			tempMD = xtoi ( &dataBuff[1] );				// Convert to a number
-			if (dataBuff[0] == '0')
-				SetMDA(tempMD );						// Set in radioStatus
-			if (dataBuff[0] == '1')
-				SetMDB(tempMD );						// Both modes for now
-			printf("MSG_MD %s %d\n", dataBuff, tempMD);
+			tempMD = xtoi ( dataBuff );				// Convert to a number
+			SetMDA(tempMD );						// Set in radioStatus
+			//printf("MSG_MD0 %s %d\n", dataBuff, tempMD);
 			cmdProcessed = true;						// Command was processed
 			break;
 
+		case MSG_MD1:
+			dataBuff[2] = '\0';			 // Set mode (USB, LSB, CW, etc.)
+			tempMD = xtoi(dataBuff); // Convert to a number
+			SetMDB(tempMD); // Both modes for now
+			//printf("MSG_MD1 %s %d\n", dataBuff, tempMD);
+			cmdProcessed = true; // Command was processed
+			break;
+		
 		case MSG_OI:									// Can be used to set VFO-B frequency & mode
 //			strncpy ( tempBuff, &dataBuff[3], 9 );		// Extract the VFO-B frequency
 //			radioStatus.FB = atol ( tempBuff );			// Convert & save
@@ -711,11 +716,16 @@ void FT891_CAT::ProcessStatus ()
 					"FB%09u;", radioStatus.FB );
 			break;
 
-		case MSG_MD:									// Request mode (USB, LSB, CW, etc.)
+		case MSG_MD0:									// Request mode (USB, LSB, CW, etc.)
 			sprintf ( tempBuff,							// Format message
 					"MD0%1X;", radioStatus.MDA );
 			break;
 
+		case MSG_MD1:		  // Request mode (USB, LSB, CW, etc.)
+			sprintf(tempBuff, // Format message
+					"MD1%1X;", radioStatus.MDB);
+			break;
+		
 		case MSG_RM:									// Read meter
 			break;
 
@@ -879,12 +889,20 @@ void FT891_CAT::SetBand(uint16_t bnd)			// Set Band in meters
 
 void FT891_CAT::SetMDA ( uint8_t mode )			// Set VFO-A mode
 {
+	char str[30];
+	
 	radioStatus.MDA = mode;						// Done!
+	sprintf(str, "%s%d;", msgTable[MSG_MD0].Name, (int)mode);
+	catcommunicator_->Send(std::string(str));
 }
 
 void FT891_CAT::SetMDB ( uint8_t mode )			// Set VFO-B mode
 {
-	radioStatus.MDB = mode;						// Done!
+	char str[30];
+	
+	radioStatus.MDB = mode;
+	sprintf(str, "%s%d;", msgTable[MSG_MD1].Name, (int)mode);
+	catcommunicator_->Send(std::string(str));// Done!
 }
 
 uint8_t FT891_CAT::GetMDA ()					// Get VFO-A mode

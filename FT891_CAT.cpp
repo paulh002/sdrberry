@@ -115,8 +115,8 @@ msg msgTable[] =
 		{"ID", MSG_ID, MSG_STS},   // Request radio's ID (0650 for the FT-891)
 		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
 		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
-		{"MD0", MSG_MD0, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
-		{"MD1", MSG_MD1, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.)
+		{"MD0", MSG_MD0, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.) VFO-A
+		{"MD1", MSG_MD1, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.) VFO-B
 		{"NA0", MSG_NA, MSG_BOTH}, // Request narrow IF shift
 		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
 		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status

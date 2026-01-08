@@ -1,0 +1,51 @@
+From bd3d55572909a9f7827e736f3ef23354ac4a13a6 Mon Sep 17 00:00:00 2001
+From: Johan Maas <pa3gsb@gmail.com>
+Date: Thu, 26 Jun 2025 20:46:27 +0200
+Subject: [PATCH] method add to retrieve pio data via DMA
+
+---
+ drivers/misc/rp1-pio.c  | 18 ++++++++++++++++++
+ include/linux/pio_rp1.h |  1 +
+ 2 files changed, 19 insertions(+)
+
+diff --git a/drivers/misc/rp1-pio.c b/drivers/misc/rp1-pio.c
+index 91c20ad5d696f9..1d9c6ac35057c5 100644
+--- a/drivers/misc/rp1-pio.c
++++ b/drivers/misc/rp1-pio.c
+@@ -971,6 +971,24 @@ int rp1_pio_sm_xfer_data(struct rp1_pio_client *client, uint sm, uint dir,
+ }
+ EXPORT_SYMBOL_GPL(rp1_pio_sm_xfer_data);
+ 
++void *rp1_pio_sm_buffer_virt(struct rp1_pio_client *client,
++                             unsigned sm, unsigned dir, int index)
++{
++    struct rp1_pio_device *pio = client->pio;
++    struct dma_info *dma;
++
++    if (sm >= RP1_PIO_SMS_COUNT || dir >= RP1_PIO_DIR_COUNT)
++        return NULL;
++
++    dma = &pio->dma_configs[sm][dir];
++
++    if (index >= dma->buf_count)
++        return NULL;
++
++    return dma->bufs[index].buf;
++}
++EXPORT_SYMBOL_GPL(rp1_pio_sm_buffer_virt);
++
+ struct handler_info {
+ 	const char *name;
+ 	int (*func)(struct rp1_pio_client *client, void *param);
+diff --git a/include/linux/pio_rp1.h b/include/linux/pio_rp1.h
+index f262fdd9c8f1c3..14d05bef7d139f 100644
+--- a/include/linux/pio_rp1.h
++++ b/include/linux/pio_rp1.h
+@@ -190,6 +190,7 @@ int rp1_pio_sm_config_xfer(struct rp1_pio_client *client, uint sm, uint dir,
+ int rp1_pio_sm_xfer_data(struct rp1_pio_client *client, uint sm, uint dir,
+ 			 uint data_bytes, void *data, dma_addr_t dma_addr,
+ 			 void (*callback)(void *param), void *param);
++void *rp1_pio_sm_buffer_virt(struct rp1_pio_client *client, unsigned sm, unsigned dir, int index);
+ 
+ int rp1_pio_can_add_program(struct rp1_pio_client *client, void *param);
+ int rp1_pio_add_program(struct rp1_pio_client *client, void *param);

@@ -376,6 +376,7 @@
     <ClInclude Include="tempMeter.h" />
     <ClInclude Include="tempSensor.h" />
     <ClInclude Include="ThreadSaveQueue.h" />
+    <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="vfo.h" />
     <ClInclude Include="VfoKeyPad.h" />
     <ClInclude Include="Waterfall.h" />

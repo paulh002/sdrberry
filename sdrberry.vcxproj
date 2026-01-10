@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3/;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;tinyxml2;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
@@ -80,7 +80,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;tinyxml2;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
@@ -207,6 +207,7 @@
     <ClCompile Include="TCA9548.cpp" />
     <ClCompile Include="tempMeter.cpp" />
     <ClCompile Include="tempSensor.cpp" />
+    <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="tz.cpp" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="VfoKeyPad.cpp" />

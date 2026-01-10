@@ -256,7 +256,6 @@ function install_dependency {
 install_dependency raspberrypi-kernel-headers
 install_dependency git
 install_dependency device-tree-compiler
-install_dependency pigpio
 
 git clone  --depth=1 https://github.com/paulh002/Radioberry-2.x
 git checkout build

@@ -1590,10 +1590,10 @@ void switch_sdrreceiver(std::string receiver)
 		gbar.set_vol_slider(Settings_file.volume());
 		catinterface->SetAG(Settings_file.volume());
 		gbar.set_gain_range();
+		guigain.reset_gains();
 		gbar.set_gain_slider_band_from_config();
 		guift8bar.SetTxButtons();
 		gbar.setTxButtons();
-		guigain.reset_gains();
 		//vfo.set_vfo(freq, false);
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
 		{

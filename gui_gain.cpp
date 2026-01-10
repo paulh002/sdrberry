@@ -65,6 +65,11 @@ void gui_gain::reset_gains()
 		SoapySDR::Range r;
 
 		r = SdrDevices.SdrDevices.at(default_radio)->getGainRange(SOAPY_SDR_RX, channel, col);
+		if (r.step() == 0)
+		{
+			SoapySDR::Range r1{r.maximum(), r.minimum(), 1};
+			r = r1;
+		}
 		rxRanges.push_back(r);
 	}
 	channel = 0;
@@ -75,13 +80,15 @@ void gui_gain::reset_gains()
 		lv_obj_add_flag(pageobj, LV_OBJ_FLAG_HIDDEN);
 
 	for (auto col : gain_labels)
-		{
-			lv_obj_del(col);
-		}
+	{
+		lv_obj_del(col);
+	}
+	gain_labels.clear();
 	for (auto col : gain_sliders)
 	{
 		lv_obj_del(col);
 	}
+	gain_sliders.clear();
 
 	int store_gain = Settings_file.get_int(default_radio, "store_gain_settings",0);
 	int i = 0, x_column = 0;

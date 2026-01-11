@@ -63,7 +63,7 @@ bool CatTcpComm::begin()
 
 void CatTcpComm::Send(std::string response)
 {
-	if (connected)
+	if (connected && server_fd)
 	{
 		send(tcp_socket, response.c_str(), response.length(), 0);
 		if (Settings_file.get_int("CAT", "debug", 0))
@@ -182,6 +182,8 @@ void CatTcpServer::operator()()
 		if (ret < 0)
 		{
 			printf("Error reading tcp socket \n");
+			usleep(1000);
+			break;
 		}
 		else if (ret > 0)
 		{

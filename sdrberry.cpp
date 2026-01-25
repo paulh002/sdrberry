@@ -164,6 +164,8 @@ const int buttonHeight = 40;
 int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
 const int hidetx{5};
+const int hidepreamp{6};
+
 //const int hidespeech{5};
 
 std::mutex gui_mutex;
@@ -670,9 +672,7 @@ int main(int argc, char *argv[])
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
 	//tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
 	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
-	//tab["agc"] = (lv_tabview_add_tab(tabview_mid, "Agc"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
-	//tab["speech"] = (lv_tabview_add_tab(tabview_mid, "Speech"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
 	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	tab["sdr"] = (lv_tabview_add_tab(tabview_mid, "Sdr"));

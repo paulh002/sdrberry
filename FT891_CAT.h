@@ -91,24 +91,25 @@ struct msg // Keeps everything together
 #define MSG_IF 9   // Information request/answer
 #define MSG_IS 10  // IF Shift amount & Status
 #define MSG_MD0 11  // Set or request operating mode
-#define MSG_NA 12  // Set or request narrow IF shift
-#define MSG_OI 13  // Opposite Band Information request/answer
-#define MSG_RI 14  // Radio information request
-#define MSG_RM 15  // Read meter
-#define MSG_SH 16  // Set or request IF bandwidth
-#define MSG_SM 17  // Read S-meter
-#define MSG_ST 18  // (Data 0 - 2) Split mode off, on or on +5KHz up
-#define MSG_SV 19  // Swap VFOs
-#define MSG_TX 20  // Set or request transmit/receive status
-#define MSG_FT 21  // Frequency Tuning delta frequency
-#define MSG_AG 22  // Set or request volume
-#define MSG_RG 23  // Set or request rf gain
-#define MSG_GT 24  // Get information command
-#define MSG_IG 25  // Get and set if command
-#define MSG_PS 26  // Power status
-#define MSG_RT 27  // RIT on/off
-#define MSG_RD 28  // RIT delta frequency
-#define MSG_MD1 29 // Set or request operating mode
+#define MSG_MD1 12	// Set or request operating mode
+#define MSG_NA 13  // Set or request narrow IF shift
+#define MSG_OI 14  // Opposite Band Information request/answer
+#define MSG_RI 15  // Radio information request
+#define MSG_RM 16  // Read meter
+#define MSG_SH 17  // Set or request IF bandwidth
+#define MSG_SM 18  // Read S-meter
+#define MSG_ST 19  // (Data 0 - 2) Split mode off, on or on +5KHz up
+#define MSG_SV 20  // Swap VFOs
+#define MSG_TX 21  // Set or request transmit/receive status
+#define MSG_FT 22  // Frequency Tuning delta frequency
+#define MSG_AG 23  // Set or request volume
+#define MSG_RG 24  // Set or request rf gain
+#define MSG_GT 25  // Get information command
+#define MSG_IG 26  // Get and set if command
+#define MSG_PS 27  // Power status
+#define MSG_RT 28  // RIT on/off
+#define MSG_RD 29  // RIT delta frequency
+
 /*
  *	Miscellaneous definitions:
  */

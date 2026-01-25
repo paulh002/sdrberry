@@ -45,7 +45,7 @@ void Comm::Send(std::string s)
 		serialPuts(serialport, (const char *)s.c_str());
 		if (Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
 			printf("Cat USB response %s\n", s.c_str());
-		serialFlush(serialport);
+		//serialFlush(serialport);
 	}
 }
 
@@ -65,17 +65,18 @@ int Comm::Read(char c, std::string &s)
 		if (ret < 0)
 			return -1;
 		if (ret == 1)
-		{
+		{			
 			if (chr == '\n' || chr == '\r')
 				continue;
 			s.push_back((char)chr);
 		}
 		i++;
+
 	} while (chr != c && i < 80);
+	if (i > max_cat_message_length)
+		s.clear();	
 	if (s.size() && Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
 		printf("Cat USB message size %d %s\n",i, s.c_str());
-	if (i > max_cat_message_length)
-		s.clear();
 	return s.length();
 }
 

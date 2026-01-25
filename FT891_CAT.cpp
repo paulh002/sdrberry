@@ -214,7 +214,7 @@ int FT891_CAT::CheckCAT (bool bwait)
 
 		ParseMsg ();							// Separate any data in the message
 		//if (newMessage.ID == MSG_MD) //IF
-		//	printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
+		//printf("%s %d %d %s\n", newMessage.Name, newMessage.ID, newMessage.Type, rxBuff);
 
 		if ( newMessage.Type == MSG_CMD )		// Command?
 		{

@@ -1,0 +1,2 @@
+// rotate screen 270 degree
+wlr-randr --output DSI-1 --transform 270

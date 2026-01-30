@@ -5,7 +5,7 @@
 
 extern SharedQueue<GuiMessage> guiQueue;
 
-const int max_cat_message_length = 20;
+const int max_cat_message_length = 6;
 
 Comm::~Comm()
 {
@@ -35,6 +35,7 @@ bool Comm::begin()
 		return false;
 	}
 	printf("Connect to ESP32 CAT interface\n");
+	serialFlush(serialport);
 	return true;
 }
 
@@ -74,7 +75,11 @@ int Comm::Read(char c, std::string &s)
 
 	} while (chr != c && i < 80);
 	if (i > max_cat_message_length)
-		s.clear();	
+	{
+		serialFlushRx(serialport);
+		printf("Cat USB message size to large %d %s\n", i, s.c_str());
+		s.clear();
+	}
 	if (s.size() && Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
 		printf("Cat USB message size %d %s\n",i, s.c_str());
 	return s.length();

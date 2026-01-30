@@ -144,6 +144,18 @@ void serialFlushTx(const int fd)
 {
   tcflush(fd, TCOFLUSH);
 }
+
+/*
+ * serialFlushTx:
+ *	Flush the serial rx buffers
+ *	*********************************************************************************
+ */
+
+void serialFlushRx(const int fd)
+{
+  tcflush(fd, TCIFLUSH);
+}
+
 /*
  * serialClose:
  *	Release the serial port

@@ -32,7 +32,7 @@ else
     exit
 fi
 echo "Detected model: $MODEL"
-# Check for specific models
+# Check for specific pi models
 if [[ "$MODEL" == *"Raspberry Pi 4 Model B"* ]]; then
     echo "This is a Raspberry Pi 4 Model B."
 elif [[ "$MODEL" == *"Raspberry Pi 3 Model B"* ]]; then

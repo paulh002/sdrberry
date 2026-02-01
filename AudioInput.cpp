@@ -67,11 +67,12 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 		
 	std::vector<unsigned int> ids = this->getDeviceIds();	
 	printf("List devices: \n");
+	int default_dev = Settings_file.get_int("Audio", "default_devices", 0);
 	for (auto col : ids)
 	{
 		dev = getDeviceInfo(col);
 		printf("device %s out %d in %d \n", dev.name.c_str(), dev.outputChannels, dev.inputChannels);
-		if (dev.name.find("Default ALSA Device") != std::string::npos || dev.name.find("PulseAudio Sound Server") != std::string::npos)
+		if (!default_dev && (dev.name.find("Default ALSA Device") != std::string::npos || dev.name.find("PulseAudio Sound Server") != std::string::npos))
 		{
 			printf("skip %d device: %s \n", col, dev.name.c_str());
 			continue;

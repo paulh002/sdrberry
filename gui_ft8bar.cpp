@@ -310,6 +310,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				gbar.set_mode(guift8bar.getrxtxmode());
 				setmodeclickable(false);
 				ft8status = ft8status_t::monitor;
+				EnableButtons(true);
 			}
 			else
 			{
@@ -317,6 +318,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				select_mode(vfo.get_current_mode());
 				gbar.set_mode(vfo.get_current_mode());
 				ft8status = ft8status_t::idle;
+				EnableButtons(false);
 			}
 			break;
 		case buttonlog:
@@ -842,6 +844,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	float bandwidth = Settings_file.get_int("wsjtx", "waterfall_bandwidth", 3000);
 	float resampleRate = bandwidth / ft8_rate;
 	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, down, lowerpart);
+
+	EnableButtons(false);
 }
 
 void gui_ft8bar::hide(bool hide)
@@ -1134,6 +1138,7 @@ void gui_ft8bar::Log()
 	}
 }
 
+/*
 void gui_ft8bar::SetTxButtons()
 {
 	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
@@ -1147,6 +1152,25 @@ void gui_ft8bar::SetTxButtons()
 		lv_obj_clear_state(button[buttoncq], LV_STATE_DISABLED);
 
 	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
+		status.txEnabled = false;
+	else
+		status.txEnabled = true;
+}
+*/
+
+void gui_ft8bar::EnableButtons(bool enable)
+{
+	if (!enable || SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
+		lv_obj_add_state(button[buttontx], LV_STATE_DISABLED);
+	else
+		lv_obj_clear_state(button[buttontx], LV_STATE_DISABLED);
+
+	if (!enable || SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
+		lv_obj_add_state(button[buttoncq], LV_STATE_DISABLED);
+	else
+		lv_obj_clear_state(button[buttoncq], LV_STATE_DISABLED);
+
+	if (!enable || SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 		status.txEnabled = false;
 	else
 		status.txEnabled = true;

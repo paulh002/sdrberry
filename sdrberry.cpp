@@ -739,7 +739,7 @@ int main(int argc, char *argv[])
 
 	if (SdrDevices.MakeDevice(default_radio))
 	{
-		guift8bar.SetTxButtons();
+		guift8bar.EnableButtons(false);
 		if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
 			default_tx_channel = -1;
 		else
@@ -1267,7 +1267,7 @@ bool IsDigtalMode(int mode)
 
 void set_tx_buttons()
 {
-	guift8bar.SetTxButtons();
+	guift8bar.EnableButtons(false);
 	gbar.setTxButtons();
 
 	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
@@ -1525,7 +1525,7 @@ void switch_sdrreceiver(std::string receiver)
 		else
 			default_tx_channel = 0;
 		Gui_tx.enable_tx(default_tx_channel > 0);
-		guift8bar.SetTxButtons();
+		guift8bar.EnableButtons(false);
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, audio_output->get_samplerate(), guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		guisdr.clear_sample_rate();
@@ -1592,7 +1592,7 @@ void switch_sdrreceiver(std::string receiver)
 		gbar.set_gain_range();
 		guigain.reset_gains();
 		gbar.set_gain_slider_band_from_config();
-		guift8bar.SetTxButtons();
+		guift8bar.EnableButtons(false);
 		gbar.setTxButtons();
 		//vfo.set_vfo(freq, false);
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))

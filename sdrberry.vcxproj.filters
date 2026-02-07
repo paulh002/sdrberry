@@ -310,9 +310,6 @@
     <ClCompile Include="PeakMeasurement.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="gui_bottom_bar.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="cmeter.cpp">
       <Filter>Source files</Filter>
     </ClCompile>

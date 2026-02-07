@@ -27,7 +27,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <GNUConfigurationType>Debug</GNUConfigurationType>
-    <RemoteBuildHost>192.168.88.62</RemoteBuildHost>
+    <RemoteBuildHost>192.168.88.32</RemoteBuildHost>
     <ToolchainID>com.sysprogs.toolchain.default-gcc</ToolchainID>
     <ToolchainVersion />
     <GNUToolchainPrefix />
@@ -57,18 +57,18 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3/;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;dw;elf;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
-      <VerboseMode>false</VerboseMode>
+      <VerboseMode>true</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;/usr/include/libdwarf/;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;NO_SSL=1;USE_WEBSOCKET=1;USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
+      <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations -fno-omit-frame-pointer -rdynamic</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>GNUPP20</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
@@ -77,13 +77,16 @@
       <WarnOnUnusedVariables>Disabled</WarnOnUnusedVariables>
       <WarnOnMismatchingInitializationOrder>Disabled</WarnOnMismatchingInitializationOrder>
       <LinkTimeOptimization>false</LinkTimeOptimization>
+      <DebugInformationFormat>GDB</DebugInformationFormat>
+      <DumpStackUsage>
+      </DumpStackUsage>
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
-      <AdditionalOptions>-z execstack </AdditionalOptions>
+      <AdditionalOptions>-z execstack -rdynamic</AdditionalOptions>
       <VerboseMode>true</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
@@ -129,7 +132,6 @@
     <ClCompile Include="gui_agc.cpp" />
     <ClCompile Include="Gui_band.cpp" />
     <ClCompile Include="gui_bar.cpp" />
-    <ClCompile Include="gui_bottom_bar.cpp" />
     <ClCompile Include="gui_cal.cpp" />
     <ClCompile Include="gui_edit_band.cpp" />
     <ClCompile Include="gui_ft8.cpp" />

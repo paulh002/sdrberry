@@ -221,6 +221,13 @@
 #include <sys/stat.h>
 #include <syscall.h>
 #include <unistd.h>
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#undef _GNU_SOURCE
+#else
+#include <dlfcn.h>
+#endif
 
 #if BACKWARD_HAS_BFD == 1
 //              NOTE: defining PACKAGE{,_VERSION} is required before including
@@ -233,13 +240,6 @@
 #define PACKAGE_VERSION
 #endif
 #include <bfd.h>
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#include <dlfcn.h>
-#undef _GNU_SOURCE
-#else
-#include <dlfcn.h>
-#endif
 #endif
 
 #if BACKWARD_HAS_DW == 1
@@ -254,13 +254,6 @@
 #include <libdwarf.h>
 #include <libelf.h>
 #include <map>
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#include <dlfcn.h>
-#undef _GNU_SOURCE
-#else
-#include <dlfcn.h>
-#endif
 #endif
 
 #if (BACKWARD_HAS_BACKTRACE == 1) || (BACKWARD_HAS_BACKTRACE_SYMBOL == 1)
@@ -401,7 +394,7 @@ typedef int ssize_t;
 //
 // Even if the _Unwind_GetIPInfo can be linked to, it is not declared, worse we
 // cannot just redeclare it because clang's unwind.h doesn't define _Unwind_Ptr
-// anyway.
+// anyway..
 //
 // Luckily we can play on the fact that the guard macros have a different name:
 #ifdef __CLANG_UNWIND_H
@@ -734,6 +727,7 @@ public:
   }
   size_t thread_id() const { return 0; }
   void skip_n_firsts(size_t) {}
+  void *const *begin() const { return nullptr; }
 };
 
 class StackTraceImplBase {
@@ -817,7 +811,12 @@ public:
     _index = -1;
     _depth = depth;
     _Unwind_Backtrace(&this->backtrace_trampoline, this);
-    return static_cast<size_t>(_index);
+    if (_index == -1) {
+      // _Unwind_Backtrace has failed to obtain any backtraces
+      return 0;
+    } else {
+      return static_cast<size_t>(_index);
+    }
   }
 
 private:
@@ -955,7 +954,7 @@ public:
           reinterpret_cast<void *>(uctx->uc_mcontext.gregs[REG_EIP]);
       ++index;
       ctx = *reinterpret_cast<unw_context_t *>(uctx);
-#elif defined(__arm__)
+#elif defined(__arm__)     // clang libunwind/arm
       // libunwind uses its own context type for ARM unwinding.
       // Copy the registers from the signal handler's context so we can
       // unwind
@@ -985,6 +984,24 @@ public:
             uctx->uc_mcontext.arm_lr - sizeof(unsigned long);
       }
       _stacktrace[index] = reinterpret_cast<void *>(ctx.regs[UNW_ARM_R15]);
+      ++index;
+#elif defined(__aarch64__) // gcc libunwind/arm64
+      unw_getcontext(&ctx);
+      // If the IP is the same as the crash address we have a bad function
+      // dereference The caller's address is pointed to by the link pointer, so
+      // we dereference that value and set it to be the next frame's IP.
+      if (uctx->uc_mcontext.pc == reinterpret_cast<__uint64_t>(error_addr())) {
+        uctx->uc_mcontext.pc = uctx->uc_mcontext.regs[UNW_TDEP_IP];
+      }
+
+      // 29 general purpose registers
+      for (int i = UNW_AARCH64_X0; i <= UNW_AARCH64_X28; i++) {
+        ctx.uc_mcontext.regs[i] = uctx->uc_mcontext.regs[i];
+      }
+      ctx.uc_mcontext.sp = uctx->uc_mcontext.sp;
+      ctx.uc_mcontext.pc = uctx->uc_mcontext.pc;
+      ctx.uc_mcontext.fault_address = uctx->uc_mcontext.fault_address;
+      _stacktrace[index] = reinterpret_cast<void *>(ctx.uc_mcontext.pc);
       ++index;
 #elif defined(__APPLE__) && defined(__x86_64__)
       unw_getcontext(&ctx);
@@ -1161,10 +1178,18 @@ public:
     s.AddrStack.Mode = AddrModeFlat;
     s.AddrFrame.Mode = AddrModeFlat;
     s.AddrPC.Mode = AddrModeFlat;
-#ifdef _M_X64
+#if defined(_M_X64)
     s.AddrPC.Offset = ctx_->Rip;
     s.AddrStack.Offset = ctx_->Rsp;
     s.AddrFrame.Offset = ctx_->Rbp;
+#elif defined(_M_ARM64)
+    s.AddrPC.Offset = ctx_->Pc;
+    s.AddrStack.Offset = ctx_->Sp;
+    s.AddrFrame.Offset = ctx_->Fp;
+#elif defined(_M_ARM)
+    s.AddrPC.Offset = ctx_->Pc;
+    s.AddrStack.Offset = ctx_->Sp;
+    s.AddrFrame.Offset = ctx_->R11;
 #else
     s.AddrPC.Offset = ctx_->Eip;
     s.AddrStack.Offset = ctx_->Esp;
@@ -1172,8 +1197,12 @@ public:
 #endif
 
     if (!machine_type_) {
-#ifdef _M_X64
+#if defined(_M_X64)
       machine_type_ = IMAGE_FILE_MACHINE_AMD64;
+#elif defined(_M_ARM64)
+      machine_type_ = IMAGE_FILE_MACHINE_ARM64;
+#elif defined(_M_ARM)
+      machine_type_ = IMAGE_FILE_MACHINE_ARMNT;
 #else
       machine_type_ = IMAGE_FILE_MACHINE_I386;
 #endif
@@ -3621,10 +3650,12 @@ public:
     symOptions |= SYMOPT_LOAD_LINES | SYMOPT_UNDNAME;
     SymSetOptions(symOptions);
     EnumProcessModules(process, &module_handles[0],
-                       module_handles.size() * sizeof(HMODULE), &cbNeeded);
+                       static_cast<DWORD>(module_handles.size() * sizeof(HMODULE)),
+		       &cbNeeded);
     module_handles.resize(cbNeeded / sizeof(HMODULE));
     EnumProcessModules(process, &module_handles[0],
-                       module_handles.size() * sizeof(HMODULE), &cbNeeded);
+                       static_cast<DWORD>(module_handles.size() * sizeof(HMODULE)),
+		       &cbNeeded);
     std::transform(module_handles.begin(), module_handles.end(),
                    std::back_inserter(modules), get_mod_info(process));
     void *base = modules[0].base_address;
@@ -3808,11 +3839,18 @@ public:
   }
 #endif
 
+  // Allow adding to paths gotten from BACKWARD_CXX_SOURCE_PREFIXES after loading the
+  // library; this can be useful when the library is loaded when the locations are unknown
+  // Warning: Because this edits the static paths variable, it is *not* intrinsiclly thread safe
+  static void add_paths_to_env_variable_impl(const std::string & to_add) {
+    get_mutable_paths_from_env_variable().push_back(to_add);
+  }
+
 private:
   details::handle<std::ifstream *, details::default_delete<std::ifstream *> >
       _file;
 
-  std::vector<std::string> get_paths_from_env_variable_impl() {
+  static std::vector<std::string> get_paths_from_env_variable_impl() {
     std::vector<std::string> paths;
     const char *prefixes_str = std::getenv("BACKWARD_CXX_SOURCE_PREFIXES");
     if (prefixes_str && prefixes_str[0]) {
@@ -3821,9 +3859,13 @@ private:
     return paths;
   }
 
-  const std::vector<std::string> &get_paths_from_env_variable() {
-    static std::vector<std::string> paths = get_paths_from_env_variable_impl();
-    return paths;
+  static std::vector<std::string> &get_mutable_paths_from_env_variable() {
+    static volatile std::vector<std::string> paths = get_paths_from_env_variable_impl();
+    return const_cast<std::vector<std::string>&>(paths);
+  }
+
+  static const std::vector<std::string> &get_paths_from_env_variable() {
+    return get_mutable_paths_from_env_variable();
   }
 
 #ifdef BACKWARD_ATLEAST_CXX11
@@ -3991,10 +4033,12 @@ public:
   bool object;
   int inliner_context_size;
   int trace_context_size;
+  bool reverse;
 
   Printer()
       : snippet(true), color_mode(ColorMode::automatic), address(false),
-        object(false), inliner_context_size(5), trace_context_size(7) {}
+        object(false), inliner_context_size(5), trace_context_size(7),
+        reverse(true) {}
 
   template <typename ST> FILE *print(ST &st, FILE *fp = stderr) {
     cfile_streambuf obuf(fp);
@@ -4041,8 +4085,14 @@ private:
   void print_stacktrace(ST &st, std::ostream &os, Colorize &colorize) {
     print_header(os, st.thread_id());
     _resolver.load_stacktrace(st);
-    for (size_t trace_idx = st.size(); trace_idx > 0; --trace_idx) {
-      print_trace(os, _resolver.resolve(st[trace_idx - 1]), colorize);
+    if ( reverse ) {
+      for (size_t trace_idx = st.size(); trace_idx > 0; --trace_idx) {
+        print_trace(os, _resolver.resolve(st[trace_idx - 1]), colorize);
+      }
+    } else {
+      for (size_t trace_idx = 0; trace_idx < st.size(); ++trace_idx) {
+        print_trace(os, _resolver.resolve(st[trace_idx]), colorize);
+      }
     }
   }
 
@@ -4231,6 +4281,8 @@ public:
 #elif defined(__mips__)
     error_addr = reinterpret_cast<void *>(
         reinterpret_cast<struct sigcontext *>(&uctx->uc_mcontext)->sc_pc);
+#elif defined(__APPLE__) && defined(__POWERPC__)
+    error_addr = reinterpret_cast<void *>(uctx->uc_mcontext->__ss.__srr0);
 #elif defined(__ppc__) || defined(__powerpc) || defined(__powerpc__) ||        \
     defined(__POWERPC__)
     error_addr = reinterpret_cast<void *>(uctx->uc_mcontext.regs->nip);
@@ -4242,6 +4294,8 @@ public:
     error_addr = reinterpret_cast<void *>(uctx->uc_mcontext->__ss.__rip);
 #elif defined(__APPLE__)
     error_addr = reinterpret_cast<void *>(uctx->uc_mcontext->__ss.__eip);
+#elif defined(__loongarch__)
+    error_addr = reinterpret_cast<void *>(uctx->uc_mcontext.__pc);
 #else
 #warning ":/ sorry, ain't know no nothing none not of your architecture!"
 #endif
@@ -4255,7 +4309,6 @@ public:
     Printer printer;
     printer.address = true;
     printer.print(st, stderr);
-	fflush(printer.print(st, stderr));
 
 #if (defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 700) || \
     (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L)

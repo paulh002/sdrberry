@@ -3,6 +3,10 @@
 #include "SharedQueue.h"
 #include "gui_bar.h"
 
+#include <iostream>
+#include <fstream>
+
+
 extern SharedQueue<GuiMessage> guiQueue;
 
 const int max_cat_message_length = 6;
@@ -36,6 +40,18 @@ bool Comm::begin()
 	}
 	printf("Connect to ESP32 CAT interface\n");
 	serialFlush(serialport);
+	if (Settings_file.get_int("CAT", "debug", 0))
+	{
+		CatlogFile = std::make_unique<std::ofstream>("cat.log", std::ios::in | std::ios::out | std::ios::binary);
+		if (!CatlogFile->is_open())
+		{
+			// Create empty file
+			std::ofstream createOnly("cat.log", std::ios::out | std::ios::binary);
+			createOnly.close();
+			CatlogFile->open("cat.log", std::ios::in | std::ios::out | std::ios::binary);
+		}
+		*CatlogFile << "Timestamp: " << __DATE__ << " " << __TIME__ << std::endl;
+	}
 	return true;
 }
 
@@ -43,6 +59,11 @@ void Comm::Send(std::string s)
 {
 	if (serialport > 0)
 	{
+		if (Settings_file.get_int("CAT", "debug", 0))
+		{
+			*CatlogFile << "Send: " << s << std::endl;
+			CatlogFile->flush();
+		}
 		serialPuts(serialport, (const char *)s.c_str());
 		if (Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
 			printf("Cat USB response %s\n", s.c_str());
@@ -55,6 +76,14 @@ bool Comm::IsCommuncationPortOpen()
 	return serialport > 0;
 }
 
+bool isInvalid(char c)
+{
+	return !(
+		(c >= 'A' && c <= 'Z') ||
+		(c >= '0' && c <= '9') ||
+		(c == ';') || (c == '-'));
+}
+
 int Comm::Read(char c, std::string &s)
 {
 	int chr;
@@ -65,15 +94,29 @@ int Comm::Read(char c, std::string &s)
 		int ret = serialReadchar(serialport, &chr);
 		if (ret < 0)
 			return -1;
+		
 		if (ret == 1)
-		{			
-			if (chr == '\n' || chr == '\r')
+		{
+			//if (chr == '\n' || chr == '\r')
+			if (isInvalid(chr))
+			{
+				serialFlushRx(serialport);
+				printf("Cat USB message invalid %d %s\n", i, s.c_str());
+				s.clear();
 				continue;
+			}
 			s.push_back((char)chr);
 		}
 		i++;
 
 	} while (chr != c && i < 80);
+	if (Settings_file.get_int("CAT", "debug", 0))
+	{
+		*CatlogFile << "Read: ";
+		*CatlogFile << s;
+		*CatlogFile << std::endl;
+		CatlogFile->flush();
+	}
 	if (i > max_cat_message_length)
 	{
 		serialFlushRx(serialport);
@@ -187,13 +230,13 @@ void Catinterface::SetNA(int ft)
 void Catinterface::SetMDA(int mode)
 {
 	mda = encode_mode(mode);
-	cat_message.SetMDA(filter);
+	cat_message.SetMDA(mda);
 }
 
 void Catinterface::SetMDB(int mode)
 {
-	mda = encode_mode(mode);
-	cat_message.SetMDB(filter);
+	mdb = encode_mode(mode);
+	cat_message.SetMDB(mdb);
 }
 
 void Catinterface::InitVfo(uint32_t a, uint32_t b)

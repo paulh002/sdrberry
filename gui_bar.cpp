@@ -119,7 +119,7 @@ void gui_bar::set_tx(bool tx)
 void gui_bar::set_mode(int mode)
 {
 	int i = 0;
-
+	
 	switch (mode)
 	{
 	case mode_wspr:

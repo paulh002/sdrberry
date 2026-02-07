@@ -23,6 +23,7 @@ class Comm : public Cat_communicator
 	std::string device;
 	int speed;
 	int serialport;
+	std::unique_ptr<std::ofstream> CatlogFile;
 };
 
 class Catinterface

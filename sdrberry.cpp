@@ -119,8 +119,13 @@ void handle_signal(int signal)
 	}
 }
 
-#define BACKWARD_HAS_BFD 1
+
+//#define BACKWARD_HAS_BFD 1
+//#define BACKWARD_HAS_LIBUNWIND 1
 #define BACKWARD_HAS_DW 1
+//#define BACKWARD_HAS_DWARF 1
+//#define BACKWARD_HAS_BACKTRACE 1
+//#define BACKWARD_HAS_UNWIND 1
 #include "backward.hpp"
 
 namespace backward
@@ -128,6 +133,18 @@ namespace backward
 	backward::SignalHandling sh;
 
 } // namespace backward
+
+void collect_trace(backward::StackTrace &st) { st.load_here(32); }
+
+void print_stack_trace()
+{
+	backward::Printer printer;
+
+	backward::StackTrace st;
+	collect_trace(st);
+	printf("Print stack trace \n");
+	printer.print(st, std::cout);
+}
 
 DataBuffer<IQSample> source_buffer_rx;
 DataBuffer<IQSample> source_buffer_tx;
@@ -989,6 +1006,7 @@ int main(int argc, char *argv[])
 			case GuiMessage::setmode_vfo_a:
 				if (!IsDigtalMode(mode) && mode != msg.data)
 				{
+					printf("Mode set old %d new %d\n", mode, msg.data);
 					gbar.set_vfo(vfo_activevfo::One);
 					gbar.set_mode(msg.data);
 					select_mode(msg.data);
@@ -1287,6 +1305,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	bool stereo{false}, dc{false};
 	std::vector<long> ftx_freq;
 
+	print_stack_trace();
 	if (!SdrDevices.isValid(default_radio))
 		return;
 	set_tx_buttons();

@@ -101,7 +101,8 @@ int Comm::Read(char c, std::string &s)
 			if (isInvalid(chr))
 			{
 				serialFlushRx(serialport);
-				printf("Cat USB message invalid %d %s\n", i, s.c_str());
+				if (Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
+					printf("Cat USB message invalid %d %s\n", i, s.c_str());
 				s.clear();
 				continue;
 			}
@@ -120,7 +121,8 @@ int Comm::Read(char c, std::string &s)
 	if (i > max_cat_message_length)
 	{
 		serialFlushRx(serialport);
-		printf("Cat USB message size to large %d %s\n", i, s.c_str());
+		if (Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
+			printf("Cat USB message size to large %d %s\n", i, s.c_str());
 		s.clear();
 	}
 	if (s.size() && Settings_file.get_int("CAT", "debug", 0) && s.find("SM") == std::string::npos)
@@ -214,7 +216,10 @@ void Catinterface::begin()
 	rfgain = 0;
 	filter = 1;
 	mda = Settings_file.convert_mode(Settings_file.get_string("VFO1", "Mode"));
+	SetMDA(mda);
 	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
+	printf("mda %d mdb %d \n", mda, mdb);
+	SetMDB(mdb);
 	vfo_a = 50260000UL;
 	vfo_b = 50260000UL;
 	rit_onoff = 0;
@@ -324,6 +329,7 @@ void Catinterface::checkCAT()
 		count = cat_message.GetMDA();
 		if (count && mda != count)
 		{
+			printf("cat message: mda %d, count %d\n", mda, count);
 			mda = count;
 			guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_a, decode_mode(count)));
 		}

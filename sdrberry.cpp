@@ -1305,7 +1305,6 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	bool stereo{false}, dc{false};
 	std::vector<long> ftx_freq;
 
-	print_stack_trace();
 	if (!SdrDevices.isValid(default_radio))
 		return;
 	set_tx_buttons();

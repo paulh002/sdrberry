@@ -122,7 +122,67 @@ bool CatTcpComm::available()
 
 void CatTcpComm::SendInformation(int info)
 {
-	
+	switch (info)
+	{
+	case 0:
+		// Volume
+		{
+			char str[20];
+			int range = gbar.get_vol_range();
+			sprintf(str, "GT0%d", range);
+			Send((std::string)str);
+		}
+		break;
+	case 1:
+		// Gain
+		{
+			char str[20];
+			int max_gain, min_gain;
+
+			gbar.get_gain_range(max_gain, min_gain);
+			sprintf(str, "GT1%2d,%2d", max_gain, min_gain);
+			Send((std::string)str);
+		}
+		break;
+	case 2:
+		// Band
+		{
+			char str[20];
+			vector<int> bands;
+			string s;
+
+			strcpy(str, "GT2");
+			s = str;
+			vfo.return_bands(bands);
+			for (auto it : bands)
+			{
+				sprintf(str, ",%2d", it);
+				s.append(str);
+			}
+			s.push_back(';');
+			Send((std::string)s);
+		}
+		break;
+	case 3:
+		// Filter
+		{
+			char str[20];
+			vector<string> filters;
+			string s;
+
+			strcpy(str, "GT3");
+			s = str;
+			gbar.get_filter_range(filters);
+			for (auto it : filters)
+			{
+				s.push_back(',');
+				s.append(it);
+			}
+			s.push_back(';');
+			Send((std::string)s);
+		}
+		break;
+	}
 }
 
 bool CatTcpComm::IsCommuncationPortOpen()
@@ -179,13 +239,7 @@ void CatTcpServer::operator()()
 	while (1)
 	{
 		int ret = cat_message.CheckCAT(false);
-		if (ret < 0)
-		{
-			printf("Error reading tcp socket \n");
-			usleep(1000);
-			break;
-		}
-		else if (ret > 0)
+		if (ret > 0)
 		{
 			count = cat_message.GetFA();
 			if (count && vfo_a != count)
@@ -227,6 +281,13 @@ void CatTcpServer::operator()()
 				rit_delta = count;
 				guiQueue.push_back(GuiMessage(GuiMessage::action::rit_delta, rit_delta));
 			}
+
+			count = cat_message.GetBand();
+			if (vfo.get_band_no(vfo.get_active_vfo()) != count && count != 0)
+			{
+				guiQueue.push_back(GuiMessage(GuiMessage::action::setband, count));
+			}
+
 			if (!(mode == mode_ft8 || mode == mode_ft4)) // TX
 			{
 				int rxtxCatMessage = cat_message.GetTX();
@@ -248,6 +309,10 @@ void CatTcpServer::operator()()
 					}
 				}
 			}
+		}
+		else
+		{
+			usleep(10000);
 		}
 	}
 }

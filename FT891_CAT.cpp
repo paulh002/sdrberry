@@ -890,7 +890,7 @@ void FT891_CAT::SetBand(uint16_t bnd)			// Set Band in meters
 void FT891_CAT::SetMDA ( uint8_t mode )			// Set VFO-A mode
 {
 	char str[30];
-	
+
 	radioStatus.MDA = mode;						// Done!
 	sprintf(str, "%s%d;", msgTable[MSG_MD0].Name, (int)mode);
 	catcommunicator_->Send(std::string(str));

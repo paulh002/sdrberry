@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include "FT891_CAT.h"
+#include <atomic>
 
 class CatTcpComm : public Cat_communicator
 {
@@ -32,7 +33,7 @@ class CatTcpServer
 	void SetNA(int ft);
 	void SetMDA(int md);
 	void SetMDB(int mode);
-	
+	void Pause_Cat(bool pause) { bpause_cat = pause; }
 	void operator()();
 	FT891_CAT *operator->() { return &cat_message; }
 	
@@ -44,6 +45,7 @@ class CatTcpServer
 	int m_mode{0};
 	int mda, mdb;
 	int rit_onoff, rit_delta;
+	std::atomic<bool> bpause_cat;
 };
 
 extern CatTcpServer cattcpserver;

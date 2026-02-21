@@ -96,7 +96,7 @@ void EchoAudio::operator()()
 		buf_mod.clear();
 
 		calc_af_level(audiosamples);
-		set_signal_strength();
+		set_af_signal_strength();
 		audio_output->adjust_gain(audiosamples);
 		for (auto &col : audiosamples)
 		{

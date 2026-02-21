@@ -86,6 +86,11 @@ void Demodulator::set_signal_strength()
 	SpectrumGraph.set_signal_strength(get_signal_level());
 }
 
+void Demodulator::set_af_signal_strength()
+{
+	SpectrumGraph.set_signal_strength(get_af_level());
+}
+
 Demodulator::~Demodulator()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
@@ -290,11 +295,13 @@ void Demodulator::gain_phasecorrection(IQSampleVector &samples_in, float vol)
 	float gainManual = (float)gcal.getRxGain();
 	float phaseManual = (float)gcal.getRxPhase();
 
-	std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
-	autophase = std::get<1>(result);
-	autogain = std::get<2>(result);
 	if (correction > 0)
 	{
+		calc_if_level(samples_in);
+		std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
+		autophase = std::get<1>(result);
+		autogain = std::get<2>(result);
+
 		for (auto &col : samples_in)
 		{
 			if (correction > 1)

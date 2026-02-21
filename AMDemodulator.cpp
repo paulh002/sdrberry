@@ -166,12 +166,11 @@ void AMDemodulator::operator()()
 		int nosamples = iqsamples.size();
 		noRfSamples += nosamples;
 		passes++;
-		calc_if_level(iqsamples);
 		gain_phasecorrection(iqsamples, gbar.get_if());
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
-		set_signal_strength();
+		set_af_signal_strength();
 		// Set nominal audio volume.
 		audioOutputBuffer->adjust_gain(audioSamples);
 		int noaudiosamples = audioSamples.size();
@@ -277,13 +276,13 @@ void AMDemodulator::operator()()
 void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 {
 	IQSampleVector filter1;
+	SampleVector af_samples;
 	
 	// mix to correct frequency
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
 	SquelchProcess(filter1);
 	lowPassAudioFilter(filter1);
-	calc_signal_level(filter1);
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)
@@ -291,11 +290,13 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 		float v;
 
 		ampmodem_demodulate(demodulatorHandle, (liquid_float_complex)col, &v);
+		af_samples.push_back(v);
 		if (Squelch())
 			audio.push_back(0.0);
 		else
 			audio.push_back(v);
 	}
+	calc_af_level(af_samples);
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate,  DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)

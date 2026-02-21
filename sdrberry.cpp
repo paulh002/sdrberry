@@ -902,7 +902,9 @@ int main(int argc, char *argv[])
 		WsjtxMessage msg;
 
 		gui_mutex.lock();
+		cattcpserver.Pause_Cat(true);
 		lv_task_handler();
+		cattcpserver.Pause_Cat(false);
 		gui_mutex.unlock();
 		
 		//Mouse_dev.step_vfo();
@@ -1310,6 +1312,8 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	set_tx_buttons();
 	catinterface->SetTX(TX_OFF);
 	catinterface.Pause_Cat(true);
+	cattcpserver->SetTX(TX_OFF);
+	cattcpserver.Pause_Cat(true);
 	catinterface.MuteFA(false);
 	i2c_output.set_rxtx(false);
 	vfo.pause_step(false);
@@ -1400,6 +1404,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		break;
 	}
 	catinterface.Pause_Cat(false);
+	cattcpserver.Pause_Cat(false);
 }
 
 bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
@@ -1415,6 +1420,8 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		return false;
 	catinterface->SetTX(cattx);
 	catinterface.Pause_Cat(true);
+	cattcpserver->SetTX(cattx);
+	cattcpserver.Pause_Cat(true);
 	catinterface.MuteFA(false);
 	i2c_output.set_rxtx(true);
 	vfo.pause_step(false);
@@ -1475,6 +1482,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		break;
 	}
 	catinterface.Pause_Cat(false);
+	cattcpserver.Pause_Cat(false);
 	return true;
 }
 

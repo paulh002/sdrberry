@@ -267,7 +267,11 @@ git checkout build
 if [[ $fpgatype == 1 ]]; then
 	echo "Installing Radioberry gateware Cyclone 10 CL016..."
 		
-cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL016
+if [[ $pimod == PI5 ]];	then
+	cd Radioberry-2.x/SBC/rpi-5/releases/dev/CL016
+else
+	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL016
+fi
 sudo cp ./radioberry.rbf /lib/firmware
 cd ../../../../../..
 	
@@ -279,7 +283,10 @@ fi
 if [[ $fpgatype == 2 ]]; then
 	echo "Installing Radioberry gateware Cyclone 10 CL025..."
 	
-cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
+if [[ $pimod == PI5 ]];	then
+	cd Radioberry-2.x/SBC/rpi-5/releases/dev/CL025
+else
+	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
 sudo cp ./radioberry.rbf /lib/firmware
 cd ../../../../../..
 	

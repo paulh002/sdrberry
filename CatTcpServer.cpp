@@ -236,10 +236,11 @@ void CatTcpServer::StopServer()
 void CatTcpServer::operator()()
 {
 	int count;
+	bpause_cat = false;
 	while (1)
 	{
 		int ret = cat_message.CheckCAT(false);
-		if (ret > 0)
+		if (ret > 0 && !bpause_cat.load())
 		{
 			count = cat_message.GetFA();
 			if (count && vfo_a != count)

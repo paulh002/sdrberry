@@ -75,6 +75,7 @@ class Demodulator
 	double get_if_CorrelationNorm() { return ifEnergy.getEnergyCorrelationNorm(); }
 	double get_signal_level() { return SignalStrength.getEnergyLevel(); }
 	void set_signal_strength();
+	void set_af_signal_strength();
 	void setLowPassAudioFilter(float samplerate, int band_width);
 	void set_span(long span);
 	void perform_fft(const IQSampleVector &iqsamples);

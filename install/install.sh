@@ -287,6 +287,7 @@ if [[ $pimod == PI5 ]];	then
 	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
 else
 	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
+fi  
 sudo cp ./radioberry.rbf /lib/firmware
 cd ../../../../../..
 	

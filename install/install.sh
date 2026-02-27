@@ -32,15 +32,17 @@ else
     exit
 fi
 echo "Detected model: $MODEL"
-# Check for specific pi models
+# Check for specific models
 if [[ "$MODEL" == *"Raspberry Pi 4 Model B"* ]]; then
     echo "This is a Raspberry Pi 4 Model B."
+	pimod='PI4'
 elif [[ "$MODEL" == *"Raspberry Pi 3 Model B"* ]]; then
     echo "This is a Raspberry Pi 3 Model B."
 	echo "Raspberry Pi 3 Model B. is not supported"
 	exit
 elif [[ "$MODEL" == *"Raspberry Pi 5"* ]]; then
     echo "This is a Raspberry Pi 5."
+	pimod='PI5'
 fi
 echo "============================================"
 echo ""
@@ -265,7 +267,11 @@ git checkout build
 if [[ $fpgatype == 1 ]]; then
 	echo "Installing Radioberry gateware Cyclone 10 CL016..."
 		
-cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL016
+if [[ $pimod == PI5 ]];	then
+	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL016
+else
+	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL016
+fi
 sudo cp ./radioberry.rbf /lib/firmware
 cd ../../../../../..
 	
@@ -277,7 +283,10 @@ fi
 if [[ $fpgatype == 2 ]]; then
 	echo "Installing Radioberry gateware Cyclone 10 CL025..."
 	
-cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
+if [[ $pimod == PI5 ]];	then
+	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
+else
+	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
 sudo cp ./radioberry.rbf /lib/firmware
 cd ../../../../../..
 	
@@ -288,6 +297,7 @@ fi
 
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
+cd $wrkdir || exit
 
 #unregister radioberry driver
 sudo modprobe -r radioberry
@@ -295,8 +305,13 @@ sudo modprobe -r radioberry
 if [ ! -d "/lib/modules/$(uname -r)/kernel/drivers/sdr" ]; then
 	sudo mkdir /lib/modules/$(uname -r)/kernel/drivers/sdr
 fi
-	
-cd Radioberry-2.x/SBC/rpi-4/device_driver/driver
+
+if [[ $pimod == PI5 ]];	then
+	cd Radioberry-2.x/SBC/rpi-5/archive/gpio-mode/driver
+else
+	cd Radioberry-2.x/SBC/rpi-4/device_driver/driver
+fi
+
 make
 sudo cp radioberry.ko /lib/modules/$(uname -r)/kernel/drivers/sdr
 

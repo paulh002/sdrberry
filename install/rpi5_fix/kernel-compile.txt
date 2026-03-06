@@ -1,13 +1,19 @@
 // rotate screen 270 degree
 wlr-randr --output DSI-1 --transform 270
 
-sudo apt-get install flex
-sudo apt-get install bison
-sudo apt-get install aptitude
-sudo apt-get install libssl-dev
+sudo apt-get install -y flex bison aptitude libssl-dev
 git clone --depth=1 --branch rpi-6.12.y https://github.com/raspberrypi/linux
 cd linux
 //copy .c en .h pio files  drivers/misc/rp1-pio.c, include/linux/pio_rp1.h
+==>	dma_caps.max_burst = 4;
+==>	dma_caps.max_burst = 2;
+	dma_get_slave_caps(dma->chan, &dma_caps);
+	if (dir == RP1_PIO_DIR_TO_SM)
+		config.dst_maxburst = dma_caps.max_burst;
+	else
+		config.src_maxburst = dma_caps.max_burst;
+///
+
 git apply --stat 6927.patch.txt
 git apply --check 6927.patch.txt
 git apply 6927.patch.txt

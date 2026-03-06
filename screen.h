@@ -14,3 +14,4 @@ extern const int bottombutton_width;
 extern const int bottombutton_width1;
 extern const int buttonHeight;
 extern int tabHeight;
+extern int screenfontthresshold;

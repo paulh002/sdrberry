@@ -182,6 +182,7 @@ int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
 const int hidetx{5};
 const int hidepreamp{6};
+int screenfontthresshold;
 
 //const int hidespeech{5};
 
@@ -648,7 +649,7 @@ int main(int argc, char *argv[])
 	lv_theme_t *th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
 	lv_disp_set_theme(NULL, th);
 	scr = lv_scr_act();
-
+	screenfontthresshold = Settings_file.get_int("screen", "thresshold", 1024);
 	GuiTopBar.setup_top_bar(scr);
 	gui_vfo_inst.gui_vfo_init(scr, keyboard_group);
 

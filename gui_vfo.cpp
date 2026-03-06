@@ -123,13 +123,13 @@ void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mo
 {
 	char str[30];
 
-	if (freq > 10000000LU)
+	if (freq > 100000000LU)
 	{
 		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 	}
 	else
 	{
-		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
+		sprintf(str, "%3ld.%03ld.%03ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)(freq % 1000));
 	}
 
 	if (active_vfo)

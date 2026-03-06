@@ -438,6 +438,8 @@ void Spectrum::set_pos(int32_t offset)
 void Spectrum::enable_second_data_series(bool enable)
 {
 	hold_peak = enable;
+	for (auto &value : data_set_peak)
+		value = -1000;
 	if (hold_peak)
 	{
 		peak_ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_BLUE), LV_CHART_AXIS_PRIMARY_Y);
@@ -452,8 +454,6 @@ void Spectrum::enable_second_data_series(bool enable)
 		if (peak_ser)
 		{
 			lv_chart_remove_series(chart, peak_ser);
-			for (auto &value : data_set_peak)
-				value = 0;
 			peak_ser = nullptr;
 		}
 		for (auto m : markers)

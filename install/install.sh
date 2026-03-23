@@ -354,7 +354,7 @@ sed -i '/default = "radioberry"/c\default = "rtlsdr"' $usrdir/sdrberry_settings.
 fi
 cp ./sdrberrywayland/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh
-cp ./sdrberrywayland/install/crontab $usrdir
+cp ./sdrberry/install/crontab $usrdir
 #crontab ./sdrberry/install/crontab
 #cd to work dir . If does not exist exit script
 cd $wrkdir || exit

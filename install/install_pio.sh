@@ -10,6 +10,6 @@ sudo mkdir /lib/modules/$(uname -r)/kernel/drivers/sdr
 sudo cp radioberry.ko /lib/modules/$(uname -r)/kernel/drivers/sdr
 sudo cp radioberry.dtbo /boot/overlays
 sudo depmod
-sudo cp ~/sdrberrywayland/install/trixie/radioberry.rbf /lib/firmware
+sudo cp ~/sdrberry/install/trixie/radioberry.rbf /lib/firmware
 sudo modprobe radioberry
 cd ~

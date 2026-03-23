@@ -1,6 +1,12 @@
 ![example event parameter](https://github.com/paulh002/sdrberry/actions/workflows/build-arm64.yml/badge.svg?branch=build)
 
 # sdrberry
+
+## Framebuffer
+This version is based on linux CLI interface aka framebuffer. To install this version you have to switch off the wayland GUI.
+This version will not be further developed. For newer versions you can switch to sdrberry wayland.
+
+## sdrberry framebuffer
 Raspberry pi SDR transceiver / frontend using lvgl gui 
 !!! This is an ongoing project code only for information purpose only. 
 The main goal for this project is to learn about c++ programming, liquid dsp, and for most the use of the GUI toolkit LVGL v8
@@ -21,7 +27,6 @@ Check the event number for the touch and keyboard device and adjust the device n
 
 installation instruction in install_guide.txt
 install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
-
 
 ## Hardware requirements
 - Raspberry pi 4 Model B or Pi 5

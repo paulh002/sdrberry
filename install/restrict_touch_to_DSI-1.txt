@@ -1,0 +1,4 @@
+sudo vi ./.config/labwc/rc.xml
+<labwc_config>
+<touch deviceName="Goodix Capacitive TouchScreen" mapToOutput="DSI-1"/>
+</labwc_config>

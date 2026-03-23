@@ -57,35 +57,22 @@ elif [[ $1 = "RTLD" ]]; then sdrboard='RTLD'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
    echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / RTLSDR direct sampling RTLD/ No = No device"
-   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 1 T1, Raspberry PI Touch 2 T2,Waveshare 7 inch 1200x600 WC12"
-   echo "./install.sh Device LCD"
-   echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
-   echo "If you want to use the build branch add build like ./install.sh RDB DSI build"
-   echo "If you want to compile from code use ./install.sh RDB DSI"
+   echo "./install.sh Device"
+   echo "If you want to use the build branch add build like ./install.sh RDB build"
+   echo "If you want to compile from code use ./install.sh RDB"
    exit
 fi
-if [[ $2 = "DSI" ]]; then LCD='DSI'
-elif [[ $2 = "WC12" ]]; then LCD='7c'
-elif [[ $2 = "T2" ]]; then LCD='T2'
-elif [[ $2 = "T1" ]]; then LCD='T1'
-else
-   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / No = No device"
-   echo "LCD devices supported are 800x480 DSI 7 inch and 5 inch, Raspberry PI Touch 1 T1, Raspberry PI Touch 2 T2, Waveshare 7 inch 1200x600 WC12"
-   echo "If you want to use linux packages add Y like ./install.sh RDB DSI Y"
-   echo "If you want to compile from code use ./install.sh RDB DSI"
-   exit
-fi
+LCD='DSI'
 if [[ $1 = "SDP" ]]; then 
    echo "Please install SDRPlay API first press ctrl-C to stop this script"
    sleep 5
 fi
-if [[ $3 = "build" ]]; then BUILD='YES'
+if [[ $2 = "build" ]]; then BUILD='YES'
    echo "build branch"
 else
    echo "main branch"
 fi
 
-#if false; then
 sudo apt update
 sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig cmake \
 binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
@@ -123,7 +110,8 @@ cd $wrkdir || exit
 
 #build sdrberry
 git clone https://github.com/paulh002/sdrberry
-cd sdrberry || exit
+cd sdrberrywayland || exit
+git checkout sdrberry_wayland
 if [[ $BUILD == 'YES' ]]; then
 git switch build
 fi
@@ -287,7 +275,7 @@ if [[ $pimod == PI5 ]];	then
 	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
 else
 	cd Radioberry-2.x/SBC/rpi-4/releases/dev/CL025
-fi  
+fi
 sudo cp ./radioberry.rbf /lib/firmware
 cd ../../../../../..
 	
@@ -298,6 +286,7 @@ fi
 
 #-----------------------------------------------------------------------------
 echo "Installing Radioberry driver..."
+#cd to work dir . If does not exist exit script
 cd $wrkdir || exit
 
 #unregister radioberry driver
@@ -349,7 +338,7 @@ cd $wrkdir || exit
 
 #wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 #mv sdrberry_settings.cfg $usrdir/sdrberry_settings.cfg
-cp ./sdrberry/install/sdrberry_settings.cfg $usrdir
+cp ./sdrberrywayland/install/sdrberry_settings.cfg $usrdir
 if [[ $sdrboard == 'HRF' ]]; then
 sed -i '/default = "radioberry"/c\default = "hackrf"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'HFB' ]]; then
@@ -363,33 +352,10 @@ sed -i '/default = "radioberry"/c\default = "sdrplay"' $usrdir/sdrberry_settings
 elif [[ $sdrboard == 'RTL' ]]; then
 sed -i '/default = "radioberry"/c\default = "rtlsdr"' $usrdir/sdrberry_settings.cfg
 fi
-if [[ $LCD == 'T2' ]]; then
-sed -i '/resolution = 0/c\resolution = 4' $usrdir/sdrberry_settings.cfg
-sed -i '/rotation = 0/c\rotation = 1' $usrdir/sdrberry_settings.cfg
-fi
-if [[ $LCD == 'T1' ]]; then
-sudo sed -i 's/$/ video=DSI-1:800x480@60,rotate=180/' /boot/firmware/cmdline.txt
-fi
-cp ./sdrberry/install/sdrstart.sh $usrdir
+cp ./sdrberrywayland/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh
-cp ./sdrberry/install/crontab $usrdir
+cp ./sdrberrywayland/install/crontab $usrdir
 #crontab ./sdrberry/install/crontab
-
-#Do LCD Screen Setup
-#if [[ $LCD == '5' || $LCD == '7' || $LCD == '7b' ]]; then
-#Enable Waveshare 7inch_DSI_LCD_(5/7/7B) 800x480
-#echo dtoverlay=vc4-kms-v3d >> /boot/config.txt
-#echo dtoverlay=vc4-kms-dsi-7inch >> /boot/config.txt
-#
-#fi
-
-if [[ $LCD == '7c' ]]; then
-#Enable Waveshare 7inch DSI LCD (C) 1024×600 driver：
-git clone https://github.com/waveshare/Waveshare-DSI-LCD
-cd Waveshare-DSI-LCD/6.1.21/64 || exit
-sudo bash ./WS_xinchDSI_MAIN.sh 70C I2C1
-fi
-
 #cd to work dir . If does not exist exit script
 cd $wrkdir || exit
 
@@ -400,6 +366,22 @@ sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/firmware/config.txt
 #Do Cleanup
 #rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*
 sudo setcap cap_sys_boot+ep /usr/local/bin/sdrberry
+# 4. Create the rule file
+RULES_DIR="/etc/polkit-1/rules.d"
+sudo mkdir -p "$RULES_DIR"
+RULE_FILE="$RULES_DIR/49-sdrberry-reboot.rules"
+sudo cat >  49-sdrberry-reboot.rules <<EOF
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.login1.reboot" &&
+        subject.user == "pi") {
+        return polkit.Result.YES;
+    }
+});
+EOF
+sudo cp 49-sdrberry-reboot.rules $RULES_DIR/.
+rm 49-sdrberry-reboot.rules
+sudo chmod 644 "$RULE_FILE"
+sudo chown root:root "$RULE_FILE"
 while true; do
 read -p "Reboot or stop and inspect install log: 1 = Reboot or 2 = Stop? " type
 case $type in

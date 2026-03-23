@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Background (optional transparent) -->
+  <rect width="128" height="128" fill="none"/>
+
+  <!-- Main radio body -->
+  <rect x="24" y="48" width="80" height="56" rx="6" ry="6" fill="#2c3e50" stroke="#34495e" stroke-width="2"/>
+
+  <!-- Radio display screen -->
+  <rect x="32" y="56" width="64" height="20" rx="2" ry="2" fill="#1abc9c" stroke="#16a085" stroke-width="1"/>
+
+  <!-- Knobs -->
+  <circle cx="40" cy="88" r="6" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+  <circle cx="88" cy="88" r="6" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+
+  <!-- Buttons -->
+  <rect x="52" y="76" width="8" height="4" fill="#7f8c8d" rx="1" ry="1"/>
+  <rect x="64" y="76" width="8" height="4" fill="#7f8c8d" rx="1" ry="1"/>
+  <rect x="76" y="76" width="8" height="4" fill="#7f8c8d" rx="1" ry="1"/>
+
+  <!-- Antenna -->
+  <line x1="64" y1="48" x2="64" y2="20" stroke="#bdc3c7" stroke-width="2" stroke-linecap="round"/>
+  <path d="M64,20 L56,12 L72,12 Z" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1"/>
+
+  <!-- Antenna base -->
+  <rect x="62" y="44" width="4" height="4" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+
+  <!-- Label text (optional, small) -->
+  <text x="64" y="120" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#ecf0f1" opacity="0.8">SDRBerry</text>
+</svg>

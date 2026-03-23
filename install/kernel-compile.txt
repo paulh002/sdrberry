@@ -1,0 +1,53 @@
+// rotate screen 270 degree
+wlr-randr --output DSI-1 --transform 270
+
+sudo apt-get install -y flex bison aptitude libssl-dev
+git clone --depth=1 --branch rpi-6.12.y https://github.com/raspberrypi/linux
+cd linux
+//copy .c en .h pio files  drivers/misc/rp1-pio.c, include/linux/pio_rp1.h
+git apply --stat 6927.patch.txt
+git apply --check 6927.patch.txt
+git apply 6927.patch.txt
+
+sudo modprobe configs
+zcat /proc/config.gz > .config
+make ARCH=arm64 olddefconfig
+make -j4 Image modules dtbs
+sudo make modules_install
+uname -r  # confirm kernel version
+dmesg | grep -i pio  # check if your driver loaded
+sudo cat /lib/modules/$(uname -r)/build/Module.symvers | grep rp1_pio_sm_buffer_virt
+
+make kernelrelease
+sudo make modules_install
+ls /lib/modules/6.12.54-v8-16k+
+sudo cp arch/arm64/boot/Image /boot/firmware/kernel_2712.img
+sudo cp arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b.dtb /boot/firmware/
+sudo cp arch/arm64/boot/dts/overlays/*.dtbo /boot/firmware/overlays/
+
+// install
+git clone https://github.com/pa3gsb/Radioberry-2.x
+cd /home/pi/Radioberry-2.x/SBC/rpi-5/device_driver/pio-mode/driver
+sed -i '\|^KBUILD_EXTRA_SYMBOLS := /home/pi/git/rp1-driver/Module\.symvers$|d' Makefile
+
+sudo cp ./radioberry.rbf /lib/firmware
+sudo mkdir /lib/modules/$(uname -r)/kernel/drivers/sdr
+build radioberry.ko (remove include of Module.symvers from makefile)
+sudo cp radioberry.ko /lib/modules/$(uname -r)/kernel/drivers/sdr
+sudo cp radioberry.dtbo /boot/overlays
+sudo depmod	
+sudo modprobe radioberry
+sudo chmod 666 /dev/radioberry
+sudo apt-get remove cloud-init
+
+// clean
+mrproper
+sudo modprobe configs
+zcat /proc/config.gz > .config
+make ARCH=arm64 olddefconfig
+make -j4 Image modules dtbs
+sudo make modules_install
+sudo depmod -a
+
+
+6.12.67-v8-16k+

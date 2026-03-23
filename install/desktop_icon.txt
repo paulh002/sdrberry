@@ -1,0 +1,89 @@
+// rotate screen
+mkdir -p ~/.config/autostart
+vi ~/.config/autostart/screen-rotation.desktop
+[Desktop Entry]
+Type=Application
+Name=Screen Rotation
+Exec=sh -c "sleep 3 && /usr/bin/wlr-randr --output DSI-1 --transform 270"
+Terminal=false
+X-GNOME-Autostart-enabled=true
+
+// wf-panel
+[panel]
+# Set this to your second screen name (e.g., HDMI-A-1)
+output=HDMI-A-1
+position=top
+icon_size=32
+window-list_max_width=200
+monitor=HDMI-A-1
+
+ // Create an icon in raspbery
+vi ~/.local/share/applications/sdrberry.desktop
+sudo chmod +x ~/.local/share/applications/sdrberry.desktop
+update-desktop-database ~/.local/share/applications
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Sdrberry
+Comment=A fullscreen Wayland application with keyboard/mouse input
+Exec=sh -c "/usr/local/bin/sdrberry >> /home/pi/sdrberry.log 2>&1"
+Icon=utilities-terminal
+Terminal=false
+Categories=Utility;
+StartupNotify=false
+NoDisplay=false
+MimeType=application/x-executable;
+
+ 
+vi ~/.local/share/applications/js8call.desktop
+sudo chmod +x ~/.local/share/applications/js8call.desktop
+update-desktop-database ~/.local/share/applications
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=JS8CALL
+Comment=A fullscreen Wayland application with keyboard/mouse input
+Exec=/usr/local/bin/js8call
+Icon=utilities-terminal
+Terminal=false
+Categories=Utility;
+StartupNotify=false
+NoDisplay=false
+MimeType=application/x-executable;
+
+sudo apt install pulseaudio
+sudo apt install pavucontrol
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=pavucontrole
+Comment=pulseaudio gui controle
+Exec=/usr/bin/pavucontrol
+Icon=utilities-terminal
+Terminal=false
+Categories=AudioVideo;Player;Recorder;
+StartupNotify=false
+NoDisplay=false
+MimeType=application/x-executable
+
+vi ~/.local/share/applications/pavucontrol.desktop
+sudo chmod +x ~/.local/share/applications/pavucontrol.desktop
+
+sudo apt install helvum
+
+vi ~/.local/share/applications/helvum.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=helvum
+Comment=helvum
+Exec=/usr/bin/helvum
+Icon=utilities-terminal
+Terminal=false
+Categories=AudioVideo;Player;Recorder;
+StartupNotify=false
+NoDisplay=false
+MimeType=application/x-executable

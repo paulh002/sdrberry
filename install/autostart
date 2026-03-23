@@ -1,0 +1,2 @@
+wlr-randr --output DSI-1 --transform 90 &
+sdrberry >> /home/pi/sdrberry.log 2>&1

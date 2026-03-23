@@ -1,0 +1,66 @@
+sudo apt update
+sudo apt upgrade
+wlr-randr --output DSI-1 --transform 270
+wlr-randr --output HDMI-A-2 --scale 2
+sudo apt install vim
+# remove mouse=a
+sudo vi /usr/share/vim/vim91/defaults.vim
+
+// store alsa settings
+sudo alsactl store
+
+# edit .bashrc add to the end:
+# Ensure WAYLAND_DISPLAY is set for child processes (like sdrberry launched from terminal)
+if [ -z "$WAYLAND_DISPLAY" ]; then
+    # Try to find an existing wayland socket in /run/user/$UID/
+    if ls /run/user/$UID/wayland-* 1> /dev/null 2>&1; then
+        export WAYLAND_DISPLAY=$(ls /run/user/$UID/wayland-* | head -n 1 | xargs basename)
+    fi
+fi
+
+#edit ~/.config/wf-panel-pi.ini
+
+
+mkdir -p ~/.config/autostart
+vi ~/.config/autostart/screen-rotation.desktop
+wlr-randr --output DSI-1 --transform 90 &
+sdrberry >> /home/pi/sdrberry.log 2>&1
+
+
+
+[Desktop Entry]
+Type=Application
+Name=Screen Rotation
+Exec=sh -c "sleep 3 && /usr/bin/wlr-randr --output DSI-1 --transform 270"
+Terminal=false
+X-GNOME-Autostart-enabled=true
+
+#install sdrberry
+
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=pavucontrole
+Comment=pulseaudio gui controle
+Exec=/usr/bin/pavucontrol
+Icon=utilities-terminal
+Terminal=false
+Categories=AudioVideo;Player;Recorder;
+StartupNotify=false
+NoDisplay=false
+MimeType=application/x-executable
+
+
+Rotate touch
+
+Device:                  Goodix Capacitive TouchScreen
+sudo vi /etc/udev/rules.d/99-touchscreen-rotation.rules
+ATTRS{name}=="Goodix Capacitive TouchScreen", ENV{LIBINPUT_CALIBRATION_MATRIX}="0 1 0 -1 0 1"
+ATTRS{name}=="Goodix Capacitive TouchScreen", ENV{WL_OUTPUT}="DSI-1", ENV{LIBINPUT_CALIBRATION_MATRIX}="0 -1 1 -1 0 1"
+
+//Limit touch to DSI-1 and fix rotation
+sudo vi ./.config/labwc/rc.xml
+<labwc_config>
+<touch deviceName="Goodix Capacitive TouchScreen" mapToOutput="DSI-1"/>
+</labwc_config>

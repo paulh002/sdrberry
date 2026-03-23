@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Screen Rotation
+Exec=sh -c "sleep 3 && /usr/bin/wlr-randr --output DSI-1 --transform 270"
+Terminal=false
+X-GNOME-Autostart-enabled=tr

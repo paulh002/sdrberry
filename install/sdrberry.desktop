@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Sdrberry
+Comment=A fullscreen Wayland application with keyboard/mouse input
+Exec=sh -c "/usr/local/bin/sdrberry >> /home/pi/sdrberry.log 2>&1"
+Icon=utilities-terminal
+Terminal=false
+Categories=Utility;
+StartupNotify=false
+NoDisplay=false
+MimeType=application/x-executable;

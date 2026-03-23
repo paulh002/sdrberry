@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=JS8CALL
+Comment=A fullscreen Wayland application with keyboard/mouse input
+Exec=/usr/local/bin/js8call
+Icon=utilities-terminal
+Terminal=false
+Categories=Utility;
+StartupNotify=false
+NoDisplay=false
+MimeType=application/x-executable;

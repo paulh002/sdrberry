@@ -110,7 +110,7 @@ cd $wrkdir || exit
 
 #build sdrberry
 git clone https://github.com/paulh002/sdrberry
-cd sdrberrywayland || exit
+cd sdrberry || exit
 git checkout sdrberry_wayland
 if [[ $BUILD == 'YES' ]]; then
 git switch build

@@ -43,7 +43,7 @@
       <TransferNewFilesOnly>false</TransferNewFilesOnly>
       <IncludeSubdirectories>true</IncludeSubdirectories>
       <SelectedDirectories>
-        <string>lv_drivers</string>
+        <string>lvgl</string>
         <string>date</string>
         <string>*</string>
       </SelectedDirectories>
@@ -73,8 +73,9 @@
     <ProjectFile>sdrberry.vcxproj</ProjectFile>
     <RemoteBuildEnvironment>
       <Records />
+      <EnvironmentSetupFiles />
     </RemoteBuildEnvironment>
-    <ParallelJobCount>1</ParallelJobCount>
+    <ParallelJobCount>4</ParallelJobCount>
     <SuppressDirectoryChangeMessages>true</SuppressDirectoryChangeMessages>
     <BuildAsRoot>false</BuildAsRoot>
   </Build>

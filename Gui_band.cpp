@@ -1,6 +1,7 @@
 #include "Gui_band.h"
 #include "BandFilter.h"
 #include "Catinterface.h"
+#include "CatTcpServer.h"
 #include "gui_bar.h"
 #include "vfo.h"
 #include "WebServer.h"
@@ -24,7 +25,7 @@ string RemoveChar(string str, char c)
 void Gui_band::ham_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -37,7 +38,7 @@ void Gui_band::ham_event_handler_class(lv_event_t *e)
 void Gui_band::band_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -83,8 +84,8 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_group_t *keyboard_group,lv_co
 		tileview = lv_tileview_create(o_tab);
 		lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
 
-		main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
-		edit_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+		main_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+		edit_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 		guieditband.init(edit_tile, w, h, NULL, keyboard_group);
 	}
 
@@ -247,7 +248,7 @@ int getIndex(vector<int> v, int s)
 void Gui_band::band_button_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_obj_t *label = lv_obj_get_child(obj, 0L);
 	char *ptr = lv_label_get_text(label);
 	std::string s(ptr);
@@ -277,6 +278,7 @@ void Gui_band::band_button_class(lv_event_t *e)
 			vfo.set_band(f_band, f_low);
 			gbar.set_mode(mode);
 			catinterface->SetBand(i);
+			cattcpserver->SetBand(i);
 		}
 
 		for (auto col : button)

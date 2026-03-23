@@ -5,6 +5,7 @@
 #include "vfo.h"
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "strlib.h"
 
 /* Jabra Vendor Id */
 #define JABRA_VID ((__u16)0x0B0E)
@@ -27,7 +28,6 @@
 #define Tel_Line ((__u16)0x002A)
 #define Tel_Speaker ((__u16)0x002B)
 
-extern void strupr(char *str);
 extern HidDev HidDev_dev;
 
 HidDev::HidDev()
@@ -72,7 +72,7 @@ void HidDev::init(string mouse_name)
 			char name[256] = "Unknown";
 			ioctl(m_fd, EVIOCGNAME(sizeof(name)), name);
 			//printf("Input device name: \"%s\"\n", name);
-			strupr(name);
+			strlib::strupr(name);
 			char *ptr = strstr(name, HidName.c_str());
 			if (ptr == NULL)
 			{

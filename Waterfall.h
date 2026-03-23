@@ -39,14 +39,15 @@ class Waterfall
 	void Size(lv_coord_t y, lv_coord_t h);
 
   private:
-	lv_obj_t *canvas{};
-	std::vector<uint8_t> cbuf;
+	lv_obj_t *canvas, *obj_parent;
+	std::vector<uint8_t> canvas_buffer;
+	std::vector<uint8_t> temp_buffer;
 	std::unique_ptr<FastFourier> fft;
 	std::mutex mutexSingleEntry;
 	lv_color_t heatmap(float val, float min, float max);
 	float lerp(float a, float b, float t);
 	std::vector<float> resampleArray(const std::vector<float> &originalArray, size_t numPoints);
-	lv_coord_t width, height, xpos;
+	lv_coord_t xpos;
 	waterfallFlow waterfallflow;
 	partialspectrum partialSpectrum;
 	int NumberOfBins;
@@ -55,4 +56,6 @@ class Waterfall
 	int excludeMargin;
 	float max;
 	float min;
+	int32_t width;//, _x;
+	int32_t height;//, _y;
 };

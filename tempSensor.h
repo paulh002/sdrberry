@@ -34,7 +34,7 @@ class tempSensor
 
 	inline static std::shared_ptr<tempSensor> ptr;
 	static void start_read_out();
-	void stop_read_out();
+	static void stop_read_out();
 	inline static std::thread read_out_thread;
 	int get_temperature_readout(int sensor);
 	static int get_temperature(int sensor);

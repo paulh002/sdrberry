@@ -13,12 +13,14 @@ class gui_setup
   private:
 	long span;
 	lv_style_t style_btn, style_tile, text_style;
-	lv_obj_t *brightness_slider_label, *brightness_slider, *shutdownbutton;
+	lv_obj_t *brightness_slider_label, *brightness_slider, *shutdownbutton, *main_display, *second_disp;
 	lv_obj_t *d_audio, *audio_label;
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *cal_label, *calibration_dropdown;
 	lv_obj_t *calbox, *dcbox, *autocalbox, *webbox;
 	lv_obj_t *tileview, *settings_main, *settings_i2c, *settings_i2c_input, *settings_i2c_output;
+	lv_obj_t *mbox1;
+	lv_group_t *keyboard_group;
 
 	void calbox_event_cb_class(lv_event_t *e);
 	void brightness_slider_event_cb_class(lv_event_t *e);
@@ -28,6 +30,9 @@ class gui_setup
 	void webbox_event_class(lv_event_t *e);
 	void shutdown_button_handler_class(lv_event_t *e);
 	void do_shutdown_button_handler_class(lv_event_t *e);
+	void main_display_event_class(lv_event_t *e);
+	void second_disp_event_class(lv_event_t *e);
+	void second_display_event_class(lv_event_t *e);
 	int get_maxbrightness();
 	
   public:
@@ -46,7 +51,8 @@ class gui_setup
 	static constexpr auto webbox_event_cb = EventHandler<gui_setup, &gui_setup::webbox_event_class>::staticHandler;
 	static constexpr auto shutdown_button_handler = EventHandler<gui_setup, &gui_setup::shutdown_button_handler_class>::staticHandler;
 	static constexpr auto do_shutdown_button_handler = EventHandler<gui_setup, &gui_setup::do_shutdown_button_handler_class>::staticHandler;
-	
+	static constexpr auto main_display_event_cb = EventHandler<gui_setup, &gui_setup::main_display_event_class>::staticHandler;
+	static constexpr auto second_display_event_cb = EventHandler<gui_setup, &gui_setup::second_display_event_class>::staticHandler;
 };
 
 extern gui_setup gsetup;

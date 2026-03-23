@@ -11,7 +11,7 @@
 void Gui_agc::agc_button_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e); 
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e); 
 	
 	if (code == LV_EVENT_CLICKED) {
 		if (obj == button[4])
@@ -92,7 +92,7 @@ void Gui_agc::set_agc_mode(int m)
 void Gui_agc::threshold_slider_event_cb_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e); 
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e); 
 	
 	char	str[80];
 	threshold = lv_slider_get_value(slider);
@@ -103,7 +103,7 @@ void Gui_agc::threshold_slider_event_cb_class(lv_event_t * e)
 void Gui_agc::atack_slider_event_cb_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e); 
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e); 
 	
 	char	str[80];
 	atack = lv_slider_get_value(slider);
@@ -114,7 +114,7 @@ void Gui_agc::atack_slider_event_cb_class(lv_event_t * e)
 void Gui_agc::release_slider_event_cb_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e); 
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e); 
 	
 	char	str[80];
 	release = lv_slider_get_value(slider);
@@ -124,7 +124,7 @@ void Gui_agc::release_slider_event_cb_class(lv_event_t * e)
 
 void Gui_agc::ratio_slider_event_cb_class(lv_event_t * e)
 {
-	lv_obj_t * slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	char buf[20];
 	ratio = lv_slider_get_value(slider);
 	sprintf(buf, "ratio %d", lv_slider_get_value(slider));

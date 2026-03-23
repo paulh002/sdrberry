@@ -383,7 +383,8 @@ void Catinterface::checkCAT()
 
 void Catinterface::operator()()
 {
-	while (1)
+	stop_flag = false;
+	while (!stop_flag)
 	{
 		checkCAT();
 	}

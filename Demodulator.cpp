@@ -8,6 +8,8 @@
 #include "gui_squelch.h"
 #include "SdrberryTypeDefs.h"
 #include "sdrberry.h"
+#include "SecondScreen.h"
+#include "SignalStrength.h"
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -83,12 +85,12 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 
 void Demodulator::set_signal_strength()
 {
-	SpectrumGraph.set_signal_strength(get_signal_level());
+	signalstrength.set_signal_strength(IQsignalEnergy.getEnergyLevel());
 }
 
 void Demodulator::set_af_signal_strength()
 {
-	SpectrumGraph.set_signal_strength(get_af_level());
+	signalstrength.set_signal_strength(afEnergy.getEnergyLevel());
 }
 
 Demodulator::~Demodulator()
@@ -113,6 +115,7 @@ Demodulator::~Demodulator()
 		firfilt_rrrf_destroy(highPassHandle);
 	if (dcBlockHandle)
 		firfilt_crcf_destroy(dcBlockHandle);
+
 	bandPassHandle = nullptr;
 	lowPassHandle = nullptr;
 	highPassHandle = nullptr;
@@ -236,9 +239,9 @@ float Demodulator::adjust_resample_rate1(float rateAjustFraction)
 	return resampleRate;
 }
 
-void Demodulator::calc_signal_level(const IQSampleVector& samples_in)
+void Demodulator::calc_signal_level(const IQSampleVector &samples_in)
 {
-	SignalStrength.calculateEnergyLevel(samples_in);
+	IQsignalEnergy.calculateEnergyLevel(samples_in);
 }
 
 void Demodulator::calc_if_level(const IQSampleVector &samples_in)
@@ -294,14 +297,14 @@ void Demodulator::gain_phasecorrection(IQSampleVector &samples_in, float vol)
 	
 	float gainManual = (float)gcal.getRxGain();
 	float phaseManual = (float)gcal.getRxPhase();
-
+	
 	if (correction > 0)
 	{
 		calc_if_level(samples_in);
 		std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
 		autophase = std::get<1>(result);
 		autogain = std::get<2>(result);
-
+		
 		for (auto &col : samples_in)
 		{
 			if (correction > 1)
@@ -552,6 +555,8 @@ void Demodulator::setLowPassAudioFilterCutOffFrequency(int band_width)
 void Demodulator::perform_fft(const IQSampleVector &iqsamples)
 {
 	SpectrumGraph.ProcessWaterfall(iqsamples);
+	if (secondscreen)
+		secondscreen->ProcessWaterfall(iqsamples);
 }
 
 float Demodulator::getSuppression()

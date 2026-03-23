@@ -13,7 +13,7 @@ MorseDecoder::MorseDecoder(float ifrate)
 	q = iirfilt_crcf_create_prototype(LIQUID_IIRDES_BUTTER, LIQUID_IIRDES_BANDPASS, LIQUID_IIRDES_TF, order=1, fc, f0, Ap, As);
 	iirfilt_crcf_print(q);
 
-	magnitudelimit = 0.01;
+	magnitudelimit = 0.000001;
 }
 
 MorseDecoder::~MorseDecoder()
@@ -54,7 +54,7 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 	//printf("limit %f mag %f %f %s\n", magnitudelimit, magnitude, 6 * magnitudelimit, magnitude > magnitudelimit * 0.3 ? "y" : "n");
 	
 	// Now check the magnitude //
-	if (magnitude > magnitudelimit * 0.6) // just to have some space up
+	if (magnitude > magnitudelimit * 0.4) // just to have some space up
 	{
 		realstate = 1;
 	}

@@ -1,9 +1,9 @@
 ![example event parameter](https://github.com/paulh002/sdrberry/actions/workflows/build-arm64.yml/badge.svg?branch=build)
 
-# sdrberry
-Raspberry pi SDR transceiver / frontend using lvgl gui 
+# Sdrberry wayland
+Raspberry pi SDR transceiver / frontend using lvgl gui supporting Raspberry pi OS Wayland.
 !!! This is an ongoing project code only for information purpose only. 
-The main goal for this project is to learn about c++ programming, liquid dsp, and for most the use of the GUI toolkit LVGL v8
+The main goal for this project is to learn about c++ programming, liquid dsp, and for most the use of the GUI toolkit LVGL v9
 Functionality is in beta currently
 
 This source code is still in development.  
@@ -12,22 +12,18 @@ Also the goal is to support optical encoder and support I2C / serial interface f
 I use an ESP32 as CAT controller with a service for an optical encoder.
 Alternative a Contour Shuttle express can be used as rotary controller and or a mouse. 
 
-To install you need to configure rasberry pi OS in text only mode (64 bit Bullseye), create a sd card or even better a usb stick sd cards tend to fail after a while,
-with 64 bit bullseye CLI mode. Configure wifi and use raspi-config to switch on I2C and boot to CLI only with logon. 
-Compiled using VisualGDB or cmake, gcc and gfortran (for wsjtx_lib which includes the wsjtx fortran code of Joe Taylor)
-
-Remote control is possible with the use of framebuffer-vnc https://github.com/ponty/framebuffer-vncserver a config file is in the install directory.
-Check the event number for the touch and keyboard device and adjust the device number like event1 accordingly
-
-installation instruction in install_guide.txt
-install script install.sh installs all components based on a fresh raspberry pi SD card (OS should be updated and in CLI mode)
-
+install script install.sh installs all components based on a fresh raspberry pi USB drive or SD card (OS should be updated)
 
 ## Hardware requirements
 - Raspberry pi 4 Model B or Pi 5
-- LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector or the new raspberry Touch 2 7 inch display
+- LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector or the new raspberry Touch 2 7 inch 1280 x 720 display
 - It is preferred not to use a SD card but an USB stick like an Samsung Fit plus 32 GB or larger
 - Generic USB Audio adapter for audio in and output
+- Optional I2C GPIO for BPF, LPF and RX/TX switching
+- Advised to use a USB drive instead of an SD card.
+
+## OS requirements
+- Raspberry pi OS Trixie or newer
 
 ## This software makes use of opensource libraries like
 - Noise reduction code is an port from DD4WH https://github.com/df8oe/UHSDR/wiki/Noise-reduction  adapted for raspberry pi
@@ -41,7 +37,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 
 ## ToDo
 - Support for Midi controller
-- Optical encoder direct on GPIO (some hardware adaption needed) 
+- Optical encoder direct on I2C (some I2C GPIO adaption needed) 
 - Setup screen for Network and Wifi
 - Different noise reduction schemes like lms etc.
 - codec2 implementation (FreeDV)
@@ -80,6 +76,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - CAT support for N1MM (tcp connection)
 - WSJT-X UDP client support. Sdrberry will send Heartbeat, Decode and QSO messages to designated ip
 - Shutdown button for save shutdown of the pi
+- Wayland support
 
 ## Installation of libraries is necessary:
 - Liquid DSP
@@ -101,50 +98,61 @@ install script install.sh installs all components based on a fresh raspberry pi 
 ## Preparation before install
 Take a good quality USB drive and install the latest 64 bit Raspberry OS on it.
 I advise not to use SD cards, these are very slow and often fail in a short time.
-Use raspi-config to switch to console auto logon startup.
+Use raspi-config to switch to GUI auto logon startup.
 Update the OS with the latest raspberry pi OS patches
+
+# Pi 5 considerations
+This wayland version works both on Pi4 and Pi5 Trixie Raspberry pi OS
+Older distributions are not tested and not supported.
+
+# Pi 5 and Radioberry considerations
+To use the pi5 and the radioberry there are two options for the radioberry driver. 
+1) Use the GPIO version of the driver. This version will work directly on Raspberry pi OS but has some performace limitations.
+Use this version only with lower samplerates like 96 Khz or lower.
+2) Use the PIO driver. This driver uses DMA to transfer the data from the Radioberry to the pi and is very efficient.
+It has no samplerate limitation, only requires a patched Linux kernel. Supplied by PA3GSB or you have to patch the kernel your self.
 
 ## Install and compile with cmake
 Download the install file in pi home directory (the install script supports different SDR's)
-The install script can install DSI (800x480 16bits color), Raspberry PI Touch 1 7inch 800x480 (32 bit color), Raspberry PI Touch 2 7inch 1280x720 ,  Waveshare 7 inch display
 SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay = SDP /RTLSDR RTL / No = No device
-
-
-DSI is 16 bit color depth display (DSI / HDMI) the resolution is configurable in the setting file see the wiki. 
-https://github.com/paulh002/sdrberry/wiki/Screen-resolution
-
 ```
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
+wget https://raw.githubusercontent.com/paulh002/sdrberrywayland/master/install/install.sh
 chmod +x install.sh
-./install.sh HFB DSI
+./install.sh RDB
 ```
-Raspberry PI Touch 1 with Radioberry (32 bit colordepth !)
+## create menu short cut
+copy sdrberry.desktop to ~/.local/share/applications
 ```
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
-chmod +x install.sh
-./install.sh RDB T1
+cp ~/sdrberrywayland/install/sdrberry.desktop ~/.local/share/applications/sdrberry.desktop
+sudo chmod +x ~/.local/share/applications/sdrberry.desktop
+update-desktop-database ~/.local/share/applications
 ```
-Raspberry PI Touch 2 with Radioberry (32 bit colordepth !)
-```
-wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
-chmod +x install.sh
-./install.sh RDB T2
-```
+## Slow Mouse configuration
+Wayland supports a mouse, to improve responsiveness the install script will add usbhid.mousepoll=2 to the commandline.txt  
+
 ## start sdrberry  
-sdrberry can be started in user mode or as root, this depends on the device being used for radioberry use sudo
+From the Accessories menu choose sdrberry to start the software.
+Or start from cli in that case make sure the WAYLAND_DISPLAY environment variable is set.
+
 ```
-sudo sdrberry > sdrberry.log 2>&1
+export WAYLAND_DISPLAY=0
+sdrberry > sdrberry.log 2>&1
 ```
+![Image](https://github.com/user-attachments/assets/256f1ea1-a3b0-4959-964e-2534f06dc5ac)
 
-## Mouse support
-sdrberry supports a mouse, to improve responsiveness the install script will add usbhid.mousepoll=2 to the commandline.txt  
+## Integration with JS8CALL
+Sdrberry can communicate with js8call using pipewire on the same pi
+To configure pipewire execute the setup-pipewire.sh
+Sdrberry emulated the CAT interface of an yeasu ft891 using tcp/ip. For js8call to connect to the radioberry we need to patch hamlib.
+This is automaticly done using the install_js8.sh script.
 
+```
+./setup_pipewire.sh
+./install_js8.sh
+```
+![Image](https://github.com/user-attachments/assets/60c3ad81-2a99-4665-83f5-dd23a6b4171e)
 
-## DSI display 5inch or 7inch  
-In the directory "install/bullseye-7inch rpi" are example config.txt and cmdline.txt files for rotating the screen
-5 inch DSI screens from waveshare do not need any adjustment. Sdrberry is currently tested for a resolution of 800 x 480. 
-Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for other resolutions. There can be some issues.
-
+## Tranceiver with sdrberry and radioberry
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/rb_tranceiver.jpg)
 
 ![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/IMG_20220203_ft8.jpg)
@@ -158,9 +166,6 @@ Although this can be changed in sdrberry.cpp line 47 and 48 it is not tested for
 Sdrberry sends messages to Qlog (or other logging software like NN1MM)
 And can be remote controled by logging software using CAT FT-981 commands.
 ![sdrberry](https://github.com/user-attachments/assets/923a954f-c64e-487f-994d-bfa7133193f7)
-
-# ESP32 Remote control for raspberry pi
-![sdrberry](images/IMG_20231015_131803.jpg)
 
 # Web Server on port 8081
 First version of sdrberry webserver, goal is to remote control the functions of sdrberry.

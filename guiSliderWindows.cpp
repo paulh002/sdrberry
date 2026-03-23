@@ -1,7 +1,7 @@
 #include "guiSliderWindows.h"
 #include "CustomEvents.h"
 
-LV_IMG_DECLARE(btn_knob); // assets/btn_knob.png ui_img_btn_knob_png
+LV_IMG_DECLARE(ui_img_btn_knob_png); // assets/btn_knob.png
 
 const int windowsliderbar = 40;
 
@@ -10,11 +10,11 @@ guiSliderWindows::guiSliderWindows(lv_obj_t *parent, void *thisptr, std::string 
 {
 	if (buttonWindowObj == nullptr)
 	{
-		buttonWindowObj = lv_win_create(lv_scr_act(), windowsliderbar);
+		buttonWindowObj = lv_win_create(lv_scr_act()); // windowsliderbar
 		lv_win_add_title(buttonWindowObj, name.c_str());
-		lv_obj_t *btn = lv_win_add_btn(buttonWindowObj, LV_SYMBOL_CLOSE, 60);
+		lv_obj_t *btn = lv_win_add_button(buttonWindowObj, LV_SYMBOL_CLOSE, 60);
 		lv_obj_add_event_cb(btn, btnWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
-		lv_obj_t *btnok = lv_win_add_btn(buttonWindowObj, LV_SYMBOL_OK, 60);
+		lv_obj_t *btnok = lv_win_add_button(buttonWindowObj, LV_SYMBOL_OK, 60);
 		lv_obj_add_event_cb(btnok, btnokWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_set_size(buttonWindowObj, width, height);
 		lv_obj_align(buttonWindowObj, LV_ALIGN_CENTER, 0, 0);
@@ -31,36 +31,36 @@ guiSliderWindows::~guiSliderWindows()
 void guiSliderWindows::btnWindowObj_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_event_send(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM), NULL);
+		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM), NULL);
 	}
 }
 void guiSliderWindows::btnokWindowObj_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_event_send(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), NULL);
+		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), NULL);
 	}
 }
 
 void guiSliderWindows::slider_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		char buf[20];
 		
 		value = lv_arc_get_value(ui_Arc1);
-		lv_event_send(Parent, event, (void *)(long)value);
+		lv_obj_send_event(Parent, event, (void *)(long)value);
 		sprintf(buf, "%d Hz", value);
 		lv_label_set_text(label, buf);
 	}
@@ -73,15 +73,15 @@ void guiSliderWindows::create_rotary_button(lv_obj_t *parent, int dy)
 	lv_coord_t width = lv_obj_get_content_width(winAreaObject);
 	lv_coord_t height = lv_obj_get_content_height(winAreaObject);
 
-	ui_Image1 = lv_img_create(winAreaObject);
-	lv_img_set_src(ui_Image1, &btn_knob);
-	lv_obj_set_width(ui_Image1, 104);
-	lv_obj_set_height(ui_Image1, 105);
-	lv_obj_set_x(ui_Image1, 0);
-	lv_obj_set_y(ui_Image1, 0);
+	//ui_Image1 = lv_img_create(winAreaObject);
+	//lv_img_set_src(ui_Image1, &ui_img_btn_knob_png);
+	//lv_obj_set_width(ui_Image1, 104);
+	//lv_obj_set_height(ui_Image1, 105);
+	//lv_obj_set_x(ui_Image1, 0);
+	//lv_obj_set_y(ui_Image1, 0);
 
-	lv_obj_align_to(ui_Image1, winAreaObject, LV_ALIGN_CENTER, 0, dy);
-	lv_obj_add_flag(ui_Image1, LV_OBJ_FLAG_ADV_HITTEST); /// Flags
+	//lv_obj_align_to(ui_Image1, winAreaObject, LV_ALIGN_CENTER, 0, dy);
+	//lv_obj_add_flag(ui_Image1, LV_OBJ_FLAG_ADV_HITTEST); /// Flags
 
 	ui_Arc1 = lv_arc_create(winAreaObject);
 	lv_obj_set_width(ui_Arc1, 95);

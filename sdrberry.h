@@ -4,8 +4,6 @@
 #include "SdrDevice.h"
 
 extern int screenRotate;
-
-extern const int barHeight;
 extern const int MorseHeight;
 extern lv_obj_t *bar_view;
 extern lv_obj_t *tabview_mid;
@@ -33,3 +31,7 @@ int IsScreenRotated();
 void set_tx_buttons();
 void create_spectrum_page_time();
 void print_stack_trace();
+void create_second_display(const std::string device);
+void delete_second_display();
+void delete_main_display();
+void stop_sdrberry();

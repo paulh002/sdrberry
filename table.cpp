@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <cstdio>
+#include <cstring>
 #include <malloc.h>
 #include "table.h"
+#include "lv_table_private.h"
 
 void print_table(lv_obj_t *obj)
 {
-	LV_ASSERT_OBJ(obj, MY_CLASS);
+	//LV_ASSERT_OBJ(obj, MY_CLASS);
 
 	lv_table_t *table = (lv_table_t *)obj;
 
@@ -36,7 +38,7 @@ void print_table(lv_obj_t *obj)
 
 void lv_table_remove_rows(lv_obj_t *obj, uint16_t start_row, uint16_t rows)
 {
-	LV_ASSERT_OBJ(obj, MY_CLASS);
+	//LV_ASSERT_OBJ(obj, MY_CLASS);
 
 	lv_table_t *table = (lv_table_t *)obj;
 	if (rows == 0 || (table->row_cnt - start_row) < rows)
@@ -46,7 +48,7 @@ void lv_table_remove_rows(lv_obj_t *obj, uint16_t start_row, uint16_t rows)
 	table->row_cnt = table->row_cnt - rows;
 	lv_coord_t *old_row_h = table->row_h;
 	
-	table->row_h = (lv_coord_t *)lv_mem_alloc(table->row_cnt * sizeof(table->row_h[0]));
+	table->row_h = (lv_coord_t *)lv_malloc(table->row_cnt * sizeof(table->row_h[0]));
 	LV_ASSERT_MALLOC(table->row_h);
 	if (table->row_h == NULL)
 	{
@@ -68,12 +70,12 @@ void lv_table_remove_rows(lv_obj_t *obj, uint16_t start_row, uint16_t rows)
 			table->cell_data[i]->user_data = NULL;
 		}
 #endif
-		lv_mem_free(table->cell_data[i]);
+		lv_free(table->cell_data[i]);
 	}
 
 	lv_table_cell_t **old_cell_data = table->cell_data;
 
-	table->cell_data = (lv_table_cell_t **)lv_mem_alloc(table->row_cnt * table->col_cnt * sizeof(lv_table_cell_t *));
+	table->cell_data = (lv_table_cell_t **)lv_malloc(table->row_cnt * table->col_cnt * sizeof(lv_table_cell_t *));
 	LV_ASSERT_MALLOC(table->cell_data);
 	if (table->cell_data == NULL)
 	{
@@ -82,7 +84,7 @@ void lv_table_remove_rows(lv_obj_t *obj, uint16_t start_row, uint16_t rows)
 	}
 	lv_memcpy((void *)table->cell_data, old_cell_data, start_row * table->col_cnt * sizeof(lv_table_cell_t *));
 	lv_memcpy((void *)&table->cell_data[start_row * table->col_cnt], &old_cell_data[(rows + start_row) * table->col_cnt], (old_row_cnt - start_row - rows) * table->col_cnt * sizeof(lv_table_cell_t *));
-	lv_mem_free(old_cell_data);
+	lv_free(old_cell_data);
 	lv_obj_refresh_self_size(obj);
 	lv_obj_invalidate(obj);
 }

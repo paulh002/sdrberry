@@ -30,7 +30,7 @@ void gui_cal::SaveCalibrationRxPhase()
 
 void gui_cal::gain_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_txgain_slider_label(), "tx gain %d", lv_slider_get_value(slider));
 	setTxGain(lv_slider_get_value(slider));
 	SaveCalibrationTxGain();
@@ -38,7 +38,7 @@ void gui_cal::gain_slider_event_cb_class(lv_event_t *e)
 
 void gui_cal::phase_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_txphase_slider_label(), "tx phase %d", lv_slider_get_value(slider));
 	setTxPhase(lv_slider_get_value(slider));
 	SaveCalibrationTxPhase();
@@ -46,7 +46,7 @@ void gui_cal::phase_slider_event_cb_class(lv_event_t *e)
 
 void gui_cal::rxgain_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_rxgain_slider_label(), "rx gain %d", lv_slider_get_value(slider));
 	setRxGain(lv_slider_get_value(slider));
 	SaveCalibrationRxGain();
@@ -54,7 +54,7 @@ void gui_cal::rxgain_slider_event_cb_class(lv_event_t *e)
 
 void gui_cal::rxphase_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	lv_label_set_text_fmt(gcal.get_rxphase_slider_label(), "rx phase %d", lv_slider_get_value(slider));
 	setRxPhase(lv_slider_get_value(slider));
 	SaveCalibrationRxPhase();

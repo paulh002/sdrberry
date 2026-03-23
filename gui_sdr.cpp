@@ -37,9 +37,9 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-	
-	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
-	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	guiSdrSettings.init(settings_tile, w, h, button_group);
 	
 
@@ -237,7 +237,7 @@ void gui_sdr::set_tx_sample_rate(int rate)
 
 void gui_sdr::tx_samplerate_button_handler_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	int i = lv_dropdown_get_selected(slider);
 	Settings_file.save_int(default_radio, "samplerate_tx", sample_rates[i] / 1000);
@@ -254,7 +254,7 @@ void gui_sdr::clear_tx_sample_rate()
 void gui_sdr::receivers_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		char buf[80];
@@ -269,7 +269,7 @@ void gui_sdr::receivers_button_handler_class(lv_event_t *e)
 void gui_sdr::span_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	int i = lv_slider_get_value(obj) * 48;
 	if (i > 0)
@@ -290,7 +290,7 @@ int gui_sdr::get_sample_rate(int rate)
 void gui_sdr::decimate_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		set_samplerate();
@@ -300,7 +300,7 @@ void gui_sdr::decimate_button_handler_class(lv_event_t *e)
 void gui_sdr::samplerate_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		set_samplerate();
@@ -368,7 +368,7 @@ long gui_sdr::getBandwidth()
 void gui_sdr::bandwidth_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (SdrDevices.SdrDevices.at(default_radio)->get_bandwith_count(0) > 0)
@@ -387,7 +387,7 @@ void gui_sdr::bandwidth_button_handler_class(lv_event_t *e)
 void gui_sdr::antenna_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		char buf[80];

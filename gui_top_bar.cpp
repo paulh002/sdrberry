@@ -17,7 +17,7 @@
 
 gui_top_bar GuiTopBar;
 
-void gui_top_bar::setup_top_bar(lv_obj_t* scr)
+void gui_top_bar::setup_top_bar(lv_obj_t *scr, int32_t x, int32_t y, int32_t w, int32_t h )
 {	
 	lv_style_init(&top_style);
 	lv_style_set_radius(&top_style, 0);
@@ -25,7 +25,7 @@ void gui_top_bar::setup_top_bar(lv_obj_t* scr)
 		
 	bg_top = lv_obj_create(scr);
 	lv_obj_add_style(bg_top, &top_style, 0);
-	lv_obj_set_size(bg_top, LV_HOR_RES, topHeight);
+	lv_obj_set_size(bg_top, w, h);
 	lv_obj_clear_flag(bg_top, LV_OBJ_FLAG_SCROLLABLE);
 
 	lv_style_init(&LabelTextStyle);
@@ -40,7 +40,7 @@ void gui_top_bar::setup_top_bar(lv_obj_t* scr)
 
 	label_date_time = lv_label_create(bg_top);
 	lv_obj_add_style(label_date_time, &TimeTextStyle, 0);
-	lv_obj_align(label_date_time, LV_ALIGN_LEFT_MID, LV_HOR_RES - LV_HOR_RES / 3.5, 0);
+	lv_obj_align(label_date_time, LV_ALIGN_LEFT_MID, w - w / 3.5, 0);
 }
 
 void gui_top_bar::set_time_label()

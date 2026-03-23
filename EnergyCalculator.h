@@ -15,7 +15,7 @@ class EnergyCalculator
 	std::tuple<float, float, float> ResultsMoseleyIQ();
 
   private:
-	float alpha{0.1}, aplha_mosely{0.01};
+	float alpha{0.5}, aplha_mosely{0.01};
 	float accuf{0};
 	float energyLevel{0};
 	float energyLevelI{0};

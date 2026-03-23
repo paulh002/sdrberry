@@ -6,10 +6,10 @@ class tempMeter
 {
   private:
 	lv_obj_t *meter;
-	lv_meter_scale_t *scale;
+	lv_scale_t *scale;
 	lv_style_t scalestyle, meter_style;
 	lv_obj_t  *parent_obj;
-	lv_meter_indicator_t *needle;
+	lv_obj_t *needle;
 	lv_obj_t *temp_label;
 	int needle_length;
 

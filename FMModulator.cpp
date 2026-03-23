@@ -78,7 +78,7 @@ void FMModulator::operator()()
 			continue;
 		}
 		calc_af_level(audiosamples);
-		set_signal_strength();
+		set_af_signal_strength();
 		process(dummy, audiosamples);
 		audiosamples.clear();
 	}

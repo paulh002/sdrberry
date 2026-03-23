@@ -500,6 +500,16 @@ string Settings::get_string(string sdrdevice, string key)
 	return st;
 }
 
+std::string Settings::get_string(std::string sdrdevice, std::string key, std::string default_string)
+{
+	string st = default_string;
+	auto option = config->getSection(sdrdevice);
+	auto s = option.find(key);
+	if (s != option.end())
+		st = s->second;
+	return st;
+}
+
 void Settings::save_string(string section, string key, string value)
 {
 	config->useSection(section);

@@ -14,6 +14,7 @@ namespace strlib
 {
 
 /// String manipulation =======================================================
+void strupr(char *str);
 
 // Trims all whitespace on both sides of the string
 void trimWhitespace(std::string& str);

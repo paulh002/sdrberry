@@ -3,6 +3,7 @@
 #include "Settings.h"
 #include "strlib.h"
 #include <algorithm>
+#include <cstring>
 
 extern const char *None_opts;
 extern const char *pcf8475_opts;
@@ -16,7 +17,7 @@ gui_i2c_input gui_i2cinput;
 void gui_i2c_input::save_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		std::string buffer;
@@ -37,13 +38,13 @@ void gui_i2c_input::save_button_handler_class(lv_event_t *e)
 void gui_i2c_input::AddressHandler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 }
 
 void gui_i2c_input::deviceDropdownHandler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		// if row selected set device

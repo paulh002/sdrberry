@@ -32,8 +32,8 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 	
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
-	edit_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	edit_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 
 	lv_obj_set_style_pad_top(main_tile, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_top(edit_tile, 0, LV_PART_MAIN);
@@ -107,7 +107,8 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 	lv_obj_clear_flag(preset_table, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_pos(preset_table, x_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_size(preset_table, cWidth * fraction1, cHeight - (y_margin + ibutton_y * button_height_margin));
-	lv_obj_add_event_cb(preset_table, table_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(preset_table, table_draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(preset_table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(preset_table, table_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
 	lv_obj_set_style_pad_top(preset_table, 2, LV_PART_MAIN);
@@ -133,7 +134,8 @@ void gui_preset::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t *b
 	lv_obj_clear_flag(display_table, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_pos(display_table, x_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_size(display_table, cWidth * fraction1, cHeight - (y_margin + ibutton_y * button_height_margin));
-	lv_obj_add_event_cb(display_table, display_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(display_table, display_draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(display_table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(display_table, display_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
 	lv_obj_set_style_pad_top(display_table, 2, LV_PART_MAIN);
@@ -212,7 +214,7 @@ void gui_preset::reload_display_table()
 void gui_preset::save_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		Settings_file.set_map_string_tuple("preselect", "preset", preset_list);
@@ -223,7 +225,7 @@ void gui_preset::save_button_handler_class(lv_event_t *e)
 void gui_preset::add_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		int preset = 1;
@@ -255,7 +257,7 @@ void gui_preset::add_button_handler_class(lv_event_t *e)
 void gui_preset::update_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		long freq = vfo.get_active_vfo_freq();
@@ -284,7 +286,7 @@ void gui_preset::update_button_handler_class(lv_event_t *e)
 void gui_preset::delete_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		if (row_selected > 0)
@@ -306,9 +308,9 @@ void gui_preset::delete_button_handler_class(lv_event_t *e)
 
 void gui_preset::table_press_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 	
 	// Do something
 	lv_table_get_selected_cell(obj, &row, &col);
@@ -319,27 +321,34 @@ void gui_preset::table_press_part_event_class(lv_event_t *e)
 
 void gui_preset::table_draw_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
-		if (row == row_selected && row > 0)
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
+		lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+		if (fill_draw_dsc)
 		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			if (row == row_selected && row > 0)
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_30);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
 		}
 	}
 }
 
 void gui_preset::display_press_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 
 	// Do something
 	lv_table_get_selected_cell(obj, &row, &col);
@@ -361,7 +370,10 @@ void gui_preset::display_press_part_event_class(lv_event_t *e)
 			else
 			{
 				static const char *btns[] = {""};
-				lv_obj_t *mbox1 = lv_msgbox_create(NULL, "VFO", "Out of Ham band range", btns, true);
+				lv_obj_t *mbox1 = lv_msgbox_create(NULL);
+				lv_msgbox_add_title(mbox1, "VFO");
+				lv_msgbox_add_text(mbox1, "Out of Ham band range.");
+				lv_msgbox_add_close_button(mbox1);
 				lv_obj_center(mbox1);
 			}
 		}
@@ -375,18 +387,26 @@ void gui_preset::display_press_part_event_class(lv_event_t *e)
 	
 void gui_preset::display_draw_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
-		if (row == display_row_selected && row > 0)
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
+		
+		lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+		if (fill_draw_dsc)
 		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			if (row == display_row_selected && row > 0)
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_30);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
 		}
 	}
 }

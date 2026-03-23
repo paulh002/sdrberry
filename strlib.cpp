@@ -5,9 +5,18 @@
 #include <fstream>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 
 namespace strlib
 {
+
+void strupr(char *str)
+{
+	for (int i = 0; i < strlen(str); i++)
+	{
+		str[i] = toupper(str[i]);
+	}
+}
 
 void trimWhitespace(std::string& str)
 {

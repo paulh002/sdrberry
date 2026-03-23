@@ -1,6 +1,7 @@
 #pragma once
 #include "lvgl.h"
 #include <cassert>
+#include "lv_event_private.h"
 
 template <typename Class, void (Class::*MemberFunc)(lv_event_t *)>
 struct EventHandler

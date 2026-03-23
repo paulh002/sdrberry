@@ -91,7 +91,7 @@ void tempSensor::start_read_out()
 
 void tempSensor::stop_read_out()
 {
-	stop_flag = true;
+	tempSensor::ptr->stop_flag = true;
 	read_out_thread.join();
 	ptr.reset();
 }

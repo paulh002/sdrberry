@@ -39,6 +39,7 @@ class Catinterface
 	void SetNA(int ft);
 	void SetMDA(int md);
 	void SetMDB(int mode);
+	void signal_stop() { stop_flag = true; }
 
 	FT891_CAT *operator->() { return &cat_message; }
 
@@ -55,6 +56,7 @@ class Catinterface
 	int filter;
 	std::atomic<bool> bpause_cat{false};
 	std::atomic<bool> muteFA{false};
+	std::atomic<bool> stop_flag{false}; 
 	int channel{};
 	uint32_t vfo_a, vfo_b;
 };

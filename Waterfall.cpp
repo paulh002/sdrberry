@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstring>
 #include <cmath>
 #include <complex>
 #include <liquid/liquid.h>
@@ -11,29 +12,33 @@
 #include "Modes.h"
 #include "screen.h"
 
-Waterfall::Waterfall(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
+Waterfall::Waterfall(lv_obj_t *parent, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
 					 float r, waterfallFlow flow, partialspectrum p, int margin)
-	: xpos(x), width(w), height(h), resampleRate(r), waterfallflow(flow), partialSpectrum(p),
+	: obj_parent(parent), xpos(x), width(w), height(h), resampleRate(r), waterfallflow(flow), partialSpectrum(p),
 	  excludeMargin(margin), max(50.0), min(0.0), factor(0.0f)
 {
-	lv_obj_set_style_pad_hor(scr, 0, LV_PART_MAIN);
-	lv_obj_set_style_pad_ver(scr, 0, LV_PART_MAIN);
-	
-	cbuf.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(w, h));
-	canvas = lv_canvas_create(scr);
-	lv_canvas_set_buffer(canvas, cbuf.data(), w, h, LV_IMG_CF_TRUE_COLOR);
+	lv_obj_set_style_pad_hor(parent, 0, LV_PART_MAIN);
+	lv_obj_set_style_pad_ver(parent, 0, LV_PART_MAIN);
+
+	canvas_buffer.resize(LV_CANVAS_BUF_SIZE(w, h, LV_COLOR_FORMAT_RGB565, LV_DRAW_BUF_STRIDE_ALIGN));
+	canvas = lv_canvas_create(parent);
+	lv_canvas_set_buffer(canvas, canvas_buffer.data(), w, h, LV_COLOR_FORMAT_RGB565);
 	lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
-	lv_obj_set_pos(canvas,x,y);
+	lv_obj_set_pos(canvas, x, y);
+	temp_buffer.resize(LV_CANVAS_BUF_SIZE(width, height - 1, LV_COLOR_FORMAT_RGB565, LV_DRAW_BUF_STRIDE_ALIGN));
 	NumberOfBins = width - 2 * excludeMargin;
 	SetPartial(partialSpectrum, resampleRate);
+	printf("Waterfall constructor: NumberOfBins %d x %d y%d w %d h %d \n", NumberOfBins, xpos, y, width, height );
 }
 
 void Waterfall::Size(lv_coord_t y, lv_coord_t h)
 {
 	lv_obj_set_pos(canvas, xpos, y);
 	height = h;
-	cbuf.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, h));
-	lv_canvas_set_buffer(canvas, cbuf.data(), width, h, LV_IMG_CF_TRUE_COLOR);
+	canvas_buffer.resize(LV_CANVAS_BUF_SIZE(width, h, LV_COLOR_FORMAT_RGB565, LV_DRAW_BUF_STRIDE_ALIGN));
+	temp_buffer.resize(LV_CANVAS_BUF_SIZE(width, height - 1, LV_COLOR_FORMAT_RGB565, LV_DRAW_BUF_STRIDE_ALIGN));
+	lv_canvas_set_buffer(canvas, canvas_buffer.data(), width, h, LV_COLOR_FORMAT_RGB565);
+	printf("Waterfall Size message: NumberOfBins %d x %d y%d w %d h%d \n", NumberOfBins, xpos, y, width, height);
 }
 
 void Waterfall::SetMaxMin(float _max, float _min)
@@ -85,27 +90,65 @@ void Waterfall::Draw(float waterfallfloor)
 {
 	std::unique_lock<std::mutex> lock(mutexSingleEntry);
 	
-	std::vector<uint8_t> buf;
-	lv_img_dsc_t img;
+	lv_draw_buf_t *buf_ptr = lv_canvas_get_draw_buf(canvas);
+	uint32_t line_width = buf_ptr->header.w;
+	uint32_t dest_stride = buf_ptr->header.stride;
+	uint32_t src_stride = buf_ptr->header.stride;
+	uint32_t line_bytes = (line_width * lv_color_format_get_bpp((lv_color_format_t)buf_ptr->header.cf) + 7) >> 3;
 
-	buf.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height -1));
+	int32_t start_y, end_y;
+	
 	if (waterfallflow == up)
 	{
-		memcpy(buf.data(), cbuf.data() + LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, 1), LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height - 1));
-		img.data = (uint8_t *)buf.data();
-		img.header.cf = LV_IMG_CF_TRUE_COLOR;
-		img.header.w = width;
-		img.header.h = height - 1;
-		lv_canvas_transform(canvas, &img, 0, LV_IMG_ZOOM_NONE, 0, 0, width, height - 1, true);
+		start_y = 1;
+		end_y = buf_ptr->header.h - 1;
+		uint8_t *src_bufc = (uint8_t *)lv_draw_buf_goto_xy(buf_ptr, 0, 0);
+		uint8_t *dest_bufc = (uint8_t *)temp_buffer.data();
+
+		for (; start_y < end_y; start_y++)
+		{
+			lv_memcpy(dest_bufc, src_bufc, line_bytes);
+			dest_bufc += dest_stride;
+			src_bufc += src_stride;
+		}
+
+		src_bufc = (uint8_t *)temp_buffer.data();
+		dest_bufc = (uint8_t *)lv_draw_buf_goto_xy(buf_ptr, 0, 1);
+		start_y = 0;
+		end_y = buf_ptr->header.h - 1;
+
+		for (; start_y < end_y; start_y++)
+		{
+			lv_memcpy(dest_bufc, src_bufc, line_bytes);
+			dest_bufc += dest_stride;
+			src_bufc += src_stride;
+		}
 	}
 	else
 	{
-		memcpy(buf.data(), cbuf.data(), LV_CANVAS_BUF_SIZE_TRUE_COLOR(width, height - 1));
-		img.data = (uint8_t *)buf.data();
-		img.header.cf = LV_IMG_CF_TRUE_COLOR;
-		img.header.w = width;
-		img.header.h = height - 1;
-		lv_canvas_transform(canvas, &img, 0, LV_IMG_ZOOM_NONE, 0, 1, width, height - 1, true);
+		start_y = 0;
+		end_y = buf_ptr->header.h - 1;
+		uint8_t *src_bufc = (uint8_t *)lv_draw_buf_goto_xy(buf_ptr, 0, 0);
+		uint8_t *dest_bufc = (uint8_t *)temp_buffer.data();
+		
+		for (; start_y < end_y; start_y++)
+		{
+			lv_memcpy(dest_bufc, src_bufc, line_bytes);
+			dest_bufc += dest_stride;
+			src_bufc += src_stride;
+		}
+
+		src_bufc = (uint8_t *)temp_buffer.data();
+		dest_bufc = (uint8_t *)lv_draw_buf_goto_xy(buf_ptr, 0, 1);
+		start_y = 1;
+		end_y = buf_ptr->header.h - 1;
+
+		for (; start_y < end_y; start_y++)
+		{
+			lv_memcpy(dest_bufc, src_bufc, line_bytes);
+			dest_bufc += dest_stride;
+			src_bufc += src_stride;
+		}
 	}
 
 	std::vector<float> frequencySpectrum;
@@ -132,9 +175,9 @@ void Waterfall::Draw(float waterfallfloor)
 		}
 		lv_color_t c = heatmap(waterfallfloor + 20.0 * log10(frequencySpectrum.at(zz)), min, max);
 		if (waterfallflow == up)
-			lv_canvas_set_px_color(canvas, i, height - 1, c);
+			lv_canvas_set_px(canvas, i, height - 1, c, LV_OPA_COVER);
 		else
-			lv_canvas_set_px_color(canvas, i, 0, c);
+			lv_canvas_set_px(canvas, i, 0, c, LV_OPA_COVER);
 		//printf("%f\n",  20 * log10(f.at(zz)));
 	}
 }

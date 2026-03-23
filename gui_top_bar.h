@@ -13,7 +13,7 @@ class gui_top_bar
 	std::string label;
 
   public:
-	void setup_top_bar(lv_obj_t *scr);
+	void setup_top_bar(lv_obj_t *scr, int32_t x, int32_t y, int32_t w, int32_t h);
 	void set_time_label();
 	void set_label_status(std::string s);
 	std::string getLabel();

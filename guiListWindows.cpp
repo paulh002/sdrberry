@@ -1,6 +1,6 @@
 #include "guiListWindows.h"
 #include "CustomEvents.h"
-
+#include "screen.h"
 
 const int windowsliderbar = 40;
 
@@ -9,11 +9,12 @@ guiListWindows::guiListWindows(lv_obj_t *parent, void *thisptr, std::string name
 {
 	if (listWindowObj == nullptr)
 	{
-		listWindowObj = lv_win_create(lv_scr_act(), windowsliderbar);
+		listWindowObj = lv_win_create(get_main_screen()); // windowsliderbar
 		lv_win_add_title(listWindowObj, name.c_str());
+		lv_obj_set_height(lv_win_get_header(listWindowObj), 50);
 		//lv_obj_t *btn = lv_win_add_btn(listWindowObj, LV_SYMBOL_CLOSE, 60);
 		//lv_obj_add_event_cb(btn, btnWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
-		lv_obj_t *btnok = lv_win_add_btn(listWindowObj, LV_SYMBOL_OK, 60);
+		lv_obj_t *btnok = lv_win_add_button(listWindowObj, LV_SYMBOL_OK, 60);
 		lv_obj_add_event_cb(btnok, btnokWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_set_size(listWindowObj, width, height);
 		lv_obj_align(listWindowObj, LV_ALIGN_CENTER, 0, 0);
@@ -31,7 +32,9 @@ guiListWindows::guiListWindows(lv_obj_t *parent, void *thisptr, std::string name
 		lv_obj_set_style_pad_right(winAreaObject, 0, LV_PART_MAIN);
 		
 		list = lv_table_create(winAreaObject);
-		lv_obj_add_event_cb(list, draw_part_event, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+		lv_obj_add_event_cb(list, draw_part_event, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+		lv_obj_add_flag(list, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+		
 		lv_obj_add_event_cb(list, list_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 		lv_obj_set_style_pad_top(list, 0, LV_PART_MAIN);
 		lv_obj_set_style_pad_bottom(list, 0, LV_PART_MAIN);
@@ -58,54 +61,64 @@ guiListWindows::~guiListWindows()
 void guiListWindows::btnWindowObj_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		lv_obj_del(listWindowObj);
 		listWindowObj = nullptr;
-		lv_event_send(Parent, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM), NULL);
+		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM), NULL);
 	}
 }
 void guiListWindows::btnokWindowObj_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		lv_obj_del(listWindowObj);
 		listWindowObj = nullptr;
-		lv_event_send(Parent, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK), NULL);
+		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK), NULL);
 	}
 }
 
 void guiListWindows::list_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		lv_table_get_selected_cell(obj, &row, &col);
-		lv_event_send(Parent, event, (void *)(long)row);
+		lv_obj_send_event(Parent, event, (void *)(long)row);
 		row_selected = row;
 	}
 }
 
 void guiListWindows::draw_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+	
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		dsc->label_dsc->align = LV_TEXT_ALIGN_RIGHT;
-		int row = dsc->id / lv_table_get_col_cnt(obj);
-		if (row_selected == row)
+		lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+		lv_draw_label_dsc_t *label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+		if (label_draw_dsc)
 		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			label_draw_dsc->align = LV_TEXT_ALIGN_RIGHT;
+		}
+		//int row = dsc->id / lv_table_get_col_cnt(obj);
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
+		if (row_selected == row && fill_draw_dsc)
+		{
+			fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_30);
+			fill_draw_dsc->opa = LV_OPA_COVER;
 		}
 	}
 }

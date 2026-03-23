@@ -6,13 +6,15 @@
 #include "Spectrum.h"
 #include "screen.h"
 #include "gui_gain.h"
+#include "SecondScreen.h"
+#include "SignalStrength.h"
 
 gui_rx guirx;
 
 void gui_rx::event_handler_morse_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -46,7 +48,7 @@ void gui_rx::toggle_cw()
 		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
 		gbar.set_filter_dropdown(bandwidth);
 	}
-	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
+	lv_obj_send_event(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 void gui_rx::set_cw(bool bcw)
@@ -55,7 +57,7 @@ void gui_rx::set_cw(bool bcw)
 		lv_obj_add_state(check_cw, LV_STATE_CHECKED);
 	else
 		lv_obj_clear_state(check_cw, LV_STATE_CHECKED);
-	lv_event_send(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
+	lv_obj_send_event(check_cw, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 bool gui_rx::get_cw()
@@ -66,7 +68,7 @@ bool gui_rx::get_cw()
 void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		std::string buf = strlib::sprintf("Waterfallsize %d", lv_slider_get_value(obj));
@@ -74,6 +76,10 @@ void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 		waterfallsize = lv_slider_get_value(obj);
 		Settings_file.save_int("Radio", "waterfallsize", waterfallsize);
 		SpectrumGraph.setWaterfallSize(waterfallsize);
+		if (secondscreen)
+		{
+			secondscreen->setWaterfallSize(waterfallsize);
+		}
 		Settings_file.write_settings();
 	}
 }
@@ -81,7 +87,7 @@ void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 void gui_rx::signal_strength_offset_event_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int signal_strength_offset = lv_slider_get_value(obj);
@@ -89,14 +95,14 @@ void gui_rx::signal_strength_offset_event_class(lv_event_t *e)
 		lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
 		Settings_file.save_int("Radio", "s-meter-offset", signal_strength_offset);
 		Settings_file.write_settings();
-		SpectrumGraph.setSignalStrenthOffset(signal_strength_offset);
+		signalstrength.set_signal_strength_offset((double)signal_strength_offset);
 	}
 }
 
 void gui_rx::noise_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int noise = get_noise();
@@ -112,7 +118,7 @@ void gui_rx::noise_handler_class(lv_event_t *e)
 void gui_rx::filter_type_handler_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int filter_type = lv_dropdown_get_selected(obj);
@@ -125,7 +131,7 @@ void gui_rx::filter_type_handler_cb_class(lv_event_t *e)
 void gui_rx::filter_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		std::string buf = strlib::sprintf("filter offset %d", 10 * lv_slider_get_value(obj));
@@ -139,7 +145,7 @@ void gui_rx::filter_slider_event_cb_class(lv_event_t *e)
 void gui_rx::event_handler_hold_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	
 	if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 	{
@@ -154,7 +160,7 @@ void gui_rx::event_handler_hold_class(lv_event_t *e)
 void gui_rx::smeter_delay_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int delay = lv_slider_get_value(obj);
@@ -194,10 +200,10 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-	gain_tile = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
+	gain_tile = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	guigain.init(gain_tile, w, screenWidth);
-	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
-	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	
 	
 	lv_obj_set_style_pad_top(settings_tile, 0, LV_PART_MAIN);
@@ -393,7 +399,7 @@ void gui_rx::enable_filter_settings(bool enable)
 
 void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	std::string buf = strlib::sprintf("noise thresshold %d db", lv_slider_get_value(slider));
 	lv_label_set_text(noise_slider_label, buf.c_str());
@@ -408,7 +414,7 @@ void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 
 void gui_rx::waterfall_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	std::string buf = strlib::sprintf("Waterfall level %d db", lv_slider_get_value(slider));
 	lv_label_set_text(waterfall_slider_label, buf.c_str());
@@ -420,7 +426,7 @@ void gui_rx::waterfall_slider_event_cb_class(lv_event_t *e)
 
 void gui_rx::spectrum_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	std::string buf = strlib::sprintf("Spectrum level %d db", lv_slider_get_value(slider));
 	lv_label_set_text(spectrum_slider_label, buf.c_str());

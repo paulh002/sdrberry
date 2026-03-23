@@ -128,7 +128,7 @@ void gui_gain::reset_gains()
 void gui_gain::gain_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int i = 0;
@@ -162,7 +162,7 @@ int gui_gain::gains_count()
 void gui_gain::event_handler_store_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 	{

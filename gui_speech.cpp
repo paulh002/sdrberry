@@ -9,7 +9,7 @@ gui_speech gspeech;
 static void speech_button_handler(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_CLICKED)
 	{
@@ -30,7 +30,7 @@ static void speech_button_handler(lv_event_t *e)
 static void save_button_handler(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_CLICKED)
 	{
@@ -75,7 +75,7 @@ void gui_speech::set_speech_mode(int m)
 static void threshold_slider_event_cb(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	char str[80];
 	sprintf(str, "threshold %d db", (lv_slider_get_value(slider) - 100) / 5);
@@ -86,7 +86,7 @@ static void threshold_slider_event_cb(lv_event_t *e)
 static void atack_slider_event_cb(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	char str[80];
 	sprintf(str, "atack %d ms", lv_slider_get_value(slider));
@@ -97,7 +97,7 @@ static void atack_slider_event_cb(lv_event_t *e)
 static void release_slider_event_cb(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	char str[80];
 	sprintf(str, "release %d ms", lv_slider_get_value(slider));
@@ -107,7 +107,7 @@ static void release_slider_event_cb(lv_event_t *e)
 
 static void ratio_slider_event_cb(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	char buf[20];
 	sprintf(buf, "ratio %d", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_ratio_slider_label(), buf);
@@ -116,7 +116,7 @@ static void ratio_slider_event_cb(lv_event_t *e)
 
 static void bass_slider_event_cb(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	char buf[20];
 	sprintf(buf, "bass %d", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_bass_slider_label(), buf);
@@ -125,7 +125,7 @@ static void bass_slider_event_cb(lv_event_t *e)
 
 static void treble_slider_event_cb(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	char buf[20];
 	sprintf(buf, "treble %d", lv_slider_get_value(slider));
 	lv_label_set_text(gspeech.get_treble_slider_label(), buf);

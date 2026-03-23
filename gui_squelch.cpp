@@ -161,7 +161,7 @@ void gui_squelch::set_threshold_slider(int _threshold)
 void gui_squelch::button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_CLICKED)
 	{
@@ -219,7 +219,7 @@ void gui_squelch::button_handler_class(lv_event_t *e)
 void gui_squelch::threshold_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		threshold.store(lv_slider_get_value(obj));
@@ -233,7 +233,7 @@ void gui_squelch::threshold_slider_event_cb_class(lv_event_t *e)
 void gui_squelch::attack_release_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		attack_release.store(lv_slider_get_value(obj));

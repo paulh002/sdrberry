@@ -220,6 +220,7 @@ void AudioOutput::close()
 	if (isStreamOpen()) 
 	{
 		stopStream();
+		abortStream();
 		closeStream();
 	}
 }

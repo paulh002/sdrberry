@@ -3,6 +3,7 @@
 #include <memory>
 #include <regex>
 #include "CustomEvents.h"
+#include <cstring>
 
 static std::shared_ptr<KeyPad> KeyPadPtr;
 
@@ -30,7 +31,7 @@ void CreateKeyPadWindow(lv_obj_t *parent, lv_obj_t *target_, lv_group_t *keyboar
 
 static void btn_event_handler(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_obj_del(KeyPadPtr->getWin());
 	KeyPadPtr.reset();
 }
@@ -38,7 +39,7 @@ static void btn_event_handler(lv_event_t *e)
 void KeyPad::textarea_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *ta = lv_event_get_target(e);
+	lv_obj_t *ta = (lv_obj_t *)lv_event_get_target(e);
 	std::regex pattern("^[0-9MmKkhz. ]+$");
 
 	if (code == LV_EVENT_KEY)
@@ -46,9 +47,9 @@ void KeyPad::textarea_event_handler_class(lv_event_t *e)
 		uint32_t c = *((uint32_t *)lv_event_get_param(e));
 		if (c == 13)
 		{
-			lv_event_send(ta, LV_EVENT_READY, NULL);
+			lv_obj_send_event(ta, LV_EVENT_READY, NULL);
 			const char *ptr = lv_textarea_get_text(ta);
-			lv_event_send(target__, customLVevents.getCustomEvent(LV_KEYPAD_EVENT_CUSTOM), (void *)ptr);
+			lv_obj_send_event(target__, customLVevents.getCustomEvent(LV_KEYPAD_EVENT_CUSTOM), (void *)ptr);
 			lv_textarea_set_text(ta, "");
 		}
 		if (c == 27)
@@ -63,7 +64,7 @@ void KeyPad::textarea_event_handler_class(lv_event_t *e)
 		const char *txt = lv_textarea_get_text(ta);
 		if (!std::regex_match(txt, pattern))
 		{
-			lv_textarea_del_char(ta);
+			lv_textarea_delete_char(ta);
 		}
 	}
 }
@@ -71,25 +72,25 @@ void KeyPad::textarea_event_handler_class(lv_event_t *e)
 void KeyPad::btnm_event_handler_class(lv_event_t *e)
 {
 	std::regex pattern("^[0-9MK.]+$");
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	//lv_obj_t *ta = (lv_obj_t *)lv_event_get_user_data(e);
 	const char *txt = lv_btnmatrix_get_btn_text(obj, lv_btnmatrix_get_selected_btn(obj));
 
 	if (strcmp(txt, LV_SYMBOL_BACKSPACE) == 0)
 	{
-		lv_textarea_del_char(ta);
+		lv_textarea_delete_char(ta);
 		const char *ptr = lv_textarea_get_text(ta);
 		if (strlen(ptr) == 8)
 		{
-			lv_textarea_del_char(ta);
+			lv_textarea_delete_char(ta);
 		}
 	}
 	else if (strcmp(txt, LV_SYMBOL_NEW_LINE) == 0)
 	{
-		lv_event_send(ta, LV_EVENT_READY, NULL);
+		lv_obj_send_event(ta, LV_EVENT_READY, NULL);
 		const char *ptr = lv_textarea_get_text(ta);
 		long f = translate_frequency(std::string(ptr));
-		lv_event_send(target, customLVevents.getCustomEvent(LV_KEYPAD_EVENT_CUSTOM), (void *)f);
+		lv_obj_send_event(target, customLVevents.getCustomEvent(LV_KEYPAD_EVENT_CUSTOM), (void *)f);
 		lv_textarea_set_text(ta, "");
 	}
 	else if (strcmp(txt, "Mhz") == 0 || strcmp(txt, "Khz") == 0)
@@ -111,11 +112,12 @@ void KeyPad::btnm_event_handler_class(lv_event_t *e)
 KeyPad::KeyPad(lv_obj_t *parent, lv_obj_t *target_, lv_group_t *keyboard_group, int keyboard_)
 	: target(target_), keyboard(keyboard_)
 {
-	win = lv_win_create(parent, 30);
+	win = lv_win_create(parent);
 	lv_obj_set_size(win, 250, 400);
+	lv_obj_set_height(lv_win_get_header(win), 50);
 	lv_obj_center(win);
 
-	closeBtn = lv_win_add_btn(win, LV_SYMBOL_CLOSE, 60);
+	closeBtn = lv_win_add_button(win, LV_SYMBOL_CLOSE, 60);
 	lv_obj_add_event_cb(closeBtn, btn_event_handler, LV_EVENT_CLICKED, (void *)this);
 
 	lv_obj_t *cont = lv_win_get_content(win);

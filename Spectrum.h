@@ -4,6 +4,7 @@
 #include <atomic>
 #include <cmath>
 #include <complex>
+#include <algorithm>
 #include <condition_variable>
 #include <cstdio>
 #include <fftw3.h>
@@ -14,48 +15,53 @@
 #include "Waterfall.h"
 #include "PeakMeasurement.h"
 #include "SpectrumConstants.h"
+#include "Modes.h"
+#include <lv_chart_private.h>
 
 class Spectrum
 {
   private:
 	lv_obj_t *chart, *parent;
+	lv_obj_t *scale;
 	lv_chart_series_t *ser, *peak_ser{nullptr};
 	lv_style_t Spectrum_style;
 	lv_chart_cursor_t *FrequencyCursor;
 	std::array<lv_chart_cursor_t *, 5> markers{nullptr};
 	std::array<int32_t, 5> markers_location{0};
 	std::unique_ptr<Waterfall> waterfall;
-	std::atomic<double> signal_strength{0};
+	std::atomic<bool> enable_processing{false};
 	std::vector<SMA<2>> avg_filter;
 	std::vector<SMA<4>> avg_peak_filter;
 	std::vector<lv_coord_t> data_set;
 	std::vector<lv_coord_t> data_set_peak;
 	std::vector<lv_coord_t> data_set_nonfiltered;
+	std::vector<std::string> cursor_txt;
 	void upload_fft();
 	std::unique_ptr<FastFourier> fft;
 	lv_point_t drag{0};
 	PeakMeasurement finder;
-	int signal_strength_offset;
 	std::vector<int> peaks;
 	int active_markers{0};
 	int drag_marker{0};
 	int drag_marker_rightbutton{0};
-	long long drag_frequency_shift{0LL};
-	long long drag_frequency{0LL};
-	long long newspanstartfreq;
+	long drag_frequency_shift{0LL};
+	long drag_frequency{0LL};
+	long newspanstartfreq;
 	lv_point_t p_drag{0};
 	bool hold_peak{false};
 	lv_coord_t height, width, xx, yy;
 	int heightChart, fontsize , heightWaterfall;
 
 	void draw_event_cb_class(lv_event_t *e);
-	void click_event_cb_class(lv_event_t *e);
 	void pressing_event_cb_class(lv_event_t *e);
-	void draw_marker_label(lv_chart_cursor_t *cursor, lv_obj_draw_part_dsc_t *dsc);
+	void scale_event_cb_class(lv_event_t *e);
+	void scale_clicked_event_cb_class(lv_event_t *e);
+	void draw_marker_label(lv_chart_cursor_t *cursor, lv_draw_label_dsc_t *dsc);
 	std::pair<bool, int> cursor_intersect(lv_point_t p);
-	
+	void draw_marker_label(lv_chart_cursor_t *cursor, lv_draw_task_t *draw_task);
 
   public:
+	void disable_processing();
 	void init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate);
 	void load_data();
 	void set_pos(int32_t offset);
@@ -64,18 +70,17 @@ class Spectrum
 	void DrawDisplay();
 	void ProcessWaterfall(const IQSampleVector &input);
 	void set_signal_strength(double strength);
-	double get_signal_strength() { return signal_strength; }
 	void SetFftParts();
 	float getSuppression();
 	void set_active_marker(int marker, bool active);
 	void enable_second_data_series(bool enable);
 	void setWaterfallSize(int waterfallsize);
-	void setSignalStrenthOffset(int offset);
-	
+	void set_cursor_mode(int mode);
+
 	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
-	static constexpr auto click_event_cb = EventHandler<Spectrum, &Spectrum::click_event_cb_class>::staticHandler;
 	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;
-	
+	static constexpr auto scale_event_cb = EventHandler<Spectrum, &Spectrum::scale_event_cb_class>::staticHandler;
+	static constexpr auto scale_clicked_event_cb = EventHandler<Spectrum, &Spectrum::scale_clicked_event_cb_class>::staticHandler;
 };
 
 
@@ -101,5 +106,6 @@ static inline void irotshift(std::complex<_Real> *complexVector, const size_t co
 }
 
 extern Spectrum SpectrumGraph;
+extern std::unique_ptr<Spectrum> SpectrumGraph_page;
 
 IQSample::value_type rms_level_approx(const IQSampleVector &samples);

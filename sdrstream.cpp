@@ -5,8 +5,6 @@
 #include "gui_setup.h"
 #include "gui_sdr.h"
 #include "gui_tx.h"
-#include "lv_drivers/display/fbdev.h"
-#include "lv_drivers/indev/evdev.h"
 #include "lvgl.h"
 #include "sdrberry.h"
 #include "vfo.h"

@@ -120,8 +120,8 @@ void gui_edit_band::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t
 	fill_band_table();
 
 	lv_obj_add_event_cb(table, table_custom_keypad_handler, customLVevents.getCustomEvent(LV_KEYPAD_EVENT_CUSTOM), (void *)this);
-	lv_obj_add_event_cb(table, table_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
-	
+	lv_obj_add_event_cb(table, table_draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 }
 
 void gui_edit_band::fill_band_table()
@@ -179,8 +179,8 @@ void gui_edit_band::cancel_button_handler_class(lv_event_t *e)
 
 void gui_edit_band::table_press_part_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
-	uint16_t row, col;
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	uint32_t row, col;
 	int count;
 	
 	lv_table_get_selected_cell(obj, &row, &col);
@@ -266,32 +266,39 @@ void gui_edit_band::table_custom_keypad_handler_class(lv_event_t *e)
 
 void gui_edit_band::table_draw_part_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+	lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
 
 		/*Make the texts in the first cell center aligned*/
-		if (row == 0)
+		if (fill_draw_dsc)
 		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_CYAN), dsc->rect_dsc->bg_color, LV_OPA_10);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
-		}
-		/*MAke every 2nd row grayish*/
-		if ((row != 0 && row % 2) == 0)
-		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREY), dsc->rect_dsc->bg_color, LV_OPA_10);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
-		}
+			if (row == 0)
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_CYAN), fill_draw_dsc->color, LV_OPA_10);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
+			/*MAke every 2nd row grayish*/
+			if ((row != 0 && row % 2) == 0)
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_GREY), fill_draw_dsc->color, LV_OPA_10);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
 
-		if (row == selected && row > 0)
-		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_50);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			if (row == selected && row > 0)
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_50);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
 		}
 	}
 }

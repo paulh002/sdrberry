@@ -198,8 +198,11 @@ bool AudioInput::read(SampleVector& samples)
 
 void AudioInput::close()
 {
-	if (isStreamOpen()) 
+	if (isStreamOpen())
+	{
+		abortStream();
 		closeStream();
+	}
 }
 
 AudioInput::~AudioInput()

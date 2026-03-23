@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "guiButtonWindows.h"
 #include "CustomEvents.h"
+#include "screen.h"
 
 const int windowbar = 40;
 
@@ -11,9 +12,10 @@ guiButtonWindows::guiButtonWindows(lv_obj_t *parent, void *thisptr, std::string 
 {
 	if (buttonWindowObj == nullptr)
 	{
-		buttonWindowObj = lv_win_create(lv_scr_act(), windowbar);
+		buttonWindowObj = lv_win_create(get_main_screen()); // windowbar
+		lv_obj_set_height(lv_win_get_header(buttonWindowObj), 50);
 		lv_win_add_title(buttonWindowObj, name.c_str());
-		lv_obj_t *btn = lv_win_add_btn(buttonWindowObj, LV_SYMBOL_CLOSE, 60);
+		lv_obj_t *btn = lv_win_add_button(buttonWindowObj, LV_SYMBOL_CLOSE, 60);
 		lv_obj_add_event_cb(btn, buttonWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_set_size(buttonWindowObj, width, height);
 		lv_obj_align(buttonWindowObj, LV_ALIGN_CENTER, 0, 0);
@@ -29,12 +31,12 @@ guiButtonWindows::~guiButtonWindows()
 void guiButtonWindows::buttonWindowObj_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_event_send(Parent, customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM), NULL);
+		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM), NULL);
 	}
 }
 
@@ -104,7 +106,7 @@ void guiButtonWindows::createButtons(std::vector<std::string> buttons, int selec
 void guiButtonWindows::buttons_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
 		for (int i = 0; i < ibuttons; i++)
@@ -113,7 +115,7 @@ void guiButtonWindows::buttons_handler_class(lv_event_t *e)
 			{
 				lv_obj_del(buttonWindowObj);
 				buttonWindowObj = nullptr;
-				lv_event_send(Parent, eventcode, (void *)(long)i);
+				lv_obj_send_event(Parent, eventcode, (void *)(long)i);
 				break;
 			}
 		}

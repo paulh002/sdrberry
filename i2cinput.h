@@ -20,7 +20,7 @@ class i2cinput
 	static bool connected();
 
   private:
-	atomic<bool> stop_flag{false};
+	std::atomic<bool> stop_flag{false};
 	bool isconnected{false};
 	void operator()();
 	void initI2Cdevice();

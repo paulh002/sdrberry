@@ -12,6 +12,7 @@
 #include "WebServer.h"
 #include "gui_gain.h"
 #include "vfo.h"
+#include "SecondScreen.h"
 
 const int buttontx = 0;
 const int buttontune = 1;
@@ -42,12 +43,12 @@ std::vector<std::string> stepsTypes{"1 Hz", "10 Hz", "50 Hz", "100 Hz", "250 Hz"
 std::vector<int> stepsValues{1, 10, 50, 100, 250, 500, 1000,2500, 3125, 5000, 6250, 7500, 8330, 9000, 10000, 12500, 15000, 20000, 25000, 50000, 100000, 200000};
 std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz", "11.0 Khz", "16.0 Khz"};
 std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 11000, 16000};
-std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM"};
-std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm};
+std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM", "FT8", "FT4"};
+std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm, mode_ft8, mode_ft4};
 std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
 std::vector<std::string> attnTypes{"off", "-10db", "-20db", "-30db", "-40db"};
 std::vector<std::string> MarkerTypes{"off", "M 1", "M 2"};
-std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}};
+std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}, {mode_ft8, 7}, {mode_ft4, 8}};
 
 gui_bar gbar;
 
@@ -170,7 +171,7 @@ void gui_bar::set_rit_button(bool rit, int value)
 void gui_bar::bar_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK) || code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK) || code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM))
 	{
@@ -281,7 +282,6 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 
 	if (code == LV_EVENT_CLICKED)
 	{
-
 		for (int i = 0; i < gbar.getbuttons(); i++)
 		{
 			if (obj == gbar.get_button_obj(i))
@@ -323,7 +323,8 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 				case buttonmode:
 					if (modeWindow == nullptr && !IsDigtalMode(mode))
 					{
-						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModesTypes, ModesMap.at(mode), customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
+						std::vector<string> ModeTypesAnalog(ModesTypes.begin(), ModesTypes.begin() + 7);
+						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModeTypesAnalog, ModesMap.at(mode), customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
 					}
 					lv_obj_clear_state(obj, LV_STATE_CHECKED);
 					break;
@@ -422,7 +423,7 @@ void gui_bar::update_step_button(int step)
 
 void gui_bar::vol_slider_event_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	lv_label_set_text_fmt(gbar.get_vol_slider_label(), "vol %d", lv_slider_get_value(slider));
 	audio_output->set_volume(lv_slider_get_value(slider));
 	catinterface->SetAG(lv_slider_get_value(slider));
@@ -432,7 +433,7 @@ void gui_bar::vol_slider_event_class(lv_event_t *e)
 
 void gui_bar::if_slider_event_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	lv_label_set_text_fmt(get_if_slider_label(), "if %d db", lv_slider_get_value(slider));
 	int sl = lv_slider_get_value(slider);
 	ifgain.store(std::pow(10.0, (float)sl / 20.0));
@@ -445,7 +446,7 @@ void gui_bar::if_slider_event_class(lv_event_t *e)
 
 void gui_bar::gain_slider_event_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	lv_label_set_text_fmt(get_gain_slider_label(), "rf %d db", lv_slider_get_value(slider));
 	catinterface->SetRG(lv_slider_get_value(slider));
@@ -530,7 +531,7 @@ void gui_bar::set_gain_slider(int gain, bool web)
 
 void gui_bar::filter_slider_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_event_code_t code = lv_event_get_code(e);
 
 	if (code == LV_EVENT_VALUE_CHANGED)
@@ -544,6 +545,9 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 			update_filter(ifilters.at(sel));
 			filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilters.at(sel);
 			Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
+			SpectrumGraph.set_cursor_mode(mode);
+			if (secondscreen)
+				secondscreen->set_cursor_mode(mode);
 			catinterface.SetNA(sel);
 			cattcpserver.SetNA(sel);
 			updateweb();
@@ -1002,11 +1006,11 @@ void gui_bar::set_vfo(int active_vfo)
 int gui_bar::get_filter_frequency(int mode)
 { // filter frequencies are stored per mode like USB, LSB etc first get the mode (rx/tx code) translate to index in ModeTypes
   // ModeTypes is a list of strings "USB", "LSB" etc ModesMap.at(mode) gets the index
-	
+
 	if (filter_to_mode_cutoff_frequencies.find(ModesTypes.at(ModesMap.at(mode))) != filter_to_mode_cutoff_frequencies.end())
 		return filter_to_mode_cutoff_frequencies.at(ModesTypes.at(ModesMap.at(mode)));
 	else
-		return 0;
+			return 0;
 }
 
 int gui_bar::get_filter_index()
@@ -1050,11 +1054,11 @@ void gui_bar::set_filter_dropdown(int ifilter)
 	update_filter(ifilters[filter]);
 	catinterface.SetNA(filter);
 	cattcpserver.SetNA(filter);
-	if (!IsDigtalMode(mode))
-	{
-		filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
-		Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
-	}
+	filter_to_mode_cutoff_frequencies[ModesTypes.at(ModesMap.at(mode))] = ifilter;
+	Settings_file.set_map_string("Radio", "Audiofilter", filter_to_mode_cutoff_frequencies);
+	SpectrumGraph.set_cursor_mode(mode);
+	if (secondscreen)
+		secondscreen->set_cursor_mode(mode);
 	updateweb();
 }
 
@@ -1126,6 +1130,9 @@ void gui_bar::websetfilter(std::string message)
 		{
 			lv_dropdown_set_selected(button[button_filter], filter);
 			update_filter(ifilters[filter]);
+			SpectrumGraph.set_cursor_mode(mode);
+			if (secondscreen)
+				secondscreen->set_cursor_mode(mode);
 			catinterface->SetNA(filter);
 			cattcpserver.SetNA(filter);
 		}

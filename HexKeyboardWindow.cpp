@@ -1,5 +1,7 @@
 #include "HexKeyboardWindow.h"
+#include "lvgl_.h"
 #include <memory>
+#include <cstring>
 
 static std::shared_ptr<HexKeyboardWindow> HexKeyboardPtr;
 
@@ -19,29 +21,29 @@ void CreateHexKeyboardWindow(lv_obj_t *parent)
 
 static void btn_event_handler(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_obj_del(HexKeyboardPtr->getWin());
 	HexKeyboardPtr.reset();
 }
 
 static void btnm_event_handler(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_obj_t *ta = (lv_obj_t *)lv_event_get_user_data(e);
 	const char *txt = lv_btnmatrix_get_btn_text(obj, lv_btnmatrix_get_selected_btn(obj));
 
 	if (strcmp(txt, LV_SYMBOL_BACKSPACE) == 0)
 	{
-		lv_textarea_del_char(ta);
+		lv_textarea_delete_char(ta);
 		const char *ptr = lv_textarea_get_text(ta);
 		if (strlen(ptr) == 3)
 		{
-			lv_textarea_del_char(ta);
+			lv_textarea_delete_char(ta);
 		}
 	}
 	else if (strcmp(txt, LV_SYMBOL_NEW_LINE) == 0)
 	{
-		lv_event_send(ta, LV_EVENT_READY, NULL);
+		lv_obj_send_event(ta, LV_EVENT_READY, NULL);
 		const char *ptr = lv_textarea_get_text(ta);
 		lv_msg_send(MSG_TEXTMESSAGE, (const void *)ptr);
 		lv_textarea_set_text(ta, "");
@@ -64,10 +66,11 @@ static void btnm_event_handler(lv_event_t *e)
 
 HexKeyboardWindow::HexKeyboardWindow(lv_obj_t *parent)
 {
-	win = lv_win_create(parent, 30);
-	lv_obj_set_size(win, 250, 400);
+	win = lv_win_create(parent); // , 30
+	lv_obj_set_size(win, 250, 450);
+	lv_obj_set_height(lv_win_get_header(win), 50);
 	
-	closeBtn = lv_win_add_btn(win, LV_SYMBOL_CLOSE, 60);
+	closeBtn = lv_win_add_button(win, LV_SYMBOL_CLOSE, 60);
 	lv_obj_add_event_cb(closeBtn, btn_event_handler, LV_EVENT_CLICKED, NULL);
 
 	lv_obj_t *cont = lv_win_get_content(win);

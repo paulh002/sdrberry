@@ -8,59 +8,60 @@
 #include "FMModulator.h"
 #include "FT8Demodulator.h"
 #include "HidDev.h"
-#include "Mouse.h"
-#include "SharedQueue.h"
-#include "gui_speech.h"
-#include "GuiFt8Setting.h"
-#include "gui_ft8bar.h"
-#include "Keyboard.h"
-#include "Spectrum.h"
-#include "FreeDVTab.h"
-#include "gui_cal.h"
-#include "wsjtx_lib.h"
-#include "gui_agc.h"
-#include "gui_rx.h"
-#include "gui_bar.h"
-#include "gui_tx.h"
-#include "gui_setup.h"
-#include "gui_ft8.h"
-#include "gui_bottom_bar.h"
-#include "Gui_band.h"
-#include "gui_sdr.h"
-#include "gui_squelch.h"
-#include "gui_preset.h"
+#include "lv_wayland.h"
+
 #include "AudioInput.h"
 #include "AudioOutput.h"
-#include "Catinterface.h"
 #include "CatTcpServer.h"
+#include "Catinterface.h"
+#include "CustomEvents.h"
 #include "DataBuffer.h"
 #include "Filter.h"
 #include "FmDecode.h"
+#include "FreeDVTab.h"
+#include "GuiFt8Setting.h"
+#include "Gui_band.h"
+#include "Keyboard.h"
 #include "MidiControle.h"
 #include "Modes.h"
 #include "RtAudio.h"
-#include "lv_drivers/display/fbdev.h"
-#include "lv_drivers/indev/evdev.h"
 #include "Settings.h"
-#include "gui_top_bar.h"
-#include "sdrstream.h"
-#include "sdrberry.h"
-#include "CustomEvents.h"
+#include "SharedQueue.h"
+#include "Shuttle.h"
+#include "Spectrum.h"
 #include "WebServer.h"
-#include <nlohmann/json.hpp>
-#include <sys/file.h>
+#include "gui_agc.h"
+#include "gui_bar.h"
+#include "gui_bottom_bar.h"
+#include "gui_cal.h"
+#include "gui_ft8.h"
+#include "gui_ft8bar.h"
+#include "gui_gain.h"
+#include "gui_preset.h"
+#include "gui_rx.h"
+#include "gui_sdr.h"
+#include "gui_setup.h"
+#include "gui_speech.h"
+#include "gui_squelch.h"
+#include "gui_top_bar.h"
+#include "gui_tx.h"
 #include "i2cinput.h"
 #include "i2coutput.h"
-#include "gui_gain.h"
+#include "sdrberry.h"
+#include "sdrstream.h"
 #include "strlib.h"
 #include "tz.h"
-#include "Shuttle.h"
+#include "wsjtx_lib.h"
+#include <nlohmann/json.hpp>
+#include <sys/file.h>
+#include "SecondScreen.h"
+#include "SignalStrength.h"
 
 using json = nlohmann::json;
 // test
-//#include "quick_arg_parser.hpp"
+// #include "quick_arg_parser.hpp"
 
-//#include "HidThread.h"
+// #include "HidThread.h"
 /*
 struct Args : MainArguments<Args>
 {
@@ -71,7 +72,7 @@ struct Args : MainArguments<Args>
 */
 
 /* print stacktrace
- 	StackTrace st;
+	StackTrace st;
 	st.load_here(32);
 	Printer p;
 	p.object = true;
@@ -119,13 +120,12 @@ void handle_signal(int signal)
 	}
 }
 
-
-//#define BACKWARD_HAS_BFD 1
-//#define BACKWARD_HAS_LIBUNWIND 1
+// #define BACKWARD_HAS_BFD 1
+// #define BACKWARD_HAS_LIBUNWIND 1
 #define BACKWARD_HAS_DW 1
-//#define BACKWARD_HAS_DWARF 1
-//#define BACKWARD_HAS_BACKTRACE 1
-//#define BACKWARD_HAS_UNWIND 1
+// #define BACKWARD_HAS_DWARF 1
+// #define BACKWARD_HAS_BACKTRACE 1
+// #define BACKWARD_HAS_UNWIND 1
 #include "backward.hpp"
 
 namespace backward
@@ -146,6 +146,134 @@ void print_stack_trace()
 	printer.print(st, std::cout);
 }
 
+lv_display_t *disp_0{nullptr}, *disp_1{nullptr};
+lv_obj_t *main_screen{};
+lv_obj_t *second_screen{};
+
+static lv_display_t *init_wayland(char *str, int32_t width, int32_t height, bool fullscreen, bool maximize)
+{
+	lv_display_t *disp;
+	lv_group_t *g;
+
+	disp = lv_wayland_window_create(width, height,
+									str, NULL);
+
+	if (disp == NULL)
+	{
+		printf("Failed to initialize Wayland backend\n");
+	}
+
+	if (fullscreen)
+	{
+		lv_wayland_window_set_fullscreen(disp, true);
+	}
+	else if (maximize)
+	{
+		lv_wayland_window_set_maximized(disp, true);
+	}
+
+	g = lv_group_create();
+	lv_group_set_default(g);
+	lv_indev_set_group(lv_wayland_get_keyboard(disp), g);
+	lv_indev_set_group(lv_wayland_get_pointeraxis(disp), g);
+
+	return disp;
+}
+
+static lv_display_t *init_wayland(char *str, int32_t width, int32_t height, bool fullscreen, bool maximize, int output_display)
+{
+	lv_display_t *disp;
+	lv_group_t *g;
+
+	disp = lv_wayland_window_create(width, height,
+									str, NULL);
+
+	if (disp == NULL)
+	{
+		printf("Failed to initialize Wayland backend\n");
+	}
+
+	lv_wayland_assign_physical_display(disp, output_display);
+	if (fullscreen)
+	{
+		lv_wayland_window_set_fullscreen(disp, true);
+	}
+	else if (maximize)
+	{
+		lv_wayland_window_set_maximized(disp, true);
+	}
+
+	g = lv_group_create();
+	lv_group_set_default(g);
+	lv_indev_set_group(lv_wayland_get_keyboard(disp), g);
+	lv_indev_set_group(lv_wayland_get_pointeraxis(disp), g);
+	return disp;
+}
+
+static lv_display_t *init_window(char *str, int32_t width, int32_t height, bool fullscreen, bool maximize, int output_display)
+{
+	lv_display_t *disp;
+	lv_group_t *g;
+
+	disp = lv_wayland_window_create(width, height,
+									str, NULL);
+
+	if (disp == NULL)
+	{
+		printf("Failed to initialize Wayland backend\n");
+	}
+
+	lv_wayland_assign_physical_display(disp, output_display);
+	if (fullscreen)
+	{
+		lv_wayland_window_set_fullscreen(disp, true);
+	}
+	else if (maximize)
+	{
+		lv_wayland_window_set_maximized(disp, true);
+	}
+	return disp;
+}
+
+std::unique_ptr<Spectrum> SpectrumGraph_page;
+//std::unique_ptr<gui_top_bar> GuiTopBar_page;
+//std::string top_label;
+lv_obj_t *create_display(lv_display_t **disp, const std::string device)
+{
+	int32_t l_width, l_height;
+	char str[] = "sdrberry";
+	lv_obj_t *screen{};
+	
+	if (!*disp)
+	{
+		int display_number = lv_wayland_get_display_size(device.c_str(), &l_width, &l_height);
+		printf("create_display: display_port %s display_number %d\n", device.c_str(), display_number);
+		*disp = init_window(str, l_width, l_height, true, false, display_number);
+		screen = lv_display_get_screen_active(*disp);
+		lv_timer_handler();
+	}
+	return screen;
+}
+
+void delete_second_display()
+{
+	if (disp_1)
+	{
+		lv_wayland_window_close(disp_1);
+		disp_1 = nullptr;
+	}
+}
+
+void delete_main_display()
+{
+	if (disp_0)
+	{
+		lv_wayland_window_close(disp_0);
+		disp_0 = nullptr;
+		lv_wayland_deinit();
+	}
+}
+
 DataBuffer<IQSample> source_buffer_rx;
 DataBuffer<IQSample> source_buffer_tx;
 
@@ -156,11 +284,11 @@ LV_FONT_DECLARE(FreeSansOblique32);
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 // display buffer size - not sure if this size is really needed
-#define DISP_BUF_SIZE 29491200 //384000 // 800x480
-//#define DISP_BUF_SIZE (128 * 1024)
+#define DISP_BUF_SIZE 29491200 // 384000 // 800x480
+// #define DISP_BUF_SIZE (128 * 1024)
 
-//const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
-//const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
+// const std::array<int, 10> screenResolutionsWidth =  {3840, 3200, 2560, 2048, 1920, 1600, 1280, 1024, 800, 800};
+// const std::array<int, 10> screenResolutionsHeight = {2160, 1800, 1440, 1080, 1080, 1200, 720 ,  768, 600, 480};
 const std::array<int, 11> screenResolutionsWidth = {800, 800, 1024, 1024, 1280, 1600, 1920, 2048, 2560, 3200, 3840};
 const std::array<int, 11> screenResolutionsHeight = {480, 600, 600, 768, 720, 1200, 1080, 1080, 1440, 1800, 2160};
 
@@ -170,9 +298,9 @@ int screenWidth = 800;
 int screenHeight = 480;
 const int bottomHeight = 40;
 const int topHeight = 35;
-const int tunerHeight = 100;
-const int barHeight = 110; //90;
-int barHeightft8 = 125; //90;
+int tunerHeight = 100;
+int barHeight = 110;	// 90;
+int barHeightft8 = 125; // 90;
 const int MorseHeight = 30;
 const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
@@ -182,13 +310,13 @@ int tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 const int defaultAudioSampleRate{48000};
 const int hidetx{5};
 const int hidepreamp{6};
-int screenfontthresshold;
+int screenfontthresshold_1;
+int screenfontthresshold_2;
 
-//const int hidespeech{5};
+// const int hidespeech{5};
 
 std::mutex gui_mutex;
 
-lv_color_t *display_buf;
 lv_obj_t *scr;
 lv_obj_t *bg_middle;
 lv_obj_t *vfo1_button;
@@ -199,26 +327,25 @@ lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
 lv_group_t *keyboard_group{nullptr};
-extern lv_img_dsc_t mouse_cursor_icon;
+// extern lv_img_dsc_t mouse_cursor_icon;
 
 using namespace std;
 
 int mode = mode_broadband_fm;
-double ifrate = 0.53e6; //1.0e6;//
+double ifrate = 0.53e6; // 1.0e6;//
 double ifrate_tx;
 int mode_state_rxtx = 0;
 int default_rx_channel = 0;
 int default_tx_channel = 0;
 
-//double freq = 89800000;
-//double	tuner_freq = freq + 0.25 * ifrate;
-//double	tuner_offset = freq - tuner_freq;
+// double freq = 89800000;
+// double	tuner_freq = freq + 0.25 * ifrate;
+// double	tuner_offset = freq - tuner_freq;
 
 mutex fm_finish;
 Catinterface catinterface;
 CatTcpServer cattcpserver;
 Keyboard KeyboardDevice;
-Mouse Mouse_dev;
 HidDev HidDev_dev, HidDev_dev1, HidDev_dev2;
 Shuttle shuttle;
 BandFilter bpf;
@@ -226,6 +353,7 @@ SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
 WebServer webserver;
 i2coutput i2c_output;
+std::unique_ptr<SecondScreen> secondscreen;
 
 MidiControle *midicontrole = nullptr;
 auto startTime = std::chrono::high_resolution_clock::now();
@@ -233,97 +361,37 @@ auto startTime = std::chrono::high_resolution_clock::now();
 SdrDeviceVector SdrDevices;
 std::string default_radio;
 
-
 static std::string keysRed;
 
-int IsScreenRotated() 
-{ 
-	return screenRotate; 
+lv_obj_t *get_main_screen()
+{
+	return main_screen;
 }
 
-void keyboard_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
+lv_obj_t *get_2nd_screen()
 {
-	static bool dummy_read = false;
+	return second_screen;
+}
 
-	keysRed += KeyboardDevice.GetKeys();
-	/*Send a release manually*/
-	if (dummy_read)
-	{
-		dummy_read = false;
-		data->state = LV_INDEV_STATE_RELEASED;
-		data->continue_reading = keysRed.length() > 0;
-	}
-	/*Send the pressed character*/
-	else if (keysRed.length() > 0)
-	{
-		dummy_read = true;
-		data->state = LV_INDEV_STATE_PRESSED;
-		data->key = keysRed.at(0);
-		keysRed.erase(0, 1);
-		data->continue_reading = true;
-	}
+static const char *getenv_default(const char *name, const char *dflt)
+{
+	return getenv(name) ?: dflt;
+}
+
+int IsScreenRotated()
+{
+	return screenRotate;
 }
 
 int rotary_rotation{};
 bool rotations = false;
-
-void mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
-{
-	MouseState state;
-	/*Get the current x and y coordinates*/
-	state = Mouse_dev.GetMouseState();
-	data->point.x = state.x;
-	data->point.y = state.y;
-	rotary_rotation = state.Rotated;
-	data->btn_id = state.btn_id;
-	
-	/*Get whether the mouse button is pressed or released*/
-	if (state.pressed)
-	{
-		data->state = LV_INDEV_STATE_PR;
-	}
-	else
-	{
-		data->state = LV_INDEV_STATE_REL;
-	}
-}
-
-void mouse_keyboard_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
-{
-	MouseState state;
-	/*Get the current x and y coordinates*/
-	state = KeyboardDevice.GetMouseState();
-	data->point.x = state.x;
-	data->point.y = state.y;
-	rotary_rotation = state.Rotated;
-
-	/*Get whether the mouse button is pressed or released*/
-	if (state.pressed && state.btn_id == BTN_LEFT)
-	{
-		data->state = LV_INDEV_STATE_PR;
-	}
-	else
-	{
-		data->state = LV_INDEV_STATE_REL;
-	}
-}
-
-void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data){
-	//data->enc_diff = HidDev_dev.encoder_rotate();
-	//data->state = HidDev_dev.encoder_key_press();
-
-	if (rotations)
-		data->enc_diff = rotary_rotation;
-	//data->state = HidDev_dev.encoder_key_press();
-	rotary_rotation = 0;
-}
 
 std::map<string, lv_obj_t *> tab;
 
 static void tabview_event_cb(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	int i = lv_tabview_get_tab_act(tabview_mid);
 	switch (i)
 	{
@@ -336,7 +404,7 @@ static void tabview_event_cb(lv_event_t *e)
 		{
 			gbar.hide(false);
 			guift8bar.hide(true);
-		}		
+		}
 		lv_indev_set_group(encoder_indev_t, button_group);
 		break;
 	case 1:
@@ -446,7 +514,10 @@ void process_vfo_message(GuiMessage msg)
 			else
 			{
 				static const char *btns[] = {""};
-				lv_obj_t *mbox1 = lv_msgbox_create(NULL, "VFO", "Out of Ham band range", btns, true);
+				lv_obj_t *mbox1 = lv_msgbox_create(NULL);
+				lv_msgbox_add_title(mbox1, "VFO");
+				lv_msgbox_add_text(mbox1, "Out of Ham band range");
+				lv_msgbox_add_close_button(mbox1);
 				lv_obj_center(mbox1);
 			}
 		}
@@ -459,6 +530,8 @@ void process_vfo_message(GuiMessage msg)
 
 int main(int argc, char *argv[])
 {
+	char str_sdrberry[] = "Sdrberry";
+
 	if (isAlreadyRunning())
 		return 0;
 
@@ -480,33 +553,22 @@ int main(int argc, char *argv[])
 	std::cout << t << '\n'; // 2016-05-14 18:33:24.205 EDT
 
 	signal(SIGINT, handle_signal); // Catch Ctrl+C (SIGINT)
-	
-	default_radio = Settings_file.find_sdr("default");
-	screenSelect = Settings_file.get_int("screen","resolution", 0);
-	screenRotate = Settings_file.get_int("screen", "rotation", 0);
-	screenWidth = screenResolutionsWidth.at(screenSelect);
-	screenHeight = screenResolutionsHeight.at(screenSelect);
 
-	tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+	default_radio = Settings_file.find_sdr("default");
 
 	int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
 	int debugswapxy = Settings_file.get_int("input", "touch_debug", 0);
 	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
-	evdev_touch_swap(touchswapxy, debugswapxy);
-	evdev_touch_driver(touchscreen.c_str());
+	// evdev_touch_swap(touchswapxy, debugswapxy);
+	// evdev_touch_driver(touchscreen.c_str());
 	printf("Screen resolution %d x %d screenRotate %d touch_swap setting %d\n", screenWidth, screenHeight, screenRotate, touchswapxy);
 
 	wsjtx = make_unique<wsjtx_lib>();
-	KeyboardDevice.init_keyboard();
-	Mouse_dev.init_mouse();
-	//HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
-	shuttle.start();
-	HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
-	std::string hid_device = "HID " + Settings_file.get_string("input", "hiddevice");
-	if (hid_device.length())
-		HidDev_dev2.init(hid_device);
-	else
-		HidDev_dev2.init("HID 413d:553a");
+	// KeyboardDevice.init_keyboard();
+	// Mouse_dev.init_mouse();
+	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
+	// HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
+	// HidDev_dev2.init("HID 413d:553a");
 
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
@@ -515,14 +577,14 @@ int main(int argc, char *argv[])
 	cattcpserver.StartServer();
 	std::thread thread_cattcpserver(std::ref(cattcpserver));
 	thread_cattcpserver.detach();
-	
+
 	int audiodevID;
 	audiodevID = AudioInput::createAudioInputDevice(defaultAudioSampleRate, 2048);
 	AudioOutput::createAudioDevice(defaultAudioSampleRate, 1024, audiodevID);
-	
+
 	bpf.initFilter();
 
-	std::string smode = Settings_file.get_string("VFO1","Mode");
+	std::string smode = Settings_file.get_string("VFO1", "Mode");
 	mode = Settings_file.convert_mode(smode);
 
 	std::string i2c_output_device = Settings_file.get_string("i2c", "output_device");
@@ -535,123 +597,65 @@ int main(int argc, char *argv[])
 
 	/*LittlevGL init*/
 	lv_init();
+	customLVevents.init();
+	std::string display_port = Settings_file.get_string("screen", "Display", "DSI-1");
+	int32_t l_width, l_height;
 
-#if USE_FBDEV
-	/*Linux frame buffer device init*/
-	fbdev_init();
+	lv_wayland_init();
+	main_screen = create_display(&disp_0, display_port);
+	screenWidth = lv_display_get_horizontal_resolution(disp_0);
+	screenHeight = lv_display_get_vertical_resolution(disp_0);
 
-	// Touch pointer device init
-	evdev_init();
-	
-	/*A small buffer for LittlevGL to draw the screen's content*/
-	const int dispbuffersize = LV_COLOR_DEPTH * screenWidth * screenHeight;
-	//static lv_color_t buf[dispbuffersize];
-	//static lv_color_t buf1[DISP_BUF_SIZE];
-	display_buf = (lv_color_t *)malloc(dispbuffersize * sizeof(lv_color_t));
-
-	/*Initialize a descriptor for the buffer*/
-	static lv_disp_draw_buf_t disp_buf;
-	lv_disp_draw_buf_init(&disp_buf, display_buf, NULL, dispbuffersize);
-
-	/*Initialize and register a display driver*/
-	static lv_disp_drv_t disp_drv;
-	lv_disp_drv_init(&disp_drv);
-	disp_drv.draw_buf = &disp_buf;
-	disp_drv.flush_cb = fbdev_flush;
-	if (screenRotate == 1 || screenRotate == 3)
+	if (screenWidth < 1200)
 	{
-		disp_drv.hor_res = screenHeight;
-		disp_drv.ver_res = screenWidth;
+		tunerHeight = (screenHeight * 22) / 100;
+		barHeight = (screenHeight * 22) / 100;
 	}
 	else
 	{
-		disp_drv.hor_res = screenWidth;
-		disp_drv.ver_res = screenHeight;
+		tunerHeight = (screenHeight * 18) / 100;
+		barHeight = (screenHeight * 18) / 100;
 	}
-	lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
-	if (screenRotate == 1)
-	{
-		disp_drv.sw_rotate = 1;
-		lv_disp_set_rotation(disp, LV_DISP_ROT_270);
-	}
-	else if (screenRotate == 2)
-	{
-		disp_drv.sw_rotate = 1;
-		lv_disp_set_rotation(disp, LV_DISP_ROT_180);
-	}
-	else if (screenRotate == 3)
-	{
-		disp_drv.sw_rotate = 1;
-		lv_disp_set_rotation(disp, LV_DISP_ROT_90);
-	}
-	// Initialize and register a pointer device driver
-	static lv_indev_drv_t indev_drv;
-	lv_indev_drv_init(&indev_drv);
-	indev_drv.type = LV_INDEV_TYPE_POINTER;
-	indev_drv.read_cb = evdev_read; // defined in lv_drivers/indev/evdev.h
-	lv_indev_drv_register(&indev_drv);
+	tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+	std::string second_display_port = Settings_file.get_string("screen", "SecondDisplay", "None");
 
-	static lv_indev_drv_t indev_drv_enc;
-	lv_indev_drv_init(&indev_drv_enc);
-	indev_drv_enc.type = LV_INDEV_TYPE_ENCODER;
-	indev_drv_enc.read_cb = encoder_read;
-	encoder_indev_t = lv_indev_drv_register(&indev_drv_enc);
+	if (second_display_port != "None" && second_display_port != display_port)
+	{
+		second_screen = create_display(&disp_1, second_display_port);
+		secondscreen = std::make_unique<SecondScreen>();
+		secondscreen->init(second_screen, keyboard_group);
+	}
+	else
+	{
+		Settings_file.save_string("screen", "SecondDisplay", "None");
+		Settings_file.write_settings();
+	}
+
 	button_group = lv_group_create();
 	lv_indev_set_group(encoder_indev_t, button_group);
-	
-#endif
 
-#if USE_WAYLAND
-	//-lwayland-client -lwayland-cursor -lxkbcommon
-	lv_wayland_init();
-	lv_disp_t *disp = lv_wayland_create_window(screenWidth, screenHeight,"sdrberry",NULL);
-#endif
-
-	static lv_indev_drv_t indev_drv_mouse;
-	lv_indev_t *indev_mouse;
-	if (Mouse_dev.GetMouseAttached())
+	lv_theme_t *th;
+	if (screenWidth > 1440)
 	{
-		lv_indev_drv_init(&indev_drv_mouse);
-		indev_drv_mouse.type = LV_INDEV_TYPE_POINTER;
-		indev_drv_mouse.read_cb = mouse_read;
-		indev_mouse = lv_indev_drv_register(&indev_drv_mouse);
-		// Set cursor. For simplicity set a HOME symbol now.
-		lv_obj_t *mouse_cursor = lv_img_create(lv_scr_act());
-		lv_img_set_src(mouse_cursor, &mouse_cursor_icon);
-		lv_indev_set_cursor(indev_mouse, mouse_cursor);
+		th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_18);
+		barHeightft8 = 150;
+	}
+	else if (screenWidth > 1280)
+	{
+		th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_16);
+		barHeightft8 = 150;
 	}
 	else
 	{
-		if (KeyboardDevice.MouseAttached())
-		{
-			lv_indev_drv_init(&indev_drv_mouse);
-			indev_drv_mouse.type = LV_INDEV_TYPE_POINTER;
-			indev_drv_mouse.read_cb = mouse_keyboard_read;
-			indev_mouse = lv_indev_drv_register(&indev_drv_mouse);
-			// Set cursor. For simplicity set a HOME symbol now.
-			lv_obj_t *mouse_cursor = lv_img_create(lv_scr_act());
-			lv_img_set_src(mouse_cursor, &mouse_cursor_icon);
-			lv_indev_set_cursor(indev_mouse, mouse_cursor);
-		}
+		th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
+		barHeightft8 = 125;
 	}
+	screenfontthresshold_2 = Settings_file.get_int("screen", "thresshold_2", 1024);
+	screenfontthresshold_1 = Settings_file.get_int("screen", "thresshold_1", 800);
 
-	static lv_indev_drv_t indev_drv_keyboard;
-	if (KeyboardDevice.Attached())
-	{
-		lv_indev_drv_init(&indev_drv_keyboard); /*Basic initialization*/
-		indev_drv_keyboard.type = LV_INDEV_TYPE_KEYPAD;
-		indev_drv_keyboard.read_cb = keyboard_read;
-		lv_indev_t *kb_indev = lv_indev_drv_register(&indev_drv_keyboard);
-		keyboard_group = lv_group_create();
-		lv_indev_set_group(kb_indev, keyboard_group);
-	}
-	
-	lv_theme_t *th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
 	lv_disp_set_theme(NULL, th);
-	scr = lv_scr_act();
-	screenfontthresshold = Settings_file.get_int("screen", "thresshold", 1024);
-	GuiTopBar.setup_top_bar(scr);
-	gui_vfo_inst.gui_vfo_init(scr, keyboard_group);
+	GuiTopBar.setup_top_bar(main_screen, 0, 0, screenWidth, topHeight);
+	gui_vfo_inst.gui_vfo_init(main_screen, 0, topHeight, screenWidth, tunerHeight, keyboard_group);
 
 	static lv_style_t background_style;
 
@@ -679,24 +683,26 @@ int main(int argc, char *argv[])
 	lv_obj_add_flag(calbar_view, LV_OBJ_FLAG_HIDDEN);
 	gcal.init(calbar_view, button_group, keyboard_group, LV_HOR_RES - 3, barHeight);
 
-	tabview_mid = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, buttonHeight);
+	tabview_mid = lv_tabview_create(main_screen);
+	lv_tabview_set_tab_bar_position(tabview_mid, LV_DIR_BOTTOM);
+	lv_tabview_set_tab_bar_size(tabview_mid, buttonHeight);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
 	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, tabHeight);
-	
+
 	tab["spectrum"] = (lv_tabview_add_tab(tabview_mid, "Spectrum"));
 	tab["band"] = (lv_tabview_add_tab(tabview_mid, "Band"));
 	tab["Preset"] = (lv_tabview_add_tab(tabview_mid, "Presets"));
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
-	//tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
+	// tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
 	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
-	//tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
+	// tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));
 	tab["sdr"] = (lv_tabview_add_tab(tabview_mid, "Sdr"));
 	tab["settings"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_SETTINGS));
-	
-	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE);
+
+	lv_obj_clear_flag(lv_tabview_get_content(tabview_mid), (lv_obj_flag_t)(LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_ONE));
 	tab_buttons = lv_tabview_get_tab_btns(tabview_mid);
 	gsetup.init(tab["settings"], keyboard_group, LV_HOR_RES - 3, tabHeight - buttonHeight);
 	SpectrumGraph.init(tab["spectrum"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight, ifrate);
@@ -705,8 +711,10 @@ int main(int argc, char *argv[])
 	guisdr.init(tab["sdr"], LV_HOR_RES - 3, tabHeight - buttonHeight);
 	guipreset.init(tab["Preset"], LV_HOR_RES - 3, tabHeight - buttonHeight, button_group, keyboard_group);
 
-	//freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
-	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+	// freeDVTab.init(tab["FreeDV"], 0, 0, LV_HOR_RES - 3, tabHeight - buttonHeight);
+	// lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+	lv_tabview_enable_tab(tabview_mid, hidetx, false);
+
 	guisquelch.init(tab["squelch"], lv_tabview_get_tab_btns(tabview_mid), LV_HOR_RES - 3);
 
 	static lv_style_t style_btn;
@@ -718,15 +726,14 @@ int main(int argc, char *argv[])
 	lv_style_set_border_side(&style_btn, LV_BORDER_SIDE_INTERNAL);
 	lv_style_set_radius(&style_btn, 0);
 	lv_obj_add_style(tab_buttons, &style_btn, LV_PART_ITEMS);
-	
 
-	//keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
+	// keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
 	int rx_rate = Settings_file.get_int(default_radio, "samplerate");
 	int tx_rate = Settings_file.get_int(default_radio, "samplerate_tx");
 	if (tx_rate == 0)
 		tx_rate = rx_rate;
-	
+
 	ifrate = rx_rate * 1000.0 / decimate;
 	ifrate_tx = tx_rate * 1000 / decimate;
 	printf("samperate rx %d samplerate tx %d decimation %f ifrate %f\n", rx_rate, tx_rate, decimate, ifrate);
@@ -752,7 +759,7 @@ int main(int argc, char *argv[])
 			probe = "driver=" + con;
 		SdrDevices.AddDevice(con, probe);
 	}
-	
+
 	i2cinput::create_i2c_input_thread();
 
 	if (SdrDevices.MakeDevice(default_radio))
@@ -780,14 +787,14 @@ int main(int argc, char *argv[])
 		char str[80];
 
 		sprintf(str, "%0.2f", r.minimum() / 1.0e6);
-		std::string	start_freq(str);
+		std::string start_freq(str);
 		sprintf(str, "%0.2f", r.maximum() / 1.0e6);
 		std::string stop_freq(str);
 		std::string s = std::string(default_radio.c_str()) + " " + start_freq + " Mhz - " + stop_freq + " Mhz";
 		GuiTopBar.set_label_status(s.c_str());
-		//if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
+		// if (SdrDevices.get_tx_channels(default_radio) < 1) // for now assume only 1 tx channel
 		//	default_tx_channel = -1;
-		//else
+		// else
 		//	default_tx_channel = 0;
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
@@ -796,7 +803,7 @@ int main(int argc, char *argv[])
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
-				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+				lv_tabview_enable_tab(tabview_mid, hidetx, true);
 				Gui_tx.set_drv_range();
 				for (auto &col : SdrDevices.SdrDevices.at(default_radio)->get_tx_sample_rates(default_tx_channel))
 				{
@@ -875,6 +882,8 @@ int main(int argc, char *argv[])
 		guisquelch.set_sdr_state();
 		gbar.set_mode(mode);
 		guigain.reset_gains();
+		if (secondscreen)
+			secondscreen->init_vfo();
 		select_mode(mode); // start streaming
 	}
 	else
@@ -898,18 +907,27 @@ int main(int argc, char *argv[])
 		webserver.StartServer();
 	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 50);
 
+	uint32_t idle_time;
+	signalstrength.set_signal_strength_offset(Settings_file.get_int("Radio", "s-meter-offset", 200));
+	
 	while (1)
 	{
 		WsjtxMessage msg;
 
 		gui_mutex.lock();
 		cattcpserver.Pause_Cat(true);
-		lv_task_handler();
+		idle_time = lv_timer_handler();
+		if (!lv_wayland_window_is_open(disp_0)) // NULL
+		{
+			printf("closed \n");
+			//break;
+		}
+
 		cattcpserver.Pause_Cat(false);
 		gui_mutex.unlock();
-		
-		//Mouse_dev.step_vfo();
-		//HidDev_dev.step_vfo();
+
+		// Mouse_dev.step_vfo();
+		// HidDev_dev.step_vfo();
 		shuttle.step_vfo();
 		HidDev_dev1.step_vfo();
 		HidDev_dev2.step_vfo();
@@ -919,17 +937,21 @@ int main(int argc, char *argv[])
 		if (timeLastStatus + std::chrono::milliseconds(refreshSpeed) < now)
 		{
 			timeLastStatus = now;
-			double s = SpectrumGraph.get_signal_strength();
-			gui_vfo_inst.set_s_meter(s);
-			catinterface->SetSM((uint8_t)s);
+			gui_vfo_inst.set_s_meter(signalstrength.get_signal_strength());
+			catinterface->SetSM((uint8_t)signalstrength.get_signal_strength());
 			if (mode == mode_freedv)
 				freeDVTab.DrawWaterfall();
 			if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 				guift8bar.DrawWaterfall(guirx.get_waterfallgain() + (float)wsjtxWaterfallGain);
 			SpectrumGraph.DrawDisplay();
+			if (secondscreen != nullptr)
+			{
+				secondscreen->DrawDisplay();
+				secondscreen->set_s_meter(signalstrength.get_signal_strength());
+			}
 			if (gsetup.get_calibration())
 			{
-				gcal.SetErrorCorrelation(errorMeasurement,correlationMeasurement);
+				gcal.SetErrorCorrelation(errorMeasurement, correlationMeasurement);
 			}
 			Gui_tx.get_measurements();
 		}
@@ -953,7 +975,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		
+
 		while (wsjtx->pullMessage(msg))
 		{
 			gft8.add_line(msg.hh,
@@ -981,31 +1003,31 @@ int main(int argc, char *argv[])
 				process_vfo_message(msg);
 				break;
 			}
-				
+
 			case GuiMessage::setvfo: {
 				process_vfo_message(msg);
 				break;
 			}
-			
+
 			case GuiMessage::change_step:
 				gbar.change_step(-1);
 				break;
-			
+
 			case GuiMessage::step:
 				vfo.step_vfo(msg.data);
 				break;
-			
+
 			case GuiMessage::blink:
 				if (msg.data)
 					gbar.setIfGainOverflow(true);
 				else
 					gbar.setIfGainOverflow(false);
 				break;
-				
+
 			case GuiMessage::setpos:
 				SpectrumGraph.set_pos(vfo.get_vfo_offset());
 				break;
-			
+
 			case GuiMessage::setmode_vfo_a:
 				if (!IsDigtalMode(mode) && mode != msg.data)
 				{
@@ -1015,7 +1037,7 @@ int main(int argc, char *argv[])
 					select_mode(msg.data);
 				}
 				break;
-				
+
 			case GuiMessage::setmode_vfo_b:
 				if (!IsDigtalMode(mode) && mode != msg.data)
 				{
@@ -1047,19 +1069,18 @@ int main(int argc, char *argv[])
 				}
 				break;
 
-			case GuiMessage::setband:
+			case GuiMessage::setband: {
+				gui_band_instance.set_gui(msg.data);
+				int index = getIndex(Settings_file.meters, msg.data);
+				if (index >= 0)
 				{
-					gui_band_instance.set_gui(msg.data);
-					int index = getIndex(Settings_file.meters, msg.data);
-					if (index >= 0)
-					{
-						long f_low = Settings_file.f_low.at(index);
-						int f_band = Settings_file.meters.at(index);
-						vfo.set_band(f_band, f_low);
-						gbar.set_mode(mode);
-					}
+					long f_low = Settings_file.f_low.at(index);
+					int f_band = Settings_file.meters.at(index);
+					vfo.set_band(f_band, f_low);
+					gbar.set_mode(mode);
 				}
-				break;
+			}
+			break;
 			case GuiMessage::setifgain:
 				gbar.set_if(msg.data);
 				break;
@@ -1087,147 +1108,127 @@ int main(int argc, char *argv[])
 				gft8.tableScrollLastItem();
 				break;
 			case GuiMessage::wsjtxMessage: {
-					json message = json::parse(msg.text);
-					//printf("%s\n", message.dump().c_str());
-					if (message.at("type") == "wsjtxbar")
+				json message = json::parse(msg.text);
+				// printf("%s\n", message.dump().c_str());
+				if (message.at("type") == "wsjtxbar")
+				{
+					if (message.at("button") == "Monitor")
+						guift8bar.MonitorButton();
+					if (message.at("button") == "CQ")
+						guift8bar.CQButton();
+					if (message.at("button") == "TX")
+						guift8bar.TXButton();
+					if (message.at("button") == "Clear")
+						guift8bar.ClearButton();
+					if (message.at("button") == "Log")
+						guift8bar.LogButton();
+					if (message.at("button") == "frequency")
 					{
-						if (message.at("button") == "Monitor")
-							guift8bar.MonitorButton();
-						if (message.at("button") == "CQ")
-							guift8bar.CQButton();
-						if (message.at("button") == "TX")
-							guift8bar.TXButton();
-						if (message.at("button") == "Clear")
-							guift8bar.ClearButton();
-						if (message.at("button") == "Log")
-							guift8bar.LogButton();
-						if (message.at("button") == "frequency")
-						{
-							guift8bar.set_frequency(message);
-						}
-						if (message.at("type") == "spectrumbar")
-						{
-							
-						}
-						guift8bar.get_buttons();
+						guift8bar.set_frequency(message);
 					}
-					if (IsDigtalMode(mode))
+					if (message.at("type") == "spectrumbar")
 					{
-						try
-						{
-							if (message.at("type") == "selecttxmessage")
-							{
-								guift8bar.MessageNo(message.at("no"));
-							}
-							if (message.at("type") == "selectmessage")
-							{
-								gft8.SelectMessage(message.at("data"));
-							}
-						}
-						catch (const exception &e)
-						{
-							std::string err = e.what();
-							printf("%s\n", err.c_str());
-						}
 					}
+					guift8bar.get_buttons();
 				}
-				break;
-
-			case GuiMessage::TranceiverMessage: {
-					//printf("%s\n", msg.text.c_str());
-					json message;
+				if (IsDigtalMode(mode))
+				{
 					try
 					{
-						message = json::parse(msg.text);
+						if (message.at("type") == "selecttxmessage")
+						{
+							guift8bar.MessageNo(message.at("no"));
+						}
+						if (message.at("type") == "selectmessage")
+						{
+							gft8.SelectMessage(message.at("data"));
+						}
 					}
 					catch (const exception &e)
 					{
 						std::string err = e.what();
 						printf("%s\n", err.c_str());
-						break;
 					}
-					
-					//printf("%s\n", message.dump().c_str());
-					if (message.find("setfilter") != message.end())
-					{
-						gbar.websetfilter(message.at("setfilter"));
-					}
-					if (message.find("setvolume") != message.end())
-					{
-						if (message.at("setvolume").is_number())
-							gbar.set_vol_slider(message.at("setvolume"), false);
-					}
-					if (message.find("setrfvalue") != message.end())
-					{
-						if (message.at("setrfvalue").is_number())
-						{
-							int max_gain, min_gain;
-
-							gbar.get_gain_range(max_gain, min_gain);
-							gbar.set_gain_slider((int)message.at("setrfvalue") + min_gain, false);
-						}
-					}
-					if (message.find("setifvalue") != message.end())
-					{
-						if (message.at("setifvalue").is_number())
-							gbar.set_if(message.at("setifvalue"), false);
-					}
-					if (message.find("tx") != message.end())
-					{
-						// do volume
-					}
-					if (message.find("tune") != message.end())
-					{
-						// do volume
-					}
-					if (message.find("mode") != message.end())
-					{
-						// do volume
-					}
-					if (message.find("band") != message.end())
-					{
-						// do volume
-					}
-
 				}
-				break;
+			}
+			break;
+
+			case GuiMessage::TranceiverMessage: {
+				// printf("%s\n", msg.text.c_str());
+				json message;
+				try
+				{
+					message = json::parse(msg.text);
+				}
+				catch (const exception &e)
+				{
+					std::string err = e.what();
+					printf("%s\n", err.c_str());
+					break;
+				}
+
+				// printf("%s\n", message.dump().c_str());
+				if (message.find("setfilter") != message.end())
+				{
+					gbar.websetfilter(message.at("setfilter"));
+				}
+				if (message.find("setvolume") != message.end())
+				{
+					if (message.at("setvolume").is_number())
+						gbar.set_vol_slider(message.at("setvolume"), false);
+				}
+				if (message.find("setrfvalue") != message.end())
+				{
+					if (message.at("setrfvalue").is_number())
+					{
+						int max_gain, min_gain;
+
+						gbar.get_gain_range(max_gain, min_gain);
+						gbar.set_gain_slider((int)message.at("setrfvalue") + min_gain, false);
+					}
+				}
+				if (message.find("setifvalue") != message.end())
+				{
+					if (message.at("setifvalue").is_number())
+						gbar.set_if(message.at("setifvalue"), false);
+				}
+				if (message.find("tx") != message.end())
+				{
+					// do volume
+				}
+				if (message.find("tune") != message.end())
+				{
+					// do volume
+				}
+				if (message.find("mode") != message.end())
+				{
+					// do volume
+				}
+				if (message.find("band") != message.end())
+				{
+					// do volume
+				}
+			}
+			break;
 			}
 			guiQueue.pop_front();
 		}
-		usleep(500);
+		if (idle_time != 0)
+			usleep(idle_time * 1000);
+
 		fflush(stdout);
 	}
+	cattcpserver.signal_stop();
+	catinterface.signal_stop();
 	audio_output->close();
 	delete audio_output;
 	audio_input->close();
 	delete audio_input;
-	free(display_buf);
+	tempSensor::stop_read_out();
 	if (midicontrole)
 		delete midicontrole;
 	return 0;
 }
-
-/*Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR`*/
-
-/*uint32_t custom_tick_get(void)
-{
-	static uint64_t start_ms = 0;
-	if (start_ms == 0)
-	{
-		struct timeval tv_start;
-		gettimeofday(&tv_start, NULL);
-		start_ms = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
-	}
-
-	struct timeval tv_now;
-	gettimeofday(&tv_now, NULL);
-	uint64_t now_ms;
-	now_ms = (tv_now.tv_sec * 1000000 + tv_now.tv_usec) / 1000;
-
-	uint32_t time_ms = now_ms - start_ms;
-	return time_ms;
-}
-*/
 
 uint32_t custom_tick_get(void)
 {
@@ -1265,6 +1266,13 @@ void destroy_demodulators(bool all, bool close_stream)
 	TX_Stream::destroy_tx_streaming_thread(close_stream);
 }
 
+void stop_sdrberry()
+{
+	destroy_demodulators(true, true);
+	delete_main_display();
+	delete_second_display();
+}
+
 void update_filter(int bandwidth)
 {
 	FMDemodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
@@ -1293,13 +1301,13 @@ void set_tx_buttons()
 
 	if (SdrDevices.get_tx_channels(default_radio) == 0 || !audio_input->isStreamOpen())
 	{
-		lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+		lv_tabview_enable_tab(tabview_mid, hidetx, false);
 		Gui_tx.enable_tx(false);
 	}
 	else
 	{
-		lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
-		Gui_tx.enable_tx(true);	
+		lv_tabview_enable_tab(tabview_mid, hidetx, true);
+		Gui_tx.enable_tx(true);
 	}
 }
 
@@ -1323,6 +1331,9 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	// stop transmit
 	destroy_demodulators();
 	mode = s_mode;
+	SpectrumGraph.set_cursor_mode((tranceiverMode)mode);
+	if (secondscreen)
+		secondscreen->set_cursor_mode(mode);
 	if (SdrDevices.get_tx_channels(default_radio) > 0)
 		Gui_tx.set_tx_state(false);
 	if (SdrDevices.get_rx_channels(default_radio) < 1)
@@ -1367,7 +1378,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		else
 			RX_Stream::pause_rx_stream(false);
 		break;
-		
+
 	case mode_cw:
 		guirx.set_cw(true);
 	case mode_am:
@@ -1399,9 +1410,9 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;
-	//case mode_am:
+	// case mode_am:
 	case mode_echo:
-		EchoAudio::create_modulator(audio_output,audio_input);
+		EchoAudio::create_modulator(audio_output, audio_input);
 		break;
 	}
 	catinterface.Pause_Cat(false);
@@ -1411,7 +1422,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 {
 	ModulatorParameters param{};
-	
+
 	// Stop all threads
 	if (!SdrDevices.isValid(default_radio))
 		return false;
@@ -1453,8 +1464,8 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	switch (mode)
 	{
 	case mode_broadband_fm:
-		//start_fm_tx(ifrate, audio_output->get_samplerate(), true, &source_buffer_tx, audio_output);
-		//mode_running = 1;
+		// start_fm_tx(ifrate, audio_output->get_samplerate(), true, &source_buffer_tx, audio_output);
+		// mode_running = 1;
 		break;
 
 	case mode_narrowband_fm:
@@ -1474,11 +1485,11 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 		break;
-	
+
 	case mode_echo:
 		EchoAudio::create_modulator(audio_output, audio_input);
 		break;
-	
+
 	default:
 		break;
 	}
@@ -1486,7 +1497,6 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	cattcpserver.Pause_Cat(false);
 	return true;
 }
-
 
 /*
  * To switch from SDR receiver we have to do a few things:
@@ -1501,7 +1511,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
  * 10) Check if device support transmit and add transmit sample rates to dropdown and show TX tab
  * 11) Re initialize the vfo class so:
  *		- max min supported frequency is updated
- *		- 
+ *		-
  *
  *
  *
@@ -1512,16 +1522,16 @@ void switch_sdrreceiver(std::string receiver)
 	SoapySDR::Range r;
 	default_rx_channel = 0;
 	default_tx_channel = 0;
-	
+
 	/// First switchoff current receiver
 	destroy_demodulators(true, true);
 	SdrDevices.UnMakeDevice(default_radio);
 	default_radio = receiver;
 	Settings_file.save_string("SDR Receivers", "default", default_radio);
 	Settings_file.write_settings();
-	
+
 	// Hide TX page
-	lv_btnmatrix_set_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+	lv_tabview_enable_tab(tabview_mid, hidetx, false);
 	if (SdrDevices.MakeDevice(default_radio))
 	{
 		float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
@@ -1560,7 +1570,7 @@ void switch_sdrreceiver(std::string receiver)
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
 			{
-				lv_btnmatrix_clear_btn_ctrl(tab_buttons, hidetx, LV_BTNMATRIX_CTRL_DISABLED);
+				lv_tabview_enable_tab(tabview_mid, hidetx, true);
 				guisdr.clear_sample_rate();
 				Gui_tx.set_drv_range();
 				Gui_tx.set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
@@ -1621,7 +1631,7 @@ void switch_sdrreceiver(std::string receiver)
 		gbar.set_gain_slider_band_from_config();
 		guift8bar.EnableButtons(false);
 		gbar.setTxButtons();
-		//vfo.set_vfo(freq, false);
+		// vfo.set_vfo(freq, false);
 		if (SdrDevices.SdrDevices[default_radio]->get_bandwith_count(0))
 		{
 			long bw = SdrDevices.SdrDevices[default_radio]->get_bandwith(0, 0);
@@ -1641,7 +1651,7 @@ void switch_sdrreceiver(std::string receiver)
  *
  *const auto startTime = std::chrono::high_resolution_clock::now();
 		const auto now = std::chrono::high_resolution_clock::now();
-		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);			
+		const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 		printf("create demodulator %lld\n", timePassed.count());
  *
  **/
@@ -1661,4 +1671,3 @@ void create_spectrum_page_time()
 	if (time)
 		lv_timer_t *timer = lv_timer_create(my_timer, time, NULL);
 }
-

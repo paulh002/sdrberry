@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-
+#include <cstring>
 #include "gui_i2csetup.h"
 #include "Settings.h"
 #include "strlib.h"
@@ -17,7 +17,7 @@ std::vector<std::string> devices{"NONE", "PCF8574", "PCF8574A", "MCP23008", "TCA
 
 void gui_i2csetup::editButton_handler_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
 
 	CreateHexKeyboardWindow(lv_scr_act());
@@ -26,7 +26,7 @@ void gui_i2csetup::editButton_handler_class(lv_event_t *e)
 
 void gui_i2csetup::delButton_handler_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
 
 	DelDevice();
@@ -35,7 +35,7 @@ void gui_i2csetup::delButton_handler_class(lv_event_t *e)
 
 void gui_i2csetup::addButton_handler_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
 
 	AddDevice("NONE", "00");
@@ -44,9 +44,9 @@ void gui_i2csetup::addButton_handler_class(lv_event_t *e)
 
 void gui_i2csetup::bandtable_press_part_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 	
 	// Do something
 	lv_table_get_selected_cell(obj, &row, &col);
@@ -57,9 +57,9 @@ void gui_i2csetup::bandtable_press_part_event_cb_class(lv_event_t *e)
 
 void gui_i2csetup::table_press_part_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 	char *ptr;
 	std::string buffer;
 
@@ -84,36 +84,49 @@ void gui_i2csetup::table_press_part_event_cb_class(lv_event_t *e)
 
 void gui_i2csetup::table_draw_part_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
-		if (row == i2csetup.getRowSelected())
+		uint32_t row = base_dsc->id1 ;
+		uint32_t col = base_dsc->id2 ;
+		lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+		if (fill_draw_dsc)
 		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			if (row == i2csetup.getRowSelected())
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_30);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
 		}
 	}
 }
 
 void gui_i2csetup::bandtable_draw_part_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
-		if (row == i2csetup.getBandRowSelected())
+		uint32_t row = base_dsc->id1 ;
+		uint32_t col = base_dsc->id2 ;
+		lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+		if (fill_draw_dsc)
 		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			if (row == i2csetup.getBandRowSelected())
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_30);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
 		}
 	}
 }
@@ -121,7 +134,7 @@ void gui_i2csetup::bandtable_draw_part_event_cb_class(lv_event_t *e)
 void gui_i2csetup::bandDropdownHandler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		setBandRowSelected(-1);
@@ -132,7 +145,7 @@ void gui_i2csetup::bandDropdownHandler_class(lv_event_t *e)
 void gui_i2csetup::deviceDropdownHandler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		// if row selected set device
@@ -149,7 +162,7 @@ void gui_i2csetup::deviceDropdownHandler_class(lv_event_t *e)
 void gui_i2csetup::AddressHandler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	std::string buf;
 
 	buf.resize(80);
@@ -331,7 +344,7 @@ void gui_i2csetup::setBand(int band)
 void gui_i2csetup::save_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	Save();
 }
@@ -468,7 +481,8 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	lv_obj_clear_flag(table, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_pos(table, x_page_margin, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_size(table, cWidth * fraction, cHeight - (y_margin + ibutton_y * button_height_margin) );
-	lv_obj_add_event_cb(table, table_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(table, table_draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(table, table_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
 	lv_obj_set_style_pad_top(table, 2, LV_PART_MAIN);
@@ -529,7 +543,8 @@ void gui_i2csetup::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_group_t 
 	lv_obj_clear_flag(bandtable, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_pos(bandtable, cWidth / 2, y_margin + ibutton_y * button_height_margin);
 	lv_obj_set_size(bandtable, cWidth * fraction1, cHeight - (y_margin + ibutton_y * button_height_margin));
-	lv_obj_add_event_cb(bandtable, bandtable_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(bandtable, bandtable_draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(bandtable, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(bandtable, bandtable_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
 	lv_obj_set_style_pad_top(bandtable, 2, LV_PART_MAIN);

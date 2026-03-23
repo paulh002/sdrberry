@@ -123,9 +123,9 @@ void gui_ft8::qso_press_part_event_class(lv_event_t *e)
 
 void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 	int db, length;
 
 	lv_table_get_selected_cell(obj, &row, &col);
@@ -152,9 +152,9 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 
 void gui_ft8::press_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 	int db, length;
 
 	lv_table_get_selected_cell(obj, &row, &col);
@@ -231,27 +231,33 @@ void gui_ft8::press_part_event_class(lv_event_t *e)
 
 void gui_ft8::qso_draw_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
-	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
 
 		/*Make the texts in the first cell center aligned*/
 
 		/*MAke every 2nd row grayish*/
 		if (col == 3)
 		{
-			uint32_t cell = row * table->col_cnt + col;
+			// int32_t cell = row * lv_table_get_column_count(obj) + col;
+			// char *ptr = table->cell_data[cell]->txt;
+			const char *ptr = lv_table_get_cell_value(obj, row, col);
 
-			char *ptr = table->cell_data[cell]->txt;
-			if (strstr(ptr, getcall().c_str()) != NULL)
+			lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+			if (fill_draw_dsc)
 			{
-				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
-				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+				if (strstr(ptr, getcall().c_str()) != NULL)
+				{
+					fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_30);
+					fill_draw_dsc->opa = LV_OPA_COVER;
+				}
 			}
 		}
 	}
@@ -259,33 +265,38 @@ void gui_ft8::qso_draw_part_event_class(lv_event_t *e)
 
 void gui_ft8::draw_part_event_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
 		if (col == 3 && row > 1)
 		{
-			uint32_t cell = row * table->col_cnt + col;
+			const char *ptr = lv_table_get_cell_value(obj, row, col);
+			lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
 
-			char *ptr = table->cell_data[cell]->txt;
-			if (strstr(ptr, "CQ ") != NULL)
+			if (fill_draw_dsc)
 			{
-				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
-				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
-			}
-			if (strstr(ptr, getcall().c_str()) != NULL)
-			{
-				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), dsc->rect_dsc->bg_color, LV_OPA_30);
-				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
-			}
-			if (strstr(ptr, guift8bar.GetFilter().c_str()) != NULL && guift8bar.GetFilter().length() > 0) 
-			{
-				dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_YELLOW), dsc->rect_dsc->bg_color, LV_OPA_30);
-				dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+				if (strstr(ptr, "CQ ") != NULL)
+				{
+					fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), fill_draw_dsc->color, LV_OPA_30);
+					fill_draw_dsc->opa = LV_OPA_COVER;
+				}
+				if (strstr(ptr, getcall().c_str()) != NULL)
+				{
+					fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_ORANGE), fill_draw_dsc->color, LV_OPA_30);
+					fill_draw_dsc->opa = LV_OPA_COVER;
+				}
+				if (strstr(ptr, guift8bar.GetFilter().c_str()) != NULL && guift8bar.GetFilter().length() > 0)
+				{
+					fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_YELLOW), fill_draw_dsc->color, LV_OPA_30);
+					fill_draw_dsc->opa = LV_OPA_COVER;
+				}
 			}
 		}
 	}
@@ -332,12 +343,13 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 
 	tileview = lv_tileview_create(o_tab);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-	main_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
-	settings_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	main_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	guiwsjtxsetup.init(settings_tile, keyboard_group, w, h, nullptr);
-	
+
 	table = lv_table_create(main_tile);
-	lv_obj_add_event_cb(table, draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(table, draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(table, press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 	
 	lv_obj_add_style(table, &ft8_style, 0);
@@ -365,7 +377,8 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12) - 10);
 
 	qsoTable = lv_table_create(main_tile);
-	lv_obj_add_event_cb(qsoTable, qso_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(qsoTable, qso_draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(qsoTable, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(qsoTable, qso_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
 	lv_obj_add_style(qsoTable, &ft8_style, 0);

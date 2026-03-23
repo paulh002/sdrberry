@@ -231,7 +231,7 @@ void gui_ft8bar::SetFrequency()
 void gui_ft8bar::textarea_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *ta = lv_event_get_target(e);
+	lv_obj_t *ta = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_CLICKED || code == LV_EVENT_FOCUSED || code == LV_EVENT_VALUE_CHANGED)
 	{
@@ -243,7 +243,7 @@ void gui_ft8bar::textarea_event_handler_class(lv_event_t *e)
 void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *ta = lv_event_get_target(e);
+	lv_obj_t *ta = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_VALUE_CHANGED && !guift8bar.getmonitorstate())
 	{
@@ -281,7 +281,7 @@ void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 void gui_ft8bar::filter_event_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *ta = lv_event_get_target(e);
+	lv_obj_t *ta = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_CLICKED || code == LV_EVENT_FOCUSED || code == LV_EVENT_VALUE_CHANGED)
 	{
@@ -293,7 +293,7 @@ void gui_ft8bar::filter_event_handler_class(lv_event_t *e)
 void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
 	int i = (long)lv_obj_get_user_data(obj);
 
@@ -529,9 +529,9 @@ std::string gui_ft8bar::GetFilter()
 
 void gui_ft8bar::press_part_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_table_t *table = (lv_table_t *)obj;
-	uint16_t row, col;
+	uint32_t row, col;
 	char *ptr;
 	
 	lv_table_get_selected_cell(obj, &row, &col);
@@ -543,22 +543,26 @@ void gui_ft8bar::press_part_event_cb_class(lv_event_t *e)
 	web_txmessage();
 }
 
-
 static void message_part_event_cb(lv_event_t *e)
 {
-	lv_obj_t *obj = lv_event_get_target(e);
-	lv_table_t *table = (lv_table_t *)obj;
-	lv_obj_draw_part_dsc_t *dsc = (lv_obj_draw_part_dsc_t *)lv_event_get_param(e);
-	
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+
 	/*If the cells are drawn...*/
-	if (dsc->part == LV_PART_ITEMS)
+	if (base_dsc->part == LV_PART_ITEMS)
 	{
-		uint32_t row = dsc->id / lv_table_get_col_cnt(obj);
-		uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
-		if (row == messageToSend)
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
+		lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+		if (fill_draw_dsc)
 		{
-			dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), dsc->rect_dsc->bg_color, LV_OPA_30);
-			dsc->rect_dsc->bg_opa = LV_OPA_COVER;
+			if (row == messageToSend)
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), fill_draw_dsc->color, LV_OPA_30);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
 		}
 	}
 }
@@ -575,7 +579,7 @@ void gui_ft8bar::freq_event_handler_class(lv_event_t *e)
 void gui_ft8bar::tx_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
@@ -589,7 +593,7 @@ void gui_ft8bar::tx_slider_event_cb_class(lv_event_t *e)
 void gui_ft8bar::if_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
@@ -744,7 +748,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_style_set_bg_color(&ft8_style, lv_color_black());
 
 	table = lv_table_create(o_parent);
-	lv_obj_add_event_cb(table, message_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
+	lv_obj_add_event_cb(table, message_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	lv_obj_add_flag(table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(table, press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 	
 	lv_obj_add_style(table, &ft8_style, 0);

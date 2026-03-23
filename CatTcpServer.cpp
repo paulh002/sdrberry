@@ -199,6 +199,7 @@ bool CatTcpServer::StartServer()
 	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
 	rit_onoff = 0;
 	rit_delta = 0;
+	stop_flag = false;
 	filter = 0;
 	if (cattcpcomm.begin())
 	{
@@ -237,7 +238,8 @@ void CatTcpServer::operator()()
 {
 	int count;
 	bpause_cat = false;
-	while (1)
+	stop_flag = false;
+	while (!stop_flag)
 	{
 		int ret = cat_message.CheckCAT(false);
 		if (ret > 0 && !bpause_cat.load())
@@ -295,6 +297,7 @@ void CatTcpServer::operator()()
 				if (m_mode != rxtxCatMessage)
 				{
 					m_mode = rxtxCatMessage;
+					gui_mutex.lock();
 					switch (m_mode)
 					{
 					case TX_OFF:
@@ -308,6 +311,7 @@ void CatTcpServer::operator()()
 						select_mode_tx(mode, audioTone::SingleTone, TX_TUNE_CAT);
 						break;
 					}
+					gui_mutex.unlock();
 				}
 			}
 		}

@@ -13,6 +13,7 @@
 #include "gui_i2c_output.h"
 #include "Demodulator.h"
 #include "screen.h"
+#include "SecondScreen.h"
 #include "WebServer.h"
 #include <unistd.h>
 #include <sys/reboot.h>
@@ -29,7 +30,7 @@ static const char *cal_opts = "None\n"
 void gui_setup::webbox_event_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -45,11 +46,11 @@ void gui_setup::webbox_event_class(lv_event_t *e)
 	Settings_file.save();
 	}
 }
-
+	
 void gui_setup::calbox_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -71,7 +72,7 @@ void gui_setup::calbox_event_cb_class(lv_event_t *e)
 void gui_setup::cal_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		int i = lv_dropdown_get_selected(obj);
@@ -84,7 +85,7 @@ void gui_setup::cal_button_handler_class(lv_event_t *e)
 void gui_setup::dcbox_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
@@ -104,7 +105,7 @@ void gui_setup::dcbox_event_cb_class(lv_event_t *e)
 void gui_setup::brightness_slider_event_cb_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e); 
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e); 
 
 	int i = lv_slider_get_value(obj);
 	if (i > 0)
@@ -113,11 +114,90 @@ void gui_setup::brightness_slider_event_cb_class(lv_event_t *e)
 	}
 }
 
-	
+void gui_setup::main_display_event_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		std::string sel_main_display;
+		std::string Second_display_port = Settings_file.get_string("screen", "SecondDisplay", "None");
+		
+		int item = lv_dropdown_get_selected(obj);
+		switch (item)
+		{
+		case 0:
+			sel_main_display = "HDMI-A-1";
+			break;
+		case 1:
+			sel_main_display = "HDMI-A-2";
+			break;
+		case 2:
+			sel_main_display = "DSI-1";
+			break;
+		}
+		if (Second_display_port == sel_main_display)
+		{
+			lv_dropdown_set_selected(second_disp, 0);
+			Settings_file.save_string("screen", "SecondDisplay", "None");
+			delete_second_display();
+		}
+		Settings_file.save_string("screen", "Display", sel_main_display);
+		Settings_file.write_settings();
+	}
+}
+
+void gui_setup::second_display_event_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		std::string sel_main_display;
+		std::string display_port = Settings_file.get_string("screen", "Display", "DSI-1");
+		int item = lv_dropdown_get_selected(obj);
+		switch (item)
+		{
+		case 0:
+			sel_main_display = "None";
+			break;
+		case 1:
+			sel_main_display = "HDMI-A-1";
+			break;
+		case 2:
+			sel_main_display = "HDMI-A-2";
+			break;
+		case 3:
+			sel_main_display = "DSI-1";
+			break;
+		}
+		if (display_port != sel_main_display)
+		{
+			delete_second_display();
+			if (secondscreen)
+				secondscreen->deinit();
+			Settings_file.save_string("screen", "SecondDisplay", sel_main_display);
+			Settings_file.write_settings();
+			if (sel_main_display != "None")
+			{
+				second_screen = create_display(&disp_1, sel_main_display);
+				secondscreen = std::make_unique<SecondScreen>();
+				secondscreen->init(second_screen, keyboard_group);
+				secondscreen->init_vfo();
+			}
+		}
+		else
+		{
+			lv_dropdown_set_selected(obj, 0);
+			delete_second_display();
+		}
+	}
+}
+
 void gui_setup::audio_button_handler_class(lv_event_t * e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e); 
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e); 
 	if (code == LV_EVENT_VALUE_CHANGED) 
 	{	char buf[80];
 		
@@ -137,11 +217,15 @@ void gui_setup::audio_button_handler_class(lv_event_t * e)
 void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_current_target(e);
-	
-	if (code == LV_EVENT_VALUE_CHANGED)
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_current_target(e);
+
+	if (code == LV_EVENT_CLICKED)
 	{
-		const char *ptr = lv_msgbox_get_active_btn_text(obj);
+		// const char *ptr = lv_msgbox_get_active_button_text(obj);
+
+		lv_obj_t *btn = lv_event_get_target_obj(e);
+		lv_obj_t *label = lv_obj_get_child(btn, 0);
+		const char *ptr = lv_label_get_text(label);
 		if (strcmp(ptr, "Shutdown") == 0)
 		{
 			long freq1 = vfo.get_vfo_frequency(vfo_activevfo::One);
@@ -150,19 +234,15 @@ void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
 			Settings_file.save_string(std::string("VFO2"), std::string("freq"), std::to_string(freq2));
 			Settings_file.write_settings();
 			sync(); // flush filesystem buffers
-			if (reboot(LINUX_REBOOT_CMD_RESTART) < 0)
-			{
-				static const char *btns[] = {""};
-				
-				lv_msgbox_close(obj);
-				lv_obj_t *mbox1 = lv_msgbox_create(NULL, "Sdrberry", "No permission", btns, true);
-				lv_obj_center(mbox1);
-			}
-			perror("reboot");
+			system("systemctl reboot");
+		}
+		else if (strcmp(ptr, "exit") == 0)
+		{
+			stop_sdrberry();
 		}
 		else
 		{
-			lv_msgbox_close(obj);
+			lv_msgbox_close(mbox1);
 		}
 	}
 }
@@ -170,18 +250,26 @@ void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
 void gui_setup::shutdown_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_CLICKED)
 	{
-		static const char *btns[] = {"Shutdown", "Cancel", ""};
-
-		lv_obj_t *mbox1 = lv_msgbox_create(NULL, "Sdrberry", "Shutdown Sdrberry?", btns, true);
-		lv_obj_add_event_cb(mbox1, do_shutdown_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+		mbox1 = lv_msgbox_create(NULL);
+		lv_msgbox_add_title(mbox1, "Sdrberry");
+		lv_msgbox_add_text(mbox1, "Do you want to shutdown or exit?");
+		lv_msgbox_add_close_button(mbox1);
+		lv_obj_t *btn;
+		btn = lv_msgbox_add_footer_button(mbox1, "Shutdown");
+		lv_obj_add_event_cb(btn, do_shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
+		btn = lv_msgbox_add_footer_button(mbox1, "exit");
+		lv_obj_add_event_cb(btn, do_shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
+		btn = lv_msgbox_add_footer_button(mbox1, "Cancel");
+		lv_obj_add_event_cb(btn, do_shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_center(mbox1);
 	}
 }
 
-void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, lv_coord_t h)
+
+void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w, lv_coord_t h)
 {
 
 	const lv_coord_t x_page_margin = 5;
@@ -200,23 +288,27 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	int button_height_margin = button_height + y_margin;
 	int	ibutton_x = 0, ibutton_y = 0;
 
+	lv_point_t font_size;
+	lv_txt_get_size(&font_size, "7074", LV_FONT_DEFAULT, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+
+	keyboard_group = keyboard_group_;
 	button_group = lv_group_create();
 	lv_obj_set_style_pad_top(o_tab, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(o_tab, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_right(o_tab, 5, LV_PART_MAIN);
 
 	tileview = lv_tileview_create(o_tab);
-	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);	
+	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
 
-	settings_main = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);	
-	
-	settings_i2c = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
-	i2csetup.init(settings_i2c, w, h,button_group);
-	
-	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_BOTTOM | LV_DIR_TOP);
+	settings_main = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+
+	settings_i2c = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	i2csetup.init(settings_i2c, w, h, button_group);
+
+	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gui_i2cinput.init(settings_i2c_input, w, h, button_group);
 
-	settings_i2c_output = lv_tileview_add_tile(tileview, 0, 3, LV_DIR_BOTTOM | LV_DIR_TOP);
+	settings_i2c_output = lv_tileview_add_tile(tileview, 0, 3, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gui_i2coutput.init(settings_i2c_output, w, h, button_group);
 
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
@@ -290,7 +382,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	lv_obj_add_event_cb(shutdownbutton, shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
 	lv_obj_align(shutdownbutton, LV_ALIGN_TOP_LEFT, x_cal + button_width + x_margin, y_cal);
 	lv_obj_t *lv_label = lv_label_create(shutdownbutton);
-	lv_label_set_text(lv_label, "Shutdown");
+	lv_label_set_text(lv_label, "Exit");
 	lv_obj_center(lv_label);
 	
 	y_cal = y_margin + button_height_margin / 2;
@@ -305,7 +397,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	}
 
 	y_cal += button_height_margin ;
-
+	x_cal = w / 2 + w / 4 + w / 16;
 	calbox = lv_checkbox_create(settings_main);
 	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_checkbox_set_text(calbox, "cal");
@@ -326,22 +418,71 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t w, 
 	}
 
 	ibutton_y++;
-	// xpos = xpos + x_margin + 2 * button_width;
-	int y_span = y_margin + ibutton_y * button_height_margin + button_height_margin ;
+	// Main Display
+	int y_span = y_margin + y_margin + ibutton_y * button_height_margin;
+
+	lv_obj_t *main_display_label = lv_label_create(settings_main);
+	lv_label_set_text(main_display_label, "Main display");
+	lv_obj_align_to(main_display_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, 0, y_span);
+
+	y_span = y_span + y_margin + button_height_margin ;
+	main_display = lv_dropdown_create(settings_main);
+	lv_dropdown_clear_options(main_display);
+	lv_dropdown_set_options(main_display, "HDMI-A-1\nHDMI-A-2\nDSI-1");
+	lv_obj_add_event_cb(main_display, main_display_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_align_to(main_display, main_display_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, y_margin);
+	std::string display_port = Settings_file.get_string("screen", "Display", "DSI-1");
+	int option = 0;
+	if (display_port == "HDMI-A-1")
+		option = 0;
+	if (display_port == "HDMI-A-2")
+		option = 1;
+	if (display_port == "DSI-1")
+		option = 2;
+	lv_dropdown_set_selected(main_display, option);
+	lv_group_add_obj(button_group, main_display);
+
+	// Second Display
+	y_span = y_margin + y_margin + ibutton_y * button_height_margin;
+	lv_obj_t *second_display_label = lv_label_create(settings_main);
+	lv_label_set_text(second_display_label, "Second Display");
+	lv_obj_align_to(second_display_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, lv_obj_get_width(main_display) + x_margin, y_span);
+	
+	second_disp = lv_dropdown_create(settings_main);
+	lv_obj_align_to(second_disp, second_display_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, y_margin);
+	lv_dropdown_clear_options(second_disp);
+	lv_dropdown_set_options(second_disp, "None\nHDMI-A-1\nHDMI-A-2\nDSI-1");
+	lv_obj_add_event_cb(second_disp, second_display_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	display_port = Settings_file.get_string("screen", "SecondDisplay", "None");
+	option = 0;
+	if (display_port == "None")
+		option = 0;
+	if (display_port == "HDMI-A-1")
+		option = 1;
+	if (display_port == "HDMI-A-2")
+		option = 2;
+	if (display_port == "DSI-1")
+		option = 3;
+	lv_dropdown_set_selected(second_disp, option);
+	lv_group_add_obj(button_group, second_disp);
+
+	ibutton_y++;
+	int hh = lv_obj_get_height(main_display);
+	y_span = ibutton_y * font_size.y + ibutton_y * y_margin + ibutton_y * button_height_margin;
+	brightness_slider_label = lv_label_create(settings_main);
+	lv_label_set_text(brightness_slider_label, "brightness");
+	int x_pos = 0;
+	lv_obj_align(brightness_slider_label, LV_ALIGN_TOP_LEFT, x_margin, y_span);
+
 	brightness_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(button_group, brightness_slider);
 	lv_obj_set_width(brightness_slider, w / 2 - 50);
-	// lv_obj_align_to(brightness_slider, span_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
-	lv_obj_align_to(brightness_slider, o_tab, LV_ALIGN_TOP_LEFT, 0, y_span);
+	lv_obj_align_to(brightness_slider, brightness_slider_label, LV_ALIGN_BOTTOM_LEFT, x_margin, y_margin + font_size.y);
 	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_slider_set_range(brightness_slider, 0, get_maxbrightness());
 	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
-
-	brightness_slider_label = lv_label_create(settings_main);
-	lv_label_set_text(brightness_slider_label, "brightness");
-	lv_obj_align_to(brightness_slider_label, brightness_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+	lv_group_add_obj(button_group, brightness_slider);
 }
 
 

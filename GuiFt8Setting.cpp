@@ -6,7 +6,7 @@ GuiFt8Setting guift8setting;
 static void textarea_event_handler(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *ta = lv_event_get_target(e);
+	lv_obj_t *ta = (lv_obj_t *)lv_event_get_target(e);
 
 	if (code == LV_EVENT_CLICKED || code == LV_EVENT_FOCUSED || code == LV_EVENT_VALUE_CHANGED)
 	{

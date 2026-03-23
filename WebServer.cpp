@@ -21,7 +21,10 @@ WebServer::~WebServer()
 
 void WebServer::StopServer()
 {
-	lv_obj_t *mbox1 = lv_msgbox_create(NULL, "Sdrberry", "WebServer will be switched off after reboot", NULL, true);
+	lv_obj_t *mbox1 = lv_msgbox_create(NULL);
+	lv_msgbox_add_title(mbox1, "Sdrberry");
+	lv_msgbox_add_close_button(mbox1);
+	lv_msgbox_add_text(mbox1, "WebServer will be switched off after reboot");
 	lv_obj_center(mbox1);
 }
 

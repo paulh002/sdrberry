@@ -50,8 +50,8 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 
 	tileview = lv_tileview_create(tx_tile);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
-	tx_tile = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM | LV_DIR_TOP);
-	speech_tile = lv_tileview_add_tile(tileview, 0, 1, LV_DIR_BOTTOM | LV_DIR_TOP);
+	tx_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	speech_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gspeech.init(speech_tile, w);
 	
 	
@@ -175,7 +175,7 @@ void gui_tx::get_measurements()
 
 void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
 {
-	lv_obj_t * slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	char buf[30];
 	
 	sprintf(buf, "mic gain %d db", lv_slider_get_value(slider));
@@ -188,7 +188,7 @@ void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
 
 void gui_tx::digital_slider_event_cb_class(lv_event_t *e)
 {
-	lv_obj_t *slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	char buf[30];
 
 	sprintf(buf, "digital gain %d db", lv_slider_get_value(slider));
@@ -231,8 +231,8 @@ void gui_tx::set_mic_slider(int volume)
 
 void gui_tx::tx_button_handler_class(lv_event_t * e)
 {
-	
-	lv_obj_t *obj = lv_event_get_target(e); 
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e); 
 	lv_obj_t *label = lv_obj_get_child(obj, 0L);
 	char *ptr = lv_label_get_text(label);
 	string s(ptr);
@@ -302,7 +302,7 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 
 void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 {
-	lv_obj_t * slider = lv_event_get_target(e);
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 	char buf[20];
 	
 	sprintf(buf, "drive %d", lv_slider_get_value(slider));

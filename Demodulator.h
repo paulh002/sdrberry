@@ -66,14 +66,12 @@ class Demodulator
 	void mix_up(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void mix_up(IQSampleVector &in);
 	void calc_if_level(const IQSampleVector &samples_in);
-	void calc_signal_level(const IQSampleVector& samples_in);
+	void calc_signal_level(const IQSampleVector &samples_in);
 	double get_if_level() { return ifEnergy.getEnergyLevel(); }
-	double get_af_level() { return afEnergy.getEnergyLevel(); }
 	double get_if_levelI() { return ifEnergy.getEnergyLevelI(); }
 	double get_if_levelQ() { return ifEnergy.getEnergyLevelQ(); }
 	double get_if_Correlation() { return ifEnergy.getEnergyCorrelation();}
 	double get_if_CorrelationNorm() { return ifEnergy.getEnergyCorrelationNorm(); }
-	double get_signal_level() { return SignalStrength.getEnergyLevel(); }
 	void set_signal_strength();
 	void set_af_signal_strength();
 	void setLowPassAudioFilter(float samplerate, int band_width);
@@ -103,13 +101,13 @@ class Demodulator
 	int get_noise() { return noisefilter.load(); }
 	float getResampleRate() { return resampleRate; }
 	IQSampleVector Resample(IQSampleVector &filter_in);
-
+	
 	void SquelchProcess(IQSampleVector &filter);
 	bool Squelch();
 	void SquelchPrint();
 
   private:
-	EnergyCalculator ifEnergy, afEnergy, SignalStrength;
+	EnergyCalculator ifEnergy, IQsignalEnergy, afEnergy;
 	mode_enum rxTxMode;
 	nco_crcf tuneNCO{nullptr};
 	msresamp_crcf resampleHandle{nullptr};
@@ -119,8 +117,6 @@ class Demodulator
 	int highfftquadrant;
 
 	iirfilt_crcf lowPassAudioFilterHandle{nullptr};
-	
-
 	firfilt_crcf dcBlockHandle{nullptr};
 
 	static atomic<bool> dcBlockSwitch;

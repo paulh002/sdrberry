@@ -10,6 +10,7 @@
 #include "Gui_band.h"
 #include "WebServer.h"
 #include "gui_top_bar.h"
+#include "SecondScreen.h"
 
 CVfo	vfo;
 

@@ -36,7 +36,8 @@ class CatTcpServer
 	void Pause_Cat(bool pause) { bpause_cat = pause; }
 	void operator()();
 	FT891_CAT *operator->() { return &cat_message; }
-	
+	void signal_stop() { stop_flag = true; }
+
   private:
 	CatTcpComm cattcpcomm;
 	FT891_CAT cat_message;
@@ -45,7 +46,7 @@ class CatTcpServer
 	int m_mode{0};
 	int mda, mdb;
 	int rit_onoff, rit_delta;
-	std::atomic<bool> bpause_cat;
+	std::atomic<bool> bpause_cat, stop_flag;
 };
 
 extern CatTcpServer cattcpserver;

@@ -42,6 +42,7 @@ class Settings
 	int get_int(string section, string key, int defaultValue = 0);
 	long long get_longlong(string section, string key, long defaultValue = 0L);
 	string get_string(string sdrdevice, string key);
+	std::string get_string(std::string sdrdevice, std::string key, std::string default_string);
 	void save_int(string section, string key, int value);
 	void save_string(string section, string key, string value);
 	void get_array_long(std::string section, std::string key, vector<long> &array);

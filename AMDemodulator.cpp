@@ -170,7 +170,6 @@ void AMDemodulator::operator()()
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
-		set_af_signal_strength();
 		// Set nominal audio volume.
 		audioOutputBuffer->adjust_gain(audioSamples);
 		int noaudiosamples = audioSamples.size();
@@ -288,7 +287,7 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	for (auto col : filter1)
 	{
 		float v;
-
+		
 		ampmodem_demodulate(demodulatorHandle, (liquid_float_complex)col, &v);
 		af_samples.push_back(v);
 		if (Squelch())
@@ -297,6 +296,7 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 			audio.push_back(v);
 	}
 	calc_af_level(af_samples);
+	set_af_signal_strength();
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate,  DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)

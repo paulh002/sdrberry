@@ -5,7 +5,7 @@
 
 enum CustomEventsDefinitions
 {
-	LV_BUTTON_EVENT_CUSTOM,
+	LV_BUTTON_EVENT_CUSTOM = 0,
 	LV_EVENT_ATT_CLICKED,
 	LV_EVENT_MODE_CLICKED,
 	LV_EVENT_STEPS_CLICKED,
@@ -25,7 +25,7 @@ class CustomEvents
 	std::vector<uint32_t> custom_event;
 	
   public:
-	CustomEvents();
+	void init();
 	lv_event_code_t getCustomEvent(int index) { return (lv_event_code_t)custom_event.at(index); }
 };
 

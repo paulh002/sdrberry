@@ -26,6 +26,7 @@
 
 Spectrum SpectrumGraph;
 int nfft_samples{1240};
+const int excludeMargin = 12;
 
 std::pair<bool,int> Spectrum::cursor_intersect(lv_point_t p)
 {
@@ -468,8 +469,10 @@ void Spectrum::set_cursor_mode(int mode)
 	lv_chart_set_direction(FrequencyCursor, dir);
 	int32_t f = gbar.get_filter_frequency(mode);
 	int32_t s = vfo.get_span();
-	int32_t w = f / (s / width);
+	int32_t ii = (width - 2 * excludeMargin);
+	int32_t w = f / (s / ii);
 	lv_obj_set_style_width(chart, w, LV_PART_CURSOR);
+	//printf("span %d filter %d, screen %d width %d\n", s, f, ii, w);
 }
 
 void Spectrum::enable_second_data_series(bool enable)

@@ -5,6 +5,7 @@
 #include "gui_ft8bar.h"
 #include "gui_bar.h"
 #include "gui_sdr_settings.h"
+#include "SecondScreen.h"
 
 gui_sdr guisdr;
 
@@ -438,6 +439,9 @@ void gui_sdr::set_span_value(long span)
 	vfo.set_span(span);
 	vfo.set_vfo(vfo.get_frequency());
 	SpectrumGraph.SetFftParts();
+	SpectrumGraph.set_cursor_mode(mode);
+	if (secondscreen)
+		secondscreen->set_cursor_mode(mode);
 	gbar.updateweb();
 	Settings_file.save_int(default_radio, "span", span / 1000);
 	Settings_file.write_settings();

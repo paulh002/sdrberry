@@ -166,8 +166,7 @@ void AMModulator::operator()()
 			Speech.setThresholdDB(gspeech.get_threshold());
 			Speech.processBlock(audiosamples);
 		}
-		calc_af_level(audiosamples);
-		set_af_signal_strength();
+		calc_af_signalstrength(audiosamples);
 		if (audioInputBuffer->get_tone() != audioTone::FourTone)
 		{
 			process(audiosamples, samples_out);

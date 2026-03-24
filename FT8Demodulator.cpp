@@ -17,7 +17,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <vector>
-
+#include "SignalStrength.h"
 
 static shared_ptr<FT8Demodulator> sp_ft8demod;
 std::mutex ft8demod_mutex;
@@ -136,10 +136,8 @@ void FT8Demodulator::operator()()
 			usleep(500);
 			continue;
 		}
-		calc_if_level(iqsamples);
 		gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		set_signal_strength();
 		process(iqsamples, audiosamples);
 		auto millisecondsUTC = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (((millisecondsUTC / 100) % cycletime_duration_tensseconds == 0) && !capture)
@@ -175,9 +173,9 @@ void FT8Demodulator::process(IQSampleVector &samples_in, SampleVector &audio)
 
 	// mix to correct frequency
 	mix_down(samples_in);
+	calc_iq_signalstrength(samples_in);
 	Resample(samples_in, filter2);
 	lowPassAudioFilter(filter2, filter1);
-	calc_signal_level(filter1);
 	guift8bar.Process(filter1);
 	for (auto col : filter1)
 	{

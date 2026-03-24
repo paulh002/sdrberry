@@ -1615,6 +1615,8 @@ void switch_sdrreceiver(std::string receiver)
 		}
 
 		guisdr.set_sample_rate((int)ifrate * decimate);
+		guisdr.set_span_range((int)ifrate * decimate);
+		guisdr.set_span_value((int)ifrate * decimate);
 		try
 		{
 			SdrDevices.SdrDevices.at(default_radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate * decimate);

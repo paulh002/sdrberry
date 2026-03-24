@@ -19,7 +19,7 @@ float sign(float x)
 	
 void EnergyCalculator::calculateEnergyLevel(const IQSampleVector &samples_in)
 {
-	float y2{ 0 }, I2{ 0 }, Q2{ 0 }, imag{ 0 }, real{ 0 };
+	float I2{0}, Q2{0}, imag{0}, real{0}; 
 	double Max{0.0}, Correlation{0.0}, CorrelationNorm{0.0};
 	teta1 = 0.0;
 	teta2 = 0.0;
@@ -27,8 +27,6 @@ void EnergyCalculator::calculateEnergyLevel(const IQSampleVector &samples_in)
 
 	for (auto con : samples_in)
 	{
-		y2 += std::real(con * std::conj(con));
-
 		I2 += con.real() * con.real();
 		Q2 += con.imag() * con.imag();
 		Correlation += con.real() * con.imag();
@@ -48,13 +46,8 @@ void EnergyCalculator::calculateEnergyLevel(const IQSampleVector &samples_in)
 	CorrelationNorm = Correlation / sqrt(I2 * Q2);
 	//printf("Phase %f I %f Q %f size %d\n", Angle, real, imag, samples_in.size());
 
-	y2 = y2 / samples_in.size();
 	I2 = I2 / samples_in.size();
 	Q2 = Q2 / samples_in.size();
-
-	// smooth energy estimate using single-pole low-pass filter
-	accuf = (1.0 - alpha) * accuf + alpha * y2;
-	energyLevel = accuf;
 
 	// IQ
 	accuI = (1.0 - alpha) * accuI + alpha * I2;
@@ -68,19 +61,6 @@ void EnergyCalculator::calculateEnergyLevel(const IQSampleVector &samples_in)
 
 	accuCorrelationNorm = (1.0 - (double)alpha) * accuCorrelationNorm + (double)alpha * CorrelationNorm;
 	energyCorrelationNorm = accuCorrelationNorm;
-}
-
-void EnergyCalculator::calculateEnergyLevel(const SampleVector &samples_in)
-{
-	float y2 = 0.0;
-	for (auto &con : samples_in)
-	{
-		y2 += con * con;
-	}
-	// smooth energy estimate using single-pole low-pass filter
-	y2 = y2 / samples_in.size();
-	accuf = (1.0 - alpha) * accuf + alpha * y2;
-	energyLevel = accuf;
 }
 
 void EnergyCalculator::calculateMoseleyIQ()

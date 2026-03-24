@@ -20,6 +20,7 @@
 #include "gui_agc.h"
 #include "Agc_class.h"
 #include "gui_bar.h"
+#include "SignalStrength.h"
 
 using namespace std;
 
@@ -536,11 +537,9 @@ void FMBroadBandDemodulator::operator()()
 		
 		dc_filter(iqsamples);
 		int nosamples = iqsamples.size();
-		calc_if_level(iqsamples);
 		limiter.Process(iqsamples);
 		gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		set_signal_strength();
 		process(iqsamples, audiosamples);
 		// Set nominal audio volume.
 		audio_output->adjust_gain(audiosamples);
@@ -582,7 +581,7 @@ void FMBroadBandDemodulator::operator()()
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			//printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Agc.getPeak(), Agc.getGain(), Agc.getThreshold(), Agc.getRatio(), Agc.getAtack(), Agc.getRelease());
-			printf("rms %f db %f envelope %f\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope());
+			printf("rms %f db envelope %f\n", signalstrength.get_signal_strength(), limiter.getEnvelope());
 			//printf("IQ Balance I %f Q %f Phase %f\n", get_if_levelI() * 10000.0, get_if_levelQ() * 10000.0, get_if_Phase());
 			//std::cout << "SoapySDR samples " << gettxNoSamples() <<" sample rate " << get_rxsamplerate() << " ratio " << (double)audioSampleRate / get_rxsamplerate() << "\n";
 			pr_time = 0;
@@ -598,7 +597,7 @@ void FMBroadBandDemodulator::process(IQSampleVector &samples_in, SampleVector &a
 {
 	// mix to correct frequency
 	mix_down(samples_in);
-	calc_signal_level(samples_in);
+	calc_iq_signalstrength(samples_in);
 	pfm->process(samples_in, audio);
 }
 

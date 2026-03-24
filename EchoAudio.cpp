@@ -95,8 +95,7 @@ void EchoAudio::operator()()
 		}
 		buf_mod.clear();
 
-		calc_af_level(audiosamples);
-		set_af_signal_strength();
+		calc_af_signalstrength(audiosamples);
 		audio_output->adjust_gain(audiosamples);
 		for (auto &col : audiosamples)
 		{
@@ -124,7 +123,6 @@ void EchoAudio::operator()()
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
-			printf("rms %f \n", get_if_level());
 		}
 	}
 

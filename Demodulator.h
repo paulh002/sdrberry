@@ -16,8 +16,6 @@
 
 #define EQ_NTABS 129
 
-extern atomic<double> correlationMeasurement, errorMeasurement;
-
 enum mode_enum
 {
 	usb,
@@ -65,19 +63,19 @@ class Demodulator
 	void mix_down(IQSampleVector &filter_in);
 	void mix_up(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void mix_up(IQSampleVector &in);
-	void calc_if_level(const IQSampleVector &samples_in);
-	void calc_signal_level(const IQSampleVector &samples_in);
-	double get_if_level() { return ifEnergy.getEnergyLevel(); }
+	//double get_if_level() { return ifEnergy.getEnergyLevel(); }
 	double get_if_levelI() { return ifEnergy.getEnergyLevelI(); }
 	double get_if_levelQ() { return ifEnergy.getEnergyLevelQ(); }
 	double get_if_Correlation() { return ifEnergy.getEnergyCorrelation();}
 	double get_if_CorrelationNorm() { return ifEnergy.getEnergyCorrelationNorm(); }
+	int get_correction() { return correction; }
 	void set_signal_strength();
 	void set_af_signal_strength();
 	void setLowPassAudioFilter(float samplerate, int band_width);
 	void set_span(long span);
 	void perform_fft(const IQSampleVector &iqsamples);
-	void calc_af_level(const SampleVector &samples_in);
+	void calc_af_signalstrength(const SampleVector &samples_in);
+	void calc_iq_signalstrength(const IQSampleVector &samples_in);
 	void setBandPassFilter(float high, float low);
 	void executeBandpassFilter(SampleVector &filter_in);
 	void dc_filter(IQSampleVector &filter_in);
@@ -155,3 +153,5 @@ class Demodulator
 	int attack_release = 1;
 	int squelch_mode = 0;
 };
+
+extern atomic<double> correlationMeasurement, errorMeasurement;

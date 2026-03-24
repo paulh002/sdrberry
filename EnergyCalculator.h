@@ -5,9 +5,8 @@ class EnergyCalculator
 {
   public:
 	void calculateEnergyLevel(const IQSampleVector &samples_in);
-	void calculateEnergyLevel(const SampleVector &samples_in);
 	
-	float getEnergyLevel() { return energyLevel; }
+	//float getEnergyLevel() { return energyLevel; }
 	float getEnergyLevelI() { return energyLevelI; }
 	float getEnergyLevelQ() { return energyLevelQ; }
 	double getEnergyCorrelation() { return energyCorrelation; }
@@ -17,7 +16,7 @@ class EnergyCalculator
   private:
 	float alpha{0.5}, aplha_mosely{0.01};
 	float accuf{0};
-	float energyLevel{0};
+	//float energyLevel{0};
 	float energyLevelI{0};
 	float accuI{0};
 	float energyLevelQ{0};

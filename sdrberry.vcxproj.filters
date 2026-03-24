@@ -1201,60 +1201,6 @@
     <ClCompile Include="FreeSansOblique42.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="lv_drivers\indev\AD_touch.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\drm.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\indev\evdev.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\fbdev.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\indev\FT5406EE8.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\GC9A01.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\ILI9341.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\indev\keyboard.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\indev\libinput.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\monitor.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\indev\mouse.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\indev\mousewheel.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\R61581.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\indev\XPT2046.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\UC1610.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\ST7565.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\SSD1963.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\display\SHARP_MIP.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
     <ClCompile Include="sdrstream.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1308,9 +1254,6 @@
     </ClCompile>
     <ClCompile Include="configfile.cpp">
       <Filter>Source files\config</Filter>
-    </ClCompile>
-    <ClCompile Include="Mouse.cpp">
-      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="Catinterface.cpp">
       <Filter>Source files</Filter>
@@ -1399,9 +1342,6 @@
     <ClCompile Include="BandPassFilter.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="mouse_cursor_icon.c">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="GuiFt8Setting.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1456,9 +1396,6 @@
     <ClCompile Include="PeakMeasurement.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="cmeter.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="guiButtonWindows.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -1488,15 +1425,6 @@
     </ClCompile>
     <ClCompile Include="WebRestHandler.cpp">
       <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\wayland\smm.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\wayland\wayland.c">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.c">
-      <Filter>Source files\lv_drivers</Filter>
     </ClCompile>
     <ClCompile Include="gui_sdr.cpp">
       <Filter>Source files</Filter>
@@ -1562,9 +1490,6 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="pskreporter.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="btn_knob.c">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="Shuttle.cpp">
@@ -4996,6 +4921,24 @@
     <ClInclude Include="lvgl\src\widgets\win\lv_win_private.h">
       <Filter>Header files\widgets\win</Filter>
     </ClInclude>
+    <ClCompile Include="FreeSansOblique48.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeSansOblique58.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeSansOblique72.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="meter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="SecondScreen.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="SignalStrength.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -5024,63 +4967,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lv_drivers\indev\AD_touch.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\drm.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\indev\evdev.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\fbdev.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\indev\FT5406EE8.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\GC9A01.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\ILI9341.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\indev\keyboard.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\monitor.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\indev\mouse.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\indev\mousewheel.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="blepp\pretty_printers.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\R61581.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\SHARP_MIP.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\SSD1963.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\ST7565.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\display\UC1610.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\indev\XPT2046.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\indev\libinput_drv.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
     <ClInclude Include="SoapySDR\Device.hpp">
       <Filter>Header files\SoapySDR</Filter>
     </ClInclude>
@@ -5414,15 +5300,6 @@
     <ClInclude Include="SpectrumConstants.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="lv_drivers\wayland\smm.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\wayland\wayland.h">
-      <Filter>Header files\lv_drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="lv_drivers\wayland\protocols\wayland-xdg-shell-client-protocol.h">
-      <Filter>Source files\lv_drivers</Filter>
-    </ClInclude>
     <ClInclude Include="screen.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -5529,6 +5406,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="tinyxml2.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="meter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SecondScreen.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SignalStrength.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

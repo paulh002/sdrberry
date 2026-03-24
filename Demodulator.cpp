@@ -83,16 +83,6 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	lowPassAudioFilterCutOffFrequency = 0;
 }
 
-void Demodulator::set_signal_strength()
-{
-	signalstrength.set_signal_strength(IQsignalEnergy.getEnergyLevel());
-}
-
-void Demodulator::set_af_signal_strength()
-{
-	signalstrength.set_signal_strength(afEnergy.getEnergyLevel());
-}
-
 Demodulator::~Demodulator()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
@@ -239,19 +229,14 @@ float Demodulator::adjust_resample_rate1(float rateAjustFraction)
 	return resampleRate;
 }
 
-void Demodulator::calc_signal_level(const IQSampleVector &samples_in)
+void Demodulator::calc_af_signalstrength(const SampleVector &samples_in)
 {
-	IQsignalEnergy.calculateEnergyLevel(samples_in);
+	signalstrength.calculateSignalStrength(samples_in);
 }
 
-void Demodulator::calc_if_level(const IQSampleVector &samples_in)
+void Demodulator::calc_iq_signalstrength(const IQSampleVector &samples_in)
 {
-	ifEnergy.calculateEnergyLevel(samples_in);
-}
-
-void Demodulator::calc_af_level(const SampleVector &samples_in)
-{
-	afEnergy.calculateEnergyLevel(samples_in);
+	signalstrength.calculateSignalStrength(samples_in);
 }
 
 void Demodulator::FlashGainSlider(float envelope)
@@ -300,7 +285,7 @@ void Demodulator::gain_phasecorrection(IQSampleVector &samples_in, float vol)
 	
 	if (correction > 0)
 	{
-		calc_if_level(samples_in);
+		ifEnergy.calculateEnergyLevel(samples_in);
 		std::tuple<float, float, float> result = ifEnergy.ResultsMoseleyIQ();
 		autophase = std::get<1>(result);
 		autogain = std::get<2>(result);

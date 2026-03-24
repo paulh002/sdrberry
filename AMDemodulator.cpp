@@ -9,6 +9,7 @@
 #include "gui_rx.h"
 #include <complex>
 #include <complex.h>
+#include "SignalStrength.h"
 
 static shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -223,10 +224,13 @@ void AMDemodulator::operator()()
 			pr_time = process_time1.count();
 
 		FlashGainSlider(limiter.getEnvelope());
-		correlationMeasurement = get_if_CorrelationNorm();
-		errorMeasurement = get_if_levelI() * 10000.0 - get_if_levelQ() * 10000.0;
-		
-/*		if (timeLastPrintIQ + std::chrono::seconds(1) < now)
+		if (get_correction() > 0)
+		{
+			correlationMeasurement = get_if_CorrelationNorm();
+			errorMeasurement = get_if_levelI() * 10000.0 - get_if_levelQ() * 10000.0;
+		}
+
+		/*		if (timeLastPrintIQ + std::chrono::seconds(1) < now)
 		{
 			timeLastPrintIQ = now;
 			double error = get_if_levelI() * 10000.0 - get_if_levelQ() * 10000.0;
@@ -242,7 +246,7 @@ void AMDemodulator::operator()()
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 			printf("Buffer queue %d Radio samples %d Audio Samples %d Passes %d Queued Audio Samples %d droppedframes %d underrun %d\n", receiveIQBuffer->size(), nosamples, noaudiosamples, passes, audioOutputBuffer->queued_samples() / 2, droppedFrames, audioOutputBuffer->get_underrun());
 			SquelchPrint();
-			printf("rms %f db %f envelope %f suppression %f db\n", get_if_level(), 20 * log10(get_if_level()), limiter.getEnvelope(), getSuppression());
+			printf("signal %f db envelope %f suppression %f db\n", signalstrength.get_signal_strength(), limiter.getEnvelope(), getSuppression());
 			printf("RF samples %ld Af samples %ld ratio %f \n", noRfSamples, noAfSamples, (float)noAfSamples / (float)noRfSamples);
 			//printf("Process time %lld Samples %d\n", pr_time, nosamples);
 			noRfSamples = noAfSamples = 0L;
@@ -295,8 +299,7 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 		else
 			audio.push_back(v);
 	}
-	calc_af_level(af_samples);
-	set_af_signal_strength();
+	calc_af_signalstrength(af_samples);
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate,  DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)

@@ -77,8 +77,7 @@ void FMModulator::operator()()
 			usleep(1000); // wait 1024 audio sample time
 			continue;
 		}
-		calc_af_level(audiosamples);
-		set_af_signal_strength();
+		calc_af_signalstrength(audiosamples);
 		process(dummy, audiosamples);
 		audiosamples.clear();
 	}

@@ -1,4 +1,4 @@
-#include "FT8Demodulator.h"
+#include "WSPRDemodulator.h"
 #include "FreeDVTab.h"
 #include "Spectrum.h"
 #include "date.h"
@@ -19,72 +19,72 @@
 #include <vector>
 #include "SignalStrength.h"
 
-static shared_ptr<FT8Demodulator> sp_ft8demod;
-std::mutex ft8demod_mutex;
+static shared_ptr<WSPRDemodulator> sp_wsprdemod;
+std::mutex wsprdemod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1{};
 
-bool FT8Demodulator::create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode)
+bool WSPRDemodulator::create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode)
 {
-	if (sp_ft8demod != nullptr)
+	if (sp_wsprdemod != nullptr)
 		return false;
-	sp_ft8demod = make_shared<FT8Demodulator>(ifrate, source_buffer, audio_output, mode);
-	sp_ft8demod->amdemod_thread = std::thread(&FT8Demodulator::operator(), sp_ft8demod);
+	sp_wsprdemod = make_shared<WSPRDemodulator>(ifrate, source_buffer, audio_output, mode);
+	sp_wsprdemod->amdemod_thread = std::thread(&WSPRDemodulator::operator(), sp_wsprdemod);
 	return true;
 }
 
-void FT8Demodulator::destroy_demodulator()
+void WSPRDemodulator::destroy_demodulator()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
 
-	if (sp_ft8demod == nullptr)
+	if (sp_wsprdemod == nullptr)
 		return;
-	sp_ft8demod->stop_flag = true;
-	sp_ft8demod->amdemod_thread.join();
-	sp_ft8demod.reset();
+	sp_wsprdemod->stop_flag = true;
+	sp_wsprdemod->amdemod_thread.join();
+	sp_wsprdemod.reset();
 
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime FT8Demodulator:" << timePassed.count() << endl;
+	cout << "Stoptime WSPRDemodulator:" << timePassed.count() << endl;
 }
 
-FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode)
+WSPRDemodulator::WSPRDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode)
 	: wsjtxmode{mode}, Demodulator(ifrate, source_buffer, audio_output)
 {
 	float mod_index = 0.03125f;
 	int suppressed_carrier;
 	liquid_ampmodem_type am_mode;
 
-	Demodulator::set_resample_rate(ft8_rate / ifrate); // down sample to ft8_rate
+	Demodulator::set_resample_rate(wspr_rate / ifrate); // down sample to wspr_rate
 	suppressed_carrier = 1;
 	am_mode = LIQUID_AMPMODEM_USB;
 	printf("mode LIQUID_AMPMODEM_USB carrier %d\n", suppressed_carrier);
 
 	const auto startTime = std::chrono::high_resolution_clock::now();
 
-	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
-	gbar.set_filter_dropdown(m_bandwidth);
+	bandwidth = Settings_file.get_int("wspr", "bandwidth", 4000);
+	gbar.set_filter_dropdown(bandwidth);
 	Demodulator::set_filter_offset(0);
 	Demodulator::set_filter_type(0);
 	Demodulator::set_filter_order(6);
 	guirx.enable_filter_settings(false);
-	Demodulator::setLowPassAudioFilter(ft8_rate, m_bandwidth);
-	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
+	Demodulator::setLowPassAudioFilter(wspr_rate, bandwidth);
+	demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	cout << "starttime :" << timePassed.count() << endl;
 }
 
-FT8Demodulator::~FT8Demodulator()
+WSPRDemodulator::~WSPRDemodulator()
 {
-	printf("FT8 destructor called \n");
-	if (m_demod != nullptr)
+	printf("WSPR destructor called \n");
+	if (demod != nullptr)
 	{
-		ampmodem_destroy(m_demod);
-		m_demod = nullptr;
+		ampmodem_destroy(demod);
+		demod = nullptr;
 	}
 }
 
-void FT8Demodulator::operator()()
+void WSPRDemodulator::operator()()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
@@ -94,29 +94,17 @@ void FT8Demodulator::operator()()
 	long span;
 	int cycletime_duration_tensseconds{150}, starttime_delay{0};
 	int capture_time_duration_ms{150};
-	SampleVector audiosamples, audioframes;
-	unique_lock<mutex> lock_am(ft8demod_mutex);
-	IQSampleVector iqsamples;
+
+	unique_lock<mutex> lock_am(wsprdemod_mutex);
+	IQSampleVector iqsamples, iqsamples_out;
 	bool capture{false};
 
-	FT8Processor::create_modulator(ft8processor, wsjtxmode);
-	switch (wsjtxmode)
-	{
-	case mode_ft8:
-		cycletime_duration_tensseconds = 150;
-		capture_time_duration_ms = 15000;
-		starttime_delay = 0;
-		break;
-	case mode_ft4:
-		cycletime_duration_tensseconds = 75;
-		capture_time_duration_ms = 7500;
-		starttime_delay = 0;
-		break;
-	default:
-		return;
-	}
+	WSPRProcessor::create_modulator(wspr_processor, wsjtxmode);
+	cycletime_duration_tensseconds = 1200; // only even
+	capture_time_duration_ms = 110600;
+	starttime_delay = 1000;
 
-	//Fft_calc.plan_fft(nfft_samples);
+	// Fft_calc.plan_fft(nfft_samples);
 	receiveIQBuffer->clear();
 	while (!stop_flag.load())
 	{
@@ -135,14 +123,14 @@ void FT8Demodulator::operator()()
 		}
 		gain_phasecorrection(iqsamples, gbar.get_if());
 		perform_fft(iqsamples);
-		process(iqsamples, audiosamples);
+		process(iqsamples, iqsamples_out);
 		auto millisecondsUTC = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (((millisecondsUTC / 100) % cycletime_duration_tensseconds == 0) && !capture)
 		{
 			capture = true;
 			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 			std::cout << "start cycle " << date::make_time(now - today) << "\n";
-			audiosamples.clear();
+			iqsamples_out.clear();
 			// drop all captured data
 			startTime = std::chrono::high_resolution_clock::now();
 		}
@@ -151,40 +139,32 @@ void FT8Demodulator::operator()()
 		if ((timePassed.count() > capture_time_duration_ms) && (capture))
 		{
 			capture = false;
-			if (audiosamples.size() < capture_time_duration_ms * ft8_rate / 1000)
-				audiosamples.resize(capture_time_duration_ms * ft8_rate / 1000);
-			printf("capatured %ld samples \n", audiosamples.size());
-			ft8processor->AddaudioSample(audiosamples);
-			audiosamples.clear();
+			if (iqsamples_out.size() < capture_time_duration_ms * wspr_rate / 1000)
+				iqsamples_out.resize(capture_time_duration_ms * wspr_rate / 1000);
+			printf("capatured %ld samples \n", iqsamples_out.size());
+			wspr_processor->AddIQSample(iqsamples_out);
+			iqsamples_out.clear();
 		}
 		iqsamples.clear();
 	}
-	FT8Processor::destroy_modulator(ft8processor);
+	WSPRProcessor::destroy_modulator(wspr_processor);
 	starttime1 = std::chrono::high_resolution_clock::now();
 }
 
-void FT8Demodulator::process(IQSampleVector &samples_in, SampleVector &audio)
+void WSPRDemodulator::process(IQSampleVector &samples_in, IQSampleVector &samples_out)
 {
-	IQSampleVector filter1, filter2;
-	SampleVector audio_mono;
+	IQSampleVector filter;
 
 	// mix to correct frequency
 	mix_down(samples_in);
 	calc_iq_signalstrength(samples_in);
-	Resample(samples_in, filter2);
-	lowPassAudioFilter(filter2, filter1);
-	guift8bar.Process(filter1);
-	for (auto col : filter1)
-	{
-		float v;
-
-		ampmodem_demodulate(m_demod, (liquid_float_complex)col, &v);
-		audio.push_back(v);
-	}
+	Resample(samples_in, filter);
+	lowPassAudioFilter(filter, samples_out);
+	guift8bar.Process(samples_out);
 }
 
-void FT8Demodulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
+void WSPRDemodulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)
 {
-	if (sp_ft8demod != nullptr)
-		sp_ft8demod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+	if (sp_wsprdemod != nullptr)
+		sp_wsprdemod->Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 }

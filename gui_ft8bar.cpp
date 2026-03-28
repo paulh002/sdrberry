@@ -218,13 +218,19 @@ void gui_ft8bar::SetFrequency()
 	case 0:
 		Settings_file.get_array_long("wsjtx", "freqFT8", freqencies);
 		vfo.set_vfo(freqencies.at(selection) * 1000L);
+		status.dialFrequency = freqencies.at(selection) * 1000L;
 		break;
 	case 1:
 		Settings_file.get_array_long("wsjtx", "freqFT4", freqencies);
 		vfo.set_vfo(freqencies.at(selection) * 1000L);
+		status.dialFrequency = freqencies.at(selection) * 1000L;
+		break;
+	case 2:
+		Settings_file.get_array_long("wsjtx", "freqWSPR", freqencies);
+		vfo.set_vfo(freqencies.at(selection) * 100L);
+		status.dialFrequency = freqencies.at(selection) * 100L;
 		break;
 	}
-	status.dialFrequency = freqencies.at(selection) * 1000L;
 	send_status();
 }
 
@@ -248,10 +254,11 @@ void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 	if (code == LV_EVENT_VALUE_CHANGED && !guift8bar.getmonitorstate())
 	{
 		std::vector<int> ftx_freq;
-		
+
 		int selection = lv_dropdown_get_selected(guift8bar.getwsjtxmode());
 		if (selection == 0)
 		{
+			gft8.wspr_enable(false);
 			setrxtxmode(mode_ft8);
 			lv_dropdown_clear_options(guift8bar.getfrequency());
 			Settings_file.get_array_int("wsjtx", "freqFT8", ftx_freq);
@@ -264,6 +271,7 @@ void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 		}
 		if (selection == 1)
 		{
+			gft8.wspr_enable(false);
 			setrxtxmode(mode_ft4);
 			lv_dropdown_clear_options(guift8bar.getfrequency());
 			Settings_file.get_array_int("wsjtx", "freqFT4", ftx_freq);
@@ -274,7 +282,19 @@ void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 				lv_dropdown_add_option(guift8bar.getfrequency(), str, LV_DROPDOWN_POS_LAST);
 			}
 		}
-		
+		if (selection == 2)
+		{
+			gft8.wspr_enable(true);
+			setrxtxmode(mode_wspr);
+			lv_dropdown_clear_options(guift8bar.getfrequency());
+			Settings_file.get_array_int("wsjtx", "freqWSPR", ftx_freq);
+			for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
+			{
+				char str[80];
+				sprintf(str, "%3ld.%03ld.%01ld Khz", long(*it / 10000), (long)((*it / 10) % 1000), (long)((*it / 1) % 10));
+				lv_dropdown_add_option(guift8bar.getfrequency(), str, LV_DROPDOWN_POS_LAST);
+			}
+		}
 	}
 }
 
@@ -715,8 +735,8 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_obj_set_style_pad_ver(wsjtxmode, 4, LV_PART_MAIN);
 	lv_dropdown_add_option(wsjtxmode, "FT8", LV_DROPDOWN_POS_LAST);
 	lv_dropdown_add_option(wsjtxmode, "FT4", LV_DROPDOWN_POS_LAST);
-	lv_dropdown_add_option(wsjtxmode, "FTST4", LV_DROPDOWN_POS_LAST);
 	lv_dropdown_add_option(wsjtxmode, "WSPR", LV_DROPDOWN_POS_LAST);
+	//lv_dropdown_add_option(wsjtxmode, "FTST4", LV_DROPDOWN_POS_LAST);
 
 	ibutton_x = 0;
 	ibutton_y = 1;
@@ -846,7 +866,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	lv_table_set_cell_value(table, 5, 0, "5");
 	lv_table_set_cell_value(table, 5, 1, "");
 	
-	float bandwidth = Settings_file.get_int("wsjtx", "waterfall_bandwidth", 3000);
+	float bandwidth = Settings_file.get_int("wsjtx", "waterfall_bandwidth", 4000);
 	float resampleRate = bandwidth / ft8_rate;
 	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, down, lowerpart);
 
@@ -986,7 +1006,24 @@ void gui_ft8bar::web_wsjtxfreq()
 			long khz = *it / 1000;
 			int hhz = (*it - (*it / 1000) * 1000) / 100;
 
-			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));			message.emplace("frequency", str);
+			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));			
+			message.emplace("frequency", str);
+			message.emplace("band", std::to_string(band));
+			result.push_back(message);
+			message.clear();
+		}
+	}
+	if (selection == 2)
+	{
+		Settings_file.get_array_int("wsjtx", "freqWSPR", ftx_freq);
+		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
+		{
+			char str[80];
+			long khz = *it / 1000;
+			int hhz = (*it - (*it / 1000) * 1000) / 100;
+
+			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));
+			message.emplace("frequency", str);
 			message.emplace("band", std::to_string(band));
 			result.push_back(message);
 			message.clear();

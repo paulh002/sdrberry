@@ -438,6 +438,51 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_table_set_col_width(cqTable, 3, w / 2 - (w / 12 + w / 16 + w / 12) - 10);
 	cqRowCount++;
 	set_decode_start_time(std::chrono::system_clock::now());
+
+	wspr_table = lv_table_create(main_tile);
+	lv_obj_add_style(wspr_table, &ft8_style, 0);
+	lv_obj_set_pos(wspr_table, 0, y + 0);
+	lv_obj_set_size(wspr_table, w, h );
+	lv_table_set_cell_value(wspr_table, 0, 0, "Time");
+	lv_table_set_col_width(wspr_table, 0, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 1, "db");
+	lv_table_set_col_width(wspr_table, 1, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 2, "DT");
+	lv_table_set_col_width(wspr_table, 2, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 3, "Freq");
+	lv_table_set_col_width(wspr_table, 3, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 4, "Drift");
+	lv_table_set_col_width(wspr_table, 4, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 5, "Call");
+	lv_table_set_col_width(wspr_table, 5, w / 8);
+	lv_table_set_cell_value(wspr_table, 0, 6, "Message");
+	lv_table_set_col_width(wspr_table, 6, w / 4);
+
+	
+	lv_obj_set_style_pad_top(wspr_table, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_bottom(wspr_table, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_left(wspr_table, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_right(wspr_table, 2, LV_PART_MAIN);
+	lv_obj_set_style_pad_ver(wspr_table, 0, LV_PART_ITEMS);
+
+	lv_obj_set_style_pad_left(wspr_table, 0, LV_PART_ITEMS);
+	lv_obj_set_style_pad_right(wspr_table, 0, LV_PART_ITEMS);
+	wsprRowCount++;
+	wspr_enable(false);
+
+	std::vector<decoder_results> results;
+	decoder_results result;
+
+	strcpy(result.call, "ND6P");
+	strcpy(result.message, "ND6P DM04 30");
+	result.drift = 0.01;
+	result.snr = -15.0;
+	result.dt = 1.01;
+	result.freq = 7038600;
+	result.jitter = -1;
+	results.push_back(result);
+	add_wspr(results);
+
 	/*std::string timezone = Settings_file.get_string("Radio", "timezone");
 	set_decode_start_time(make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
 	if (timezone.size())
@@ -484,6 +529,13 @@ add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 */
 }
 
+void gui_ft8::wspr_enable(bool enable)
+{
+	if (enable)
+		lv_obj_remove_flag(wspr_table, LV_OBJ_FLAG_HIDDEN);
+	else
+		lv_obj_add_flag(wspr_table, LV_OBJ_FLAG_HIDDEN);
+}
 
 void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,int hz0, string msg)
 {
@@ -600,6 +652,39 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 	
 	message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 	web_message(m);
+}
+
+void gui_ft8::add_wspr(std::vector<decoder_results> &results)
+{
+	char str[128];	
+
+	for (auto con : results)
+	{
+		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+		time_t tt = std::chrono::system_clock::to_time_t(now);
+		tm local_tm = *gmtime(&tt);
+		sprintf(str, "%02d:%02d:%02d", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 0, str);
+
+		sprintf(str, "%02.2f", con.snr);
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 1, str);
+
+		sprintf(str, "%03.2f", con.dt);
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 2, str);
+
+		sprintf(str, "%07.0f", con.freq);
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 3, str);
+
+		sprintf(str, "%03.2f", con.drift);
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 4, str);
+
+		sprintf(str, "%s", con.call);
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 5, str);
+		
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 6, con.message);
+
+		wsprRowCount++;
+	}
 }
 
 void gui_ft8::add_qso(struct message msg)

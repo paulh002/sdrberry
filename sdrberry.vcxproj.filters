@@ -4939,6 +4939,12 @@
     <ClCompile Include="SignalStrength.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="WSPRProcessor.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WSPRDemodulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -5415,6 +5421,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="SignalStrength.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WSPRProcessor.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WSPRDemodulator.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

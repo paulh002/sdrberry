@@ -7,6 +7,7 @@
 #include "FMDemodulator.h"
 #include "FMModulator.h"
 #include "FT8Demodulator.h"
+#include "WSPRDemodulator.h"
 #include "HidDev.h"
 #include "lv_wayland.h"
 
@@ -987,6 +988,11 @@ int main(int argc, char *argv[])
 						  msg.freq,
 						  msg.msg.c_str());
 		}
+		std::vector<decoder_results> results;
+		while (WsprMessageQueue.pull(results))
+		{
+			gft8.add_wspr(results);
+		}
 		GuiTopBar.set_time_label();
 		while (guiQueue.size() > 0)
 		{
@@ -1255,6 +1261,7 @@ void destroy_demodulators(bool all, bool close_stream)
 	AMModulator::destroy_modulator();
 	FMModulator::destroy_modulator();
 	FT8Demodulator::destroy_demodulator();
+	WSPRDemodulator::destroy_demodulator();
 	EchoAudio::destroy_modulator();
 	FMBroadBandDemodulator::destroy_demodulator();
 	if (all)
@@ -1279,6 +1286,7 @@ void update_filter(int bandwidth)
 	AMDemodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 	AMModulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 	FT8Demodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
+	WSPRDemodulator::setLowPassAudioFilterCutOffFrequency(bandwidth);
 }
 
 extern std::chrono::high_resolution_clock::time_point starttime1;
@@ -1402,12 +1410,19 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		break;
 	case mode_ft8:
 	case mode_ft4:
-	case mode_wspr:
 		catinterface.MuteFA(true);
 		vfo.pause_step(true);
 		guift8bar.setmonitor(true);
 		vfo.set_step(gbar.get_step_value(), 0);
 		FT8Demodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
+		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
+		break;
+	case mode_wspr:
+		catinterface.MuteFA(true);
+		vfo.pause_step(true);
+		guift8bar.setmonitor(true);
+		vfo.set_step(gbar.get_step_value(), 0);
+		WSPRDemodulator::create_demodulator(ifrate, &source_buffer_rx, audio_output, mode);
 		RX_Stream::create_rx_streaming_thread(ifrate, default_radio, channel, &source_buffer_rx, guisdr.get_decimation());
 		break;
 	// case mode_am:

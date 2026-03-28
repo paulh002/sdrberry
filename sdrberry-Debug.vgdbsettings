@@ -5,6 +5,18 @@
     <CustomSourceDirectories>
       <Directories>
         <SourceDirMappingEntry>
+          <RemoteDir>/home/pi/wsjtx_lib</RemoteDir>
+          <LocalDir>C:\Users\paulh\OneDrive\source\wsjtx_lib</LocalDir>
+        </SourceDirMappingEntry>
+        <SourceDirMappingEntry>
+          <RemoteDir>/home/pi/wsjtx_lib</RemoteDir>
+          <LocalDir>C:\Users\paulh\OneDrive\source\wsjtx_lib</LocalDir>
+        </SourceDirMappingEntry>
+        <SourceDirMappingEntry>
+          <RemoteDir>/home/pi/wsjtx_lib/wsprd</RemoteDir>
+          <LocalDir>C:\Users\paulh\OneDrive\source\wsjtx_lib\wsprd</LocalDir>
+        </SourceDirMappingEntry>
+        <SourceDirMappingEntry>
           <RemoteDir>/home/pi/rtaudio</RemoteDir>
           <LocalDir>D:\source\rtaudio</LocalDir>
         </SourceDirMappingEntry>

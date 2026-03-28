@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include "tz.h"
 #include "FT8UdpClient.h"
+#include <wsjtx_lib.h>
 
 using json = nlohmann::json;
 
@@ -42,11 +43,11 @@ class gui_ft8
 {
   private:
 	lv_obj_t *settings_tile, *main_tile, *tileview;
-	lv_obj_t *table, *table_label, *qsoTable, *qsoLabel, *cqTable;
+	lv_obj_t *table, *table_label, *qsoTable, *qsoLabel, *cqTable, *wspr_table;
 	lv_style_t style_btn, ft8_style;
 	std::vector<message> messages, qsoMessages;
 	std::map<std::string, qso_logging> qso_logging_map;
-	int  qsoRowCount{0}, cqRowCount{0};
+	int qsoRowCount{0}, cqRowCount{0}, wsprRowCount{0};
 	int tableviewsize;
 	void Scroll(lv_obj_t *table, lv_coord_t currScrollPos);
 	std::string call;
@@ -97,6 +98,8 @@ class gui_ft8
 	std::string getQso_dxCall();
 	void delete_qso_entry(std::string dxCall);
 	void filter_on_cq(bool filter) { filteroncq = filter; }
+	void add_wspr(std::vector<decoder_results> &results);
+	void wspr_enable(bool enable);
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

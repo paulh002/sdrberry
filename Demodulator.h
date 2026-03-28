@@ -113,6 +113,7 @@ class Demodulator
 	float resampleRate;
 	int audioBufferSize;
 	int highfftquadrant;
+	int lowpasssamplerate;
 
 	iirfilt_crcf lowPassAudioFilterHandle{nullptr};
 	firfilt_crcf dcBlockHandle{nullptr};

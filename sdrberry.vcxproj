@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;../wsjtx_lib;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;NO_SSL=1;USE_WEBSOCKET=1; USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -57,8 +57,8 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3/;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;dw;elf;wayland-client;wayland-cursor;xkbcommon;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;elf;wayland-client;wayland-cursor;xkbcommon;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
       <VerboseMode>true</VerboseMode>
@@ -200,6 +200,8 @@
     <ClCompile Include="WebServer.cpp" />
     <ClCompile Include="wiringPiI2C.c" />
     <ClCompile Include="wiringSerial.c" />
+    <ClCompile Include="WSPRDemodulator.cpp" />
+    <ClCompile Include="WSPRProcessor.cpp" />
     <ClInclude Include="AgcProcessor.h" />
     <ClInclude Include="AMDemodulator.h" />
     <ClInclude Include="AMModulator.h" />
@@ -349,6 +351,8 @@
     <ClInclude Include="WebServer.h" />
     <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />
+    <ClInclude Include="WSPRDemodulator.h" />
+    <ClInclude Include="WSPRProcessor.h" />
     <ClInclude Include="wstring.h" />
     <ClCompile Include="lvgl\src\lv_init.c" />
     <ClCompile Include="lvgl\src\core\lv_group.c" />

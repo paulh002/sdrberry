@@ -43,6 +43,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	noisefilter = 0;
 	lowPassAudioFilterCutOffFrequency = 0;
+	lowpasssamplerate = audioSampleRate;
 	// resampler and band filter assume pcmfrequency on the low side;
 }
 
@@ -60,6 +61,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	correction = Settings_file.get_int(default_radio, "correction");
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	lowPassAudioFilterCutOffFrequency = 0;
+	lowpasssamplerate = audioSampleRate;
 	// resampler and band filter assume pcmfrequency on the low side
 }
 
@@ -81,6 +83,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
 	correction = Settings_file.get_int(default_radio, "correction");
 	lowPassAudioFilterCutOffFrequency = 0;
+	lowpasssamplerate = audioSampleRate;
 }
 
 Demodulator::~Demodulator()
@@ -420,7 +423,7 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 									 IQSampleVector &filter_out)
 {
 	if (get_lowPassAudioFilterChange())
-		setLowPassAudioFilter(audioSampleRate, lowPassAudioFilterCutOffFrequency);
+		setLowPassAudioFilter(lowpasssamplerate, lowPassAudioFilterCutOffFrequency);
 
 	for (auto &col : filter_in)
 	{
@@ -434,7 +437,7 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 void Demodulator::lowPassAudioFilter(IQSampleVector &filter_in)
 {
 	if (get_lowPassAudioFilterChange())
-		setLowPassAudioFilter(audioSampleRate, lowPassAudioFilterCutOffFrequency);
+		setLowPassAudioFilter(lowpasssamplerate, lowPassAudioFilterCutOffFrequency);
 	
 	for (auto &col : filter_in)
 	{
@@ -519,6 +522,7 @@ void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 	int filtertype = LIQUID_IIRDES_LOWPASS;
 	float cutOffFrequency = band_width / samplerate;
 	float centerFrequency = 0.0;
+	lowpasssamplerate = samplerate;
 	if (filter_offset)
 	{
 		centerFrequency = filter_offset / samplerate;

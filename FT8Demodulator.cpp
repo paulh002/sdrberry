@@ -166,7 +166,6 @@ void FT8Demodulator::operator()()
 void FT8Demodulator::process(IQSampleVector &samples_in, SampleVector &audio)
 {
 	IQSampleVector filter1, filter2;
-	SampleVector audio_mono;
 
 	// mix to correct frequency
 	mix_down(samples_in);

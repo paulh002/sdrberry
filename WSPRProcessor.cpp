@@ -69,14 +69,18 @@ void WSPRProcessor::operator()()
 	while (!stop_flag.load())
 	{
 		std::vector<decoder_results> results;
+		IntWsjTxVector samples;
 
-		IQSampleVector iqsamples = samplebuffer.pull();
-		if (!iqsamples.size())
+		SampleVector audiosamples = samplebuffer.pull();
+		if (!audiosamples.size())
 			continue;
-		//samples.insert(samples.end(), iqsamples.begin(), iqsamples.end());
+		for (auto con : audiosamples)
+		{
+			samples.push_back((con * 32768.0f));
+		}
 		guift8bar.send_status(true);
 		gft8.set_decode_start_time(std::chrono::system_clock::now());
-		results = wsjtx->wspr_decode(iqsamples, options);
+		results = wsjtx->wspr_decode(samples, options);
 		if (results.size())
 			WsprMessageQueue.push(results);
 		for (auto con : results)
@@ -84,11 +88,11 @@ void WSPRProcessor::operator()()
 			printf("call: %s message %s\n", con.call, con.message);
 		}
 		//ft8udpclient->SendHeartBeat();
-		iqsamples.clear();
+		samples.clear();
 	}
 }
 
-void WSPRProcessor::AddIQSample(IQSampleVector samples)
+void WSPRProcessor::AddAudioSample(SampleVector samples)
 {
 	samplebuffer.push(std::move(samples));
 }

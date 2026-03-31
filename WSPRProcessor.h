@@ -13,7 +13,7 @@ class WSPRProcessor
 	~WSPRProcessor();
 	static void destroy_modulator(std::shared_ptr<WSPRProcessor> &WSPRprocessor);
 	static bool create_modulator(std::shared_ptr<WSPRProcessor> &WSPRprocessor, int wsjtxmode);
-	void AddIQSample(IQSampleVector samples);
+	void AddAudioSample(SampleVector samples);
 	std::atomic<bool> stop_flag{false};
 	std::thread WSPRprocessor_thread;
 
@@ -21,7 +21,7 @@ class WSPRProcessor
 	void Stop();
 
   private:
-	DataBuffer<IQSample> samplebuffer;
+	DataBuffer<Sample> samplebuffer;
 	float WSPR_rate{12000.0};
 	int wsjtxmode;
 };

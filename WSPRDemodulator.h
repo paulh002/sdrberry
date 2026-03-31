@@ -20,7 +20,8 @@ class WSPRDemodulator : public Demodulator
 
 	WSPRDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode);
 	~WSPRDemodulator();
-	void process(IQSampleVector &samples_in, IQSampleVector &samples_out);
+	void process(IQSampleVector &samples_in, SampleVector &audio);
+	unsigned long readwavfile(char *ptr_to_infile, int ntrmin, IQSampleVector &samples_out, SampleVector &audio);
 	void operator()();
 
 	atomic<bool> stop_flag{false};

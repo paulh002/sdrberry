@@ -656,7 +656,18 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 
 void gui_ft8::add_wspr(std::vector<decoder_results> &results)
 {
-	char str[128];	
+	char str[128];
+
+	if(lv_table_get_row_cnt(wspr_table) > tableviewsize)
+	{
+		int size = lv_table_get_row_cnt(wspr_table);
+		int count = size - tableviewsize;
+		for (int row = 1; row < count; row++)
+		{
+			lv_table_remove_rows(wspr_table, 1, 1);
+			wsprRowCount--;
+		}
+	}
 
 	for (auto con : results)
 	{
@@ -685,6 +696,8 @@ void gui_ft8::add_wspr(std::vector<decoder_results> &results)
 
 		wsprRowCount++;
 	}
+	lv_coord_t currScrollPos = lv_obj_get_scroll_y(wspr_table);
+	Scroll(wspr_table, currScrollPos);
 }
 
 void gui_ft8::add_qso(struct message msg)

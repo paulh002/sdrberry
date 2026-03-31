@@ -110,8 +110,6 @@ void WSPRDemodulator::operator()()
 
 	// Fft_calc.plan_fft(nfft_samples);
 	receiveIQBuffer->clear();
-
-
 	int simulate = Settings_file.get_int("wsjtx", "simulate", 0);
 	if (simulate)
 	{

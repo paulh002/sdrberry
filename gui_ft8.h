@@ -101,6 +101,7 @@ class gui_ft8
 	void filter_on_cq(bool filter) { filteroncq = filter; }
 	void add_wspr(std::vector<decoder_results> &results);
 	void wspr_enable(bool enable);
+	void reset_wspr();
 
 	static constexpr auto cq_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::cq_press_part_event_class>::staticHandler;
 	static constexpr auto qso_press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_press_part_event_class>::staticHandler;

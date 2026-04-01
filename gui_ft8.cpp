@@ -1,11 +1,11 @@
 #include "gui_ft8.h"
+#include "FT8Processor.h"
+#include "WebServer.h"
 #include "gui_ft8bar.h"
 #include "gui_wsjtx_setup.h"
-#include "table.h"
-#include "strlib.h"
 #include "screen.h"
-#include "WebServer.h"
-#include "FT8Processor.h"
+#include "strlib.h"
+#include "table.h"
 #include "vfo.h"
 
 extern std::unique_ptr<FT8UdpClient> ft8udpclient;
@@ -26,7 +26,7 @@ std::ostream &operator<<(std::ostream &os, const struct StatusMessage &statusmes
 std::ostream &operator<<(std::ostream &os, const qso_logging &qso)
 {
 	auto decode_time = date::floor<std::chrono::seconds>(qso.decode_time);
-	
+
 	// Format decode_time: convert to sys_time, then to std::tm
 	os << "Time: " << date::format("%F %H:%M:%S", decode_time) << '\n'
 	   << "Frequency: " << qso.freq << '\n'
@@ -53,7 +53,7 @@ std::ostream &operator<<(std::ostream &os, const message &msg)
 	return os;
 }
 
-bool is_report(const std::string &word) 
+bool is_report(const std::string &word)
 {
 	if (word.size() == 3 && (word[0] == '+' || word[0] == '-') &&
 		isdigit(word[1]) && isdigit(word[2]))
@@ -73,7 +73,7 @@ int which_report(const std::string msg)
 {
 	std::string word;
 
-	int end_pos = msg.find_last_of(' ') +1;
+	int end_pos = msg.find_last_of(' ') + 1;
 	word = msg.substr(end_pos, msg.size() - end_pos);
 
 	if (word.size() == 3 && (word[0] == '+' || word[0] == '-') &&
@@ -81,14 +81,14 @@ int which_report(const std::string msg)
 	{
 		return 3;
 	}
-	
+
 	if (word.size() == 4 && word[0] == 'R' &&
 		(word[1] == '+' || word[1] == '-') &&
 		isdigit(word[2]) && isdigit(word[3]))
 	{
 		return 4;
 	}
-	
+
 	if (word.size() == 3 && word[0] == 'R' && word[1] == 'R')
 	{
 		return 5;
@@ -118,7 +118,6 @@ bool is_dxGrid(const std::string &word)
 
 void gui_ft8::qso_press_part_event_class(lv_event_t *e)
 {
-	
 }
 
 void gui_ft8::cq_press_part_event_class(lv_event_t *e)
@@ -129,7 +128,7 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 	int db, length;
 
 	lv_table_get_selected_cell(obj, &row, &col);
-	if (lv_table_get_row_cnt(obj) < row+1)
+	if (lv_table_get_row_cnt(obj) < row + 1)
 		return;
 	if (lv_table_get_cell_value(obj, row, 1) != nullptr)
 		db = atoi(lv_table_get_cell_value(obj, row, 1));
@@ -324,7 +323,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_style_init(&ft8_style);
 	lv_style_set_radius(&ft8_style, 0);
 	lv_style_set_bg_color(&ft8_style, lv_color_black());
-	
+
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
 	lv_style_set_bg_color(&style_btn, lv_color_make(0x60, 0x60, 0x60));
@@ -337,7 +336,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
 	lv_obj_clear_flag(o_tab, LV_OBJ_FLAG_SCROLLABLE);
-	//m_button_group = lv_group_create();
+	// m_button_group = lv_group_create();
 	lv_obj_set_style_pad_hor(o_tab, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(o_tab, 0, LV_PART_MAIN);
 
@@ -351,11 +350,11 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_obj_add_event_cb(table, draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
 	lv_obj_add_flag(table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(table, press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
-	
+
 	lv_obj_add_style(table, &ft8_style, 0);
-	//lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
+	// lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
 	lv_obj_set_pos(table, x, y);
-	lv_obj_set_size(table, w/2, h);
+	lv_obj_set_size(table, w / 2, h);
 
 	lv_obj_set_style_pad_top(table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(table, 2, LV_PART_MAIN);
@@ -366,15 +365,14 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_obj_set_style_pad_left(table, 0, LV_PART_ITEMS);
 	lv_obj_set_style_pad_right(table, 0, LV_PART_ITEMS);
 
-	
 	lv_table_set_cell_value(table, 0, 0, "Time");
-	lv_table_set_col_width(table, 0, w/12);
+	lv_table_set_col_width(table, 0, w / 12);
 	lv_table_set_cell_value(table, 0, 1, "db");
-	lv_table_set_col_width(table, 1, w/16);
+	lv_table_set_col_width(table, 1, w / 16);
 	lv_table_set_cell_value(table, 0, 2, "Freq");
-	lv_table_set_col_width(table, 2, w/12);
+	lv_table_set_col_width(table, 2, w / 12);
 	lv_table_set_cell_value(table, 0, 3, "Message");
-	lv_table_set_col_width(table, 3, w/2 - (w / 12 + w / 16 + w / 12) - 10);
+	lv_table_set_col_width(table, 3, w / 2 - (w / 12 + w / 16 + w / 12) - 10);
 
 	qsoTable = lv_table_create(main_tile);
 	lv_obj_add_event_cb(qsoTable, qso_draw_part_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
@@ -382,7 +380,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_obj_add_event_cb(qsoTable, qso_press_part_event_cb, LV_EVENT_PRESSED, (void *)this);
 
 	lv_obj_add_style(qsoTable, &ft8_style, 0);
-	//lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
+	// lv_obj_align(table, LV_ALIGN_TOP_LEFT, w, h);
 	lv_obj_set_pos(qsoTable, w / 2, y);
 	lv_obj_set_size(qsoTable, w / 2, h / 2);
 
@@ -408,7 +406,6 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	call = Settings_file.get_string("wsjtx", "call");
 	if (call.size() == 0)
 		call = "PA0PHH";
-
 
 	cqTable = lv_table_create(main_tile);
 	// lv_obj_add_event_cb(cqTable, cq_draw_part_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void *)this);
@@ -442,22 +439,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	wspr_table = lv_table_create(main_tile);
 	lv_obj_add_style(wspr_table, &ft8_style, 0);
 	lv_obj_set_pos(wspr_table, 0, y + 0);
-	lv_obj_set_size(wspr_table, w, h );
-	lv_table_set_cell_value(wspr_table, 0, 0, "Time");
-	lv_table_set_col_width(wspr_table, 0, w / 12);
-	lv_table_set_cell_value(wspr_table, 0, 1, "db");
-	lv_table_set_col_width(wspr_table, 1, w / 12);
-	lv_table_set_cell_value(wspr_table, 0, 2, "DT");
-	lv_table_set_col_width(wspr_table, 2, w / 12);
-	lv_table_set_cell_value(wspr_table, 0, 3, "Freq");
-	lv_table_set_col_width(wspr_table, 3, w / 12);
-	lv_table_set_cell_value(wspr_table, 0, 4, "Drift");
-	lv_table_set_col_width(wspr_table, 4, w / 12);
-	lv_table_set_cell_value(wspr_table, 0, 5, "Call");
-	lv_table_set_col_width(wspr_table, 5, w / 8);
-	lv_table_set_cell_value(wspr_table, 0, 6, "Message");
-	lv_table_set_col_width(wspr_table, 6, w / 4);
-
+	lv_obj_set_size(wspr_table, w, h);
 	
 	lv_obj_set_style_pad_top(wspr_table, 2, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(wspr_table, 2, LV_PART_MAIN);
@@ -467,13 +449,32 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 
 	lv_obj_set_style_pad_left(wspr_table, 0, LV_PART_ITEMS);
 	lv_obj_set_style_pad_right(wspr_table, 0, LV_PART_ITEMS);
+	
+	lv_table_set_cell_value(wspr_table, 0, 0, "Time");
+	lv_table_set_col_width(wspr_table, 0, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 1, "db");
+	lv_table_set_col_width(wspr_table, 1, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 2, "DT");
+	lv_table_set_col_width(wspr_table, 2, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 3, "Freq");
+	lv_table_set_col_width(wspr_table, 3, w / 8);
+	lv_table_set_cell_value(wspr_table, 0, 4, "Drift");
+	lv_table_set_col_width(wspr_table, 4, w / 12);
+	lv_table_set_cell_value(wspr_table, 0, 5, "Call");
+	lv_table_set_col_width(wspr_table, 5, w / 8);
+	lv_table_set_cell_value(wspr_table, 0, 6, "Message");
+	lv_table_set_col_width(wspr_table, 6, w / 4);
 	wsprRowCount++;
-	wspr_enable(false);
+	
+
+	lv_obj_invalidate(wspr_table);
+	//wspr_enable(false);
 
 	std::vector<decoder_results> results;
 	decoder_results result;
 
-	strcpy(result.call, "ND6P");
+	// Test code
+	/*strcpy(result.call, "ND6P");
 	strcpy(result.message, "ND6P DM04 30");
 	result.drift = 0.01;
 	result.snr = -15.0;
@@ -483,7 +484,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	results.push_back(result);
 	add_wspr(results);
 
-	/*std::string timezone = Settings_file.get_string("Radio", "timezone");
+	std::string timezone = Settings_file.get_string("Radio", "timezone");
 	set_decode_start_time(make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
 	if (timezone.size())
 	{
@@ -498,35 +499,35 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 		}
 	}
 	*/
-	
-/*
-	// DK7ZT
-	message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
-	add_cq(m);
 
-	message m1{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF R-03"};
-	add_cq(m1);
+	/*
+		// DK7ZT
+		message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+		add_cq(m);
 
-	message m2{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
-	add_cq(m2);
+		message m1{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF R-03"};
+		add_cq(m1);
 
-	message m3{12, 1, 1, 1, 1, 1, 1000, "PA0PHH M0ZMF KO21"};
-	add_cq(m3);
+		message m2{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
+		add_cq(m2);
 
-	for (int i = 0; i < 1; i++)
-	{
-		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("CQ M0ZMF KO21"));
-		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF KO21"));
-		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF -12"));
-		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF R-12"));
-		add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF 73"));
-	}
-	for (int i = 0; i < 100; i++)
-	{
-		add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-	}
-add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-*/
+		message m3{12, 1, 1, 1, 1, 1, 1000, "PA0PHH M0ZMF KO21"};
+		add_cq(m3);
+
+		for (int i = 0; i < 1; i++)
+		{
+			add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("CQ M0ZMF KO21"));
+			add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF KO21"));
+			add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF -12"));
+			add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF R-12"));
+			add_line(12, i, 1, 1, 1, 1.0, 1000, std::string("PA0PHH M0ZMF 73"));
+		}
+		for (int i = 0; i < 100; i++)
+		{
+			add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
+		}
+	add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
+	*/
 }
 
 void gui_ft8::wspr_enable(bool enable)
@@ -537,19 +538,19 @@ void gui_ft8::wspr_enable(bool enable)
 		lv_obj_add_flag(wspr_table, LV_OBJ_FLAG_HIDDEN);
 }
 
-void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off,int hz0, string msg)
+void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off, int hz0, string msg)
 {
 	std::unique_lock<std::mutex> mlock(mutex_);
 	std::unique_lock<std::mutex> glock(gui_mutex);
 
 	char str[128];
-	
+
 	if (lv_table_get_row_cnt(table) > tableviewsize)
 	{
 		// remove first row to limit table become to large, but retain qso entries
 		int row = 1;
 		int size = lv_table_get_row_cnt(table);
-		std::string message(lv_table_get_cell_value(table, 1, 3));		
+		std::string message(lv_table_get_cell_value(table, 1, 3));
 		if (message.find(call) != std::string::npos)
 		{
 			do
@@ -565,15 +566,15 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		lv_table_remove_rows(table, row, 1);
 	}
 
-	//std::cout << msg;
+	// std::cout << msg;
 	if (msg.find(call) != std::string::npos)
 	{
 		qso_logging log_item, old_log_item;
 
 		//"PA0PHH M0ZMF KO21"
-		//std::cout << "PA0PHH CALL FOUND: " << msg << '\n';
+		// std::cout << "PA0PHH CALL FOUND: " << msg << '\n';
 		log_item.decode_time = decode_start_time;
-		int start_pos_dxcall  = msg.find(' ') + 1;
+		int start_pos_dxcall = msg.find(' ') + 1;
 		int end_pos_dxcall = msg.find_last_of(' ');
 		log_item.dxCall = msg.substr(start_pos_dxcall, end_pos_dxcall - start_pos_dxcall);
 		int start_pos_report = msg.find_last_of(' ') + 1;
@@ -605,9 +606,9 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 			old_log_item.decode_time_off = decode_start_time;
 			qso_logging_map[log_item.dxCall] = old_log_item;
 		}
-		//std::cout << qso_logging_map[log_item.dxCall] << '\n';
+		// std::cout << qso_logging_map[log_item.dxCall] << '\n';
 	}
-	
+
 	if ((msg.find(call) != std::string::npos && guift8bar.GetFilter().length() == 0) ||
 		(msg.find(call) != std::string::npos && msg.find(guift8bar.GetFilter()) == std::string::npos))
 	{
@@ -649,7 +650,7 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 
 	if (ft8udpclient != nullptr)
 		ft8udpclient->SendDecode(true, in_milliseconds_since_midnight, (int32_t)snr, deltaTime, (uint32_t)hz0, mode, msg, false, false);
-	
+
 	message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 	web_message(m);
 }
@@ -658,7 +659,7 @@ void gui_ft8::add_wspr(std::vector<decoder_results> &results)
 {
 	char str[128];
 
-	if(lv_table_get_row_cnt(wspr_table) > tableviewsize)
+	if (lv_table_get_row_cnt(wspr_table) > tableviewsize)
 	{
 		int size = lv_table_get_row_cnt(wspr_table);
 		int count = size - tableviewsize;
@@ -683,15 +684,14 @@ void gui_ft8::add_wspr(std::vector<decoder_results> &results)
 		sprintf(str, "%03.2f", con.dt);
 		lv_table_set_cell_value(wspr_table, wsprRowCount, 2, str);
 
-		sprintf(str, "%ld", con.freq);
-		lv_table_set_cell_value(wspr_table, wsprRowCount, 3, str);
+		lv_table_set_cell_value(wspr_table, wsprRowCount, 3, vfo.get_vfo_str(con.freq).c_str());
 
 		sprintf(str, "%03.2f", con.drift);
 		lv_table_set_cell_value(wspr_table, wsprRowCount, 4, str);
 
 		sprintf(str, "%s", con.call);
 		lv_table_set_cell_value(wspr_table, wsprRowCount, 5, str);
-		
+
 		lv_table_set_cell_value(wspr_table, wsprRowCount, 6, con.message);
 
 		wsprRowCount++;
@@ -738,7 +738,6 @@ void gui_ft8::add_cq(struct message msg)
 	web_cq();
 }
 
-
 void gui_ft8::add_cq(json msg)
 {
 	lv_table_set_cell_value(cqTable, cqRowCount, 0, strlib::removeCharacters(msg.at("time").dump(), '"').c_str());
@@ -762,7 +761,6 @@ void gui_ft8::add_qso(json msg)
 
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, strlib::removeCharacters(msg.at("message").dump(), '"').c_str());
 
-	
 	qsoRowCount++;
 }
 
@@ -820,7 +818,8 @@ void gui_ft8::cpy_conversationtoqso()
 	lv_obj_invalidate(qsoTable);
 }
 
-int gui_ft8::getQsoLogRows(){
+int gui_ft8::getQsoLogRows()
+{
 	return lv_table_get_row_cnt(qsoTable);
 }
 
@@ -841,7 +840,7 @@ std::string gui_ft8::getQso(int row)
 std::string gui_ft8::getQso_dxCall()
 {
 	std::string dxCall;
-	
+
 	int rows = lv_table_get_row_cnt(qsoTable);
 	if (rows > 1)
 	{
@@ -865,14 +864,14 @@ void gui_ft8::clr_qso()
 void gui_ft8::clr_cq()
 {
 	if (guift8bar.GetFilter().size() == 0)
-	{	// remove all cq's's
+	{ // remove all cq's's
 		lv_table_set_row_cnt(cqTable, 1);
 		CqScrollFirstItem();
 		lv_obj_invalidate(table);
 		cqRowCount = 1;
 	}
 	else
-	{	// remove cq's (with call in filter) from cq window but retain all other 
+	{ // remove cq's (with call in filter) from cq window but retain all other
 		std::vector<std::string> r1, r2, r3, r4;
 		for (int row = 1; row < cqRowCount; row++)
 		{
@@ -906,7 +905,6 @@ void gui_ft8::clr_cq()
 
 void gui_ft8::set_group()
 {
-
 }
 
 void gui_ft8::reset()
@@ -915,10 +913,16 @@ void gui_ft8::reset()
 	ScrollFirstItem();
 }
 
+void gui_ft8::reset_wspr()
+{
+	lv_table_set_row_cnt(wspr_table, 1);
+	ScrollFirstItem();
+}
+
 void gui_ft8::ScrollLatestItem()
 {
 	lv_coord_t currScrollPos = lv_obj_get_scroll_y(table);
-	Scroll(table,currScrollPos);
+	Scroll(table, currScrollPos);
 }
 
 void gui_ft8::ScrollFirstItem()
@@ -955,18 +959,18 @@ void gui_ft8::Scroll(lv_obj_t *table, lv_coord_t currScrollPos)
 {
 	lv_coord_t y = lv_obj_get_self_height(table);
 
-	//If the object content is big enough to scroll
+	// If the object content is big enough to scroll
 	if (y > lv_obj_get_height(table))
 	{
-		//Calculate the "out of view" y size
+		// Calculate the "out of view" y size
 		lv_coord_t outOfView = y - lv_obj_get_height(table);
 
 		if (outOfView > currScrollPos)
 		{
-			//Calculate the difference between the required scroll pos and the current scroll pos
+			// Calculate the difference between the required scroll pos and the current scroll pos
 			lv_coord_t differenceToScroll = -(outOfView - currScrollPos);
 
-			//this will bring the bottom of the table into view
+			// this will bring the bottom of the table into view
 			lv_obj_scroll_by(table, 0, differenceToScroll, LV_ANIM_ON);
 		}
 	}
@@ -1025,7 +1029,7 @@ void gui_ft8::web_message(message m)
 void gui_ft8::SelectMessage(json jsonMessage)
 {
 	std::unique_lock<std::mutex> mlock(mutex_);
-	
+
 	std::string message = strlib::removeCharacters(jsonMessage.at("message").dump(), '"');
 	std::string dbmessage = strlib::removeCharacters(jsonMessage.at("decibel").dump(), '"');
 	int db = atol(dbmessage.c_str());

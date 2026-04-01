@@ -33,6 +33,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - and others
 
 ## Under development
+- WSPR
 - webserver
 
 ## ToDo
@@ -77,6 +78,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - WSJT-X UDP client support. Sdrberry will send Heartbeat, Decode and QSO messages to designated ip
 - Shutdown button for save shutdown of the pi
 - Wayland support
+- WSPR (receiving)
 
 ## Installation of libraries is necessary:
 - Liquid DSP
@@ -93,6 +95,7 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - civetweb
 - nlohmann json
 - HowardHinnant date.h library
+- wsjtx_lib
 
 # Installation
 ## Preparation before install
@@ -110,7 +113,7 @@ To use the pi5 and the radioberry there are two options for the radioberry drive
 1) Use the GPIO version of the driver. This version will work directly on Raspberry pi OS but has some performace limitations.
 Use this version only with lower samplerates like 96 Khz or lower.
 2) Use the PIO driver. This driver uses DMA to transfer the data from the Radioberry to the pi and is very efficient.
-It has no samplerate limitation, only requires a patched Linux kernel. Supplied by PA3GSB or you have to patch the kernel your self.
+It has no samplerate limitation, only requires a patched Linux kernel. Supplied by PA3GSB or you can patch the kernel your self.
 
 ## Install and compile with cmake
 Download the install file in pi home directory (the install script supports different SDR's)

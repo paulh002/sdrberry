@@ -82,7 +82,7 @@ class CVfo
 	int set_vfo(long freq, vfo_activevfo ActiveVfo = vfo_activevfo::None);
 	void step_vfo(long icount);
 	long get_active_vfo_freq();
-	std::string get_vfo_str();
+	std::string get_vfo_str(long freq);
 	void set_tuner_offset(double offset);
 	void set_active_vfo(int active_vfo);
 	void set_vfo_range(long low, long high);

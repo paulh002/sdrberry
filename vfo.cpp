@@ -446,23 +446,21 @@ long CVfo::get_active_vfo_freq()
 	return vfo_setting.vfo_freq[vfo_setting.active_vfo];
 }
 
-
-std::string CVfo::get_vfo_str()
+std::string CVfo::get_vfo_str(long freq)
 {
-	char	str[30];
-	long	freq;
-	
-	freq = vfo_setting.vfo_freq[vfo_setting.active_vfo];
-	if (freq > 10000000LU)
+	char str[30];
+
+	if (freq > 100000000LU)
 	{
-		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
+		sprintf(str, "%3ld.%03ld.%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
 	}
 	else
 	{
-		sprintf(str, "%3ld.%03ld,%02ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq / 10) % 100));
+		sprintf(str, "%3ld.%03ld.%03ld", (long)(freq / 1000000), (long)((freq / 1000) % 1000), (long)((freq) % 1000));
 	}
 	std::string s(str);
 	return s;
+
 }
 
 long CVfo::get_tx_frequency()
@@ -791,7 +789,7 @@ void CVfo::updateweb()
 	{
 		json message, data;
 
-		std::string freq = get_vfo_str();
+		std::string freq = get_vfo_str(get_active_vfo());
 		std::string mode = getMode(vfo.get_active_vfo());
 		std::string band = get_band_in_text();
 		std::string call = Settings_file.get_string("wsjtx", "call");

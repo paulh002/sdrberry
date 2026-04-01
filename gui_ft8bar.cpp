@@ -324,7 +324,10 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 		case buttonmonitor:
 			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 			{
-				gft8.reset();
+				if (mode == mode_wspr)
+					gft8.reset_wspr();
+				else
+					gft8.reset();
 				SetFrequency();
 				select_mode(guift8bar.getrxtxmode());
 				gbar.set_mode(guift8bar.getrxtxmode());

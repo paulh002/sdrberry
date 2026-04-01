@@ -683,7 +683,7 @@ void gui_ft8::add_wspr(std::vector<decoder_results> &results)
 		sprintf(str, "%03.2f", con.dt);
 		lv_table_set_cell_value(wspr_table, wsprRowCount, 2, str);
 
-		sprintf(str, "%07.0f", con.freq);
+		sprintf(str, "%ld", con.freq);
 		lv_table_set_cell_value(wspr_table, wsprRowCount, 3, str);
 
 		sprintf(str, "%03.2f", con.drift);

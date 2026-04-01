@@ -85,7 +85,7 @@ void WSPRProcessor::operator()()
 			WsprMessageQueue.push(results);
 		for (auto con : results)
 		{
-			printf("call: %s message %s\n", con.call, con.message);
+			printf("call: %s freq %ld %ld message %s\n", con.call, con.freq, vfo.get_active_vfo_freq(), con.message);
 		}
 		//ft8udpclient->SendHeartBeat();
 		samples.clear();

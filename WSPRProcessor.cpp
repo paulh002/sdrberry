@@ -62,7 +62,7 @@ void WSPRProcessor::operator()()
 	strcpy(options.rcall,"");	  // Callsign of the RX station
 	strcpy(options.rloc, "");	  // Locator of the RX station
 	options.quickmode = 0;	  // Decoder option & tweak
-	options.usehashtable = 0; //  ''
+	options.usehashtable = 1; //  ''
 	options.npasses = 3;	  //  ''
 	options.subtraction = 1;  //
 

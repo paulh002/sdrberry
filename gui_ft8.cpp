@@ -465,16 +465,16 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_table_set_cell_value(wspr_table, 0, 6, "Message");
 	lv_table_set_col_width(wspr_table, 6, w / 4);
 	wsprRowCount++;
-	
-
-	lv_obj_invalidate(wspr_table);
-	//wspr_enable(false);
-
+	lv_obj_add_flag(wspr_table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+	lv_obj_add_event_cb(wspr_table, wspr_press_event_cb, LV_EVENT_PRESSED, (void *)this);
+	lv_obj_add_event_cb(wspr_table, wspr_draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
+	wspr_enable(false);
+	// Test code
+	/*
 	std::vector<decoder_results> results;
 	decoder_results result;
 
-	// Test code
-	/*strcpy(result.call, "ND6P");
+	strcpy(result.call, "ND6P");
 	strcpy(result.message, "ND6P DM04 30");
 	result.drift = 0.01;
 	result.snr = -15.0;
@@ -653,6 +653,47 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 
 	message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
 	web_message(m);
+}
+
+void gui_ft8::wspr_press_event_class(lv_event_t *e)
+{
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	uint32_t row, col;
+	int db, length;
+
+	lv_table_get_selected_cell(obj, &row, &col);
+	if (lv_table_get_row_cnt(obj) < row + 1)
+	{
+		wspr_selected = 0;
+		return;
+	}
+	wspr_selected = row;
+}
+
+void gui_ft8::wspr_draw_event_class(lv_event_t *e)
+{
+	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	/*If the cells are drawn...*/
+	if (base_dsc->part == LV_PART_ITEMS)
+	{
+		uint32_t row = base_dsc->id1;
+		uint32_t col = base_dsc->id2;
+		if (row == wspr_selected && row > 0)
+		{
+			lv_draw_fill_dsc_t *fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+
+			if (fill_draw_dsc)
+			{
+				fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_GREEN), fill_draw_dsc->color, LV_OPA_30);
+				fill_draw_dsc->opa = LV_OPA_COVER;
+			}
+		}
+	}
 }
 
 void gui_ft8::add_wspr(std::vector<decoder_results> &results)

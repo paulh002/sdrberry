@@ -48,7 +48,7 @@ class gui_ft8
 	lv_style_t style_btn, ft8_style;
 	std::vector<message> messages, qsoMessages;
 	std::map<std::string, qso_logging> qso_logging_map;
-	int qsoRowCount{0}, cqRowCount{0}, wsprRowCount{0};
+	int qsoRowCount{0}, cqRowCount{0}, wsprRowCount{0}, wspr_selected{0};
 	int tableviewsize;
 	void Scroll(lv_obj_t *table, lv_coord_t currScrollPos);
 	std::string call;
@@ -74,6 +74,8 @@ class gui_ft8
 	void qso_draw_part_event_class(lv_event_t *e);
 	void draw_part_event_class(lv_event_t *e);
 	void cq_press_part_event_class(lv_event_t *e);
+	void wspr_draw_event_class(lv_event_t *e);
+	void wspr_press_event_class(lv_event_t *e);
 	void cpy_conversationtoqso();
 	void add_cq(json msg);
 	void add_qso(json msg);	
@@ -108,7 +110,8 @@ class gui_ft8
 	static constexpr auto press_part_event_cb = EventHandler<gui_ft8, &gui_ft8::press_part_event_class>::staticHandler;
 	static constexpr auto qso_draw_part_event_cb = EventHandler<gui_ft8, &gui_ft8::qso_draw_part_event_class>::staticHandler;
 	static constexpr auto draw_part_event_cb = EventHandler<gui_ft8, &gui_ft8::draw_part_event_class>::staticHandler;
-	
+	static constexpr auto wspr_draw_event_cb = EventHandler<gui_ft8, &gui_ft8::wspr_draw_event_class>::staticHandler;
+	static constexpr auto wspr_press_event_cb = EventHandler<gui_ft8, &gui_ft8::wspr_press_event_class>::staticHandler;
 };
 
 extern gui_ft8 gft8;

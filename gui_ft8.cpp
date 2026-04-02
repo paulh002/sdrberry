@@ -665,7 +665,7 @@ void gui_ft8::wspr_press_event_class(lv_event_t *e)
 	lv_table_get_selected_cell(obj, &row, &col);
 	if (lv_table_get_row_cnt(obj) < row + 1)
 	{
-		wspr_selected = 0;
+		//wspr_selected = 0;
 		return;
 	}
 	wspr_selected = row;
@@ -708,6 +708,10 @@ void gui_ft8::add_wspr(std::vector<decoder_results> &results)
 		{
 			lv_table_remove_rows(wspr_table, 1, 1);
 			wsprRowCount--;
+			if (wspr_selected > 1)
+				wspr_selected--;
+			else
+				wspr_selected = 0;
 		}
 	}
 

@@ -285,6 +285,7 @@ void gui_ft8bar::mode_event_handler_class(lv_event_t *e)
 		if (selection == 2)
 		{
 			gft8.wspr_enable(true);
+			EnableButtons(false);
 			setrxtxmode(mode_wspr);
 			lv_dropdown_clear_options(guift8bar.getfrequency());
 			Settings_file.get_array_int("wsjtx", "freqWSPR", ftx_freq);
@@ -333,7 +334,8 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				gbar.set_mode(guift8bar.getrxtxmode());
 				setmodeclickable(false);
 				ft8status = ft8status_t::monitor;
-				EnableButtons(true);
+				if (mode != mode_wspr)
+					EnableButtons(true);
 			}
 			else
 			{

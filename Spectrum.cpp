@@ -24,6 +24,7 @@
 #include "lv_sprintf.h"
 #include "screen.h"
 
+
 Spectrum SpectrumGraph;
 int nfft_samples{1240};
 const int excludeMargin = 12;
@@ -538,17 +539,17 @@ void Spectrum::upload_fft()
 			finder.uploadData(fft_output);
 			for (auto &col : fft_output)
 			{
-			value = noisefloor + (lv_coord_t)(20.0 * log10(col));
-			//if (value < -100.0)
-			//	value = -100.0;
-			if (value > (float)s_points_max)
-				value = (float)s_points_max;
-			if (i % 2)
-			{
-				data_set_nonfiltered[ii] = value;
-				data_set[ii] = avg_filter[ii](value);
-				data_set_peak[ii] = std::max(data_set_peak[ii], (lv_coord_t)value);
-				ii++;
+				value = noisefloor + (lv_coord_t)(20.0 * log10(col));
+				// if (value < -100.0)
+				//	value = -100.0;
+				if (value > (float)s_points_max)
+					value = (float)s_points_max;
+				if (i % 2)
+				{
+					data_set_nonfiltered[ii] = value;
+					data_set[ii] = avg_filter[ii](value);
+					data_set_peak[ii] = std::max(data_set_peak[ii], (lv_coord_t)value);
+					ii++;
 				}
 				i++;
 			}

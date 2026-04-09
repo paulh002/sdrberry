@@ -16,7 +16,6 @@ class FastFourier
 	~FastFourier();
 	void Process(const IQSampleVector &input);
 	int Size();
-	void SetBins(int bins);
 	std::vector<float> GetSquaredBins();
 	std::vector<float> GetLineatSquaredBins();
 	void SetInvert(bool inv);

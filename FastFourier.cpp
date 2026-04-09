@@ -145,10 +145,6 @@ int FastFourier::Size()
 	return numberOffBins;
 }
 
-void FastFourier::SetBins(int bins){
-	numberOffBins = bins;
-}
-
 void FastFourier::SetInvert(bool inv)
 {
 	invert = inv;

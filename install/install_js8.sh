@@ -33,7 +33,7 @@ cmake ..
 make -j4
 sudo make install
 cd ~
-cp ~/sdrberrywayland/install/sdrberry.desktop ~/.local/share/applications/sdrberry.desktop
-cp ~/sdrberrywayland/install/js8call.desktop ~/.local/share/applications/js8call.desktop
+cp ~/sdrberry/install/sdrberry.desktop ~/.local/share/applications/sdrberry.desktop
+cp ~/sdrberry/install/js8call.desktop ~/.local/share/applications/js8call.desktop
 sudo chmod +x ~/.local/share/applications/sdrberry.desktop
 update-desktop-database ~/.local/share/applications

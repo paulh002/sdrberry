@@ -186,6 +186,9 @@ static lv_display_t *init_wayland(char *str, int32_t width, int32_t height, bool
 	lv_display_t *disp;
 	lv_group_t *g;
 
+	if (!lv_wayland_is_output_connected(output_display))
+		return NULL;
+	
 	disp = lv_wayland_window_create(width, height,
 									str, NULL);
 
@@ -216,6 +219,9 @@ static lv_display_t *init_window(char *str, int32_t width, int32_t height, bool 
 	lv_display_t *disp;
 	lv_group_t *g;
 
+	if (!lv_wayland_is_output_connected(output_display))
+		return NULL;
+
 	disp = lv_wayland_window_create(width, height,
 									str, NULL);
 
@@ -244,6 +250,9 @@ lv_obj_t *create_display(lv_display_t **disp, const std::string device)
 	int32_t l_width, l_height;
 	char str[] = "sdrberry";
 	lv_obj_t *screen{};
+	
+	if (!lv_wayland_is_output_connected_by_name(device.c_str()))
+		return NULL;
 	
 	if (!*disp)
 	{
@@ -620,13 +629,17 @@ int main(int argc, char *argv[])
 	tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 	std::string second_display_port = Settings_file.get_string("screen", "SecondDisplay", "None");
 
+	second_screen = NULL;
 	if (second_display_port != "None" && second_display_port != display_port)
 	{
 		second_screen = create_display(&disp_1, second_display_port);
-		secondscreen = std::make_unique<SecondScreen>();
-		secondscreen->init(second_screen, keyboard_group);
+		if (second_screen)
+		{
+			secondscreen = std::make_unique<SecondScreen>();
+			secondscreen->init(second_screen, keyboard_group);
+		}
 	}
-	else
+	if (second_screen == NULL)
 	{
 		Settings_file.save_string("screen", "SecondDisplay", "None");
 		Settings_file.write_settings();

@@ -119,7 +119,7 @@ It has no samplerate limitation, only requires a patched Linux kernel. Supplied 
 Download the install file in pi home directory (the install script supports different SDR's)
 SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay = SDP /RTLSDR RTL / No = No device
 ```
-wget https://raw.githubusercontent.com/paulh002/sdrberrywayland/master/install/install.sh
+wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/install.sh
 chmod +x install.sh
 ./install.sh RDB
 ```

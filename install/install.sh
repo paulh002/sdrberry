@@ -338,7 +338,7 @@ cd $wrkdir || exit
 
 #wget https://raw.githubusercontent.com/paulh002/sdrberry/master/install/sdrberry_settings.cfg
 #mv sdrberry_settings.cfg $usrdir/sdrberry_settings.cfg
-cp ./sdrberrywayland/install/sdrberry_settings.cfg $usrdir
+cp ./sdrberry/install/sdrberry_settings.cfg $usrdir
 if [[ $sdrboard == 'HRF' ]]; then
 sed -i '/default = "radioberry"/c\default = "hackrf"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'HFB' ]]; then
@@ -352,7 +352,7 @@ sed -i '/default = "radioberry"/c\default = "sdrplay"' $usrdir/sdrberry_settings
 elif [[ $sdrboard == 'RTL' ]]; then
 sed -i '/default = "radioberry"/c\default = "rtlsdr"' $usrdir/sdrberry_settings.cfg
 fi
-cp ./sdrberrywayland/install/sdrstart.sh $usrdir
+cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh
 cp ./sdrberry/install/crontab $usrdir
 #crontab ./sdrberry/install/crontab

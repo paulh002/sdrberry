@@ -133,8 +133,8 @@ update-desktop-database ~/.local/share/applications
 ## Raspberry pi Touch 2 7 or 5 inch desktop rotation
 To rotate the Raspberry Touch 2 displays permenent execute folowing script.
 ```
-chmod +x ./sdrberry/desktop-rotation.sh
-./sdrberry/desktop-rotation.sh
+chmod +x ./sdrberry/install/desktop-rotation.sh
+./sdrberry/install/desktop-rotation.sh
 ```
 
 ## Slow Mouse configuration

@@ -126,7 +126,7 @@ chmod +x install.sh
 ## create menu short cut
 copy sdrberry.desktop to ~/.local/share/applications
 ```
-cp ~/sdrberrywayland/install/sdrberry.desktop ~/.local/share/applications/sdrberry.desktop
+cp ~/sdrberry/install/sdrberry.desktop ~/.local/share/applications/sdrberry.desktop
 sudo chmod +x ~/.local/share/applications/sdrberry.desktop
 update-desktop-database ~/.local/share/applications
 ```

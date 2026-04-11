@@ -130,6 +130,13 @@ cp ~/sdrberrywayland/install/sdrberry.desktop ~/.local/share/applications/sdrber
 sudo chmod +x ~/.local/share/applications/sdrberry.desktop
 update-desktop-database ~/.local/share/applications
 ```
+## Raspberry pi Touch 2 7 or 5 inch desktop rotation
+To rotate the Raspberry Touch 2 displays permenent execute folowing script.
+```
+chmod +x ./sdrberry/desktop-rotation.sh
+./sdrberry/desktop-rotation.sh
+```
+
 ## Slow Mouse configuration
 Wayland supports a mouse, to improve responsiveness the install script will add usbhid.mousepoll=2 to the commandline.txt  
 

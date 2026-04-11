@@ -137,6 +137,19 @@ chmod +x ./sdrberry/install/desktop-rotation.sh
 ./sdrberry/install/desktop-rotation.sh
 ```
 
+## autostart
+To automaticly start sdrberry edit:
+```
+vi ./config/labwc/autostart
+sdrberry >> /home/pi/sdrberry.log 2>&1
+```
+Or combine with screen rotation
+```
+vi ./config/labwc/autostart
+wlr-randr --output DSI-1 --transform 90 &
+sdrberry >> /home/pi/sdrberry.log 2>&1
+```
+
 ## Slow Mouse configuration
 Wayland supports a mouse, to improve responsiveness the install script will add usbhid.mousepoll=2 to the commandline.txt  
 

@@ -145,7 +145,7 @@ From the Accessories menu choose sdrberry to start the software.
 Or start from cli in that case make sure the WAYLAND_DISPLAY environment variable is set.
 
 ```
-export WAYLAND_DISPLAY=0
+export WAYLAND_DISPLAY=wayland-0
 sdrberry > sdrberry.log 2>&1
 ```
 ![Image](https://github.com/user-attachments/assets/256f1ea1-a3b0-4959-964e-2534f06dc5ac)

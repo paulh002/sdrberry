@@ -163,6 +163,10 @@ sdrberry > sdrberry.log 2>&1
 ```
 ![Image](https://github.com/user-attachments/assets/256f1ea1-a3b0-4959-964e-2534f06dc5ac)
 
+## WSPR support
+Sdrberry can receive and decode wspr messages
+![Image](https://github.com/user-attachments/assets/a89b8f7f-e389-44f0-a8a7-c3cfbc976d02)
+
 ## Integration with JS8CALL
 Sdrberry can communicate with js8call using pipewire on the same pi
 To configure pipewire execute the setup-pipewire.sh

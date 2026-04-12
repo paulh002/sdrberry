@@ -33,13 +33,12 @@ install script install.sh installs all components based on a fresh raspberry pi 
 - and others
 
 ## Under development
-- WSPR
+- WSPR transmit
 - webserver
 
 ## ToDo
 - Support for Midi controller
 - Optical encoder direct on I2C (some I2C GPIO adaption needed) 
-- Setup screen for Network and Wifi
 - Different noise reduction schemes like lms etc.
 - codec2 implementation (FreeDV)
 

@@ -15,7 +15,7 @@ void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 	lv_style_init(&scale_style);
 	lv_style_set_radius(&scale_style, 0);
 	lv_style_set_bg_color(&scale_style, lv_color_black());
-	lv_style_set_bg_opa(&scale_style, LV_OPA_100);
+	lv_style_set_bg_opa(&scale_style, LV_OPA_TRANSP);
 	lv_obj_add_style(scale_line, &scale_style, 0);
 	lv_obj_set_style_pad_hor(scale_line, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scale_line, 0, LV_PART_MAIN);
@@ -78,8 +78,8 @@ void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 
 	red_section_top = lv_scale_add_section(scale_line);
 	green_section_top = lv_scale_add_section(scale_line);
-	lv_scale_section_set_range(red_section_top, 70, 100);
-	lv_scale_section_set_range(green_section_top, 0, 70);
+	lv_scale_section_set_range(red_section_top, 72, 100);
+	lv_scale_section_set_range(green_section_top, 0, 72);
 	lv_scale_set_section_offset(scale_line, red_section_top, -5);
 	lv_scale_set_section_offset(scale_line, green_section_top, -5);
 	lv_scale_set_section_style_main(scale_line, green_section_top, &green_style);
@@ -125,6 +125,8 @@ void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 	lv_scale_set_section_style_main(bottom_line, red_section, &red_style);
 	lv_scale_set_section_offset(bottom_line, red_section, - 5);
 	lv_scale_set_section_offset(bottom_line, blue_section, -5);
+
+	lv_obj_move_foreground(scale_line);
 }
 
 void meter::set_needle(int32_t value)

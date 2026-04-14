@@ -168,7 +168,8 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 	lv_label_set_recolor(rxtx_label2, true);
 	lv_obj_set_style_text_color(rxtx_label2, lv_palette_main(LV_PALETTE_BLUE), 0);
 
-	smeter_delay = Settings_file.get_int("Radio", "s-meter-delay", 0);
+	smeter_delay = Settings_file.get_int("Radio", "s-meter-delay", 25);
+	smeter_filter = std::make_unique<SMeterFilter>(20.0f, 25.0f, 280.0f); // SSB defaults
 }
 
 void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band, int vfo_band_index)
@@ -237,30 +238,12 @@ void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mo
 		lv_label_set_text(mode_split2, "");
 }
 
-void gui_vfo::set_s_meter(double value)
+void gui_vfo::set_s_meter(float value)
 {
-	//printf("value %f\n", value);
-	//value = 30.0 + value;
-	//value = value + 200.0;
-	//printf(" value s%f \n", value);
-
-	uint32_t s_value = value;
-	switch (smeter_delay)
-	{
-	case 1:
-		s_value = smeter2(value);
-		break;
-	case 2:
-		s_value = smeter4(value);
-		break;
-	case 3:
-		s_value = smeter6(value);
-		break;
-	case 4:
-		s_value = smeter8(value);
-		break;	
-	}
-	smeter.set_needle(s_value);
+	float smoothed = smeter_filter->process(value);
+	int32_t gauge_val = static_cast<int32_t>(std::clamp(smoothed, 0.0f, 100.0f));
+	smeter.set_needle(gauge_val);
+	//printf("value %f smoothed %f gauge %d\n", value, smoothed, gauge_val);
 }
 
 void gui_vfo::set_span(int span)

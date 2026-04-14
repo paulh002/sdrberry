@@ -2,17 +2,17 @@
 
 SignalStrength signalstrength;
 
-void SignalStrength::set_signal_strength(double strength)
+void SignalStrength::set_signal_strength(float strength)
 {
-	signal_strength = 20 * log10(strength) + signal_strength_offset;
+	signal_strength = 20 * log10f(strength) + signal_strength_offset;
 }
 
-void SignalStrength::set_signal_strength_offset(double offset)
+void SignalStrength::set_signal_strength_offset(float offset)
 {
 	signal_strength_offset = offset;
 }
 
-double SignalStrength::get_signal_strength()
+float SignalStrength::get_signal_strength()
 {
 	return signal_strength;
 }
@@ -26,19 +26,17 @@ void SignalStrength::calculateSignalStrength(const SampleVector &samples_in)
 	}
 	// smooth energy estimate using single-pole low-pass filter
 	y2 = y2 / samples_in.size();
-	accuf = (1.0 - alpha) * accuf + alpha * y2;
-	signal_strength = 20 * log10(accuf) + signal_strength_offset;
+	signal_strength = 20 * log10f(y2) + signal_strength_offset;
 }
 
 void SignalStrength::calculateSignalStrength(const IQSampleVector &samples_in)
 {
-	double y2 = 0.0;
+	float y2 = 0.0;
 	
 	for (auto con : samples_in)
 	{
-		y2 += std::real(con * std::conj(con));
+		y2 += std::norm(con);
 	}
 	y2 = y2 / samples_in.size();
-	accuf = (1.0 - alpha) * accuf + alpha * y2;
-	signal_strength = 20 * log10(accuf) + signal_strength_offset;
+	signal_strength = 20 * log10(y2) + signal_strength_offset;
 }

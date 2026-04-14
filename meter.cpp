@@ -20,7 +20,7 @@ void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 	lv_obj_set_style_pad_hor(scale_line, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(scale_line, 0, LV_PART_MAIN);
 	//lv_obj_set_style_size(scale_line, lv_area_get_width(&area), LV_PART_MAIN);
-	lv_scale_set_range(scale_line, 0, 15);
+	//lv_scale_set_range(scale_line, 0, 15);
 	lv_scale_set_angle_range(scale_line, 55);
 	lv_scale_set_rotation(scale_line, 242);
 	int center_pos, center_pos_bottom, arc_width = 4, arc_width_color = 8, bottom_y = 50, pad_top = 30, pad_radial = 0;
@@ -72,13 +72,14 @@ void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 	lv_style_set_arc_color(&green_style, lv_palette_main(LV_PALETTE_LIGHT_GREEN));
 	lv_style_set_arc_width(&green_style, arc_width_color /*8U*/); /*Tick width*/
 
+	lv_scale_set_range(scale_line, 0, 100);
 	lv_scale_set_total_tick_count(scale_line, 15);
 	lv_scale_set_major_tick_every(scale_line, 2);
 
 	red_section_top = lv_scale_add_section(scale_line);
 	green_section_top = lv_scale_add_section(scale_line);
-	lv_scale_section_set_range(red_section_top, 10, 15);
-	lv_scale_section_set_range(green_section_top, 0, 10);
+	lv_scale_section_set_range(red_section_top, 70, 100);
+	lv_scale_section_set_range(green_section_top, 0, 70);
 	lv_scale_set_section_offset(scale_line, red_section_top, -5);
 	lv_scale_set_section_offset(scale_line, green_section_top, -5);
 	lv_scale_set_section_style_main(scale_line, green_section_top, &green_style);

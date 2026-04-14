@@ -69,7 +69,6 @@ class Demodulator
 	double get_if_Correlation() { return ifEnergy.getEnergyCorrelation();}
 	double get_if_CorrelationNorm() { return ifEnergy.getEnergyCorrelationNorm(); }
 	int get_correction() { return correction; }
-	void set_signal_strength();
 	void set_af_signal_strength();
 	void setLowPassAudioFilter(float samplerate, int band_width);
 	void set_span(long span);

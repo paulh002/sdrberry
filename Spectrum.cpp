@@ -9,7 +9,6 @@
 #include <vector>
 #include <algorithm>
 #include "Spectrum.h"
-#include "sma.h"
 #include "DouglasPeucker.h"
 #include "gui_setup.h"
 #include "gui_sdr.h"

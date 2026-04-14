@@ -1,6 +1,5 @@
 #pragma once
-#include "lvgl.h"
-#include "sma.h"
+#include "lvgl_.h"
 #include <atomic>
 #include <cmath>
 #include <complex>

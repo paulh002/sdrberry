@@ -327,7 +327,8 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_label_set_text(waterfallsize_slider_label, buf.c_str());
 	lv_obj_align_to(waterfallsize_slider_label, waterfallsize_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	int signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 200);
+	int signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 100);
+	signalstrength.set_signal_strength_offset(signal_strength_offset);
 	signal_strength_offset_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(signal_strength_offset_slider, w / 2 - 50);
 	lv_slider_set_range(signal_strength_offset_slider, 0, 400);

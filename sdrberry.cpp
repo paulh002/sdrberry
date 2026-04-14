@@ -919,11 +919,9 @@ int main(int argc, char *argv[])
 
 	if (Settings_file.get_int("web", "enabled", 0))
 		webserver.StartServer();
-	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 50);
+	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 100);
 
-	uint32_t idle_time;
-	signalstrength.set_signal_strength_offset(Settings_file.get_int("Radio", "s-meter-offset", 200));
-	
+	uint32_t idle_time;	
 	while (1)
 	{
 		WsjtxMessage msg;

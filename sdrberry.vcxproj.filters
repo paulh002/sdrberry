@@ -4936,13 +4936,13 @@
     <ClCompile Include="SecondScreen.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="SignalStrength.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="WSPRProcessor.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="WSPRDemodulator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="SignalStrength.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -5420,13 +5420,16 @@
     <ClInclude Include="SecondScreen.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="SignalStrength.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="WSPRProcessor.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="WSPRDemodulator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SMeterFilter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SignalStrength.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,5 @@
 #pragma once
 #include "lvgl_.h"
-#include "sma.h"
 #include <atomic>
 #include <cmath>
 #include <complex>
@@ -17,6 +16,7 @@
 #include "SpectrumConstants.h"
 #include "Modes.h"
 #include <lv_chart_private.h>
+#include "sma.h"
 
 class Spectrum
 {

@@ -8,7 +8,6 @@
 #include <mutex>
 #include <condition_variable>
 #include "Waterfall.h"
-#include "sma.h"
 #include "Modes.h"
 #include "screen.h"
 

@@ -3,6 +3,7 @@
 #include "meter.h"
 #include "sma.h"
 #include <memory>
+#include "SMeterFilter.h"
 
 class gui_vfo
 {
@@ -24,10 +25,7 @@ class gui_vfo
 	bool rxtx{true};
 	bool split{false};
 	int mode[2];
-	SMA<2> smeter2;
-	SMA<4> smeter4;
-	SMA<6> smeter6;
-	SMA<8> smeter8;
+	std::unique_ptr<SMeterFilter> smeter_filter;
 	int smeter_delay;
 	meter smeter;
 
@@ -39,7 +37,7 @@ class gui_vfo
 	void set_span(int span);
 	void set_split(bool _split);
 	bool get_split();
-	void set_s_meter(double value);
+	void set_s_meter(float value);
 	void set_smeter_delay(int delay) { smeter_delay = delay; }
 	// static constexpr auto smeter_event_cb = EventHandler<gui_vfo, &gui_vfo::smeter_event_cb_class>::staticHandler;
 	static constexpr auto bg_tuner1_clickevent_cb = EventHandler<gui_vfo, &gui_vfo::bg_tuner1_clickevent_cb_class>::staticHandler;

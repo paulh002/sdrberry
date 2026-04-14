@@ -5,15 +5,13 @@
 class SignalStrength
 {
   private:
-	std::atomic<double> signal_strength{0.0};
-	double signal_strength_offset{0.0};
-	double accuf{0};
-	double alpha{0.5};
+	std::atomic<float> signal_strength{0.0};
+	float signal_strength_offset{0.0};
 	
   public:
-	void set_signal_strength(double strength);
-	void set_signal_strength_offset(double offset);
-	double get_signal_strength();
+	void set_signal_strength(float strength);
+	void set_signal_strength_offset(float offset);
+	float get_signal_strength();
 	void calculateSignalStrength(const SampleVector &samples_in);
 	void calculateSignalStrength(const IQSampleVector &samples_in);
 };

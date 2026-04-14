@@ -319,6 +319,7 @@
     <ClInclude Include="Shuttle.h" />
     <ClInclude Include="SignalStrength.h" />
     <ClInclude Include="sma.h" />
+    <ClInclude Include="SMeterFilter.h" />
     <ClInclude Include="SoapySDR\Config.hpp" />
     <ClInclude Include="SoapySDR\Constants.h" />
     <ClInclude Include="SoapySDR\ConverterPrimitives.hpp" />

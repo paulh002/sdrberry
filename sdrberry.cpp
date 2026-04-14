@@ -919,7 +919,7 @@ int main(int argc, char *argv[])
 
 	if (Settings_file.get_int("web", "enabled", 0))
 		webserver.StartServer();
-	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 100);
+	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 50);
 
 	uint32_t idle_time;	
 	while (1)

@@ -151,6 +151,27 @@ lv_display_t *disp_0{nullptr}, *disp_1{nullptr};
 lv_obj_t *main_screen{};
 lv_obj_t *second_screen{};
 
+lv_group_t *get_default_group()
+{
+	if (disp_0)
+	{
+		return lv_indev_get_group(lv_wayland_get_pointeraxis(disp_0));
+	}
+	return nullptr;
+}
+
+void set_mouse_axis_group(lv_group_t *scroll_group)
+{
+	if (disp_0)
+	{
+		lv_indev_t *indev;
+
+		indev = lv_wayland_get_pointeraxis(disp_0);
+		if (indev)
+			lv_indev_set_group(indev, scroll_group);
+	}
+}
+
 static lv_display_t *init_wayland(char *str, int32_t width, int32_t height, bool fullscreen, bool maximize)
 {
 	lv_display_t *disp;

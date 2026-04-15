@@ -26,6 +26,7 @@ class Spectrum
 	lv_chart_series_t *ser, *peak_ser{nullptr};
 	lv_style_t Spectrum_style;
 	lv_chart_cursor_t *FrequencyCursor;
+	lv_group_t *scroll_group;
 	std::array<lv_chart_cursor_t *, 5> markers{nullptr};
 	std::array<int32_t, 5> markers_location{0};
 	std::unique_ptr<Waterfall> waterfall;
@@ -56,6 +57,7 @@ class Spectrum
 	void pressing_event_cb_class(lv_event_t *e);
 	void scale_event_cb_class(lv_event_t *e);
 	void scale_clicked_event_cb_class(lv_event_t *e);
+	void scroll_event_cb_class(lv_event_t *e);
 	void draw_marker_label(lv_chart_cursor_t *cursor, lv_draw_label_dsc_t *dsc);
 	std::pair<bool, int> cursor_intersect(lv_point_t p);
 	void draw_marker_label(lv_chart_cursor_t *cursor, lv_draw_task_t *draw_task);
@@ -81,6 +83,8 @@ class Spectrum
 	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;
 	static constexpr auto scale_event_cb = EventHandler<Spectrum, &Spectrum::scale_event_cb_class>::staticHandler;
 	static constexpr auto scale_clicked_event_cb = EventHandler<Spectrum, &Spectrum::scale_clicked_event_cb_class>::staticHandler;
+	static constexpr auto scroll_event_cb = EventHandler<Spectrum, &Spectrum::scroll_event_cb_class>::staticHandler;
+	
 };
 
 

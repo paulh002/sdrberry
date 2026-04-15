@@ -22,7 +22,7 @@
 #include "lv_draw_private.h"
 #include "lv_sprintf.h"
 #include "screen.h"
-
+#include "SharedQueue.h"
 
 Spectrum SpectrumGraph;
 int nfft_samples{1240};
@@ -189,6 +189,16 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 	}
 }
 
+void Spectrum::scroll_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	int16_t *scroll_x = (int16_t *)lv_event_get_param(e);
+
+	LV_LOG_INFO("Scrolled to: x=%d", *scroll_x);
+	guiQueue.push_back(GuiMessage(GuiMessage::action::step, *scroll_x));
+}
+
 void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)
 {
 	const int scale_size = 25;
@@ -269,6 +279,10 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_add_flag(chart, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_PRESSING, (void *)this);
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_RELEASED, (void *)this);
+	lv_obj_add_event_cb(chart, scroll_event_cb, LV_EVENT_SCROLL, (void *)this);
+	scroll_group = lv_group_create();
+	set_mouse_axis_group(scroll_group);
+	lv_group_add_obj(scroll_group, chart);
 	FrequencyCursor = lv_chart_add_cursor((lv_obj_t *)chart, lv_palette_main(LV_PALETTE_BLUE), (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP | LV_DIR_LEFT_FIX));
 	lv_obj_set_style_line_width(chart, 2, LV_PART_CURSOR);
 	

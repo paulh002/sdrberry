@@ -35,3 +35,5 @@ void create_second_display(const std::string device);
 void delete_second_display();
 void delete_main_display();
 void stop_sdrberry();
+lv_group_t *get_default_group();
+void set_mouse_axis_group(lv_group_t *scroll_group);

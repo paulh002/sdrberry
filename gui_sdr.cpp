@@ -166,7 +166,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 
 	cal_ppm = lv_spinbox_create(o_tab);
 	lv_spinbox_set_range(cal_ppm, -999, 999);
-	lv_spinbox_set_digit_format(cal_ppm, 3, 2);
+	lv_spinbox_set_digit_format(cal_ppm, 3, 1);
 	lv_spinbox_step_prev(cal_ppm);
 	lv_obj_set_width(cal_ppm, button_width / 2);
 	lv_obj_align_to(cal_ppm, cal_ppm_label, LV_ALIGN_OUT_BOTTOM_LEFT, button_width / 4, 10);
@@ -196,7 +196,9 @@ void gui_sdr::cal_ppm_increment_event_cb_class(lv_event_t *e)
 	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
 	{
 		lv_spinbox_increment(cal_ppm);
-		Settings_file.save_int(default_radio, "cal_ppm", lv_spinbox_get_value(cal_ppm));	
+		vfo.set_ppm(lv_spinbox_get_value(cal_ppm));
+		Settings_file.save_int(default_radio, "cal_ppm", lv_spinbox_get_value(cal_ppm));
+		Settings_file.write_settings();
 	}	
 }
 
@@ -206,7 +208,9 @@ void gui_sdr::cal_ppm_decrement_event_cb_class(lv_event_t *e)
 	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
 	{
 		lv_spinbox_decrement(cal_ppm);
+		vfo.set_ppm(lv_spinbox_get_value(cal_ppm));
 		Settings_file.save_int(default_radio, "cal_ppm", lv_spinbox_get_value(cal_ppm));
+		Settings_file.write_settings();
 	}
 }
 

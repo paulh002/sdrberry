@@ -52,6 +52,7 @@ class Spectrum
 	bool hold_peak{false};
 	lv_coord_t height, width, xx, yy;
 	int heightChart, fontsize , heightWaterfall;
+	int scroll_factor;
 
 	void draw_event_cb_class(lv_event_t *e);
 	void pressing_event_cb_class(lv_event_t *e);

@@ -197,7 +197,7 @@ void Spectrum::scroll_event_cb_class(lv_event_t *e)
 	int steps;
 	
 	LV_LOG_INFO("Scrolled to: x=%d", *scroll_x);
-	steps = *scroll_x / 15;
+	steps = *scroll_x / scroll_factor;
 	guiQueue.push_back(GuiMessage(GuiMessage::action::step, steps));
 }
 
@@ -221,7 +221,9 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	cursor_txt.push_back("");
 	if (waterfallsize < 0 || waterfallsize > 10)
 		waterfallsize = 0;
-
+	scroll_factor = Settings_file.get_int("input", "scroll", -15);
+	if (scroll_factor == 0 || scroll_factor < -100 || scroll_factor > 100)
+		scroll_factor = 1;
 	lv_obj_set_style_pad_hor(parent, 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_ver(parent, 0, LV_PART_MAIN);
 

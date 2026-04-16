@@ -9,7 +9,7 @@
 
 extern SharedQueue<GuiMessage> guiQueue;
 
-const int max_cat_message_length = 6;
+const int max_cat_message_length = 7;
 
 Comm::~Comm()
 {

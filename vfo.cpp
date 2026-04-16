@@ -288,6 +288,7 @@ long CVfo::adjustFrequencyByPpm(long baseFreqHz)
 void CVfo::set_ppm(int _ppm)
 {
 	ppm = ((double)_ppm) / 100.0;
+	vfo.rx_set_sdr_freq();
 }
 
 /*

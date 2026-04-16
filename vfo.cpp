@@ -48,7 +48,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	printf("correction rx %d, tx %d\n", vfo_setting.correction_rx, vfo_setting.correction_tx);
 	vfo_setting.notxoffset = Settings_file.get_int(default_radio, "notxoffset", 0);
 	vfo_setting.maxtxoffset = Settings_file.get_int(default_radio, "maxtxoffset", 0);
-	ppm = ((double)Settings_file.get_int(default_radio, "cal_ppm", 0)) / 100.0;
+	ppm = ((double)Settings_file.get_int(default_radio, "cal_ppm", 0)) / 10.0;
 
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
@@ -287,7 +287,7 @@ long CVfo::adjustFrequencyByPpm(long baseFreqHz)
 
 void CVfo::set_ppm(int _ppm)
 {
-	ppm = ((double)_ppm) / 100.0;
+	ppm = ((double)_ppm) / 10.0;
 	vfo.rx_set_sdr_freq();
 }
 

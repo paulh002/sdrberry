@@ -196,7 +196,8 @@ void Spectrum::scroll_event_cb_class(lv_event_t *e)
 	int16_t *scroll_x = (int16_t *)lv_event_get_param(e);
 
 	LV_LOG_INFO("Scrolled to: x=%d", *scroll_x);
-	guiQueue.push_back(GuiMessage(GuiMessage::action::step, *scroll_x));
+	int steps = max(*scroll_x / 15, 1);
+	guiQueue.push_back(GuiMessage(GuiMessage::action::step, steps));
 }
 
 void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, float ifrate)

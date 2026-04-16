@@ -194,9 +194,10 @@ void Spectrum::scroll_event_cb_class(lv_event_t *e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	int16_t *scroll_x = (int16_t *)lv_event_get_param(e);
-
+	int steps;
+	
 	LV_LOG_INFO("Scrolled to: x=%d", *scroll_x);
-	int steps = max(*scroll_x / 15, 1);
+	steps = *scroll_x / 15;
 	guiQueue.push_back(GuiMessage(GuiMessage::action::step, steps));
 }
 

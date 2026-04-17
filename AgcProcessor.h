@@ -19,7 +19,7 @@ class AgcProcessor
 	float scale_f;
 
   public:
-	AgcProcessor(float bandwidth = 1e-3f);
+	AgcProcessor();
 	~AgcProcessor();
 	
 	void Process(SampleVector &samples_in);

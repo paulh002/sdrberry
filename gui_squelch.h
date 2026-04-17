@@ -53,3 +53,6 @@ class gui_squelch
 };
 
 extern gui_squelch guisquelch;
+
+const float agc_delay_div = 1000000.0f;
+const float squelch_delay_div = 1000.0f;

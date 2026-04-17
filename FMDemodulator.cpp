@@ -142,8 +142,9 @@ void FMDemodulator::operator()()
 
 void FMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 {
-	IQSampleVector		filter1;
-		
+	IQSampleVector filter1;
+	SampleVector af_samples;
+	
 	// mix to correct frequency
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
@@ -154,12 +155,16 @@ void FMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 		float v;
 		
 		freqdem_demodulate(demodFM, col, &v);
-		if (Squelch())
-			audio.push_back(0.0);
-		else
-			audio.push_back(v);
+		af_samples.push_back(v);
 	}
-	SquelchProcess(audio);
+	SquelchProcess(af_samples);
+	for (auto col : af_samples)
+	{
+		if (Squelch())
+			audio.push_back(0.0f);
+		else
+			audio.push_back(col);
+	}
 }
 
 FMDemodulator::~FMDemodulator()

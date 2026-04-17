@@ -151,6 +151,7 @@ class Demodulator
 	AgcProcessor AgcProc;
 	int threshold = -100;
 	int agc_gain = 0;
+	int agc_delay = 1;
 	int attack_release = 1;
 	int squelch_mode = 0;
 };

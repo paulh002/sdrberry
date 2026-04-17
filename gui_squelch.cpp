@@ -126,8 +126,22 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	agc_gain_label = lv_label_create(o_tab);
 	lv_label_set_text(agc_gain_label, "agc gain");
 	lv_obj_align_to(agc_gain_label, agc_gain_slider, LV_ALIGN_TOP_MID, 0, -20);
+
+	ibutton_y++;
+	agc_delay_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(agc_delay_slider, w / 2 - 50);
+	lv_slider_set_range(agc_delay_slider, 1, 100);
+	lv_obj_align_to(agc_delay_slider, o_tab, LV_ALIGN_TOP_LEFT, x_margin, ibutton_y * button_height_margin + 10);
+	lv_obj_add_event_cb(agc_delay_slider, agc_delay_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(m_button_group, agc_delay_slider);
+
+	agc_delay_label = lv_label_create(o_tab);
+	lv_label_set_text(agc_delay_label, "agc delay");
+	lv_obj_align_to(agc_delay_label, agc_delay_slider, LV_ALIGN_TOP_MID, 0, -20);
+
 	set_attack_release_slider(Settings_file.get_int("Squelch", "attack_release", 1));
 	set_agc_gain_slider(Settings_file.get_int("AGC", "gain", 0));
+	set_agc_delay_slider(Settings_file.get_int("AGC", "delay", 1));
 	lv_group_add_obj(m_button_group, tabbuttons);
 }
 
@@ -279,5 +293,29 @@ void gui_squelch::set_agc_gain_slider(int _agc_gain)
 	lv_label_set_text(agc_gain_label, buf.c_str());
 	lv_slider_set_value(agc_gain_slider, _agc_gain, LV_ANIM_ON);
 	Settings_file.save_int("AGC", "gain", agc_gain.load());
+	Settings_file.write_settings();
+}
+
+void gui_squelch::agc_delay_slider_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		agc_delay.store(lv_slider_get_value(obj));
+		std::string buf = strlib::sprintf("agc delay %4.1f S", (float)agc_delay.load() / 10.0f);
+		lv_label_set_text(agc_delay_label, buf.c_str());
+		Settings_file.save_int("AGC", "delay", agc_delay.load());
+		Settings_file.write_settings();
+	}
+}
+
+void gui_squelch::set_agc_delay_slider(int _agc_delay)
+{
+	agc_delay.store(_agc_delay);
+	std::string buf = strlib::sprintf("agc delay %4.1f S", (float)agc_delay.load() / 10.0f);
+	lv_label_set_text(agc_delay_label, buf.c_str());
+	lv_slider_set_value(agc_delay_slider, _agc_delay, LV_ANIM_ON);
+	Settings_file.save_int("AGC", "delay", agc_delay.load());
 	Settings_file.write_settings();
 }

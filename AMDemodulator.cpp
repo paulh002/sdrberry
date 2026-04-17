@@ -240,7 +240,7 @@ void AMDemodulator::operator()()
 		}
 */
 
-		if (timeLastPrint + std::chrono::seconds(10) < now)
+		if (timeLastPrint + std::chrono::seconds(1) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
@@ -284,8 +284,8 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	// mix to correct frequency
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
-	SquelchProcess(filter1);
 	lowPassAudioFilter(filter1);
+	
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)
@@ -294,12 +294,16 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 		
 		ampmodem_demodulate(demodulatorHandle, (liquid_float_complex)col, &v);
 		af_samples.push_back(v);
-		if (Squelch())
-			audio.push_back(0.0);
-		else
-			audio.push_back(v);
 	}
 	calc_af_signalstrength(af_samples);
+	SquelchProcess(af_samples);
+	for (auto col : af_samples)
+	{
+		if (Squelch())
+			audio.push_back(0.0f);
+		else
+			audio.push_back(col);
+	}	
 }
 	
 bool AMDemodulator::create_demodulator(int mode, double ifrate,  DataBuffer<IQSample> *source_buffer, AudioOutput *audioOutputBuffer)

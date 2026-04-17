@@ -24,12 +24,12 @@ class AudioInput : public RtAudio
 	RtAudio::DeviceInfo info;
 	unsigned int sampleRate;
 	unsigned int bufferFrames;
-	double volume, digitalvolume;
+	float volume, digitalvolume;
 	string error;
 	long asteps;
 	bool stereo;
-	double Nexttone();
-	double NextTwotone();
+	float Nexttone();
+	float NextTwotone();
 	audioTone tune_tone;
 	int bufferFramesSend;
 	std::atomic<bool> digitalmode, bufferempty;
@@ -47,7 +47,7 @@ class AudioInput : public RtAudio
 	bool read(SampleVector &samples);
 	void close();
 	~AudioInput();
-	double get_volume() { return volume; }
+	float get_volume() { return volume; }
 	void set_volume(int vol);
 	void set_digital_volume(int vol);
 	void ToneBuffer();

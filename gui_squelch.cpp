@@ -5,6 +5,7 @@
 #include "gui_sdr.h"
 #include "screen.h"
 #include "sdrberry.h"
+#include "AudioOutput.h"
 
 gui_squelch guisquelch;
 
@@ -111,10 +112,37 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	lv_slider_set_range(threshold_slider, -1000, 0);
 	lv_obj_align_to(threshold_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(threshold_slider, threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	set_threshold_slider(Settings_file.get_int("Squelch", "threshold", -1000));
+	set_threshold_slider(Settings_file.get_int("Squelch", "threshold", -100));
 	lv_group_add_obj(m_button_group, threshold_slider);
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
 
+	ibutton_y++;
+	agc_gain_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(agc_gain_slider, w / 2 - 50);
+	lv_slider_set_range(agc_gain_slider, -400, 0);
+	lv_obj_align_to(agc_gain_slider, o_tab, LV_ALIGN_TOP_LEFT, x_margin, ibutton_y * button_height_margin + 10);
+	lv_obj_add_event_cb(agc_gain_slider, agc_gain_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(m_button_group, agc_gain_slider);
+
+	agc_gain_label = lv_label_create(o_tab);
+	lv_label_set_text(agc_gain_label, "agc gain");
+	lv_obj_align_to(agc_gain_label, agc_gain_slider, LV_ALIGN_TOP_MID, 0, -20);
+
+	ibutton_y++;
+	agc_delay_slider = lv_slider_create(o_tab);
+	lv_obj_set_width(agc_delay_slider, w / 2 - 50);
+	lv_slider_set_range(agc_delay_slider, 1, 800);
+	lv_obj_align_to(agc_delay_slider, o_tab, LV_ALIGN_TOP_LEFT, x_margin, ibutton_y * button_height_margin + 10);
+	lv_obj_add_event_cb(agc_delay_slider, agc_delay_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_group_add_obj(m_button_group, agc_delay_slider);
+
+	agc_delay_label = lv_label_create(o_tab);
+	lv_label_set_text(agc_delay_label, "agc delay");
+	lv_obj_align_to(agc_delay_label, agc_delay_slider, LV_ALIGN_TOP_MID, 0, -20);
+
+	set_attack_release_slider(Settings_file.get_int("Squelch", "attack_release", 1));
+	set_agc_gain_slider(Settings_file.get_int("AGC", "gain", 0));
+	set_agc_delay_slider(Settings_file.get_int("AGC", "delay", 1));
 	lv_group_add_obj(m_button_group, tabbuttons);
 }
 
@@ -207,6 +235,7 @@ void gui_squelch::button_handler_class(lv_event_t *e)
 				}
 				else
 				{
+					lv_obj_add_state(obj, LV_STATE_CHECKED);
 					squelch_mode = i;
 					Settings_file.save_int("Squelch", "enabled", squelch_mode.load());
 					Settings_file.write_settings();
@@ -242,4 +271,57 @@ void gui_squelch::attack_release_slider_event_cb_class(lv_event_t *e)
 		Settings_file.save_int("Squelch", "attack_release", attack_release.load());
 		Settings_file.write_settings();
 	}
+}
+
+void gui_squelch::agc_gain_slider_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		agc_gain.store(lv_slider_get_value(obj));
+		std::string buf = strlib::sprintf("agc gain %4.1f db", (float)agc_gain.load() / 10.0f);
+		lv_label_set_text(agc_gain_label, buf.c_str());
+		Settings_file.save_int("AGC", "gain", agc_gain.load());
+		Settings_file.write_settings();
+	}
+}
+
+void gui_squelch::set_agc_gain_slider(int _agc_gain)
+{
+	agc_gain.store(_agc_gain);
+	std::string buf = strlib::sprintf("agc gain %4.1f db", (float)agc_gain.load() / 10.0f);
+	lv_label_set_text(agc_gain_label, buf.c_str());
+	lv_slider_set_value(agc_gain_slider, _agc_gain, LV_ANIM_ON);
+	Settings_file.save_int("AGC", "gain", agc_gain.load());
+	Settings_file.write_settings();
+}
+
+float bt_to_ms(float bt)
+{
+	return (1.0f / bt) / audio_output->get_samplerate() * 1000.0f;
+}
+
+void gui_squelch::agc_delay_slider_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		agc_delay.store(lv_slider_get_value(obj));
+		std::string buf = strlib::sprintf("agc delay %1.2f ms", bt_to_ms((float)agc_delay.load() / agc_delay_div));
+		lv_label_set_text(agc_delay_label, buf.c_str());
+		Settings_file.save_int("AGC", "delay", agc_delay.load());
+		Settings_file.write_settings();
+	}
+}
+
+void gui_squelch::set_agc_delay_slider(int _agc_delay)
+{
+	agc_delay.store(_agc_delay);
+	std::string buf = strlib::sprintf("agc delay %1.2f ms", bt_to_ms((float)_agc_delay / agc_delay_div));
+	lv_label_set_text(agc_delay_label, buf.c_str());
+	lv_slider_set_value(agc_delay_slider, _agc_delay, LV_ANIM_ON);
+	Settings_file.save_int("AGC", "delay", agc_delay.load());
+	Settings_file.write_settings();
 }

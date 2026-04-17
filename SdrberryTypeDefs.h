@@ -2,7 +2,7 @@
 #include <complex>
 #include <vector>
 
-typedef double Sample;
+typedef float Sample;
 typedef std::vector<Sample> SampleVector;
 
 typedef std::complex<float> IQSample;

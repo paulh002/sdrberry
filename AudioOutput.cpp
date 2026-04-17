@@ -56,7 +56,7 @@ long AudioOutput::GetSampleDuration()
 
 int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status)
 {
-	double *buffer = (double *) outputBuffer;
+	float *buffer = (float *) outputBuffer;
 
 	if (status)
 		std::cout << "Stream underflow detected!\n" << std::endl;
@@ -77,14 +77,14 @@ int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned 
 			for (auto &col : underrunSamples)
 			{
 				Sample v = col;
-				((double *)buffer)[i++] = v;
+				((float *)buffer)[i++] = v;
 			}
 		}
 		else
 		{
 			for (int i = 0; i < bytes; i++)
 			{
-				((double *)buffer)[i] = 0.0;
+				((float *)buffer)[i] = 0.0;
 			}
 		}
 		if (audio_output != nullptr)
@@ -98,7 +98,7 @@ int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned 
 	for (auto& col : samples)
 	{
 		Sample v = col;
-		((double *)buffer)[i++] = v;
+		((float *)buffer)[i++] = v;
 	}
 	return 0;
 }
@@ -177,7 +177,7 @@ bool AudioOutput::open(int deviceId)
 	parameters.nChannels = 2;
 	info = getDeviceInfo(parameters.deviceId);
 	printf("audio output device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
-	err = openStream(&parameters, NULL, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, NULL);
+	err = openStream(&parameters, NULL, RTAUDIO_FLOAT32, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, NULL);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio output stream\n");
@@ -194,13 +194,13 @@ bool AudioOutput::open(int deviceId)
 void AudioOutput::set_volume(int vol) 
 {
 	// log volume
-	volume.store(exp(((double)vol * 6.908) / 80.0) / 1000);
+	volume.store(expf(((float)vol * 6.908) / 80.0) / 1000);
 	//printf("vol %f\n", (float)m_volume.load());
 } 
 
 void AudioOutput::adjust_gain(SampleVector& samples)
 {
-	double gain = volume.load();
+	float gain = volume.load();
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
 		samples[i] *= gain;
 	}
@@ -208,7 +208,7 @@ void AudioOutput::adjust_gain(SampleVector& samples)
 
 void AudioOutput::adjust_gain(SampleVector &samples_in, SampleVector &samples_out)
 {
-	double gain = volume.load();
+	float gain = volume.load();
 	for (auto sample  : samples_in)
 	{
 		samples_out.push_back(gain * sample);

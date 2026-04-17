@@ -50,7 +50,7 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 	SampleVector	buf;
 	for (int i = 0; i < nBufferFrames; i++)
 	{
-		Sample f = ((double *)inputBuffer)[i];
+		Sample f = ((float *)inputBuffer)[i];
 		buf.push_back(f);
 		if (get_stereo())
 			buf.push_back(f);
@@ -140,7 +140,7 @@ bool AudioInput::open(int deviceId)
 	info = getDeviceInfo(parameters.deviceId);
 	if (info.inputChannels > 0)
 	{
-		err = openStream(NULL, &parameters, RTAUDIO_FLOAT64, sampleRate, &bufferFrames, AudioIn, (void *)this);
+		err = openStream(NULL, &parameters, RTAUDIO_FLOAT32, sampleRate, &bufferFrames, AudioIn, (void *)this);
 		if (err != RTAUDIO_NO_ERROR)
 		{
 			printf("Cannot open audio input stream\n");
@@ -161,14 +161,14 @@ bool AudioInput::open(int deviceId)
 void AudioInput::set_volume(int vol)
 {
 	// log volume
-	volume = exp(((double)vol * 6.908) / 100.0) / 100.0;
+	volume = expf(((float)vol * 6.908) / 100.0) / 100.0;
 	//printf("mic vol %f\n", (float)volume);
 }
 
 void AudioInput::set_digital_volume(int vol)
 {
 	// log volume
-	digitalvolume = exp(((double)vol * 6.908) / 100.0) / 1000.0;
+	digitalvolume = expf(((float)vol * 6.908) / 100.0) / 1000.0;
 }
 
 void AudioInput::adjust_gain(SampleVector& samples)
@@ -211,12 +211,12 @@ AudioInput::~AudioInput()
 }
 
 #define TWOPIOVERSAMPLERATE 0.0001308996938995747;  // 2 Pi / 48000
-const double cw_keyer_sidetone_frequency {1500.0};
-const double cw_keyer_sidetone_frequency2 {750.0};
+const float cw_keyer_sidetone_frequency {1500.0};
+const float cw_keyer_sidetone_frequency2 {750.0};
 
-double AudioInput::Nexttone()
+float AudioInput::Nexttone()
 {
-	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
+	float angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 64) asteps = 0;
 	return sin(angle) / 10.0;
 }
@@ -300,12 +300,12 @@ void AudioInput::doDigitalMode()
 	}
 }
 
-double AudioInput::NextTwotone()
+float AudioInput::NextTwotone()
 {
-	double angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
-	double angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
+	float angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
+	float angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
 	if (++asteps >= 64) asteps = 0;
-	return (sin(angle) + sin(angle2)) / 10.0;
+	return (sinf(angle) + sinf(angle2)) / 10.0;
 }
 
 int	 AudioInput::queued_samples()

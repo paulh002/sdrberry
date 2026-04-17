@@ -5,6 +5,7 @@
 #include "gui_sdr.h"
 #include "screen.h"
 #include "sdrberry.h"
+#include "AudioOutput.h"
 
 gui_squelch guisquelch;
 
@@ -298,7 +299,7 @@ void gui_squelch::set_agc_gain_slider(int _agc_gain)
 
 float bt_to_ms(float bt)
 {
-	return (1.0f / bt) / ifrate * 1000.0f;
+	return (1.0f / bt) / audio_output->get_samplerate() * 1000.0f;
 }
 
 void gui_squelch::agc_delay_slider_event_cb_class(lv_event_t *e)
@@ -308,7 +309,7 @@ void gui_squelch::agc_delay_slider_event_cb_class(lv_event_t *e)
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
 		agc_delay.store(lv_slider_get_value(obj));
-		std::string buf = strlib::sprintf("agc delay %1.6f ms", bt_to_ms((float)agc_delay.load() / agc_delay_div));
+		std::string buf = strlib::sprintf("agc delay %1.2f ms", bt_to_ms((float)agc_delay.load() / agc_delay_div));
 		lv_label_set_text(agc_delay_label, buf.c_str());
 		Settings_file.save_int("AGC", "delay", agc_delay.load());
 		Settings_file.write_settings();
@@ -318,7 +319,7 @@ void gui_squelch::agc_delay_slider_event_cb_class(lv_event_t *e)
 void gui_squelch::set_agc_delay_slider(int _agc_delay)
 {
 	agc_delay.store(_agc_delay);
-	std::string buf = strlib::sprintf("agc delay %1.6f ms", bt_to_ms((float)_agc_delay / agc_delay_div));
+	std::string buf = strlib::sprintf("agc delay %1.2f ms", bt_to_ms((float)_agc_delay / agc_delay_div));
 	lv_label_set_text(agc_delay_label, buf.c_str());
 	lv_slider_set_value(agc_delay_slider, _agc_delay, LV_ANIM_ON);
 	Settings_file.save_int("AGC", "delay", agc_delay.load());

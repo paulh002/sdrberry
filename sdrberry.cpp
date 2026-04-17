@@ -709,7 +709,7 @@ int main(int argc, char *argv[])
 	tab["Preset"] = (lv_tabview_add_tab(tabview_mid, "Presets"));
 	tab["rx"] = (lv_tabview_add_tab(tabview_mid, "RX"));
 	// tab["keyboard"] = (lv_tabview_add_tab(tabview_mid, LV_SYMBOL_KEYBOARD));
-	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "Squelch"));
+	tab["squelch"] = (lv_tabview_add_tab(tabview_mid, "AGC"));
 	tab["tx"] = (lv_tabview_add_tab(tabview_mid, "TX"));
 	tab["wsjtx"] = (lv_tabview_add_tab(tabview_mid, "Wsjtx"));
 	// tab["FreeDV"] = (lv_tabview_add_tab(tabview_mid, "FreeDV"));

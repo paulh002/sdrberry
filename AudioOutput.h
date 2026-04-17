@@ -38,7 +38,7 @@ class AudioOutput : public RtAudio
 	void adjust_gain(SampleVector &samples_in, SampleVector &samples_out);
 	void close();
 	~AudioOutput();
-	double get_volume() { return volume; }
+	float get_volume() { return volume; }
 	void set_volume(int vol);
 	unsigned int get_framesize() { return bufferFrames; }
 	int queued_samples();

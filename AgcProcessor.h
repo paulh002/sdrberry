@@ -11,15 +11,17 @@
 class AgcProcessor
 {
   private:
-	agc_crcf agc_object{};
+	agc_rrrf agc_object{};
 	bool squelch_enabled;
 	float threshold;
+	float scale;
+	float max_gain;
 
   public:
 	AgcProcessor(float bandwidth = 1e-3f);
 	~AgcProcessor();
 	
-	void Process(IQSampleVector &samples_in);
+	void Process(SampleVector &samples_in);
 	float getSignalLevel();
 	float getRssi();
 	void SetSquelch(bool squelch);
@@ -28,5 +30,6 @@ class AgcProcessor
 	void print();
 	bool squelch();
 	void set_bandwidth(float bt);
+	void set_scale(int gain);
 };
 

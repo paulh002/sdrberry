@@ -99,7 +99,7 @@ class Demodulator
 	float getResampleRate() { return resampleRate; }
 	IQSampleVector Resample(IQSampleVector &filter_in);
 	
-	void SquelchProcess(IQSampleVector &filter);
+	void SquelchProcess(SampleVector &filter);
 	bool Squelch();
 	void SquelchPrint();
 
@@ -150,6 +150,7 @@ class Demodulator
 
 	AgcProcessor AgcProc;
 	int threshold = -100;
+	int agc_gain = 0;
 	int attack_release = 1;
 	int squelch_mode = 0;
 };

@@ -683,7 +683,7 @@ void Demodulator::set_noise_threshold(int threshold)
 	noiseThresshold = threshold;
 }
 
-void Demodulator::SquelchProcess(IQSampleVector &filter)
+void Demodulator::SquelchProcess(SampleVector &filter)
 {
 	int s = guisquelch.get_mode();
 	if (s != squelch_mode || s > 0)
@@ -710,7 +710,12 @@ void Demodulator::SquelchProcess(IQSampleVector &filter)
 			AgcProc.set_bandwidth((float)a / 1000.0);
 			attack_release = a;
 		}
-			
+		int g = guisquelch.get_agc_gain();
+		if (g != agc_gain)
+		{
+			AgcProc.set_scale(g);
+			agc_gain = g;
+		}
 		squelch_mode = s;
 		if (s > 0)
 			AgcProc.Process(filter);

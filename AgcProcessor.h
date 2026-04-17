@@ -16,6 +16,7 @@ class AgcProcessor
 	float threshold;
 	float scale;
 	float max_gain;
+	float scale_f;
 
   public:
 	AgcProcessor(float bandwidth = 1e-3f);

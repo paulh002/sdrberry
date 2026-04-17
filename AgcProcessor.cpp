@@ -4,6 +4,7 @@ AgcProcessor::AgcProcessor(float bandwidth)
 {
 	scale = 0.001f;
 	max_gain = 1.0f;
+	scale_f = 1.0;
 	agc_object = agc_rrrf_create();	  // create object
 	agc_rrrf_set_bandwidth(agc_object, bandwidth); // set loop filter bandwidth
 	agc_rrrf_set_signal_level(agc_object, 1e-3f);
@@ -81,6 +82,7 @@ void AgcProcessor::Lock(bool lock)
 void AgcProcessor::print()
 {
 	agc_rrrf_print(agc_object);
+	printf("scale %f \n", scale_f);
 }
 
 bool AgcProcessor::squelch()
@@ -98,8 +100,6 @@ void AgcProcessor::set_bandwidth(float bt)
 
 void AgcProcessor::set_scale(int gain)
 {
-	float scale_f;
-
-	scale_f = powf(10.0f, (float)gain / 20.0f);
+	scale_f = powf(10.0f, (float)gain / 200.0f);
 	agc_rrrf_set_scale(agc_object, scale_f);
 }

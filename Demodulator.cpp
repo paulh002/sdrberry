@@ -707,7 +707,7 @@ void Demodulator::SquelchProcess(SampleVector &filter)
 		int a = guisquelch.get_attack_release();
 		if (a!= attack_release)
 		{
-			AgcProc.set_bandwidth((float)a / 1000.0);
+			AgcProc.set_bandwidth((float)a / 100000.0);
 			attack_release = a;
 		}
 		int g = guisquelch.get_agc_gain();

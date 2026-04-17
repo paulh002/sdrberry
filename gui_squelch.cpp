@@ -126,7 +126,7 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	agc_gain_label = lv_label_create(o_tab);
 	lv_label_set_text(agc_gain_label, "agc gain");
 	lv_obj_align_to(agc_gain_label, agc_gain_slider, LV_ALIGN_TOP_MID, 0, -20);
-	set_attack_release_slider(Settings_file.get_int("AGC", "agc_gain", 1));
+	set_attack_release_slider(Settings_file.get_int("Squelch", "attack_release", 1));
 	set_agc_gain_slider(Settings_file.get_int("AGC", "gain", 0));
 	lv_group_add_obj(m_button_group, tabbuttons);
 }

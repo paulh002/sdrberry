@@ -98,8 +98,11 @@ class Demodulator
 	int get_noise() { return noisefilter.load(); }
 	float getResampleRate() { return resampleRate; }
 	IQSampleVector Resample(IQSampleVector &filter_in);
-	
+
+	void CreateSquelch(StreamMode mode);
+	int SquelchReadMode();
 	void SquelchProcess(SampleVector &filter);
+	void SquelchIQProcess(IQSampleVector &filter);
 	bool Squelch();
 	void SquelchPrint();
 
@@ -148,7 +151,7 @@ class Demodulator
 	static std::atomic<float> noiseThresshold;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 
-	AgcProcessor AgcProc;
+	unique_ptr<AGCUnifiedProcessor> AgcProc;
 	int threshold = -100;
 	int agc_gain = 0;
 	int agc_delay = 1;

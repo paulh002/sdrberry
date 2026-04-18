@@ -683,7 +683,34 @@ void Demodulator::set_noise_threshold(int threshold)
 	noiseThresshold = threshold;
 }
 
+void Demodulator::CreateSquelch(StreamMode mode)
+{
+	AgcProc = make_unique<AGCUnifiedProcessor>(mode, 0.0001f);
+}
+
 void Demodulator::SquelchProcess(SampleVector &filter)
+{
+	if (SquelchReadMode() > 0)
+	{
+		std::span<std::byte> raw_buf(
+			reinterpret_cast<std::byte *>(filter.data()),
+			filter.size() * sizeof(float));
+		AgcProc->Process(raw_buf, filter.size());
+	}
+}
+
+void Demodulator::SquelchIQProcess(IQSampleVector &filter)
+{
+	if (SquelchReadMode() > 0)
+	{
+		std::span<std::byte> raw_buf(
+			reinterpret_cast<std::byte *>(filter.data()),
+			filter.size() * sizeof(std::complex<float>));
+		AgcProc->Process(raw_buf, filter.size());
+	}
+}
+
+int Demodulator::SquelchReadMode()
 {
 	int s = guisquelch.get_mode();
 	if (s != squelch_mode || s > 0)
@@ -691,50 +718,49 @@ void Demodulator::SquelchProcess(SampleVector &filter)
 		if (s == 2 && s != squelch_mode)
 		{
 			squelch_mode = s;
-			AgcProc.SetSquelch(true);
+			AgcProc->SetSquelch(true);
 		}
 		if ((s == 0 || s == 1) && s != squelch_mode)
 		{
 			squelch_mode = s;
-			AgcProc.SetSquelch(false);
+			AgcProc->SetSquelch(false);
 		}
 		int t = guisquelch.get_threshold();
 		if (t != threshold)
 		{
-			AgcProc.SetSquelchThreshold(t);
+			AgcProc->SetSquelchThreshold(t);
 			threshold = t;
 		}
 		int a = guisquelch.get_attack_release();
 		if (a!= attack_release && s == 2)
 		{
-			AgcProc.set_bandwidth((float)a / squelch_delay_div);
+			AgcProc->set_bandwidth((float)a / squelch_delay_div);
 			attack_release = a;
 		}
 
 		int d = guisquelch.get_agc_delay();
 		if (d != agc_delay && s == 1)
 		{
-			AgcProc.set_bandwidth((float)d / agc_delay_div);
+			AgcProc->set_bandwidth((float)d / agc_delay_div);
 			agc_delay = d;
 		}
 		int g = guisquelch.get_agc_gain();
 		if (g != agc_gain)
 		{
-			AgcProc.set_scale(g);
+			AgcProc->set_scale(g);
 			agc_gain = g;
 		}
 		squelch_mode = s;
-		if (s > 0)
-			AgcProc.Process(filter);
 	}
+	return s;
 }
 
 bool Demodulator::Squelch()
 {
-	return AgcProc.squelch();
+	return AgcProc->squelch();
 }
 
 void Demodulator::SquelchPrint()
 {
-	AgcProc.print();
+	AgcProc->print();
 }

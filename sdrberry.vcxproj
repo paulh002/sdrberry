@@ -91,7 +91,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AgcProcessor.cpp" />
     <ClCompile Include="AMDemodulator.cpp" />
     <ClCompile Include="AMModulator.cpp" />
     <ClCompile Include="AudioInput.cpp" />

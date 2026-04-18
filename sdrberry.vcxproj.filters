@@ -1435,9 +1435,6 @@
     <ClCompile Include="VfoKeyPad.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="AgcProcessor.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="gui_squelch.cpp">
       <Filter>Source files</Filter>
     </ClCompile>

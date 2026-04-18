@@ -44,6 +44,7 @@ void FMDemodulator::operator()()
 	receiveIQBuffer->clear();
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
+	CreateSquelch(StreamMode::CRCF);
 	while (!stop_flag.load())
 	{
 		span = vfo.get_span();
@@ -149,21 +150,17 @@ void FMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
 	lowPassAudioFilter(filter1);
+	SquelchIQProcess(filter1);
 	calc_iq_signalstrength(filter1);
 	for (auto col : filter1)
 	{
 		float v;
-		
+
 		freqdem_demodulate(demodFM, col, &v);
-		af_samples.push_back(v);
-	}
-	SquelchProcess(af_samples);
-	for (auto col : af_samples)
-	{
 		if (Squelch())
-			audio.push_back(0.0f);
+			audio.push_back(0.0);
 		else
-			audio.push_back(col);
+			audio.push_back(v);
 	}
 }
 

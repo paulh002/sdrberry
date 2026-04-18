@@ -129,6 +129,7 @@ void AMDemodulator::operator()()
 	int vsize, passes{0};
 	int phase = 0, pcount = 0;
 	float resamplerate = 0.0, sample_ratio= 0.0;
+	int print_log_time = Settings_file.get_int("Radio", "logtime", 10);
 
 	int limiterAtack = Settings_file.get_int(Limiter::getsetting(), "limiterAtack", 10);
 	int limiterDecay = Settings_file.get_int(Limiter::getsetting(), "limiterDecay", 500);
@@ -241,7 +242,7 @@ void AMDemodulator::operator()()
 		}
 */
 
-		if (timeLastPrint + std::chrono::seconds(10) < now)
+		if (timeLastPrint + std::chrono::seconds(print_log_time) < now)
 		{
 			timeLastPrint = now;
 			const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);

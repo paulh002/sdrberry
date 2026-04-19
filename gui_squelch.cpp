@@ -112,7 +112,7 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	lv_slider_set_range(threshold_slider, -1000, 0);
 	lv_obj_align_to(threshold_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(threshold_slider, threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	set_threshold_slider(Settings_file.get_int("Squelch", "threshold", -100));
+	set_threshold_slider(Settings_file.get_int("Squelch", "threshold", -10));
 	lv_group_add_obj(m_button_group, threshold_slider);
 	lv_obj_align_to(threshold_slider_label, threshold_slider, LV_ALIGN_TOP_MID, 0, -20);
 
@@ -141,8 +141,8 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	lv_obj_align_to(agc_delay_label, agc_delay_slider, LV_ALIGN_TOP_MID, 0, -20);
 
 	set_attack_release_slider(Settings_file.get_int("Squelch", "attack_release", 1));
-	set_agc_gain_slider(Settings_file.get_int("AGC", "gain", 0));
-	set_agc_delay_slider(Settings_file.get_int("AGC", "delay", 1));
+	set_agc_gain_slider(Settings_file.get_int("AGC", "gain", Settings_file.get_int("AGC", "gain", -130)));
+	set_agc_delay_slider(Settings_file.get_int("AGC", "delay", Settings_file.get_int("AGC", "delay", 100)));
 	lv_group_add_obj(m_button_group, tabbuttons);
 }
 

@@ -26,6 +26,63 @@ static const char *cal_opts = "None\n"
 							  "Manual\n"
 							  "Auto\n"
 							  "Both";
+#include <spawn.h>
+#include <unistd.h>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <cstring>
+
+extern char **environ; // POSIX standard environment pointer
+
+bool open_cli_and_run_script(const std::string &script_path)
+{
+	// Terminals that support Wayland natively and accept `-e` to run commands
+	const std::vector<std::string> terminals = {"foot", "alacritty", "kitty", "lxterminal"};
+	std::string term_cmd;
+
+	// Pick the first available terminal
+	for (const auto &t : terminals)
+	{
+		// posix_spawnp will search PATH, so we just need the name
+		term_cmd = t;
+		break;
+	}
+
+	if (term_cmd.empty())
+	{
+		std::cerr << "[SDR] No supported terminal emulator found in PATH.\n";
+		return false;
+	}
+
+	// Wrap script in `sh -c` to handle non-executable .sh files safely
+	// `exec` replaces the shell process, avoiding orphaned sh instances
+	std::string full_cmd = "exec " + script_path;
+
+	std::vector<char *> argv = {
+		const_cast<char *>(term_cmd.c_str()),
+		const_cast<char *>("-e"),
+		const_cast<char *>("sh"),
+		const_cast<char *>("-c"),
+		const_cast<char *>(full_cmd.c_str()),
+		nullptr};
+
+	pid_t pid;
+	int ret = posix_spawnp(&pid, term_cmd.c_str(), nullptr, nullptr, argv.data(), environ);
+	if (ret != 0)
+	{
+		std::cerr << "[SDR] posix_spawnp failed: " << strerror(ret) << " (code " << ret << ")\n";
+		std::cerr << "[SDR] PATH: " << (getenv("PATH") ? getenv("PATH") : "NULL") << "\n";
+		std::cerr << "[SDR] WAYLAND_DISPLAY: " << (getenv("WAYLAND_DISPLAY") ? getenv("WAYLAND_DISPLAY") : "NULL") << "\n";
+		std::cerr << "[SDR] XDG_RUNTIME_DIR: " << (getenv("XDG_RUNTIME_DIR") ? getenv("XDG_RUNTIME_DIR") : "NULL") << "\n";
+		std::cerr << "[SDR] Failed to spawn terminal: " << strerror(ret) << "\n";
+		return false;
+	}
+
+	std::cout << "[SDR] Terminal spawned (PID: " << pid << ") running: " << script_path << "\n";
+	return true;
+}
+
 
 void gui_setup::webbox_event_class(lv_event_t *e)
 {
@@ -226,7 +283,7 @@ void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
 		lv_obj_t *btn = lv_event_get_target_obj(e);
 		lv_obj_t *label = lv_obj_get_child(btn, 0);
 		const char *ptr = lv_label_get_text(label);
-		if (strcmp(ptr, "Shutdown") == 0)
+		if (strcmp(ptr, "Shutdown") == 0 || strcmp(ptr, "Reboot") == 0)
 		{
 			long freq1 = vfo.get_vfo_frequency(vfo_activevfo::One);
 			long freq2 = vfo.get_vfo_frequency(vfo_activevfo::Two);
@@ -239,6 +296,41 @@ void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
 		else if (strcmp(ptr, "exit") == 0)
 		{
 			stop_sdrberry();
+		}
+		else
+		{
+			lv_msgbox_close(mbox1);
+		}
+	}
+}
+
+void gui_setup::do_update_button_handler_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_current_target(e);
+
+	if (code == LV_EVENT_CLICKED)
+	{
+		// const char *ptr = lv_msgbox_get_active_button_text(obj);
+
+		lv_obj_t *btn = lv_event_get_target_obj(e);
+		lv_obj_t *label = lv_obj_get_child(btn, 0);
+		const char *ptr = lv_label_get_text(label);
+		if (strcmp(ptr, "Update") == 0)
+		{
+			open_cli_and_run_script("/usr/local/bin/build_sdrberry");
+			lv_msgbox_close(mbox1);
+
+			mbox1 = lv_msgbox_create(NULL);
+			lv_msgbox_add_title(mbox1, "Sdrberry");
+			lv_msgbox_add_text(mbox1, "Please reboot?");
+			lv_msgbox_add_close_button(mbox1);
+			lv_obj_t *btn;
+			btn = lv_msgbox_add_footer_button(mbox1, "Reboot");
+			lv_obj_add_event_cb(btn, do_shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
+			btn = lv_msgbox_add_footer_button(mbox1, "exit");
+			lv_obj_add_event_cb(btn, do_shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
+			lv_obj_center(mbox1);
 		}
 		else
 		{
@@ -268,6 +360,25 @@ void gui_setup::shutdown_button_handler_class(lv_event_t *e)
 	}
 }
 
+void gui_setup::update_button_handler_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	
+	if (code == LV_EVENT_CLICKED)
+	{
+		mbox1 = lv_msgbox_create(NULL);
+		lv_msgbox_add_title(mbox1, "Sdrberry");
+		lv_msgbox_add_text(mbox1, "Update Sdrberry ?");
+		lv_msgbox_add_close_button(mbox1);
+		lv_obj_t *btn;
+		btn = lv_msgbox_add_footer_button(mbox1, "Update");
+		lv_obj_add_event_cb(btn, do_update_button_handler, LV_EVENT_CLICKED, (void *)this);
+		btn = lv_msgbox_add_footer_button(mbox1, "Cancel");
+		lv_obj_add_event_cb(btn, do_update_button_handler, LV_EVENT_CLICKED, (void *)this);
+		lv_obj_center(mbox1);
+	}
+}
 
 void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w, lv_coord_t h)
 {
@@ -384,7 +495,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_obj_t *lv_label = lv_label_create(shutdownbutton);
 	lv_label_set_text(lv_label, "Exit");
 	lv_obj_center(lv_label);
-	
+
 	y_cal = y_margin + button_height_margin / 2;
 	x_cal = w / 2 + w / 4 + w / 16;
 	webbox = lv_checkbox_create(settings_main);
@@ -418,6 +529,19 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	}
 
 	ibutton_y++;
+	
+	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	x_cal = xpos + 2 * (button_width + x_margin);
+	update_button = lv_btn_create(settings_main);
+	// lv_group_add_obj(m_button_group, shutdownbutton);
+	lv_obj_add_style(update_button, &style_btn, 0);
+	lv_obj_set_size(update_button, button_width * 0.8, button_height * 0.8);
+	lv_obj_add_event_cb(update_button, update_button_handler, LV_EVENT_CLICKED, (void *)this);
+	lv_obj_align(update_button, LV_ALIGN_TOP_LEFT, x_cal + button_width + x_margin, y_cal);
+	lv_label = lv_label_create(update_button);
+	lv_label_set_text(lv_label, "Update");
+	lv_obj_center(lv_label);
+	
 	// Main Display
 	int y_span = y_margin + y_margin + ibutton_y * button_height_margin;
 

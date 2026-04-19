@@ -78,7 +78,7 @@ sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy s
 binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
 libboost-all-dev python3 libfftw3-dev python3-yaml libtinyxml2-dev \
-libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev libcurl4-openssl-dev
+libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev libcurl4-openssl-dev foot
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 
@@ -122,6 +122,15 @@ mkdir build
 cd build && cmake .. && make -j4
 make sdrweb
 sudo make install
+cd $wrkdir || exit
+
+#build sdrberry
+git clone https://github.com/paulh002/build_sdrberry
+cd build_sdrberry || exit
+mkdir build
+cd build && cmake .. && make -j4
+sudo make install
+cd $wrkdir || exit
 
 #cd to work dir . If does not exist exit script
 cd $wrkdir || exit

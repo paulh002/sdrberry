@@ -347,6 +347,7 @@ void gui_sdr::set_samplerate()
 
 int gui_sdr::get_decimation()
 {
+	//printf("Get decimated %d\n", lv_dropdown_get_selected(d_decimate));
 	return lv_dropdown_get_selected(d_decimate);
 }
 

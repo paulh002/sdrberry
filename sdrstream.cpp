@@ -2,8 +2,8 @@
 #include "DataBuffer.h"
 #include "SdrDevice.h"
 #include "gui_bar.h"
-#include "gui_setup.h"
 #include "gui_sdr.h"
+#include "gui_setup.h"
 #include "gui_tx.h"
 #include "lvgl.h"
 #include "sdrberry.h"
@@ -23,7 +23,6 @@
 #include <unistd.h>
 
 #define DEBUG_VECTOR(v) std::cout << #v << " size: " << v.size() << ", capacity: " << v.capacity() << '\n';
-
 
 std::atomic<double> rx_sampleRate{0.0};
 std::atomic<double> tx_sampleRate{0};
@@ -71,6 +70,7 @@ void RX_Stream::operator()()
 	int default_block_length;
 	SoapySDR::Stream *rx_stream;
 	int ret;
+	float rx_ifrate = ifrate * pow(2, decimatorFactor);
 
 	default_block_length = 1024;
 	if ((ifrate < 192001) && (ifrate > 48000))
@@ -87,9 +87,10 @@ void RX_Stream::operator()()
 	try
 	{
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
+		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, 0, rfgain);
 		rx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);
 		SdrDevices.SdrDevices.at(radio)->activateStream(rx_stream);
-		SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_RX, 0, bandwidth); 
+		SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_RX, 0, bandwidth);
 		SdrDevices.SdrDevices.at(radio)->setAntenna(SOAPY_SDR_RX, 0, antenna);
 	}
 	catch (const std::exception &e)
@@ -127,7 +128,7 @@ void RX_Stream::operator()()
 			if (ret > 0)
 			{
 				timePassed = std::chrono::duration_cast<std::chrono::microseconds>(stoptReadTime - startReadTime);
-				samples_read = ret; 
+				samples_read = ret;
 				rx_nosample = ret;
 				rx_sampleRate = timePassed.count();
 				startReadTime = stoptReadTime;
@@ -248,6 +249,8 @@ RX_Stream::RX_Stream(double ifrate_, std::string sradio, int chan, std::string a
 	radio = sradio;
 	channel = chan;
 	receiveIQBuffer = source_buffer;
+	decimatorFactor = 0;
+	rfgain = gbar.get_rf_gain();
 	if (decimator_factor)
 	{
 		int type = LIQUID_RESAMP_DECIM;
@@ -269,9 +272,7 @@ bool RX_Stream::create_rx_streaming_thread(double ifrate_, std::string radio, in
 		return false;
 	if (SdrDevices.get_rx_channels(default_radio) < 1)
 		return false;
-	SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, chan, ifrate_);
-	SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, chan, gbar.get_rf_gain());
-	ptr_rx_stream = make_shared<RX_Stream>(ifrate_, radio, chan, guisdr.getAntenna(), guisdr.getBandwidth() ,source_buffer, decimator_factor);
+	ptr_rx_stream = make_shared<RX_Stream>(ifrate_, radio, chan, guisdr.getAntenna(), guisdr.getBandwidth(), source_buffer, decimator_factor);
 	rx_thread = std::thread(&RX_Stream::operator(), ptr_rx_stream);
 	return true;
 }
@@ -300,11 +301,11 @@ void TX_Stream::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	unsigned long long totalSamples(0);
-	
+
 	IQSampleVector iqsamples, resampleData;
-	
+
 	int ret, dfactor, streammtu;
-	
+
 	try
 	{
 		// SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
@@ -339,7 +340,7 @@ void TX_Stream::operator()()
 		iqsamples = std::move(receiveIQBuffer->pull());
 		if (iqsamples.empty())
 			continue;
-		//printf("samples %ld %ld %ld \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
+		// printf("samples %ld %ld %ld \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		samples_transmit = iqsamples.size();
 		complex<float> *buffs[5]{};
 		buffs[0] = (complex<float> *)iqsamples.data();
@@ -435,7 +436,7 @@ TX_Stream::TX_Stream(double ifrate_, std::string sradio, int chan, DataBuffer<IQ
 	{
 		int type = LIQUID_RESAMP_INTERP;
 		// unsigned int num_stages = 4; // decimate by 2^4=16
-		float fc = 0.45f;  // signal cut-off frequency
+		float fc = 0.45f; // signal cut-off frequency
 		float f0 = 0.0f;  // (ignored)
 		float As = 60.0f; // stop-band attenuation
 
@@ -480,4 +481,3 @@ void TX_Stream::close_tx_stream()
 		SdrDevices.SdrDevices.at(radio)->closeStream(tx_stream);
 	tx_stream = nullptr;
 }
-

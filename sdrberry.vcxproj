@@ -56,9 +56,9 @@
       </DumpStackUsage>
     </ClCompile>
     <Link>
-      <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3/;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;elf;wayland-client;wayland-cursor;xkbcommon;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;elf;wayland-client;wayland-cursor;xkbcommon;rtlsdrSupport;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
       <VerboseMode>true</VerboseMode>

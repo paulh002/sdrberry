@@ -24,6 +24,7 @@ class RX_Stream
 
   private:
 	double ifrate;
+	int rfgain;
 	std::string radio;
 	int channel;
 	DataBuffer<IQSample> *receiveIQBuffer;

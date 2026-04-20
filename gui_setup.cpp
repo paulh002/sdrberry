@@ -413,13 +413,15 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 
 	settings_main = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 
-	settings_i2c = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_cal = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+
+	settings_i2c = lv_tileview_add_tile(tileview, 0, 3, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	i2csetup.init(settings_i2c, w, h, button_group);
 
-	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 4, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gui_i2cinput.init(settings_i2c_input, w, h, button_group);
 
-	settings_i2c_output = lv_tileview_add_tile(tileview, 0, 3, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_i2c_output = lv_tileview_add_tile(tileview, 0, 5, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gui_i2coutput.init(settings_i2c_output, w, h, button_group);
 
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
@@ -470,8 +472,8 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_obj_align_to(audio_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 	
 	int y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
-	int x_cal = xpos + 2 * (button_width + x_margin);
-	calibration_dropdown = lv_dropdown_create(settings_main);
+	int x_cal = x_margin;
+	calibration_dropdown = lv_dropdown_create(settings_cal);
 	lv_group_add_obj(button_group, calibration_dropdown);
 	// lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
 	lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
@@ -479,7 +481,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_dropdown_clear_options(calibration_dropdown);
 	lv_obj_add_event_cb(calibration_dropdown, cal_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_dropdown_set_options_static(calibration_dropdown, cal_opts);
-	cal_label = lv_label_create(settings_main);
+	cal_label = lv_label_create(settings_cal);
 	lv_label_set_text(cal_label, "calibration");
 	lv_obj_align_to(cal_label, calibration_dropdown, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 	lv_dropdown_set_selected(calibration_dropdown, Settings_file.get_int(default_radio, "correction", 0));
@@ -491,15 +493,16 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_obj_add_style(shutdownbutton, &style_btn, 0);
 	lv_obj_set_size(shutdownbutton, button_width * 0.8, button_height * 0.8);
 	lv_obj_add_event_cb(shutdownbutton, shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
-	lv_obj_align(shutdownbutton, LV_ALIGN_TOP_LEFT, x_cal + button_width + x_margin, y_cal);
+	x_cal = xpos + 4 * (button_width + x_margin);
+	lv_obj_align(shutdownbutton, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_obj_t *lv_label = lv_label_create(shutdownbutton);
 	lv_label_set_text(lv_label, "Exit");
 	lv_obj_center(lv_label);
 
 	y_cal = y_margin + button_height_margin / 2;
 	x_cal = w / 2 + w / 4 + w / 16;
-	webbox = lv_checkbox_create(settings_main);
-	lv_obj_align_to(webbox, settings_main, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
+	webbox = lv_checkbox_create(settings_cal);
+	lv_obj_align_to(webbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_checkbox_set_text(webbox, "web");
 	lv_obj_add_event_cb(webbox, webbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	if (Settings_file.get_int("web", "enabled"))
@@ -509,13 +512,13 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 
 	y_cal += button_height_margin ;
 	x_cal = w / 2 + w / 4 + w / 16;
-	calbox = lv_checkbox_create(settings_main);
-	lv_obj_align_to(calbox, settings_main, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
+	calbox = lv_checkbox_create(settings_cal);
+	lv_obj_align_to(calbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_checkbox_set_text(calbox, "cal");
 	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	
-	dcbox = lv_checkbox_create(settings_main);
-	lv_obj_align_to(dcbox, settings_main, LV_ALIGN_TOP_LEFT, x_cal, y_cal + 50);
+
+	dcbox = lv_checkbox_create(settings_cal);
+	lv_obj_align_to(dcbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal + 50);
 	lv_checkbox_set_text(dcbox, "dc filter");
 	lv_obj_add_event_cb(dcbox, dcbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	if (Settings_file.get_int(default_radio, "dc"))
@@ -528,33 +531,15 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 		Demodulator::set_dc_filter(false);
 	}
 
-	ibutton_y++;
-	
-	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
-	x_cal = xpos + 2 * (button_width + x_margin);
-	update_button = lv_btn_create(settings_main);
-	// lv_group_add_obj(m_button_group, shutdownbutton);
-	lv_obj_add_style(update_button, &style_btn, 0);
-	lv_obj_set_size(update_button, button_width * 0.8, button_height * 0.8);
-	lv_obj_add_event_cb(update_button, update_button_handler, LV_EVENT_CLICKED, (void *)this);
-	lv_obj_align(update_button, LV_ALIGN_TOP_LEFT, x_cal + button_width + x_margin, y_cal);
-	lv_label = lv_label_create(update_button);
-	lv_label_set_text(lv_label, "Update");
-	lv_obj_center(lv_label);
-	
 	// Main Display
-	int y_span = y_margin + y_margin + ibutton_y * button_height_margin;
+	int y_disp = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	int x_disp = xpos + 2 * (button_width + x_margin);
 
-	lv_obj_t *main_display_label = lv_label_create(settings_main);
-	lv_label_set_text(main_display_label, "Main display");
-	lv_obj_align_to(main_display_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, 0, y_span);
-
-	y_span = y_span + y_margin + button_height_margin ;
 	main_display = lv_dropdown_create(settings_main);
 	lv_dropdown_clear_options(main_display);
 	lv_dropdown_set_options(main_display, "HDMI-A-1\nHDMI-A-2\nDSI-1");
 	lv_obj_add_event_cb(main_display, main_display_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_obj_align_to(main_display, main_display_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, y_margin);
+	lv_obj_align(main_display, LV_ALIGN_TOP_LEFT, x_disp, y_disp);
 	std::string display_port = Settings_file.get_string("screen", "Display", "DSI-1");
 	int option = 0;
 	if (display_port == "HDMI-A-1")
@@ -565,15 +550,15 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 		option = 2;
 	lv_dropdown_set_selected(main_display, option);
 	lv_group_add_obj(button_group, main_display);
+	
+	lv_obj_t *main_display_label = lv_label_create(settings_main);
+	lv_label_set_text(main_display_label, "Main display");
+	lv_obj_align_to(main_display_label, main_display, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 
 	// Second Display
-	y_span = y_margin + y_margin + ibutton_y * button_height_margin;
-	lv_obj_t *second_display_label = lv_label_create(settings_main);
-	lv_label_set_text(second_display_label, "Second Display");
-	lv_obj_align_to(second_display_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, lv_obj_get_width(main_display) + x_margin, y_span);
-	
+	x_disp = xpos + 3 * (button_width + x_margin);
 	second_disp = lv_dropdown_create(settings_main);
-	lv_obj_align_to(second_disp, second_display_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, y_margin);
+	lv_obj_align(second_disp, LV_ALIGN_TOP_LEFT, x_disp, y_disp);
 	lv_dropdown_clear_options(second_disp);
 	lv_dropdown_set_options(second_disp, "None\nHDMI-A-1\nHDMI-A-2\nDSI-1");
 	lv_obj_add_event_cb(second_disp, second_display_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -590,9 +575,26 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_dropdown_set_selected(second_disp, option);
 	lv_group_add_obj(button_group, second_disp);
 
+	lv_obj_t *second_display_label = lv_label_create(settings_main);
+	lv_label_set_text(second_display_label, "Second Display");
+	lv_obj_align_to(second_display_label, second_disp, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
+	
 	ibutton_y++;
+	
+	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	x_cal = xpos + 4 * (button_width + x_margin);
+	update_button = lv_btn_create(settings_main);
+	// lv_group_add_obj(m_button_group, shutdownbutton);
+	lv_obj_add_style(update_button, &style_btn, 0);
+	lv_obj_set_size(update_button, button_width * 0.8, button_height * 0.8);
+	lv_obj_add_event_cb(update_button, update_button_handler, LV_EVENT_CLICKED, (void *)this);
+	lv_obj_align(update_button, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
+	lv_label = lv_label_create(update_button);
+	lv_label_set_text(lv_label, "Update");
+	lv_obj_center(lv_label);
+	
 	int hh = lv_obj_get_height(main_display);
-	y_span = ibutton_y * font_size.y + ibutton_y * y_margin + ibutton_y * button_height_margin;
+	int y_span = ibutton_y * font_size.y + ibutton_y * y_margin + ibutton_y * button_height_margin;
 	brightness_slider_label = lv_label_create(settings_main);
 	lv_label_set_text(brightness_slider_label, "brightness");
 	int x_pos = 0;
@@ -600,7 +602,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 
 	brightness_slider = lv_slider_create(settings_main);
 	lv_group_add_obj(button_group, brightness_slider);
-	lv_obj_set_width(brightness_slider, w / 2 - 50);
+	lv_obj_set_width(brightness_slider, w / 2 - 50 - y_margin);
 	lv_obj_align_to(brightness_slider, brightness_slider_label, LV_ALIGN_BOTTOM_LEFT, x_margin, y_margin + font_size.y);
 	lv_obj_add_event_cb(brightness_slider, brightness_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_slider_set_range(brightness_slider, 0, get_maxbrightness());

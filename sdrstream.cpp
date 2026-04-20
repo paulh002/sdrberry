@@ -86,6 +86,7 @@ void RX_Stream::operator()()
 	printf("default block length is set to %d ifrate %f\n", default_block_length, ifrate);
 	try
 	{
+		// gain after samplerate for rtlsdr
 		SdrDevices.SdrDevices.at(radio)->setSampleRate(SOAPY_SDR_RX, 0, ifrate);
 		SdrDevices.SdrDevices.at(radio)->setGain(SOAPY_SDR_RX, 0, rfgain);
 		rx_stream = SdrDevices.SdrDevices.at(radio)->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32);

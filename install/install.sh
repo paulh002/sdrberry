@@ -114,12 +114,10 @@ cd sdrberry || exit
 if [[ $BUILD == 'YES' ]]; then
 git switch build
 fi
-if [[ $LCD == 'T2' ]]; then
-rm lv_conf.h
-mv lv_conf32.h lv_conf.h
-fi
 mkdir build
-cd build && cmake .. && make -j4
+cd build || exit
+cmake ..
+make -j4
 make sdrweb
 sudo make install
 cd $wrkdir || exit

@@ -413,7 +413,10 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 
 	settings_main = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 
-	settings_cal = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	if (screenWidth <= small_res)
+		settings_cal = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	else
+		settings_cal = settings_main;
 
 	settings_i2c = lv_tileview_add_tile(tileview, 0, 3, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	i2csetup.init(settings_i2c, w, h, button_group);
@@ -470,8 +473,13 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	audio_label = lv_label_create(settings_main);
 	lv_label_set_text(audio_label, "Audio device");
 	lv_obj_align_to(audio_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
-	
-	int y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+
+	int y_cal;
+	if (screenWidth <= small_res)
+		y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	else
+		y_cal = y_margin + (ibutton_y + 2) * button_height_margin + button_height_margin / 2;
+
 	int x_cal = x_margin;
 	calibration_dropdown = lv_dropdown_create(settings_cal);
 	lv_group_add_obj(button_group, calibration_dropdown);
@@ -494,6 +502,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_obj_set_size(shutdownbutton, button_width * 0.8, button_height * 0.8);
 	lv_obj_add_event_cb(shutdownbutton, shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
 	x_cal = xpos + 4 * (button_width + x_margin);
+	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	lv_obj_align(shutdownbutton, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_obj_t *lv_label = lv_label_create(shutdownbutton);
 	lv_label_set_text(lv_label, "Exit");

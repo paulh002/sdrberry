@@ -91,19 +91,6 @@ body:
         - `dmesg` output
         - `lsusb` output
 
-  - type: checkboxes
-    id: checks
-    attributes:
-      label: Confirmation Checklist
-      description: Please confirm the following before submitting
-      options:
-        - label: I have searched existing issues and this hasn't been reported before
-          required: true
-        - label: I have tested with the latest version of Sdrberry
-          required: false
-        - label: I have included all relevant hardware and software details above
-          required: true
-
   - type: textarea
     id: additional
     attributes:

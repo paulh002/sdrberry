@@ -18,7 +18,7 @@ class gui_setup
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *cal_label, *calibration_dropdown;
 	lv_obj_t *calbox, *dcbox, *autocalbox, *webbox;
-	lv_obj_t *tileview, *settings_main, *settings_i2c, *settings_i2c_input, *settings_i2c_output;
+	lv_obj_t *tileview, *settings_main, *settings_cal, *settings_i2c, *settings_i2c_input, *settings_i2c_output;
 	lv_obj_t *mbox1;
 	lv_group_t *keyboard_group;
 

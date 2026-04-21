@@ -69,7 +69,7 @@ body:
     attributes:
       label: Sdrberry Version
       description: Which version or commit hash of Sdrberry are you running?
-      placeholder: "e.g., v1.2.0 or commit abc1234"
+      placeholder: "e.g., latest master"
     validations:
       required: true
 

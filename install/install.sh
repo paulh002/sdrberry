@@ -73,6 +73,22 @@ else
    echo "main branch"
 fi
 
+no_passwd=2; #default
+while true; do
+read -p "Disable password for sudo answer 1 for disable or 2 not disable sudo password? " type
+case $type in
+	[1]* ) no_passwd=1; break;;
+	[2]* ) no_passwd=2; break;;
+	* ) echo "Please answer 1 for disable or 2 not disable sudo password";
+esac
+done
+
+if [[ $no_passwd == 1 ]];	then
+	echo "pi ALL=(ALL) NOPASSWD: ALL" >> 010_pi-nopasswd
+	sudo cp  010_pi-nopasswd /etc/sudoers.d/.
+	sudo chmod 0440 /etc/sudoers.d/010_pi-nopasswd
+fi
+
 sudo apt update
 sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig cmake \
 binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
@@ -81,6 +97,10 @@ libboost-all-dev python3 libfftw3-dev python3-yaml libtinyxml2-dev \
 libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev libcurl4-openssl-dev foot
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
+
+echo "pi ALL=(ALL) NOPASSWD: ALL" >> 010_pi-nopasswd
+sudo cp  010_pi-nopasswd /etc/sudoers.d/.
+sudo chmod 0440 /etc/sudoers.d/010_pi-nopasswd
 
 cd $wrkdir || exit
 git clone https://github.com/pothosware/SoapySDR.git
@@ -121,6 +141,10 @@ make -j4
 make sdrweb
 sudo make install
 cd $wrkdir || exit
+
+cp ~/sdrberry/install/sdrberry.desktop ~/.local/share/applications/sdrberry.desktop
+sudo chmod +x ~/.local/share/applications/sdrberry.desktop
+update-desktop-database ~/.local/share/applications
 
 #build sdrberry
 git clone https://github.com/paulh002/build_sdrberry

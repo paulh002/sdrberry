@@ -82,7 +82,7 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 			}
 			//printf("freq %lld df %lld\n", drag_frequency, df);
 			newspanstartfreq = spanfreq - drag_frequency;
-			vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), false);
+			vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), true); // false (no spectrum shift)
 			vfo.set_vfo(vfo.get_frequency());
 		}
 		return;
@@ -246,7 +246,8 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_add_style(chart, &Spectrum_style, 0);
 	lv_obj_add_style(chart, &Spectrum_style, LV_PART_ITEMS);
 	// lv_obj_set_style_line_width(chart, 1, LV_PART_ITEMS);
-	
+	lv_obj_add_flag(chart, LV_OBJ_FLAG_RIGHT_CLICKABLE);
+
 	heightChart = h;
 	heightWaterfall = 0;
 	if (waterfallsize)

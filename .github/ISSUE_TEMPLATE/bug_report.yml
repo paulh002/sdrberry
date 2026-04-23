@@ -69,7 +69,7 @@ body:
     attributes:
       label: Sdrberry Version
       description: Which version or commit hash of Sdrberry are you running?
-      placeholder: "e.g., v1.2.0 or commit abc1234"
+      placeholder: "e.g., latest master"
     validations:
       required: true
 
@@ -90,19 +90,6 @@ body:
         - `sdrberry.log`
         - `dmesg` output
         - `lsusb` output
-
-  - type: checkboxes
-    id: checks
-    attributes:
-      label: Confirmation Checklist
-      description: Please confirm the following before submitting
-      options:
-        - label: I have searched existing issues and this hasn't been reported before
-          required: true
-        - label: I have tested with the latest version of Sdrberry
-          required: false
-        - label: I have included all relevant hardware and software details above
-          required: true
 
   - type: textarea
     id: additional

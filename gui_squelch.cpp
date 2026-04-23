@@ -128,11 +128,10 @@ void gui_squelch::init(lv_obj_t *o_tab, lv_obj_t *tabbuttons, lv_coord_t w)
 	lv_label_set_text(agc_gain_label, "agc gain");
 	lv_obj_align_to(agc_gain_label, agc_gain_slider, LV_ALIGN_TOP_MID, 0, -20);
 
-	ibutton_y++;
 	agc_delay_slider = lv_slider_create(o_tab);
 	lv_obj_set_width(agc_delay_slider, w / 2 - 50);
 	lv_slider_set_range(agc_delay_slider, 1, 800);
-	lv_obj_align_to(agc_delay_slider, o_tab, LV_ALIGN_TOP_LEFT, x_margin, ibutton_y * button_height_margin + 10);
+	lv_obj_align_to(agc_delay_slider, o_tab, LV_ALIGN_TOP_LEFT, w / 2, ibutton_y * button_height_margin + 10);
 	lv_obj_add_event_cb(agc_delay_slider, agc_delay_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_group_add_obj(m_button_group, agc_delay_slider);
 

@@ -24,7 +24,7 @@ class WSPRDemodulator : public Demodulator
 	unsigned long readwavfile(char *ptr_to_infile, int ntrmin, IQSampleVector &samples_out, SampleVector &audio);
 	void operator()();
 
-	atomic<bool> stop_flag{false};
+	std::atomic<bool> stop_flag{false};
 	std::thread amdemod_thread;
 
   private:

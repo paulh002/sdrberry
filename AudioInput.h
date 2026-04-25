@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <vector>
 
 enum audioTone
 {
@@ -25,7 +26,7 @@ class AudioInput : public RtAudio
 	unsigned int sampleRate;
 	unsigned int bufferFrames;
 	float volume, digitalvolume;
-	string error;
+	std::string error;
 	long asteps;
 	bool stereo;
 	float Nexttone();
@@ -64,7 +65,7 @@ class AudioInput : public RtAudio
 	bool IsdigitalMode();
 	bool IsBufferEmpty();
 	void doDigitalMode();
-	void StartDigitalMode(vector<float> &signal);
+	void StartDigitalMode(std::vector<float> &signal);
 	void StopDigitalMode();
 	int getbufferFrames() { return bufferFrames; }
 };

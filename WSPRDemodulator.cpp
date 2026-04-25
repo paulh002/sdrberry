@@ -19,7 +19,7 @@
 #include <vector>
 #include "SignalStrength.h"
 
-static shared_ptr<WSPRDemodulator> sp_wsprdemod;
+static std::shared_ptr<WSPRDemodulator> sp_wsprdemod;
 std::mutex wsprdemod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1{};
 
@@ -44,7 +44,7 @@ void WSPRDemodulator::destroy_demodulator()
 
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime WSPRDemodulator:" << timePassed.count() << endl;
+	std::cout << "Stoptime WSPRDemodulator:" << timePassed.count() << std::endl;
 }
 
 WSPRDemodulator::WSPRDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode)
@@ -71,7 +71,7 @@ WSPRDemodulator::WSPRDemodulator(double ifrate, DataBuffer<IQSample> *source_buf
 	demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "starttime :" << timePassed.count() << endl;
+	std::cout << "starttime :" << timePassed.count() << std::endl;
 }
 
 WSPRDemodulator::~WSPRDemodulator()
@@ -98,8 +98,7 @@ void WSPRDemodulator::operator()()
 	IQSampleVector samples_wav;
 	SampleVector audio_wav;
 
-	unique_lock<mutex>
-		lock_am(wsprdemod_mutex);
+	std::unique_lock<std::mutex> lock_am(wsprdemod_mutex);
 	IQSampleVector iqsamples, iqsamples_out;
 	bool capture{false};
 
@@ -284,7 +283,7 @@ unsigned long WSPRDemodulator::readwavfile(char *ptr_to_infile, int ntrmin, IQSa
 
 	for (i = 0; i < (size_t)nfft2; i++)
 	{
-		complex<float> dat;
+		std::complex<float> dat;
 		
 		dat.real(fftout[i][0] / 1000.0);
 		dat.imag(fftout[i][1] / 1000.0);

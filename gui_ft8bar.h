@@ -31,7 +31,7 @@ class gui_ft8bar
 	std::string locator;
 	std::string cq;
 	std::string encodedMessage;
-	atomic<bool> transmitting{false};
+	std::atomic<bool> transmitting{false};
 	std::unique_ptr<Waterfall> waterfall;
 	float ft8_rate{12000.0};
 	std::string msgsend;

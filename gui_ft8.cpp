@@ -135,7 +135,7 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 	std::string str(lv_table_get_cell_value(obj, row, 3));
 	size_t i = str.find(' ');
 	size_t q = str.rfind(' ');
-	if (i != string::npos && q != string::npos && (q - i - 1) > 0)
+	if (i != std::string::npos && q != std::string::npos && (q - i - 1) > 0)
 	{
 		std::string dxGrid;
 		int start_pos_report = str.find_last_of(' ') + 1;
@@ -538,7 +538,7 @@ void gui_ft8::wspr_enable(bool enable)
 		lv_obj_add_flag(wspr_table, LV_OBJ_FLAG_HIDDEN);
 }
 
-void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off, int hz0, string msg)
+void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, double off, int hz0, std::string msg)
 {
 	std::unique_lock<std::mutex> mlock(mutex_);
 	std::unique_lock<std::mutex> glock(gui_mutex);

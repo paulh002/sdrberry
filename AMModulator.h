@@ -8,13 +8,13 @@ class AMModulator : public Demodulator
 	AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	~AMModulator();
 
-	void setsignal(vector<float> &signal);
+	void setsignal(std::vector<float> &signal);
 	void operator()();
 	static void destroy_modulator();
 	static bool create_modulator(ModulatorParameters param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	static void setLowPassAudioFilterCutOffFrequency(int bandwidth);
 
-	atomic<bool> stop_flag{false};
+	std::atomic<bool> stop_flag{false};
 	std::thread ammod_thread;
 
   private:
@@ -28,8 +28,8 @@ class AMModulator : public Demodulator
 	SampleVector audioframes;
 	void audio_feedback(const SampleVector &audiosamples);
 	void WaitForTimeSlot();
-	vector<float> signal;
+	std::vector<float> signal;
 	void process(SampleVector &samples, IQSampleVector &samples_out);
 };
 
-extern shared_ptr<AMModulator> sp_ammod;
+extern std::shared_ptr<AMModulator> sp_ammod;

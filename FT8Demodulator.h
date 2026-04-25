@@ -24,7 +24,7 @@ class FT8Demodulator : public Demodulator
 	void process(IQSampleVector &samples_in, SampleVector &audio) ;
 	void operator()();
 
-	atomic<bool> stop_flag{false};
+	std::atomic<bool> stop_flag{false};
 	std::thread amdemod_thread;
 
   private:

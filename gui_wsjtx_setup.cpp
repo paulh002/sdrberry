@@ -179,7 +179,7 @@ void gui_wsjtx_setup::psk_button_handler_class(lv_event_t *e)
 		{
 			lv_table_set_cell_value(psktable, row, 0, col.locator.c_str());
 			lv_table_set_cell_value(psktable, row, 1, col.call.c_str());
-			lv_table_set_cell_value(psktable, row, 2, to_string(col.frequency).c_str());
+			lv_table_set_cell_value(psktable, row, 2, std::to_string(col.frequency).c_str());
 			lv_table_set_cell_value(psktable, row, 3, col.SNR.c_str());
 			lv_table_set_cell_value(psktable, row, 4, col.timeUTC.c_str());
 			//lv_table_set_cell_value(psktable, row, 0, col.call);

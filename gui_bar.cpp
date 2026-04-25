@@ -323,7 +323,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 				case buttonmode:
 					if (modeWindow == nullptr && !IsDigtalMode(mode))
 					{
-						std::vector<string> ModeTypesAnalog(ModesTypes.begin(), ModesTypes.begin() + 7);
+						std::vector<std::string> ModeTypesAnalog(ModesTypes.begin(), ModesTypes.begin() + 7);
 						modeWindow = std::make_unique<guiButtonWindows>(obj, (void *)this, "Mode", ModeTypesAnalog, ModesMap.at(mode), customLVevents.getCustomEvent(LV_EVENT_MODE_CLICKED), 300, 200);
 					}
 					lv_obj_clear_state(obj, LV_STATE_CHECKED);
@@ -484,11 +484,11 @@ void gui_bar::set_gain_slider_band_from_config(bool web)
 	int gain = 10;
 
 	rf_gain = Settings_file.get_map_string(default_radio, "rf-gain-map");
-	gain = rf_gain[to_string(vfo.get_band_in_meters()) + "m"];
+	gain = rf_gain[std::to_string(vfo.get_band_in_meters()) + "m"];
 	set_gain_slider(gain, web);
 
 	if_gain = Settings_file.get_map_string(default_radio, "if-gain-map");
-	gain = if_gain[to_string(vfo.get_band_in_meters()) + "m"];
+	gain = if_gain[std::to_string(vfo.get_band_in_meters()) + "m"];
 	set_if(gain);
 }
 
@@ -771,7 +771,7 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	{
 		if (SdrDevices.SdrDevices.at(default_radio)->rx_channels.at(guisdr.get_current_rx_channel())->get_agc())
 		{
-			string sagc = Settings_file.get_string(default_radio, "AGC");
+			std::string sagc = Settings_file.get_string(default_radio, "AGC");
 			if (sagc == "off")
 				SdrDevices.SdrDevices.at(default_radio)->setGainMode(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), false);
 			else
@@ -959,7 +959,7 @@ void gui_bar::set_if(int ifg, bool web)
 		updateweb();
 }
 
-void gui_bar::get_filter_range(vector<string> &filters)
+void gui_bar::get_filter_range(std::vector<std::string> &filters)
 {
 	filters.push_back("0.5 Khz");
 	filters.push_back("1 Khz");
@@ -1078,7 +1078,7 @@ void gui_bar::get_gain_range(int &max_gain, int &min_gain)
 	}
 	catch (const std::exception &e)
 	{
-		std::cout << e.what() << endl;
+		std::cout << e.what() << std::endl;
 		max_gain = 100;
 		min_gain = 0;
 	}

@@ -173,8 +173,8 @@ FMDemodulator::~FMDemodulator()
 	}
 }
 
-static	std::thread				fmdemod_thread;
-shared_ptr<FMDemodulator>		sp_fmdemod;
+static	std::thread	fmdemod_thread;
+std::shared_ptr<FMDemodulator>	sp_fmdemod;
 
 bool FMDemodulator::create_demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 {	

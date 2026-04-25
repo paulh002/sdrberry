@@ -42,7 +42,7 @@ void gui_sdr_settings::settings_press_part_event_cb_class(lv_event_t *e)
 	{
 		std::string str(lv_table_get_cell_value(obj, row, 1));
 		size_t i = str.find("true");
-		if (i != string::npos)
+		if (i != std::string::npos)
 		{
 			lv_table_set_cell_value(settingsTable, row, col, "false");
 		}

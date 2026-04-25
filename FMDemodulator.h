@@ -21,7 +21,7 @@ public:
 	~FMDemodulator();
 	void	process(IQSampleVector&	samples_in, SampleVector& audio) ;
 	void	operator()();
-	atomic<bool> stop_flag{false};		
+	std::atomic<bool> stop_flag{false};		
 	
 private:
 	freqdem	demodFM {nullptr};

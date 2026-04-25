@@ -266,9 +266,9 @@ class FMBroadBandDemodulator : public Demodulator
 	~FMBroadBandDemodulator();
 	void process(IQSampleVector &samples_in, SampleVector &audio);
 	void operator()();
-	atomic<bool> stop_flag{false};
+	std::atomic<bool> stop_flag{false};
 
   private:
-	unique_ptr<FmDecoder> pfm;
+	std::unique_ptr<FmDecoder> pfm;
 };
 #endif

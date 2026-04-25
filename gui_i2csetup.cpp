@@ -353,7 +353,7 @@ void gui_i2csetup::Save()
 {
 	char str[80];
 	int count;
-	std::vector<string> list;
+	std::vector<std::string> list;
 
 	lv_dropdown_get_selected_str(bandDropdown, str, 79);
 	std::string band(str);

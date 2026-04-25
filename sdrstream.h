@@ -19,7 +19,7 @@ class RX_Stream
 	static bool create_rx_streaming_thread(double ifrate_, std::string sradio, int chan, DataBuffer<IQSample> *source_buffer, unsigned int decimator_factor);
 	static void destroy_rx_streaming_thread();
 	void operator()();
-	atomic_bool stop_flag{false};
+	std::atomic_bool stop_flag{false};
 	static void pause_rx_stream(bool enable);
 
   private:
@@ -35,10 +35,10 @@ class RX_Stream
 	static std::atomic_bool pause_flag;
 };
 
-extern atomic_bool pause_flag;
+extern std::atomic_bool pause_flag;
 
 extern std::thread rx_thread;
-extern shared_ptr<RX_Stream> ptr_rx_stream;
+extern std::shared_ptr<RX_Stream> ptr_rx_stream;
 
 class TX_Stream
 {
@@ -48,7 +48,7 @@ class TX_Stream
 	static void destroy_tx_streaming_thread(bool close_stream = false);
 	void close_tx_stream();
 	void operator()();
-	atomic<bool> stop_flag{false};
+	std::atomic<bool> stop_flag{false};
 
   private:
 	double ifrate;
@@ -60,4 +60,4 @@ class TX_Stream
 };
 
 extern std::thread tx_thread;
-extern shared_ptr<TX_Stream> ptr_tx_stream;
+extern std::shared_ptr<TX_Stream> ptr_tx_stream;

@@ -235,7 +235,7 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e); 
 	lv_obj_t *label = lv_obj_get_child(obj, 0L);
 	char *ptr = lv_label_get_text(label);
-	string s(ptr);
+	std::string s(ptr);
 	
 	if (s == "TX")
 	{
@@ -315,7 +315,7 @@ void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 	}
 	catch (const std::exception& e)
 	{
-		std::cout << e.what() << endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 

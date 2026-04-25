@@ -8,7 +8,7 @@
 #include "gui_speech.h"
 #include "PeakLevelDetector.h"
 
-static shared_ptr<EchoAudio> sp_echo;
+static std::shared_ptr<EchoAudio> sp_echo;
 
 #define dB2mag(x) pow(10.0, (x) / 20.0)
 
@@ -16,7 +16,7 @@ bool EchoAudio::create_modulator(AudioOutput *audio_ouput, AudioInput *audio_inp
 {
 	if (sp_echo != nullptr)
 		return false;
-	sp_echo = make_shared<EchoAudio>(audio_ouput, audio_input);
+	sp_echo = std::make_shared<EchoAudio>(audio_ouput, audio_input);
 	sp_echo->echo_thread = std::thread(&EchoAudio::operator(), sp_echo);
 	return true;
 }
@@ -80,7 +80,7 @@ void EchoAudio::operator()()
 		executeBandpassFilter(audiosamples);
 		for (auto &col : audiosamples)
 		{
-			complex<float> f;
+			std::complex<float> f;
 			ampmodem_modulate(modAM, col, &f);
 			//printf("%f;%f;%f \n", col, f.real(), f.imag());
 			buf_mod.push_back(f);

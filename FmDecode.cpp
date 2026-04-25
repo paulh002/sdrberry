@@ -25,9 +25,9 @@
 using namespace std;
 
 static std::thread fmbroadbanddemod_thread;
-shared_ptr<FMBroadBandDemodulator> sp_fmbroadbanddemod;
+std::shared_ptr<FMBroadBandDemodulator> sp_fmbroadbanddemod;
 
-static atomic_bool stop_flag(false);
+static std::atomic_bool stop_flag(false);
 
 /*
  *

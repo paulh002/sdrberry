@@ -45,10 +45,10 @@ int gettxNoSamples()
 
 std::thread rx_thread;
 std::thread tx_thread;
-shared_ptr<RX_Stream> ptr_rx_stream;
-shared_ptr<TX_Stream> ptr_tx_stream;
+std::shared_ptr<RX_Stream> ptr_rx_stream;
+std::shared_ptr<TX_Stream> ptr_tx_stream;
 std::mutex rxstream_mutex;
-atomic_bool RX_Stream::pause_flag{false};
+std::atomic_bool RX_Stream::pause_flag{false};
 
 void RX_Stream::pause_rx_stream(bool enable)
 {
@@ -65,7 +65,7 @@ void RX_Stream::operator()()
 	uint64_t timePassed_avg{}, samples_read{};
 
 	unsigned long long totalSamples(0);
-	std::unique_lock<mutex> lock_rx(rxstream_mutex);
+	std::unique_lock<std::mutex> lock_rx(rxstream_mutex);
 
 	int default_block_length;
 	SoapySDR::Stream *rx_stream;
@@ -112,7 +112,7 @@ void RX_Stream::operator()()
 		unsigned int underflows(0);
 		int flags(0);
 		long long time_ns(0);
-		vector<complex<float>> buf(default_block_length), resampleData;
+		std::vector<std::complex<float>> buf(default_block_length), resampleData;
 		void *buffs[1] = {buf.data()};
 		buffs[0] = (void *)buf.data();
 		int dfactor{0};
@@ -137,7 +137,7 @@ void RX_Stream::operator()()
 				{
 					for (int i = 0; i < ret / dfactor; i++)
 					{
-						complex<float> y;
+						std::complex<float> y;
 
 						msresamp2_crcf_execute(decimator, &buf.data()[i * dfactor], &y);
 						resampleData[i] = y;
@@ -290,7 +290,7 @@ void RX_Stream::destroy_rx_streaming_thread()
 
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime RX_Stream:" << timePassed.count() << endl;
+	std::cout << "Stoptime RX_Stream:" << timePassed.count() << std::endl;
 }
 
 static SoapySDR::Stream *tx_stream{nullptr};
@@ -343,13 +343,13 @@ void TX_Stream::operator()()
 			continue;
 		// printf("samples %ld %ld %ld \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		samples_transmit = iqsamples.size();
-		complex<float> *buffs[5]{};
-		buffs[0] = (complex<float> *)iqsamples.data();
+		std::complex<float> *buffs[5]{};
+		buffs[0] = (std::complex<float> *)iqsamples.data();
 		if (decimator)
 		{
 			int num_samples = dfactor * samples_transmit;
 			resampleData.resize(num_samples);
-			buffs[0] = (complex<float> *)resampleData.data();
+			buffs[0] = (std::complex<float> *)resampleData.data();
 			for (int i = 0; i < samples_transmit; i++)
 			{
 				msresamp2_crcf_execute(decimator, &iqsamples.data()[i], &resampleData.data()[i * dfactor]);
@@ -473,7 +473,7 @@ void TX_Stream::destroy_tx_streaming_thread(bool close_stream)
 
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime TX_Stream:" << timePassed.count() << endl;
+	std::cout << "Stoptime TX_Stream:" << timePassed.count() << std::endl;
 }
 
 void TX_Stream::close_tx_stream()

@@ -115,7 +115,7 @@ Demodulator::~Demodulator()
 	dcBlockHandle = nullptr;
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime demodulator:" << timePassed.count() << endl;
+	std::cout << "Stoptime demodulator:" << timePassed.count() << std::endl;
 }
 
 void Demodulator::set_resample_rate(float resample_rate)
@@ -176,7 +176,7 @@ float Demodulator::adjust_resample_rate(float rateAjustFraction)
 	std::vector<std::string> resamplerate_setting;
 	resamplerate_setting.push_back(std::to_string(resampleRate));
 	resamplerate_setting.push_back(std::to_string(Settings_file.get_int(default_radio, "samplerate", 0)));
-	resamplerate_setting.push_back(to_string(Settings_file.get_int(default_radio, "decimate", 0)));
+	resamplerate_setting.push_back(std::to_string(Settings_file.get_int(default_radio, "decimate", 0)));
 	Settings_file.set_array_string(default_radio, "resample_rate", resamplerate_setting);
 	Settings_file.write_settings();
 	return resampleRate;
@@ -386,7 +386,7 @@ void Demodulator::Resample(IQSampleVector &filter_in,
 			filter_out.reserve((int)ceilf(nx));
 			filter_out.resize((int)ceilf(nx));
 		}
-		msresamp_crcf_execute(resampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
+		msresamp_crcf_execute(resampleHandle, (std::complex<float> *)filter_in.data(), filter_in.size(), (std::complex<float> *)filter_out.data(), &num_written);
 		filter_out.resize(num_written);
 	}
 	else
@@ -408,7 +408,7 @@ IQSampleVector Demodulator::Resample(IQSampleVector &filter_in)
 			filter_out.reserve((int)ceilf(nx));
 			filter_out.resize((int)ceilf(nx));
 		}
-		msresamp_crcf_execute(resampleHandle, (complex<float> *)filter_in.data(), filter_in.size(), (complex<float> *)filter_out.data(), &num_written);
+		msresamp_crcf_execute(resampleHandle, (std::complex<float> *)filter_in.data(), filter_in.size(), (std::complex<float> *)filter_out.data(), &num_written);
 		filter_out.resize(num_written);
 	}
 	else
@@ -427,7 +427,7 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 
 	for (auto &col : filter_in)
 	{
-		complex<float> v, z;
+		std::complex<float> v, z;
 
 		iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
 		filter_out.insert(filter_out.end(), v);
@@ -441,7 +441,7 @@ void Demodulator::lowPassAudioFilter(IQSampleVector &filter_in)
 	
 	for (auto &col : filter_in)
 	{
-		complex<float> v, z;
+		std::complex<float> v, z;
 
 		iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
 		col =  v;
@@ -454,7 +454,7 @@ void Demodulator::dc_filter(IQSampleVector &filter_in)
 	{
 		for (auto &col : filter_in)
 		{
-			complex<float> v;
+			std::complex<float> v;
 
 			firfilt_crcf_push(dcBlockHandle, col);
 			firfilt_crcf_execute(dcBlockHandle, &v);
@@ -469,7 +469,7 @@ void Demodulator::mix_down(IQSampleVector &filter_in)
 	{
 		for (auto &col : filter_in)
 		{
-			complex<float> v;
+			std::complex<float> v;
 
 			nco_crcf_step(tuneNCO);
 			nco_crcf_mix_down(tuneNCO, col, &v);
@@ -485,7 +485,7 @@ void Demodulator::mix_up(const IQSampleVector &filter_in,
 	{
 		for (auto &col : filter_in)
 		{
-			complex<float> v;
+			std::complex<float> v;
 
 			nco_crcf_step(tuneNCO);
 			nco_crcf_mix_up(tuneNCO, col, &v);
@@ -504,7 +504,7 @@ void Demodulator::mix_up(IQSampleVector &in)
 	{
 		for (auto &col : in)
 		{
-			complex<float> v;
+			std::complex<float> v;
 
 			nco_crcf_step(tuneNCO);
 			nco_crcf_mix_up(tuneNCO, col, &v);
@@ -685,7 +685,7 @@ void Demodulator::set_noise_threshold(int threshold)
 
 void Demodulator::CreateSquelch(StreamMode mode)
 {
-	AgcProc = make_unique<AGCUnifiedProcessor>(mode, 0.0001f);
+	AgcProc = std::make_unique<AGCUnifiedProcessor>(mode, 0.0001f);
 }
 
 void Demodulator::SquelchProcess(SampleVector &filter)

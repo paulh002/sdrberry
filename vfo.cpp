@@ -53,7 +53,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
 	long freq = Settings_file.get_longlong("VFO1","freq");
-	string ham = Settings_file.find_radio("band");
+	std::string ham = Settings_file.find_radio("band");
 	if (ham != "all")
 		vfo.limit_ham_band = true;
 	else
@@ -484,7 +484,7 @@ void CVfo::set_tuner_offset(double offset)
 
 void CVfo::set_active_vfo(int active_vfo)
 {
-	set_vfo(0, (vfo_activevfo)min(active_vfo, 1));
+	set_vfo(0, (vfo_activevfo)std::min(active_vfo, 1));
 }
 
 void CVfo::set_vfo_range(long low, long high)
@@ -602,7 +602,7 @@ void CVfo::check_band(int dir, long &freq)
 	}
 }
 
-void CVfo::return_bands(vector<int> &bands)
+void CVfo::return_bands(std::vector<int> &bands)
 {
 	bands.clear();
 	for (auto& col : vfo_setting.bands)

@@ -135,13 +135,13 @@ void gui_edit_band::fill_band_table()
 	for (int i = 0; i < Settings_file.meters.size(); i++)
 	{
 		band = Settings_file.meters.at(i);
-		label = (string)*it_m;
+		label = (std::string)*it_m;
 		long f_low = (long)*it_f_low;
 		long f_high = (long)*it_f_high;
-		lv_table_set_cell_value(table, 1 + i, 0, to_string(band).c_str());
+		lv_table_set_cell_value(table, 1 + i, 0, std::to_string(band).c_str());
 		lv_table_set_cell_value(table, 1 + i, 1, label.c_str());
-		lv_table_set_cell_value(table, 1 + i, 2, to_string(f_low).c_str());
-		lv_table_set_cell_value(table, 1 + i, 3, to_string(f_high).c_str());
+		lv_table_set_cell_value(table, 1 + i, 2, std::to_string(f_low).c_str());
+		lv_table_set_cell_value(table, 1 + i, 3, std::to_string(f_high).c_str());
 		lv_table_set_cell_value(table, 1 + i, 4, it_mode->c_str());
 		it_m++;
 		it_f_low++;
@@ -254,11 +254,11 @@ void gui_edit_band::table_custom_keypad_handler_class(lv_event_t *e)
 		{
 		case 0:
 			if (f < 999)
-				lv_table_set_cell_value(table, rowno, column, to_string(f).c_str());
+				lv_table_set_cell_value(table, rowno, column, std::to_string(f).c_str());
 			break;
 		case 2:
 		case 3:
-			lv_table_set_cell_value(table, rowno, column, to_string(f).c_str());
+			lv_table_set_cell_value(table, rowno, column, std::to_string(f).c_str());
 			break;
 		}
 	}

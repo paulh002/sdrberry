@@ -29,7 +29,7 @@ void MorseDecoder::decode(const IQSampleVector &samples_in)
 
 	for (auto con : samples_in)
 	{
-		complex<float> v;
+		std::complex<float> v;
 
 		// run filter
 		iirfilt_crcf_execute(q, con, &v);

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <vector>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
@@ -134,7 +135,7 @@ class CVfo
 	long get_vfo_offset(bool rit = false);
 	long get_vfo_offset_tx();
 	long get_vfo_absolute_offset();
-	void return_bands(vector<int> &bands);
+	void return_bands(std::vector<int> &bands);
 	long get_span() { return vfo_setting.span;}
 	void updateweb();
 	bool is_vfo_limit_ham_band() { return limit_ham_band; }

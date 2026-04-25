@@ -177,7 +177,7 @@ void Settings::default_settings()
 	(*config)("address").push(cfg::makeOption("3F"));
 }
 
-void Settings::read_settings(string settings_file)
+void Settings::read_settings(std::string settings_file)
 {
 	config = new cfg::File();
 	
@@ -272,8 +272,7 @@ void Settings::read_settings(string settings_file)
 	}
 }
 
-
-string Settings::find_sdr(string key)
+std::string Settings::find_sdr(std::string key)
 {
 	if (sdr.find(key) != sdr.end())
 	{
@@ -284,7 +283,7 @@ string Settings::find_sdr(string key)
 		return string("");
 }
 
-string Settings::find_audio(string key)
+std::string Settings::find_audio(std::string key)
 {
 	if (audio.find(key) != audio.end())
 	{
@@ -295,7 +294,7 @@ string Settings::find_audio(string key)
 		return string("");
 }
 
-string Settings::find_radio(string key)
+std::string Settings::find_radio(std::string key)
 {
 	if (radio.find(key) != radio.end())
 	{
@@ -306,7 +305,7 @@ string Settings::find_radio(string key)
 		return string("");
 }
 
-string Settings::find_probe(string key)
+std::string Settings::find_probe(std::string key)
 {
 	if (probes.find(key) != probes.end())
 	{
@@ -328,7 +327,7 @@ int Settings::volume()
 		return 0;
 }
 
-string Settings::find_input(string key)
+std::string Settings::find_input(std::string key)
 {
 	if (input_dev.find(key) != input_dev.end())
 	{
@@ -339,7 +338,7 @@ string Settings::find_input(string key)
 		return string("");
 }
 
-string Settings::find_cat(string key)
+std::string Settings::find_cat(std::string key)
 {
 	if (cat.find(key) != cat.end())
 	{
@@ -372,7 +371,7 @@ int Settings::getspeech(std::string key)
 		return 0;
 }
 
-int Settings::convert_mode(string s)
+int Settings::convert_mode(std::string s)
 {
 	int mode = mode_lsb;
 
@@ -461,7 +460,7 @@ void Settings::save_vfo(int vfo, long freq)
 
 // New functions
 
-int Settings::get_int(string section, string key, int defaultValue)
+int Settings::get_int(std::string section, std::string key, int defaultValue)
 {
 	auto option = config->getSection(section);
 	auto s = option.find(key);
@@ -472,7 +471,7 @@ int Settings::get_int(string section, string key, int defaultValue)
 	return value;
 }
 
-long long Settings::get_longlong(string section, string key, long defaultValue)
+long long Settings::get_longlong(std::string section, std::string key, long defaultValue)
 {
 	auto option = config->getSection(section);
 	auto s = option.find(key);
@@ -482,7 +481,7 @@ long long Settings::get_longlong(string section, string key, long defaultValue)
 	return strtoll((const char *)st.c_str(), NULL, 0);
 }
 
-void Settings::save_int(string section, string key, int value)
+void Settings::save_int(std::string section, std::string key, int value)
 {
 	config->useSection(section);
 	auto &col = (*config)(key);
@@ -490,7 +489,7 @@ void Settings::save_int(string section, string key, int value)
 	write_settings();
 }
 
-string Settings::get_string(string sdrdevice, string key)
+std::string Settings::get_string(std::string sdrdevice, std::string key)
 {
 	string st;
 	auto option = config->getSection(sdrdevice);
@@ -510,7 +509,7 @@ std::string Settings::get_string(std::string sdrdevice, std::string key, std::st
 	return st;
 }
 
-void Settings::save_string(string section, string key, string value)
+void Settings::save_string(std::string section, std::string key, std::string value)
 {
 	config->useSection(section);
 	auto &col = (*config)(key);

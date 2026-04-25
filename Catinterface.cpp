@@ -168,8 +168,8 @@ void Comm::SendInformation(int info)
 		// Band
 		{
 			char str[20];
-			vector<int> bands;
-			string s;
+			std::vector<int> bands;
+			std::string s;
 
 			strcpy(str, "GT2");
 			s = str;
@@ -187,8 +187,8 @@ void Comm::SendInformation(int info)
 		// Filter
 		{
 			char str[20];
-			vector<string> filters;
-			string s;
+			std::vector<std::string> filters;
+			std::string s;
 
 			strcpy(str, "GT3");
 			s = str;

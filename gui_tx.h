@@ -13,11 +13,11 @@ class gui_tx
 	lv_obj_t *temp_meter;
 
 	tempMeter tempmeter;
-	unique_ptr<tempSensor> tempsensor;
+	std::unique_ptr<tempSensor> tempsensor;
 	
 	lv_style_t style_btn;
 	lv_obj_t *tx_button[10];
-	vector<int> sample_rates;
+	std::vector<int> sample_rates;
 	int ibuttons;
 	const int number_of_buttons{6};
 	lv_group_t *m_button_group{nullptr};

@@ -19,7 +19,7 @@
 #include <vector>
 #include "SignalStrength.h"
 
-static shared_ptr<FT8Demodulator> sp_ft8demod;
+static std::shared_ptr<FT8Demodulator> sp_ft8demod;
 std::mutex ft8demod_mutex;
 static std::chrono::high_resolution_clock::time_point starttime1{};
 
@@ -44,7 +44,7 @@ void FT8Demodulator::destroy_demodulator()
 
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime FT8Demodulator:" << timePassed.count() << endl;
+	std::cout << "Stoptime FT8Demodulator:" << timePassed.count() << std::endl;
 }
 
 FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output, int mode)
@@ -71,7 +71,7 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "starttime :" << timePassed.count() << endl;
+	std::cout << "starttime :" << timePassed.count() << std::endl;
 }
 
 FT8Demodulator::~FT8Demodulator()
@@ -95,7 +95,7 @@ void FT8Demodulator::operator()()
 	int cycletime_duration_tensseconds{150}, starttime_delay{0};
 	int capture_time_duration_ms{150};
 	SampleVector audiosamples, audioframes;
-	unique_lock<mutex> lock_am(ft8demod_mutex);
+	std::unique_lock<std::mutex> lock_am(ft8demod_mutex);
 	IQSampleVector iqsamples;
 	bool capture{false};
 

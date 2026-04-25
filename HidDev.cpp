@@ -52,7 +52,7 @@ HidDev::~HidDev()
 	}
 }
 
-void HidDev::init(string mouse_name)
+void HidDev::init(std::string mouse_name)
 {
 	// first find a mouse
 	HidName = mouse_name;

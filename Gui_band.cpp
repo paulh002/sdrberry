@@ -1,3 +1,5 @@
+#include <string>
+#include <vector>
 #include "Gui_band.h"
 #include "BandFilter.h"
 #include "Catinterface.h"
@@ -10,7 +12,7 @@
 
 Gui_band gui_band_instance;
 
-string RemoveChar(string str, char c)
+std::string RemoveChar(std::string str, char c)
 {
 	std::string result;
 	for (size_t i = 0; i < str.size(); i++)
@@ -118,7 +120,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_group_t *keyboard_group,lv_co
 	for (auto col : Settings_file.meters)
 	{
 		band = col;
-		label = (string)*it_m;
+		label = (std::string)*it_m;
 		long f_low = (long)*it_f_low;
 		it_m++;
 		it_f_low++;
@@ -137,7 +139,7 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_group_t *keyboard_group,lv_co
 
 			char str[20];
 
-			string s = RemoveChar(label, 0x22);
+			std::string s = RemoveChar(label, 0x22);
 			sprintf(str, "%d %s", band, (char *)s.c_str());
 			lv_label_set_text(lv_label, str);
 			lv_obj_center(lv_label);
@@ -189,7 +191,7 @@ void Gui_band::reload_buttons()
 	for (auto col : Settings_file.meters)
 	{
 		band = col;
-		label = (string)*it_m;
+		label = (std::string)*it_m;
 		long f_low = (long)*it_f_low;
 		it_m++;
 		it_f_low++;
@@ -208,7 +210,7 @@ void Gui_band::reload_buttons()
 
 			char str[20];
 
-			string s = RemoveChar(label, 0x22);
+			std::string s = RemoveChar(label, 0x22);
 			sprintf(str, "%d %s", band, (char *)s.c_str());
 			lv_label_set_text(lv_label, str);
 			lv_obj_center(lv_label);
@@ -231,7 +233,7 @@ void Gui_band::set_group()
 	lv_group_focus_obj(button[0]);
 }
 
-int getIndex(vector<int> v, int s)
+int getIndex(std::vector<int> v, int s)
 {
 	int i = 0;
 	for (auto it = begin(v); it != end(v); ++it)
@@ -300,7 +302,7 @@ void Gui_band::set_gui(int band)
 		lv_obj_t *obj = col;
 		lv_obj_t *label = lv_obj_get_child(obj, 0L);
 		char *ptr = lv_label_get_text(label);
-		string s(ptr);
+		std::string s(ptr);
 
 		int n = s.find("m");
 		s.erase(n);

@@ -70,7 +70,7 @@ int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned 
 	if (databuffer.queued_samples() == 0)
 	{
 		//Use previous samples incase of buffer underrun
-		int bytes = nBufferFrames * min(audio_output->get_channels(), 2);
+		int bytes = nBufferFrames * std::min(audio_output->get_channels(), 2);
 		if (underrunSamples.size() && copyUnderrun)
 		{
 			int i = 0;
@@ -141,7 +141,7 @@ int AudioOutput::getAudioDevice(std::string device)
 		// Print, for example, the name and maximum number of output channels for each device
 		std::cout << "device name = " << info.name << std::endl;
 		std::cout << ": maximum output channels = " << info.outputChannels << std::endl;
-		if (std::string(info.name).find(device) != string::npos && info.outputChannels > 1)
+		if (std::string(info.name).find(device) != std::string::npos && info.outputChannels > 1)
 			return col;
 	}
 	std::cout << "No matching device found." << std::endl;

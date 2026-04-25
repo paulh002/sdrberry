@@ -51,7 +51,7 @@ bool WebSocketHandler::handleData(CivetServer *server, struct mg_connection *con
 	{
 		message = json::parse(s);
 	}
-	catch (const exception &e)
+	catch (const std::exception &e)
 	{
 		std::string err = e.what();
 		printf("%s\n", err.c_str());

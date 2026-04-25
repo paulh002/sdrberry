@@ -1,7 +1,7 @@
 #include "i2cinput.h"
 #include <unistd.h>
 
-shared_ptr<i2cinput> ptr_i2cinput_thread;
+std::shared_ptr<i2cinput> ptr_i2cinput_thread;
 std::thread i2cinput_thread;
 
 void i2cinput::initI2Cdevice()
@@ -99,7 +99,7 @@ void i2cinput::create_i2c_input_thread()
 	{
 		if (ptr_i2cinput_thread == nullptr)
 		{
-			ptr_i2cinput_thread = make_shared<i2cinput>();
+			ptr_i2cinput_thread = std::make_shared<i2cinput>();
 			ptr_i2cinput_thread->stop_flag.store(false);
 			i2cinput_thread = std::thread(&i2cinput::operator(), ptr_i2cinput_thread);
 		}

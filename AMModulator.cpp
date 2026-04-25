@@ -9,11 +9,11 @@
 #include "vfo.h"
 #include "sdrberry.h"
 
-shared_ptr<AMModulator> sp_ammod;
+std::shared_ptr<AMModulator> sp_ammod;
 
 #define DEBUG_VECTOR(v) std::cout << #v << " size: " << v.size() << ", capacity: " << v.capacity() << '\n';
 
-void AMModulator::setsignal(vector<float> &signal)
+void AMModulator::setsignal(std::vector<float> &signal)
 {
 	signal = std::move(signal);
 }
@@ -138,7 +138,7 @@ void AMModulator::operator()()
 	{
 		audioInputBuffer->clear();
 		audioInputBuffer->StartDigitalMode(signal);
-		cout << "Start digital transmit \n";
+		std::cout << "Start digital transmit \n";
 	}
 	while (!stop_flag.load())
 	{
@@ -151,7 +151,7 @@ void AMModulator::operator()()
 		if (audioInputBuffer->IsBufferEmpty() && digitalmode)
 		{
 			stop_flag = true;
-			cout << "Stop digital transmit \n";
+			std::cout << "Stop digital transmit \n";
 			audioInputBuffer->StopDigitalMode();
 		}
 
@@ -210,7 +210,7 @@ void AMModulator::process(SampleVector &samples, IQSampleVector &samples_out)
 	executeBandpassFilter(samples);
 	for (auto &col : samples)
 	{
-		complex<float> f;
+		std::complex<float> f;
 		//if (col > maxf)
 		//	maxf = col;
 		ampmodem_modulate(AMmodulatorHandle, col, &f);
@@ -232,7 +232,7 @@ void AMModulator::mix_up_fft(const IQSampleVector& filter_in,
 	{
 		for (auto& col : filter_in)
 		{
-			complex<float> v;
+			std::complex<float> v;
 		
 			nco_crcf_step(m_fft);
 			nco_crcf_mix_up(m_fft, col, &v);

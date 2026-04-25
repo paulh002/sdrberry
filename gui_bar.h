@@ -30,7 +30,7 @@ class gui_bar
 	lv_obj_t *vol_slider, *vol_slider_label, *gain_slider, *gain_slider_label;
 	lv_obj_t *if_slider_label, *if_slider;
 	const int max_volume{100};
-	vector<int> ifilters;
+	std::vector<int> ifilters;
 	lv_obj_t *cw_wpm, *cw_message, *cw_box, *cw_led;
 	lv_style_t cw_style, style_selected_color;
 	lv_group_t *buttongroup{nullptr};
@@ -111,7 +111,7 @@ class gui_bar
 			return nullptr;
 		return button[i];
 	}
-	void get_filter_range(vector<string> &filters);
+	void get_filter_range(std::vector<std::string> &filters);
 };
 
 extern gui_bar gbar;

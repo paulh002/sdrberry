@@ -6,6 +6,7 @@
 #include <liquid/liquid.h>
 #include <thread>
 #include <vector>
+#include <atomic>
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "EnergyCalculator.h"
@@ -120,8 +121,8 @@ class Demodulator
 	iirfilt_crcf lowPassAudioFilterHandle{nullptr};
 	firfilt_crcf dcBlockHandle{nullptr};
 
-	static atomic<bool> dcBlockSwitch;
-	static atomic<int> correction;
+	static std::atomic<bool> dcBlockSwitch;
+	static std::atomic<int> correction;
 	const int lowPassFilterOrder = 6;
 	
 	
@@ -151,7 +152,7 @@ class Demodulator
 	static std::atomic<float> noiseThresshold;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
 
-	unique_ptr<AGCUnifiedProcessor> AgcProc;
+	std::unique_ptr<AGCUnifiedProcessor> AgcProc;
 	int threshold = -100;
 	int agc_gain = 0;
 	int agc_delay = 1;
@@ -159,4 +160,4 @@ class Demodulator
 	int squelch_mode = 0;
 };
 
-extern atomic<double> correlationMeasurement, errorMeasurement;
+extern std::atomic<double> correlationMeasurement, errorMeasurement;

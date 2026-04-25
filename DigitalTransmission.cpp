@@ -15,7 +15,7 @@ extern DataBuffer<IQSample> source_buffer_tx;
 
 static std::atomic<bool> startTX = false;
 static ModulatorParameters param;
-static shared_ptr<DigitalTransmission> StartDigitaltransmissionthread;
+static std::shared_ptr<DigitalTransmission> StartDigitaltransmissionthread;
 
 DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,  DataBuffer<IQSample> *source_buffer_rx, AudioInput *audio_input)
 {
@@ -27,7 +27,7 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	if (sp_ammod != nullptr)
 		return;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	cout << "Start TX stream running. Number of samples " << param.signal.size() << date::make_time(now - today) << endl;
+	std::cout << "Start TX stream running. Number of samples " << param.signal.size() << date::make_time(now - today) << std::endl;
 	vfo.vfo_rxtx(false, true);
 	Source_buffer_rx = source_buffer_rx;
 	guift8bar.WaterfallSetMaxMin(500.0, 0);
@@ -37,7 +37,7 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	TX_Stream::create_tx_streaming_thread(ifrate, default_radio, param.txChannel, source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 
 	now = std::chrono::system_clock::now();
-	cout << "Start TX stream running " << date::make_time(now - today) << endl;
+	std::cout << "Start TX stream running " << date::make_time(now - today) << std::endl;
 	return;
 }
 
@@ -46,7 +46,7 @@ void DigitalTransmission::operator()()
 	auto start = std::chrono::system_clock::now();
 	auto today = date::floor<date::days>(start);
 
-	cout << "Wait for TX stream finished running " << date::make_time(start - today) << endl;
+	std::cout << "Wait for TX stream finished running " << date::make_time(start - today) << std::endl;
 	sp_ammod->ammod_thread.join();
 	startTX = false;
 	sp_ammod.reset();

@@ -3,7 +3,7 @@
 #include "vfo.h"
 #include "gui_speech.h"
 
-static shared_ptr<FMModulator> sp_fmmod;
+static std::shared_ptr<FMModulator> sp_fmmod;
 
 bool FMModulator::create_modulator(int mode, double ifrate, audioTone tone, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 {	
@@ -94,7 +94,7 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	buf_mod.reserve(samples.size());
 	for (auto& col : samples)
 	{
-		complex<float> f;	
+		std::complex<float> f;	
 		freqmod_modulate(modFM, col, &f);
 		//printf("%f;%f;%f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);

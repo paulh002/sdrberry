@@ -11,7 +11,7 @@ std::mutex cycle_mu;
 int cycle_count;
 time_t saved_cycle_start;
 std::map<std::string, bool> cycle_already;
-extern unique_ptr<wsjtx_lib> wsjtx;
+extern std::unique_ptr<wsjtx_lib> wsjtx;
 std::unique_ptr<FT8UdpClient> ft8udpclient;
 
 std::string remove_trailing_whitespace(const std::string &str)

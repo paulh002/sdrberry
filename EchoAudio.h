@@ -12,7 +12,7 @@ class EchoAudio : public Demodulator
 
 	void operator()();
 
-	atomic<bool> stop_flag{false};
+	std::atomic<bool> stop_flag{false};
 	std::thread echo_thread;
 };
 

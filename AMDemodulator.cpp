@@ -11,7 +11,7 @@
 #include <complex.h>
 #include "SignalStrength.h"
 
-static shared_ptr<AMDemodulator> sp_amdemod;
+static std::shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
 
 static std::chrono::high_resolution_clock::time_point starttime1 {};
@@ -93,10 +93,10 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	gbar.set_filter_dropdown(bandwidth);
 	Demodulator::setLowPassAudioFilter(audioSampleRate, bandwidth);
 	demodulatorHandle = ampmodem_create(modulationIndex, am_mode, suppressed_carrier);
-	pMDecoder = make_unique<MorseDecoder>(audioSampleRate);
+	pMDecoder = std::make_unique<MorseDecoder>(audioSampleRate);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "starttime :" << timePassed.count() << endl;
+	std::cout << "starttime :" << timePassed.count() << std::endl;
 }
 
 
@@ -122,7 +122,7 @@ void AMDemodulator::operator()()
 	
 	int lowPassAudioFilterCutOffFrequency {-1}, droppedFrames {0};
 	SampleVector            audioSamples, audioFrames;
-	unique_lock<mutex>		lock_am(amdemod_mutex);
+	std::unique_lock<std::mutex>	lock_am(amdemod_mutex);
 	IQSampleVector			dc_iqsamples, iqsamples;
 	long long pr_time{0};
 	long noRfSamples{0}, noAfSamples{0};
@@ -138,10 +138,10 @@ void AMDemodulator::operator()()
 	int thresholdUnderrun = Settings_file.get_int(default_radio, "thresholdUnderrun", 1);
 
 	resamplerate = sample_ratio = ((float)audio_output->get_samplerate()) / ifrate;
-	pNoisesp = make_unique<SpectralNoiseReduction>(audioSampleRate, tuple<float,float>(0, 2500));
+	pNoisesp = std::make_unique<SpectralNoiseReduction>(audioSampleRate, std::tuple<float,float>(0, 2500));
 	//pLMS = make_unique<LMSNoisereducer>(); //switched off memory leak in library
-	pXanr = make_unique<Xanr>();
-	nf = make_unique<NoiseFilter>();
+	pXanr = std::make_unique<Xanr>();
+	nf = std::make_unique<NoiseFilter>();
 	receiveIQBuffer->clear();
 	audioOutputBuffer->CopyUnderrunSamples(true);
 	audioOutputBuffer->clear_underrun();
@@ -329,7 +329,7 @@ void AMDemodulator::destroy_demodulator()
 	sp_amdemod = nullptr;
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
-	cout << "Stoptime AMDemodulator:" << timePassed.count() << endl;
+	std::cout << "Stoptime AMDemodulator:" << timePassed.count() << std::endl;
 }
 
 void AMDemodulator::setLowPassAudioFilterCutOffFrequency(int bandwidth)

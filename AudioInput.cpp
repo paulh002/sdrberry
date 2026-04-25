@@ -242,11 +242,11 @@ void AudioInput::ToneBuffer()
 	databuffer.push(std::move(buf));
 }
 
-void AudioInput::StartDigitalMode(vector<float> &signal)
+void AudioInput::StartDigitalMode(std::vector<float> &signal)
 {
 	if (digitalmode != false)
 	{
-		cout << "Digital mode already started \n";
+		std::cout << "Digital mode already started \n";
 		return;
 	}
 	digitalmode = true;
@@ -291,7 +291,7 @@ void AudioInput::doDigitalMode()
 	//cout << "bufferframes send " << bufferFramesSend << endl;
 	audio_output->adjust_gain(buf, buf_out);
 	audio_output->writeSamples(buf_out);
-	databuffer.push(move(buf));
+	databuffer.push(std::move(buf));
 	if ((bufferFramesSend * bufferFrames) >= digitalmodesignal.size())
 	{
 		//cout << "all ft8 audio samples streamed\n";

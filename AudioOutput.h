@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 #include <chrono>
+#include <atomic>
+#include <vector>
 
 class AudioOutput : public RtAudio
 {
@@ -15,10 +17,10 @@ class AudioOutput : public RtAudio
 	RtAudio::DeviceInfo info;
 	unsigned int sampleRate;
 	unsigned int bufferFrames; // 256 sample frames
-	atomic<double> volume;
-	string error;
-	atomic<int> underrun;
-	map<int, std::string> device_map;
+	std::atomic<double> volume;
+	std::string error;
+	std::atomic<int> underrun;
+	std::map<int, std::string> device_map;
 	SampleVector audioFrames;
 	DataBuffer<Sample> databuffer;
 	SampleVector underrunSamples;

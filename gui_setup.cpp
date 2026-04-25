@@ -457,7 +457,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	// std::vector<std::string> devices = audio_output->getDeviceNames();
 	std::vector<std::string> devices;
 	audio_input->listDevices(devices);
-	string s = Settings_file.find_audio("device");
+	std::string s = Settings_file.find_audio("device");
 	for (int i = 0; i < devices.size(); i++)
 	{
 		if (devices[i].length() > 0)

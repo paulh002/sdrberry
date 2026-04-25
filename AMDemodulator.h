@@ -5,6 +5,7 @@
 #include <complex>
 #include <liquid/liquid.h>
 #include <vector>
+#include <memory>
 #include "DataBuffer.h"
 #include "AudioOutput.h"
 #include "AudioInput.h"
@@ -27,18 +28,18 @@ public:
 	~AMDemodulator();
 	void	process(IQSampleVector&	samples_in, SampleVector& audio);
 	void	operator()();
-	
-	atomic<bool>		stop_flag {false};
+
+	std::atomic<bool>		stop_flag {false};
 	std::thread			amdemod_thread;
 	
 	
   private:
 	ampmodem		demodulatorHandle {nullptr};
-	unique_ptr<MorseDecoder> pMDecoder;
-	unique_ptr<LMSNoisereducer> pLMS;
-	unique_ptr<Xanr> pXanr;
-	unique_ptr<SpectralNoiseReduction> pNoisesp;
-	unique_ptr<NoiseFilter> nf;
+	std::unique_ptr<MorseDecoder> pMDecoder;
+	std::unique_ptr<LMSNoisereducer> pLMS;
+	std::unique_ptr<Xanr> pXanr;
+	std::unique_ptr<SpectralNoiseReduction> pNoisesp;
+	std::unique_ptr<NoiseFilter> nf;
 	int receiverMode;
 };
 

@@ -66,7 +66,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;NO_SSL=1;USE_WEBSOCKET=1;USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations -fno-omit-frame-pointer -rdynamic</AdditionalOptions>
       <CLanguageStandard />

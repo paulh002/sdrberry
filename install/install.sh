@@ -90,6 +90,16 @@ if [[ $no_passwd == 1 ]];	then
 	sudo usermod -a -G lpadmin pi
 fi
 
+Display=1; #default
+while true; do
+read -p "Type of display DSI-1 1 for HDMI-A-1 2 for HDMI-A-2 3? " type
+case $type in
+	[1]* ) Display=1; break;;
+	[2]* ) Display=2; break;;
+	* ) echo "Default is DSI-1 ";
+esac
+done
+
 sudo apt update
 sudo apt install -y build-essential git cmake g++ libpython3-dev python3-numpy swig cmake \
 binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
@@ -393,6 +403,16 @@ cd $wrkdir || exit
 #enable I2C
 sudo sed -i 's/$/ vt.global_cursor_default=0 usbhid.mousepoll=2/' /boot/firmware/cmdline.txt
 sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/firmware/config.txt
+
+#Configure Display
+if [[ $Display == 2 ]];	then
+	echo "configure HDMI-A-1"
+	sed -i 's/Display[[:space:]]*=[[:space:]]*"DSI-1"/Display="HDMI-A-1"/g' $usrdir/sdrberry_settings.cfg
+fi
+if [[ $Display == 3 ]];	then
+	echo "configure HDMI-A-2"
+	sed -i 's/Display[[:space:]]*=[[:space:]]*"DSI-1"/Display="HDMI-A-2"/g' $usrdir/sdrberry_settings.cfg
+fi
 
 #Do Cleanup
 #rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*

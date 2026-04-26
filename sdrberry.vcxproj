@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;../wsjtx_lib;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include/aarch64-linux-gnu/c++/14.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;/usr/include/c++/14;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;LV_LVGL_H_INCLUDE_SIMPLE;NO_SSL=1;USE_WEBSOCKET=1; USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -66,7 +66,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include/aarch64-linux-gnu/c++/14.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include/aarch64-linux-gnu/c++/14.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;/usr/include/c++/14;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;NO_SSL=1;USE_WEBSOCKET=1;USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations -fno-omit-frame-pointer -rdynamic</AdditionalOptions>
       <CLanguageStandard />
@@ -84,7 +84,7 @@
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;wayland-client;wayland-cursor;xkbcommon;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack -rdynamic</AdditionalOptions>
       <VerboseMode>true</VerboseMode>

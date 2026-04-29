@@ -89,7 +89,7 @@ int AudioInput::getAudioDevice(std::string device)
 	std::vector<unsigned int> ids = getDeviceIds();
 	if (ids.size() == 0)
 	{
-		std::cout << "No devices found." << std::endl;
+		std::cout << "Audio Input: No devices found." << std::endl;
 		return 0;
 	}
 

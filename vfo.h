@@ -161,7 +161,7 @@ class CVfo
 	bool pausevfo{false};
 	bool limit_ham_band;
 	double ppm;
-	
+
 	int get_band(int active_vfo);
 	void rx_set_sdr_freq();
 	void tx_set_sdr_freq();

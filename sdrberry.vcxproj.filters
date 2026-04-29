@@ -5429,5 +5429,8 @@
     <ClInclude Include="SignalStrength.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="debug_print.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

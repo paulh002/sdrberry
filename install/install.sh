@@ -92,10 +92,12 @@ fi
 
 Display=1; #default
 while true; do
-read -p "Type of display DSI-1 1 for HDMI-A-1 2 for HDMI-A-2 3? " type
+read -p "Type of display DSI-1 1 for DSI-2 2 for HDMI-A-1 3 for HDMI-A-2 4? " type
 case $type in
 	[1]* ) Display=1; break;;
 	[2]* ) Display=2; break;;
+	[3]* ) Display=3; break;;
+	[4]* ) Display=4; break;;
 	* ) echo "Default is DSI-1 ";
 esac
 done
@@ -407,9 +409,13 @@ sudo sed -i '/dtparam=i2c_arm=on/s/^#//g' /boot/firmware/config.txt
 #Configure Display
 if [[ $Display == 2 ]];	then
 	echo "configure HDMI-A-1"
-	sed -i 's/Display[[:space:]]*=[[:space:]]*"DSI-1"/Display="HDMI-A-1"/g' $usrdir/sdrberry_settings.cfg
+	sed -i 's/Display[[:space:]]*=[[:space:]]*"DSI-1"/Display="DSI-2"/g' $usrdir/sdrberry_settings.cfg
 fi
 if [[ $Display == 3 ]];	then
+	echo "configure HDMI-A-1"
+	sed -i 's/Display[[:space:]]*=[[:space:]]*"DSI-1"/Display="HDMI-A-1"/g' $usrdir/sdrberry_settings.cfg
+fi
+if [[ $Display == 4 ]];	then
 	echo "configure HDMI-A-2"
 	sed -i 's/Display[[:space:]]*=[[:space:]]*"DSI-1"/Display="HDMI-A-2"/g' $usrdir/sdrberry_settings.cfg
 fi

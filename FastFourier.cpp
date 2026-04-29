@@ -1,5 +1,6 @@
 #include "FastFourier.h"
 #include <iostream>
+#include "debug_print.h"
 
 FastFourier::FastFourier()
 	: numberOffBins(0), resampleRate(0)
@@ -27,7 +28,7 @@ FastFourier::FastFourier(int nbins, float rs, float downMixFrequency)
 		nco_crcf_set_phase(ncoMixerHandle, 0.0f);
 		nco_crcf_set_frequency(ncoMixerHandle, rad_per_sample);
 	}
-	//printf("FFT: nbins %d, reasmpleRate %f, downMixFrequency %f \n", nbins, resampleRate, downMixFrequency);
+	DEBUG_PRINTF("FFT: nbins %d, reasmpleRate %f, downMixFrequency %f \n", nbins, resampleRate, downMixFrequency);
 }
 
 void FastFourier::SetParameters(int nbins, float resampleRate, float downMixFrequency)
@@ -58,7 +59,7 @@ void FastFourier::SetParameters(int nbins, float resampleRate, float downMixFreq
 		nco_crcf_set_phase(ncoMixerHandle, 0.0f);
 		nco_crcf_set_frequency(ncoMixerHandle, rad_per_sample);
 	}
-	//printf("FFT: nbins %d, reasmpleRate %f, downMixFrequency %f \n", nbins, resampleRate, downMixFrequency);
+	DEBUG_PRINTF("FFT: nbins %d, reasmpleRate %f, downMixFrequency %f \n", nbins, resampleRate, downMixFrequency);
 }
 
 FastFourier::~FastFourier()

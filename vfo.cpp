@@ -11,6 +11,7 @@
 #include "WebServer.h"
 #include "gui_top_bar.h"
 #include "SecondScreen.h"
+#include "debug_print.h"
 
 CVfo	vfo;
 
@@ -45,11 +46,10 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	tx_channel = ftx_channel;
 	vfo_setting.correction_rx = Settings_file.get_int(default_radio, "correction_rx", 0);
 	vfo_setting.correction_tx = Settings_file.get_int(default_radio, "correction_tx", 0);
-	printf("correction rx %d, tx %d\n", vfo_setting.correction_rx, vfo_setting.correction_tx);
+	DEBUG_PRINTF("correction rx %d, tx %d\n", vfo_setting.correction_rx, vfo_setting.correction_tx);
 	vfo_setting.notxoffset = Settings_file.get_int(default_radio, "notxoffset", 0);
 	vfo_setting.maxtxoffset = Settings_file.get_int(default_radio, "maxtxoffset", 0);
-	ppm = ((double)Settings_file.get_int(default_radio, "cal_ppm", 0)) / 10.0;
-
+	ppm = ((double)Settings_file.get_int(default_radio, "cal_ppm", 0)) / 10.0;	
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
 	long freq = Settings_file.get_longlong("VFO1","freq");
@@ -150,7 +150,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	cattcpserver.SetMDB(get_mode_no(1));
 	
 	gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
-	//printf("Vfo init: freq %lld, sdr %lld offset %ld maxoffset %ld\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+	DEBUG_PRINTF("Vfo init: freq %ld, sdr %ld offset %ld maxoffset %ld\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 }
 
 void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
@@ -220,7 +220,7 @@ void CVfo::set_frequency_to_left(long freq, int active_vfo, bool update)
 	}
 	if (update)
 		rx_set_sdr_freq();
-	//printf("sdr freq: %lld\n", vfo_setting.vfo_freq_sdr[active_vfo]);
+	DEBUG_PRINTF("sdr freq: %ld\n", vfo_setting.vfo_freq_sdr[active_vfo]);
 }
 
 bool CVfo::compare_span()
@@ -251,7 +251,7 @@ void CVfo::tx_set_sdr_freq()
 {
 	if (SdrDevices && tx_channel >= 0)
 	{
-		printf("TX Freq %lld\n", vfo.get_tx_frequency());
+		DEBUG_PRINTF("TX Freq %ld\n", vfo.get_tx_frequency());
 		SdrDevices->SdrDevices.at(radio)->setFrequency(SOAPY_SDR_TX, 0, adjustFrequencyByPpm(vfo.get_tx_frequency()) + vfo_setting.correction_tx);
 	}
 }
@@ -337,11 +337,11 @@ int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 	{  // incase of different ifrates for tx don't use offset or incase tx samplerate is equal to pcmrate
 		vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
 		tx_set_sdr_freq();
-		printf("tx no offset freq = %lld\n", vfo_setting.vfo_freq[vfo_setting.active_vfo]);
+		DEBUG_PRINTF("tx no offset freq = %ld\n", vfo_setting.vfo_freq[vfo_setting.active_vfo]);
 	}
 	else
 	{
-		//printf("freq %lld, sdr %lld offset %lld diff %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]);
+		DEBUG_PRINTF("freq %ld, sdr %ld offset %ld diff %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]);
 		if (abs(freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo]) > vfo_setting.max_offset && (freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]) >0 )
 		{
 			vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;												  // initialize the frequency to user default
@@ -352,7 +352,7 @@ int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 			if (vfo_setting.tx)
 				tx_set_sdr_freq();
 			tune_flag = true;
-			printf("Tune pos: freq %lld, sdr %lld offset %ld maxoffset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+			DEBUG_PRINTF("Tune pos: freq %ld, sdr %ld offset %ld maxoffset %ld\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 		}
 		else if (freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo] < vfo_setting.min_offset && (freq - vfo_setting.vfo_freq[vfo_setting.active_vfo]) < 0)
 		{
@@ -364,17 +364,17 @@ int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 			if (vfo_setting.tx)
 				tx_set_sdr_freq();
 			tune_flag = true;
-			//printf("Tune neg: freq %lld, sdr %lld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
+			DEBUG_PRINTF("Tune neg: freq %ld, sdr %ld offset %ld maxoffset %ld \n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset);
 		}
 		else
 		{
 			vfo_setting.vfo_freq[vfo_setting.active_vfo] = freq;
 			vfo_setting.offset[vfo_setting.active_vfo] = freq - vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo];
 			tune_flag = true;
-			//printf("set offset %ld\n", vfo_setting.offset[vfo_setting.active_vfo]);
+			DEBUG_PRINTF("set offset %ld\n", vfo_setting.offset[vfo_setting.active_vfo]);
 		}
 	}
-	//printf("freq %lld, sdr %lld offset %ld maxoffset %ld step %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.frq_step);
+	DEBUG_PRINTF("freq %ld, sdr %ld offset %ld maxoffset %ld step %d\n", freq, vfo_setting.vfo_freq_sdr[vfo_setting.active_vfo], vfo_setting.offset[vfo_setting.active_vfo], vfo_setting.max_offset, vfo_setting.frq_step);
 	SpectrumGraph.set_pos(vfo_setting.offset[vfo.vfo_setting.active_vfo]);
 	if (get_band(vfo_setting.active_vfo) || changeBandActiveVfo)
 	{ // Band Change?
@@ -382,7 +382,7 @@ int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 		bpf.SetBand(vfo_setting.band[vfo.vfo_setting.active_vfo], vfo_setting.rx);
 		gcal.SetCalibrationBand(getBandIndex(vfo_setting.band[vfo.vfo_setting.active_vfo]));
 		gbar.set_gain_slider_band_from_config();
-		printf("vfo band change\n");
+		DEBUG_PRINTF("vfo band change\n");
 		retval = 1;
 	}
 	gui_vfo_inst.set_vfo_gui(vfo_setting.active_vfo, freq, get_rx(), get_mode_no(vfo_setting.active_vfo), get_band_no(vfo_setting.active_vfo), getBandIndex(get_band_no(vfo_setting.active_vfo)));

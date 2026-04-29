@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;elf;wayland-client;wayland-cursor;xkbcommon;rtlsdrSupport;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;elf;wayland-client;wayland-cursor;xkbcommon;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
@@ -229,6 +229,7 @@
     <ClInclude Include="date\solar_hijri.h" />
     <ClInclude Include="date\tz.h" />
     <ClInclude Include="date\tz_private.h" />
+    <ClInclude Include="debug_print.h" />
     <ClInclude Include="Demodulator.h" />
     <ClInclude Include="DigitalTransmission.h" />
     <ClInclude Include="DouglasPeucker.h" />

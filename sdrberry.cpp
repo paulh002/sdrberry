@@ -349,6 +349,7 @@ const int hidetx{5};
 const int hidepreamp{6};
 int screenfontthresshold_1;
 int screenfontthresshold_2;
+bool debug_print = false;
 
 // const int hidespeech{5};
 
@@ -573,6 +574,7 @@ int main(int argc, char *argv[])
 		return 0;
 
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
+	debug_print = Settings_file.get_int("Radio", "debug", 0);
 	std::string timezone = Settings_file.get_string("Radio", "timezone");
 	auto t = make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
 	if (timezone.size())
@@ -593,20 +595,21 @@ int main(int argc, char *argv[])
 
 	default_radio = Settings_file.find_sdr("default");
 
-	int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
-	int debugswapxy = Settings_file.get_int("input", "touch_debug", 0);
-	std::string touchscreen = Settings_file.get_string("input", "touchscreen");
+	//int touchswapxy = Settings_file.get_int("input", "touch_swap_xy", 0);
+	//int debugswapxy = Settings_file.get_int("input", "touch_debug", 0);
+	//std::string touchscreen = Settings_file.get_string("input", "touchscreen");
 	// evdev_touch_swap(touchswapxy, debugswapxy);
 	// evdev_touch_driver(touchscreen.c_str());
-	printf("Screen resolution %d x %d screenRotate %d touch_swap setting %d\n", screenWidth, screenHeight, screenRotate, touchswapxy);
+	//printf("Screen resolution %d x %d screenRotate %d touch_swap setting %d\n", screenWidth, screenHeight, screenRotate, touchswapxy);
 
 	wsjtx = make_unique<wsjtx_lib>();
 	// KeyboardDevice.init_keyboard();
 	// Mouse_dev.init_mouse();
-	HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
+	//HidDev_dev.init("CONTOUR DESIGN SHUTTLEXPRESS");
 	// HidDev_dev1.init("GN Audio A/S Jabra Evolve2 30 Consumer Control");
 	// HidDev_dev2.init("HID 413d:553a");
-
+	shuttle.start();
+	
 	catinterface.begin();
 	std::thread thread_catinterface(std::ref(catinterface));
 	thread_catinterface.detach();
@@ -617,6 +620,8 @@ int main(int argc, char *argv[])
 
 	int audiodevID;
 	audiodevID = AudioInput::createAudioInputDevice(defaultAudioSampleRate, 2048);
+	if (!audiodevID)
+		printf("CreateAudioInputDevice: No Audio Input Device found\n");
 	AudioOutput::createAudioDevice(defaultAudioSampleRate, 1024, audiodevID);
 
 	bpf.initFilter();

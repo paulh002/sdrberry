@@ -640,6 +640,7 @@ int main(int argc, char *argv[])
 
 	lv_wayland_init();
 	main_screen = create_display(&disp_0, display_port);
+	lv_display_set_default(disp_0);
 	screenWidth = lv_display_get_horizontal_resolution(disp_0);
 	screenHeight = lv_display_get_vertical_resolution(disp_0);
 
@@ -678,17 +679,17 @@ int main(int argc, char *argv[])
 	lv_theme_t *th;
 	if (screenWidth > 1440)
 	{
-		th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_18);
+		th = lv_theme_default_init(disp_0, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_18);
 		barHeightft8 = 150;
 	}
 	else if (screenWidth > 1280)
 	{
-		th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_16);
+		th = lv_theme_default_init(disp_0, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_16);
 		barHeightft8 = 150;
 	}
 	else
 	{
-		th = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
+		th = lv_theme_default_init(disp_0, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
 		barHeightft8 = 125;
 	}
 	screenfontthresshold_2 = Settings_file.get_int("screen", "thresshold_2", 1024);

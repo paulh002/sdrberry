@@ -62,7 +62,7 @@ else
    echo "If you want to compile from code use ./install.sh RDB"
    exit
 fi
-LCD='DSI'
+
 if [[ $1 = "SDP" ]]; then 
    echo "Please install SDRPlay API first press ctrl-C to stop this script"
    sleep 5

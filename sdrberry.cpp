@@ -241,7 +241,10 @@ static lv_display_t *init_window(char *str, int32_t width, int32_t height, bool 
 	lv_group_t *g;
 
 	if (!lv_wayland_is_output_connected(output_display))
+	{
+		printf("Failed to initialize Wayland backend, output %d not connected\n", output_display);
 		return NULL;
+	}
 
 	disp = lv_wayland_window_create(width, height,
 									str, NULL);
@@ -273,7 +276,10 @@ lv_obj_t *create_display(lv_display_t **disp, const std::string device)
 	lv_obj_t *screen{};
 	
 	if (!lv_wayland_is_output_connected_by_name(device.c_str()))
+	{
+		printf("Failed to initialize Wayland backend, output %s not connected\n", device.c_str());
 		return NULL;
+	}
 	
 	if (!*disp)
 	{

@@ -552,7 +552,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 
 	main_display = lv_dropdown_create(settings_main);
 	lv_dropdown_clear_options(main_display);
-	lv_dropdown_set_options(main_display, "HDMI-A-1\nHDMI-A-2\nDSI-1");
+	lv_dropdown_set_options(main_display, "HDMI-A-1\nHDMI-A-2\nDSI-1\nDSI-2");
 	lv_obj_add_event_cb(main_display, main_display_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_align(main_display, LV_ALIGN_TOP_LEFT, x_disp, y_disp);
 	std::string display_port = Settings_file.get_string("screen", "Display", "DSI-1");
@@ -563,6 +563,8 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 		option = 1;
 	if (display_port == "DSI-1")
 		option = 2;
+	if (display_port == "DSI-2")
+		option = 3;
 	lv_dropdown_set_selected(main_display, option);
 	lv_group_add_obj(button_group, main_display);
 	
@@ -587,6 +589,8 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 		option = 2;
 	if (display_port == "DSI-1")
 		option = 3;
+	if (display_port == "DSI-1")
+		option = 4;
 	lv_dropdown_set_selected(second_disp, option);
 	lv_group_add_obj(button_group, second_disp);
 

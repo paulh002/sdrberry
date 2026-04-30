@@ -192,6 +192,9 @@ void gui_setup::main_display_event_class(lv_event_t *e)
 		case 2:
 			sel_main_display = "DSI-1";
 			break;
+		case 3:
+			sel_main_display = "DSI-2";
+			break;
 		}
 		if (Second_display_port == sel_main_display)
 		{
@@ -226,6 +229,9 @@ void gui_setup::second_display_event_class(lv_event_t *e)
 			break;
 		case 3:
 			sel_main_display = "DSI-1";
+			break;
+		case 4:
+			sel_main_display = "DSI-2";
 			break;
 		}
 		if (display_port != sel_main_display)

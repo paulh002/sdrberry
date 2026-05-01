@@ -133,6 +133,8 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 					int span = vfo.get_span();
 					f = vfo.get_sdr_span_frequency();
 					f = (p.x + get_cursor_width_drag(mode) / 2)  * (span / width) + f;
+					if (f >= vfo.get_sdr_span_frequency() + span)
+						f = vfo.get_sdr_span_frequency() + span - 1;
 					if (vfo.get_frequency() != f)
 					{
 						f = f / gbar.get_step_value();

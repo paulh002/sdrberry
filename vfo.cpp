@@ -504,11 +504,6 @@ long CVfo::get_tx_frequency()
 		return vfo_setting.vfo_freq_sdr[active_vfo];
 }
 
-void CVfo::set_tuner_offset(double offset)
-{
-	vfo_setting.tuner_offset = offset;
-}
-
 void CVfo::set_active_vfo(int active_vfo)
 {
 	set_vfo(0, (vfo_activevfo)std::min(active_vfo, 1));

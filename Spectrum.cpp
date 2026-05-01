@@ -727,7 +727,7 @@ void Spectrum::scale_event_cb_class(lv_event_t *e)
 				ii = span / (vert_lines - 1);
 				break;
 			}
-			f = f + (label_dsc->base.id2) * ii;
+			f = f + (label_dsc->base.id1) * ii;
 			long l = (long)round(f / 1000.0);
 			char str[80];
 			lv_snprintf(str, 19, "%ld", l);

@@ -53,7 +53,6 @@ struct vfo_settings_struct
 	int band[2];
 	int frq_step;
 	int active_vfo;
-	double tuner_offset;
 	bool tx;
 	bool rx;
 	long max_offset;
@@ -84,7 +83,6 @@ class CVfo
 	void step_vfo(long icount);
 	long get_active_vfo_freq();
 	std::string get_vfo_str(long freq);
-	void set_tuner_offset(double offset);
 	void set_active_vfo(int active_vfo);
 	void set_vfo_range(long low, long high);
 	void set_band(int band, long freq);

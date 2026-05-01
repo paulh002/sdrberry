@@ -9,6 +9,9 @@
 
 gui_sdr guisdr;
 
+const int span_devider = 6000;
+const int span_multiplier = span_devider / 1000;
+
 extern void switch_sdrreceiver(std::string receiver);
 
 void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
@@ -276,7 +279,7 @@ void gui_sdr::span_slider_event_cb_class(lv_event_t *e)
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 
-	int i = lv_slider_get_value(obj) * 48;
+	int i = lv_slider_get_value(obj) * span_multiplier;
 	if (i > 0)
 	{
 		set_span_value(i * 1000);
@@ -412,7 +415,7 @@ void gui_sdr::set_span_value(long span)
 	std::string buf;
 
 	int maxv = lv_slider_get_max_value(span_slider);
-	int v = span / 48000;
+	int v = span / span_devider;
 
 	if (v < 0 || v > maxv)
 		span = maxv;
@@ -428,8 +431,8 @@ void gui_sdr::set_span_value(long span)
 		else
 		{
 			lv_slider_set_value(span_slider, v, LV_ANIM_ON);
-			buf = strlib::sprintf("span %d Khz", v * 48);
-			gui_vfo_inst.set_span(v * 48);
+			buf = strlib::sprintf("span %d Khz", v * span_multiplier);
+			gui_vfo_inst.set_span(v * span_multiplier);
 		}
 	}
 	else
@@ -454,8 +457,8 @@ void gui_sdr::set_span_value(long span)
 
 void gui_sdr::set_span_range(long span)
 {
-	int v = span / 48000;
-	int m = span % 48000;
+	int v = span / span_devider;
+	int m = span % span_devider;
 	if (v < 0 || v > 80)
 		span = 80;
 	if (v == 0)

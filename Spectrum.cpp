@@ -28,7 +28,7 @@ Spectrum SpectrumGraph;
 int nfft_samples{1240};
 const int excludeMargin = 12;
 
-std::pair<bool,int> Spectrum::cursor_intersect(lv_point_t p)
+std::pair<bool,int> Spectrum::cursor_marker_intersect(lv_point_t p)
 {
 	int i = 0;
 	for (auto mark : markers)
@@ -47,8 +47,10 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 
 	lv_indev_t *indev = lv_indev_get_act();
 	lv_indev_type_t indev_type = lv_indev_get_type(indev);
-
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && indev->pointer.btn_id == LV_INDEV_BTN_RIGHT)
+	int32_t width_cursor = get_cursor_width(mode);
+	
+	// LV_INDEV_BTN_RIGHT
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && indev->pointer.btn_id == LV_INDEV_BTN_LEFT && drag_marker_rightbutton)
 		{
 		drag_marker_rightbutton = 0;
 		vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), true);
@@ -57,54 +59,58 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		gbar.updateweb();
 	}
 
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && indev->pointer.btn_id == LV_INDEV_BTN_RIGHT)
-
+	// LV_INDEV_BTN_RIGHT
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && indev->pointer.btn_id == LV_INDEV_BTN_LEFT && drag_marker_left == 0)
 		{
 		lv_point_t p;
 		lv_indev_get_point(indev, &p);
-
-		if (indev->pointer.btn_id == LV_INDEV_BTN_RIGHT && p.x != p_drag.x)
+		
+		lv_point_t pt = lv_chart_get_cursor_point(chart, FrequencyCursor);
+		if (!check_cursor_intersect(mode, p) || drag_marker_rightbutton)
 		{
-			p_drag = p;
-			long long df{0LL}, spanfreq;
-			int span = vfo.get_span();
-			spanfreq = vfo.get_sdr_frequency(); // vfo.get_sdr_span_frequency(); // f max left
-			df = p.x * (span / width);
-			if (!drag_marker_rightbutton)
+			// LV_INDEV_BTN_RIGHT
+			if (indev->pointer.btn_id == LV_INDEV_BTN_LEFT && p.x != p_drag.x)
 			{
-				drag_frequency_shift = df;
-				drag_marker_rightbutton = 1;
+				p_drag = p;
+				long long df{0LL}, spanfreq;
+				int span = vfo.get_span();
+				spanfreq = vfo.get_sdr_frequency(); // vfo.get_sdr_span_frequency(); // f max left
+				df = p.x * (span / width);
+				if (!drag_marker_rightbutton)
+				{
+					drag_frequency_shift = df;
+					drag_marker_rightbutton = 1;
+				}
+				else
+				{
+					drag_frequency = df - drag_frequency_shift;
+					drag_frequency_shift = df;
+				}
+				// printf("freq %lld df %lld\n", drag_frequency, df);
+				newspanstartfreq = spanfreq - drag_frequency;
+				vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), true); // false (no spectrum shift)
+				vfo.set_vfo(vfo.get_frequency());
 			}
-			else
-			{
-				drag_frequency = df - drag_frequency_shift;
-				drag_frequency_shift = df;
-			}
-			//printf("freq %lld df %lld\n", drag_frequency, df);
-			newspanstartfreq = spanfreq - drag_frequency;
-			vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), true); // false (no spectrum shift)
-			vfo.set_vfo(vfo.get_frequency());
+			return;
 		}
-		return;
 	}
 
-	//if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && (btn_id == BTN_LEFT || btn_id == 0))
 	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && (indev->pointer.btn_id == LV_INDEV_BTN_LEFT || indev->pointer.btn_id == LV_INDEV_BTN_NONE))
 	{
 		// make sure only the marker is dragged, fast mouse movements will skipp multiple x possitions
 		drag_marker = 0;
+		drag_marker_left = 0;
 	}
 
-	//if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (btn_id == BTN_LEFT || btn_id == 0))
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (indev->pointer.btn_id == LV_INDEV_BTN_LEFT || indev->pointer.btn_id == LV_INDEV_BTN_NONE))
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (indev->pointer.btn_id == LV_INDEV_BTN_LEFT || indev->pointer.btn_id == LV_INDEV_BTN_NONE) && drag_marker_rightbutton == 0)
 	{
 		lv_point_t p;
 		lv_indev_get_point(indev, &p);
 
 		if (p.x > 0)
 		{
-			auto ret = cursor_intersect(p);
-			if (ret.first || drag_marker) // close to marker or drag mode
+			auto ret = cursor_marker_intersect(p);
+			if ((ret.first || drag_marker) && drag_marker_left == 0) // close to marker or drag mode
 			{
 				if (drag_marker) // make sure the same marker is dragged
 				{
@@ -118,19 +124,48 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 			}
 			else
 			{
-				long long f;
-				int span = vfo.get_span();
-				f = vfo.get_sdr_span_frequency();
-				f = p.x * (span / width) + f;
-				if (vfo.get_frequency() != f)
+				lv_point_t pt = lv_chart_get_cursor_point(chart, FrequencyCursor);
+				//if ((abs(pt.x - p.x) < width_cursor || drag_marker_left) && drag_marker == 0)
+				if ((check_cursor_intersect(mode, p) || drag_marker_left) && drag_marker == 0)
 				{
-					f = f / gbar.get_step_value();
-					f = f * gbar.get_step_value();
-					vfo.set_vfo(f);
+					drag_marker_left = 1;
+					long long f;
+					int span = vfo.get_span();
+					f = vfo.get_sdr_span_frequency();
+					f = (p.x + get_cursor_width_drag(mode) / 2)  * (span / width) + f;
+					if (vfo.get_frequency() != f)
+					{
+						f = f / gbar.get_step_value();
+						f = f * gbar.get_step_value();
+						vfo.set_vfo(f);
+					}
 				}
 			}
 		}
 	}
+}
+
+bool Spectrum::check_cursor_intersect(int mode, lv_point_t p)
+{
+	lv_point_t pt = lv_chart_get_cursor_point(chart, FrequencyCursor);
+	int32_t width_cursor = get_cursor_width(mode);
+
+	if (cursor_direction & LV_DIR_RIGHT_FIX && (p.x - pt.x > 0)) // USB
+	{
+		if ((p.x - pt.x) < width_cursor / 2)
+			return true;
+	}
+	if (cursor_direction & LV_DIR_LEFT_FIX && (pt.x - p.x > 0)) // LSB
+	{
+		if ((pt.x - p.x) < width_cursor / 2)
+			return true;
+	}
+	if (cursor_direction & LV_DIR_MID_FIX && abs(pt.x - p.x) > 0) // LSB
+	{
+		if (abs(pt.x - p.x) < width_cursor)
+			return true;
+	}
+		return false;
 }
 
 void Spectrum::draw_event_cb_class(lv_event_t *e)
@@ -140,8 +175,7 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
-
-	//if (dsc->part == LV_PART_ITEMS && dsc->sub_part_ptr == ser)
+	
 	if (base_dsc->part == LV_PART_ITEMS && lv_draw_task_get_type(draw_task) == LV_DRAW_TASK_TYPE_LINE)
 	{
 		lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
@@ -458,12 +492,10 @@ void Spectrum::set_pos(int32_t offset)
 
 void Spectrum::set_cursor_mode(int mode)
 {
-	lv_dir_t dir;
-
 	switch (mode)
 	{
 	case mode_lsb:
-		dir =  (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP | LV_DIR_LEFT_FIX);
+		cursor_direction =  (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP | LV_DIR_LEFT_FIX);
 		break;
 
 	case mode_usb:
@@ -474,26 +506,52 @@ void Spectrum::set_cursor_mode(int mode)
 	case mode_echo:
 	case mode_freedv:
 	case mode_rtty:
-		dir = (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP | LV_DIR_RIGHT_FIX);
+		cursor_direction = (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP | LV_DIR_RIGHT_FIX);
 		break;
 
 	case mode_am:
 	case mode_dsb:
 	case mode_broadband_fm:
 	case mode_narrowband_fm:
-		dir = (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP | LV_DIR_MID_FIX);
+		cursor_direction = (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP | LV_DIR_MID_FIX);
 		break;
 	}
-	
-	lv_chart_set_direction(FrequencyCursor, dir);
+
+	lv_chart_set_direction(FrequencyCursor, cursor_direction);
+	lv_obj_set_style_width(chart, get_cursor_width(mode), LV_PART_CURSOR);
+	//printf("span %d filter %d, screen %d width %d\n", s, f, ii, w);
+}
+
+int32_t Spectrum::get_cursor_width(int mode)
+{
+
 	int32_t f = gbar.get_filter_frequency(mode);
 	int32_t s = vfo.get_span();
 	int32_t ii = (width - 2 * excludeMargin);
 	int32_t w = f / (s / ii);
-	lv_obj_set_style_width(chart, w, LV_PART_CURSOR);
-	//printf("span %d filter %d, screen %d width %d\n", s, f, ii, w);
+	// printf("span %d filter %d, screen %d width %d\n", s, f, ii, w);
+	return w;
 }
 
+int32_t Spectrum::get_cursor_width_dir(int mode)
+{
+
+	int32_t w = get_cursor_width(mode);
+	if (cursor_direction & LV_DIR_RIGHT_FIX)
+		w = w * -1;
+	return w;
+}
+
+int32_t Spectrum::get_cursor_width_drag(int mode)
+{
+
+	int32_t w = get_cursor_width(mode);
+	if (cursor_direction & LV_DIR_RIGHT_FIX)
+		w = 0;
+	return w;
+}
+
+	
 void Spectrum::enable_second_data_series(bool enable)
 {
 	hold_peak = enable;

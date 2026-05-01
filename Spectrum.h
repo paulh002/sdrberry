@@ -44,6 +44,7 @@ class Spectrum
 	std::vector<int> peaks;
 	int active_markers{0};
 	int drag_marker{0};
+	int drag_marker_left{0};
 	int drag_marker_rightbutton{0};
 	long drag_frequency_shift{0LL};
 	long drag_frequency{0LL};
@@ -53,14 +54,19 @@ class Spectrum
 	lv_coord_t height, width, xx, yy;
 	int heightChart, fontsize , heightWaterfall;
 	int scroll_factor;
+	lv_dir_t cursor_direction;
 
+	int32_t get_cursor_width(int mode);
+	int32_t get_cursor_width_dir(int mode);
+	bool check_cursor_intersect(int mode, lv_point_t p);
+	int32_t get_cursor_width_drag(int mode);
 	void draw_event_cb_class(lv_event_t *e);
 	void pressing_event_cb_class(lv_event_t *e);
 	void scale_event_cb_class(lv_event_t *e);
 	void scale_clicked_event_cb_class(lv_event_t *e);
 	void scroll_event_cb_class(lv_event_t *e);
 	void draw_marker_label(lv_chart_cursor_t *cursor, lv_draw_label_dsc_t *dsc);
-	std::pair<bool, int> cursor_intersect(lv_point_t p);
+	std::pair<bool, int> cursor_marker_intersect(lv_point_t p);
 	void draw_marker_label(lv_chart_cursor_t *cursor, lv_draw_task_t *draw_task);
 
   public:

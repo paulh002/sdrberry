@@ -52,7 +52,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	ppm = ((double)Settings_file.get_int(default_radio, "cal_ppm", 0)) / 10.0;	
 	vfo_setting.active_vfo = 0;
 	vfo_setting.span = span;
-	long freq = Settings_file.get_longlong("VFO1","freq");
+	long freq = Settings_file.get_long("VFO1","freq");
 	std::string ham = Settings_file.find_radio("band");
 	if (ham != "all")
 		vfo.limit_ham_band = true;
@@ -120,7 +120,7 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 			check_band(0, freq);
 	}
 	
-	vfo_setting.vfo_freq[1] = Settings_file.get_longlong("VFO2", "freq");
+	vfo_setting.vfo_freq[1] = Settings_file.get_long("VFO2", "freq");
 	if (vfo_setting.vfo_freq[1] < vfo_setting.vfo_low || vfo_setting.vfo_freq[1] > vfo_setting.vfo_high)
 	{
 		vfo_setting.vfo_freq[1] = vfo_setting.vfo_low;
@@ -160,6 +160,20 @@ void CVfo::vfo_re_init(long ifrate, long pcmrate, long span, long bandwidth)
 	if (bandwidth == 0)
 		vfo_setting.bandwidth = pcmrate;
 	set_span(span);
+}
+void CVfo::vfo_store_freq_mode()
+{
+
+	// VFO 1
+	long freq = get_vfo_frequency(vfo_activevfo::One);
+	Settings_file.save_long("VFO1", "freq", freq);
+	std::string smode = getMode(vfo_activevfo::One);
+	Settings_file.save_string("VFO1", "Mode", smode);
+	// VFO 2
+	freq = get_vfo_frequency(vfo_activevfo::Two);
+	Settings_file.save_long("VFO2", "freq", freq);
+	smode = getMode(vfo_activevfo::One);
+	Settings_file.save_string("VFO2", "Mode", smode);
 }
 
 void CVfo::set_span(long span)
@@ -203,8 +217,21 @@ void CVfo::set_span(long span)
 
 void CVfo::set_frequency_to_left(long freq, int active_vfo, bool update)
 {
-	span_offset_frequency = 0;
+	
 	long span = vfo_setting.span;
+
+	if (ifrate <= span)
+	{
+		span_offset_frequency = 0;
+	}
+	else if (span >= ifrate / 2)
+	{
+		span_offset_frequency = span / 2 - (span - ifrate / 2);
+	}
+	else
+	{
+		span_offset_frequency = span / 2;
+	}
 
 	vfo_setting.vfo_freq_sdr[active_vfo] = freq;
 	vfo_setting.offset[active_vfo] = vfo_setting.vfo_freq[active_vfo] - vfo_setting.vfo_freq_sdr[active_vfo];
@@ -631,7 +658,13 @@ void CVfo::setVfoFrequency(int direction)
 		freq = vfo_setting.span + vfo_setting.vfo_freq[vfo_setting.active_vfo];
 	else
 		freq = vfo_setting.vfo_freq[vfo_setting.active_vfo] - vfo_setting.span;
-
+/*	{
+		if (vfo_setting.mode[vfo_setting.active_vfo] == mode_lsb)
+				freq = vfo_setting.vfo_freq[vfo_setting.active_vfo] - vfo_setting.span;
+			else
+				freq = vfo_setting.vfo_freq[vfo_setting.active_vfo] - vfo_setting.span + gbar.get_filter_frequency(mode_lsb);
+	}
+*/
 	if (freq == vfo_setting.vfo_freq[vfo_setting.active_vfo])
 		return;
 

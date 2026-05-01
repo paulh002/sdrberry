@@ -148,6 +148,7 @@ class CVfo
 	void set_frequency_to_left(long freq, int active_vfo, bool update );
 	bool checkVfoBandRange(long freq);
 	void set_ppm(int _ppm);
+	void vfo_store_freq_mode();
 
   private:
 	struct vfo_settings_struct vfo_setting;

@@ -291,16 +291,13 @@ void gui_setup::do_shutdown_button_handler_class(lv_event_t *e)
 		const char *ptr = lv_label_get_text(label);
 		if (strcmp(ptr, "Shutdown") == 0 || strcmp(ptr, "Reboot") == 0)
 		{
-			long freq1 = vfo.get_vfo_frequency(vfo_activevfo::One);
-			long freq2 = vfo.get_vfo_frequency(vfo_activevfo::Two);
-			Settings_file.save_string(std::string("VFO1"), std::string("freq"), std::to_string(freq1));
-			Settings_file.save_string(std::string("VFO2"), std::string("freq"), std::to_string(freq2));
-			Settings_file.write_settings();
+			vfo.vfo_store_freq_mode();
 			sync(); // flush filesystem buffers
 			system("systemctl reboot");
 		}
 		else if (strcmp(ptr, "exit") == 0)
 		{
+			vfo.vfo_store_freq_mode();
 			stop_sdrberry();
 		}
 		else

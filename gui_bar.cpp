@@ -1010,7 +1010,7 @@ int gui_bar::get_filter_frequency(int mode)
 	if (filter_to_mode_cutoff_frequencies.find(ModesTypes.at(ModesMap.at(mode))) != filter_to_mode_cutoff_frequencies.end())
 		return filter_to_mode_cutoff_frequencies.at(ModesTypes.at(ModesMap.at(mode)));
 	else
-			return 0;
+		return 0;
 }
 
 int gui_bar::get_filter_index()

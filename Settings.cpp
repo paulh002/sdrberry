@@ -471,14 +471,22 @@ int Settings::get_int(std::string section, std::string key, int defaultValue)
 	return value;
 }
 
-long long Settings::get_longlong(std::string section, std::string key, long defaultValue)
+long Settings::get_long(std::string section, std::string key, long defaultValue)
 {
 	auto option = config->getSection(section);
 	auto s = option.find(key);
 	if (s == option.end())
 		return defaultValue;
 	string st = s->second;
-	return strtoll((const char *)st.c_str(), NULL, 0);
+	return strtol((const char *)st.c_str(), NULL, 0);
+}
+
+void Settings::save_long(std::string section, std::string key, long value)
+{
+	config->useSection(section);
+	auto &col = (*config)(key);
+	col = value;
+	write_settings();
 }
 
 void Settings::save_int(std::string section, std::string key, int value)

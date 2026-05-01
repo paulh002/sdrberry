@@ -39,7 +39,8 @@ class Settings
 	void save_vfo(int vfo, long freq);
 	int gain(std::string sdrdevice);
 	int get_int(std::string section, std::string key, int defaultValue = 0);
-	long long get_longlong(std::string section, std::string key, long defaultValue = 0L);
+	long get_long(std::string section, std::string key, long defaultValue = 0L);
+	void save_long(std::string section, std::string key, long value);
 	std::string get_string(std::string sdrdevice, std::string key);
 	std::string get_string(std::string sdrdevice, std::string key, std::string default_string);
 	void save_int(std::string section, std::string key, int value);

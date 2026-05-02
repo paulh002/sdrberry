@@ -1315,7 +1315,7 @@ void destroy_demodulators(bool all, bool close_stream)
 		RX_Stream::pause_rx_stream(false);
 	}
 	TX_Stream::destroy_tx_streaming_thread(close_stream);
-}
+ }
 
 void stop_sdrberry()
 {
@@ -1508,8 +1508,8 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	else
 	{
 		destroy_demodulators(false, false);
+		RX_Stream::pause_rx_stream(true);
 	}
-	RX_Stream::pause_rx_stream(true);
 	mode = s_mode;
 	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());

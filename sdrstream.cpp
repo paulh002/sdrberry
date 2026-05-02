@@ -21,6 +21,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include "debug_print.h"
 
 #define DEBUG_VECTOR(v) std::cout << #v << " size: " << v.size() << ", capacity: " << v.capacity() << '\n';
 
@@ -52,7 +53,8 @@ std::atomic_bool RX_Stream::pause_flag{false};
 
 void RX_Stream::pause_rx_stream(bool enable)
 {
-	pause_flag = enable;
+	pause_flag.store(enable);
+	DEBUG_PRINTF("Pause_flag set to %d\n", enable);
 }
 
 void RX_Stream::operator()()

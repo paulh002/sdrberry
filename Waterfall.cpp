@@ -10,6 +10,7 @@
 #include "Waterfall.h"
 #include "Modes.h"
 #include "screen.h"
+#include "debug_print.h"
 
 Waterfall::Waterfall(lv_obj_t *parent, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
 					 float r, waterfallFlow flow, partialspectrum p, int margin)
@@ -27,7 +28,7 @@ Waterfall::Waterfall(lv_obj_t *parent, lv_coord_t x, lv_coord_t y, lv_coord_t w,
 	temp_buffer.resize(LV_CANVAS_BUF_SIZE(width, height - 1, LV_COLOR_FORMAT_RGB565, LV_DRAW_BUF_STRIDE_ALIGN));
 	NumberOfBins = width - 2 * excludeMargin;
 	SetPartial(partialSpectrum, resampleRate);
-	printf("Waterfall constructor: NumberOfBins %d x %d y%d w %d h %d \n", NumberOfBins, xpos, y, width, height );
+	DEBUG_PRINTF("Waterfall constructor: NumberOfBins %d x %d y%d w %d h %d \n", NumberOfBins, xpos, y, width, height );
 }
 
 void Waterfall::Size(lv_coord_t y, lv_coord_t h)
@@ -37,7 +38,7 @@ void Waterfall::Size(lv_coord_t y, lv_coord_t h)
 	canvas_buffer.resize(LV_CANVAS_BUF_SIZE(width, h, LV_COLOR_FORMAT_RGB565, LV_DRAW_BUF_STRIDE_ALIGN));
 	temp_buffer.resize(LV_CANVAS_BUF_SIZE(width, height - 1, LV_COLOR_FORMAT_RGB565, LV_DRAW_BUF_STRIDE_ALIGN));
 	lv_canvas_set_buffer(canvas, canvas_buffer.data(), width, h, LV_COLOR_FORMAT_RGB565);
-	printf("Waterfall Size message: NumberOfBins %d x %d y%d w %d h%d \n", NumberOfBins, xpos, y, width, height);
+	DEBUG_PRINTF("Waterfall Size message: NumberOfBins %d x %d y%d w %d h%d \n", NumberOfBins, xpos, y, width, height);
 }
 
 void Waterfall::SetMaxMin(float _max, float _min)
@@ -64,6 +65,7 @@ void Waterfall::SetPartial(partialspectrum p, float factor_, float downMixFreque
 	}
 	fft.reset();
 	fft = std::make_unique<FastFourier>(NumberOfBins, resampleRate, downMixFrequency);
+	DEBUG_PRINTF("Waterfall: NumberOfBins %d, resampleRate %f, downMixFrequency %f\n", NumberOfBins, resampleRate, downMixFrequency);
 }
 
 Waterfall::~Waterfall()

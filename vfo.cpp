@@ -213,6 +213,7 @@ void CVfo::set_span(long span)
 		vfo_setting.offset[1] = vfo_setting.vfo_freq[1] - vfo_setting.vfo_freq_sdr[1];
 	}
 	rx_set_sdr_freq();
+	DEBUG_PRINTF("Span: freq %ld sdr freq: %ld offset %ld span offset %ld max offset %ld min offset %ld\n", vfo_setting.vfo_freq[0], vfo_setting.vfo_freq_sdr[0], vfo_setting.offset[0], span_offset_frequency, vfo_setting.max_offset, vfo_setting.min_offset);
 }
 
 void CVfo::set_frequency_to_left(long freq, int active_vfo, bool update)
@@ -285,8 +286,6 @@ void CVfo::tx_set_sdr_freq()
 
 long CVfo::get_vfo_offset(bool rit)
 {
-	//unique_lock<mutex> lock(m_vfo_mutex);
-	
 	long offset_freq = vfo_setting.offset[vfo_setting.active_vfo] + vfo_setting.vfo_rit[vfo_setting.active_vfo];
 	
 	if (!rit || offset_freq > vfo_setting.max_offset || offset_freq < vfo_setting.min_offset)
@@ -294,12 +293,10 @@ long CVfo::get_vfo_offset(bool rit)
 			offset_freq = vfo_setting.offset[vfo_setting.active_vfo];
 	}
 	return offset_freq;
-//vfo_setting.offset[vfo_setting.active_vfo];
 }
 
 long CVfo::get_vfo_offset_tx()
 {
-	//unique_lock<mutex> lock(m_vfo_mutex);
 	if (((abs(ifrate - ifrate_tx) > 0.1) || (abs(ifrate_tx - (double)vfo_setting.pcmrate) < 0.1) || vfo_setting.notxoffset) && vfo_setting.tx)
 		return 0L;
 	else

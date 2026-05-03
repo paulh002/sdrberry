@@ -625,6 +625,13 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_slider_set_value(brightness_slider, get_brightness(), LV_ANIM_ON);
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	lv_group_add_obj(button_group, brightness_slider);
+
+	ibutton_y++;
+	y_span = ibutton_y * font_size.y + ibutton_y * y_margin + ibutton_y * button_height_margin;
+	lv_obj_t *version_label = lv_label_create(settings_main);
+	std::string v_string = "Version " + version_string;
+	lv_label_set_text(version_label, v_string.c_str());
+	lv_obj_align_to(version_label, update_button, LV_ALIGN_BOTTOM_MID, 0, 3 * y_margin + font_size.y);
 }
 
 

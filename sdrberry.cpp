@@ -58,29 +58,14 @@
 #include "SecondScreen.h"
 #include "SignalStrength.h"
 
+const int major_version = 2;
+const int minor_version = 1;
+const int patch_version = 0;
+
+std::string version_string = strlib::sprintf("%d.%d.%d", major_version, minor_version, patch_version);
+
 using json = nlohmann::json;
-// test
-// #include "quick_arg_parser.hpp"
 
-// #include "HidThread.h"
-/*
-struct Args : MainArguments<Args>
-{
-	bool verbose = option("verbose", 'v');
-	std::filesystem::path file = argument(0);
-	std::string sdrRadio = option("SdrRadio", 'r').validator([](std::string sdrRadio) { return sdrRadio == "radioberry" || sdrRadio == "hifiberry" || sdrRadio == "pluto" || sdrRadio == "hackrf" || sdrRadio == "rtlsdr" || sdrRadio == "sdrplay"; });
-};
-*/
-
-/* print stacktrace
-	StackTrace st;
-	st.load_here(32);
-	Printer p;
-	p.object = true;
-	p.color_mode = ColorMode::always;
-	p.address = true;
-	p.print(st, stdout);
-*/
 #define LOCK_FILE "/tmp/sdrberry.lock"
 int fd_lock_file = 0;
 
@@ -121,12 +106,7 @@ void handle_signal(int signal)
 	}
 }
 
-// #define BACKWARD_HAS_BFD 1
-// #define BACKWARD_HAS_LIBUNWIND 1
 #define BACKWARD_HAS_DW 1
-// #define BACKWARD_HAS_DWARF 1
-// #define BACKWARD_HAS_BACKTRACE 1
-// #define BACKWARD_HAS_UNWIND 1
 #include "backward.hpp"
 
 namespace backward

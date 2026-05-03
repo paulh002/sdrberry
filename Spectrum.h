@@ -62,6 +62,7 @@ class Spectrum
 	int32_t get_cursor_width_drag(int mode);
 	void draw_event_cb_class(lv_event_t *e);
 	void pressing_event_cb_class(lv_event_t *e);
+	void double_click_event_cb_class(lv_event_t *e);
 	void scale_event_cb_class(lv_event_t *e);
 	void scale_clicked_event_cb_class(lv_event_t *e);
 	void scroll_event_cb_class(lv_event_t *e);
@@ -91,7 +92,7 @@ class Spectrum
 	static constexpr auto scale_event_cb = EventHandler<Spectrum, &Spectrum::scale_event_cb_class>::staticHandler;
 	static constexpr auto scale_clicked_event_cb = EventHandler<Spectrum, &Spectrum::scale_clicked_event_cb_class>::staticHandler;
 	static constexpr auto scroll_event_cb = EventHandler<Spectrum, &Spectrum::scroll_event_cb_class>::staticHandler;
-	
+	static constexpr auto double_click_event_cb= EventHandler<Spectrum, &Spectrum::double_click_event_cb_class>::staticHandler;
 };
 
 

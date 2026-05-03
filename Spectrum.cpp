@@ -23,6 +23,7 @@
 #include "lv_sprintf.h"
 #include "screen.h"
 #include "SharedQueue.h"
+#include "debug_print.h"
 
 Spectrum SpectrumGraph;
 int nfft_samples{1240};
@@ -38,6 +39,28 @@ std::pair<bool,int> Spectrum::cursor_marker_intersect(lv_point_t p)
 		i++;
 	}
 	return std::make_pair(false,0);
+}
+
+void Spectrum::double_click_event_cb_class(lv_event_t *e)
+{
+	DEBUG_PRINTF("double click event\n");
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+
+	lv_indev_t *indev = lv_indev_get_act();
+	lv_point_t p;
+	lv_indev_get_point(indev, &p);
+	long f;
+	
+	int span = vfo.get_span();
+	f = vfo.get_sdr_span_frequency();
+	f = p.x * (span / screenWidth) + f;
+	if (vfo.get_frequency() != f)
+	{
+		f = f / gbar.get_step_value();
+		f = f * gbar.get_step_value();
+		vfo.set_vfo(f);
+	}
 }
 
 void Spectrum::pressing_event_cb_class(lv_event_t *e)
@@ -320,6 +343,8 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_add_flag(chart, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_PRESSING, (void *)this);
 	lv_obj_add_event_cb(chart, pressing_event_cb, LV_EVENT_RELEASED, (void *)this);
+	lv_obj_add_event_cb(chart, double_click_event_cb, LV_EVENT_DOUBLE_CLICKED, (void *)this);
+	
 	lv_obj_add_event_cb(chart, scroll_event_cb, LV_EVENT_SCROLL, (void *)this);
 	scroll_group = lv_group_create();
 	set_mouse_axis_group(scroll_group);

@@ -71,6 +71,12 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 	lv_indev_t *indev = lv_indev_get_act();
 	lv_indev_type_t indev_type = lv_indev_get_type(indev);
 	int32_t width_cursor = get_cursor_width(mode);
+
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && indev->pointer.btn_id == LV_INDEV_BTN_RIGHT)
+	{
+		DEBUG_PRINTF("right button event\n");
+		gbar.step_button();
+	}
 	
 	// LV_INDEV_BTN_RIGHT
 	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_RELEASED && indev->pointer.btn_id == LV_INDEV_BTN_LEFT && drag_marker_rightbutton)

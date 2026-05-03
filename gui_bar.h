@@ -104,6 +104,7 @@ class gui_bar
 	int get_filter_frequency(int mode);
 	int get_filter_index();
 	void set_rit_button(bool rit, int value);
+	void step_button();
 
 	lv_obj_t *get_button_obj(int i)
 	{

@@ -408,6 +408,14 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 	}
 }
 
+void gui_bar::step_button()
+{
+	if (stepsWindow == nullptr)
+	{
+		stepsWindow = std::make_unique<guiListWindows>(button[buttonsteps], (void *)this, "Steps", stepsTypes, steps_value, customLVevents.getCustomEvent(LV_EVENT_STEPS_CLICKED), 200, 300);
+	}
+}
+
 void gui_bar::update_step_button(int step)
 {
 	steps_value = step;

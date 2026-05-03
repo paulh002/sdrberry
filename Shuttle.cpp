@@ -5,6 +5,7 @@
 #include <iomanip>
 #include "sdrberry.h"
 #include "gui_bar.h"
+#include "debug_print.h"
 
 Shuttle::Shuttle()
 {
@@ -23,10 +24,9 @@ void Shuttle::start()
 
 void printReport(const std::vector<unsigned char> &report)
 {
-	std::cout << "Report: ";
 	for (uint8_t b : report)
 	{
-		std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (int)b << " ";
+		std::cout << "Shuttle Contour: " << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (int)b << " ";
 	}
 	std::cout << std::dec << std::endl;
 }
@@ -40,7 +40,7 @@ void Shuttle::step_vfo()
 
 	if (reports)
 	{
-		if (debugflag)
+		if (debugflag || debug_print)
 			printReport(*reports);
 		value = (int8_t)reports->at(0);
 		uint8_t wheel_move = reports->at(1);
@@ -138,8 +138,10 @@ void Shuttle::step_vfo()
 
 void Shuttle::decode_buttons(unsigned char a, unsigned char b)
 {
+	
 	if (a || b || button_a || button_b)
 	{
+		DEBUG_PRINTF("Shuttle Contour a: %02x b: %02x \n", a, b);
 		if (a & 0x10 || button_a & 0x10)
 		{
 			if (a & 0x10)

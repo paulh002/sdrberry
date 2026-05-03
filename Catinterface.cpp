@@ -356,6 +356,7 @@ void Catinterface::checkCAT()
 			int rxtxCatMessage = cat_message.GetTX();
 			if (m_mode != rxtxCatMessage)
 			{
+				gui_mutex.lock();
 				m_mode = rxtxCatMessage;
 				switch (m_mode)
 				{
@@ -369,6 +370,7 @@ void Catinterface::checkCAT()
 					select_mode_tx(mode, audioTone::SingleTone, TX_TUNE_CAT);
 					break;
 				}
+				gui_mutex.unlock();
 			}
 		}
 		//count = cat_message.GetSH();

@@ -1,6 +1,7 @@
 #include "guiListWindows.h"
 #include "CustomEvents.h"
 #include "screen.h"
+#include "debug_print.h"
 
 const int windowsliderbar = 40;
 
@@ -81,6 +82,16 @@ void guiListWindows::btnokWindowObj_event_handler_class(lv_event_t *e)
 	}
 }
 
+void guiListWindows::close()
+{
+	if (listWindowObj)
+	{
+		lv_obj_del(listWindowObj);
+		listWindowObj = nullptr;
+		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK), NULL);
+	}
+}
+
 void guiListWindows::list_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -93,6 +104,31 @@ void guiListWindows::list_handler_class(lv_event_t *e)
 		lv_obj_send_event(Parent, event, (void *)(long)row);
 		row_selected = row;
 	}
+}
+
+void guiListWindows::step_next(int step)
+{
+	DEBUG_PRINTF("next \n");
+
+ 	uint32_t row, col;
+	lv_table_get_selected_cell(list, &row, &col);
+	uint32_t count = lv_table_get_row_count(list);
+	if (step > 0)
+	{
+		row++;
+		if (row >= count)
+			row = 0;
+	}
+	else
+	{
+		if (row == 0)
+			row = count - 1;
+		else
+			row--;
+	}
+	lv_table_set_selected_cell(list, row, col);
+	row_selected = row;
+	lv_obj_send_event(Parent, event, (void *)(long)row);
 }
 
 void guiListWindows::draw_part_event_class(lv_event_t *e)

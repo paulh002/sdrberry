@@ -416,6 +416,29 @@ void gui_bar::step_button()
 	}
 }
 
+void gui_bar::step_close()
+{
+	if (stepsWindow != nullptr)
+	{
+		stepsWindow->close();
+		stepsWindow.reset();
+		stepsWindow = nullptr;
+	}
+}
+
+void gui_bar::step_button_next(int step)
+{
+	if (stepsWindow != nullptr)
+	{
+		stepsWindow->step_next(step);
+	}
+}
+
+bool gui_bar::step_button_active()
+{
+	return (stepsWindow != nullptr);
+}
+
 void gui_bar::update_step_button(int step)
 {
 	steps_value = step;

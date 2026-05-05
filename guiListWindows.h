@@ -26,6 +26,8 @@ class guiListWindows
   public:
 	guiListWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, int val, lv_event_code_t eventIndex, int width, int height);
 	~guiListWindows();
+	void close();
+	void step_next(int step);
 
 	static constexpr auto btnWindowObj_event_handler = EventHandler<guiListWindows, &guiListWindows::btnWindowObj_event_handler_class>::staticHandler;
 	static constexpr auto btnokWindowObj_event_handler = EventHandler<guiListWindows, &guiListWindows::btnokWindowObj_event_handler_class>::staticHandler;

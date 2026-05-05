@@ -105,6 +105,9 @@ class gui_bar
 	int get_filter_index();
 	void set_rit_button(bool rit, int value);
 	void step_button();
+	bool step_button_active();
+	void step_close();
+	void step_button_next(int step);
 
 	lv_obj_t *get_button_obj(int i)
 	{

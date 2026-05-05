@@ -14,6 +14,7 @@ Shuttle::Shuttle()
 	last_time = std::chrono::high_resolution_clock::now();
 	device = std::make_unique<HIDDeviceMonitor>("ShuttleXpress", 0x0b33, 0x0020);
 	debugflag = 0;
+	step_button = false;
 }
 
 void Shuttle::start()
@@ -45,6 +46,27 @@ void Shuttle::step_vfo()
 		value = (int8_t)reports->at(0);
 		uint8_t wheel_move = reports->at(1);
 		decode_buttons(reports->at(3), reports->at(4));
+		if (gbar.step_button_active())
+		{
+			if (value == 0 && wheel_move != wheel)
+			{
+				if (wheel == 0 && wheel_move == 255)
+				{
+					gbar.step_button_next(-1);
+				}
+				else if (wheel_move > wheel)
+				{
+					gbar.step_button_next(1);
+				}
+				else
+				{
+					gbar.step_button_next(-1);
+				}
+				wheel = wheel_move;
+			}
+			return;
+		}
+
 		if (value == 0 && wheel_move != wheel)
 		{
 			if (wheel == 0 && wheel_move == 255)
@@ -155,6 +177,22 @@ void Shuttle::decode_buttons(unsigned char a, unsigned char b)
 					gbar.set_tx(false);
 			}
 			button_a = a;
+		}
+		if (a == 0 && b & 0x01)
+		{
+			if (b & 0x01)
+			{
+				if (!step_button)
+				{
+					gbar.step_button();
+					step_button = true;
+				}
+				else
+				{
+					gbar.step_close();
+					step_button = false;
+				}
+			}
 		}
 	}
 }

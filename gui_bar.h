@@ -108,6 +108,7 @@ class gui_bar
 	bool step_button_active();
 	void step_close();
 	void step_button_next(int step);
+	void set_vfo_split(int split_onoff);
 
 	lv_obj_t *get_button_obj(int i)
 	{

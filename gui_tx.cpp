@@ -280,10 +280,12 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 		{
 			gui_vfo_inst.set_split(true);
 			catinterface->SetST(1);
+			gbar.set_vfo_split(1);
 		}
 		else
 		{
 			gui_vfo_inst.set_split(false);
+			gbar.set_vfo_split(0);
 			catinterface->SetST(0);
 		}
 	}
@@ -370,24 +372,6 @@ int gui_tx::get_drv_pos()
 	return Settings_file.get_int(default_radio, "drive", 50);
 }
 
-void gui_tx::set_tx_state(bool state)
-{
-	if (state)
-	{
-		lv_obj_add_state(tx_button[0], LV_STATE_CHECKED); 
-		if (lv_obj_get_state(tx_button[3]) & LV_STATE_CHECKED)
-			{
-				// If Vfo split mode set active vfo 1
-				//vfo.set_active_vfo(1);
-			}
-	}
-	else
-	{
-		lv_obj_clear_state(tx_button[0], LV_STATE_CHECKED); 		
-		//vfo.set_active_vfo(0);
-	}
-}
-
 lv_obj_t* gui_tx::get_button_obj(int i)
 {
 	if (i >= ibuttons)
@@ -401,14 +385,23 @@ void gui_tx::set_split(bool _split)
 		return;
 	if (_split)
 	{
+		gbar.set_vfo_split(_split);
 		gui_vfo_inst.set_split(true);
 		lv_obj_add_state(get_button_obj(split_button), LV_STATE_CHECKED);
 	}
 	else
 	{
 		gui_vfo_inst.set_split(false);
+		gbar.set_vfo_split(_split);
 		lv_obj_clear_state(get_button_obj(split_button), LV_STATE_CHECKED);
 	}
+}
+
+bool gui_tx::get_split()
+{
+	if (lv_obj_get_state(get_button_obj(split_button)) & LV_STATE_CHECKED)
+		return true;
+	return false;
 }
 
 void gui_tx::enable_tx(bool enable)

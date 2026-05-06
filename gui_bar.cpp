@@ -1016,6 +1016,19 @@ void gui_bar::hide(bool hide)
 	}
 }
 
+void gui_bar::set_vfo_split(int split_onoff) 
+{
+	if (split_onoff)
+	{
+		set_vfo(vfo_activevfo::One);
+		lv_obj_add_state(button[buttonvfo], LV_STATE_DISABLED);
+	}
+	else
+	{
+		lv_obj_clear_state(button[buttonvfo], LV_STATE_DISABLED);
+	}
+}
+
 void gui_bar::set_vfo(int active_vfo)
 {
 	if (active_vfo)

@@ -35,7 +35,6 @@ class gui_tx
 	void set_mic_slider(int volume);
 	void set_digital_slider(int volume);
 	void set_drv_slider(int drive);
-	void set_tx_state(bool state);
 	void set_drv_range();
 	void add_sample_rate(int samplerate);
 	void step_drv_slider(int step);
@@ -46,6 +45,7 @@ class gui_tx
 	void set_split(bool _split);
 	void enable_tx(bool enable);
 	void get_measurements();
+	bool get_split();
 
 	static constexpr auto mic_slider_event_cb = EventHandler<gui_tx, &gui_tx::mic_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_button_handler = EventHandler<gui_tx, &gui_tx::tx_button_handler_class>::staticHandler;

@@ -14,7 +14,7 @@ Alternative a Contour Shuttle express can be used as rotary controller and or a 
 
 install script install.sh installs all components based on a fresh raspberry pi USB drive or SD card (OS should be updated)
 
-##Licence
+## Licence
 This software is licensed under GPLv3. Commercial hardware manufacturers are welcome to bundle Sdrberry, 
 provided they comply with the GPLv3 terms (i.e., provide full source code and preserve user freedoms).
 

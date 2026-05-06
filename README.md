@@ -14,6 +14,10 @@ Alternative a Contour Shuttle express can be used as rotary controller and or a 
 
 install script install.sh installs all components based on a fresh raspberry pi USB drive or SD card (OS should be updated)
 
+##Licence
+This software is licensed under GPLv3. Commercial hardware manufacturers are welcome to bundle Sdrberry, 
+provided they comply with the GPLv3 terms (i.e., provide full source code and preserve user freedoms).
+
 ## Hardware requirements
 - Raspberry pi 4 Model B or Pi 5
 - LCD screen 5 or 7 inch 800x480 touchscreen using DSI connector or the new raspberry Touch 2 7 inch 1280 x 720 display

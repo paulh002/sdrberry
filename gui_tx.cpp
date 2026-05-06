@@ -9,6 +9,8 @@
 #include "gui_speech.h"
 #include "screen.h"
 #include <memory>
+#include "Catinterface.h"
+#include "CatTcpServer.h"
 
 const int micgain {100};
 
@@ -88,25 +90,24 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 		switch (i)
 		{
 		case 0:
-			strcpy(str, "TX");
-			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 1:
-			strcpy(str, "Tune");
-			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
-			break;
-		case 2:
 			strcpy(str, "Sync RX vfo");
 			break;
-		case 3:
+		case 1:
 			strcpy(str, "Split TX vfo");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
+			split_button = i;
 			break;
-		case 4:
+		case 2:
+			strcpy(str, "Duplex");
+			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
+			if (Settings_file.get_int("Radio", "duplex", 0))
+				lv_obj_add_state(tx_button[i], LV_STATE_CHECKED);
+			break;
+		case 3:
 			strcpy(str, "2 Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
-		case 5:
+		case 4:
 			strcpy(str, "4 Tone");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
@@ -237,30 +238,16 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 	char *ptr = lv_label_get_text(label);
 	std::string s(ptr);
 	
-	if (s == "TX")
+	if (s == "Duplex")
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
-			if (select_mode_tx(mode))
-				gbar.set_tx(true);
-			else
-				lv_obj_clear_state(obj, LV_STATE_CHECKED);	
+			Settings_file.save_int("Radio", "duplex", 1);
 		}
 		else
 		{
-			select_mode(mode);
-			gbar.set_tx(false);
+			Settings_file.save_int("Radio", "duplex", 0);
 		}
-	}
-	if (s == "Tune") 
-	{
-		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-		{
-			if (!select_mode_tx(mode, SingleTone))
-				lv_obj_clear_state(obj, LV_STATE_CHECKED);
-		}
-		else
-			select_mode(mode);
 	}
 	if (s == "2 Tone")
 	{
@@ -289,13 +276,15 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 	}
 	if (s == "Split TX vfo")
 	{
-		if (lv_obj_get_state(get_button_obj(3)) & LV_STATE_CHECKED)
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
 			gui_vfo_inst.set_split(true);
+			catinterface->SetST(1);
 		}
 		else
 		{
 			gui_vfo_inst.set_split(false);
+			catinterface->SetST(0);
 		}
 	}
 }
@@ -413,12 +402,12 @@ void gui_tx::set_split(bool _split)
 	if (_split)
 	{
 		gui_vfo_inst.set_split(true);
-		lv_obj_add_state(get_button_obj(3), LV_STATE_CHECKED);
+		lv_obj_add_state(get_button_obj(split_button), LV_STATE_CHECKED);
 	}
 	else
 	{
 		gui_vfo_inst.set_split(false);
-		lv_obj_clear_state(get_button_obj(3), LV_STATE_CHECKED);
+		lv_obj_clear_state(get_button_obj(split_button), LV_STATE_CHECKED);
 	}
 }
 

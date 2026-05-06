@@ -172,7 +172,23 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 	smeter_filter = std::make_unique<SMeterFilter>(20.0f, 25.0f, 280.0f); // SSB defaults
 }
 
-void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mode_no, int vfo_band, int vfo_band_index)
+void gui_vfo::set_vfo_freq(std::string freq_str, int selected_vfo)
+{
+	if (selected_vfo)
+	{
+		lv_label_set_text(vfo2_frequency, freq_str.c_str());
+		//lv_obj_set_style_text_color(vfo2_frequency, lv_color_white(), 0);
+		//lv_obj_set_style_text_color(vfo1_frequency, lv_color_hex(0x90A4AE), 0);
+	}
+	else
+	{
+		lv_label_set_text(vfo1_frequency, freq_str.c_str());
+		//lv_obj_set_style_text_color(vfo1_frequency, lv_color_white(), 0);
+		//lv_obj_set_style_text_color(vfo2_frequency, lv_color_hex(0x90A4AE), 0);
+	}
+}
+
+void gui_vfo::set_vfo_gui(int active_vfo, long freq, int vfo_rx, int vfo_mode_no, int vfo_band, int vfo_band_index)
 {
 	char str[30];
 
@@ -212,7 +228,10 @@ void gui_vfo::set_vfo_gui(int active_vfo, long long freq, int vfo_rx, int vfo_mo
 			if (active_vfo)
 				lv_label_set_text(rxtx_label2, "RX");
 			else
+			{
 				lv_label_set_text(rxtx_label, "RX");
+				lv_label_set_text(rxtx_label2, "RX");
+			}
 		}
 		else
 		{

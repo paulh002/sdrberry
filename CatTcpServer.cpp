@@ -9,11 +9,12 @@
 #include "lvgl_.h"
 #include "sdrberry.h"
 #include "gui_bar.h"
+#include "debug_print.h"
 
 const int BUFFER_SIZE = 80;
 
 extern SharedQueue<GuiMessage> guiQueue;
-
+bool cat_debug = false;
 
 CatTcpComm::~CatTcpComm()
 {
@@ -27,6 +28,7 @@ void CatTcpComm::Close()
 
 bool CatTcpComm::begin() 
 {
+	cat_debug = Settings_file.get_int("CAT", "debug", 0);
 	int opt = 1;
 	port = Settings_file.get_int("tcp", "port", 5000);
 	// Forcefully attaching socket to the port 5000
@@ -199,6 +201,7 @@ bool CatTcpServer::StartServer()
 	mdb = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
 	rit_onoff = 0;
 	rit_delta = 0;
+	split_onoff = 0;
 	stop_flag = false;
 	filter = 0;
 	if (cattcpcomm.begin())
@@ -209,25 +212,32 @@ bool CatTcpServer::StartServer()
 	return false;
 }
 
+void CatTcpServer::SetST(int st)
+{
+	split_onoff = st;
+	cat_message.SetST(st);
+	DEBUG_CAT_PRINTF("set split %d\n", st);
+}
+
 void CatTcpServer::SetNA(int ft)
 {
 	filter = ft;
 	cat_message.SetNA(filter);
-	printf("set filter %d\n", filter);
+	DEBUG_CAT_PRINTF("set filter %d\n", filter);
 }
 
 void CatTcpServer::SetMDA(int mode)
 {
 	mda = encode_mode(mode);
 	cat_message.SetMDA(mda);
-	printf("set MDA %d\n", mda);
+	DEBUG_CAT_PRINTF("set MDA %d\n", mda);
 }
 
 void CatTcpServer::SetMDB(int mode)
 {
 	mdb = encode_mode(mode);
 	cat_message.SetMDB(mdb);
-	printf("set MDB %d\n", mdb);
+	DEBUG_CAT_PRINTF("set MDB %d\n", mdb);
 }
 
 void CatTcpServer::StopServer()
@@ -251,8 +261,25 @@ void CatTcpServer::operator()()
 
 				vfo_a = count;
 				sprintf(str, "%d", count);
-				guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo, str));
+				if (vfo.get_active_vfo() == vfo_activevfo::One)
+					guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo, str));
+				else
+					guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo1, str));
 			}
+			
+			count = cat_message.GetFB();
+			if (count && vfo_b != count)
+			{
+				char str[80];
+
+				vfo_b = count;
+				sprintf(str, "%d", count);
+				if (vfo.get_active_vfo() == vfo_activevfo::Two)
+					guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo, str));
+				else
+					guiQueue.push_back(GuiMessage(GuiMessage::action::setvfo2, str));
+			}
+
 			count = cat_message.GetNA();
 			if (count && filter != count)
 			{
@@ -272,6 +299,14 @@ void CatTcpServer::operator()()
 				mdb = count;
 				guiQueue.push_back(GuiMessage(GuiMessage::action::setmode_vfo_b, decode_mode(count)));
 			}
+			
+			count = cat_message.GetST();
+			if (split_onoff != count)
+			{
+				split_onoff = count;
+				guiQueue.push_back(GuiMessage(GuiMessage::action::split_onoff, split_onoff));
+			}
+			
 			count = cat_message.GetRT();
 			if (rit_onoff != count)
 			{

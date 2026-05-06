@@ -19,6 +19,7 @@ class gui_tx
 	lv_obj_t *tx_button[10];
 	std::vector<int> sample_rates;
 	int ibuttons;
+	int split_button;
 	const int number_of_buttons{6};
 	lv_group_t *m_button_group{nullptr};
 	bool disabled;

@@ -101,13 +101,16 @@ class GuiMessage
 		wsjtxMessage,
 		TranceiverMessage,
 		setvfo,
+		setvfo1,
+		setvfo2,
 		setvfo_a,
 		setvfo_b,
 		change_step,
 		setmode_vfo_a,
 		setmode_vfo_b,
 		rit_onoff,
-		rit_delta
+		rit_delta,
+		split_onoff
 	} ;
 
 	GuiMessage(action guiaction, int guiData)

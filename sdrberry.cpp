@@ -59,8 +59,8 @@
 #include "SignalStrength.h"
 
 const int major_version = 2;
-const int minor_version = 1;
-const int patch_version = 2;
+const int minor_version = 2;
+const int patch_version = 0;
 
 std::string version_string = strlib::sprintf("%d.%d.%d", major_version, minor_version, patch_version);
 
@@ -488,6 +488,26 @@ static void tabview_event_cb(lv_event_t *e)
 		guift8bar.hide(true);
 		guift8setting.set_group();
 		break;
+	}
+}
+
+void process_vfo_cat_message(GuiMessage msg, int selected_vfo)
+{
+	long freq;
+	std::string buf;
+	
+	buf = msg.text;
+	if (buf.length() > 0 && strlib::has_any_digits(buf))
+	{
+		freq = std::stol(buf);
+
+		if (vfo.checkVfoBandRange(freq))
+		{
+			if (selected_vfo == vfo.get_active_vfo())
+				vfo.set_band_freq(freq);
+			else
+				vfo.set_non_active_vfo(freq, selected_vfo);
+		}
 	}
 }
 
@@ -1039,6 +1059,22 @@ int main(int argc, char *argv[])
 				break;
 			}
 
+			case GuiMessage::setvfo1: {
+				process_vfo_cat_message(msg, 0);
+				break;
+			}
+			
+			case GuiMessage::setvfo2: {
+				process_vfo_cat_message(msg, 1);
+				break;
+			}
+
+			case GuiMessage::split_onoff: {
+				int split = msg.data;
+				Gui_tx.set_split(split);
+				break;
+			}
+				
 			case GuiMessage::change_step:
 				gbar.change_step(-1);
 				break;
@@ -1373,7 +1409,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 		catinterface.Pause_Cat(false);
 		return;
 	}
-	vfo.vfo_rxtx(true, false);
+	vfo.vfo_rxtx(true, false, gui_vfo_inst.get_split());
 	if (bvfo)
 	{
 		vfo.set_mode(vfo.get_active_vfo(), mode);
@@ -1491,7 +1527,6 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		RX_Stream::pause_rx_stream(true);
 	}
 	mode = s_mode;
-	Gui_tx.set_tx_state(true); // set tx button
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());
 	vfo.set_vfo(0, vfo_activevfo::None);
 	int tx_rate = Settings_file.get_int(default_radio, "samplerate_tx");

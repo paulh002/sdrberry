@@ -13,21 +13,27 @@ class guiSliderWindows
 	lv_group_t *button_group{nullptr};
 	lv_obj_t *sliders[20]{nullptr};
 	lv_event_code_t event;
-	lv_obj_t *ui_Image1, *ui_Arc1, *label;
+	lv_obj_t  *label;
+	lv_obj_t *spinbox, *btn_spin1, *btn_spin2;
 	void *thisPtr;
 	int value;
 
 	void btnWindowObj_event_handler_class(lv_event_t *e);
 	void btnokWindowObj_event_handler_class(lv_event_t *e);
 	void slider_handler_class(lv_event_t *e);
-	void create_rotary_button(lv_obj_t *parent, int dy);
+	void lv_spinbox_increment_event_class(lv_event_t *e);
+	void lv_spinbox_decrement_event_class(lv_event_t *e);
+	void create_rit_control(lv_obj_t *parent, int dy);
 
-	public:
-	  guiSliderWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons,int val, lv_event_code_t eventIndex, int width, int height);
-	  ~guiSliderWindows();
+  public:
+	guiSliderWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, int val, lv_event_code_t eventIndex, int width, int height);
+	~guiSliderWindows();
 
-	  static constexpr auto btnWindowObj_event_handler = EventHandler<guiSliderWindows, &guiSliderWindows::btnWindowObj_event_handler_class>::staticHandler;
-	  static constexpr auto btnokWindowObj_event_handler = EventHandler<guiSliderWindows, &guiSliderWindows::btnokWindowObj_event_handler_class>::staticHandler;
-	  static constexpr auto slider_handler = EventHandler<guiSliderWindows, &guiSliderWindows::slider_handler_class>::staticHandler;
+	static constexpr auto btnWindowObj_event_handler = EventHandler<guiSliderWindows, &guiSliderWindows::btnWindowObj_event_handler_class>::staticHandler;
+	static constexpr auto btnokWindowObj_event_handler = EventHandler<guiSliderWindows, &guiSliderWindows::btnokWindowObj_event_handler_class>::staticHandler;
+	static constexpr auto slider_handler = EventHandler<guiSliderWindows, &guiSliderWindows::slider_handler_class>::staticHandler;
+	static constexpr auto lv_spinbox_increment_event_cb = EventHandler<guiSliderWindows, &guiSliderWindows::lv_spinbox_increment_event_class>::staticHandler;
+	static constexpr auto lv_spinbox_decrement_event_cb = EventHandler<guiSliderWindows, &guiSliderWindows::lv_spinbox_decrement_event_class>::staticHandler;
+		  
 };
 

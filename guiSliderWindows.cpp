@@ -5,6 +5,25 @@ LV_IMG_DECLARE(ui_img_btn_knob_png); // assets/btn_knob.png
 
 const int windowsliderbar = 40;
 
+void guiSliderWindows::lv_spinbox_increment_event_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
+	{
+		lv_spinbox_increment(spinbox);
+	}
+}
+
+void guiSliderWindows::lv_spinbox_decrement_event_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
+	{
+		lv_spinbox_decrement(spinbox);
+	}
+}
+
+
 guiSliderWindows::guiSliderWindows(lv_obj_t *parent, void *thisptr, std::string name, std::vector<std::string> buttons, int val, lv_event_code_t eventNumber, int width, int height)
 	: Parent(parent), thisPtr(thisptr), event(eventNumber), value(val)
 {
@@ -18,7 +37,7 @@ guiSliderWindows::guiSliderWindows(lv_obj_t *parent, void *thisptr, std::string 
 		lv_obj_add_event_cb(btnok, btnokWindowObj_event_handler, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_set_size(buttonWindowObj, width, height);
 		lv_obj_align(buttonWindowObj, LV_ALIGN_CENTER, 0, 0);
-		create_rotary_button(buttonWindowObj, -20);
+		create_rit_control(buttonWindowObj, -20);
 	}
 }
 
@@ -47,7 +66,8 @@ void guiSliderWindows::btnokWindowObj_event_handler_class(lv_event_t *e)
 	{
 		lv_obj_del(buttonWindowObj);
 		buttonWindowObj = nullptr;
-		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), NULL);
+		value = lv_spinbox_get_value(spinbox);
+		lv_obj_send_event(Parent, customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK), (void *)(long)value);
 	}
 }
 
@@ -57,65 +77,39 @@ void guiSliderWindows::slider_handler_class(lv_event_t *e)
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		char buf[20];
-		
-		value = lv_arc_get_value(ui_Arc1);
+		value = lv_spinbox_get_value(spinbox);
 		lv_obj_send_event(Parent, event, (void *)(long)value);
-		sprintf(buf, "%d Hz", value);
-		lv_label_set_text(label, buf);
 	}
 }
 
-void guiSliderWindows::create_rotary_button(lv_obj_t *parent, int dy)
+void guiSliderWindows::create_rit_control(lv_obj_t *parent, int dy)
 {
 	lv_obj_t *winAreaObject = lv_win_get_content(buttonWindowObj);
 	lv_obj_update_layout(buttonWindowObj);
 	lv_coord_t width = lv_obj_get_content_width(winAreaObject);
 	lv_coord_t height = lv_obj_get_content_height(winAreaObject);
 
-	//ui_Image1 = lv_img_create(winAreaObject);
-	//lv_img_set_src(ui_Image1, &ui_img_btn_knob_png);
-	//lv_obj_set_width(ui_Image1, 104);
-	//lv_obj_set_height(ui_Image1, 105);
-	//lv_obj_set_x(ui_Image1, 0);
-	//lv_obj_set_y(ui_Image1, 0);
+	spinbox = lv_spinbox_create(winAreaObject);
+	lv_spinbox_set_range(spinbox, -999, 999);
+	lv_spinbox_set_digit_count(spinbox, 3);
+	lv_spinbox_set_dec_point_pos(spinbox, 0);
+	lv_spinbox_step_prev(spinbox);
+	lv_obj_set_width(spinbox, 100);
+	lv_obj_center(spinbox);
 
-	//lv_obj_align_to(ui_Image1, winAreaObject, LV_ALIGN_CENTER, 0, dy);
-	//lv_obj_add_flag(ui_Image1, LV_OBJ_FLAG_ADV_HITTEST); /// Flags
+	lv_spinbox_set_value(spinbox, value);
 
-	ui_Arc1 = lv_arc_create(winAreaObject);
-	lv_obj_set_width(ui_Arc1, 95);
-	lv_obj_set_height(ui_Arc1, 97);
-	lv_obj_set_x(ui_Arc1, 0);
-	lv_obj_set_y(ui_Arc1, 0);
-	lv_obj_align_to(ui_Arc1, winAreaObject, LV_ALIGN_CENTER, 0, dy);
-	//lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
-	lv_arc_set_range(ui_Arc1, -500, 500);
-	lv_arc_set_value(ui_Arc1, value);
-	lv_arc_set_bg_angles(ui_Arc1, 129, 51);
-	lv_obj_set_style_pad_left(ui_Arc1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_right(ui_Arc1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_top(ui_Arc1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_bottom(ui_Arc1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0x4040FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_arc_opa(ui_Arc1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_arc_width(ui_Arc1, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
+	int32_t h = lv_obj_get_height(spinbox);
 
-	lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0x50FF7D), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-	lv_obj_set_style_arc_opa(ui_Arc1, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-	lv_obj_set_style_arc_width(ui_Arc1, 2, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-	lv_obj_set_style_arc_rounded(ui_Arc1, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+	btn_spin1 = lv_button_create(winAreaObject);
+	lv_obj_set_size(btn_spin1, h, h);
+	lv_obj_align_to(btn_spin1, spinbox, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+	lv_obj_set_style_bg_image_src(btn_spin1, LV_SYMBOL_PLUS, 0);
+	lv_obj_add_event_cb(btn_spin1, lv_spinbox_increment_event_cb, LV_EVENT_ALL, this);
 
-	lv_obj_set_style_bg_color(ui_Arc1, lv_color_hex(0x50FF7D), LV_PART_KNOB | LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_opa(ui_Arc1, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-
-	lv_arc_set_mode(ui_Arc1, LV_ARC_MODE_SYMMETRICAL);
-	lv_obj_add_event_cb(ui_Arc1, slider_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
-
-	label = lv_label_create(winAreaObject);
-	lv_obj_align_to(label, ui_Arc1,LV_ALIGN_BOTTOM_MID, 0, 30);
-	
-	char buf[20];
-	sprintf(buf, "%d Hz", value);
-	lv_label_set_text(label, buf);
+	btn_spin2 = lv_button_create(winAreaObject);
+	lv_obj_set_size(btn_spin2, h, h);
+	lv_obj_align_to(btn_spin2, spinbox, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+	lv_obj_set_style_bg_image_src(btn_spin2, LV_SYMBOL_MINUS, 0);
+	lv_obj_add_event_cb(btn_spin2, lv_spinbox_decrement_event_cb, LV_EVENT_ALL, this);
 }

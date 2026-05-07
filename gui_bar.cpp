@@ -172,6 +172,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	long param = (long)lv_event_get_param(e);
 
 	if (code == customLVevents.getCustomEvent(LV_BUTTON_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM) || code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM_OK) || code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM_OK) || code == customLVevents.getCustomEvent(LV_EVENT_STEPS_CUSTOM))
 	{
@@ -203,7 +204,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 		{
 			ritWindow.reset();
 			ritWindow = nullptr;
-			if (code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM))
+			if ((code == customLVevents.getCustomEvent(LV_SLIDER_EVENT_CUSTOM)) || param == 0)
 			{
 				lv_obj_clear_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 				rit_value = 0;
@@ -212,6 +213,8 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 			else
 			{
 				lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
+				rit_value = param;
+				vfo.setRit(param, vfo.get_active_vfo());
 			}
 		}
 		return;
@@ -390,7 +393,7 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 					{
 						if (ritWindow == nullptr)
 						{
-							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, customLVevents.getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 180, 200);
+							ritWindow = std::make_unique<guiSliderWindows>(obj, (void *)this, "Rit", std::vector<std::string>(), rit_value, customLVevents.getCustomEvent(LV_EVENT_RIT_VALUE_CHANGED), 300, 200);
 							lv_obj_add_state(get_button_obj(buttonrit), LV_STATE_CHECKED);
 						}
 					}

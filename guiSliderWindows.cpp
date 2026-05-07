@@ -43,8 +43,9 @@ guiSliderWindows::guiSliderWindows(lv_obj_t *parent, void *thisptr, std::string 
 
 guiSliderWindows::~guiSliderWindows()
 {
-	//lv_obj_del(ui_Image1);
-	//lv_obj_del(ui_Arc1);
+	lv_obj_del(spinbox);
+	lv_obj_del(btn_spin1);
+	lv_obj_del(btn_spin2);
 }
 
 void guiSliderWindows::btnWindowObj_event_handler_class(lv_event_t *e)

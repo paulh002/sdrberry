@@ -90,7 +90,7 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 	IQSampleVector				buf_mod, buf_filter, buf_out;
 	unsigned int				num_written;
 	
-	// Modulate audio to USB, LSB or DSB
+	// Modulate audio to FM
 	buf_mod.reserve(samples.size());
 	for (auto& col : samples)
 	{
@@ -99,9 +99,6 @@ void FMModulator::process(const IQSampleVector& samples_in, SampleVector& sample
 		//printf("%f;%f;%f \n", col, f.real(), f.imag());
 		buf_mod.push_back(f);
 	}
-	// Low pass filter 5 Khz for NB FM
-	//buf_filter.reserve(buf_mod.size());
-	//lowPassAudioFilter(buf_mod, buf_filter);
 	Resample(buf_mod, buf_out);
 	buf_filter.clear();
 	buf_filter.reserve(buf_out.size());

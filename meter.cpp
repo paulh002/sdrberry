@@ -1,6 +1,7 @@
 #include "meter.h"
 #include "screen.h"
 #include <stdio.h>
+#include <algorithm>
 
 void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 {
@@ -72,14 +73,14 @@ void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 	lv_style_set_arc_color(&green_style, lv_palette_main(LV_PALETTE_LIGHT_GREEN));
 	lv_style_set_arc_width(&green_style, arc_width_color /*8U*/); /*Tick width*/
 
-	lv_scale_set_range(scale_line, 0, 100);
+	lv_scale_set_range(scale_line, 0, 1000); //100
 	lv_scale_set_total_tick_count(scale_line, 15);
 	lv_scale_set_major_tick_every(scale_line, 2);
 
 	red_section_top = lv_scale_add_section(scale_line);
 	green_section_top = lv_scale_add_section(scale_line);
-	lv_scale_section_set_range(red_section_top, 72, 100);
-	lv_scale_section_set_range(green_section_top, 0, 72);
+	lv_scale_section_set_range(red_section_top, 720, 1000);
+	lv_scale_section_set_range(green_section_top, 0, 720);
 	lv_scale_set_section_offset(scale_line, red_section_top, -5);
 	lv_scale_set_section_offset(scale_line, green_section_top, -5);
 	lv_scale_set_section_style_main(scale_line, green_section_top, &green_style);
@@ -129,9 +130,10 @@ void meter::init(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h)
 	lv_obj_move_foreground(scale_line);
 }
 
-void meter::set_needle(int32_t value)
+void meter::set_needle(float value)
 {
-	lv_scale_set_line_needle_value(scale_line, needle_line, needle_length, value);
+	int32_t gauge_val = static_cast<int32_t>(std::clamp(10 * value, 0.0f, 1000.0f));
+	lv_scale_set_line_needle_value(scale_line, needle_line, needle_length, gauge_val);
 }
 
 

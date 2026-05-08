@@ -70,9 +70,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 		line_height = lv_font_get_line_height(&FreeSansOblique42) + 4;
 		lv_obj_set_style_text_font(vfo1_frequency, &FreeSansOblique42, 0);
 	}
-
-		// lv_obj_set_width(vfo1_frequency, w - 20);
-		lv_obj_set_height(vfo1_frequency, line_height);
+	lv_obj_set_height(vfo1_frequency, line_height);
 	lv_label_set_text(vfo1_frequency, "3.500.00");
 	lv_obj_set_style_text_opa(vfo1_frequency, LV_OPA_COVER, 0);
 	lv_obj_set_style_text_color(vfo1_frequency, lv_color_white(), 0);
@@ -282,9 +280,8 @@ void gui_vfo::set_vfo_gui(int active_vfo, long freq, int vfo_rx, int vfo_mode_no
 void gui_vfo::set_s_meter(float value)
 {
 	float smoothed = smeter_filter->process(value);
-	int32_t gauge_val = static_cast<int32_t>(std::clamp(smoothed, 0.0f, 100.0f));
-	smeter.set_needle(gauge_val);
-	//printf("value %f smoothed %f gauge %d\n", value, smoothed, gauge_val);
+	smeter.set_needle(smoothed);
+	//printf("value %f smoothed %f \n", value, smoothed);
 }
 
 void gui_vfo::set_span(int span)

@@ -25,6 +25,7 @@ class Spectrum
 	lv_obj_t *scale;
 	lv_chart_series_t *ser, *peak_ser{nullptr};
 	lv_style_t Spectrum_style;
+	lv_color_t chart_color, line_color;
 	lv_chart_cursor_t *FrequencyCursor;
 	lv_group_t *scroll_group;
 	std::array<lv_chart_cursor_t *, 5> markers{nullptr};

@@ -226,7 +226,7 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 			/*Draw rectangle below the triangle*/
 			lv_draw_rect_dsc_t rect_dsc;
 			lv_draw_rect_dsc_init(&rect_dsc);
-			rect_dsc.bg_color = lv_palette_main(LV_PALETTE_RED); // ser_color;
+			rect_dsc.bg_color = chart_color; // ser_color;
 			rect_dsc.bg_opa = LV_OPA_20;
 
 			lv_area_t rect_area;
@@ -382,8 +382,10 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_set_style_height(chart, heightChart, LV_PART_CURSOR);
 	lv_obj_set_style_bg_color(chart, lv_palette_main(LV_PALETTE_BLUE), LV_PART_CURSOR);
 	lv_obj_set_style_bg_opa(chart, LV_OPA_50, LV_PART_CURSOR);
+	line_color = lv_palette_main(LV_PALETTE_RED);
+	chart_color = lv_palette_main(LV_PALETTE_RED);
 
-	ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+	ser = lv_chart_add_series(chart, line_color, LV_CHART_AXIS_PRIMARY_Y);
 	for (auto &col : markers_location)
 		col = 0;
 

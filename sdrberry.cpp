@@ -1402,8 +1402,6 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	SpectrumGraph.set_cursor_mode((tranceiverMode)mode);
 	if (secondscreen)
 		secondscreen->set_cursor_mode(mode);
-	if (SdrDevices.get_tx_channels(default_radio) > 0)
-		Gui_tx.set_tx_state(false);
 	if (SdrDevices.get_rx_channels(default_radio) < 1)
 	{
 		catinterface.Pause_Cat(false);

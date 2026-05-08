@@ -172,6 +172,28 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 	smeter_filter = std::make_unique<SMeterFilter>(20.0f, 25.0f, 280.0f); // SSB defaults
 }
 
+void gui_vfo::set_smeter_delay(int delay)
+{
+	switch (delay)
+	{
+	case 0:
+		smeter_filter->configure(30.0f, 12.5f, 140.0f);
+		break;
+	case 1:
+		smeter_filter->configure(30.0f, 25.0f, 280.0f);
+		break;
+	case 2:
+		smeter_filter->configure(30.0f, 37.5f, 420.0f);
+		break;
+	case 3:
+		smeter_filter->configure(30.0f, 50.0f, 560.0f);
+		break;
+	case 4:
+		smeter_filter->configure(30.0f, 75.0f, 840.0f);
+		break;
+	}
+}
+
 void gui_vfo::set_vfo_freq(std::string freq_str, int selected_vfo)
 {
 	if (selected_vfo)

@@ -38,7 +38,7 @@ class gui_vfo
 	void set_split(bool _split);
 	bool get_split();
 	void set_s_meter(float value);
-	void set_smeter_delay(int delay) { smeter_delay = delay; }
+	void set_smeter_delay(int delay);
 	void set_vfo_freq(std::string freq, int selected_vfo);
 	// static constexpr auto smeter_event_cb = EventHandler<gui_vfo, &gui_vfo::smeter_event_cb_class>::staticHandler;
 	static constexpr auto bg_tuner1_clickevent_cb = EventHandler<gui_vfo, &gui_vfo::bg_tuner1_clickevent_cb_class>::staticHandler;

@@ -11,6 +11,8 @@ void guiSliderWindows::lv_spinbox_increment_event_class(lv_event_t *e)
 	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
 	{
 		lv_spinbox_increment(spinbox);
+		value = lv_spinbox_get_value(spinbox);
+		lv_obj_send_event(Parent, LV_EVENT_VALUE_CHANGED, (void *)(long)value);
 	}
 }
 
@@ -20,6 +22,8 @@ void guiSliderWindows::lv_spinbox_decrement_event_class(lv_event_t *e)
 	if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
 	{
 		lv_spinbox_decrement(spinbox);
+		value = lv_spinbox_get_value(spinbox);
+		lv_obj_send_event(Parent, LV_EVENT_VALUE_CHANGED, (void *)(long)value);
 	}
 }
 

@@ -168,6 +168,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 
 	smeter_delay = Settings_file.get_int("Radio", "s-meter-delay", 25);
 	smeter_filter = std::make_unique<SMeterFilter>(20.0f, 25.0f, 280.0f); // SSB defaults
+	set_smeter_delay(smeter_delay);
 }
 
 void gui_vfo::set_smeter_delay(int delay)

@@ -80,9 +80,11 @@ struct	status {
 	int				FT		 = 0;				// Step frequency
 	uint8_t			RG		 = 0;				// RF Gain
 	uint8_t			IG		 = 0;
-	uint8_t			PS		 = 1;				// Power
+	uint8_t			PS		 = 5;				// Power
 	uint8_t			RT		 = 0;				// RIT on/off
 	uint32_t		RD		 = 0UL;				// RIT delta frequency
+	uint16_t		KS		 = 12;				// Words per minute
+	uint16_t		PC		 = 5;				// Power control	
 } radioStatus;
 
 
@@ -104,36 +106,38 @@ struct	status {
 
 msg msgTable[] =
 	{
-		{"", MSG_NONE, 0},		   // Command not found in the list
-		{"AB", MSG_AB, MSG_CMD},   // Copy VFO-A to VFO-B
-		{"AI", MSG_AI, MSG_BOTH},  // ( 0 or 1) Turn auto-information on or off
-		{"BA", MSG_BA, MSG_CMD},   // Copy VFO-B to VFO-A
-		{"BS", MSG_BS, MSG_BOTH},  // Band select
-		{"EX", MSG_EX, MSG_BOTH},  // Menu commands (ignored)
-		{"FA", MSG_FA, MSG_BOTH},  // Set or request VFO-A frequency
-		{"FB", MSG_FB, MSG_BOTH},  // Set or request VFO-B frequency
-		{"ID", MSG_ID, MSG_STS},   // Request radio's ID (0650 for the FT-891)
-		{"IF", MSG_IF, MSG_BOTH},  // Information request/answer
-		{"IS0", MSG_IS, MSG_STS},  // Set or request IF shift
+		{"", MSG_NONE, 0},			// Command not found in the list
+		{"AB", MSG_AB, MSG_CMD},	// Copy VFO-A to VFO-B
+		{"AI", MSG_AI, MSG_BOTH},	// ( 0 or 1) Turn auto-information on or off
+		{"BA", MSG_BA, MSG_CMD},	// Copy VFO-B to VFO-A
+		{"BS", MSG_BS, MSG_BOTH},	// Band select
+		{"EX", MSG_EX, MSG_BOTH},	// Menu commands (ignored)
+		{"FA", MSG_FA, MSG_BOTH},	// Set or request VFO-A frequency
+		{"FB", MSG_FB, MSG_BOTH},	// Set or request VFO-B frequency
+		{"ID", MSG_ID, MSG_STS},	// Request radio's ID (0650 for the FT-891)
+		{"IF", MSG_IF, MSG_BOTH},	// Information request/answer
+		{"IS0", MSG_IS, MSG_STS},	// Set or request IF shift
 		{"MD0", MSG_MD0, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.) VFO-A
 		{"MD1", MSG_MD1, MSG_BOTH}, // Set or request mode (USB, LSB, CW, etc.) VFO-B
-		{"NA0", MSG_NA, MSG_BOTH}, // Request narrow IF shift
-		{"OI", MSG_OI, MSG_BOTH},  // Opposite Band Information request/answer
-		{"RIC", MSG_RI, MSG_STS},  // Alternate way of asking for split status
-		{"RM", MSG_RM, MSG_STS},   // Read meter
-		{"SH0", MSG_SH, MSG_BOTH}, // Set or request IF bandwidth
-		{"SM0", MSG_SM, MSG_STS},  // Read S-meter
-		{"ST", MSG_ST, MSG_BOTH},  // ( 0 - 2) Split mode off, on or on +5KHz up
-		{"SV", MSG_SV, MSG_CMD},   // Swap VFOs
-		{"TX", MSG_TX, MSG_BOTH},  // Set or request transmit/receive status
-		{"FT", MSG_FT, MSG_BOTH},  // Frequency Tune step frequency + or - X  (It is assumed tranceiver will respond with FA or FB command
-		{"AG", MSG_AG, MSG_BOTH},  // Set Volume
-		{"RG", MSG_RG, MSG_BOTH},  // Set rf gain
-		{"GT", MSG_GT, MSG_BOTH},  // Get command 0 = Max Volume, 1 Max Gain, 2 List bands, 3 List Filter
+		{"NA0", MSG_NA, MSG_BOTH},	// Request narrow IF shift
+		{"OI", MSG_OI, MSG_BOTH},	// Opposite Band Information request/answer
+		{"RIC", MSG_RI, MSG_STS},	// Alternate way of asking for split status
+		{"RM", MSG_RM, MSG_STS},	// Read meter
+		{"SH0", MSG_SH, MSG_BOTH},	// Set or request IF bandwidth
+		{"SM0", MSG_SM, MSG_STS},	// Read S-meter
+		{"ST", MSG_ST, MSG_BOTH},	// ( 0 - 2) Split mode off, on or on +5KHz up
+		{"SV", MSG_SV, MSG_CMD},	// Swap VFOs
+		{"TX", MSG_TX, MSG_BOTH},	// Set or request transmit/receive status
+		{"FT", MSG_FT, MSG_BOTH},	// Frequency Tune step frequency + or - X  (It is assumed tranceiver will respond with FA or FB command
+		{"AG", MSG_AG, MSG_BOTH},	// Set Volume
+		{"RG", MSG_RG, MSG_BOTH},	// Set rf gain
+		{"GT", MSG_GT, MSG_BOTH},	// Get command 0 = Max Volume, 1 Max Gain, 2 List bands, 3 List Filter
 		{"IG", MSG_IG, MSG_BOTH},
 		{"PS", MSG_PS, MSG_STS}, // Power status
 		{"RT", MSG_RT, MSG_BOTH},
-		{"RD", MSG_RD, MSG_BOTH}
+		{"RD", MSG_RD, MSG_BOTH},
+		{"KS", MSG_KS, MSG_STS},
+		{"PC", MSG_PC, MSG_STS}
 };
 
 	int	 pttPin;							// GPIO pin to key the transmitter
@@ -750,7 +754,17 @@ void FT891_CAT::ProcessStatus ()
 		
 		case MSG_GT:									// Get information command
 			break;
+
+		case MSG_KS:		  // WPM for CW
+			sprintf(tempBuff, // Format message
+					"KS%03u;", radioStatus.KS);
+			break;
 		
+		case MSG_PC:		  // Power control
+			sprintf(tempBuff, // Format message
+					"PC%03u;", radioStatus.PC);
+			break;
+			
 		case MSG_NONE:									// Command not found in the list
 			break;
 	}

@@ -109,6 +109,9 @@ struct msg // Keeps everything together
 #define MSG_PS 27  // Power status
 #define MSG_RT 28  // RIT on/off
 #define MSG_RD 29  // RIT delta frequency
+#define MSG_KS 30  // Key speed
+#define MSG_PC 31  // Power control
+
 
 /*
  *	Miscellaneous definitions:

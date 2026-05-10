@@ -332,6 +332,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				SetFrequency();
 				select_mode(guift8bar.getrxtxmode());
 				gbar.set_mode(guift8bar.getrxtxmode());
+				gbar.enable_digital_mode(true);
 				setmodeclickable(false);
 				ft8status = ft8status_t::monitor;
 				if (mode != mode_wspr)
@@ -342,6 +343,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 				setmodeclickable(true);
 				select_mode(vfo.get_current_mode());
 				gbar.set_mode(vfo.get_current_mode());
+				gbar.enable_digital_mode(false);
 				ft8status = ft8status_t::idle;
 				EnableButtons(false);
 			}

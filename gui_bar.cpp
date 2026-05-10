@@ -1199,3 +1199,25 @@ void gui_bar::setTxButtons()
 	else
 		lv_obj_clear_state(button[buttontune], LV_STATE_DISABLED);
 }
+
+void gui_bar::enable_digital_mode(bool enable)
+{
+	if (enable)
+	{
+		lv_obj_add_state(button[buttontx], LV_STATE_DISABLED);
+		lv_obj_add_state(button[buttontune], LV_STATE_DISABLED);
+		lv_obj_add_state(button[buttonmode], LV_STATE_DISABLED);
+		lv_obj_add_state(button[buttonvfo], LV_STATE_DISABLED);
+		lv_obj_add_state(button[buttonnoise], LV_STATE_DISABLED);
+		lv_obj_add_state(button[buttonrit], LV_STATE_DISABLED);
+	}
+	else
+	{
+		lv_obj_remove_state(button[buttontx], LV_STATE_DISABLED);
+		lv_obj_remove_state(button[buttontune], LV_STATE_DISABLED);
+		lv_obj_remove_state(button[buttonmode], LV_STATE_DISABLED);
+		lv_obj_remove_state(button[buttonvfo], LV_STATE_DISABLED);
+		lv_obj_remove_state(button[buttonnoise], LV_STATE_DISABLED);
+		lv_obj_remove_state(button[buttonrit], LV_STATE_DISABLED);
+	}
+}

@@ -50,7 +50,6 @@ class gui_bar
 	void vol_slider_event_class(lv_event_t *e);
 	void filter_slider_event_class(lv_event_t *e);
 	
-
   public:
 	gui_bar();
 	~gui_bar();
@@ -109,6 +108,7 @@ class gui_bar
 	void step_close();
 	void step_button_next(int step);
 	void set_vfo_split(int split_onoff);
+	void enable_digital_mode(bool enable);
 
 	lv_obj_t *get_button_obj(int i)
 	{

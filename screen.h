@@ -17,6 +17,7 @@ extern const int buttonHeight;
 extern int tabHeight;
 extern int screenfontthresshold_1;
 extern int screenfontthresshold_2;
+extern int screenfontthresshold_3;
 
 extern lv_obj_t *get_main_screen();
 extern lv_obj_t *get_2nd_screen();

@@ -54,14 +54,17 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 
 	/*Set a background color and a radius*/
 	int32_t line_height;
+	float line_multiplier = 2.0f;
 	vfo1_frequency = lv_label_create(bg_tuner1);
 	if (screenWidth > screenfontthresshold_2)
 	{
+		line_multiplier = 2.5f;
 		line_height = lv_font_get_line_height(&FreeSansOblique72) + 4;
 		lv_obj_set_style_text_font(vfo1_frequency, &FreeSansOblique72, 0);
 	}
 	else if (screenWidth > screenfontthresshold_1)
 	{
+		line_multiplier = 2.5f;
 		line_height = lv_font_get_line_height(&FreeSansOblique58) + 4;
 		lv_obj_set_style_text_font(vfo1_frequency, &FreeSansOblique58, 0);
 	}
@@ -83,7 +86,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 	band_label = lv_label_create(bg_tuner1);
 	lv_label_set_text(band_label, "XXXXXX");
 	lv_obj_set_height(band_label, label_height);
-	lv_obj_set_pos(band_label, (1 * bg_tuner_size) / 100, h - (label_height * 2));
+	lv_obj_set_pos(band_label, (1 * bg_tuner_size) / 100, h - (label_height * line_multiplier));
 	lv_obj_set_style_text_opa(band_label, LV_OPA_COVER, 0);
 	lv_obj_set_style_text_align(band_label, LV_TEXT_ALIGN_CENTER, 0);
 
@@ -105,7 +108,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 	lv_label_set_text(rxtx_label, "RX");
 	lv_obj_set_height(rxtx_label, label_height);
 	lv_obj_set_style_text_align(rxtx_label, LV_TEXT_ALIGN_RIGHT, 0);
-	lv_obj_set_pos(rxtx_label, (80 * bg_tuner_size) / 100, h - (label_height * 2));
+	lv_obj_set_pos(rxtx_label, (80 * bg_tuner_size) / 100, h - (label_height * line_multiplier));
 	lv_label_set_recolor(rxtx_label, true);
 	lv_obj_set_style_text_color(rxtx_label, lv_palette_main(LV_PALETTE_BLUE), 0);
 	lv_obj_set_style_text_opa(rxtx_label, LV_OPA_COVER, 0);
@@ -137,7 +140,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 	band_label2 = lv_label_create(bg_tuner2);
 	lv_label_set_text(band_label2, "XXXXXX");
 	lv_obj_set_height(band_label2, label_height);
-	lv_obj_set_pos(band_label2, (1 * bg_tuner_size) / 100, h - (label_height * 2));
+	lv_obj_set_pos(band_label2, (1 * bg_tuner_size) / 100, h - (label_height * line_multiplier));
 	lv_obj_set_style_text_opa(band_label2, LV_OPA_COVER, 0);
 	lv_obj_set_style_text_align(band_label2, LV_TEXT_ALIGN_CENTER, 0);
 
@@ -160,7 +163,7 @@ void gui_vfo::gui_vfo_init(lv_obj_t *scr, int x, int y, int w, int h, lv_group_t
 	lv_label_set_text(rxtx_label2, "RX");
 	lv_obj_set_height(rxtx_label2, label_height);
 	lv_obj_set_style_text_align(rxtx_label2, LV_TEXT_ALIGN_RIGHT, 0);
-	lv_obj_set_pos(rxtx_label2, (80 * bg_tuner_size) / 100, h - (label_height * 2));
+	lv_obj_set_pos(rxtx_label2, (80 * bg_tuner_size) / 100, h - (label_height * line_multiplier));
 	lv_obj_set_style_text_opa(rxtx_label2, LV_OPA_COVER, 0);
 	lv_obj_set_style_text_align(rxtx_label2, LV_TEXT_ALIGN_CENTER, 0);
 	lv_label_set_recolor(rxtx_label2, true);

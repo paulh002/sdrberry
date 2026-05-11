@@ -329,6 +329,7 @@ const int hidetx{5};
 const int hidepreamp{6};
 int screenfontthresshold_1;
 int screenfontthresshold_2;
+int screenfontthresshold_3;
 bool debug_print = false;
 
 // const int hidespeech{5};
@@ -681,13 +682,17 @@ int main(int argc, char *argv[])
 	button_group = lv_group_create();
 	lv_indev_set_group(encoder_indev_t, button_group);
 
+	screenfontthresshold_3 = Settings_file.get_int("screen", "thresshold_3", 1440);
+	screenfontthresshold_2 = Settings_file.get_int("screen", "thresshold_2", 1024);
+	screenfontthresshold_1 = Settings_file.get_int("screen", "thresshold_1", 800);
+	
 	lv_theme_t *th;
-	if (screenWidth > 1440)
+	if (screenWidth > screenfontthresshold_3)
 	{
 		th = lv_theme_default_init(disp_0, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_18);
 		barHeightft8 = 150;
 	}
-	else if (screenWidth > 1280)
+	else if (screenWidth > screenfontthresshold_2)
 	{
 		th = lv_theme_default_init(disp_0, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_16);
 		barHeightft8 = 150;
@@ -697,8 +702,7 @@ int main(int argc, char *argv[])
 		th = lv_theme_default_init(disp_0, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), LV_THEME_DEFAULT_DARK, &lv_font_montserrat_14);
 		barHeightft8 = 125;
 	}
-	screenfontthresshold_2 = Settings_file.get_int("screen", "thresshold_2", 1024);
-	screenfontthresshold_1 = Settings_file.get_int("screen", "thresshold_1", 800);
+
 
 	lv_disp_set_theme(NULL, th);
 	GuiTopBar.setup_top_bar(main_screen, 0, 0, screenWidth, topHeight);

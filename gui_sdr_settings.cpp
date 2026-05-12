@@ -110,19 +110,18 @@ void gui_sdr_settings::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h, lv_grou
 
 	int width1, width2, height;
 
-	if (screenWidth <= small_res)
+	if (screenWidth > screenfontthresshold_2)
+	{
+		width1 = w / 6;
+		width2 = w / 6;
+		height = h / 2;
+	}
+	else
 	{
 		width1 = w / 6;
 		width2 = w / 6;
 		height = h - 20;
 	}
-	else
-	{
-		width1 = w / 6;
-		width2 = w / 16;
-		height = h / 2;
-	}
-
 	lv_table_set_cell_value(settingsTable, 0, 0, "Setting");
 	lv_table_set_col_width(settingsTable, 0, width1);
 	lv_table_set_cell_value(settingsTable, 0, 1, "value");

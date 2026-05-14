@@ -451,10 +451,12 @@ void gui_rx::event_handler_color_class(lv_event_t *e)
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
 			SpectrumGraph.set_color(1);
+			Settings_file.save_int("Radio", "spectrum_color", 1);
 		}
 		else
 		{
 			SpectrumGraph.set_color(0);
+			Settings_file.save_int("Radio", "spectrum_color", 0);
 		}
 	}
 }

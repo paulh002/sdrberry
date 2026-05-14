@@ -87,6 +87,7 @@ class Spectrum
 	void enable_second_data_series(bool enable);
 	void setWaterfallSize(int waterfallsize);
 	void set_cursor_mode(int mode);
+	void set_color(int color);
 
 	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
 	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;

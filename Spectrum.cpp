@@ -381,9 +381,19 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	lv_obj_set_style_width(chart, 100, LV_PART_CURSOR);
 	lv_obj_set_style_height(chart, heightChart, LV_PART_CURSOR);
 	lv_obj_set_style_bg_color(chart, lv_palette_main(LV_PALETTE_BLUE), LV_PART_CURSOR);
-	lv_obj_set_style_bg_opa(chart, LV_OPA_50, LV_PART_CURSOR);
-	line_color = lv_palette_main(LV_PALETTE_RED);
-	chart_color = lv_palette_main(LV_PALETTE_RED);
+	lv_obj_set_style_bg_opa(chart, LV_OPA_30, LV_PART_CURSOR);
+	int spectrum_color = Settings_file.get_int("Radio", "spectrum_color", 0);
+	if (!spectrum_color)
+	{
+		line_color = lv_palette_main(LV_PALETTE_RED);
+		chart_color = lv_palette_lighten(LV_PALETTE_RED, 3);
+	}
+	else
+	{
+		line_color = lv_palette_lighten(LV_PALETTE_GREY, 5);
+		chart_color = lv_palette_lighten(LV_PALETTE_BLUE, 3);
+	}
+	// lv_obj_set_style_bg_color(chart, lv_palette_main(LV_PALETTE_BLUE), 0);
 
 	ser = lv_chart_add_series(chart, line_color, LV_CHART_AXIS_PRIMARY_Y);
 	for (auto &col : markers_location)
@@ -406,6 +416,21 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	}
 	SetFftParts();
 	enable_processing = true; // saveguard race condition
+}
+
+void Spectrum::set_color(int spectrum_color)
+{
+	if (!spectrum_color)
+	{
+		line_color = lv_palette_main(LV_PALETTE_RED);
+		chart_color = lv_palette_lighten(LV_PALETTE_RED, 3);
+	}
+	else
+	{
+		line_color = lv_palette_lighten(LV_PALETTE_GREY, 5);
+		chart_color = lv_palette_lighten(LV_PALETTE_BLUE, 3);
+	}
+	lv_chart_set_series_color(chart, ser, line_color);
 }
 
 void Spectrum::setWaterfallSize(int waterfallsize)
@@ -565,7 +590,7 @@ int32_t Spectrum::get_cursor_width(int mode)
 	int32_t ii = (width - 2 * excludeMargin);
 	int32_t w = f / (s / ii);
 	// printf("span %d filter %d, screen %d width %d\n", s, f, ii, w);
-	return w;
+	return 2 * w;
 }
 
 int32_t Spectrum::get_cursor_width_dir(int mode)

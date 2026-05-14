@@ -122,11 +122,11 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 			ibutton_y++;
 		}
 	}
-	
+
 	mic_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(mic_slider, w / 2 - 50); 
 	lv_slider_set_range(mic_slider, 0, micgain);
-	lv_obj_center(mic_slider);
+	lv_obj_align(mic_slider, LV_ALIGN_TOP_MID, 0, ibutton_y * button_height_margin + y_margin);
 	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	mic_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);

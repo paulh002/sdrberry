@@ -370,16 +370,21 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_label_set_text(spectrum_slider_label, buf.c_str());
 	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	waterfall_hold = lv_checkbox_create(settings_tile);
-	lv_group_add_obj(button_group, waterfall_hold);
-	lv_checkbox_set_text(waterfall_hold, "Spectrum hold");
-	lv_obj_add_event_cb(waterfall_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_obj_add_flag(waterfall_hold, LV_OBJ_FLAG_CHECKABLE);
+	spectrum_hold = lv_checkbox_create(settings_tile);
+	lv_checkbox_set_text(spectrum_hold, "Spectrum hold");
+	lv_obj_add_event_cb(spectrum_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_add_flag(spectrum_hold, LV_OBJ_FLAG_CHECKABLE);
 	ibutton_y++;
-	lv_obj_align(waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
-	//lv_obj_align_to(spectrum_slider, waterfall_hold, LV_ALIGN_TOP_LEFT, x_margin + 2 * button_width_margin, 0);
-	lv_group_add_obj(button_group, waterfall_hold);
-	
+	lv_obj_align(spectrum_hold, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
+	lv_group_add_obj(button_group, spectrum_hold);
+
+	spectrum_color = lv_checkbox_create(settings_tile);
+	lv_checkbox_set_text(spectrum_color, "Spectrum color blue white");
+	lv_obj_add_event_cb(spectrum_color, event_handler_color, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_obj_add_flag(spectrum_color, LV_OBJ_FLAG_CHECKABLE);
+	lv_obj_align_to(spectrum_color, spectrum_hold, LV_ALIGN_OUT_RIGHT_MID, x_margin , 0);
+	lv_group_add_obj(button_group, spectrum_color);
+
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 }
@@ -435,4 +440,21 @@ void gui_rx::spectrum_slider_event_cb_class(lv_event_t *e)
 	spectrumgain = lv_slider_get_value(slider);
 	Settings_file.save_int("Radio", "Spectrumgain", spectrumgain);
 	Settings_file.write_settings();
+}
+
+void gui_rx::event_handler_color_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+		{
+			SpectrumGraph.set_color(1);
+		}
+		else
+		{
+			SpectrumGraph.set_color(0);
+		}
+	}
 }

@@ -59,8 +59,8 @@
 #include "SignalStrength.h"
 
 const int major_version = 2;
-const int minor_version = 3;
-const int patch_version = 3;
+const int minor_version = 4;
+const int patch_version = 0;
 
 std::string version_string = strlib::sprintf("%d.%d.%d", major_version, minor_version, patch_version);
 

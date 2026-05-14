@@ -637,8 +637,8 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	ifilters.push_back(3000);
 	ifilters.push_back(3500);
 	ifilters.push_back(4000);
-	ifilters.push_back(4500);
-	ifilters.push_back(5000);
+	ifilters.push_back(11000);
+	ifilters.push_back(16000);
 
 	filter_to_mode_cutoff_frequencies = Settings_file.get_map_string("Radio", "Audiofilter");
 	steps_value = Settings_file.get_int("Radio", "steps", 0);

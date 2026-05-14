@@ -46,7 +46,7 @@ void CVfo::vfo_rxtx(bool brx, bool btx, bool split)
 		bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 
 	if (!split && vfo_setting.tx)
-		bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.tx);
+		bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 
 void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrDevices, std::string fradio, int frx_channel,int ftx_channel)

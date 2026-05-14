@@ -42,10 +42,7 @@ void CVfo::vfo_rxtx(bool brx, bool btx, bool split)
 		bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 	}
 
-	if (!split && vfo_setting.rx)
-		bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
-
-	if (!split && vfo_setting.tx)
+	if (!split)
 		bpf.SetBand(vfo_setting.band[vfo_setting.active_vfo], vfo_setting.rx);
 }
 

@@ -384,7 +384,9 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_add_flag(spectrum_color, LV_OBJ_FLAG_CHECKABLE);
 	lv_obj_align_to(spectrum_color, spectrum_hold, LV_ALIGN_OUT_RIGHT_MID, x_margin , 0);
 	lv_group_add_obj(button_group, spectrum_color);
-
+	if (Settings_file.get_int("Radio", "spectrum_color", 0))	
+		lv_obj_add_state(spectrum_color, LV_STATE_CHECKED);
+	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 }

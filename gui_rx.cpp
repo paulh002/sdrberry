@@ -460,5 +460,6 @@ void gui_rx::event_handler_color_class(lv_event_t *e)
 			SpectrumGraph.set_color(0);
 			Settings_file.save_int("Radio", "spectrum_color", 0);
 		}
+		Settings_file.write_settings();
 	}
 }

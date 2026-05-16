@@ -588,7 +588,7 @@ int32_t Spectrum::get_cursor_width(int mode)
 	int32_t f = gbar.get_filter_frequency(mode);
 	int32_t s = vfo.get_span();
 	int32_t ii = (width - 2 * excludeMargin);
-	int32_t w = f / (s / ii);
+	int32_t w = roundf((float)f / ((float)s / (float)ii));
 	// printf("span %d filter %d, screen %d width %d\n", s, f, ii, w);
 	return 2 * w;
 }
@@ -759,7 +759,6 @@ void Spectrum::scale_event_cb_class(lv_event_t *e)
 	lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
 	lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
 		
-
 	if (base_dsc->part == LV_PART_INDICATOR && lv_draw_task_get_type(draw_task) == LV_DRAW_TASK_TYPE_LABEL)
 	{
 		lv_draw_label_dsc_t *label_dsc = lv_draw_task_get_label_dsc(draw_task);
@@ -768,29 +767,34 @@ void Spectrum::scale_event_cb_class(lv_event_t *e)
 		{
 			std::pair<vfo_spansetting, double> span_ex = vfo.compare_span_ex();
 			int span = guisdr.get_span();
-			int ii;
-			double offset{0}, f{};
+			float ii = (float)span / (float)(vert_lines - 1);
+			float offset{0}, f{};
 
 			switch (span_ex.first)
 			{
 			case span_is_ifrate:
-				f = (double)vfo.get_sdr_frequency() - (double)(span / 2.0);
-				ii = span / (vert_lines - 1);
+				f = (float)vfo.get_sdr_frequency() - (float)(span / 2.0);
 				break;
 			case span_between_ifrate:
-				f = (double)vfo.get_sdr_frequency() - (double)vfo.get_minoffset() ;
-				ii = span / (vert_lines - 1);
+				f = (float)vfo.get_sdr_frequency() - (float)vfo.get_minoffset() ;
 				break;
 			case span_lower_halfrate:
 				offset = vfo.get_vfo_offset() / span;
-				f = (double)vfo.get_sdr_frequency() + offset * (double)span;
-				ii = span / (vert_lines - 1);
+				f = (float)vfo.get_sdr_frequency() + offset * (float)span;
 				break;
 			}
-			f = f + (label_dsc->base.id1) * ii;
-			long l = (long)round(f / 1000.0);
+			f = f + (float)(label_dsc->base.id1) * ii;
 			char str[80];
-			lv_snprintf(str, 19, "%ld", l);
+			if (span > 47999)
+			{
+				long l = round(f / 1000);
+				sprintf(str, "%3ld.%03ld", (long)(l / 1000), (long)(l % 1000));
+			}
+			else
+			{
+				long l = round(f / 100.0);
+				sprintf(str, "%3ld.%03ld.%1ld", (long)(l / 10000), (long)((l / 10) % 1000), (long)(l % 10));
+			}
 			lv_free((void *)label_dsc->text);
 			label_dsc->text_length = strlen(str);
 			label_dsc->text = lv_strndup(str, label_dsc->text_length);

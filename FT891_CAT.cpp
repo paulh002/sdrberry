@@ -80,7 +80,7 @@ struct	status {
 	int				FT		 = 0;				// Step frequency
 	uint8_t			RG		 = 0;				// RF Gain
 	uint8_t			IG		 = 0;
-	uint8_t			PS		 = 5;				// Power
+	uint8_t			PS		 = 1;				// Power
 	uint8_t			RT		 = 0;				// RIT on/off
 	uint32_t		RD		 = 0UL;				// RIT delta frequency
 	uint16_t		KS		 = 12;				// Words per minute

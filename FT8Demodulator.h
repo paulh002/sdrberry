@@ -29,7 +29,7 @@ class FT8Demodulator : public Demodulator
 
   private:
 	ampmodem m_demod{nullptr};
-	float m_bandwidth;
+	float filter_bandwidth;
 	float ft8_rate{12000.0};
 	std::shared_ptr<FT8Processor> ft8processor;
 	int wsjtxmode;

@@ -16,7 +16,7 @@ private:
 	lv_obj_t* drp_noise;
 	lv_obj_t *check_cw, *spectrum_hold, *spectrum_color;
 	lv_obj_t *noise_slider, *waterfall_slider;
-	lv_obj_t *filter_slider, *filter_slider_label, *filter_type_label, *filter_type_dropdown;
+	lv_obj_t *filter_slider, *filter_slider_label, *filter_type_label, *filter_type_dropdown, *filter_order_dropdown;
 	lv_obj_t *signal_strength_offset_slider_label, *signal_strength_offset_slider;
 	lv_obj_t *noise_slider_label, *waterfall_slider_label, *waterfallsize_slider, *waterfallsize_slider_label;
 	int waterfallgain, waterfallsize, spectrumgain;
@@ -35,10 +35,10 @@ private:
 	void spectrum_slider_event_cb_class(lv_event_t *e);
 	void smeter_delay_event_cb_class(lv_event_t *e);
 	void event_handler_color_class(lv_event_t *e);
+	void filter_order_handler_cb_class(lv_event_t *e);
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w);	
-	void set_freq(lv_obj_t * obj, long long freq);
 	bool get_cw();
 	void set_cw(bool bcw);
 	void toggle_cw();
@@ -59,8 +59,7 @@ private:
 	static constexpr auto spectrum_slider_event_cb = EventHandler<gui_rx, &gui_rx::spectrum_slider_event_cb_class>::staticHandler;
 	static constexpr auto smeter_delay_event_cb = EventHandler<gui_rx, &gui_rx::smeter_delay_event_cb_class>::staticHandler;
 	static constexpr auto event_handler_color = EventHandler<gui_rx, &gui_rx::event_handler_color_class>::staticHandler;
-	
-	
+	static constexpr auto filter_order_handler_cb = EventHandler<gui_rx, &gui_rx::filter_order_handler_cb_class>::staticHandler;
 };
 
 extern gui_rx guirx;

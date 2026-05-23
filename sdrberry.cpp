@@ -768,16 +768,17 @@ int main(int argc, char *argv[])
 
 	guisquelch.init(tab["squelch"], lv_tabview_get_tab_btns(tabview_mid), LV_HOR_RES - 3);
 
-	static lv_style_t style_btn;
+	/*static lv_style_t style_btn;
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 0);
-	lv_style_set_border_width(&style_btn, 1);
-	lv_style_set_border_opa(&style_btn, LV_OPA_50);
-	lv_style_set_border_color(&style_btn, lv_color_black());
+	lv_style_set_border_width(&style_btn, 4);
+	//lv_style_set_border_opa(&style_btn, LV_OPA_50);
+	lv_style_set_border_color(&style_btn, lv_color_white());
 	lv_style_set_border_side(&style_btn, LV_BORDER_SIDE_INTERNAL);
 	lv_style_set_radius(&style_btn, 0);
-	lv_obj_add_style(tab_buttons, &style_btn, LV_PART_ITEMS);
-
+	lv_style_set_bg_color(&style_btn, lv_color_white());
+	lv_tabview_set_button_style(tabview_mid, &style_btn);
+*/
 	// keyb.init_keyboard(tab["keyboard"], LV_HOR_RES/2 - 3, screenHeight - topHeight - tunerHeight);
 	float decimate = pow(2, Settings_file.get_int(default_radio, "decimate", 0));
 	int rx_rate = Settings_file.get_int(default_radio, "samplerate");
@@ -1525,8 +1526,12 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 	}
 	else
 	{
-		destroy_demodulators(false, false);
-		RX_Stream::pause_rx_stream(true);
+		int fullduplex = Settings_file.get_int("Radio", "fullduplex", 0);
+		if (!fullduplex)
+		{
+			destroy_demodulators(false, false);
+			RX_Stream::pause_rx_stream(true);
+		}
 	}
 	mode = s_mode;
 	vfo.vfo_rxtx(false, true, gui_vfo_inst.get_split());

@@ -173,6 +173,41 @@ void gui_rx::smeter_delay_event_cb_class(lv_event_t *e)
 	}
 }
 
+void gui_rx::filter_order_handler_cb_class(lv_event_t *e) 
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		int sel_order = lv_dropdown_get_selected(obj);
+		Settings_file.save_int("Radio", "filter_order", sel_order);
+		Settings_file.write_settings();
+		switch(sel_order)
+		{
+			case 0:
+				sel_order = 6;
+				break;
+			case 1:
+				sel_order = 8;
+				break;
+			case 2:
+				sel_order = 12;
+				break;
+			case 3:
+				sel_order = 18;
+				break;
+			case 4:
+				sel_order = 20;
+				break;
+			default:
+				sel_order = 6;
+				break;
+			}
+			Demodulator::set_filter_order(sel_order);
+			printf("filter order %d\n", sel_order);
+	}
+}
+
 int gui_rx::get_noise()
 {
 	return lv_dropdown_get_selected(drp_noise);
@@ -239,6 +274,43 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_add_event_cb(filter_type_dropdown, filter_type_handler_cb, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_set_width(filter_type_dropdown, button_width_margin);
 
+	lv_obj_t *filter_order_label = lv_label_create(main_tile);
+	lv_label_set_text(filter_order_label, "Filter order");
+	lv_obj_align(filter_order_label, LV_ALIGN_TOP_LEFT, x_margin, y_margin + button_height_margin * 1.5);
+	
+	filter_order_dropdown = lv_dropdown_create(main_tile);
+	lv_obj_align(filter_order_dropdown, LV_ALIGN_TOP_LEFT, x_margin, y_margin + button_height_margin * 2);
+	lv_group_add_obj(button_group, filter_order_dropdown);
+	lv_dropdown_set_options(filter_order_dropdown, "6\n"
+												  "8\n"
+												  "12\n"
+												  "18\n"
+													"24");
+	
+	int filter_order = Settings_file.get_int("Radio", "filter_order", 6);
+	switch (filter_order)
+	{
+	case 6:
+			lv_dropdown_set_selected(filter_order_dropdown, 0);
+			break;
+	case 8:
+			lv_dropdown_set_selected(filter_order_dropdown, 1);
+			break;
+	case 12:
+			lv_dropdown_set_selected(filter_order_dropdown, 2);
+			break;
+	case 18:
+			lv_dropdown_set_selected(filter_order_dropdown, 3);
+			break;
+	case 24:
+			lv_dropdown_set_selected(filter_order_dropdown, 4);
+			break;
+	default:	
+			lv_dropdown_set_selected(filter_order_dropdown, 0);
+			break;
+	}
+	lv_obj_add_event_cb(filter_order_dropdown, filter_order_handler_cb, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void *)this);
+
 	lv_obj_t *noise_label = lv_label_create(main_tile);
 	lv_label_set_text(noise_label, "Noise suppression");
 	lv_obj_align(noise_label, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin);
@@ -293,7 +365,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_group_add_obj(button_group, check_cw);
 	lv_checkbox_set_text(check_cw, "Morse Decoder");
 	lv_obj_add_event_cb(check_cw, event_handler_morse, LV_EVENT_ALL, (void *)this);
-	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, x_margin, y_margin + (ibutton_y + 1) * button_height_margin);
+	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, x_margin, 2 * y_margin + (ibutton_y + 1) * button_height_margin);
 	lv_group_add_obj(button_group, check_cw);
 
 	waterfallgain = Settings_file.get_int("Radio", "Waterfallgain", 35);

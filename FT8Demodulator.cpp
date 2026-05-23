@@ -44,6 +44,7 @@ void FT8Demodulator::destroy_demodulator()
 
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
+	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
 	std::cout << "Stoptime FT8Demodulator:" << timePassed.count() << std::endl;
 }
 
@@ -61,13 +62,14 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 
 	const auto startTime = std::chrono::high_resolution_clock::now();
 
-	m_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
-	gbar.set_filter_dropdown(m_bandwidth);
+	filter_bandwidth = Settings_file.get_int("ft8", "bandwidth", 4000);
+	gbar.set_filter_dropdown(filter_bandwidth);
 	Demodulator::set_filter_offset(0);
 	Demodulator::set_filter_type(0);
 	Demodulator::set_filter_order(6);
 	guirx.enable_filter_settings(false);
-	Demodulator::setLowPassAudioFilter(ft8_rate, m_bandwidth);
+	Demodulator::setLowPassAudioFilter(ft8_rate, filter_bandwidth);
+	Demodulator::set_filter_offset(0);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);

@@ -29,6 +29,9 @@ bool FT8Demodulator::create_demodulator(double ifrate, DataBuffer<IQSample> *sou
 		return false;
 	sp_ft8demod = make_shared<FT8Demodulator>(ifrate, source_buffer, audio_output, mode);
 	sp_ft8demod->amdemod_thread = std::thread(&FT8Demodulator::operator(), sp_ft8demod);
+	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
+	Demodulator::set_filter_type(Settings_file.get_int("Radio", "filter_type"));
+	guirx.set_filter_order_handler(true);
 	return true;
 }
 
@@ -45,6 +48,8 @@ void FT8Demodulator::destroy_demodulator()
 	auto now = std::chrono::high_resolution_clock::now();
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
+	Demodulator::set_filter_type(Settings_file.get_int("Radio", "filter_type"));
+	guirx.set_filter_order_handler(false);
 	std::cout << "Stoptime FT8Demodulator:" << timePassed.count() << std::endl;
 }
 

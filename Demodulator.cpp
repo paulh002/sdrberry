@@ -531,8 +531,6 @@ void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 	}
 
 	lowPassAudioFilterHandle = iirfilt_crcf_create_prototype((liquid_iirdes_filtertype)filter_type.load(), (liquid_iirdes_bandtype)filtertype, LIQUID_IIRDES_SOS, filter_order.load(), cutOffFrequency, centerFrequency, 0.1f, 60.0f);
-
-	//lowPassAudioFilterHandle = iirfilt_crcf_create_lowpass(lowPassFilterOrder, factor);
 	iirfilt_crcf_print(lowPassAudioFilterHandle);
 }
 
@@ -660,7 +658,7 @@ void Demodulator::set_filter_offset(int offset)
 void Demodulator::set_filter_order(int order)
 {
 	filter_change = true;
-	filter_order = order;
+	filter_order.store(order);
 }
 
 int Demodulator::get_lowPassAudioFilterCutOffFrequency() 

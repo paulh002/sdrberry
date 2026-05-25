@@ -10,12 +10,13 @@
 FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 	: Demodulator(ifrate, source_buffer, audio_output)
 {
-	gbar.set_filter_dropdown(11000);
-	Demodulator::setLowPassAudioFilter(audioSampleRate, 11000);
+	int bandwidth = Settings_file.get_int("Radio", "narrowband_fm_filter", 4000);
+	gbar.set_filter_dropdown(bandwidth);
+	Demodulator::setLowPassAudioFilter(audioSampleRate, bandwidth);
 	Demodulator::set_filter_offset(0);
 	Demodulator::set_filter_type(0);
-	Demodulator::set_filter_order(6);
-	guirx.enable_filter_settings(false);
+	guirx.set_filter_order_handler(true);
+	guirx.enable_filter_settings(false);	
 	int lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
 	Demodulator::set_resample_rate(audio_output->get_samplerate() / ifrate); // down sample to pcmrate
 	Demodulator::setLowPassAudioFilter(audio_output->get_samplerate(), lowPassAudioFilterCutOffFrequency);

@@ -46,7 +46,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 	Demodulator::set_resample_rate(sample_ratio); // down sample to pcmrate
 	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
 	Demodulator::set_filter_type(Settings_file.get_int("Radio", "filter_type"));
-	guirx.enable_filter_settings(true);
+	guirx.set_filter_order_handler(false);
 	bandwidth = gbar.get_filter_frequency(mode);
 	switch (mode)
 	{
@@ -73,14 +73,14 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 		break;
 	case mode_am:
 		if (bandwidth == 0)
-			bandwidth = 5000; // SSB
+			bandwidth = 4000; // SSB
 		suppressed_carrier = 0;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		
 		break;
 	case mode_dsb:
 		if (bandwidth == 0)
-			bandwidth = 5000; // SSB
+			bandwidth = 4000; // SSB
 		suppressed_carrier = 1;
 		am_mode = LIQUID_AMPMODEM_DSB;
 		printf("mode LIQUID_AMPMODEM_DSB carrier %d\n", suppressed_carrier);		

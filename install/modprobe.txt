@@ -1,0 +1,6 @@
+Just to lock in the "why": modprobe never scans the filesystem directly. It only reads the pre-compiled index files (modules.dep.bin, modules.alias, modules.devname, etc.) inside /lib/modules/$(uname -r)/. Running sudo depmod -a parses every .ko/.ko.zst/.ko.xz in that tree, resolves dependencies, and writes those indexes. Until that happens, modprobe genuinely has no record of your module.
+Quick best practices for the future:
+✅ Always run sudo depmod -a after manually placing a .ko file.
+✅ Verify indexing with modinfo radioberry (should show filename, version, depends, etc.).
+✅ For long-term/custom out-of-tree modules, consider wrapping it in DKMS. It automatically rebuilds and re-indexes the module whenever you update the kernel via apt.
+✅ On Debian Trixie/RPi, if you ever switch between arm64 and armhf kernels, double-check uname -m matches the module's architecture (file radioberry.ko*).

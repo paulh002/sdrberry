@@ -173,6 +173,37 @@ void gui_rx::smeter_delay_event_cb_class(lv_event_t *e)
 	}
 }
 
+void gui_rx::set_filter_order_handler(bool reset)
+{
+	int sel_order = Settings_file.get_int("Radio", "filter_order", 4);
+	if (reset)
+		sel_order = 4;
+	lv_dropdown_set_selected(filter_order_dropdown, sel_order);
+	switch (sel_order)
+	{
+	case 0:
+		sel_order = 6;
+		break;
+	case 1:
+		sel_order = 8;
+		break;
+	case 2:
+		sel_order = 12;
+		break;
+	case 3:
+		sel_order = 18;
+		break;
+	case 4:
+		sel_order = 20;
+		break;
+	default:
+		sel_order = 6;
+		break;
+	}
+	Demodulator::set_filter_order(sel_order);
+	printf("filter order %d\n", sel_order);
+}
+
 void gui_rx::filter_order_handler_cb_class(lv_event_t *e) 
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -285,32 +316,11 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 												  "8\n"
 												  "12\n"
 												  "18\n"
-													"24");
-	
-	int filter_order = Settings_file.get_int("Radio", "filter_order", 6);
-	switch (filter_order)
-	{
-	case 6:
-			lv_dropdown_set_selected(filter_order_dropdown, 0);
-			break;
-	case 8:
-			lv_dropdown_set_selected(filter_order_dropdown, 1);
-			break;
-	case 12:
-			lv_dropdown_set_selected(filter_order_dropdown, 2);
-			break;
-	case 18:
-			lv_dropdown_set_selected(filter_order_dropdown, 3);
-			break;
-	case 24:
-			lv_dropdown_set_selected(filter_order_dropdown, 4);
-			break;
-	default:	
-			lv_dropdown_set_selected(filter_order_dropdown, 0);
-			break;
-	}
-	lv_obj_add_event_cb(filter_order_dropdown, filter_order_handler_cb, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void *)this);
+													"20");
 
+	lv_obj_add_event_cb(filter_order_dropdown, filter_order_handler_cb, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void *)this);
+	set_filter_order_handler(false);
+	
 	lv_obj_t *noise_label = lv_label_create(main_tile);
 	lv_label_set_text(noise_label, "Noise suppression");
 	lv_obj_align(noise_label, LV_ALIGN_TOP_RIGHT, x_margin * -2, y_margin);

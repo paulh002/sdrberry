@@ -108,6 +108,11 @@ Demodulator::~Demodulator()
 		firfilt_rrrf_destroy(highPassHandle);
 	if (dcBlockHandle)
 		firfilt_crcf_destroy(dcBlockHandle);
+	if (lowPassParksMcClellanFilterHandle)
+	{
+		firfilt_crcf_destroy(lowPassParksMcClellanFilterHandle);
+		lowPassParksMcClellanFilterHandle = nullptr;
+	}
 
 	bandPassHandle = nullptr;
 	lowPassHandle = nullptr;
@@ -425,12 +430,25 @@ void Demodulator::lowPassAudioFilter(const IQSampleVector &filter_in,
 	if (get_lowPassAudioFilterChange())
 		setLowPassAudioFilter(lowpasssamplerate, lowPassAudioFilterCutOffFrequency);
 
-	for (auto &col : filter_in)
+	if (filter_type.load() <= (int)LIQUID_IIRDES_CHEBY2)
 	{
-		std::complex<float> v, z;
+		for (auto &col : filter_in)
+		{
+			std::complex<float> v, z;
 
-		iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
-		filter_out.insert(filter_out.end(), v);
+			iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
+			filter_out.insert(filter_out.end(), v);
+		}
+	}
+	else
+	{
+		for (auto &col : filter_in)
+		{
+			std::complex<float> v;
+			firfilt_crcf_push(lowPassParksMcClellanFilterHandle, col);
+			firfilt_crcf_execute(lowPassParksMcClellanFilterHandle, &v);
+			filter_out.insert(filter_out.end(), v);
+		}
 	}
 }
 
@@ -438,13 +456,26 @@ void Demodulator::lowPassAudioFilter(IQSampleVector &filter_in)
 {
 	if (get_lowPassAudioFilterChange())
 		setLowPassAudioFilter(lowpasssamplerate, lowPassAudioFilterCutOffFrequency);
-	
-	for (auto &col : filter_in)
-	{
-		std::complex<float> v, z;
 
-		iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
-		col =  v;
+	if (filter_type.load() <= (int)LIQUID_IIRDES_CHEBY2)
+	{
+		for (auto &col : filter_in)
+		{
+			std::complex<float> v, z;
+
+			iirfilt_crcf_execute(lowPassAudioFilterHandle, col, &v);
+			col = v;
+		}
+	}
+	else
+	{
+		for (auto &col : filter_in)
+		{
+			std::complex<float> v;
+			firfilt_crcf_push(lowPassParksMcClellanFilterHandle, col);
+			firfilt_crcf_execute(lowPassParksMcClellanFilterHandle, &v);
+			col = v;
+		}
 	}
 }
 
@@ -517,21 +548,39 @@ void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 {
 	lowPassAudioFilterCutOffFrequency = band_width;
 	if (lowPassAudioFilterHandle)
-		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
-
-	int filtertype = LIQUID_IIRDES_LOWPASS;
-	float cutOffFrequency = band_width / samplerate;
-	float centerFrequency = 0.0;
-	lowpasssamplerate = samplerate;
-	if (filter_offset)
 	{
-		centerFrequency = filter_offset / samplerate;
-		cutOffFrequency = (band_width + filter_offset) / samplerate;
-		filtertype = LIQUID_IIRDES_BANDPASS;
+		iirfilt_crcf_destroy(lowPassAudioFilterHandle);
+		lowPassAudioFilterHandle = nullptr;
 	}
 
-	lowPassAudioFilterHandle = iirfilt_crcf_create_prototype((liquid_iirdes_filtertype)filter_type.load(), (liquid_iirdes_bandtype)filtertype, LIQUID_IIRDES_SOS, filter_order.load(), cutOffFrequency, centerFrequency, 0.1f, 60.0f);
-	iirfilt_crcf_print(lowPassAudioFilterHandle);
+	if (filter_type.load() <= (int)LIQUID_IIRDES_CHEBY2)
+	{
+		int filtertype = LIQUID_IIRDES_LOWPASS;
+		float cutOffFrequency = band_width / samplerate;
+		float centerFrequency = 0.0;
+		lowpasssamplerate = samplerate;
+		if (filter_offset)
+		{
+			centerFrequency = filter_offset / samplerate;
+			cutOffFrequency = (band_width + filter_offset) / samplerate;
+			filtertype = LIQUID_IIRDES_BANDPASS;
+		}
+
+		lowPassAudioFilterHandle = iirfilt_crcf_create_prototype((liquid_iirdes_filtertype)filter_type.load(), (liquid_iirdes_bandtype)filtertype, LIQUID_IIRDES_SOS, filter_order.load(), cutOffFrequency, centerFrequency, 0.1f, 60.0f);
+		iirfilt_crcf_print(lowPassAudioFilterHandle);
+	}
+	else
+	{
+		if (lowPassParksMcClellanFilterHandle)
+		{
+			firfilt_crcf_destroy(lowPassParksMcClellanFilterHandle);
+			lowPassParksMcClellanFilterHandle = nullptr;
+		}
+		float cutOffFrequency = band_width / samplerate;
+		lowPassParksMcClellanFilterHandle = firfilt_crcf_create_firdespm(65, cutOffFrequency, 60.0f);
+		firfilt_crcf_set_scale(lowPassParksMcClellanFilterHandle, 2.0f * cutOffFrequency);
+		firfilt_crcf_print(lowPassParksMcClellanFilterHandle);
+	}
 }
 
 void Demodulator::setLowPassAudioFilterCutOffFrequency(int band_width)
@@ -646,13 +695,13 @@ void Demodulator::set_noise_filter(int noise)
 void Demodulator::set_filter_type(int type)
 {
 	filter_change = true;
-	filter_type = type;
+	filter_type.store(type);
 }
 
 void Demodulator::set_filter_offset(int offset)
 {
 	filter_change = true;
-	filter_offset = offset;
+	filter_offset.store(offset);
 }
 
 void Demodulator::set_filter_order(int order)

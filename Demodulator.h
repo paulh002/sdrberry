@@ -120,6 +120,7 @@ class Demodulator
 
 	iirfilt_crcf lowPassAudioFilterHandle{nullptr};
 	firfilt_crcf dcBlockHandle{nullptr};
+	firfilt_crcf lowPassParksMcClellanFilterHandle{nullptr};
 
 	static std::atomic<bool> dcBlockSwitch;
 	static std::atomic<int> correction;

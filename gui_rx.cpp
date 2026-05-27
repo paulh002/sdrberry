@@ -298,7 +298,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_align(filter_type_dropdown, LV_ALIGN_TOP_LEFT, x_margin, y_margin + button_height_margin * 0.5);
 	lv_dropdown_clear_options(filter_type_dropdown);
 	lv_group_add_obj(button_group, filter_type_dropdown);
-	lv_dropdown_set_options(filter_type_dropdown, "Butterworth\n" "Chebyshev - 1\n" "Chebyshev - 2\n" "Elliptic");
+	lv_dropdown_set_options(filter_type_dropdown, "Butterworth\n" "Chebyshev - 1\n" "Chebyshev - 2\n" "Parks-McClellan");
 	int filter_type = Settings_file.get_int("Radio", "filter_type");
 	Demodulator::set_filter_type(filter_type);
 	lv_dropdown_set_selected(filter_type_dropdown, filter_type);

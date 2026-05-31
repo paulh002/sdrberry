@@ -46,6 +46,7 @@
 #include "gui_squelch.h"
 #include "gui_top_bar.h"
 #include "gui_tx.h"
+#include "gui_recorder.h"
 #include "i2cinput.h"
 #include "i2coutput.h"
 #include "sdrberry.h"
@@ -57,6 +58,7 @@
 #include <sys/file.h>
 #include "SecondScreen.h"
 #include "SignalStrength.h"
+
 
 const int major_version = 2;
 const int minor_version = 5;
@@ -1004,6 +1006,7 @@ int main(int argc, char *argv[])
 				gcal.SetErrorCorrelation(errorMeasurement, correlationMeasurement);
 			}
 			Gui_tx.get_measurements();
+			grecorder.set_value(floorf(audio_input->get_mic_vol()));
 		}
 
 		if (!IsDigtalMode(mode) && i2cinput::connected() && SdrDevices.get_tx_channels(default_radio) > 0 && audio_input->isStreamOpen())

@@ -34,6 +34,7 @@ class AudioInput : public RtAudio
 	audioTone tune_tone;
 	int bufferFramesSend;
 	std::atomic<bool> digitalmode, bufferempty;
+	std::atomic<float> mic_volume;
 	std::vector<float> digitalmodesignal;
 	DataBuffer<Sample> databuffer;
 	int AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
@@ -68,6 +69,7 @@ class AudioInput : public RtAudio
 	void StartDigitalMode(std::vector<float> &signal);
 	void StopDigitalMode();
 	int getbufferFrames() { return bufferFrames; }
+	float get_mic_vol();
 };
 
 extern AudioInput *audio_input;

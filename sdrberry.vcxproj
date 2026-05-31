@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="AMDemodulator.cpp" />
     <ClCompile Include="AMModulator.cpp" />
+    <ClCompile Include="audiobar.cpp" />
     <ClCompile Include="AudioInput.cpp" />
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="BandFilter.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="gui_i2c_input.cpp" />
     <ClCompile Include="gui_i2c_output.cpp" />
     <ClCompile Include="gui_preset.cpp" />
+    <ClCompile Include="gui_recorder.cpp" />
     <ClCompile Include="gui_rx.cpp" />
     <ClCompile Include="gui_sdr.cpp" />
     <ClCompile Include="gui_sdr_settings.cpp" />
@@ -172,7 +174,9 @@
     <ClCompile Include="PeakFinder.cpp" />
     <ClCompile Include="PeakLevelDetector.cpp" />
     <ClCompile Include="PeakMeasurement.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="pskreporter.cpp" />
+    <ClCompile Include="recorder.cpp" />
     <ClCompile Include="RtAudio.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
@@ -191,10 +195,13 @@
     <ClCompile Include="tempSensor.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="tz.cpp" />
+    <ClCompile Include="ui_img_indicator_hor.c" />
     <ClCompile Include="vfo.cpp" />
     <ClCompile Include="VfoKeyPad.cpp" />
     <ClCompile Include="Waterfall.cpp" />
     <ClCompile Include="wave.cpp" />
+    <ClCompile Include="WavReader.cpp" />
+    <ClCompile Include="WavWriter.cpp" />
     <ClCompile Include="WebRestHandler.cpp" />
     <ClCompile Include="WebServer.cpp" />
     <ClCompile Include="wiringPiI2C.c" />
@@ -204,6 +211,7 @@
     <ClInclude Include="AgcProcessor.h" />
     <ClInclude Include="AMDemodulator.h" />
     <ClInclude Include="AMModulator.h" />
+    <ClInclude Include="audiobar.h" />
     <ClInclude Include="AudioHeader.h" />
     <ClInclude Include="AudioInput.h" />
     <ClInclude Include="AudioOutput.h" />
@@ -263,6 +271,7 @@
     <ClInclude Include="gui_i2c_input.h" />
     <ClInclude Include="gui_i2c_output.h" />
     <ClInclude Include="gui_preset.h" />
+    <ClInclude Include="gui_recorder.h" />
     <ClInclude Include="gui_rx.h" />
     <ClInclude Include="gui_sdr.h" />
     <ClInclude Include="gui_sdr_settings.h" />
@@ -302,8 +311,10 @@
     <ClInclude Include="PeakFinder.h" />
     <ClInclude Include="PeakLevelDetector.h" />
     <ClInclude Include="PeakMeasurement.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="pskreporter.h" />
     <ClInclude Include="quick_arg_parser.hpp" />
+    <ClInclude Include="recorder.h" />
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />
     <ClInclude Include="scancodes_linux.h" />
@@ -348,6 +359,8 @@
     <ClInclude Include="VfoKeyPad.h" />
     <ClInclude Include="Waterfall.h" />
     <ClInclude Include="wave.h" />
+    <ClInclude Include="WavReader.h" />
+    <ClInclude Include="WavWriter.h" />
     <ClInclude Include="WebRestHandler.h" />
     <ClInclude Include="WebServer.h" />
     <ClInclude Include="wiringPiI2C.h" />

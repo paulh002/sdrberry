@@ -11,6 +11,7 @@
 #include <memory>
 #include "Catinterface.h"
 #include "CatTcpServer.h"
+#include "gui_recorder.h"
 
 const int micgain {100};
 
@@ -53,9 +54,10 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	tileview = lv_tileview_create(tx_tile);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
 	tx_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
-	speech_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	recorder_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	grecorder.init(recorder_tile, w);
+	speech_tile = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gspeech.init(speech_tile, w);
-	
 	
 	disabled = disable;
 	lv_style_init(&style_btn);

@@ -55,11 +55,21 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 		if (get_stereo())
 			buf.push_back(f);
 	}
+	float mic_vol = 0;
+	for (auto con : buf)
+	{
+		mic_vol += con * con;
+	}
+	mic_volume.store(mic_vol / buf.size());
 	databuffer.clear();
 	databuffer.push(std::move(buf));
 	return 0;
 }
 
+float AudioInput::get_mic_vol()
+{
+	return 20.0 * logf(mic_volume.load());
+}
 
 void AudioInput::listDevices(std::vector<std::string> &devices)
 {

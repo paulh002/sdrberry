@@ -9,7 +9,7 @@ class gui_tx
   private:
 	lv_obj_t *mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label, *drp_samplerate;
 	lv_obj_t *digital_slider, *digital_slider_label;
-	lv_obj_t *tileview, *speech_tile, *tx_tile;
+	lv_obj_t *tileview, *speech_tile, *tx_tile, *recorder_tile;
 	lv_obj_t *temp_meter;
 
 	tempMeter tempmeter;

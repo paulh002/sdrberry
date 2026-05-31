@@ -4942,6 +4942,27 @@
     <ClCompile Include="SignalStrength.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_recorder.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_img_indicator_hor.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="audiobar.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="recorder.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WavWriter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WavReader.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -5430,6 +5451,24 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="debug_print.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_recorder.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="audiobar.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="recorder.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WavWriter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WavReader.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

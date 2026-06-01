@@ -98,6 +98,7 @@
     <ClCompile Include="AudioOutput.cpp" />
     <ClCompile Include="BandFilter.cpp" />
     <ClCompile Include="BandPassFilter.cpp" />
+    <ClCompile Include="ButtonBar.cpp" />
     <ClCompile Include="Catinterface.cpp" />
     <ClCompile Include="CatTcpServer.cpp" />
     <ClCompile Include="CivetServer.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="backward.hpp" />
     <ClInclude Include="BandFilter.h" />
     <ClInclude Include="BandPassFilter.h" />
+    <ClInclude Include="ButtonBar.h" />
     <ClInclude Include="Catinterface.h" />
     <ClInclude Include="CatTcpServer.h" />
     <ClInclude Include="CivetServer.h" />

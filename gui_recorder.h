@@ -16,12 +16,14 @@ class gui_recorder
 	std::unique_ptr<SMeterFilter> smeter_filter;
 	
 	void button_handler_class(lv_event_t *e);
+	void event_handler_txbuttons_class(lv_event_t *e);
 	
   public:
 	void init(lv_obj_t *parent, lv_coord_t w);
 	void set_value(float value);
 
 	static constexpr auto button_handler = EventHandler<gui_recorder, &gui_recorder::button_handler_class>::staticHandler;
+	static constexpr auto event_handler_txbuttons = EventHandler<gui_recorder, &gui_recorder::event_handler_txbuttons_class>::staticHandler;
 };
 
 extern gui_recorder grecorder;

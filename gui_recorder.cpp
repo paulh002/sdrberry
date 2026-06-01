@@ -6,6 +6,8 @@
 #include "sdrstream.h"
 #include <iostream>
 #include <filesystem>
+#include "Spectrum.h"
+#include "audiobar.h"
 
 gui_recorder grecorder;
 
@@ -53,11 +55,13 @@ void gui_recorder::button_handler_class(lv_event_t *e)
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
+			destroy_demodulators(true, false);
 			recorder::create_recorder(audio_output, audio_input);
 		}
 		else
 		{
 			recorder::destroy_recorder();
+			select_mode(mode);
 		}
 	}
 	if (s == "M1")
@@ -110,7 +114,7 @@ void gui_recorder::init(lv_obj_t *parent, lv_coord_t w)
 	int button_height = 40;
 	int button_height_margin = button_height + y_margin;
 	int ibuttons;
-	int ibutton_x = 0, ibutton_y = 0;
+	int ibutton_x = 0, ibutton_y = 1;
 	
 	lv_obj_set_style_pad_top(parent, 10, LV_PART_MAIN);
 	lv_obj_set_style_pad_bottom(parent, 5, LV_PART_MAIN);
@@ -174,14 +178,40 @@ void gui_recorder::init(lv_obj_t *parent, lv_coord_t w)
 			ibutton_y++;
 		}
 	}
+
+	lv_obj_t *mic_label = lv_label_create(parent);
+	lv_label_set_text(mic_label, "Mic level: ");
+	lv_obj_align(mic_label, LV_ALIGN_TOP_LEFT, x_margin,0);
+	lv_obj_invalidate(parent);
 	audiobar_recording.init(parent, 7 * (LV_HOR_RES / 8), 30);
-	audiobar_recording.align(parent, LV_ALIGN_BOTTOM_MID, 0, 0);
+	audiobar_recording.align(parent, LV_ALIGN_TOP_LEFT, 100, 0);
 	audiobar_recording.SetRange(300);
 	smeter_filter = std::make_unique<SMeterFilter>(20.0f, 25.0f, 280.0f); // SSB defaults
+
+	lv_obj_t *checkbox_txbuttons = lv_checkbox_create(parent);
+	lv_group_add_obj(button_group, checkbox_txbuttons);
+	lv_checkbox_set_text(checkbox_txbuttons, "Show TX Buttons");
+	lv_obj_add_event_cb(checkbox_txbuttons, event_handler_txbuttons, LV_EVENT_ALL, (void *)this);
+	lv_obj_align(checkbox_txbuttons, LV_ALIGN_TOP_LEFT, VU_BAR_WIDTH + 100 + x_margin, 0);
+	lv_group_add_obj(button_group, checkbox_txbuttons);
+	
 }
 
 void gui_recorder::set_value(float value)
 {
 	float smoothed = smeter_filter->process(value + 350.0f);
 	audiobar_recording.value(smoothed);
+}
+
+void gui_recorder::event_handler_txbuttons_class(lv_event_t *e)
+{
+	lv_obj_t *checkbox = (lv_obj_t *)lv_event_get_target(e);
+	if (lv_obj_get_state(checkbox) & LV_STATE_CHECKED)
+	{
+		SpectrumGraph.hide_buttonbar(false);
+	}
+	else
+	{
+		SpectrumGraph.hide_buttonbar(true);
+	}
 }

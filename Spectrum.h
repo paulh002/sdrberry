@@ -88,6 +88,7 @@ class Spectrum
 	void setWaterfallSize(int waterfallsize);
 	void set_cursor_mode(int mode);
 	void set_color(int color);
+	void hide_buttonbar(bool hide);
 
 	static constexpr auto draw_event_cb = EventHandler<Spectrum, &Spectrum::draw_event_cb_class>::staticHandler;
 	static constexpr auto pressing_event_cb = EventHandler<Spectrum, &Spectrum::pressing_event_cb_class>::staticHandler;

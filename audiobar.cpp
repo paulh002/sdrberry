@@ -1,6 +1,5 @@
 #include "audiobar.h"
 
-
 LV_IMG_DECLARE(ui_img_indicator_hor); // assets\indicator_hor.png
 
 void audiobar::init(lv_obj_t *parent, lv_coord_t w, lv_coord_t h)
@@ -9,8 +8,8 @@ void audiobar::init(lv_obj_t *parent, lv_coord_t w, lv_coord_t h)
 	lv_slider_set_value(bar, 25, LV_ANIM_OFF);
 	if (lv_slider_get_mode(bar) == LV_SLIDER_MODE_RANGE)
 		lv_slider_set_left_value(bar, 0, LV_ANIM_OFF);
-	lv_obj_set_width(bar, 290);
-	lv_obj_set_height(bar, 30);
+	lv_obj_set_width(bar, VU_BAR_WIDTH);
+	lv_obj_set_height(bar, VU_BAR_HEIGHT);
 	lv_obj_set_x(bar, lv_pct(1));
 	lv_obj_set_y(bar, lv_pct(14));
 	lv_obj_set_align(bar, LV_ALIGN_CENTER);

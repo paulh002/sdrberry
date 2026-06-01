@@ -24,6 +24,7 @@
 #include "screen.h"
 #include "SharedQueue.h"
 #include "debug_print.h"
+#include "ButtonBar.h"
 
 Spectrum SpectrumGraph;
 int nfft_samples{1240};
@@ -406,6 +407,7 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 		data_set_peak.push_back(0);
 		data_set_nonfiltered.push_back(0);
 	}
+	
 	lv_chart_set_point_count(chart, data_set.size());
 	lv_chart_set_ext_y_array(chart, ser, (lv_coord_t *)data_set.data());
 	avg_filter.resize(nfft_samples);
@@ -416,6 +418,8 @@ void Spectrum::init(lv_obj_t *scr, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_
 	}
 	SetFftParts();
 	enable_processing = true; // saveguard race condition
+
+	buttonbar.init(scr, mode, LV_HOR_RES - 3, tabHeight - 2 * buttonHeight);
 }
 
 void Spectrum::set_color(int spectrum_color)
@@ -861,4 +865,9 @@ void Spectrum::draw_marker_label(lv_chart_cursor_t *cursor, lv_draw_task_t *draw
 	a.y1 += 5;
 	a.y2 -= 5;
 	lv_draw_label(base_dsc->layer, &draw_label_dsc, &a);
+}
+
+void Spectrum::hide_buttonbar(bool hide)
+{
+	buttonbar.hide_buttonbar(hide);
 }

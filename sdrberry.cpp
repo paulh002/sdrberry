@@ -58,7 +58,7 @@
 #include <sys/file.h>
 #include "SecondScreen.h"
 #include "SignalStrength.h"
-
+#include "ButtonBar.h"
 
 const int major_version = 2;
 const int minor_version = 5;

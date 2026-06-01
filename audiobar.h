@@ -1,6 +1,9 @@
 #pragma once
 #include "lvgl.h"
 
+#define VU_BAR_WIDTH 290
+#define VU_BAR_HEIGHT 30
+
 class audiobar
 {
   protected:

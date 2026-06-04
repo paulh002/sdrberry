@@ -152,7 +152,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_add_event_cb(tune_slider, tune_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	tune_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(tune_slider_label, tune_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	set_tune_slider(Settings_file.get_int(default_radio, "tunegain", 92));
+	set_tune_slider(Settings_file.get_int(default_radio, "tunegain", 74));
 	lv_group_add_obj(m_button_group, tune_slider);
 	
 	drv_slider = lv_slider_create(tx_tile);

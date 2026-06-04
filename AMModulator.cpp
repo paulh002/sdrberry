@@ -53,6 +53,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	int						suppressed_carrier;
 
 	digitalmode = false;
+	audio_file_mode = false;
 	switch (param.mode)
 	{
 	case mode_ft4:
@@ -99,6 +100,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		return;
 	}
 	audio_input->set_tone(param.tone);
+	play_prerecorded_file = param.play_prerecorded_file;
 	if ((param.ifrate - audio_input->get_samplerate()) > 0.1)
 	{
 		float sample_ratio;
@@ -124,7 +126,7 @@ void AMModulator::operator()()
 	
 	unsigned int            fft_block = 0;
 	bool                    inbuf_length_warning = false;
-	SampleVector            audiosamples;
+	SampleVector            audiosamples, buf_out;
 	IQSampleVector			samples_out, samples_in;
 	AudioProcessor			Speech;
 	IQGenerator IqGenerator(ifrate, audioInputBuffer);
@@ -134,6 +136,18 @@ void AMModulator::operator()()
 	Speech.setRatio(gspeech.get_ratio());
 	tune_offset(vfo.get_vfo_offset_tx());
 	audioInputBuffer->clear();
+	if (play_prerecorded_file.size() > 0)
+	{
+		if (!wavereader.open(play_prerecorded_file))
+		{
+			printf("Audio file not found\n");
+			return;
+		}
+		std::cout << "Audio file sample Rate: " << wavereader.getSampleRate() << " Hz\n";
+		std::cout << "Audio file total Samples: " << wavereader.getTotalSamples() << "\n";
+		audio_file_mode = true;
+	}
+	
 	if (digitalmode)
 	{
 		audioInputBuffer->clear();
@@ -155,9 +169,24 @@ void AMModulator::operator()()
 			audioInputBuffer->StopDigitalMode();
 		}
 
-		if (!audioInputBuffer->read(audiosamples))
-			continue;
-		
+		if (audio_file_mode)
+		{
+			audioInputBuffer->read(audiosamples);
+			audiosamples.clear();
+			if (!wavereader.readChunk(audiosamples, audio_input->getbufferFrames()))
+				stop_flag = true;
+			if (wavereader.isEOF())
+				stop_flag = true;
+			buf_out.clear();
+			audio_output->adjust_gain(audiosamples, buf_out);
+			audio_output->writeSamples(buf_out);
+		}
+		else
+		{
+			if (!audioInputBuffer->read(audiosamples))
+				continue;
+		}
+
 		if (gspeech.get_speech_mode() && !digitalmode)
 		{
 			Speech.setRelease(gspeech.get_release());
@@ -193,7 +222,11 @@ void AMModulator::operator()()
 	}
 	transmitIQBuffer->clear();
 	transmitIQBuffer->push_end();
-	
+	if (audio_file_mode)
+	{
+		wavereader.close();
+		guiQueue.push_back(GuiMessage(GuiMessage::action::receive, 0));
+	}
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	time_t tt = std::chrono::system_clock::to_time_t(now);
 	tm local_tm = *localtime(&tt);

@@ -35,6 +35,7 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 {
 	if (status)
 		std::cout << "Stream overflow detected!" << std::endl;
+	
 	if (get_tone())
 	{
 		ToneBuffer();

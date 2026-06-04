@@ -61,7 +61,7 @@
 #include "ButtonBar.h"
 
 const int major_version = 2;
-const int minor_version = 5;
+const int minor_version = 6;
 const int patch_version = 0;
 
 std::string version_string = strlib::sprintf("%d.%d.%d", major_version, minor_version, patch_version);
@@ -1051,6 +1051,12 @@ int main(int argc, char *argv[])
 			GuiMessage msg = guiQueue.front();
 			switch (msg.message)
 			{
+			case GuiMessage::receive: {
+				select_mode(mode);
+				buttonbar.reset_buttonbar();
+				break;
+			}
+	
 			case GuiMessage::setvfo_a: {
 				gbar.set_vfo(vfo_activevfo::One);
 				process_vfo_message(msg);
@@ -1500,7 +1506,7 @@ void select_mode(int s_mode, bool bvfo, int channel)
 	cattcpserver.Pause_Cat(false);
 }
 
-bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
+bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel, std::string play_prerecorded_file)
 {
 	ModulatorParameters param{};
 
@@ -1566,6 +1572,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel)
 		param.mode = mode;
 		param.tone = tone;
 		param.ifrate = ifrate_tx;
+		param.play_prerecorded_file = play_prerecorded_file;
 		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 		break;

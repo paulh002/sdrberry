@@ -110,8 +110,9 @@ class GuiMessage
 		setmode_vfo_b,
 		rit_onoff,
 		rit_delta,
-		split_onoff
-	} ;
+		split_onoff,
+		receive,
+	};
 
 	GuiMessage(action guiaction, int guiData)
 		: message (guiaction), data (guiData) {}

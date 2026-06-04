@@ -209,6 +209,7 @@ void AudioOutput::adjust_gain(SampleVector& samples)
 void AudioOutput::adjust_gain(SampleVector &samples_in, SampleVector &samples_out)
 {
 	float gain = volume.load();
+	samples_out.clear();
 	for (auto sample  : samples_in)
 	{
 		samples_out.push_back(gain * sample);

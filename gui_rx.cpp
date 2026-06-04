@@ -125,7 +125,15 @@ void gui_rx::filter_type_handler_cb_class(lv_event_t *e)
 		Settings_file.save_int("Radio", "filter_type", filter_type);
 		Settings_file.write_settings();
 		Demodulator::set_filter_type(filter_type);
+		gbar.set_filter_dropdown(gbar.get_filter_frequency());
 	}
+}
+
+bool gui_rx::get_filter_type_fir()
+{
+	if (lv_dropdown_get_selected(filter_type_dropdown) > 2)
+		return true;
+	return false;
 }
 
 void gui_rx::filter_slider_event_cb_class(lv_event_t *e)

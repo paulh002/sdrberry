@@ -48,7 +48,7 @@ class gui_bar
 	void gain_slider_event_class(lv_event_t *e);
 	void if_slider_event_class(lv_event_t *e);
 	void vol_slider_event_class(lv_event_t *e);
-	void filter_slider_event_class(lv_event_t *e);
+	void filter_slider_and_button_event_class(lv_event_t *e);
 	
   public:
 	gui_bar();
@@ -58,7 +58,7 @@ class gui_bar
 	static constexpr auto gain_slider_event_cb = EventHandler<gui_bar, &gui_bar::gain_slider_event_class>::staticHandler;
 	static constexpr auto if_slider_event_cb = EventHandler<gui_bar, &gui_bar::if_slider_event_class>::staticHandler;
 	static constexpr auto vol_slider_event_cb = EventHandler<gui_bar, &gui_bar::vol_slider_event_class>::staticHandler;
-	static constexpr auto filter_slider_event_cb = EventHandler<gui_bar, &gui_bar::filter_slider_event_class>::staticHandler;
+	static constexpr auto filter_slider_event_cb = EventHandler<gui_bar, &gui_bar::gui_bar::filter_slider_and_button_event_class>::staticHandler;
 
 	void updateweb();
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
@@ -109,6 +109,7 @@ class gui_bar
 	void step_button_next(int step);
 	void set_vfo_split(int split_onoff);
 	void enable_digital_mode(bool enable);
+	int get_filter_frequency();
 
 	lv_obj_t *get_button_obj(int i)
 	{

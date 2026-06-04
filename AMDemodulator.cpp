@@ -147,6 +147,7 @@ void AMDemodulator::operator()()
 	audioOutputBuffer->clear_underrun();
 	lowPassAudioFilterCutOffFrequency = get_lowPassAudioFilterCutOffFrequency();
 	CreateSquelch(StreamMode::RRRF);
+
 	while (!stop_flag.load())
 	{
 		start1 = std::chrono::high_resolution_clock::now();

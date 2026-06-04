@@ -15,6 +15,7 @@ struct ModulatorParameters
 	int timeslotTensofSec;
 	std::vector<float> signal;
 	int rxChannel, txChannel;
+	std::string play_prerecorded_file;
 };
 
 class DigitalTransmission

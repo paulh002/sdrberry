@@ -191,10 +191,15 @@ void gui_recorder::init(lv_obj_t *parent, lv_coord_t w)
 	lv_obj_t *checkbox_txbuttons = lv_checkbox_create(parent);
 	lv_group_add_obj(button_group, checkbox_txbuttons);
 	lv_checkbox_set_text(checkbox_txbuttons, "Show TX Buttons");
-	lv_obj_add_event_cb(checkbox_txbuttons, event_handler_txbuttons, LV_EVENT_ALL, (void *)this);
+	lv_obj_add_event_cb(checkbox_txbuttons, event_handler_txbuttons, LV_EVENT_CLICKED, (void *)this);
 	lv_obj_align(checkbox_txbuttons, LV_ALIGN_TOP_LEFT, VU_BAR_WIDTH + 100 + x_margin, 0);
 	lv_group_add_obj(button_group, checkbox_txbuttons);
-	
+
+	if (Settings_file.get_int("Radio", "TXButtons", 0))
+	{
+		lv_obj_add_state(checkbox_txbuttons, LV_STATE_CHECKED);
+		SpectrumGraph.hide_buttonbar(false);
+	}
 }
 
 void gui_recorder::set_value(float value)
@@ -206,12 +211,21 @@ void gui_recorder::set_value(float value)
 void gui_recorder::event_handler_txbuttons_class(lv_event_t *e)
 {
 	lv_obj_t *checkbox = (lv_obj_t *)lv_event_get_target(e);
-	if (lv_obj_get_state(checkbox) & LV_STATE_CHECKED)
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+
+	if (code == LV_EVENT_CLICKED)
 	{
-		SpectrumGraph.hide_buttonbar(false);
-	}
-	else
-	{
-		SpectrumGraph.hide_buttonbar(true);
+		if (lv_obj_get_state(checkbox) & LV_STATE_CHECKED)
+		{
+			SpectrumGraph.hide_buttonbar(false);
+			Settings_file.save_int("Radio", "TXButtons", 1);
+		}
+		else
+		{
+			SpectrumGraph.hide_buttonbar(true);
+			Settings_file.save_int("Radio", "TXButtons", 0);
+		}
+		Settings_file.write_settings();
 	}
 }

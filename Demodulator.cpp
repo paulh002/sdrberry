@@ -577,6 +577,8 @@ void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 			lowPassParksMcClellanFilterHandle = nullptr;
 		}
 		float cutOffFrequency = band_width / samplerate;
+		if (band_width < 500)
+			cutOffFrequency = 500.0 / samplerate;;
 		lowPassParksMcClellanFilterHandle = firfilt_crcf_create_firdespm(248, cutOffFrequency, 60.0f);
 		firfilt_crcf_set_scale(lowPassParksMcClellanFilterHandle, 2.0f * cutOffFrequency);
 		firfilt_crcf_print(lowPassParksMcClellanFilterHandle);

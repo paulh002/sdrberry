@@ -1,6 +1,9 @@
 #include "ButtonBar.h"
 #include "screen.h"
 #include <cstring>
+#include "sdrberry.h"
+#include <format>
+#include <filesystem>
 
 ButtonBar buttonbar;
 
@@ -14,7 +17,6 @@ void ButtonBar::init(lv_obj_t *parent,  int mode, lv_coord_t w, lv_coord_t h)
 	const int slide_max_rows = 3;
 	const lv_coord_t tab_margin = w / 3;
 	const int cw_margin = 20;
-	const int number_of_buttons = 4;
 
 	int button_width_margin = ((w - tab_margin) / (x_number_buttons + 1));
 	int button_width = ((w - tab_margin) / (x_number_buttons + 1)) - x_margin;
@@ -65,9 +67,9 @@ void ButtonBar::init(lv_obj_t *parent,  int mode, lv_coord_t w, lv_coord_t h)
 		buttons[i] = lv_btn_create(buttonbar);
 		lv_group_add_obj(button_group, buttons[i]);
 		lv_obj_add_style(buttons[i], &style_btn, 0);
-		//lv_obj_add_event_cb(buttons[i], buttons_handler, LV_EVENT_CLICKED, (void *)this);
+		lv_obj_add_event_cb(buttons[i], buttons_handler_cb, LV_EVENT_CLICKED, (void *)this);
 		lv_obj_align(buttons[i], LV_ALIGN_TOP_LEFT, ibutton_x * button_width_margin, ibutton_y * button_height_margin);
-		// lv_obj_add_flag(button[i], LV_OBJ_FLAG_CHECKABLE);
+		lv_obj_add_flag(buttons[i], LV_OBJ_FLAG_CHECKABLE);
 		lv_obj_set_size(buttons[i], button_width, button_height);
 		width += button_width_margin;
 		lv_obj_t *lv_label = lv_label_create(buttons[i]);
@@ -107,4 +109,54 @@ void ButtonBar::hide_buttonbar(bool enable)
 		lv_obj_add_flag(buttonbar, LV_OBJ_FLAG_HIDDEN);
 	else
 		lv_obj_clear_flag(buttonbar, LV_OBJ_FLAG_HIDDEN);
+}
+
+void ButtonBar::reset_buttonbar()
+{
+	for (int i = 0; i < number_of_buttons; i++)
+		lv_obj_clear_state(buttons[i], LV_STATE_CHECKED);
+}
+
+void ButtonBar::bar_handler_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	
+	if (code == LV_EVENT_CLICKED)
+	{
+		if (!IsDigtalMode(mode))
+		{
+			for (int i = 0; i < number_of_buttons; i++)
+			{ // stop tx when a call is on-going and a button is clicked
+				if ((lv_obj_get_state(buttons[i]) & LV_STATE_CHECKED) && buttons[i] != obj)
+				{
+					select_mode(mode);
+					lv_obj_remove_state(buttons[i], LV_STATE_CHECKED);
+				}
+			}
+			if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
+			{
+				int j = 0;
+				for (int i = 0; i < number_of_buttons; i++)
+				{
+					if (buttons[i] == obj)
+						j = i + 1;
+				}
+				std::string filename = std::format("m{}.wav", j);
+				if (std::filesystem::exists(filename))
+				{
+					if (!select_mode_tx(mode, audioTone::NoTone, TX_MAN, 0, filename))
+						lv_obj_clear_state(obj, LV_STATE_CHECKED);
+				}
+				else
+				{
+					lv_obj_clear_state(obj, LV_STATE_CHECKED);
+				}
+			}
+			else
+			{
+				select_mode(mode);
+			}
+		}
+	}
 }

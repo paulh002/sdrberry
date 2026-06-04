@@ -47,6 +47,8 @@ private:
 	int get_spectrumgain() { return spectrumgain; }
 	void enable_filter_settings(bool enable);
 	void set_filter_order_handler(bool reset);
+	int get_filter_type();
+	bool get_filter_type_fir();
 
 	static constexpr auto event_handler_morse = EventHandler<gui_rx, &gui_rx::event_handler_morse_class>::staticHandler;
 	static constexpr auto noise_handler = EventHandler<gui_rx, &gui_rx::noise_handler_class>::staticHandler;

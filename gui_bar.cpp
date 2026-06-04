@@ -25,8 +25,9 @@ const int buttonrit = 7;
 const int buttonmarker = 8;
 const int button_filter = 9;
 
-
-static const char *opts = "0.5 Kc\n"
+static const char *opts = "0.1 Kc\n"
+						  "0.25 Kc\n"
+						  "0.5 Kc\n"
 						  "1.0 Kc\n"
 						  "1.5 Kc\n"
 						  "2.0 Kc\n"
@@ -41,8 +42,8 @@ std::vector<std::string> stepsTypes{"1 Hz", "10 Hz", "50 Hz", "100 Hz", "250 Hz"
 									"2.5 kHz", "3.125 kHz", "5 kHz", "6.25 kHz", "7.5 kHz", "8.33 kHz",
 									"9 kHz", "10 kHz", "12.5 kHz", "15 kHz", "20 kHz", "25 kHz", "50 kHz", "100 kHz", "200 kHz"};
 std::vector<int> stepsValues{1, 10, 50, 100, 250, 500, 1000,2500, 3125, 5000, 6250, 7500, 8330, 9000, 10000, 12500, 15000, 20000, 25000, 50000, 100000, 200000};
-std::vector<std::string> FilterTypes{"0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz", "11.0 Khz", "16.0 Khz"};
-std::vector<int> FilterValues{500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 11000, 16000};
+std::vector<std::string> FilterTypes{"0.1 Khz", "0.25 Khz", "0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz", "11.0 Khz", "16.0 Khz"};
+std::vector<int> FilterValues{100, 250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 11000, 16000};
 std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM", "FT8", "FT4", "WSPR"};
 std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm, mode_ft8, mode_ft4, mode_wspr};
 std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
@@ -77,7 +78,13 @@ void gui_bar::web_filterfreq()
 {
 	json result = json::array();
 	json message;
-	
+
+	message.emplace("frequency", "0.1 Khz");
+	result.push_back(message);
+	message.clear();
+	message.emplace("frequency", "0.25 Khz");
+	result.push_back(message);
+	message.clear();
 	message.emplace("frequency", "0.5 Khz");
 	result.push_back(message);
 	message.clear();
@@ -563,7 +570,7 @@ void gui_bar::set_gain_slider(int gain, bool web)
 	}
 }
 
-void gui_bar::filter_slider_event_class(lv_event_t *e)
+void gui_bar::filter_slider_and_button_event_class(lv_event_t *e)
 {
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	lv_event_code_t code = lv_event_get_code(e);
@@ -574,6 +581,11 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 		{
 
 			int sel = lv_dropdown_get_selected(obj);
+			if (guirx.get_filter_type_fir() && sel < 2)
+			{
+				sel = 2;
+				lv_dropdown_set_selected(button[button_filter], sel);
+			}
 			catinterface.SetNA(sel);
 			cattcpserver.SetNA(sel);
 			update_filter(ifilters.at(sel));
@@ -588,7 +600,7 @@ void gui_bar::filter_slider_event_class(lv_event_t *e)
 		}
 		else
 		{
-			lv_dropdown_set_selected(obj,7);
+			lv_dropdown_set_selected(obj,9);
 		}
 	}
 }
@@ -629,6 +641,8 @@ void gui_bar::init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_co
 	int slider_height_margin = h / slide_max_rows - y_margin;
 	int button_width_dropdown = button_width;
 
+	ifilters.push_back(100);
+	ifilters.push_back(250);
 	ifilters.push_back(500);
 	ifilters.push_back(1000);
 	ifilters.push_back(1500);
@@ -995,16 +1009,10 @@ void gui_bar::set_if(int ifg, bool web)
 
 void gui_bar::get_filter_range(std::vector<std::string> &filters)
 {
-	filters.push_back("0.5 Khz");
-	filters.push_back("1 Khz");
-	filters.push_back("1.5 Khz");
-	filters.push_back("2 Khz");
-	filters.push_back("2.5 Khz");
-	filters.push_back("3 Khz");
-	filters.push_back("3.5 Khz");
-	filters.push_back("4 Khz");
-	filters.push_back("11 Khz");
-	filters.push_back("16 Khz");
+	for (const auto &filter : FilterTypes)
+	{
+		filters.push_back(filter);
+	}
 }
 
 void gui_bar::hide(bool hide)
@@ -1069,34 +1077,42 @@ void gui_bar::set_filter_dropdown(int ifilter)
 {
 	int filter = 7;
 
-	if (ifilter < 500 || ifilter > 110000)
+	if (ifilter < 100 || ifilter > 110000)
 	{
 		printf("set filter out of range %d\n", ifilter);
 		return;
 	}
-	if (ifilter >= 500 && ifilter < 1000)
+	if (guirx.get_filter_type_fir() && ifilter < 500)
+	{
+		ifilter = 500;
+	}
+	if (ifilter >= 100 && ifilter < 250)
 		filter = 0;
-	if (ifilter >= 1000 && ifilter < 1500)
+	if (ifilter >= 250 && ifilter < 500)
 		filter = 1;
-	if (ifilter >= 1500 && ifilter < 2000)
+	if (ifilter >= 500 && ifilter < 1000)
 		filter = 2;
-	if (ifilter >= 2000 && ifilter < 2500)
+	if (ifilter >= 1000 && ifilter < 1500)
 		filter = 3;
-	if (ifilter >= 2500 && ifilter < 3000)
+	if (ifilter >= 1500 && ifilter < 2000)
 		filter = 4;
-	if (ifilter >= 3000 && ifilter < 3500)
+	if (ifilter >= 2000 && ifilter < 2500)
 		filter = 5;
-	if (ifilter >= 3500 && ifilter < 4000)
+	if (ifilter >= 2500 && ifilter < 3000)
 		filter = 6;
-	if (ifilter >= 4000 && ifilter < 11000)
+	if (ifilter >= 3000 && ifilter < 3500)
 		filter = 7;
-	if (ifilter >= 11000 && ifilter < 16000)
+	if (ifilter >= 3500 && ifilter < 4000)
 		filter = 8;
+	if (ifilter >= 4000 && ifilter < 11000)
+		filter = 9;
+	if (ifilter >= 11000 && ifilter < 16000)
+		filter = 10;
 	if (ifilter >= 16000)
-		filter = 9;
+		filter = 10;
 
-	if (filter < 0 || filter > 9)
-		filter = 9;
+	if (filter < 0 || filter > 10)
+		filter = 10;
 	lv_dropdown_set_selected(button[button_filter], filter);
 	update_filter(ifilters[filter]);
 	catinterface.SetNA(filter);
@@ -1109,6 +1125,12 @@ void gui_bar::set_filter_dropdown(int ifilter)
 	updateweb();
 }
 
+int gui_bar::get_filter_frequency()
+{
+	int sel = lv_dropdown_get_selected(button[button_filter]);
+	return FilterValues.at(sel);
+}
+	
 void gui_bar::set_filter_number(int sel)
 {
 	if (sel < 0 || sel >= FilterValues.size())

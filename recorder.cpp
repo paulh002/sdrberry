@@ -8,7 +8,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <string>
-
+#include "Catinterface.h"
+#include "CatTcpServer.h"
+#include "gui_bar.h"
 
 static std::shared_ptr<recorder> sp_recorder;
 
@@ -18,6 +20,7 @@ bool recorder::create_recorder(AudioOutput *audio_output, AudioInput *audio_inpu
 {
 	if (sp_recorder != nullptr)
 		return false;
+	gbar.enable_digital_mode(true);
 	sp_recorder = std::make_shared<recorder>(audio_output, audio_input);
 	sp_recorder->recorder_thread = std::thread(&recorder::operator(), sp_recorder);
 	return true;
@@ -30,6 +33,7 @@ void recorder::destroy_recorder()
 	sp_recorder->stop_flag = true;
 	sp_recorder->recorder_thread.join();
 	sp_recorder.reset();
+	gbar.enable_digital_mode(false);
 }
 
 recorder::recorder(AudioOutput *audio_ouput, AudioInput *audio_input)
@@ -51,6 +55,9 @@ void recorder::operator()()
 	AudioProcessor Speech;
 	WavWriter WavWriterOut;
 
+	catinterface.Pause_Cat(true);
+	cattcpserver.Pause_Cat(true);
+	
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gspeech.get_threshold());
 	Speech.setRatio(gspeech.get_ratio());
@@ -86,5 +93,7 @@ void recorder::operator()()
 		}
 	}
 	WavWriterOut.close();
+	catinterface.Pause_Cat(false);
+	cattcpserver.Pause_Cat(false);
 	printf("exit recorder\n");
 }

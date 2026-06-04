@@ -1054,6 +1054,7 @@ int main(int argc, char *argv[])
 			case GuiMessage::receive: {
 				select_mode(mode);
 				buttonbar.reset_buttonbar();
+				gbar.enable_digital_mode(false);
 				break;
 			}
 	

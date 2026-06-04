@@ -9,6 +9,7 @@
 #include "Spectrum.h"
 #include "audiobar.h"
 
+
 gui_recorder grecorder;
 
 namespace fs = std::filesystem;

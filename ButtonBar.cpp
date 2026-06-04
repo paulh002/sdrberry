@@ -4,6 +4,9 @@
 #include "sdrberry.h"
 #include <format>
 #include <filesystem>
+#include "Catinterface.h"
+#include "CatTcpServer.h"
+#include "gui_bar.h"
 
 ButtonBar buttonbar;
 
@@ -147,6 +150,9 @@ void ButtonBar::bar_handler_class(lv_event_t *e)
 				{
 					if (!select_mode_tx(mode, audioTone::NoTone, TX_MAN, 0, filename))
 						lv_obj_clear_state(obj, LV_STATE_CHECKED);
+					gbar.enable_digital_mode(true);
+					catinterface.Pause_Cat(true);
+					cattcpserver.Pause_Cat(true);
 				}
 				else
 				{

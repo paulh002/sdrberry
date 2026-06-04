@@ -8,7 +8,7 @@ class gui_tx
 {
   private:
 	lv_obj_t *mic_slider_label, *mic_slider, *drv_slider, *drv_slider_label, *drp_samplerate;
-	lv_obj_t *digital_slider, *digital_slider_label;
+	lv_obj_t *digital_slider, *digital_slider_label, *tune_slider, *tune_slider_label;
 	lv_obj_t *tileview, *speech_tile, *tx_tile, *recorder_tile;
 	lv_obj_t *temp_meter;
 
@@ -29,10 +29,12 @@ class gui_tx
 	void tx_button_handler_class(lv_event_t *e);
 	void drv_slider_event_cb_class(lv_event_t *e);
 	void digital_slider_event_cb_class(lv_event_t *e);
-	
+	void tune_slider_event_cb_class(lv_event_t *e);
+
   public:
 	void gui_tx_init(lv_obj_t *o_tab, lv_coord_t w, bool disable);
 	void set_mic_slider(int volume);
+	void set_tune_slider(int volume);
 	void set_digital_slider(int volume);
 	void set_drv_slider(int drive);
 	void set_drv_range();
@@ -51,6 +53,7 @@ class gui_tx
 	static constexpr auto tx_button_handler = EventHandler<gui_tx, &gui_tx::tx_button_handler_class>::staticHandler;
 	static constexpr auto drv_slider_event_cb = EventHandler<gui_tx, &gui_tx::drv_slider_event_cb_class>::staticHandler;
 	static constexpr auto digital_slider_event_cb = EventHandler<gui_tx, &gui_tx::digital_slider_event_cb_class>::staticHandler;
+	static constexpr auto tune_slider_event_cb = EventHandler<gui_tx, &gui_tx::tune_slider_event_cb_class>::staticHandler;
 };
 
 extern gui_tx	Gui_tx;

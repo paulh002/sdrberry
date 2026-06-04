@@ -25,7 +25,7 @@ class AudioInput : public RtAudio
 	RtAudio::DeviceInfo info;
 	unsigned int sampleRate;
 	unsigned int bufferFrames;
-	float volume, digitalvolume;
+	float volume, digitalvolume, tone_volume;
 	std::string error;
 	long asteps;
 	bool stereo;
@@ -52,6 +52,7 @@ class AudioInput : public RtAudio
 	float get_volume() { return volume; }
 	void set_volume(int vol);
 	void set_digital_volume(int vol);
+	void set_tone_volume(int vol);
 	void ToneBuffer();
 	bool get_stereo() { return stereo; };
 	int queued_samples();

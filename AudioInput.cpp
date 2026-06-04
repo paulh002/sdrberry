@@ -182,12 +182,24 @@ void AudioInput::set_digital_volume(int vol)
 	digitalvolume = expf(((float)vol * 6.908) / 100.0) / 1000.0;
 }
 
+void AudioInput::set_tone_volume(int vol)
+{
+	// log volume
+	tone_volume = expf(((float)vol * 6.908) / 100.0) / 100.0;
+
+}
+
 void AudioInput::adjust_gain(SampleVector& samples)
 {
-	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
+	for (unsigned int i = 0, n = samples.size(); i < n; i++) 
+	{
 		if (digitalmode)
 		{
 			samples[i] *= digitalvolume;
+		}
+		else if (get_tone())
+		{
+			samples[i] *= tone_volume;
 		}
 		else
 		{

@@ -56,6 +56,27 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	mic_gain_map = Settings_file.get_map_string("TX", "micgain");
 	digital_gain_map = Settings_file.get_map_string("TX", "digitalgain");
 
+	if (tune_map.empty())
+	{
+		tune_map.insert({{"10m", 76}, {"15m", 74}, {"17m", 72}, {"20m", 74}, {"30m", 74}, {"40m", 80}, {"60m", 76}, {"80m", 87}});
+		Settings_file.set_map_string("TX", "tunegain", tune_map);
+	}
+	if (drive_map.empty())
+	{
+		drive_map.insert({{"10m", 15}, {"15m", 15}, {"17m", 15}, {"20m", 15}, {"30m", 15}, {"40m", 15}, {"60m", 15}, {"80m", 15}});
+		Settings_file.set_map_string("TX", "drive", drive_map);
+	}
+	if (mic_gain_map.empty())
+	{
+		mic_gain_map.insert({{"10m", 93}, {"15m", 93}, {"17m", 93}, {"20m", 93}, {"30m", 93}, {"40m", 93}, {"60m", 93}, {"80m", 80}});
+		Settings_file.set_map_string("TX", "micgain", mic_gain_map);
+	}
+	if (digital_gain_map.empty())
+	{
+		digital_gain_map.insert({{"10m", 80}, {"15m", 80}, {"17m", 85}, {"20m", 80}, {"30m", 80}, {"40m", 71}, {"60m", 80}, {"80m", 69}});
+		Settings_file.set_map_string("TX", "digitalgain", digital_gain_map);
+	}
+
 	tileview = lv_tileview_create(tx_tile);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);

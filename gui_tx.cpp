@@ -43,7 +43,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	int button_height = 40;
+	int button_height = 50;
 	int button_height_margin = button_height + y_margin;
 
 	lv_obj_set_style_pad_top(tx_tile, 10, LV_PART_MAIN);
@@ -51,8 +51,14 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_set_style_pad_right(tx_tile, 5, LV_PART_MAIN);
 	lv_obj_set_style_pad_left(tx_tile, 5, LV_PART_MAIN);
 
+	tune_map = Settings_file.get_map_string("TX", "tunegain");
+	drive_map = Settings_file.get_map_string("TX", "drive");
+	mic_gain_map = Settings_file.get_map_string("TX", "micgain");
+	digital_gain_map = Settings_file.get_map_string("TX", "digitalgain");
+
 	tileview = lv_tileview_create(tx_tile);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
+	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	tx_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	recorder_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	grecorder.init(recorder_tile, w);
@@ -72,6 +78,9 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_style_set_outline_color(&style_btn, lv_color_black());
 	lv_style_set_outline_opa(&style_btn, 255);
 	lv_obj_clear_flag(tx_tile, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(recorder_tile, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(speech_tile, LV_OBJ_FLAG_SCROLLABLE);
+	
 	lv_coord_t		pos_x = x_margin, pos_y = y_margin;
 	int				ibutton_x = 0, ibutton_y = 0;
 	
@@ -132,7 +141,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	mic_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
+	//set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
 	lv_group_add_obj(m_button_group, mic_slider);
 
 	digital_slider = lv_slider_create(tx_tile);
@@ -142,7 +151,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_add_event_cb(digital_slider, digital_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	digital_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(digital_slider_label, digital_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	set_digital_slider(Settings_file.get_int("Radio", "digitalgain", 80));
+	//set_digital_slider(Settings_file.get_int("Radio", "digitalgain", 80));
 	lv_group_add_obj(m_button_group, digital_slider);
 
 	tune_slider = lv_slider_create(tx_tile);
@@ -152,7 +161,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_add_event_cb(tune_slider, tune_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	tune_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(tune_slider_label, tune_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	set_tune_slider(Settings_file.get_int(default_radio, "tunegain", 74));
+	//set_tune_slider(Settings_file.get_int(default_radio, "tunegain", 74));
 	lv_group_add_obj(m_button_group, tune_slider);
 	
 	drv_slider = lv_slider_create(tx_tile);
@@ -162,7 +171,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	drv_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	set_drv_slider(Settings_file.get_int(default_radio, "drive", 50));
+	//set_drv_slider(Settings_file.get_int(default_radio, "drive", 50));
 	lv_group_add_obj(m_button_group, drv_slider);
 
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
@@ -190,14 +199,11 @@ void gui_tx::get_measurements()
 void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
 {
 	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
-	char buf[30];
-	
-	sprintf(buf, "mic gain %d db", lv_slider_get_value(slider));
-	lv_label_set_text(mic_slider_label, buf);
-	if (audio_input != nullptr)
-		audio_input->set_volume(lv_slider_get_value(slider));
-	Settings_file.save_int("Radio", "micgain", lv_slider_get_value(slider));
-	Settings_file.write_settings();
+
+	set_mic_slider(lv_slider_get_value(slider));
+
+	mic_gain_map[vfo.get_active_band_meters()] = lv_slider_get_value(slider);
+	Settings_file.set_map_string("TX", "micgain", mic_gain_map);
 }
 
 void gui_tx::digital_slider_event_cb_class(lv_event_t *e)
@@ -205,6 +211,30 @@ void gui_tx::digital_slider_event_cb_class(lv_event_t *e)
 	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	set_digital_slider(lv_slider_get_value(slider));
+	digital_gain_map[vfo.get_active_band_meters()] = lv_slider_get_value(slider);
+	Settings_file.set_map_string("TX", "digitalgain", digital_gain_map);
+}
+
+void gui_tx::set_gain_sliders_band_from_config()
+{
+	int volume = 90;
+	int drive = 50;
+
+	mic_gain_map = Settings_file.get_map_string("TX", "micgain");
+	volume = mic_gain_map[vfo.get_active_band_meters()];
+	set_mic_slider(volume);
+
+	tune_map = Settings_file.get_map_string("TX", "tunegain");
+	volume = tune_map[vfo.get_active_band_meters()];
+	set_tune_slider(volume);
+
+	digital_gain_map = Settings_file.get_map_string("TX", "digitalgain");
+	volume = digital_gain_map[vfo.get_active_band_meters()];
+	set_digital_slider(volume);
+
+	drive_map = Settings_file.get_map_string("TX", "drive");
+	drive = drive_map[vfo.get_active_band_meters()];
+	set_drv_slider(drive);
 }
 
 void gui_tx::set_digital_slider(int volume)
@@ -220,8 +250,6 @@ void gui_tx::set_digital_slider(int volume)
 	lv_label_set_text(digital_slider_label, buf);
 	if (audio_input != nullptr)
 		audio_input->set_digital_volume(volume);
-	Settings_file.save_int("Radio", "digitalgain", volume);
-	Settings_file.write_settings();
 }
 
 void gui_tx::set_mic_slider(int volume)
@@ -237,8 +265,6 @@ void gui_tx::set_mic_slider(int volume)
 	lv_label_set_text(mic_slider_label, buf);
 	if (audio_input != nullptr)
 		audio_input->set_volume(volume);
-	Settings_file.save_int(default_radio, "micgain", volume);
-	Settings_file.write_settings();
 }
 
 void gui_tx::tune_slider_event_cb_class(lv_event_t *e)
@@ -246,6 +272,8 @@ void gui_tx::tune_slider_event_cb_class(lv_event_t *e)
 	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
 
 	set_tune_slider(lv_slider_get_value(slider));
+	tune_map[vfo.get_active_band_meters()] = lv_slider_get_value(slider);
+	Settings_file.set_map_string("TX", "tunegain", tune_map);
 }
 
 void gui_tx::set_tune_slider(int volume)
@@ -261,8 +289,6 @@ void gui_tx::set_tune_slider(int volume)
 	lv_label_set_text(tune_slider_label, buf);
 	if (audio_input != nullptr)
 		audio_input->set_tone_volume(volume);
-	Settings_file.save_int(default_radio, "tunegain", volume);
-	Settings_file.write_settings();
 }
 
 void gui_tx::tx_button_handler_class(lv_event_t * e)
@@ -333,8 +359,8 @@ void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 	
 	sprintf(buf, "drive %d", lv_slider_get_value(slider));
 	lv_label_set_text(drv_slider_label, buf);
-	Settings_file.save_int(default_radio, "drive", lv_slider_get_value(slider));
-	Settings_file.write_settings();
+	drive_map[vfo.get_active_band_meters()] = lv_slider_get_value(slider);
+	Settings_file.set_map_string("TX", "drive", drive_map);	
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_TX, guisdr.get_current_tx_channel(), (double)lv_slider_get_value(slider));
@@ -343,13 +369,6 @@ void gui_tx::drv_slider_event_cb_class(lv_event_t * e)
 	{
 		std::cout << e.what() << std::endl;
 	}
-}
-
-void gui_tx::step_drv_slider(int step)
-{
-	set_drv_slider(lv_slider_get_value(drv_slider) + step);
-	Settings_file.save_int(default_radio,"drive",lv_slider_get_value(drv_slider));
-	Settings_file.write_settings();
 }
 
 void gui_tx::set_drv_range()

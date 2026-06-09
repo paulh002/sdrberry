@@ -13,7 +13,7 @@ private:
 	lv_group_t* button_group{ nullptr };
 	lv_style_t style_btn;
 	const int number_of_buttons{ 5 };
-	lv_obj_t* drp_noise;
+	lv_obj_t *drp_noise, *slots_dropdown, *storeslot_button;
 	lv_obj_t *check_cw, *spectrum_hold, *spectrum_color;
 	lv_obj_t *noise_slider, *waterfall_slider;
 	lv_obj_t *filter_slider, *filter_slider_label, *filter_type_label, *filter_type_dropdown, *filter_order_dropdown;
@@ -36,6 +36,11 @@ private:
 	void smeter_delay_event_cb_class(lv_event_t *e);
 	void event_handler_color_class(lv_event_t *e);
 	void filter_order_handler_cb_class(lv_event_t *e);
+	void storeslot_button_event_cb_class(lv_event_t *e);
+	void slots_dropdown_handler_cb_class(lv_event_t *e);
+	void storeslots();
+	int get_storeslots(std::string item);
+	void set_slider_slot();
 
   public:
 	void init(lv_obj_t *o_tab, lv_coord_t w);	
@@ -63,6 +68,9 @@ private:
 	static constexpr auto smeter_delay_event_cb = EventHandler<gui_rx, &gui_rx::smeter_delay_event_cb_class>::staticHandler;
 	static constexpr auto event_handler_color = EventHandler<gui_rx, &gui_rx::event_handler_color_class>::staticHandler;
 	static constexpr auto filter_order_handler_cb = EventHandler<gui_rx, &gui_rx::filter_order_handler_cb_class>::staticHandler;
+	static constexpr auto storeslot_button_event_cb = EventHandler<gui_rx, &gui_rx::storeslot_button_event_cb_class>::staticHandler;
+	static constexpr auto slots_dropdown_handler_cb = EventHandler<gui_rx, &gui_rx::slots_dropdown_handler_cb_class>::staticHandler;
+	
 };
 
 extern gui_rx guirx;

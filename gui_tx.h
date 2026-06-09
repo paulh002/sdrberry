@@ -14,6 +14,10 @@ class gui_tx
 
 	tempMeter tempmeter;
 	std::unique_ptr<tempSensor> tempsensor;
+	std::map<std::string, int> mic_gain_map;
+	std::map<std::string, int> digital_gain_map;
+	std::map<std::string, int> tune_map;
+	std::map<std::string, int> drive_map;
 	
 	lv_style_t style_btn;
 	lv_obj_t *tx_button[10];
@@ -39,7 +43,6 @@ class gui_tx
 	void set_drv_slider(int drive);
 	void set_drv_range();
 	void add_sample_rate(int samplerate);
-	void step_drv_slider(int step);
 	void set_sample_rate(int rate);
 	void clear_sample_rate();
 	void set_group();
@@ -48,6 +51,7 @@ class gui_tx
 	void enable_tx(bool enable);
 	void get_measurements();
 	bool get_split();
+	void set_gain_sliders_band_from_config();
 
 	static constexpr auto mic_slider_event_cb = EventHandler<gui_tx, &gui_tx::mic_slider_event_cb_class>::staticHandler;
 	static constexpr auto tx_button_handler = EventHandler<gui_tx, &gui_tx::tx_button_handler_class>::staticHandler;

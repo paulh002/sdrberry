@@ -148,6 +148,7 @@ class CVfo
 	void set_ppm(int _ppm);
 	void vfo_store_freq_mode();
 	void set_non_active_vfo(long freq, int selected_vfo);
+	std::string get_active_band_meters();
 
   private:
 	struct vfo_settings_struct vfo_setting;

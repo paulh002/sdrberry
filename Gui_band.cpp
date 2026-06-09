@@ -5,6 +5,7 @@
 #include "Catinterface.h"
 #include "CatTcpServer.h"
 #include "gui_bar.h"
+#include "gui_tx.h"
 #include "vfo.h"
 #include "WebServer.h"
 #include "screen.h"
@@ -279,6 +280,8 @@ void Gui_band::band_button_class(lv_event_t *e)
 			int f_band = Settings_file.meters.at(index);
 			vfo.set_band(f_band, f_low);
 			gbar.set_mode(mode);
+			gbar.set_gain_slider_band_from_config();
+			Gui_tx.set_gain_sliders_band_from_config();
 			catinterface->SetBand(i);
 			cattcpserver->SetBand(i);
 		}

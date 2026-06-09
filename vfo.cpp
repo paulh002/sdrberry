@@ -888,3 +888,12 @@ bool CVfo::checkVfoBandRange(long freq)
 	}
 	return range;
 }
+
+std::string CVfo::get_active_band_meters()
+{
+	char str[80];
+	bands_t b = vfo_setting.bands.at(getBandIndex(vfo_setting.band[vfo_setting.active_vfo]));
+
+	std::string retstring = std::format("{}{}", b.meters, b.label);
+	return retstring;
+}

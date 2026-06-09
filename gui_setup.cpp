@@ -417,17 +417,17 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	settings_main = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 
 	if (screenWidth <= small_res)
-		settings_cal = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+		settings_cal = lv_tileview_add_tile(tileview, 0, 5, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	else
 		settings_cal = settings_main;
 
-	settings_i2c = lv_tileview_add_tile(tileview, 0, 3, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_i2c = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	i2csetup.init(settings_i2c, w, h, button_group);
 
-	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 4, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_i2c_input = lv_tileview_add_tile(tileview, 0, 3, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gui_i2cinput.init(settings_i2c_input, w, h, button_group);
 
-	settings_i2c_output = lv_tileview_add_tile(tileview, 0, 5, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	settings_i2c_output = lv_tileview_add_tile(tileview, 0, 4, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	gui_i2coutput.init(settings_i2c_output, w, h, button_group);
 
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);

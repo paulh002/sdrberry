@@ -61,8 +61,8 @@
 #include "ButtonBar.h"
 
 const int major_version = 2;
-const int minor_version = 6;
-const int patch_version = 1;
+const int minor_version = 7;
+const int patch_version = 0;
 
 std::string version_string = strlib::sprintf("%d.%d.%d", major_version, minor_version, patch_version);
 
@@ -913,6 +913,7 @@ int main(int argc, char *argv[])
 		catinterface->SetAG(Settings_file.volume());
 		gbar.set_gain_range();
 		gbar.set_gain_slider_band_from_config();
+		Gui_tx.set_gain_sliders_band_from_config();
 		vfo.set_vfo(0LL, vfo_activevfo::One);
 		try
 		{
@@ -1723,6 +1724,7 @@ void switch_sdrreceiver(std::string receiver)
 		gbar.set_gain_range();
 		guigain.reset_gains();
 		gbar.set_gain_slider_band_from_config();
+		Gui_tx.set_gain_sliders_band_from_config();
 		guift8bar.EnableButtons(false);
 		gbar.setTxButtons();
 		// vfo.set_vfo(freq, false);

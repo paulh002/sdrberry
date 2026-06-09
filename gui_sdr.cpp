@@ -191,6 +191,7 @@ void gui_sdr::init(lv_obj_t *o_tab, lv_coord_t w, lv_coord_t h)
 	lv_obj_add_event_cb(cal_ppm_dec, cal_ppm_decrement_event_cb, LV_EVENT_ALL, this);
 	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
+	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 }
 
 void gui_sdr::cal_ppm_increment_event_cb_class(lv_event_t *e)

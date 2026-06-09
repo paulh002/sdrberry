@@ -84,21 +84,6 @@ void gui_rx::waterfallsize_slider_event_class(lv_event_t *e)
 	}
 }
 
-void gui_rx::signal_strength_offset_event_class(lv_event_t *e)
-{
-	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
-	if (code == LV_EVENT_VALUE_CHANGED)
-	{
-		int signal_strength_offset = lv_slider_get_value(obj);
-		std::string buf = strlib::sprintf("s meter offset %d", signal_strength_offset);
-		lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
-		Settings_file.save_int("Radio", "s-meter-offset", signal_strength_offset);
-		Settings_file.write_settings();
-		signalstrength.set_signal_strength_offset((double)signal_strength_offset);
-	}
-}
-
 void gui_rx::noise_handler_class(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
@@ -247,6 +232,118 @@ void gui_rx::filter_order_handler_cb_class(lv_event_t *e)
 	}
 }
 
+void gui_rx::storeslots()
+{
+	std::vector<int> val;
+
+	uint32_t sel = lv_dropdown_get_selected(slots_dropdown);
+	Settings_file.get_array_int("RX", "s-meter-offset", val);
+	if (!val.size())
+		val.assign({100, 100, 100, 100});
+	val.at(sel) = lv_slider_get_value(signal_strength_offset_slider);
+	Settings_file.set_array_int("RX", "s-meter-offset", val);
+
+	val.clear();
+	Settings_file.get_array_int("RX", "Waterfallgain", val);
+	if (!val.size())
+		val.assign({35, 35, 35, 35});
+	val.at(sel) = lv_slider_get_value(waterfall_slider);
+	Settings_file.set_array_int("RX", "Waterfallgain", val);
+
+	val.clear();
+	Settings_file.get_array_int("RX", "Spectrumgain", val);
+	if (!val.size())
+		val.assign({0, 0, 0, 0});
+	val.at(sel) = lv_slider_get_value(spectrum_slider);
+	Settings_file.set_array_int("RX", "Spectrumgain", val);
+	Settings_file.write_settings();
+}
+
+void gui_rx::slots_dropdown_handler_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		set_slider_slot();
+		Settings_file.save_int("RX", "slot", lv_dropdown_get_selected(slots_dropdown));
+		Settings_file.write_settings();
+	}
+}
+
+int  gui_rx::get_storeslots(std::string item)
+{
+	std::vector<int> val;
+	
+	uint32_t sel = lv_dropdown_get_selected(slots_dropdown);
+	Settings_file.get_array_int("RX", item.c_str(), val);
+	if (val.size() > 0)
+		return val.at(sel);
+	return 0;
+}
+
+void gui_rx::storeslot_button_event_cb_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_CLICKED)
+	{
+		storeslots();
+	}
+}
+
+void gui_rx::set_slider_slot()
+{
+	waterfallgain = get_storeslots("Waterfallgain");
+	lv_slider_set_value(waterfall_slider, waterfallgain, LV_ANIM_OFF);
+	std::string buf = strlib::sprintf("Waterfall level %d db", lv_slider_get_value(waterfall_slider));
+	lv_label_set_text(waterfall_slider_label, buf.c_str());
+
+	spectrumgain = get_storeslots("Spectrumgain");
+	lv_slider_set_value(spectrum_slider, spectrumgain, LV_ANIM_OFF);
+	buf = strlib::sprintf("Spectrum level %d db", spectrumgain);
+	lv_label_set_text(spectrum_slider_label, buf.c_str());
+
+	int signal_strength_offset = get_storeslots("s-meter-offset");
+	lv_slider_set_value(signal_strength_offset_slider, signal_strength_offset, LV_ANIM_OFF);
+	signalstrength.set_signal_strength_offset((double)signal_strength_offset);
+	buf = strlib::sprintf("s meter offset %d", signal_strength_offset);
+	lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
+}
+
+void gui_rx::waterfall_slider_event_cb_class(lv_event_t *e)
+{
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
+
+	waterfallgain = lv_slider_get_value(slider);
+	std::string buf = strlib::sprintf("Waterfall level %d db", waterfallgain);
+	lv_label_set_text(waterfall_slider_label, buf.c_str());
+	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);	
+}
+
+void gui_rx::spectrum_slider_event_cb_class(lv_event_t *e)
+{
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
+
+	spectrumgain = lv_slider_get_value(slider);
+	std::string buf = strlib::sprintf("Spectrum level %d db", spectrumgain);
+	lv_label_set_text(spectrum_slider_label, buf.c_str());
+	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+}
+
+void gui_rx::signal_strength_offset_event_class(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		int signal_strength_offset = lv_slider_get_value(obj);
+		std::string buf = strlib::sprintf("s meter offset %d", signal_strength_offset);
+		lv_label_set_text(signal_strength_offset_slider_label, buf.c_str());
+		signalstrength.set_signal_strength_offset((double)signal_strength_offset);
+	}
+}
+
 int gui_rx::get_noise()
 {
 	return lv_dropdown_get_selected(drp_noise);
@@ -256,14 +353,14 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 {
 
 	const lv_coord_t x_margin = 10;
-	const lv_coord_t y_margin = 5;
-	const int x_number_buttons = 5;
+	const lv_coord_t y_margin = 10;
+	const int x_number_buttons = 7;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin = 20;
 
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	int button_height = 40;
+	int button_height = 50;
 	int button_height_margin = button_height + y_margin;
 	int ibutton_x = 0, ibutton_y = 0;
 	
@@ -386,7 +483,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_align(check_cw, LV_ALIGN_TOP_LEFT, x_margin, 2 * y_margin + (ibutton_y + 1) * button_height_margin);
 	lv_group_add_obj(button_group, check_cw);
 
-	waterfallgain = Settings_file.get_int("Radio", "Waterfallgain", 35);
+	waterfallgain = 35;
 	waterfall_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(waterfall_slider, w / 2 - 50);
 	lv_slider_set_range(waterfall_slider, -20, 100);
@@ -417,7 +514,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_label_set_text(waterfallsize_slider_label, buf.c_str());
 	lv_obj_align_to(waterfallsize_slider_label, waterfallsize_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
-	int signal_strength_offset = Settings_file.get_int("Radio", "s-meter-offset", 100);
+	int signal_strength_offset = 100;
 	signalstrength.set_signal_strength_offset(signal_strength_offset);
 	signal_strength_offset_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(signal_strength_offset_slider, w / 2 - 50);
@@ -445,8 +542,29 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	buf = strlib::sprintf("s meter delay %d", smeter_delay);
 	lv_label_set_text(smeter_delay_slider_label, buf.c_str());
 	lv_obj_align_to(smeter_delay_slider_label, smeter_delay_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-	
-	spectrumgain = Settings_file.get_int("Radio", "Spectrumgain", 0);
+
+	lv_obj_t *slot_label = lv_label_create(settings_tile);
+	lv_label_set_text(slot_label, "slot");
+	lv_obj_align_to(slot_label, smeter_delay_slider, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+
+	int sel = Settings_file.get_int("RX", "slot", 0);
+	slots_dropdown = lv_dropdown_create(settings_tile);
+	lv_group_add_obj(button_group, slots_dropdown);
+	lv_obj_align_to(slots_dropdown, slot_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+	lv_obj_add_event_cb(slots_dropdown, slots_dropdown_handler_cb, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_dropdown_set_options(slots_dropdown, "1\n" "2\n" "3\n" "4\n");
+	lv_dropdown_set_selected(slots_dropdown, sel);
+
+	storeslot_button = lv_btn_create(settings_tile);
+	lv_group_add_obj(button_group, storeslot_button);
+	lv_obj_add_style(storeslot_button, &style_btn, 0);
+	lv_obj_align_to(storeslot_button, slots_dropdown, LV_ALIGN_OUT_RIGHT_MID, 10, -1 * y_margin);
+	lv_obj_set_size(storeslot_button, button_width, button_height);
+	lv_obj_add_event_cb(storeslot_button, storeslot_button_event_cb, LV_EVENT_CLICKED, (void *)this);
+	lv_obj_t *lv_label = lv_label_create(storeslot_button);
+	lv_label_set_text(lv_label, "Store");
+	lv_obj_center(lv_label);
+
 	spectrum_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(spectrum_slider, w / 2 - 50);
 	lv_slider_set_range(spectrum_slider, -50, 50);
@@ -456,7 +574,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_slider_set_value(spectrum_slider, spectrumgain, LV_ANIM_OFF);
 
 	spectrum_slider_label = lv_label_create(settings_tile);
-	buf = strlib::sprintf("Spectrum level %d db", spectrumgain);
+	buf = strlib::sprintf("Spectrum level %d db", 0);
 	lv_label_set_text(spectrum_slider_label, buf.c_str());
 	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 
@@ -479,6 +597,10 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	
 	lv_group_add_obj(button_group, lv_tabview_get_tab_btns(tabview_mid));
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
+
+	int slot = Settings_file.get_int("RX", "slot", 0);
+	lv_dropdown_set_selected(slots_dropdown, slot);
+	set_slider_slot();
 }
 
 void gui_rx::enable_filter_settings(bool enable)
@@ -508,30 +630,6 @@ void gui_rx::noise_slider_event_cb_class(lv_event_t *e)
 	{
 		Demodulator::set_noise_threshold(lv_slider_get_value(slider));
 	}
-}
-
-void gui_rx::waterfall_slider_event_cb_class(lv_event_t *e)
-{
-	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
-
-	std::string buf = strlib::sprintf("Waterfall level %d db", lv_slider_get_value(slider));
-	lv_label_set_text(waterfall_slider_label, buf.c_str());
-	lv_obj_align_to(waterfall_slider_label, waterfall_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-	waterfallgain = lv_slider_get_value(slider);
-	Settings_file.save_int("Radio", "Waterfallgain", waterfallgain);
-	Settings_file.write_settings();
-}
-
-void gui_rx::spectrum_slider_event_cb_class(lv_event_t *e)
-{
-	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
-
-	std::string buf = strlib::sprintf("Spectrum level %d db", lv_slider_get_value(slider));
-	lv_label_set_text(spectrum_slider_label, buf.c_str());
-	lv_obj_align_to(spectrum_slider_label, spectrum_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
-	spectrumgain = lv_slider_get_value(slider);
-	Settings_file.save_int("Radio", "Spectrumgain", spectrumgain);
-	Settings_file.write_settings();
 }
 
 void gui_rx::event_handler_color_class(lv_event_t *e)

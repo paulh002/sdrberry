@@ -375,8 +375,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	guigain.init(gain_tile, w, screenWidth);
 	main_tile = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	settings_tile = lv_tileview_add_tile(tileview, 0, 1, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
-	
-	
+
 	lv_obj_set_style_pad_top(settings_tile, 0, LV_PART_MAIN);
 	lv_style_init(&style_btn);
 	lv_style_set_radius(&style_btn, 10);
@@ -487,7 +486,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	waterfall_slider = lv_slider_create(settings_tile);
 	lv_obj_set_width(waterfall_slider, w / 2 - 50);
 	lv_slider_set_range(waterfall_slider, -20, 100);
-	lv_obj_align(waterfall_slider, LV_ALIGN_TOP_LEFT, x_margin, 5 * y_margin);
+	lv_obj_align(waterfall_slider, LV_ALIGN_TOP_LEFT, x_margin, 3 * y_margin);
 
 	//lv_obj_align_to(waterfall_slider, noise_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
 	lv_obj_add_event_cb(waterfall_slider, waterfall_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
@@ -504,7 +503,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_set_width(waterfallsize_slider, w / 2 - 50);
 	lv_slider_set_range(waterfallsize_slider, 0, 10);
 	//lv_obj_align_to(waterfallsize_slider, waterfall_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
-	lv_obj_align(waterfallsize_slider, LV_ALIGN_TOP_RIGHT, x_margin * -2, 5 * y_margin);
+	lv_obj_align(waterfallsize_slider, LV_ALIGN_TOP_RIGHT, x_margin * -2, 3 * y_margin);
 	lv_obj_add_event_cb(waterfallsize_slider, waterfallsize_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_group_add_obj(button_group, waterfallsize_slider);
 	lv_slider_set_value(waterfallsize_slider, waterfallsize, LV_ANIM_OFF);

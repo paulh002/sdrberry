@@ -359,6 +359,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	const lv_coord_t tab_margin = 20;
 
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
+	int button_width_margin_2 = ((w - tab_margin) / 5);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
 	int button_height = 50;
 	int button_height_margin = button_height + y_margin;
@@ -407,7 +408,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	Demodulator::set_filter_type(filter_type);
 	lv_dropdown_set_selected(filter_type_dropdown, filter_type);
 	lv_obj_add_event_cb(filter_type_dropdown, filter_type_handler_cb, (lv_event_code_t)LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_obj_set_width(filter_type_dropdown, button_width_margin);
+	lv_obj_set_width(filter_type_dropdown, button_width_margin_2);
 
 	lv_obj_t *filter_order_label = lv_label_create(main_tile);
 	lv_label_set_text(filter_order_label, "Filter order");

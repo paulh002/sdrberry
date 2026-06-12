@@ -29,7 +29,7 @@ jobs:
             libboost-all-dev python3 python3-yaml libtinyxml2-dev \
             libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev \
             flex bison libavahi-client-dev libaio-dev libcurl4-openssl-dev \
-            automake autoconf
+            automake autoconf libpulse-dev
 
       # 3. Build and install liquid-dsp v1.6.0
       - name: Build and Install liquid-dsp

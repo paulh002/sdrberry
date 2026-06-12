@@ -21,11 +21,20 @@ void AudioOutput::CopyUnderrunSamples(bool copyUnderrun_)
 
 bool AudioOutput::createAudioDevice(int SampleRate, unsigned int bufferFrames, int deviceID)
 {
-	auto RtApi = RtAudio::LINUX_ALSA;
+	RtAudio::Api selectedApi = RtAudio::LINUX_PULSE;
 	std::string dev;
 	std::vector<std::string> devices;
 
-	audio_output = new AudioOutput(SampleRate,bufferFrames, RtApi);
+	std::cout << "[Audio] Testing API: " << RtAudio::getApiName(RtAudio::LINUX_PULSE) << "\n";
+	RtAudio tempAdc(RtAudio::LINUX_PULSE);
+	unsigned int tmp_devices = tempAdc.getDeviceCount();
+	if (tmp_devices == 0)
+	{
+		std::cout << "[Audio] API Error: No devices found. Pipewire may be inactive.\n";
+		selectedApi = RtAudio::LINUX_ALSA;
+	}
+
+	audio_output = new AudioOutput(SampleRate, bufferFrames, selectedApi);
 	if (audio_output)
 	{
 		if (!deviceID)

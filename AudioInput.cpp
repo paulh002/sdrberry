@@ -5,12 +5,21 @@ AudioInput *audio_input;
 
 int AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames)
 {
-	auto RtApi = RtAudio::LINUX_ALSA;
+	RtAudio::Api selectedApi = RtAudio::LINUX_PULSE;
 	int deviceID = 0;
 	struct DeviceInfo devinfo;
 	std::vector<std::string> devices;
 
-	audio_input = new AudioInput(SampleRate, bufferFrames, false, RtApi);
+	std::cout << "[Audio] Testing API: " << RtAudio::getApiName(RtAudio::LINUX_PULSE) << "\n";
+	RtAudio tempAdc(RtAudio::LINUX_PULSE);
+	unsigned int tmp_devices = tempAdc.getDeviceCount();
+	if (tmp_devices == 0)
+	{
+		std::cout << "[Audio] API Error: No devices found. Pipewire may be inactive.\n";
+		selectedApi = RtAudio::LINUX_ALSA;
+	}
+	audio_input = new AudioInput(SampleRate, bufferFrames, false, selectedApi);
+
 	if (audio_input)
 	{
 		std::string dev = Settings_file.find_audio("device");
@@ -112,6 +121,7 @@ int AudioInput::getAudioDevice(std::string device)
 		{
 			if (dev.outputChannels < parameters.nChannels)
 				parameters.nChannels = dev.outputChannels;
+			printf("Found audio input device %s default %d\n", dev.name.c_str(), dev.isDefaultInput);
 			return col;
 		}
 	}
@@ -128,6 +138,7 @@ AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool st
 	digitalmode = false;
 	bufferempty = false;
 	bufferFramesSend = 0;
+	stereo = false;
 }
 
 std::vector<RtAudio::Api> AudioInput::listApis()

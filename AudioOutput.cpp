@@ -179,14 +179,15 @@ bool AudioOutput::open(int deviceId)
 	int retry{0};
 	RtAudioErrorType err;
 	StreamOptions option{{0}, {0}, {0}, {0}};
-	option.flags = RTAUDIO_MINIMIZE_LATENCY;
+	//option.flags = RTAUDIO_MINIMIZE_LATENCY;
+	option.streamName = "Sdrberry";
 
 	parameters.deviceId = deviceId;
 	parameters.firstChannel = 0;
 	parameters.nChannels = 2;
 	info = getDeviceInfo(parameters.deviceId);
 	printf("audio output device = %d %s samplerate %d channels %d\n", parameters.deviceId, info.name.c_str(), sampleRate, parameters.nChannels);
-	err = openStream(&parameters, NULL, RTAUDIO_FLOAT32, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, NULL);
+	err = openStream(&parameters, NULL, RTAUDIO_FLOAT32, sampleRate, &bufferFrames, (RtAudioCallback)Audioout_, (void *)this, &option);
 	if (err != RTAUDIO_NO_ERROR)
 	{
 		printf("Cannot open audio output stream\n");

@@ -157,12 +157,16 @@ std::vector<RtAudio::Api> AudioInput::listApis()
 bool AudioInput::open(int deviceId)
 {
 	RtAudioErrorType err;
+	
+	StreamOptions option{{0}, {0}, {0}, {0}};
+	//option.flags = RTAUDIO_MINIMIZE_LATENCY;
+	option.streamName = "Sdrberry";
 
 	parameters.deviceId = deviceId;
 	info = getDeviceInfo(parameters.deviceId);
 	if (info.inputChannels > 0)
 	{
-		err = openStream(NULL, &parameters, RTAUDIO_FLOAT32, sampleRate, &bufferFrames, AudioIn, (void *)this);
+		err = openStream(NULL, &parameters, RTAUDIO_FLOAT32, sampleRate, &bufferFrames, AudioIn, (void *)this, &option);
 		if (err != RTAUDIO_NO_ERROR)
 		{
 			printf("Cannot open audio input stream\n");

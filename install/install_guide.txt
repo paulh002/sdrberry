@@ -125,3 +125,8 @@ add vt.global_cursor_default=0
 
 //Run sdrberry
 sdrberry
+
+
+sudo apt update
+sudo apt install libpipewire-0.3-dev
+sudo apt install qt6-svg-dev qt6-svg-plugins

@@ -1056,6 +1056,7 @@ int main(int argc, char *argv[])
 				select_mode(mode);
 				buttonbar.reset_buttonbar();
 				gbar.enable_digital_mode(false);
+				gbar.set_tx(false);
 				break;
 			}
 	
@@ -1329,6 +1330,7 @@ uint32_t custom_tick_get(void)
 }
 
 static bool stream_rx_on{false};
+static bool stream_tx_on{false};
 
 void destroy_demodulators(bool all, bool close_stream)
 {
@@ -1347,6 +1349,7 @@ void destroy_demodulators(bool all, bool close_stream)
 		RX_Stream::pause_rx_stream(false);
 	}
 	TX_Stream::destroy_tx_streaming_thread(close_stream);
+	stream_tx_on = false;
  }
 
 void stop_sdrberry()
@@ -1511,8 +1514,12 @@ void select_mode(int s_mode, bool bvfo, int channel)
 bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel, std::string play_prerecorded_file)
 {
 	ModulatorParameters param{};
+	int duplex = 0;
 
 	// Stop all threads
+	if (stream_tx_on)
+		return true;
+	stream_tx_on = true;
 	if (!SdrDevices.isValid(default_radio))
 		return false;
 	if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
@@ -1537,8 +1544,8 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel, std::str
 	}
 	else
 	{
-		int fullduplex = Settings_file.get_int("Radio", "fullduplex", 0);
-		if (!fullduplex)
+		duplex = Settings_file.get_int("Radio", "duplex", 0);
+		if (!duplex)
 		{
 			destroy_demodulators(false, false);
 			RX_Stream::pause_rx_stream(true);
@@ -1561,7 +1568,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel, std::str
 		break;
 
 	case mode_narrowband_fm:
-		FMModulator::create_modulator(mode, ifrate_tx, tone, &source_buffer_tx, audio_input);
+		FMModulator::create_modulator(mode, duplex, ifrate_tx, tone, play_prerecorded_file, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 		break;
 
@@ -1575,6 +1582,7 @@ bool select_mode_tx(int s_mode, audioTone tone, int cattx, int channel, std::str
 		param.tone = tone;
 		param.ifrate = ifrate_tx;
 		param.play_prerecorded_file = play_prerecorded_file;
+		param.duplex = duplex;
 		AMModulator::create_modulator(param, &source_buffer_tx, audio_input);
 		TX_Stream::create_tx_streaming_thread(ifrate, default_radio, channel, &source_buffer_tx, ifrate_tx, guisdr.get_decimation(), restart);
 		break;

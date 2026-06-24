@@ -896,7 +896,7 @@ void gui_ft8bar::hide(bool hide)
 int gui_ft8bar::Transmit(lv_obj_t *obj)
 {
 	wsjtxMode wstx_mode;
-	ModulatorParameters param;
+	ModulatorParameters param{};
 	int frequency;
 	std::string message;
 	int retval = 0; // 1 == no tx action
@@ -933,6 +933,7 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 			param.tone = audioTone::NoTone;
 			param.ifrate = ifrate_tx;
 			param.even = true;
+			param.duplex = false;
 			param.rxChannel = guisdr.get_current_rx_channel();
 			param.txChannel = guisdr.get_current_tx_channel();
 			int selection = lv_dropdown_get_selected(wsjtxmode);

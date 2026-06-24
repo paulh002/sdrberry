@@ -12,6 +12,7 @@ struct ModulatorParameters
 	double ifrate;
 	audioTone tone;
 	bool even;
+	bool duplex;
 	int timeslotTensofSec;
 	std::vector<float> signal;
 	int rxChannel, txChannel;

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "WavReader.h"
 
 enum audioTone
 {
@@ -25,7 +26,7 @@ class AudioInput : public RtAudio
 	RtAudio::DeviceInfo info;
 	unsigned int sampleRate;
 	unsigned int bufferFrames;
-	float volume, digitalvolume, tone_volume;
+	float volume, digitalvolume, tone_volume, playback_volume;
 	std::string error;
 	long asteps;
 	bool stereo;
@@ -33,11 +34,16 @@ class AudioInput : public RtAudio
 	float NextTwotone();
 	audioTone tune_tone;
 	int bufferFramesSend;
-	std::atomic<bool> digitalmode, bufferempty;
+	std::atomic<bool> digitalmode, bufferempty, playbackmode;
 	std::atomic<float> mic_volume;
 	std::vector<float> digitalmodesignal;
 	DataBuffer<Sample> databuffer;
+	WavReader wavereader;
+	std::string play_prerecorded_file;
 	int AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
+	void doPlayRecording();
+	void doDigitalMode();
+	void ToneBuffer();
 
   public:
 	AudioInput(unsigned int pcmrate, unsigned int bufferFrames, bool stereo, RtAudio::Api api = UNSPECIFIED);
@@ -53,7 +59,7 @@ class AudioInput : public RtAudio
 	void set_volume(int vol);
 	void set_digital_volume(int vol);
 	void set_tone_volume(int vol);
-	void ToneBuffer();
+	void set_playback_volume(int vol);
 	bool get_stereo() { return stereo; };
 	int queued_samples();
 	int getAudioDevice(std::string device);
@@ -66,9 +72,10 @@ class AudioInput : public RtAudio
 	unsigned int get_samplerate() { return sampleRate; }
 	bool IsdigitalMode();
 	bool IsBufferEmpty();
-	void doDigitalMode();
 	void StartDigitalMode(std::vector<float> &signal);
 	void StopDigitalMode();
+	int StartPlayback(std::string filename);
+	void StopPlayback();
 	int getbufferFrames() { return bufferFrames; }
 	float get_mic_vol();
 };

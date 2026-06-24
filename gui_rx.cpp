@@ -127,9 +127,9 @@ void gui_rx::filter_slider_event_cb_class(lv_event_t *e)
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		std::string buf = strlib::sprintf("filter offset %d", 10 * lv_slider_get_value(obj));
+		std::string buf = strlib::sprintf("filter low-cut %d", 10 * lv_slider_get_value(obj));
 		lv_label_set_text(filter_slider_label, buf.c_str());
-		Settings_file.save_int("Radio", "filter_offset", 10 * lv_slider_get_value(obj));
+		Settings_file.save_int("Radio", "low-cut", 10 * lv_slider_get_value(obj));
 		Settings_file.write_settings();
 		Demodulator::set_filter_offset(10 * lv_slider_get_value(obj));
 	}
@@ -446,7 +446,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 
 	filter_slider_label = lv_label_create(main_tile);
 	lv_obj_align(filter_slider_label, LV_ALIGN_TOP_MID, 0, y_margin + ibutton_y * button_height_margin);
-	std::string buf = strlib::sprintf("filter offset %d hz", Settings_file.get_int("Radio", "filter_offset"));
+	std::string buf = strlib::sprintf("filter low-cut %d hz", Settings_file.get_int("Radio", "filter_offset"));
 	lv_label_set_text(filter_slider_label, buf.c_str());
 
 	filter_slider = lv_slider_create(main_tile);
@@ -455,8 +455,8 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_obj_align_to(filter_slider, filter_slider_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 	lv_obj_add_event_cb(filter_slider, filter_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_group_add_obj(button_group, filter_slider);
-	lv_slider_set_value(filter_slider, Settings_file.get_int("Radio", "filter_offset") / 10, LV_ANIM_OFF);
-	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
+	lv_slider_set_value(filter_slider, Settings_file.get_int("Radio", "low-cut") / 10, LV_ANIM_OFF);
+	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "low-cut"));
 
 	ibutton_y++;
 	noise_slider_label = lv_label_create(main_tile);

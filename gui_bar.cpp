@@ -44,12 +44,12 @@ std::vector<std::string> stepsTypes{"1 Hz", "10 Hz", "50 Hz", "100 Hz", "250 Hz"
 std::vector<int> stepsValues{1, 10, 50, 100, 250, 500, 1000,2500, 3125, 5000, 6250, 7500, 8330, 9000, 10000, 12500, 15000, 20000, 25000, 50000, 100000, 200000};
 std::vector<std::string> FilterTypes{"0.1 Khz", "0.25 Khz", "0.5 Khz", "1.0 Khz", "1.5 Khz", "2.0 Khz", "2.5 Khz", "3.0 Khz", "3.5 Khz", "4.0 Khz", "11.0 Khz", "16.0 Khz"};
 std::vector<int> FilterValues{100, 250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 11000, 16000};
-std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM", "FT8", "FT4", "WSPR"};
-std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm, mode_ft8, mode_ft4, mode_wspr};
+std::vector<std::string> ModesTypes{"USB", "LSB", "CW", "DSB", "AM", "FM", "bFM", "FT8", "FT4", "WSPR", "Echo"};
+std::vector<int> ModesCodes{mode_usb, mode_lsb, mode_cw, mode_dsb, mode_am, mode_narrowband_fm, mode_broadband_fm, mode_ft8, mode_ft4, mode_wspr, mode_echo};
 std::vector<std::string> preamTypes{"off", "5db", "10db", "15db"};
 std::vector<std::string> attnTypes{"off", "-10db", "-20db", "-30db", "-40db"};
 std::vector<std::string> MarkerTypes{"off", "M 1", "M 2"};
-std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}, {mode_ft8, 7}, {mode_ft4, 8}, {mode_wspr, 9}};
+std::map<int, int> ModesMap{{mode_usb, 0}, {mode_lsb, 1}, {mode_cw, 2}, {mode_dsb, 3}, {mode_am, 4}, {mode_narrowband_fm, 5}, {mode_broadband_fm, 6}, {mode_ft8, 7}, {mode_ft4, 8}, {mode_wspr, 9}, {mode_echo, 10}};
 
 gui_bar gbar;
 
@@ -121,7 +121,10 @@ void gui_bar::set_tx(bool tx)
 	if (tx)
 		lv_obj_add_state(button[buttontx], LV_STATE_CHECKED);
 	else
+	{
 		lv_obj_clear_state(button[buttontx], LV_STATE_CHECKED);
+		lv_obj_clear_state(button[buttontune], LV_STATE_CHECKED);
+	}
 }
 
 void gui_bar::set_mode(int mode)
@@ -307,11 +310,15 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 								lv_obj_clear_state(obj, LV_STATE_CHECKED);
 						}
 						else
+						{
+							lv_obj_clear_state(button[buttontune], LV_STATE_CHECKED);
 							select_mode(mode);
+						}
 					}
 					else
 					{
 						lv_obj_clear_state(obj, LV_STATE_CHECKED);
+						lv_obj_clear_state(button[buttontune], LV_STATE_CHECKED);
 					}
 					break;
 				case buttontune:
@@ -321,9 +328,13 @@ void gui_bar::bar_button_handler_class(lv_event_t *e)
 						{
 							if (!select_mode_tx(mode, audioTone::SingleTone))
 								lv_obj_clear_state(obj, LV_STATE_CHECKED);
+							lv_obj_add_state(button[buttontx], LV_STATE_CHECKED);
 						}
 						else
+						{
 							select_mode(mode);
+							lv_obj_clear_state(button[buttontx], LV_STATE_CHECKED);
+						}
 					}
 					else
 					{

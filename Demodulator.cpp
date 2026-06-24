@@ -131,7 +131,7 @@ void Demodulator::set_resample_rate(float resample_rate)
 		msresamp_crcf_destroy(resampleHandle);
 	resampleRate = resample_rate;
 	resampleHandle = msresamp_crcf_create(resampleRate, As);
-	msresamp_crcf_print(resampleHandle);
+	//msresamp_crcf_print(resampleHandle);
 }
 
 float Demodulator::adjust_resample_rate(float rateAjustFraction)
@@ -176,7 +176,7 @@ float Demodulator::adjust_resample_rate(float rateAjustFraction)
 				arbitraryRate *=  2.0;
 			_q->rate_arbitrary = arbitraryRate;
 		}
-		msresamp_crcf_print(resampleHandle);
+		//msresamp_crcf_print(resampleHandle);
 	}
 	std::vector<std::string> resamplerate_setting;
 	resamplerate_setting.push_back(std::to_string(resampleRate));
@@ -229,7 +229,7 @@ float Demodulator::adjust_resample_rate1(float rateAjustFraction)
 				arbitraryRate *= 2.0;
 			_q->rate_arbitrary = arbitraryRate;
 		}
-		msresamp_crcf_print(resampleHandle);
+		//msresamp_crcf_print(resampleHandle);
 	}
 	//std::string str1 = std::to_string(resampleRate);
 	//Settings_file.save_string(default_radio, "resamplerate", str1);
@@ -562,12 +562,11 @@ void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 		if (filter_offset)
 		{
 			centerFrequency = filter_offset / samplerate;
-			cutOffFrequency = (band_width + filter_offset) / samplerate;
 			filtertype = LIQUID_IIRDES_BANDPASS;
 		}
 
 		lowPassAudioFilterHandle = iirfilt_crcf_create_prototype((liquid_iirdes_filtertype)filter_type.load(), (liquid_iirdes_bandtype)filtertype, LIQUID_IIRDES_SOS, filter_order.load(), cutOffFrequency, centerFrequency, 0.1f, 60.0f);
-		iirfilt_crcf_print(lowPassAudioFilterHandle);
+		//iirfilt_crcf_print(lowPassAudioFilterHandle);
 	}
 	else
 	{
@@ -581,7 +580,7 @@ void Demodulator::setLowPassAudioFilter(float samplerate, int band_width)
 			cutOffFrequency = 500.0 / samplerate;;
 		lowPassParksMcClellanFilterHandle = firfilt_crcf_create_firdespm(248, cutOffFrequency, 60.0f);
 		firfilt_crcf_set_scale(lowPassParksMcClellanFilterHandle, 2.0f * cutOffFrequency);
-		firfilt_crcf_print(lowPassParksMcClellanFilterHandle);
+		//firfilt_crcf_print(lowPassParksMcClellanFilterHandle);
 	}
 }
 

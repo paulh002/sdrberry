@@ -24,6 +24,7 @@ class AMModulator : public Demodulator
 	bool even;
 	bool digitalmode;
 	bool audio_file_mode;
+	bool duplex;
 	nco_crcf m_fft{nullptr};
 	void fft_offset(long offset);
 	void mix_up_fft(const IQSampleVector &filter_in, IQSampleVector &filter_out);
@@ -32,7 +33,6 @@ class AMModulator : public Demodulator
 	void WaitForTimeSlot();
 	std::vector<float> signal;
 	void process(SampleVector &samples, IQSampleVector &samples_out);
-	WavReader wavereader;
 	std::string play_prerecorded_file;
 };
 

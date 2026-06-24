@@ -44,36 +44,45 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 {
 	if (status)
 		std::cout << "Stream overflow detected!" << std::endl;
-	
+
 	if (get_tone())
 	{
 		ToneBuffer();
 		return 0;
 	}
-	if (IsdigitalMode())
+	else if (IsdigitalMode())
 	{
 		doDigitalMode();
 		return 0;
 	}
-	// Do something with the data in the "inputBuffer" buffer.
-	//printf("frames %u \n", nBufferFrames);
-	SampleVector	buf;
-	for (int i = 0; i < nBufferFrames; i++)
+	else if (playbackmode)
 	{
-		Sample f = ((float *)inputBuffer)[i];
-		buf.push_back(f);
-		if (get_stereo())
+		doPlayRecording();
+		return 0;
+	}
+	else
+	{
+		// Do something with the data in the "inputBuffer" buffer.
+		// printf("frames %u \n", nBufferFrames);
+		SampleVector buf;
+
+		for (int i = 0; i < nBufferFrames; i++)
+		{
+			Sample f = ((float *)inputBuffer)[i];
 			buf.push_back(f);
+			if (get_stereo())
+				buf.push_back(f);
+		}
+		float mic_vol = 0;
+		for (auto con : buf)
+		{
+			mic_vol += con * con;
+		}
+		mic_volume.store(mic_vol / buf.size());
+		databuffer.clear();
+		databuffer.push(std::move(buf));
+		return 0;
 	}
-	float mic_vol = 0;
-	for (auto con : buf)
-	{
-		mic_vol += con * con;
-	}
-	mic_volume.store(mic_vol / buf.size());
-	databuffer.clear();
-	databuffer.push(std::move(buf));
-	return 0;
 }
 
 float AudioInput::get_mic_vol()
@@ -139,6 +148,7 @@ AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool st
 	bufferempty = false;
 	bufferFramesSend = 0;
 	stereo = false;
+	playbackmode = false;
 }
 
 std::vector<RtAudio::Api> AudioInput::listApis()
@@ -204,6 +214,12 @@ void AudioInput::set_tone_volume(int vol)
 
 }
 
+void AudioInput::set_playback_volume(int vol)
+{
+	// log volume
+	playback_volume = expf(((float)vol * 6.908) / 100.0) / 1000.0;
+}
+
 void AudioInput::adjust_gain(SampleVector& samples)
 {
 	for (unsigned int i = 0, n = samples.size(); i < n; i++) 
@@ -216,14 +232,18 @@ void AudioInput::adjust_gain(SampleVector& samples)
 		{
 			samples[i] *= tone_volume;
 		}
+		else if (playbackmode)
+		{
+			samples[i] *= playback_volume;
+		}
 		else
 		{
-			samples[i] *= volume;
+				samples[i] *= volume;
 		}
 	}
 }
 
-bool AudioInput::read(SampleVector& samples)
+bool AudioInput::read(SampleVector &samples)
 {
 	if (!isStreamOpen())
 		return false;
@@ -310,6 +330,29 @@ void AudioInput::StopDigitalMode()
 	digitalmodesignal.clear();
 }
 
+int AudioInput::StartPlayback(std::string filename)
+{
+	playbackmode = true;
+	bufferempty = false;
+	if (!wavereader.open(filename))
+	{
+		printf("Audio file not found\n");
+		playbackmode = false;
+		bufferempty = true;
+		return 1;
+	}
+	std::cout << "Audio file sample Rate: " << wavereader.getSampleRate() << " Hz\n";
+	std::cout << "Audio file total Samples: " << wavereader.getTotalSamples() << "\n";
+	return 0;
+}
+
+void AudioInput::StopPlayback()
+{
+	playbackmode = false;
+	bufferempty = true;
+	wavereader.close();
+}
+
 void AudioInput::doDigitalMode()
 {
 	SampleVector buf, buf_out;
@@ -336,6 +379,25 @@ void AudioInput::doDigitalMode()
 		bufferFramesSend = 0;
 		bufferempty = true;
 	}
+}
+
+void AudioInput::doPlayRecording()
+{
+	SampleVector audiosamples, buf_out;
+
+	if (!wavereader.readChunk(audiosamples, getbufferFrames()))
+	{
+		bufferempty = true;
+		playbackmode = false;
+	}
+	if (wavereader.isEOF())
+	{
+		bufferempty = true;
+		playbackmode = false;
+	}
+	audio_output->adjust_gain(audiosamples, buf_out);
+	audio_output->writeSamples(buf_out);
+	databuffer.push(std::move(audiosamples));
 }
 
 float AudioInput::NextTwotone()

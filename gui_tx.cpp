@@ -37,7 +37,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 {
 	const lv_coord_t x_margin  = 10;
 	const lv_coord_t y_margin  = 10;
-	const int x_number_buttons = 6;
+	const int x_number_buttons = 5;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin  = 20;
 	
@@ -55,6 +55,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	drive_map = Settings_file.get_map_string("TX", "drive");
 	mic_gain_map = Settings_file.get_map_string("TX", "micgain");
 	digital_gain_map = Settings_file.get_map_string("TX", "digitalgain");
+	playback_map = Settings_file.get_map_string("TX", "playbackgain");
 
 	if (tune_map.empty())
 	{
@@ -76,7 +77,12 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 		digital_gain_map.insert({{"10m", 80}, {"15m", 80}, {"17m", 85}, {"20m", 80}, {"30m", 80}, {"40m", 71}, {"60m", 80}, {"80m", 69}});
 		Settings_file.set_map_string("TX", "digitalgain", digital_gain_map);
 	}
-
+	if (playback_map.empty())
+	{
+		playback_map.insert({{"10m", 93}, {"15m", 93}, {"17m", 93}, {"20m", 93}, {"30m", 93}, {"40m", 93}, {"60m", 93}, {"80m", 93}});
+		Settings_file.set_map_string("TX", "playbackgain", playback_map);
+	}
+	
 	tileview = lv_tileview_create(tx_tile);
 	lv_obj_clear_flag(tileview, LV_OBJ_FLAG_SCROLL_ELASTIC);
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
@@ -140,7 +146,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
 		case 4:
-			strcpy(str, "4 Tone");
+			strcpy(str, "Echo");
 			lv_obj_add_flag(tx_button[i], LV_OBJ_FLAG_CHECKABLE);
 			break;
 		}
@@ -158,43 +164,49 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	mic_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(mic_slider, w / 2 - 50); 
 	lv_slider_set_range(mic_slider, 0, micgain);
-	lv_obj_align(mic_slider, LV_ALIGN_TOP_MID, 0, ibutton_y * button_height_margin + y_margin);
+	lv_obj_align(mic_slider, LV_ALIGN_TOP_LEFT, x_margin, ibutton_y * button_height_margin + 3 * y_margin);
 	lv_obj_add_event_cb(mic_slider, mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	mic_slider_label = lv_label_create(tx_tile);
-	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
+	lv_obj_align_to(mic_slider_label, mic_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	//set_mic_slider(Settings_file.get_int("Radio", "micgain", 85));
 	lv_group_add_obj(m_button_group, mic_slider);
 
 	digital_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(digital_slider, w / 2 - 50);
 	lv_slider_set_range(digital_slider, 0, micgain);
-	lv_obj_align_to(digital_slider, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 15);
+	lv_obj_align(digital_slider, LV_ALIGN_TOP_RIGHT, x_margin * -2, ibutton_y * button_height_margin + 3 * y_margin);
 	lv_obj_add_event_cb(digital_slider, digital_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	digital_slider_label = lv_label_create(tx_tile);
-	lv_obj_align_to(digital_slider_label, digital_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	//set_digital_slider(Settings_file.get_int("Radio", "digitalgain", 80));
+	lv_obj_align_to(digital_slider_label, digital_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	lv_group_add_obj(m_button_group, digital_slider);
 
 	tune_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(tune_slider, w / 2 - 50);
 	lv_slider_set_range(tune_slider, 0, 100);
-	lv_obj_align_to(tune_slider, digital_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 15);
+	lv_obj_align_to(tune_slider, mic_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
 	lv_obj_add_event_cb(tune_slider, tune_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
 	tune_slider_label = lv_label_create(tx_tile);
-	lv_obj_align_to(tune_slider_label, tune_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	//set_tune_slider(Settings_file.get_int(default_radio, "tunegain", 74));
+	lv_obj_align_to(tune_slider_label, tune_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	lv_group_add_obj(m_button_group, tune_slider);
 	
 	drv_slider = lv_slider_create(tx_tile);
 	lv_obj_set_width(drv_slider, w / 2 - 50); 
 	lv_slider_set_range(drv_slider, 0, 15);
-	lv_obj_align_to(drv_slider, tune_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 15);
+	lv_obj_align_to(drv_slider, digital_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
 	lv_obj_add_event_cb(drv_slider, drv_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void*)this);
 	drv_slider_label = lv_label_create(tx_tile);
-	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-	//set_drv_slider(Settings_file.get_int(default_radio, "drive", 50));
+	lv_obj_align_to(drv_slider_label, drv_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	lv_group_add_obj(m_button_group, drv_slider);
 
+	playback_slider = lv_slider_create(tx_tile);
+	lv_obj_set_width(playback_slider, w / 2 - 50);
+	lv_slider_set_range(playback_slider, 0, 100);
+	lv_obj_align_to(playback_slider, tune_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_add_event_cb(playback_slider, playback_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	playback_slider_label = lv_label_create(tx_tile);
+	lv_obj_align_to(playback_slider_label, playback_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+	lv_group_add_obj(m_button_group, playback_slider);
+						  
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	ibutton_y++;
 	tempSensor::start_read_out();
@@ -239,6 +251,7 @@ void gui_tx::digital_slider_event_cb_class(lv_event_t *e)
 void gui_tx::set_gain_sliders_band_from_config()
 {
 	int volume = 90;
+	int playbackgain = 90;
 	int drive = 50;
 
 	mic_gain_map = Settings_file.get_map_string("TX", "micgain");
@@ -256,6 +269,10 @@ void gui_tx::set_gain_sliders_band_from_config()
 	drive_map = Settings_file.get_map_string("TX", "drive");
 	drive = drive_map[vfo.get_active_band_meters()];
 	set_drv_slider(drive);
+
+	playback_map = Settings_file.get_map_string("TX", "playbackgain");
+	playbackgain =playback_map[vfo.get_active_band_meters()];
+	set_playback_slider(playbackgain);
 }
 
 void gui_tx::set_digital_slider(int volume)
@@ -288,6 +305,32 @@ void gui_tx::set_mic_slider(int volume)
 		audio_input->set_volume(volume);
 }
 
+void gui_tx::set_playback_slider(int volume)
+{
+	if (volume < 0)
+		volume = 0;
+	if (volume > 100)
+		volume = 100;
+	char buf[20];
+
+	lv_slider_set_value(playback_slider, volume, LV_ANIM_ON);
+	sprintf(buf, "playback gain %d db", volume);
+	lv_label_set_text(playback_slider_label, buf);
+	if (audio_input != nullptr)
+		audio_input->set_playback_volume(volume);
+
+}
+
+void gui_tx::playback_slider_event_cb_class(lv_event_t *e)
+{
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
+
+	set_playback_slider(lv_slider_get_value(slider));
+	playback_map[vfo.get_active_band_meters()] = lv_slider_get_value(slider);
+	Settings_file.set_map_string("TX", "playbackgain", playback_map);
+}
+
+	
 void gui_tx::tune_slider_event_cb_class(lv_event_t *e)
 {
 	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
@@ -329,6 +372,8 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 		else
 		{
 			Settings_file.save_int("Radio", "duplex", 0);
+			gbar.set_tx(false);
+			select_mode(mode);
 		}
 	}
 	if (s == "2 Tone")
@@ -341,15 +386,18 @@ void gui_tx::tx_button_handler_class(lv_event_t * e)
 		else
 			select_mode(mode);
 	}
-	if (s == "4 Tone")
+	if (s == "Echo")
 	{
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
-			if (!select_mode_tx(mode, FourTone))
-				lv_obj_clear_state(obj, LV_STATE_CHECKED);
+			old_mode = mode;
+			select_mode(mode_echo);
 		}
 		else
+		{
+			mode = old_mode;
 			select_mode(mode);
+		}
 	}
 	if (s == "Sync RX vfo")
 	{

@@ -9,6 +9,7 @@
 #include "date.h"
 #include "sdrstream.h"
 #include "sdrberry.h"
+#include "i2coutput.h"
 
 extern DataBuffer<IQSample> source_buffer_rx;
 extern DataBuffer<IQSample> source_buffer_tx;
@@ -29,6 +30,10 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::cout << "Start TX stream running. Number of samples " << param.signal.size() << date::make_time(now - today) << std::endl;
 	vfo.vfo_rxtx(false, true);
+	vfo.pause_step(false);
+	vfo.set_vfo(0, vfo_activevfo::None);
+	vfo.pause_step(true);
+	i2c_output.set_rxtx(true);
 	Source_buffer_rx = source_buffer_rx;
 	guift8bar.WaterfallSetMaxMin(500.0, 0);
 	sp_ammod = make_shared<AMModulator>(param, source_buffer_tx, audio_input);
@@ -63,6 +68,7 @@ void DigitalTransmission::operator()()
 			  << std::endl;
 	RX_Stream::create_rx_streaming_thread(ifrate, default_radio, param.rxChannel, Source_buffer_rx, guisdr.get_decimation());
 	vfo.vfo_rxtx(true, false);
+	i2c_output.set_rxtx(false);
 }
 
 // Called in GUI loop in sdrberry.cpp

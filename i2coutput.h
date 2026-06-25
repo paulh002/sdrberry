@@ -8,3 +8,4 @@ class i2coutput :
 	void clear();
 };
 
+extern i2coutput i2c_output;

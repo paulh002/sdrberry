@@ -36,7 +36,7 @@ gui_tx	Gui_tx;
 void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 {
 	const lv_coord_t x_margin  = 10;
-	const lv_coord_t y_margin  = 10;
+	const lv_coord_t y_margin  = 8;
 	const int x_number_buttons = 5;
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin  = 20;

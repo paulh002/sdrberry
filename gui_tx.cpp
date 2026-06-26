@@ -43,7 +43,7 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
-	int button_height = 50;
+	int button_height = 40;
 	int button_height_margin = button_height + y_margin;
 
 	lv_obj_set_style_pad_top(tx_tile, 10, LV_PART_MAIN);

@@ -10,6 +10,8 @@
 #include "sdrstream.h"
 #include "sdrberry.h"
 #include "i2coutput.h"
+#include "Catinterface.h"
+#include "CatTcpServer.h"
 
 extern DataBuffer<IQSample> source_buffer_rx;
 extern DataBuffer<IQSample> source_buffer_tx;
@@ -33,6 +35,8 @@ DigitalTransmission::DigitalTransmission(DataBuffer<IQSample> *source_buffer_tx,
 	vfo.pause_step(false);
 	vfo.set_vfo(0, vfo_activevfo::None);
 	vfo.pause_step(true);
+	catinterface->SetTX(TX_MAN);
+	cattcpserver->SetTX(TX_MAN);
 	i2c_output.set_rxtx(true);
 	Source_buffer_rx = source_buffer_rx;
 	guift8bar.WaterfallSetMaxMin(500.0, 0);
@@ -68,6 +72,8 @@ void DigitalTransmission::operator()()
 			  << std::endl;
 	RX_Stream::create_rx_streaming_thread(ifrate, default_radio, param.rxChannel, Source_buffer_rx, guisdr.get_decimation());
 	vfo.vfo_rxtx(true, false);
+	catinterface->SetTX(TX_OFF);
+	cattcpserver->SetTX(TX_OFF);
 	i2c_output.set_rxtx(false);
 }
 

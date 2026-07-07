@@ -622,7 +622,8 @@ int main(int argc, char *argv[])
 	thread_cattcpserver.detach();
 
 	int audiodevID;
-	audiodevID = AudioInput::createAudioInputDevice(defaultAudioSampleRate, 2048);
+	int mic_buffer = Settings_file.get_int(default_radio, "mic_buffer", 2048);
+	audiodevID = AudioInput::createAudioInputDevice(defaultAudioSampleRate, mic_buffer);
 	if (!audiodevID)
 		printf("CreateAudioInputDevice: No Audio Input Device found\n");
 	AudioOutput::createAudioDevice(defaultAudioSampleRate, 1024, audiodevID);

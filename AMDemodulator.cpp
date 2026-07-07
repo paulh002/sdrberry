@@ -30,16 +30,20 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 
 	// 1.05
 	sample_ratio = ((float)audio_output->get_samplerate()) / ifrate;
-	resamplerate_setting = Settings_file.get_array_string(default_radio, "resample_rate");
-	if (resamplerate_setting.size() == 3)
+	int resamplerate_rate_reset = Settings_file.get_int(default_radio, "resample_rate_reset", 0);
+	if (!resamplerate_rate_reset)
 	{
-		if (std::stoi(resamplerate_setting.at(1)) == (int)round(ifrate / 1000.0))
+		resamplerate_setting = Settings_file.get_array_string(default_radio, "resample_rate");
+		if (resamplerate_setting.size() == 3)
 		{
-			int decimate = Settings_file.get_int(default_radio, "decimate",0);
-			if (std::stoi(resamplerate_setting.at(2)) == decimate)
+			if (std::stoi(resamplerate_setting.at(1)) == (int)round(ifrate / 1000.0))
 			{
-				sscanf(resamplerate_setting.at(0).c_str(), "%f", &sample_ratio);
-				printf("Sampleratio %f\n", sample_ratio);
+				int decimate = Settings_file.get_int(default_radio, "decimate", 0);
+				if (std::stoi(resamplerate_setting.at(2)) == decimate)
+				{
+					sscanf(resamplerate_setting.at(0).c_str(), "%f", &sample_ratio);
+					printf("Sampleratio %f\n", sample_ratio);
+				}
 			}
 		}
 	}

@@ -47,7 +47,9 @@ void EchoAudio::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1;
 	
-	SampleVector audiosamples, audioframes,filter;
+	SampleVector audioframes,filter;
+	SampleVector audio_stereo;
+	std::span<Sample> audiosamples;
 	IQSampleVector buf_mod;
 	AudioProcessor Speech;
 
@@ -62,12 +64,10 @@ void EchoAudio::operator()()
 	ampmodem demod = ampmodem_create(mod_index, am_mode, 1);
 
 	setBandPassFilter( 3000.0f, 100.0f);
-
+	audio_stereo.resize(audioInputBuffer->getbufferFrames() * 2);
 	while (!stop_flag.load())
 	{
-		if (!audioInputBuffer->read(audiosamples))
-			continue;
-
+		audiosamples = audioInputBuffer->read();
 		if (gspeech.get_speech_mode())
 		{
 			Speech.setRelease(gspeech.get_release());
@@ -85,13 +85,13 @@ void EchoAudio::operator()()
 			//printf("%f;%f;%f \n", col, f.real(), f.imag());
 			buf_mod.push_back(f);
 		}
-		audiosamples.clear();
 		SpectrumGraph.ProcessWaterfall(buf_mod);
+		int i = 0;
 		for (auto col : buf_mod)
 		{
 			float v;
 			ampmodem_demodulate(demod, (liquid_float_complex)col, &v);
-			audiosamples.push_back(v);
+			audiosamples[i++] = v;
 		}
 		buf_mod.clear();
 
@@ -105,8 +105,6 @@ void EchoAudio::operator()()
 			{
 				if ((audio_output->queued_samples() / 2) < 4096)
 				{
-					SampleVector audio_stereo;
-
 					mono_to_left_right(audioframes, audio_stereo);
 					audio_output->write(audio_stereo);
 					audioframes.clear();
@@ -115,7 +113,6 @@ void EchoAudio::operator()()
 					audioframes.clear();
 			}
 		}
-		audiosamples.clear();
 		now = std::chrono::high_resolution_clock::now();
 		auto process_time1 = std::chrono::duration_cast<std::chrono::microseconds>(now - start1);
 		if (timeLastPrint + std::chrono::seconds(10) < now)

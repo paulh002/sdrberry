@@ -3,6 +3,7 @@
 #include "lvgl_.h"
 #include "tempMeter.h"
 #include "tempSensor.h"
+#include <map>
 
 class gui_tx
 {

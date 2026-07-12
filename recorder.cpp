@@ -51,7 +51,7 @@ void recorder::operator()()
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point now, start1;
 
-	SampleVector audiosamples;
+	std::span<Sample> audiosamples;
 	AudioProcessor Speech;
 	WavWriter WavWriterOut;
 
@@ -67,9 +67,7 @@ void recorder::operator()()
 	start1 = std::chrono::high_resolution_clock::now();
 	while (!stop_flag.load())
 	{
-		if (!audioInputBuffer->read(audiosamples))
-			continue;
-
+		audiosamples = audioInputBuffer->read();
 		if (gspeech.get_speech_mode())
 		{
 			Speech.setRelease(gspeech.get_release());
@@ -80,7 +78,6 @@ void recorder::operator()()
 		}
 		executeBandpassFilter(audiosamples);
 		WavWriterOut.addSamples(audiosamples);
-		audiosamples.clear();
 		now = std::chrono::high_resolution_clock::now();
 		auto process_time1 = std::chrono::duration_cast<std::chrono::seconds>(now - start1);
 		//if (process_time1.count() > 120)

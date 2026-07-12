@@ -6,6 +6,7 @@
 #include <vector>
 #include "WavReader.h"
 
+
 bool WavReader::open(const std::string &filename)
 {
 	close();
@@ -77,17 +78,16 @@ bool WavReader::open(const std::string &filename)
 	return false; // EOF reached without valid data chunk
 }
 
-bool WavReader::readChunk(std::vector<float> &outBuffer, size_t maxSamples)
+bool WavReader::readChunk(std::span<float> &outBuffer, size_t maxSamples)
 {
 	if (!isOpen_ || isEOF_ || maxSamples == 0)
 	{
 		isEOF_ = true;
-		outBuffer.clear();
 		return false;
 	}
 
 	size_t toRead = std::min(maxSamples, remainingSamples_);
-	outBuffer.resize(toRead);
+	//outBuffer.resize(toRead);
 
 	// Reuse internal buffer to avoid reallocation overhead
 	if (pcmBuffer_.size() < toRead)

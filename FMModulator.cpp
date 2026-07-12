@@ -61,7 +61,7 @@ void FMModulator::operator()()
 {
 	unsigned int            fft_block = 0;
 	bool                    inbuf_length_warning = false;
-	SampleVector            audiosamples;
+	std::span<Sample>       audiosamples;
 
 	audio_file_mode = false;
 	audioInputBuffer->clear();
@@ -85,15 +85,9 @@ void FMModulator::operator()()
 			audioInputBuffer->StopPlayback();
 		}
 		
-		if (audioInputBuffer->read(audiosamples) == false)
-		{
-			printf("wait for input\n");
-			usleep(1000); // wait 1024 audio sample time
-			continue;
-		}
+		audiosamples = audioInputBuffer->read();
 		calc_af_signalstrength(audiosamples);
 		process(audiosamples);
-		audiosamples.clear();
 	}
 	transmitIQBuffer->push_end();
 	
@@ -107,7 +101,7 @@ void FMModulator::operator()()
 	printf("exit am_mod_thread\n");
 }
 
-void FMModulator::process(SampleVector& samples)
+void FMModulator::process(std::span<Sample> samples)
 {
 	IQSampleVector				buf_mod, buf_filter, buf_out;
 	unsigned int				num_written;

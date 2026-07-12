@@ -21,6 +21,8 @@ class AMModulator : public Demodulator
   private:
 	ampmodem AMmodulatorHandle{nullptr};
 	liquid_ampmodem_type am_mode;
+	IQSampleVector modulatorbuffer;
+	IQSampleVector samples_out;
 	bool even;
 	bool digitalmode;
 	bool audio_file_mode;
@@ -29,10 +31,9 @@ class AMModulator : public Demodulator
 	void fft_offset(long offset);
 	void mix_up_fft(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	SampleVector audioframes;
-	void audio_feedback(const SampleVector &audiosamples);
 	void WaitForTimeSlot();
 	std::vector<float> signal;
-	void process(SampleVector &samples, IQSampleVector &samples_out);
+	void process(std::span<Sample> samples, IQSampleVector &samples_out);
 	std::string play_prerecorded_file;
 };
 

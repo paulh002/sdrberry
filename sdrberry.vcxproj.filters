@@ -1360,9 +1360,6 @@
     <ClCompile Include="FT8Processor.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="FreeDVTab.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="Spectrum.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -5243,9 +5240,6 @@
     <ClInclude Include="FT8Processor.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="FreeDVTab.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="Spectrum.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -5475,6 +5469,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="ButtonBar.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataPool.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="CircularQueue.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

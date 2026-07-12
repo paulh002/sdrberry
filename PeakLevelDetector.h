@@ -4,6 +4,7 @@
 #include "RtAudio.h"
 #include "SdrberryTypeDefs.h"
 #include "DataBuffer.h"
+#include <span>
 
 const float DEFAULT_THRESHOLD = 0.f;
 const float DEFAULT_RATIO = 1.f;
@@ -52,7 +53,7 @@ class AudioProcessor
 {
   public:
 	AudioProcessor();
-	void processBlock(SampleVector &buffer);
+	void processBlock(std::span<Sample> &buffer);
 	void prepareToPlay(double sampleRate);
 	void setThresholdDB(float threshold) { thresholdDb = threshold; }
 	void setRatio(float Ratio) { ratio = Ratio; }

@@ -13,6 +13,9 @@ std::shared_ptr<AMModulator> sp_ammod;
 
 #define DEBUG_VECTOR(v) std::cout << #v << " size: " << v.size() << ", capacity: " << v.capacity() << '\n';
 
+void set_realtime_priority(std::thread& thread, int priority);
+void pin_thread_to_core(std::thread& thread, int core_id);
+
 void AMModulator::setsignal(std::vector<float> &signal)
 {
 	signal = std::move(signal);
@@ -24,6 +27,7 @@ bool AMModulator::create_modulator(ModulatorParameters param, DataBuffer<IQSampl
 		return false;
 	sp_ammod = make_shared<AMModulator>(param, source_buffer, audio_input);
 	sp_ammod->ammod_thread = std::thread(&AMModulator::operator(), sp_ammod);
+	pin_thread_to_core(sp_ammod->ammod_thread, 2);
 	return true;
 }
 
@@ -101,6 +105,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		return;
 	}
 	audio_input->set_tone(param.tone);
+	modulatorbuffer.resize(audio_input->getbufferFrames());
 	play_prerecorded_file = param.play_prerecorded_file;
 	if ((param.ifrate - audio_input->get_samplerate()) > 0.1)
 	{
@@ -111,10 +116,12 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		sample_ratio = param.ifrate / (double)audio_input->get_samplerate();
 		printf("ifrate %f, audiorate %d  Resample rate %f\n", param.ifrate, audio_input->get_samplerate(), sample_ratio);
 		set_resample_rate(sample_ratio); // UP sample to ifrate
+		samples_out.resize(sample_ratio * audio_input->getbufferFrames() * 2, 0); //* 2 is savety margin
 	}
 	else
 	{
 		printf("No resample \n");
+		samples_out.resize( audio_input->getbufferFrames(),0); 
 	}
 	AMmodulatorHandle = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
@@ -124,11 +131,13 @@ void AMModulator::operator()()
 {
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
+	auto timeLastMeasure = std::chrono::high_resolution_clock::now();
 	
 	unsigned int            fft_block = 0;
 	bool                    inbuf_length_warning = false;
-	SampleVector            audiosamples, buf_out;
-	IQSampleVector			samples_out, samples_in;
+	SampleVector            buf_out;
+	std::span<Sample>		audiosamples;
+	IQSampleVector			samples_in, samples_out2;
 	AudioProcessor			Speech;
 	IQGenerator IqGenerator(ifrate, audioInputBuffer);
 
@@ -172,10 +181,8 @@ void AMModulator::operator()()
 			std::cout << "Stop playback transmit \n";
 			audioInputBuffer->StopPlayback();
 		}
-
-		if (!audioInputBuffer->read(audiosamples))
-			continue;
 		
+		audiosamples = audioInputBuffer->read();
 		if (gspeech.get_speech_mode() && !digitalmode)
 		{
 			Speech.setRelease(gspeech.get_release());
@@ -185,21 +192,13 @@ void AMModulator::operator()()
 			Speech.processBlock(audiosamples);
 		}
 		calc_af_signalstrength(audiosamples);
-		if (audioInputBuffer->get_tone() != audioTone::FourTone)
-		{
-			process(audiosamples, samples_out);
-		}
-		else 
-		{
-			samples_out = IqGenerator.generateIQVectors(4, 45.0f, 48000);
-			SpectrumGraph.ProcessWaterfall(samples_out);
-		}
-
+		process(audiosamples, samples_out);
 		adjust_calibration(samples_out);
 		int number_of_samples = samples_out.size();
 		int number_of_audio_samples = audiosamples.size();
-		transmitIQBuffer->push(std::move(samples_out));
-		audiosamples.clear();
+		
+		samples_out2 = samples_out;
+		transmitIQBuffer->push(std::move(samples_out2));
 		const auto now = std::chrono::high_resolution_clock::now();
 		if (timeLastPrint + std::chrono::seconds(10) < now)
 		{
@@ -208,6 +207,11 @@ void AMModulator::operator()()
 			printf("Queued transmitbuffer Samples %lu number of audio samples %d number of samples %d\n", transmitIQBuffer->queued_samples(), number_of_audio_samples, number_of_samples);
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
+		
+		
+		//const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - timeLastMeasure);
+		//timeLastMeasure = now;
+		//printf("Time measure %ld ms\n", timePassed.count());
 	}
 	transmitIQBuffer->clear();
 	transmitIQBuffer->push_end();
@@ -224,27 +228,23 @@ void AMModulator::operator()()
 	printf("exit am_mod_thread %2d:%2d:%2d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 }
 
-void AMModulator::process(SampleVector &samples, IQSampleVector &samples_out)
+void AMModulator::process(std::span<Sample>samples, IQSampleVector &samples_out)
 {
-	IQSampleVector buf_mod;
 	unsigned int num_written;
-	//float maxf = 0.0;
 
 	// Modulate audio to USB, LSB or DSB;
 	executeBandpassFilter(samples);
+	int i = 0;
 	for (auto &col : samples)
 	{
 		std::complex<float> f;
-		//if (col > maxf)
-		//	maxf = col;
 		ampmodem_modulate(AMmodulatorHandle, col, &f);
 		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
-		buf_mod.push_back(f); 
+		modulatorbuffer.at(i++) = f; 
 	}
-	//printf("audio max %f \n", maxf);
 	if (digitalmode)
-		guift8bar.Process(buf_mod);
-	samples_out = std::move(Resample(buf_mod));
+		guift8bar.Process(modulatorbuffer);
+	Resample_new(modulatorbuffer, samples_out);
 	mix_up(samples_out); // Mix up to vfo freq
 	if (!duplex)
 		SpectrumGraph.ProcessWaterfall(samples_out);
@@ -278,24 +278,6 @@ void AMModulator::fft_offset(long offset)
 	m_fft = nco_crcf_create(LIQUID_NCO);
 	nco_crcf_set_phase(m_fft, 0.0f);
 	nco_crcf_set_frequency(m_fft, rad_per_sample);
-}
-
-void AMModulator::audio_feedback(const SampleVector &audiosamples)
-{
-	
-	for (auto &col : audiosamples)
-	{
-		// split the stream in blocks of samples of the size framesize
-		audioframes.insert(audioframes.end(), col);
-		if (audioframes.size() == audio_output->get_framesize())
-		{
-			SampleVector audio_stereo;
-			
-			mono_to_left_right(audioframes, audio_stereo);
-			audio_output->write(audio_stereo);
-			audioframes.clear();
-		}
-	}
 }
 
 void AMModulator::WaitForTimeSlot()

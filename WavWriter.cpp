@@ -39,7 +39,7 @@ bool WavWriter::create(const std::string &filename, uint32_t sampleRate, uint16_
  * @param samples Vector of float samples (interleaved if multi-channel)
  * @return true if write succeeded
  */
-bool WavWriter::addSamples(const std::vector<float> &samples)
+bool WavWriter::addSamples(std::span<float> samples)
 {
 	return addSamples(samples.data(), samples.size());
 }

@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include/aarch64-linux-gnu/c++/14.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;/usr/include/c++/14;../SoapyHPSDR;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include/aarch64-linux-gnu/c++/14.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;/usr/include/c++/14;../SoapyHPSDR;.;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG=1;__LINUX_ALSA__;__LINUX_PULSE__;LV_LVGL_H_INCLUDE_SIMPLE;NO_SSL=1;USE_WEBSOCKET=1; USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations</AdditionalOptions>
       <CLanguageStandard />
@@ -115,7 +115,6 @@
     <ClCompile Include="FmDecode.cpp" />
     <ClCompile Include="FMDemodulator.cpp" />
     <ClCompile Include="FMModulator.cpp" />
-    <ClCompile Include="FreeDVTab.cpp" />
     <ClCompile Include="FreeSans42.c" />
     <ClCompile Include="FreeSansOblique24.c" />
     <ClCompile Include="FreeSansOblique32.c" />
@@ -222,6 +221,7 @@
     <ClInclude Include="ButtonBar.h" />
     <ClInclude Include="Catinterface.h" />
     <ClInclude Include="CatTcpServer.h" />
+    <ClInclude Include="CircularQueue.h" />
     <ClInclude Include="CivetServer.h" />
     <ClInclude Include="civetweb.h" />
     <ClInclude Include="cmeter.h" />
@@ -229,6 +229,7 @@
     <ClInclude Include="configoption.h" />
     <ClInclude Include="CustomEvents.h" />
     <ClInclude Include="DataBuffer.h" />
+    <ClInclude Include="DataPool.h" />
     <ClInclude Include="date\chrono_io.h" />
     <ClInclude Include="date\date.h" />
     <ClInclude Include="date\ios.h" />
@@ -250,7 +251,6 @@
     <ClInclude Include="FmDecode.h" />
     <ClInclude Include="FMDemodulator.h" />
     <ClInclude Include="FMModulator.h" />
-    <ClInclude Include="FreeDVTab.h" />
     <ClInclude Include="FT891_CAT.h" />
     <ClInclude Include="FT8Demodulator.h" />
     <ClInclude Include="FT8Generator.h" />

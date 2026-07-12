@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstdint>
 #include <cstring>
+#include <span>
 
 class WavReader
 {
@@ -17,7 +18,7 @@ class WavReader
 	 * @return true if file was successfully parsed, validated, and loaded
 	 */
 	bool open(const std::string &filename);
-	bool readChunk(std::vector<float> &outBuffer, size_t maxSamples);
+	bool readChunk(std::span<float> &outBuffer, size_t maxSamples);
 	void close();
 	bool isOpen() const { return isOpen_; }
 	bool isEOF() const { return isEOF_; }

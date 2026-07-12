@@ -3,12 +3,12 @@
 #include "RtAudio.h"
 #include "AudioHeader.h"
 #include "SdrberryTypeDefs.h"
-#include "Settings.h"
 #include <map>
 #include <string>
 #include <chrono>
 #include <atomic>
 #include <vector>
+#include "CircularQueue.h"
 
 class AudioOutput : public RtAudio
 {
@@ -22,7 +22,7 @@ class AudioOutput : public RtAudio
 	std::atomic<int> underrun;
 	std::map<int, std::string> device_map;
 	SampleVector audioFrames;
-	DataBuffer<Sample> databuffer;
+	CircularQueue<float, 10> audio_out_buffer;
 	SampleVector underrunSamples;
 	std::atomic<bool> copyUnderrun{false};
 	std::atomic<std::chrono::high_resolution_clock::time_point> SampleTimeNow;
@@ -35,9 +35,9 @@ class AudioOutput : public RtAudio
 	static constexpr auto Audioout_ = AudioCallbackHandler<AudioOutput, &AudioOutput::Audioout_class>::staticCallbackHandler;
 	void listDevices(std::vector<std::string> &devices);
 	bool open(int deviceId);
-	bool write(SampleVector &samples);
-	void adjust_gain(SampleVector &samples);
-	void adjust_gain(SampleVector &samples_in, SampleVector &samples_out);
+	bool write(std::span<float>);
+	void adjust_gain(std::span<float> samples);
+	void adjust_gain(std::span<float> samples, std::span<float> samples_out);
 	void close();
 	~AudioOutput();
 	float get_volume() { return volume; }
@@ -51,9 +51,9 @@ class AudioOutput : public RtAudio
 	int get_channels() { return info.outputChannels; }
 	unsigned int get_samplerate() { return sampleRate; }
 	unsigned int get_device() { return parameters.deviceId; }
-	void writeSamples(const SampleVector &audiosamples);
-	void mono_to_left_right(const SampleVector &samples_mono,
-					   SampleVector &audio);
+	void writeSamples(std::span<float> audiosamples);
+	void mono_to_left_right(std::span<float> samples_mono,
+		std::span<float> audio);
 
 	static bool createAudioDevice(int Samplerate, unsigned int bufferFrames, int deviceID);
 	void CopyUnderrunSamples(bool copySamples);

@@ -42,8 +42,9 @@ player::~player()
 
 void player::operator()()
 {
-	SampleVector audiosamples, audioframes, audiosink;
-		
+	SampleVector audioframes;
+	std::span<Sample> audiosink, audiosamples;
+	
 	setBandPassFilter(3000.0f, 100.0f);
 	if (!wavReader.open(filename))
 	{
@@ -55,9 +56,7 @@ void player::operator()()
 	std::cout << "Total Samples: " << wavReader.getTotalSamples() << "\n";
 	while (!wavReader.isEOF())
 	{
-		if (!audioInputBuffer->read(audiosink))
-			continue;
-		audiosink.clear();
+		audiosink = audioInputBuffer->read();
 		if (!wavReader.readChunk(audiosamples, audio_input->getbufferFrames()))
 			break;
 		
@@ -81,7 +80,6 @@ void player::operator()()
 					audioframes.clear();
 			}
 		}
-		audiosamples.clear();
 	}
 	wavReader.close();
 	printf("exit player\n");

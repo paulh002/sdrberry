@@ -1,4 +1,5 @@
 #include "gui_gain.h"
+#include "Settings.h"
 
 gui_gain guigain;
 

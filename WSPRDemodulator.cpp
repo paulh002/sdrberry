@@ -1,5 +1,4 @@
 #include "WSPRDemodulator.h"
-#include "FreeDVTab.h"
 #include "Spectrum.h"
 #include "date.h"
 #include "gui_ft8bar.h"

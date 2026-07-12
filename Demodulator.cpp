@@ -237,7 +237,7 @@ float Demodulator::adjust_resample_rate1(float rateAjustFraction)
 	return resampleRate;
 }
 
-void Demodulator::calc_af_signalstrength(const SampleVector &samples_in)
+void Demodulator::calc_af_signalstrength(std::span<Sample> samples_in)
 {
 	signalstrength.calculateSignalStrength(samples_in);
 }
@@ -399,6 +399,28 @@ void Demodulator::Resample(IQSampleVector &filter_in,
 		filter_out = std::move(filter_in);
 	}
 }
+
+void Demodulator::Resample_new(IQSampleVector &filter_in,
+	IQSampleVector &filter_out)
+{
+	unsigned int num_written;
+
+	if (resampleHandle)
+	{
+		if (filter_out.size() == 0)
+		{
+			float nx = (float)filter_in.size() * resampleRate * 2;
+			filter_out.resize((int)ceilf(nx));
+		}
+		msresamp_crcf_execute(resampleHandle, (std::complex<float> *)filter_in.data(), filter_in.size(), (std::complex<float> *)filter_out.data(), &num_written);
+		filter_out.resize(num_written);
+	}
+	else
+	{
+		filter_out = filter_in;
+	}
+}
+
 
 IQSampleVector Demodulator::Resample(IQSampleVector &filter_in)
 {
@@ -645,7 +667,7 @@ void Demodulator::setBandPassFilter(float high, float low)
 	//firfilt_rrrf_print(highPassHandle);
 }
 
-void Demodulator::executeBandpassFilter(SampleVector &filter_in)
+void Demodulator::executeBandpassFilter(std::span<Sample>  filter_in)
 { 
 	if (bandPassHandle != nullptr && lowPassHandle != nullptr && highPassHandle != nullptr)
 	{

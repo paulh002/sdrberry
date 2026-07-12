@@ -1,9 +1,8 @@
 #pragma once
-#include "DataBuffer.h"
+#include "CircularQueue.h"
 #include "RtAudio.h"
 #include "AudioHeader.h"
 #include "SdrberryTypeDefs.h"
-#include "Settings.h"
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -16,7 +15,6 @@ enum audioTone
 	NoTone = 0,
 	SingleTone = 1,
 	TwoTone = 2,
-	FourTone = 4
 } ;
 
 class AudioInput : public RtAudio
@@ -36,23 +34,24 @@ class AudioInput : public RtAudio
 	int bufferFramesSend;
 	std::atomic<bool> digitalmode, bufferempty, playbackmode;
 	std::atomic<float> mic_volume;
-	std::vector<float> digitalmodesignal;
-	DataBuffer<Sample> databuffer;
+	std::vector<float> digitalmodesignal, gain_buffer;
+	CircularQueue<float, 10> audio_in_buffer; 
 	WavReader wavereader;
 	std::string play_prerecorded_file;
 	int AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
 	void doPlayRecording();
 	void doDigitalMode();
 	void ToneBuffer();
-
+	
+	
   public:
 	AudioInput(unsigned int pcmrate, unsigned int bufferFrames, bool stereo, RtAudio::Api api = UNSPECIFIED);
-	static int createAudioInputDevice(int Samplerate, unsigned int bufferFrames);
+	static int createAudioInputDevice(int Samplerate, unsigned int bufferFrames, std::string dev, int volume);
 	static constexpr auto AudioIn = AudioCallbackHandler<AudioInput, &AudioInput::AudioIn_class>::staticCallbackHandler;
 
 	bool open(int deviceId);
-	void adjust_gain(SampleVector &samples);
-	bool read(SampleVector &samples);
+	void adjust_gain(std::span<Sample> samples);
+	std::span<Sample> read();
 	void close();
 	~AudioInput();
 	float get_volume() { return volume; }
@@ -67,7 +66,6 @@ class AudioInput : public RtAudio
 	void set_tone(audioTone tone) { tune_tone = tone; }
 	audioTone get_tone() { return tune_tone; }
 	operator bool() const { return error.empty(); }
-	void clear() { databuffer.clear(); }
 	std::vector<RtAudio::Api> listApis();
 	unsigned int get_samplerate() { return sampleRate; }
 	bool IsdigitalMode();
@@ -78,6 +76,7 @@ class AudioInput : public RtAudio
 	void StopPlayback();
 	int getbufferFrames() { return bufferFrames; }
 	float get_mic_vol();
+	void clear();
 };
 
 extern AudioInput *audio_input;

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdint>
 #include <cstddef>
+#include <span>
 
 class WavWriter
 {
@@ -30,7 +31,7 @@ class WavWriter
 	 * @param samples Vector of float samples (interleaved if multi-channel)
 	 * @return true if write succeeded
 	 */
-	bool addSamples(const std::vector<float> &samples);
+	bool addSamples(std::span<float> samples);
 
 	/**
 	 * @brief Append floating-point samples to the file (pointer interface)

@@ -7,7 +7,7 @@ class FMModulator : public Demodulator
 	FMModulator(int mode, int duplex, double ifrate, audioTone tone, std::string filename,DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);
 	~FMModulator();
 
-	void process(SampleVector &samples);
+	void process(std::span<Sample>);
 	void operator()();
 	static void destroy_modulator();
 	static bool create_modulator(int mode, int duplex, double ifrate, audioTone tone, std::string filename, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input);

@@ -19,7 +19,6 @@
 #include "DataBuffer.h"
 #include "Filter.h"
 #include "FmDecode.h"
-#include "FreeDVTab.h"
 #include "GuiFt8Setting.h"
 #include "Gui_band.h"
 #include "Keyboard.h"
@@ -622,8 +621,12 @@ int main(int argc, char *argv[])
 	thread_cattcpserver.detach();
 
 	int audiodevID;
-	int mic_buffer = Settings_file.get_int(default_radio, "mic_buffer", 2048);
-	audiodevID = AudioInput::createAudioInputDevice(defaultAudioSampleRate, mic_buffer);
+	int mic_buffer = Settings_file.get_int(default_radio, "mic_buffer", 1024);
+	std::string audiodevice;
+	audiodevice = Settings_file.get_string(default_radio, "device");
+	int mic_vol = Settings_file.get_int("Radio", "micgain", 85);
+	
+	audiodevID = AudioInput::createAudioInputDevice(defaultAudioSampleRate, mic_buffer, audiodevice, mic_vol);
 	if (!audiodevID)
 		printf("CreateAudioInputDevice: No Audio Input Device found\n");
 	AudioOutput::createAudioDevice(defaultAudioSampleRate, 1024, audiodevID);
@@ -993,8 +996,6 @@ int main(int argc, char *argv[])
 			timeLastStatus = now;
 			gui_vfo_inst.set_s_meter(signalstrength.get_signal_strength());
 			catinterface->SetSM((uint8_t)signalstrength.get_signal_strength());
-			if (mode == mode_freedv)
-				freeDVTab.DrawWaterfall();
 			if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 				guift8bar.DrawWaterfall(guirx.get_waterfallgain() + (float)wsjtxWaterfallGain);
 			SpectrumGraph.DrawDisplay();
@@ -1299,6 +1300,7 @@ int main(int argc, char *argv[])
 		}
 		if (idle_time != 0)
 			usleep(idle_time * 1000);
+
 
 		fflush(stdout);
 	}

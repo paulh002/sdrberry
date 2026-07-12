@@ -3,7 +3,7 @@
 
 AudioInput *audio_input;
 
-int AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames)
+int AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames, std::string dev, int volume)
 {
 	RtAudio::Api selectedApi = RtAudio::LINUX_PULSE;
 	int deviceID = 0;
@@ -22,7 +22,6 @@ int AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames
 
 	if (audio_input)
 	{
-		std::string dev = Settings_file.find_audio("device");
 		deviceID = audio_input->getAudioDevice(dev);
 		if (!deviceID)
 		{
@@ -33,7 +32,7 @@ int AudioInput::createAudioInputDevice(int SampleRate, unsigned int bufferFrames
 			deviceID = audio_input->getAudioDevice(dev);
 		}
 		audio_input->open(deviceID);
-		audio_input->set_volume(Settings_file.get_int("Radio", "micgain", 85));
+		audio_input->set_volume(volume);
 		return deviceID;
 	}
 	fprintf(stderr, "ERROR: Cannot create AudioInputDevice\n");
@@ -62,25 +61,19 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 	}
 	else
 	{
-		// Do something with the data in the "inputBuffer" buffer.
-		// printf("frames %u \n", nBufferFrames);
-		SampleVector buf;
-
-		for (int i = 0; i < nBufferFrames; i++)
-		{
-			Sample f = ((float *)inputBuffer)[i];
-			buf.push_back(f);
-			if (get_stereo())
-				buf.push_back(f);
-		}
-		float mic_vol = 0;
-		for (auto con : buf)
-		{
-			mic_vol += con * con;
-		}
-		mic_volume.store(mic_vol / buf.size());
-		databuffer.clear();
-		databuffer.push(std::move(buf));
+		audio_in_buffer.push_block(nBufferFrames, [&](std::span<float> buffer) {
+			for (int i = 0; i < nBufferFrames; i++)
+			{
+				Sample f = ((float *)inputBuffer)[i];
+				buffer[i] = f;
+			}
+			float mic_vol = 0;
+			for (auto con : buffer)
+			{
+				mic_vol += con * con;
+			}
+			mic_volume.store(mic_vol / buffer.size());
+		});
 		return 0;
 	}
 }
@@ -96,7 +89,7 @@ void AudioInput::listDevices(std::vector<std::string> &devices)
 		
 	std::vector<unsigned int> ids = this->getDeviceIds();	
 	printf("List devices: \n");
-	int default_dev = Settings_file.get_int("Audio", "default_devices", 0);
+	int default_dev = 1;
 	for (auto col : ids)
 	{
 		dev = getDeviceInfo(col);
@@ -149,6 +142,11 @@ AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool st
 	bufferFramesSend = 0;
 	stereo = false;
 	playbackmode = false;
+	tone_volume = 1.0;
+	digitalvolume = 1.0;
+	playback_volume = 1.0;
+	audio_in_buffer.reserve(bufferFrames);
+	gain_buffer.reserve(bufferFrames);
 }
 
 std::vector<RtAudio::Api> AudioInput::listApis()
@@ -220,38 +218,38 @@ void AudioInput::set_playback_volume(int vol)
 	playback_volume = expf(((float)vol * 6.908) / 100.0) / 1000.0;
 }
 
-void AudioInput::adjust_gain(SampleVector& samples)
+void AudioInput::adjust_gain(std::span<Sample> samples)
 {
-	for (unsigned int i = 0, n = samples.size(); i < n; i++) 
+	for (auto &con : samples) 
 	{
 		if (digitalmode)
 		{
-			samples[i] *= digitalvolume;
+			con *= digitalvolume;
 		}
 		else if (get_tone())
 		{
-			samples[i] *= tone_volume;
+			con *= tone_volume;
 		}
 		else if (playbackmode)
 		{
-			samples[i] *= playback_volume;
+			con *= playback_volume;
 		}
 		else
 		{
-				samples[i] *= volume;
+			con *= volume;
 		}
 	}
 }
 
-bool AudioInput::read(SampleVector &samples)
+std::span<Sample> AudioInput::read()
 {
+	std::span<Sample> ret {};
+		
 	if (!isStreamOpen())
-		return false;
-	samples = databuffer.pull();
-	if (samples.empty())
-		return false;
-	adjust_gain(samples);
-	return true;
+		return ret;
+	ret = audio_in_buffer.get_buffer_view(audio_in_buffer.pop_block());
+	adjust_gain(ret);
+	return ret;
 }
 
 void AudioInput::close()
@@ -281,23 +279,27 @@ float AudioInput::Nexttone()
 
 void AudioInput::ToneBuffer()
 {
-	SampleVector	buf;
-	
-	for (int i = 0; i < bufferFrames; i++)
-	{
-		Sample f;
+	audio_in_buffer.push_block(bufferFrames,[&](std::span<float> buffer) {
+		for (int i = 0; i < bufferFrames; i++)
+		{	Sample f;
 
-		if (tune_tone == TwoTone)
-		{
-			f = (Sample) NextTwotone();
+			if (tune_tone == TwoTone)
+			{
+				f = (Sample) NextTwotone();
+			}
+			else
+			{
+				f = (Sample) Nexttone();	
+			}
+			buffer[i] = f;
 		}
-		else
+		float mic_vol = 0;
+		for (auto con : buffer)
 		{
-			f = (Sample) Nexttone();	
+			mic_vol += con * con;
 		}
-		buf.push_back(f);
-	}
-	databuffer.push(std::move(buf));
+		mic_volume.store(mic_vol / buffer.size());
+	});
 }
 
 void AudioInput::StartDigitalMode(std::vector<float> &signal)
@@ -355,24 +357,25 @@ void AudioInput::StopPlayback()
 
 void AudioInput::doDigitalMode()
 {
-	SampleVector buf, buf_out;
+	std::span<float> buf = audio_in_buffer.get_buffer_view(audio_in_buffer.pop_block());
 
 	if (digitalmode == false || bufferempty)
 		return ;
-
-	for (int i = 0; i < bufferFrames; i++)
-	{
-		if ((i + bufferFramesSend * bufferFrames) < digitalmodesignal.size())
-			buf.push_back((Sample)digitalmodesignal.at(i + bufferFramesSend * bufferFrames));
-		else
-			buf.push_back(0.0);
-		//printf("sample %f \n", (Sample)digitalmodesignal.at(i + bufferFramesSend));
-	}
+	audio_in_buffer.push_block(bufferFrames,[&](std::span<float> buffer) {
+		int i = 0;
+		for (auto &con : buffer)
+		{
+			if ((i + bufferFramesSend * bufferFrames) < digitalmodesignal.size())
+				con = ((Sample)digitalmodesignal.at(i + bufferFramesSend * bufferFrames));
+			else
+				con = 0.0;
+			i++;
+		}
+	});	
 	bufferFramesSend++;
 	//cout << "bufferframes send " << bufferFramesSend << endl;
-	audio_output->adjust_gain(buf, buf_out);
-	audio_output->writeSamples(buf_out);
-	databuffer.push(std::move(buf));
+	audio_output->adjust_gain(buf);
+	audio_output->writeSamples(buf);
 	if ((bufferFramesSend * bufferFrames) >= digitalmodesignal.size())
 	{
 		//cout << "all ft8 audio samples streamed\n";
@@ -383,21 +386,20 @@ void AudioInput::doDigitalMode()
 
 void AudioInput::doPlayRecording()
 {
-	SampleVector audiosamples, buf_out;
-
-	if (!wavereader.readChunk(audiosamples, getbufferFrames()))
-	{
-		bufferempty = true;
-		playbackmode = false;
-	}
-	if (wavereader.isEOF())
-	{
-		bufferempty = true;
-		playbackmode = false;
-	}
-	audio_output->adjust_gain(audiosamples, buf_out);
-	audio_output->writeSamples(buf_out);
-	databuffer.push(std::move(audiosamples));
+	audio_in_buffer.push_block(bufferFrames,[&](std::span<float> buffer) {
+		if (!wavereader.readChunk(buffer, getbufferFrames()))
+		{
+			bufferempty = true;
+			playbackmode = false;
+		}
+		if (wavereader.isEOF())
+		{
+			bufferempty = true;
+			playbackmode = false;
+		}
+		audio_output->adjust_gain(buffer, gain_buffer);
+		audio_output->writeSamples(gain_buffer);	
+	});	
 }
 
 float AudioInput::NextTwotone()
@@ -410,5 +412,10 @@ float AudioInput::NextTwotone()
 
 int	 AudioInput::queued_samples()
 {
-	return databuffer.queued_samples();
+	return audio_in_buffer.size();
+}
+
+void AudioInput::clear()
+{
+	audio_in_buffer.clear();
 }

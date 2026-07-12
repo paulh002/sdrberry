@@ -58,6 +58,7 @@ class Demodulator
 	float adjust_resample_rate1(float rateAjustFraction);
 	void tune_offset(long offset);
 	void Resample(IQSampleVector &filter_in, IQSampleVector &filter_out);
+	void Resample_new(IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void lowPassAudioFilter(const IQSampleVector &filter_in, IQSampleVector &filter_out);
 	void lowPassAudioFilter(IQSampleVector &filter_in);
 	void set_resample_rate(float resample_rate);
@@ -74,10 +75,10 @@ class Demodulator
 	void setLowPassAudioFilter(float samplerate, int band_width);
 	void set_span(long span);
 	void perform_fft(const IQSampleVector &iqsamples);
-	void calc_af_signalstrength(const SampleVector &samples_in);
+	void calc_af_signalstrength(std::span<Sample> samples_in);
 	void calc_iq_signalstrength(const IQSampleVector &samples_in);
 	void setBandPassFilter(float high, float low);
-	void executeBandpassFilter(SampleVector &filter_in);
+	void executeBandpassFilter(std::span<Sample> filter_in);
 	void dc_filter(IQSampleVector &filter_in);
 	int get_audioBufferSize() { return audioBufferSize; }
 	bool get_dc_filter();

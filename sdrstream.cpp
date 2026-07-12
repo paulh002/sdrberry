@@ -308,7 +308,7 @@ void TX_Stream::operator()()
 	IQSampleVector iqsamples, resampleData;
 
 	int ret, dfactor, streammtu;
-
+	
 	try
 	{
 		// SdrDevices.SdrDevices.at(radio)->setBandwidth(SOAPY_SDR_TX, 0, m_ifrate); //0.1
@@ -322,7 +322,7 @@ void TX_Stream::operator()()
 		}
 		SdrDevices.SdrDevices.at(radio)->activateStream(tx_stream);
 	}
-	catch (const std::exception &e)
+	catch(const std::exception &e)
 	{
 		printf("Failed create transmit stream\n");
 		std::cout << e.what();
@@ -343,7 +343,7 @@ void TX_Stream::operator()()
 		iqsamples = std::move(receiveIQBuffer->pull());
 		if (iqsamples.empty())
 			continue;
-		// printf("samples %ld %ld %ld \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
+		//printf("samples %ld %f %f \n", iqsamples.size(), iqsamples[0].real(), iqsamples[0].imag());
 		samples_transmit = iqsamples.size();
 		std::complex<float> *buffs[5]{};
 		buffs[0] = (std::complex<float> *)iqsamples.data();
@@ -451,6 +451,27 @@ TX_Stream::TX_Stream(double ifrate_, std::string sradio, int chan, DataBuffer<IQ
 	}
 }
 
+void pin_thread_to_core(std::thread& thread, int core_id) {
+	cpu_set_t cpuset;
+	CPU_ZERO(&cpuset);
+	CPU_SET(core_id, &cpuset);
+
+	int ret = pthread_setaffinity_np(thread.native_handle(), sizeof(cpu_set_t), &cpuset);
+	if (ret != 0) {
+		std::cerr << "Failed to pin thread to core " << core_id << std::endl;
+	}
+}
+
+void set_realtime_priority(std::thread& thread, int priority) {
+	struct sched_param param;
+	param.sched_priority = priority;
+
+	int ret = pthread_setschedparam(thread.native_handle(), SCHED_FIFO, &param);
+	if (ret != 0) {
+		std::cerr << "Failed to set RT priority: " << ret << std::endl;
+	}
+}
+
 bool TX_Stream::create_tx_streaming_thread(double ifrate_, std::string radio, int chan, DataBuffer<IQSample> *source_buffer, double ifrate, unsigned int decimator_factor, bool restart)
 {
 	if (ptr_tx_stream != nullptr)
@@ -458,6 +479,7 @@ bool TX_Stream::create_tx_streaming_thread(double ifrate_, std::string radio, in
 	restart_stream = restart;
 	ptr_tx_stream = make_shared<TX_Stream>(ifrate_, radio, chan, source_buffer, decimator_factor);
 	tx_thread = std::thread(&TX_Stream::operator(), ptr_tx_stream);
+	pin_thread_to_core(tx_thread, 2);
 	return true;
 }
 

@@ -17,7 +17,7 @@ float SignalStrength::get_signal_strength()
 	return signal_strength;
 }
 
-void SignalStrength::calculateSignalStrength(const SampleVector &samples_in)
+void SignalStrength::calculateSignalStrength(std::span<Sample> samples_in)
 {
 	double y2 = 0.0;
 	for (auto &con : samples_in)

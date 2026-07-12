@@ -1,5 +1,6 @@
 #pragma once
 #include <atomic>
+#include <span>
 #include "SdrberryTypeDefs.h"
 
 class SignalStrength
@@ -12,7 +13,7 @@ class SignalStrength
 	void set_signal_strength(float strength);
 	void set_signal_strength_offset(float offset);
 	float get_signal_strength();
-	void calculateSignalStrength(const SampleVector &samples_in);
+	void calculateSignalStrength(std::span<Sample> samples_in);
 	void calculateSignalStrength(const IQSampleVector &samples_in);
 };
 

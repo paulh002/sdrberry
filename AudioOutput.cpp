@@ -76,7 +76,7 @@ int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned 
 	SampleTime = std::chrono::high_resolution_clock::now();
 
 	// Write interleaved audio data.
-	if (databuffer.queued_samples() == 0)
+	if (audio_out_buffer.size() == 0)
 	{
 		//Use previous samples incase of buffer underrun
 		int bytes = nBufferFrames * std::min(audio_output->get_channels(), 2);
@@ -100,8 +100,9 @@ int AudioOutput::Audioout_class(void *outputBuffer, void *inputBuffer, unsigned 
 			audio_output->inc_underrun();
 		return 0;
 	}
-	SampleVector samples = databuffer.pull();
-	underrunSamples = samples;
+	
+	std::span<float> samples = audio_out_buffer.get_buffer_view(audio_out_buffer.pop_block());
+	underrunSamples.assign(samples.begin(), samples.end());
 	//cout << "nBufferFrames " << nBufferFrames << " nSamples " << samples.size() << endl;
 	int i = 0;
 	for (auto& col : samples)
@@ -165,6 +166,8 @@ AudioOutput::AudioOutput(int pcmrate, unsigned int bufferFrames_, RtAudio::Api a
 	parameters.nChannels = 2;
 	parameters.firstChannel = 0;
 	parameters.deviceId = 0;
+	audio_out_buffer.reserve(bufferFrames * 2); // stereo
+	audioFrames.resize(bufferFrames * 2); // stereo
 }
 
 /*
@@ -208,21 +211,20 @@ void AudioOutput::set_volume(int vol)
 	//printf("vol %f\n", (float)m_volume.load());
 } 
 
-void AudioOutput::adjust_gain(SampleVector& samples)
+void AudioOutput::adjust_gain(std::span<float> samples)
 {
 	float gain = volume.load();
-	for (unsigned int i = 0, n = samples.size(); i < n; i++) {
-		samples[i] *= gain;
+	for (auto &con : samples) {
+		con *= gain;
 	}
 }
 
-void AudioOutput::adjust_gain(SampleVector &samples_in, SampleVector &samples_out)
+void AudioOutput::adjust_gain(std::span<float> samples, std::span<float> samples_out)
 {
 	float gain = volume.load();
-	samples_out.clear();
-	for (auto sample  : samples_in)
-	{
-		samples_out.push_back(gain * sample);
+	int i = 0;
+	for (auto con : samples) {
+		samples_out[i++] = con * gain;
 	}
 }
 
@@ -245,21 +247,27 @@ AudioOutput::~AudioOutput()
  * Write data to audio buffer
  **/
 
-bool AudioOutput::write(SampleVector& audiosamples)
+bool AudioOutput::write(std::span<float> audiosamples)
 {
 	if (isStreamOpen())
-		databuffer.push(std::move(audiosamples));
-	else
-		audiosamples.clear();
+		{
+			audio_out_buffer.push_block(bufferFrames *2, [&](std::span<float> buffer) {
+				int i = 0;
+				for (auto con : audiosamples)
+				{
+					buffer[i++] = con;					
+				}
+			});
+		}
 	return true;
 }
 
 int	 AudioOutput::queued_samples()
 {
-	return databuffer.queued_samples();
+	return audio_out_buffer.size()  * bufferFrames;
 }
 
-void AudioOutput::writeSamples(const SampleVector &audioSamples)
+void AudioOutput::writeSamples(std::span<float> audioSamples)
 {
 	for (auto &col : audioSamples)
 	{
@@ -284,8 +292,8 @@ void AudioOutput::writeSamples(const SampleVector &audioSamples)
 }
 
 // copy mono signal to both sereo channels
-void AudioOutput::mono_to_left_right(const SampleVector &samples_mono,
-									 SampleVector &audio)
+void AudioOutput::mono_to_left_right(std::span<float> samples_mono,
+	std::span<float> audio)
 {
 	unsigned int n = samples_mono.size();
 
@@ -294,7 +302,7 @@ void AudioOutput::mono_to_left_right(const SampleVector &samples_mono,
 		audio = samples_mono;
 		return;
 	}
-	audio.resize(2 * n);
+	//audio.resize(2 * n);
 	for (unsigned int i = 0; i < n; i++)
 	{
 		Sample m = samples_mono[i];

@@ -118,7 +118,7 @@ void AudioProcessor::prepareToPlay(double sampleRate)
 	}
 }
 
-void AudioProcessor::processBlock(SampleVector &buffer)
+void AudioProcessor::processBlock(std::span<Sample> &buffer)
 {
 
 	// This is the place where you'd normally do the guts of your plugin's

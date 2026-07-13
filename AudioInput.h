@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "WavReader.h"
+#include "whitenoise.h"
 
 enum audioTone
 {
@@ -26,7 +27,7 @@ class AudioInput : public RtAudio
 	unsigned int bufferFrames;
 	float volume, digitalvolume, tone_volume, playback_volume;
 	std::string error;
-	long asteps;
+	long asteps, asteps2;
 	bool stereo;
 	float Nexttone();
 	float NextTwotone();
@@ -42,6 +43,8 @@ class AudioInput : public RtAudio
 	void doPlayRecording();
 	void doDigitalMode();
 	void ToneBuffer();
+	float NextWhiteNoise();
+	WhiteNoiseGenerator noise_gen;
 	
 	
   public:

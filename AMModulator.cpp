@@ -52,7 +52,7 @@ AMModulator::~AMModulator()
 AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *source_buffer, AudioInput *audio_input)
 	: Demodulator(param.ifrate, source_buffer, audio_input)
 {
-	float					mod_index = 0.99f; // modulation index (bandwidth)
+	float					mod_index = 0.9f; // modulation index (bandwidth)
 	float					As = 60.0f; // resampling filter stop-band attenuation [dB]
 	int						suppressed_carrier;
 
@@ -139,7 +139,7 @@ void AMModulator::operator()()
 	std::span<Sample>		audiosamples;
 	IQSampleVector			samples_in, samples_out2;
 	AudioProcessor			Speech;
-	IQGenerator IqGenerator(ifrate, audioInputBuffer);
+	//IQGenerator IqGenerator(48000, audioInputBuffer);
 
 	Speech.prepareToPlay(audio_output->get_samplerate());
 	Speech.setThresholdDB(gspeech.get_threshold());
@@ -193,6 +193,7 @@ void AMModulator::operator()()
 		}
 		calc_af_signalstrength(audiosamples);
 		process(audiosamples, samples_out);
+		//samples_out = IqGenerator.generateTwoToneIQVectors(1, 0, 1500, 750);
 		adjust_calibration(samples_out);
 		int number_of_samples = samples_out.size();
 		int number_of_audio_samples = audiosamples.size();
@@ -207,11 +208,6 @@ void AMModulator::operator()()
 			printf("Queued transmitbuffer Samples %lu number of audio samples %d number of samples %d\n", transmitIQBuffer->queued_samples(), number_of_audio_samples, number_of_samples);
 			printf("peak %f db gain %f db threshold %f ratio %f atack %f release %f\n", Speech.getPeak(), Speech.getGain(), Speech.getThreshold(), Speech.getRatio(), Speech.getAtack(), Speech.getRelease());
 		}
-		
-		
-		//const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - timeLastMeasure);
-		//timeLastMeasure = now;
-		//printf("Time measure %ld ms\n", timePassed.count());
 	}
 	transmitIQBuffer->clear();
 	transmitIQBuffer->push_end();
@@ -231,16 +227,17 @@ void AMModulator::operator()()
 void AMModulator::process(std::span<Sample>samples, IQSampleVector &samples_out)
 {
 	unsigned int num_written;
-
+	
 	// Modulate audio to USB, LSB or DSB;
-	executeBandpassFilter(samples);
+	if (!digitalmode && !audio_input->get_tone())
+		executeBandpassFilter(samples);
 	int i = 0;
 	for (auto &col : samples)
 	{
 		std::complex<float> f;
 		ampmodem_modulate(AMmodulatorHandle, col, &f);
-		//printf("audio %f;I %f;Q %f \n", col, f.real(), f.imag());
 		modulatorbuffer.at(i++) = f; 
+		//printf("I %f;Q %f \n", f.real(), f.imag());
 	}
 	if (digitalmode)
 		guift8bar.Process(modulatorbuffer);

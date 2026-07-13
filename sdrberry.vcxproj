@@ -365,6 +365,7 @@
     <ClInclude Include="WavWriter.h" />
     <ClInclude Include="WebRestHandler.h" />
     <ClInclude Include="WebServer.h" />
+    <ClInclude Include="whitenoise.h" />
     <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />
     <ClInclude Include="WSPRDemodulator.h" />

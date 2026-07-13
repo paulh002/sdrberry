@@ -6,11 +6,14 @@
 class IQGenerator
 {
   public:
-	IQGenerator(double ifrate, AudioInput *audio_input);
-	IQSampleVector generateIQVectors(int vectors, float phaseShiftDegrees, int space);
+	IQGenerator(float ifrate, AudioInput *audio_input);
+	IQSampleVector generateIQVectors(int vectors, float phaseShiftDegrees, int frequency);
+	IQSampleVector generateTwoToneIQVectors(int vectors, float phaseShiftDegrees, int frequency1, int frequency2);
 
   private:
 	int block_length;
-	double ifrate;
+	float ifrate;
+	float delta_phase1;
+	float delta_phase2;
 };
 

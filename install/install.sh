@@ -132,6 +132,7 @@ cd $wrkdir || exit
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp || exit
+sed -i 's/\(q->m[[:space:]]*=[[:space:]]*\)25;/\1127;/' ./src/modem/src/ampmodem.c
 git checkout v1.6.0
 ./bootstrap.sh
 ./configure

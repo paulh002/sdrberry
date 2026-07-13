@@ -1,5 +1,6 @@
 #include "AudioInput.h"
 #include "AudioOutput.h"
+#include "whitenoise.h"
 
 AudioInput *audio_input;
 
@@ -147,6 +148,7 @@ AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool st
 	playback_volume = 1.0;
 	audio_in_buffer.reserve(bufferFrames);
 	gain_buffer.reserve(bufferFrames);
+	asteps = asteps2 = 0;
 }
 
 std::vector<RtAudio::Api> AudioInput::listApis()
@@ -290,6 +292,7 @@ void AudioInput::ToneBuffer()
 			else
 			{
 				f = (Sample) Nexttone();	
+				//f = (Sample) NextWhiteNoise();
 			}
 			buffer[i] = f;
 		}
@@ -402,12 +405,28 @@ void AudioInput::doPlayRecording()
 	});	
 }
 
-float AudioInput::NextTwotone()
+/*float AudioInput::NextTwotone()
 {
 	float angle = (asteps*cw_keyer_sidetone_frequency)*TWOPIOVERSAMPLERATE;
-	float angle2 = (asteps*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
-	if (++asteps >= 64) asteps = 0;
-	return (sinf(angle) + sinf(angle2)) / 10.0;
+	float angle2 = (asteps2*cw_keyer_sidetone_frequency2)*TWOPIOVERSAMPLERATE;
+	if (++asteps >= 32) asteps = 0;
+	if (++asteps2 >= 64) asteps2 = 0;
+	return (0.5 * cosf(angle) + 0.5 * cosf(angle2)) / 10.0;
+}
+*/
+float AudioInput::NextTwotone()
+{
+	static float phase1 = 0.0f;
+	static float phase2 = 0.0f;
+
+	phase1 += cw_keyer_sidetone_frequency * TWOPIOVERSAMPLERATE;
+	phase2 += cw_keyer_sidetone_frequency2 * TWOPIOVERSAMPLERATE;
+
+	// Keep phases bounded to avoid precision loss (optional)
+	phase1 = fmodf(phase1, 2.0f * M_PI);
+	phase2 = fmodf(phase2, 2.0f * M_PI);
+
+	return (0.5f * cosf(phase1) + 0.5f * sinf(phase2)) / 10.0f;
 }
 
 int	 AudioInput::queued_samples()
@@ -418,4 +437,10 @@ int	 AudioInput::queued_samples()
 void AudioInput::clear()
 {
 	audio_in_buffer.clear();
+}
+
+
+float AudioInput::NextWhiteNoise()
+{
+	return noise_gen.generateSample();
 }

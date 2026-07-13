@@ -5477,5 +5477,8 @@
     <ClInclude Include="CircularQueue.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="whitenoise.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

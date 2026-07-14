@@ -137,7 +137,7 @@ git checkout v1.8.0
 sed -i 's/\(q->m[[:space:]]*=[[:space:]]*\)25;/\1127;/' ./src/modem/src/ampmodem.c
 mkdir build
 cd build
-cmake -DBUILD_EXAMPLES=OFF -DBUILD_AUTOTESTS=OFF -DBUILD_BENCHMARKS=OFF ..
+cmake -DBUILD_EXAMPLES=OFF -DBUILD_AUTOTESTS=OFF -DBUILD_BENCHMARKS=OFF -DENABLE_LOGGING=OFF ..
 make -j4
 sudo make install
 sudo ldconfig

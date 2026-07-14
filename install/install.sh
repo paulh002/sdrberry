@@ -133,10 +133,11 @@ cd $wrkdir || exit
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp || exit
+git checkout v1.8.0
 sed -i 's/\(q->m[[:space:]]*=[[:space:]]*\)25;/\1127;/' ./src/modem/src/ampmodem.c
-git checkout v1.6.0
-./bootstrap.sh
-./configure
+mkdir build
+cd build
+cmake -DBUILD_EXAMPLES=OFF -DBUILD_AUTOTESTS=OFF -DBUILD_BENCHMARKS=OFF ..
 make -j4
 sudo make install
 sudo ldconfig
@@ -408,6 +409,8 @@ elif [[ $sdrboard == 'SDP' ]]; then
 sed -i '/default = "radioberry"/c\default = "sdrplay"' $usrdir/sdrberry_settings.cfg
 elif [[ $sdrboard == 'RTL' ]]; then
 sed -i '/default = "radioberry"/c\default = "rtlsdr"' $usrdir/sdrberry_settings.cfg
+elif [[ $sdrboard == 'HPSDR' ]]; then
+sed -i '/default = "radioberry"/c\default = "hpsdr"' $usrdir/sdrberry_settings.cfg
 fi
 cp ./sdrberry/install/sdrstart.sh $usrdir
 chmod +x $usrdir/sdrstart.sh

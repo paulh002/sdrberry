@@ -54,9 +54,10 @@ elif [[ $1 = "RDB" ]]; then sdrboard='RDB'
 elif [[ $1 = "SDP" ]]; then sdrboard='SDP'
 elif [[ $1 = "RTL" ]]; then sdrboard='RTL'
 elif [[ $1 = "RTLD" ]]; then sdrboard='RTLD'
+elif [[ $1 = "HPSDR" ]]; then sdrboard='HPSDR'
 elif [[ $1 = "No" ]]; then sdrboard='No'
 else
-   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / RTLSDR direct sampling RTLD/ No = No device"
+   echo "SDR Unit being used Supported: hackfr = HRF / HifiBerry = HFB / Pluto = PLT / RadioBerry = RDB / SDRPlay SDP / RTLSDR RTL / RTLSDR direct sampling RTLD/ HPSDR (Redpitaya) HPSDR / No = No device"
    echo "./install.sh Device"
    echo "If you want to use the build branch add build like ./install.sh RDB build"
    echo "If you want to compile from code use ./install.sh RDB"
@@ -185,6 +186,17 @@ fi
 
 #cd to work dir . If does not exist exit script
 cd $wrkdir || exit
+
+if [[ $sdrboard == HPSDR ]] ; then
+git clone https://github.com/paulh002/SoapyHPSDR
+cd SoapyHPSDR || exit
+mkdir build
+cd build || exit
+cmake ..
+make
+sudo make install
+sudo ldconfig
+fi
 
 if [[ $sdrboard == HFB ]] ; then
 git clone https://github.com/paulh002/SoapyHifiBerry

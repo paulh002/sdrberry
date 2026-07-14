@@ -88,8 +88,52 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		//SpectrumGraph.SetFftParts();
 		gbar.updateweb();
 	}
+	
+	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (indev->pointer.btn_id == LV_INDEV_BTN_LEFT || indev->pointer.btn_id == LV_INDEV_BTN_NONE) && drag_marker_rightbutton == 0)
+	{
+		lv_point_t p;
+		lv_indev_get_point(indev, &p);
 
-	// LV_INDEV_BTN_RIGHT
+		if (p.x > 0)
+		{
+			auto ret = cursor_marker_intersect(p);
+			if ((ret.first || drag_marker) && drag_marker_left == 0) // close to marker or drag mode
+			{
+				if (drag_marker) // make sure the same marker is dragged
+				{
+					set_marker(drag_marker - 1, (data_set.size() * p.x) / width);
+				}
+				else
+				{
+					set_marker(ret.second, (data_set.size() * p.x) / width);
+					drag_marker = ret.second + 1;
+				}
+				return;
+			}
+			else
+			{
+				lv_point_t pt = lv_chart_get_cursor_point(chart, FrequencyCursor);
+				//if ((abs(pt.x - p.x) < width_cursor || drag_marker_left) && drag_marker == 0)
+				if ((check_cursor_intersect(mode, p) || drag_marker_left) && drag_marker == 0)
+				{
+					drag_marker_left = 1;
+					long long f;
+					int span = vfo.get_span();
+					f = vfo.get_sdr_span_frequency();
+					f = (p.x + get_cursor_width_drag(mode) / 2)  * (span / width) + f;
+					if (f >= vfo.get_sdr_span_frequency() + span)
+						f = vfo.get_sdr_span_frequency() + span - 1;
+					if (vfo.get_frequency() != f)
+					{
+						f = f / gbar.get_step_value();
+						f = f * gbar.get_step_value();
+						vfo.set_vfo(f);
+					}
+				}
+			}
+		}
+	}
+	
 	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && indev->pointer.btn_id == LV_INDEV_BTN_LEFT && drag_marker_left == 0)
 		{
 		lv_point_t p;
@@ -98,7 +142,6 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		lv_point_t pt = lv_chart_get_cursor_point(chart, FrequencyCursor);
 		if (!check_cursor_intersect(mode, p) || drag_marker_rightbutton)
 		{
-			// LV_INDEV_BTN_RIGHT
 			if (indev->pointer.btn_id == LV_INDEV_BTN_LEFT && p.x != p_drag.x)
 			{
 				p_drag = p;
@@ -130,50 +173,6 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		// make sure only the marker is dragged, fast mouse movements will skipp multiple x possitions
 		drag_marker = 0;
 		drag_marker_left = 0;
-	}
-
-	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (indev->pointer.btn_id == LV_INDEV_BTN_LEFT || indev->pointer.btn_id == LV_INDEV_BTN_NONE) && drag_marker_rightbutton == 0)
-	{
-		lv_point_t p;
-		lv_indev_get_point(indev, &p);
-
-		if (p.x > 0)
-		{
-			auto ret = cursor_marker_intersect(p);
-			if ((ret.first || drag_marker) && drag_marker_left == 0) // close to marker or drag mode
-			{
-				if (drag_marker) // make sure the same marker is dragged
-				{
-					set_marker(drag_marker - 1, (data_set.size() * p.x) / width);
-				}
-				else
-				{
-					set_marker(ret.second, (data_set.size() * p.x) / width);
-					drag_marker = ret.second + 1;
-				}
-			}
-			else
-			{
-				lv_point_t pt = lv_chart_get_cursor_point(chart, FrequencyCursor);
-				//if ((abs(pt.x - p.x) < width_cursor || drag_marker_left) && drag_marker == 0)
-				if ((check_cursor_intersect(mode, p) || drag_marker_left) && drag_marker == 0)
-				{
-					drag_marker_left = 1;
-					long long f;
-					int span = vfo.get_span();
-					f = vfo.get_sdr_span_frequency();
-					f = (p.x + get_cursor_width_drag(mode) / 2)  * (span / width) + f;
-					if (f >= vfo.get_sdr_span_frequency() + span)
-						f = vfo.get_sdr_span_frequency() + span - 1;
-					if (vfo.get_frequency() != f)
-					{
-						f = f / gbar.get_step_value();
-						f = f * gbar.get_step_value();
-						vfo.set_vfo(f);
-					}
-				}
-			}
-		}
 	}
 }
 

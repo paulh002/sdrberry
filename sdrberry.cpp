@@ -60,8 +60,8 @@
 #include "ButtonBar.h"
 
 const int major_version = 2;
-const int minor_version = 8;
-const int patch_version = 1;
+const int minor_version = 9;
+const int patch_version = 0;
 
 std::string version_string = strlib::sprintf("%d.%d.%d", major_version, minor_version, patch_version);
 

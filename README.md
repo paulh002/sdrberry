@@ -7,7 +7,7 @@ The main goal for this project is to learn about c++ programming, liquid dsp, an
 Functionality is in beta currently
 
 This source code is still in development.  
-Goal is to support Adalm pluto SDR, Radioberry, RTL-SDR, SDRPlay etc but it should also support other SDR receivers based on SoapySDR.
+Goal is to support Adalm pluto SDR, Radioberry, RTL-SDR, SDRPlay, TRX-DUO etc but it should also support other SDR receivers based on SoapySDR.
 Also the goal is to support optical encoder and support I2C / serial interface for bandpass filtering
 I use an ESP32 as CAT controller with a service for an optical encoder.
 Alternative a Contour Shuttle express can be used as rotary controller and or a mouse. 
@@ -82,6 +82,7 @@ provided they comply with the GPLv3 terms (i.e., provide full source code and pr
 - Shutdown button for save shutdown of the pi
 - Wayland support
 - WSPR (receiving)
+- TRX-DUO support with SoapHPSDR driver
 
 ## Installation of libraries is necessary:
 - Liquid DSP

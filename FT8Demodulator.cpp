@@ -3,7 +3,6 @@
 #include "date.h"
 #include "gui_ft8bar.h"
 #include "gui_bar.h"
-#include "gui_rx.h"
 #include "sdrberry.h"
 #include <assert.h>
 #include <chrono>
@@ -30,7 +29,6 @@ bool FT8Demodulator::create_demodulator(double ifrate, DataBuffer<IQSample> *sou
 	sp_ft8demod->amdemod_thread = std::thread(&FT8Demodulator::operator(), sp_ft8demod);
 	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
 	Demodulator::set_filter_type(Settings_file.get_int("Radio", "filter_type"));
-	guirx.set_filter_order_handler(true);
 	return true;
 }
 
@@ -48,7 +46,6 @@ void FT8Demodulator::destroy_demodulator()
 	const auto timePassed = std::chrono::duration_cast<std::chrono::microseconds>(now - startTime);
 	Demodulator::set_filter_offset(Settings_file.get_int("Radio", "filter_offset"));
 	Demodulator::set_filter_type(Settings_file.get_int("Radio", "filter_type"));
-	guirx.set_filter_order_handler(false);
 	std::cout << "Stoptime FT8Demodulator:" << timePassed.count() << std::endl;
 }
 
@@ -71,7 +68,6 @@ FT8Demodulator::FT8Demodulator(double ifrate, DataBuffer<IQSample> *source_buffe
 	Demodulator::set_filter_offset(0);
 	Demodulator::set_filter_type(0);
 	Demodulator::set_filter_order(6);
-	guirx.enable_filter_settings(false);
 	Demodulator::setLowPassAudioFilter(ft8_rate, filter_bandwidth);
 	Demodulator::set_filter_offset(0);
 	m_demod = ampmodem_create(mod_index, am_mode, suppressed_carrier);

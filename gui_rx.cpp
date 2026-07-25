@@ -609,11 +609,14 @@ void gui_rx::enable_filter_settings(bool enable)
 	{
 		lv_obj_clear_state(filter_type_dropdown, LV_STATE_DISABLED);
 		lv_obj_clear_state(filter_slider, LV_STATE_DISABLED);
+		lv_obj_clear_state(filter_order_dropdown, LV_STATE_DISABLED);
+		
 	}
 	else
 	{
 		lv_obj_add_state(filter_type_dropdown, LV_STATE_DISABLED);
 		lv_obj_add_state(filter_slider, LV_STATE_DISABLED);
+		lv_obj_add_state(filter_order_dropdown, LV_STATE_DISABLED);
 	}
 }
 

@@ -51,9 +51,11 @@ std::shared_ptr<TX_Stream> ptr_tx_stream;
 std::mutex rxstream_mutex;
 std::atomic_bool RX_Stream::pause_flag{false};
 
-void RX_Stream::pause_rx_stream(bool enable)
+void RX_Stream::pause_rx_stream(std::string sradio, bool enable)
 {
 	pause_flag.store(enable);
+	if (!enable) 
+		SdrDevices.SdrDevices.at(sradio)->setSampleRate(SOAPY_SDR_RX, 0, ptr_rx_stream->ifrate);
 	DEBUG_PRINTF("Pause_flag set to %d\n", enable);
 }
 

@@ -20,7 +20,7 @@ class RX_Stream
 	static void destroy_rx_streaming_thread();
 	void operator()();
 	std::atomic_bool stop_flag{false};
-	static void pause_rx_stream(bool enable);
+	static void pause_rx_stream(std::string sradio,bool enable);
 
   private:
 	double ifrate;

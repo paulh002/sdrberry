@@ -70,7 +70,7 @@
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;__LINUX_PULSE__;NO_SSL=1;USE_WEBSOCKET=1;USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations -fno-omit-frame-pointer -rdynamic</AdditionalOptions>
       <CLanguageStandard />
-      <CPPLanguageStandard>GNUPP20</CPPLanguageStandard>
+      <CPPLanguageStandard>GNUPP23</CPPLanguageStandard>
       <EnableAddressSanitizer>false</EnableAddressSanitizer>
       <VerboseMode>false</VerboseMode>
       <WarnOnUnusedParameters>Disabled</WarnOnUnusedParameters>

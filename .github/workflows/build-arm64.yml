@@ -36,9 +36,9 @@ jobs:
         run: |
           git clone https://github.com/jgaeddert/liquid-dsp
           cd liquid-dsp
-          git checkout v1.6.0
-          ./bootstrap.sh
-          ./configure
+          git checkout v1.8.0
+          mkdir build && cd build
+          cmake ..
           make -j$(nproc)
           sudo make install
           sudo ldconfig

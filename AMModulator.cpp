@@ -151,6 +151,7 @@ void AMModulator::operator()()
 	{
 		if (!audioInputBuffer->StartPlayback(play_prerecorded_file))
 			audio_file_mode = true;
+		std::cout << "Start playback transmit \n";
 	}
 	
 	if (digitalmode)

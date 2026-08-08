@@ -360,24 +360,26 @@ void AudioInput::StopPlayback()
 
 void AudioInput::doDigitalMode()
 {
-	std::span<float> buf = audio_in_buffer.get_buffer_view(audio_in_buffer.pop_block());
+	std::vector<float> buf; // = audio_in_buffer.get_buffer_view(audio_in_buffer.pop_block());
 
 	if (digitalmode == false || bufferempty)
 		return ;
+	buf.reserve(bufferFrames);
 	audio_in_buffer.push_block(bufferFrames,[&](std::span<float> buffer) {
-		int i = 0;
-		for (auto &con : buffer)
+		for (int i = 0; i <  bufferFrames; i++)
 		{
+			float con;
 			if ((i + bufferFramesSend * bufferFrames) < digitalmodesignal.size())
 				con = ((Sample)digitalmodesignal.at(i + bufferFramesSend * bufferFrames));
 			else
 				con = 0.0;
-			i++;
+			buffer[i] = con;
+			buf.push_back(con);
 		}
 	});	
 	bufferFramesSend++;
 	//cout << "bufferframes send " << bufferFramesSend << endl;
-	audio_output->adjust_gain(buf);
+	audio_output->adjust_gain(buf) ;
 	audio_output->writeSamples(buf);
 	if ((bufferFramesSend * bufferFrames) >= digitalmodesignal.size())
 	{

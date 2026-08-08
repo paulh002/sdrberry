@@ -167,7 +167,7 @@ AudioOutput::AudioOutput(int pcmrate, unsigned int bufferFrames_, RtAudio::Api a
 	parameters.firstChannel = 0;
 	parameters.deviceId = 0;
 	audio_out_buffer.reserve(bufferFrames * 2); // stereo
-	audioFrames.resize(bufferFrames * 2); // stereo
+	//audioFrames.resize(bufferFrames); // stereo
 }
 
 /*
@@ -269,7 +269,7 @@ int	 AudioOutput::queued_samples()
 
 void AudioOutput::writeSamples(std::span<float> audioSamples)
 {
-	for (auto &col : audioSamples)
+	for (auto col : audioSamples)
 	{
 		// split the stream in blocks of samples of the size framesize
 		audioFrames.insert(audioFrames.end(), col);
@@ -277,9 +277,9 @@ void AudioOutput::writeSamples(std::span<float> audioSamples)
 		{
 			if ((queued_samples() / 2) < 2048)
 			{
-				SampleVector audioStereoSamples;
+				SampleVector audioStereoSamples(get_framesize() * 2);
 
-				mono_to_left_right(audioFrames, audioStereoSamples);
+ 				mono_to_left_right(audioFrames, audioStereoSamples);
 				write(audioStereoSamples);
 				audioFrames.clear();
 			}

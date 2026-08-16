@@ -199,6 +199,8 @@ sudo make install
 sudo ldconfig
 fi
 
+cd $wrkdir || exit
+
 if [[ $sdrboard == HFB ]] ; then
 git clone https://github.com/paulh002/SoapyHifiBerry
 cd SoapyHifiBerry || exit

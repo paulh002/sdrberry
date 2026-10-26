@@ -4963,6 +4963,9 @@
     <ClCompile Include="ButtonBar.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_mic.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -5478,6 +5481,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="whitenoise.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_mic.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

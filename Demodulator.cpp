@@ -27,6 +27,7 @@ std::atomic<int> Demodulator::filter_type = LIQUID_IIRDES_BUTTER;
 std::atomic<int> Demodulator::filter_offset = 0;
 std::atomic<int> Demodulator::filter_order = 6;
 std::atomic<bool> Demodulator::filter_change = true;
+std::atomic<float> Demodulator::Alc_value = 0.0f;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -833,4 +834,14 @@ bool Demodulator::Squelch()
 void Demodulator::SquelchPrint()
 {
 	AgcProc->print();
+}
+
+void Demodulator::set_alc_value(float value)
+{
+	Alc_value = value;
+}
+
+float Demodulator::get_alc_value()
+{
+	return Alc_value;
 }

@@ -135,8 +135,6 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	{
 		vfo_setting.vfo_freq[1] = vfo_setting.vfo_low;
 	}
-	vfo_setting.mode[1] = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
-	
 	span_offset_frequency = 0;
 	vfo_setting.span = span;
 	vfo_setting.pcmrate = pcmrate;
@@ -145,6 +143,12 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	set_span(span);
 	get_band(0);
 	get_band(1);
+	
+	int index = getBandIndex(vfo_setting.band[0]);
+	vfo_setting.mode[0] = vfo_setting.bands[index].f_mode;
+	index = getBandIndex(vfo_setting.band[1]);
+	vfo_setting.mode[1] = vfo_setting.bands[index].f_mode;
+	
 	gui_band_instance.set_gui(vfo_setting.band[vfo_setting.active_vfo]);
 	rx_set_sdr_freq();
 	//tx_set_sdr_freq();	

@@ -232,7 +232,7 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 			lv_area_t rect_area;
 			rect_area.x1 = (int32_t)draw_line_dsc->p1.x;
 			rect_area.x2 = (int32_t)draw_line_dsc->p2.x - 1;
-			rect_area.y1 = LV_MIN(draw_line_dsc->p1.y, draw_line_dsc->p2.y);
+			rect_area.y1 = LV_MAX(draw_line_dsc->p1.y, draw_line_dsc->p2.y);
 			rect_area.y2 = (int32_t)coords.y2;
 			lv_draw_rect(base_dsc->layer, &rect_dsc, &rect_area);
 		}

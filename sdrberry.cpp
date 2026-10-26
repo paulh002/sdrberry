@@ -46,6 +46,7 @@
 #include "gui_top_bar.h"
 #include "gui_tx.h"
 #include "gui_recorder.h"
+#include "gui_mic.h"
 #include "i2cinput.h"
 #include "i2coutput.h"
 #include "sdrberry.h"
@@ -319,6 +320,7 @@ const int topHeight = 35;
 int tunerHeight = 100;
 int barHeight = 110;	// 90;
 int barHeightft8 = 125; // 90;
+int micHeight = 50;
 const int MorseHeight = 30;
 const int nobuttons = 8;
 const int bottombutton_width = (screenWidth / nobuttons) - 2;
@@ -343,6 +345,7 @@ lv_obj_t *vfo1_button;
 lv_obj_t *vfo2_button;
 lv_obj_t *tabview_mid;
 lv_obj_t *bar_view, *ft8bar_view, *calbar_view, *bottom_bar_view;
+lv_obj_t *mic_view{nullptr};
 lv_obj_t *tab_buttons;
 lv_indev_t *encoder_indev_t{nullptr};
 lv_group_t *button_group{nullptr};
@@ -568,6 +571,24 @@ void process_vfo_message(GuiMessage msg)
 	}
 }
 
+void SetTabView_morse(bool enable)
+{
+	if (enable)
+	{
+		gbar.hide_cw(false);
+		lv_obj_set_height(bar_view, barHeight + MorseHeight);
+		lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + micHeight + barHeight + MorseHeight);
+		lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - micHeight - barHeight - MorseHeight);
+	}
+	else
+	{
+		gbar.hide_cw(true);
+		lv_obj_set_height(bar_view, barHeight);
+		lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + micHeight + barHeight);
+		lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - micHeight - barHeight);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	char str_sdrberry[] = "Sdrberry";
@@ -632,10 +653,6 @@ int main(int argc, char *argv[])
 	AudioOutput::createAudioDevice(defaultAudioSampleRate, 1024, audiodevID);
 
 	bpf.initFilter();
-
-	std::string smode = Settings_file.get_string("VFO1", "Mode");
-	mode = Settings_file.convert_mode(smode);
-
 	std::string i2c_output_device = Settings_file.get_string("i2c", "output_device");
 	std::string i2c_output_address = Settings_file.get_string("i2c", "output_address");
 	if (i2c_output_device.size() > 0 && i2c_output_address.size() > 0)
@@ -656,17 +673,20 @@ int main(int argc, char *argv[])
 	screenWidth = lv_display_get_horizontal_resolution(disp_0);
 	screenHeight = lv_display_get_vertical_resolution(disp_0);
 
+	printf("screen width %d screen height %d\n", screenWidth, screenHeight);
 	if (screenWidth < 1200)
 	{
 		tunerHeight = (screenHeight * 22) / 100;
 		barHeight = (screenHeight * 22) / 100;
+		tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
+		micHeight = 0;
 	}
 	else
 	{
 		tunerHeight = (screenHeight * 18) / 100;
 		barHeight = (screenHeight * 18) / 100;
+		tabHeight = screenHeight - topHeight - tunerHeight - micHeight - barHeight;
 	}
-	tabHeight = screenHeight - topHeight - tunerHeight - barHeight;
 	std::string second_display_port = Settings_file.get_string("screen", "SecondDisplay", "None");
 
 	second_screen = NULL;
@@ -719,11 +739,19 @@ int main(int argc, char *argv[])
 	lv_style_init(&background_style);
 	lv_style_set_radius(&background_style, 0);
 	lv_style_set_bg_color(&background_style, lv_palette_main(LV_PALETTE_RED));
+	
+	if (micHeight)
+	{
+		mic_view = lv_obj_create(lv_scr_act());
+		lv_obj_set_style_radius(mic_view, 0, 0);
+		lv_obj_set_pos(mic_view, 0, topHeight + tunerHeight);
+		lv_obj_set_size(mic_view, LV_HOR_RES - 3, micHeight);
+		guimic.init(mic_view, LV_HOR_RES - 3, micHeight);
+	}
 
-	lv_obj_t *obj1;
 	bar_view = lv_obj_create(lv_scr_act());
 	lv_obj_set_style_radius(bar_view, 0, 0);
-	lv_obj_set_pos(bar_view, 0, topHeight + tunerHeight);
+	lv_obj_set_pos(bar_view, 0, topHeight + tunerHeight + micHeight);
 	lv_obj_set_size(bar_view, LV_HOR_RES - 3, barHeight);
 
 	ft8bar_view = lv_obj_create(lv_scr_act());
@@ -744,7 +772,7 @@ int main(int argc, char *argv[])
 	lv_tabview_set_tab_bar_position(tabview_mid, LV_DIR_BOTTOM);
 	lv_tabview_set_tab_bar_size(tabview_mid, buttonHeight);
 	lv_obj_add_event_cb(tabview_mid, tabview_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
+	lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + micHeight + barHeight + 100);
 	lv_obj_set_size(tabview_mid, LV_HOR_RES - 3, tabHeight);
 
 	tab["spectrum"] = (lv_tabview_add_tab(tabview_mid, "Spectrum"));
@@ -830,7 +858,6 @@ int main(int argc, char *argv[])
 			default_tx_channel = 0;
 		}
 		Gui_tx.gui_tx_init(tab["tx"], LV_HOR_RES - 3, default_tx_channel < 0);
-		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		SoapySDR::Range r;
 		if (SdrDevices.get_rx_channels(default_radio) < 1)
 		{
@@ -857,6 +884,8 @@ int main(int argc, char *argv[])
 		vfo.set_vfo_range(r.minimum(), r.maximum());
 		vfo.vfo_init((long)ifrate, defaultAudioSampleRate, guisdr.get_span(), &SdrDevices, default_radio, default_rx_channel, default_tx_channel);
 		vfo.set_step(gbar.get_step_value(), 0);
+		mode = vfo.get_mode_no(vfo.get_active_vfo());
+		gbar.init(bar_view, button_group, mode, LV_HOR_RES - 3, barHeight);
 		try
 		{
 			if (SdrDevices.SdrDevices[default_radio]->get_txchannels() > 0)
@@ -1010,6 +1039,10 @@ int main(int argc, char *argv[])
 			}
 			Gui_tx.get_measurements();
 			grecorder.set_value(floorf(audio_input->get_mic_vol()));
+			//printf("Mic: %f dba\n", floorf(audio_input->get_mic_vol()));
+			guimic.set_value_mic(floorf(audio_input->get_mic_vol()));
+			guimic.set_value_s(signalstrength.get_signal_strength());
+			guimic.set_value_alc(Demodulator::get_alc_value());
 		}
 
 		if (!IsDigtalMode(mode) && i2cinput::connected() && SdrDevices.get_tx_channels(default_radio) > 0 && audio_input->isStreamOpen())

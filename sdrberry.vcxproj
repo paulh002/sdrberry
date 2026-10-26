@@ -61,7 +61,7 @@
       <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
-      <VerboseMode>true</VerboseMode>
+      <VerboseMode>false</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
@@ -87,7 +87,7 @@
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack -rdynamic</AdditionalOptions>
-      <VerboseMode>true</VerboseMode>
+      <VerboseMode>false</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -141,6 +141,7 @@
     <ClCompile Include="gui_i2csetup.cpp" />
     <ClCompile Include="gui_i2c_input.cpp" />
     <ClCompile Include="gui_i2c_output.cpp" />
+    <ClCompile Include="gui_mic.cpp" />
     <ClCompile Include="gui_preset.cpp" />
     <ClCompile Include="gui_recorder.cpp" />
     <ClCompile Include="gui_rx.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="gui_i2csetup.h" />
     <ClInclude Include="gui_i2c_input.h" />
     <ClInclude Include="gui_i2c_output.h" />
+    <ClInclude Include="gui_mic.h" />
     <ClInclude Include="gui_preset.h" />
     <ClInclude Include="gui_recorder.h" />
     <ClInclude Include="gui_rx.h" />

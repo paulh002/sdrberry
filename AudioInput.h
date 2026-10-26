@@ -25,7 +25,8 @@ class AudioInput : public RtAudio
 	RtAudio::DeviceInfo info;
 	unsigned int sampleRate;
 	unsigned int bufferFrames;
-	float volume, digitalvolume, tone_volume, playback_volume;
+	float  digitalvolume, tone_volume, playback_volume;
+	std::atomic<float> volume;
 	std::string error;
 	long asteps, asteps2;
 	bool stereo;

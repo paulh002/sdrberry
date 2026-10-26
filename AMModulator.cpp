@@ -139,6 +139,7 @@ void AMModulator::operator()()
 	std::span<Sample>		audiosamples;
 	IQSampleVector			samples_in, samples_out2;
 	AudioProcessor			Speech;
+	
 	//IQGenerator IqGenerator(48000, audioInputBuffer);
 
 	Speech.prepareToPlay(audio_output->get_samplerate());
@@ -191,6 +192,7 @@ void AMModulator::operator()()
 			Speech.setAtack(gspeech.get_atack());
 			Speech.setThresholdDB(gspeech.get_threshold());
 			Speech.processBlock(audiosamples);
+			set_alc_value(Speech.getGain_Shared());
 		}
 		calc_af_signalstrength(audiosamples);
 		process(audiosamples, samples_out);

@@ -12,7 +12,8 @@ class audiobar
 	void align(lv_obj_t *parent, lv_align_t align, lv_coord_t x_ofs, lv_coord_t y_ofs);
 	void value(int value);
 	void SetRange(int range);
-
+	void set_size(int width, int height);
+	
   private:
 	int maxvalue = 66; // 4000 Watt
 	lv_style_t style_bg;

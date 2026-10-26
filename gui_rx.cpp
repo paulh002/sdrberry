@@ -17,20 +17,7 @@ void gui_rx::event_handler_morse_class(lv_event_t *e)
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-		{
-			gbar.hide_cw(false);
-			lv_obj_set_height(bar_view, barHeight + MorseHeight);
-			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight + MorseHeight);
-			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight - MorseHeight);
-		}
-		else
-		{
-			gbar.hide_cw(true);
-			lv_obj_set_height(bar_view, barHeight);
-			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
-			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight);
-		}
+		SetTabView_morse(lv_obj_get_state(obj) & LV_STATE_CHECKED);
 	}
 }
 

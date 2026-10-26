@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <string>
+#include <atomic>
 #include "RtAudio.h"
 #include "SdrberryTypeDefs.h"
 #include "DataBuffer.h"
@@ -60,6 +61,7 @@ class AudioProcessor
 	void setAtack(float Attack) { attackTime = Attack; }
 	void setRelease(float Release) { releaseTime = Release; }
 	float getGain() { return gainDb; }
+	float getGain_Shared() { return gainDb_share; }
 	float getPeak() { return peakSumDb; }
 	float getRatio() { return ratio; }
 	float getRelease() { return releaseTime; }
@@ -78,7 +80,7 @@ class AudioProcessor
 	float peakSumDb;
 	float gainDb{0.0};
 	float thresholdDb;
-	
+	std::atomic<float> gainDb_share;
 	std::unique_ptr<PeakLevelDetector> LevelDetector;
 	std::unique_ptr<GainDynamics> gainDymanics;
 };

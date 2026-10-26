@@ -324,7 +324,7 @@ void gui_sdr::set_samplerate()
 
 	int rate = lv_dropdown_get_selected(d_samplerate);
 	ifrate = (double)get_sample_rate(rate) / pow(2, decimate);
-
+	
 	Settings_file.save_int(default_radio, "samplerate", get_sample_rate(rate) / 1000);
 	Settings_file.write_settings();
 	destroy_demodulators(true, true);

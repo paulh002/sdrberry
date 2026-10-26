@@ -361,6 +361,11 @@ int mode_state_rxtx = 0;
 int default_rx_channel = 0;
 int default_tx_channel = 0;
 
+double get_samplerate_rx()
+{
+	return ifrate;
+}
+
 // double freq = 89800000;
 // double	tuner_freq = freq + 0.25 * ifrate;
 // double	tuner_offset = freq - tuner_freq;
@@ -1380,9 +1385,9 @@ void destroy_demodulators(bool all, bool close_stream)
 	FMBroadBandDemodulator::destroy_demodulator();
 	if (all)
 	{
-		RX_Stream::destroy_rx_streaming_thread();
 		stream_rx_on = false;
 		RX_Stream::pause_rx_stream(default_radio, false);
+		RX_Stream::destroy_rx_streaming_thread();
 	}
 	TX_Stream::destroy_tx_streaming_thread(close_stream);
 	stream_tx_on = false;

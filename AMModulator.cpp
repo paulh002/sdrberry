@@ -8,6 +8,7 @@
 #include "IQGenerator.h"
 #include "vfo.h"
 #include "sdrberry.h"
+#include "gui_sdr.h"
 
 std::shared_ptr<AMModulator> sp_ammod;
 
@@ -58,6 +59,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 
 	digitalmode = false;
 	audio_file_mode = false;
+	ifrate_rxtx_notequal = false;
 	duplex = param.duplex;
 	switch (param.mode)
 	{
@@ -122,6 +124,11 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 	{
 		printf("No resample \n");
 		samples_out.resize( audio_input->getbufferFrames(),0); 
+	}
+	if (param.ifrate - ::get_samplerate_rx() > 0.1f)
+	{
+		printf("RX and TX samplerate not equal %f %f\n", param.ifrate, ::get_samplerate_rx());
+		ifrate_rxtx_notequal = true;
 	}
 	AMmodulatorHandle = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
 	source_buffer->restart_queue();
@@ -247,7 +254,9 @@ void AMModulator::process(std::span<Sample>samples, IQSampleVector &samples_out)
 	Resample_new(modulatorbuffer, samples_out);
 	mix_up(samples_out); // Mix up to vfo freq
 	if (!duplex)
-		SpectrumGraph.ProcessWaterfall(samples_out);
+	{
+		SpectrumGraph.ProcessWaterfall(samples_out); 
+	}
 }
 
 void AMModulator::mix_up_fft(const IQSampleVector& filter_in,

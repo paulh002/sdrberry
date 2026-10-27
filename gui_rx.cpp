@@ -569,8 +569,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_checkbox_set_text(spectrum_hold, "Spectrum hold");
 	lv_obj_add_event_cb(spectrum_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_add_flag(spectrum_hold, LV_OBJ_FLAG_CHECKABLE);
-	ibutton_y++;
-	lv_obj_align(spectrum_hold, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align_to(spectrum_hold, spectrum_slider, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 30);
 	lv_group_add_obj(button_group, spectrum_hold);
 
 	spectrum_color = lv_checkbox_create(settings_tile);

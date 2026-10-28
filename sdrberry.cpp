@@ -743,13 +743,12 @@ int main(int argc, char *argv[])
 		barHeightft8 = 125;
 	}
 
-	//if (screenWidth == 1280)
-	//{
+	if (Settings_file.get_int("web", "enabled", 0))
+	{
 		rv_start(web_cfg, disp_0);
-	//}
-	flush_cb_ptr = lv_display_get_flush_cb(disp_0);
-	lv_display_set_flush_cb(disp_0, sdrberry_flush_cb);
-	
+		flush_cb_ptr = lv_display_get_flush_cb(disp_0);
+		lv_display_set_flush_cb(disp_0, sdrberry_flush_cb);
+	}
 		
 	lv_disp_set_theme(NULL, th);
 	GuiTopBar.setup_top_bar(main_screen, 0, 0, screenWidth, topHeight);

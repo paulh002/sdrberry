@@ -109,7 +109,7 @@ binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
 libboost-all-dev python3 libfftw3-dev python3-yaml libtinyxml2-dev \
 libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev \
-libcurl4-openssl-dev foot libpulse-dev opus-tools libopus0 libopus-dev libturbojpeg0-dev libssl-dev
+libcurl4-openssl-dev foot libpulse-dev opus-tools libopus0 libopus-dev libturbojpeg0-dev libssl-dev webp
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 

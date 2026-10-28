@@ -30,7 +30,7 @@ jobs:
             libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev \
             flex bison libavahi-client-dev libaio-dev libcurl4-openssl-dev \
             automake autoconf libpulse-dev opus-tools libopus0 libopus-dev \
-            libturbojpeg0-dev libssl-dev webp
+            libturbojpeg0-dev libssl-dev webp libwebp-dev
 
       # 3. Build and install liquid-dsp v1.6.0
       - name: Build and Install liquid-dsp

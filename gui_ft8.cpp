@@ -1,6 +1,5 @@
 #include "gui_ft8.h"
 #include "FT8Processor.h"
-#include "WebServer.h"
 #include "gui_ft8bar.h"
 #include "gui_wsjtx_setup.h"
 #include "screen.h"
@@ -652,7 +651,6 @@ void gui_ft8::add_line(int hh, int min, int sec, int snr, int correct_bits, doub
 		ft8udpclient->SendDecode(true, in_milliseconds_since_midnight, (int32_t)snr, deltaTime, (uint32_t)hz0, mode, msg, false, false);
 
 	message m{hh, min, sec, snr, correct_bits, off, hz0, msg};
-	web_message(m);
 }
 
 void gui_ft8::wspr_press_event_class(lv_event_t *e)
@@ -761,7 +759,6 @@ void gui_ft8::add_qso(struct message msg)
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, msg.msg.c_str());
 
 	qsoRowCount++;
-	web_qso();
 }
 
 void gui_ft8::add_cq(struct message msg)
@@ -780,7 +777,6 @@ void gui_ft8::add_cq(struct message msg)
 	lv_table_set_cell_value(cqTable, cqRowCount, 3, msg.msg.c_str());
 
 	cqRowCount++;
-	web_cq();
 }
 
 void gui_ft8::add_cq(json msg)
@@ -817,7 +813,6 @@ void gui_ft8::cpy_qso(int row)
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 2, lv_table_get_cell_value(table, row, 2));
 	lv_table_set_cell_value(qsoTable, qsoRowCount, 3, lv_table_get_cell_value(table, row, 3));
 	qsoRowCount++;
-	web_qso();
 }
 
 void gui_ft8::cpy_cq(int row)
@@ -827,7 +822,6 @@ void gui_ft8::cpy_cq(int row)
 	lv_table_set_cell_value(cqTable, cqRowCount, 2, lv_table_get_cell_value(table, row, 2));
 	lv_table_set_cell_value(cqTable, cqRowCount, 3, lv_table_get_cell_value(table, row, 3));
 	cqRowCount++;
-	web_cq();
 }
 
 void gui_ft8::cpy_cqtoqso(int row)
@@ -839,7 +833,6 @@ void gui_ft8::cpy_cqtoqso(int row)
 		lv_table_set_cell_value(qsoTable, qsoRowCount, 2, lv_table_get_cell_value(cqTable, row, 2));
 		lv_table_set_cell_value(qsoTable, qsoRowCount, 3, lv_table_get_cell_value(cqTable, row, 3));
 		qsoRowCount++;
-		web_qso();
 	}
 }
 
@@ -859,7 +852,6 @@ void gui_ft8::cpy_conversationtoqso()
 			qsoRowCount++;
 		}
 	}
-	web_qso();
 	lv_obj_invalidate(qsoTable);
 }
 
@@ -902,7 +894,6 @@ void gui_ft8::clr_qso()
 	lv_table_set_row_cnt(qsoTable, 1);
 	QsoScrollFirstItem();
 	lv_obj_invalidate(table);
-	web_qso();
 	qsoRowCount = 1;
 }
 
@@ -945,7 +936,6 @@ void gui_ft8::clr_cq()
 		CqScrollFirstItem();
 		lv_obj_invalidate(table);
 	}
-	web_cq();
 }
 
 void gui_ft8::set_group()
@@ -1022,55 +1012,6 @@ void gui_ft8::Scroll(lv_obj_t *table, lv_coord_t currScrollPos)
 	return;
 }
 
-void gui_ft8::web_messages()
-{
-	json result = json::array();
-	json message;
-	int rowcount = lv_table_get_row_cnt(table);
-
-	if (webserver.isEnabled())
-	{
-		for (int row = 1; row < rowcount; row++)
-		{
-			message.emplace("time", lv_table_get_cell_value(table, row, 0));
-			message.emplace("decibel", lv_table_get_cell_value(table, row, 1));
-			message.emplace("frequency", lv_table_get_cell_value(table, row, 2));
-			message.emplace("message", lv_table_get_cell_value(table, row, 3));
-			result.push_back(message);
-			message.clear();
-		}
-
-		message.clear();
-		message.emplace("type", "wsjtxmessages");
-		message.emplace("data", result);
-		webserver.SendMessage(message);
-	}
-}
-
-void gui_ft8::web_message(message m)
-{
-	json message, data;
-	char str[80];
-	std::string s;
-
-	if (webserver.isEnabled())
-	{
-		sprintf(str, "%02d:%02d:%02d", m.hh, m.min, m.sec);
-		s = str;
-		data.emplace("time", s);
-		sprintf(str, "%3d", m.snr);
-		s = str;
-		data.emplace("decibel", s);
-		sprintf(str, "%6d", m.hz0);
-		s = str;
-		data.emplace("frequency", s);
-		data.emplace("message", m.msg);
-		message.emplace("type", "wsjtxmessage");
-		message.emplace("data", data);
-		webserver.SendMessage(message);
-	}
-}
-
 void gui_ft8::SelectMessage(json jsonMessage)
 {
 	std::unique_lock<std::mutex> mlock(mutex_);
@@ -1089,57 +1030,6 @@ void gui_ft8::SelectMessage(json jsonMessage)
 		clr_cq();
 		add_qso(jsonMessage);
 		QsoScrollLatestItem();
-		web_qso();
-	}
-}
-
-void gui_ft8::web_qso()
-{
-	// no lock here
-	// messages to the web should not lock the GUI
-	json result = json::array();
-	json message;
-	int rowcount = lv_table_get_row_cnt(qsoTable);
-
-	if (webserver.isEnabled())
-	{
-		for (int row = 1; row < rowcount; row++)
-		{
-			message.emplace("time", lv_table_get_cell_value(qsoTable, row, 0));
-			message.emplace("decibel", lv_table_get_cell_value(qsoTable, row, 1));
-			message.emplace("frequency", lv_table_get_cell_value(qsoTable, row, 2));
-			message.emplace("message", lv_table_get_cell_value(qsoTable, row, 3));
-			result.push_back(message);
-			message.clear();
-		}
-		message.clear();
-		message.emplace("type", "qsomessages");
-		message.emplace("data", result);
-		webserver.SendMessage(message);
-	}
-}
-
-void gui_ft8::web_cq()
-{
-	json result = json::array();
-	json message;
-	int rowcount = lv_table_get_row_cnt(cqTable);
-	if (webserver.isEnabled())
-	{
-
-		for (int row = 1; row < rowcount; row++)
-		{
-			message.emplace("time", lv_table_get_cell_value(cqTable, row, 0));
-			message.emplace("decibel", lv_table_get_cell_value(cqTable, row, 1));
-			message.emplace("frequency", lv_table_get_cell_value(cqTable, row, 2));
-			message.emplace("message", lv_table_get_cell_value(cqTable, row, 3));
-			result.push_back(message);
-			message.clear();
-		}
-		message.clear();
-		message.emplace("type", "cqmessages");
-		message.emplace("data", result);
-		webserver.SendMessage(message);
 	}
 }
 

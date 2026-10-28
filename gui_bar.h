@@ -60,7 +60,6 @@ class gui_bar
 	static constexpr auto vol_slider_event_cb = EventHandler<gui_bar, &gui_bar::vol_slider_event_class>::staticHandler;
 	static constexpr auto filter_slider_event_cb = EventHandler<gui_bar, &gui_bar::gui_bar::filter_slider_and_button_event_class>::staticHandler;
 
-	void updateweb();
 	void init(lv_obj_t *o_parent, lv_group_t *button_group, int mode, lv_coord_t w, lv_coord_t h);
 	void set_vol_slider(int volume, bool web = true);
 	void set_focus();
@@ -92,8 +91,6 @@ class gui_bar
 	void hidetx();
 	void set_vfo(int active_vfo);
 	bool get_noise();
-	void web_filterfreq();
-	void websetfilter(std::string message);
 	void setTxButtons();
 	int get_step_value();
 	void change_step(int i);

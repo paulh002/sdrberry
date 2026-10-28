@@ -86,7 +86,6 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), true);
 		vfo.set_vfo(vfo.get_frequency());
 		//SpectrumGraph.SetFftParts();
-		gbar.updateweb();
 	}
 	
 	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (indev->pointer.btn_id == LV_INDEV_BTN_LEFT || indev->pointer.btn_id == LV_INDEV_BTN_NONE) && drag_marker_rightbutton == 0)

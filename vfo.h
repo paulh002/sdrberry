@@ -135,7 +135,6 @@ class CVfo
 	long get_vfo_absolute_offset();
 	void return_bands(std::vector<int> &bands);
 	long get_span() { return vfo_setting.span;}
-	void updateweb();
 	bool is_vfo_limit_ham_band() { return limit_ham_band; }
 	void set_vfo_limit_ham_band(bool value) { limit_ham_band = value; }
 	std::atomic_bool tune_flag{false};

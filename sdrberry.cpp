@@ -29,7 +29,6 @@
 #include "SharedQueue.h"
 #include "Shuttle.h"
 #include "Spectrum.h"
-#include "WebServer.h"
 #include "gui_agc.h"
 #include "gui_bar.h"
 #include "gui_bottom_bar.h"
@@ -379,7 +378,6 @@ Shuttle shuttle;
 BandFilter bpf;
 SharedQueue<GuiMessage> guiQueue;
 unique_ptr<wsjtx_lib> wsjtx;
-WebServer webserver;
 i2coutput i2c_output;
 std::unique_ptr<SecondScreen> secondscreen;
 
@@ -996,8 +994,8 @@ int main(int argc, char *argv[])
 	auto timeLastStatus = std::chrono::high_resolution_clock::now();
 	int wsjtxWaterfallGain = Settings_file.get_int("wsjtx", "waterfallgain", 20);
 
-	if (Settings_file.get_int("web", "enabled", 0))
-		webserver.StartServer();
+	//if (Settings_file.get_int("web", "enabled", 0))
+	//	webserver.StartServer();
 	int refreshSpeed = Settings_file.get_int("Radio", "refresh", 50);
 
 	uint32_t idle_time;	
@@ -1272,64 +1270,6 @@ int main(int argc, char *argv[])
 						std::string err = e.what();
 						printf("%s\n", err.c_str());
 					}
-				}
-			}
-			break;
-
-			case GuiMessage::TranceiverMessage: {
-				// printf("%s\n", msg.text.c_str());
-				json message;
-				try
-				{
-					message = json::parse(msg.text);
-				}
-				catch (const exception &e)
-				{
-					std::string err = e.what();
-					printf("%s\n", err.c_str());
-					break;
-				}
-
-				// printf("%s\n", message.dump().c_str());
-				if (message.find("setfilter") != message.end())
-				{
-					gbar.websetfilter(message.at("setfilter"));
-				}
-				if (message.find("setvolume") != message.end())
-				{
-					if (message.at("setvolume").is_number())
-						gbar.set_vol_slider(message.at("setvolume"), false);
-				}
-				if (message.find("setrfvalue") != message.end())
-				{
-					if (message.at("setrfvalue").is_number())
-					{
-						int max_gain, min_gain;
-
-						gbar.get_gain_range(max_gain, min_gain);
-						gbar.set_gain_slider((int)message.at("setrfvalue") + min_gain, false);
-					}
-				}
-				if (message.find("setifvalue") != message.end())
-				{
-					if (message.at("setifvalue").is_number())
-						gbar.set_if(message.at("setifvalue"), false);
-				}
-				if (message.find("tx") != message.end())
-				{
-					// do volume
-				}
-				if (message.find("tune") != message.end())
-				{
-					// do volume
-				}
-				if (message.find("mode") != message.end())
-				{
-					// do volume
-				}
-				if (message.find("band") != message.end())
-				{
-					// do volume
 				}
 			}
 			break;

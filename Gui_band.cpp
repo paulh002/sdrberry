@@ -7,7 +7,6 @@
 #include "gui_bar.h"
 #include "gui_tx.h"
 #include "vfo.h"
-#include "WebServer.h"
 #include "screen.h"
 #include "gui_edit_band.h"
 
@@ -172,9 +171,6 @@ void Gui_band::init_button_gui(lv_obj_t *o_tab, lv_group_t *keyboard_group,lv_co
 	lv_checkbox_set_text(bandfiltercheckbox, "band filter off");
 	lv_obj_add_event_cb(bandfiltercheckbox, band_event_handler, LV_EVENT_ALL, (void *)this);
 	lv_obj_align(bandfiltercheckbox, LV_ALIGN_TOP_LEFT, tab_margin + lv_obj_get_width(limitvfocheckbox) + button_width_margin, ibutton_y * button_height_margin);
-
-	lv_group_add_obj(m_button_group, lv_tabview_get_tab_btns(tabview_mid));
-	update_web();
 }
 
 void Gui_band::reload_buttons()
@@ -323,14 +319,3 @@ void Gui_band::set_gui(int band)
 	}
 }
 
-void Gui_band::update_web()
-{
-	if (webserver.isEnabled())
-	{
-		json message;
-
-		message.emplace("type", "bands");
-		message.emplace("data", buttons);
-		webserver.SendMessage(message);
-	}	
-}

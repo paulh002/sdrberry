@@ -203,8 +203,6 @@
     <ClCompile Include="wave.cpp" />
     <ClCompile Include="WavReader.cpp" />
     <ClCompile Include="WavWriter.cpp" />
-    <ClCompile Include="WebRestHandler.cpp" />
-    <ClCompile Include="WebServer.cpp" />
     <ClCompile Include="wiringPiI2C.c" />
     <ClCompile Include="wiringSerial.c" />
     <ClCompile Include="WSPRDemodulator.cpp" />
@@ -365,8 +363,6 @@
     <ClInclude Include="wave.h" />
     <ClInclude Include="WavReader.h" />
     <ClInclude Include="WavWriter.h" />
-    <ClInclude Include="WebRestHandler.h" />
-    <ClInclude Include="WebServer.h" />
     <ClInclude Include="whitenoise.h" />
     <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />

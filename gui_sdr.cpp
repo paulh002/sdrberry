@@ -451,7 +451,6 @@ void gui_sdr::set_span_value(long span)
 	SpectrumGraph.set_cursor_mode(mode);
 	if (secondscreen)
 		secondscreen->set_cursor_mode(mode);
-	gbar.updateweb();
 	Settings_file.save_int(default_radio, "span", span / 1000);
 	Settings_file.write_settings();
 }

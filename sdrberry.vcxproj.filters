@@ -1417,12 +1417,6 @@
     <ClCompile Include="civetweb.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="WebServer.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="WebRestHandler.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="gui_sdr.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -5313,12 +5307,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="civetweb.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="WebServer.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="WebRestHandler.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="SpectrumConstants.h">

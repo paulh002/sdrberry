@@ -91,11 +91,7 @@ class gui_ft8
 	int getQsoLogRows();
 	std::string getQso(int row);
 	void tableScrollLastItem() { ScrollLatestItem(); }
-	void web_qso();
-	void web_cq();
 	void SelectMessage(json jsonMessage);
-	void web_messages();
-	void web_message(message m);
 	void set_decode_start_time(std::chrono::time_point<std::chrono::system_clock> time);
 	qso_entry get_qso_entry(std::string dxCall);
 	std::string getQso_dxCall();

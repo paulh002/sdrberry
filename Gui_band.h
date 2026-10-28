@@ -50,7 +50,6 @@ class Gui_band
 
 	void set_gui(int band);
 	void set_group();
-	void update_web();
 	void reload_buttons();
 	};
 

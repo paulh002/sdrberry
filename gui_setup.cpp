@@ -14,7 +14,6 @@
 #include "Demodulator.h"
 #include "screen.h"
 #include "SecondScreen.h"
-#include "WebServer.h"
 #include <unistd.h>
 #include <sys/reboot.h>
 #include <linux/reboot.h>
@@ -93,12 +92,12 @@ void gui_setup::webbox_event_class(lv_event_t *e)
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
 			Settings_file.save_int("web", "enabled", 1);
-			webserver.StartServer();
+			//webserver.StartServer();
 		}
 		else
 		{
 			Settings_file.save_int("web", "enabled", 0);
-			webserver.StopServer();
+			//webserver.StopServer();
 		}
 	Settings_file.save();
 	}

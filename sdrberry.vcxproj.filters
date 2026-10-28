@@ -4960,6 +4960,9 @@
     <ClCompile Include="gui_mic.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="remote_view.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -5472,6 +5475,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="gui_mic.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_view.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

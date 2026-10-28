@@ -58,6 +58,7 @@
 #include "SecondScreen.h"
 #include "SignalStrength.h"
 #include "ButtonBar.h"
+#include "remote_view.h"
 
 const int major_version = 2;
 const int minor_version = 10;
@@ -292,6 +293,14 @@ void delete_main_display()
 	}
 }
 
+lv_display_flush_cb_t flush_cb_ptr;
+
+void sdrberry_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
+{
+	rv_flush_tap(area, px_map);	
+	(*flush_cb_ptr)(disp, area, px_map);
+}
+
 DataBuffer<IQSample> source_buffer_rx;
 DataBuffer<IQSample> source_buffer_tx;
 
@@ -310,6 +319,8 @@ LV_FONT_DECLARE(FreeSansOblique32);
 const std::array<int, 11> screenResolutionsWidth = {800, 800, 1024, 1024, 1280, 1600, 1920, 2048, 2560, 3200, 3840};
 const std::array<int, 11> screenResolutionsHeight = {480, 600, 600, 768, 720, 1200, 1080, 1080, 1440, 1800, 2160};
 
+RvConfig web_cfg;
+	
 int screenSelect = 9;
 int screenRotate = 0;
 int screenWidth = 800;
@@ -732,7 +743,14 @@ int main(int argc, char *argv[])
 		barHeightft8 = 125;
 	}
 
-
+	//if (screenWidth == 1280)
+	//{
+		rv_start(web_cfg, disp_0);
+	//}
+	flush_cb_ptr = lv_display_get_flush_cb(disp_0);
+	lv_display_set_flush_cb(disp_0, sdrberry_flush_cb);
+	
+		
 	lv_disp_set_theme(NULL, th);
 	GuiTopBar.setup_top_bar(main_screen, 0, 0, screenWidth, topHeight);
 	gui_vfo_inst.gui_vfo_init(main_screen, 0, topHeight, screenWidth, tunerHeight, keyboard_group);

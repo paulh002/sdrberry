@@ -10,6 +10,7 @@
 #include <complex>
 #include <complex.h>
 #include "SignalStrength.h"
+#include "remote_view.h"
 
 static std::shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -179,6 +180,7 @@ void AMDemodulator::operator()()
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
 		// Set nominal audio volume.
+		rv_audio_push(audioSamples, 1);
 		audioOutputBuffer->adjust_gain(audioSamples);
 		int noaudiosamples = audioSamples.size();
 		noAfSamples += noaudiosamples;

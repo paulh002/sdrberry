@@ -830,7 +830,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	
 	float bandwidth = Settings_file.get_int("wsjtx", "waterfall_bandwidth", 4000);
 	float resampleRate = bandwidth / ft8_rate;
-	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, down, lowerpart);
+	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight + micHeight, resampleRate, down, lowerpart);
 
 	EnableButtons(false);
 }

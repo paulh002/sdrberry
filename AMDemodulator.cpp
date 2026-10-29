@@ -66,7 +66,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 		if (bandwidth == 0)
 			bandwidth = 500; // CW
 		suppressed_carrier = 1;
-		am_mode = LIQUID_AMPMODEM_LSB;
+		am_mode = LIQUID_AMPMODEM_USB;
 		printf("mode CW LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
 		break;
 	case mode_lsb:

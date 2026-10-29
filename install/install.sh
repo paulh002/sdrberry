@@ -117,6 +117,10 @@ echo "pi ALL=(ALL) NOPASSWD: ALL" >> 010_pi-nopasswd
 sudo cp  010_pi-nopasswd /etc/sudoers.d/.
 sudo chmod 0440 /etc/sudoers.d/010_pi-nopasswd
 
+sudo mkdir -p /opt/sdr/www
+sudo chmod pi /opt/sdr
+sudo chmod pi /opt/www
+
 cd $wrkdir || exit
 git clone https://github.com/pothosware/SoapySDR.git
 cd SoapySDR

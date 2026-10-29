@@ -87,7 +87,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		break;
 	case mode_cw:
 		suppressed_carrier = 1;
-		am_mode = LIQUID_AMPMODEM_LSB;
+		am_mode = LIQUID_AMPMODEM_USB;
 		printf("mode CW LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
 		break;
 	case mode_am:

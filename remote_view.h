@@ -10,7 +10,7 @@ struct RvConfig {
     int jpegQuality = 60;           // 50-70 is fine for noisy spectrum/waterfall
     int bandFps = 15;               // update rate of the lossy band
     int uiFps = 30;                 // update rate of everything else
-    const char* docroot = "/opt/sdr/www";   // index.html, client.js, worklet.js
+	const char* docroot = "/opt/sdr/www";   // index.html, client.js, worklet.js
     const char* cert    = "/etc/sdr/cert.pem";
     const char* ports   = "8443s";
     std::function<void(int)> onWheel;       // +N / -N steps, called on the LVGL thread (tune here)

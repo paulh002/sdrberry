@@ -745,6 +745,12 @@ int main(int argc, char *argv[])
 
 	if (Settings_file.get_int("web", "enabled", 0))
 	{
+		// 1280 default
+		web_cfg.w = screenWidth;
+		web_cfg.h = screenHeight;
+		web_cfg.bandY1 = topHeight + tunerHeight + micHeight + barHeight;
+		web_cfg.bandY2 = web_cfg.bandY1 + tabHeight;
+		printf("web: w %d h %d Y1 %d Y2 %d \n", web_cfg.w, web_cfg.h, web_cfg.bandY1, web_cfg.bandY2);
 		rv_start(web_cfg, disp_0);
 		flush_cb_ptr = lv_display_get_flush_cb(disp_0);
 		lv_display_set_flush_cb(disp_0, sdrberry_flush_cb);

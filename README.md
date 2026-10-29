@@ -204,7 +204,4 @@ This is still an experiment / beta version. To see what is the best way to integ
 Sdrberry sends the GUI changes to the web page using jpeg compression. For audio opus is used.
 It is necessary to install a selfsigned certificate see cert.sh for instructions.
 
-Copy web directory to pi home dir 
-
-
-![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/sdrweb.png)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/build/images/sdrweb.png?raw=true)

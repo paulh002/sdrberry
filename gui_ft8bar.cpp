@@ -858,6 +858,7 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 
 	const char *ptr = lv_textarea_get_text(Textfield);
 	message = std::string(ptr);
+	param.QsoTime = gft8.getQsoTime().size() >= 2 ? gft8.getQsoTime().substr(gft8.getQsoTime().size() - 2) : "";
 	if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 	{
 		if (transmitting || message.size() == 0)
@@ -882,7 +883,7 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 		}
 		else
 		{
-			printf("wsjtx message %s\n", message.c_str());
+			printf("wsjtx message %s timeslot %s\n", message.c_str(), param.QsoTime.c_str());
 			transmitting = true;
 			frequency = lv_slider_get_value(tx_slider) * ft8_freq_multiplier;
 			param.tone = audioTone::NoTone;

@@ -89,6 +89,7 @@ class gui_ft8
 	void clr_cq();
 	void cpy_cqtoqso(int row);
 	int getQsoLogRows();
+	std::string getQsoTime();
 	std::string getQso(int row);
 	void tableScrollLastItem() { ScrollLatestItem(); }
 	void SelectMessage(json jsonMessage);

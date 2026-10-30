@@ -144,6 +144,8 @@ void gui_ft8::cq_press_part_event_class(lv_event_t *e)
 			dxGrid = s;
 		}
 		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, which_report(str), dxGrid);
+		clr_qso();
+		cpy_cqtoqso(row);
 		cpy_conversationtoqso();
 	}
 }
@@ -838,7 +840,7 @@ void gui_ft8::cpy_cqtoqso(int row)
 
 void gui_ft8::cpy_conversationtoqso()
 {
-	qsoRowCount = 1;
+	qsoRowCount = 2;
 	lv_table_set_row_cnt(qsoTable, qsoRowCount);
 	for (int row = 1; row < lv_table_get_row_cnt(cqTable); row++)
 	{
@@ -858,6 +860,14 @@ void gui_ft8::cpy_conversationtoqso()
 int gui_ft8::getQsoLogRows()
 {
 	return lv_table_get_row_cnt(qsoTable);
+}
+
+std::string gui_ft8::getQsoTime()
+{
+	std::string s;
+	if (getQsoLogRows() > 1)
+		s = std::string(lv_table_get_cell_value(qsoTable, 1, 0));
+	return s;
 }
 
 std::string gui_ft8::getQso(int row)

@@ -656,6 +656,11 @@ void gui_setup::set_brightness(int brightness)
 		f = "/sys/class/backlight/11-0045/brightness";
 		myfile.open(f);
 	}
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/panel_backlight@0/brightness";
+		myfile.open(f);
+	}
 	std::string buf = strlib::sprintf("%d", brightness);
 	myfile << buf;
 }

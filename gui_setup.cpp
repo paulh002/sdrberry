@@ -320,6 +320,7 @@ void gui_setup::do_update_button_handler_class(lv_event_t *e)
 		const char *ptr = lv_label_get_text(label);
 		if (strcmp(ptr, "Update") == 0)
 		{
+			open_cli_and_run_script("/usr/local/bin/build_sdrberry --rebuild");
 			open_cli_and_run_script("/usr/local/bin/build_sdrberry");
 			lv_msgbox_close(mbox1);
 

@@ -50,6 +50,7 @@
   <div id="status"><span id="dot"></span><span id="statusText">Connecting</span></div>
   <label class="vol">Volume <input id="vol" type="range" min="0" max="100" value="80" aria-label="Volume"></label>
   <button id="audioBtn" class="primary" type="button">Start audio</button>
+  <button id="rotBtn" type="button" title="Rotate the view by 90 degrees">Rotate</button>
   <button id="fsBtn" type="button">Full screen</button>
 </header>
 <div id="stage"><canvas id="c" width="1280" height="720" tabindex="0"></canvas></div>
@@ -65,11 +66,17 @@
   const volEl = document.getElementById('vol');
 
   // ---------- layout: fit canvas into the stage, keep aspect ratio ----------
+  let rot = 0;                                   // view rotation in degrees: 0, 90, 180, 270 (clockwise)
+
   function fit() {
     const r = stage.getBoundingClientRect();
-    const s = Math.min(r.width / cv.width, r.height / cv.height);
-    cv.style.width  = Math.floor(cv.width  * s) + 'px';
+    const swapped = rot % 180 !== 0;             // at 90/270 the picture is as wide as the canvas is tall
+    const vw = swapped ? cv.height : cv.width;
+    const vh = swapped ? cv.width  : cv.height;
+    const s = Math.min(r.width / vw, r.height / vh);
+    cv.style.width  = Math.floor(cv.width  * s) + 'px';   // unrotated layout size
     cv.style.height = Math.floor(cv.height * s) + 'px';
+    cv.style.transform = `rotate(${rot}deg)`;             // rotates around the canvas centre
   }
   new ResizeObserver(fit).observe(stage);
 
@@ -175,10 +182,17 @@
   // ---------- input ----------
   const send = (buf) => { if (ws && ws.readyState === 1) ws.send(buf); };
 
+  // Screen position -> canvas pixel, undoing the CSS rotation (which is around the canvas centre).
   function mapXY(e) {
-    const r = cv.getBoundingClientRect();
-    const x = Math.max(0, Math.min(cv.width  - 1, Math.round((e.clientX - r.left) * cv.width  / r.width)));
-    const y = Math.max(0, Math.min(cv.height - 1, Math.round((e.clientY - r.top)  * cv.height / r.height)));
+    const r = cv.getBoundingClientRect();        // bounding box of the rotated canvas, same centre as unrotated
+    const dx = e.clientX - (r.left + r.width  / 2);
+    const dy = e.clientY - (r.top  + r.height / 2);
+    const a = rot * Math.PI / 180, cos = Math.round(Math.cos(a)), sin = Math.round(Math.sin(a));
+    const lx =  dx * cos + dy * sin;             // inverse rotation: back into the canvas's own axes
+    const ly = -dx * sin + dy * cos;
+    const w = cv.offsetWidth, h = cv.offsetHeight;   // layout size, unaffected by the transform
+    const x = Math.max(0, Math.min(cv.width  - 1, Math.round((lx + w / 2) * cv.width  / w)));
+    const y = Math.max(0, Math.min(cv.height - 1, Math.round((ly + h / 2) * cv.height / h)));
     return [x, y];
   }
   function sendPtr(x, y, down) {
@@ -232,6 +246,19 @@
     if (document.fullscreenElement) document.exitFullscreen();
     else stage.requestFullscreen && stage.requestFullscreen();
   });
+
+  // ---------- rotate ----------
+  function setRot(deg) {
+    rot = ((deg % 360) + 360) % 360;
+    try { localStorage.setItem('rot', String(rot)); } catch (_) {}
+    fit();
+  }
+  document.getElementById('rotBtn').addEventListener('click', () => setRot(rot + 90));
+
+  // First visit on a phone held upright: start rotated so the landscape picture uses the full width.
+  let saved = null;
+  try { saved = localStorage.getItem('rot'); } catch (_) {}
+  rot = saved !== null ? (parseInt(saved, 10) || 0) : (innerHeight > innerWidth ? 90 : 0);
 
   fit();
   connect();

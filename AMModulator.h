@@ -27,6 +27,7 @@ class AMModulator : public Demodulator
 	bool digitalmode;
 	bool audio_file_mode;
 	bool duplex;
+	bool ifrate_rxtx_notequal;
 	nco_crcf m_fft{nullptr};
 	void fft_offset(long offset);
 	void mix_up_fft(const IQSampleVector &filter_in, IQSampleVector &filter_out);

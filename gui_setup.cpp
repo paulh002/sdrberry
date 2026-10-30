@@ -14,7 +14,6 @@
 #include "Demodulator.h"
 #include "screen.h"
 #include "SecondScreen.h"
-#include "WebServer.h"
 #include <unistd.h>
 #include <sys/reboot.h>
 #include <linux/reboot.h>
@@ -93,12 +92,12 @@ void gui_setup::webbox_event_class(lv_event_t *e)
 		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
 		{
 			Settings_file.save_int("web", "enabled", 1);
-			webserver.StartServer();
+			//webserver.StartServer();
 		}
 		else
 		{
 			Settings_file.save_int("web", "enabled", 0);
-			webserver.StopServer();
+			//webserver.StopServer();
 		}
 	Settings_file.save();
 	}
@@ -321,6 +320,7 @@ void gui_setup::do_update_button_handler_class(lv_event_t *e)
 		const char *ptr = lv_label_get_text(label);
 		if (strcmp(ptr, "Update") == 0)
 		{
+			open_cli_and_run_script("/usr/local/bin/build_sdrberry --rebuild");
 			open_cli_and_run_script("/usr/local/bin/build_sdrberry");
 			lv_msgbox_close(mbox1);
 
@@ -655,6 +655,11 @@ void gui_setup::set_brightness(int brightness)
 	if (!myfile.is_open())
 	{
 		f = "/sys/class/backlight/11-0045/brightness";
+		myfile.open(f);
+	}
+	if (!myfile.is_open())
+	{
+		f = "/sys/class/backlight/panel_backlight@0/brightness";
 		myfile.open(f);
 	}
 	std::string buf = strlib::sprintf("%d", brightness);

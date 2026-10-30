@@ -13,7 +13,6 @@
 #include "date.h"
 #include "strlib.h"
 #include "screen.h"
-#include "WebServer.h"
 #include "gui_rx.h"
 
 extern std::unique_ptr<wsjtx_lib> wsjtx;
@@ -179,7 +178,6 @@ void gui_ft8bar::setMessage(std::string callsign, int db, int row, std::string d
 	}
 	SetFilter(callsign);
 	messageToSend = row;
-	web_txmessage();
 }
 
 void gui_ft8bar::set_frequency(json message)
@@ -458,49 +456,6 @@ void gui_ft8bar::ClearMessage()
 	gft8.clr_cq();
 	SetTxMessage();
 	SetFilter("");
-	web_txmessage();
-}
-/*
-json gui_ft8bar::get_txmessage()
-{
-	json result = json::array();
-	json message;
-	int rowcount = lv_table_get_row_cnt(table);
-
-	for (int row = 1; row < rowcount; row++)
-	{
-		message.emplace("no", lv_table_get_cell_value(table, row, 0));
-		message.emplace("message", lv_table_get_cell_value(table, row, 1));
-		std::string s = std::to_string(messageToSend);
-		message.emplace("messagetosend", s);
-		result.push_back(message);
-		message.clear();
-	}
-	return result;
-}
-*/
-void gui_ft8bar::web_txmessage()
-{
-	json result = json::array();
-	json message;
-	int rowcount = lv_table_get_row_cnt(table);
-
-	if (webserver.isEnabled())
-	{
-		for (int row = 1; row < rowcount; row++)
-		{
-			message.emplace("no", lv_table_get_cell_value(table, row, 0));
-			message.emplace("message", lv_table_get_cell_value(table, row, 1));
-			std::string s = std::to_string(messageToSend);
-			message.emplace("messagetosend", s);
-			result.push_back(message);
-			message.clear();
-		}
-		message.clear();
-		message.emplace("type", "wsjtxtxmessages");
-		message.emplace("data", result);
-		webserver.SendMessage(message);
-	}
 }
 
 void gui_ft8bar::MessageNo(std::string message)
@@ -541,13 +496,11 @@ void gui_ft8bar::SetTxMessage(std::string msg)
 void gui_ft8bar::SetFilter(std::string msg)
 {
 	lv_textarea_set_text(FilterField, msg.c_str());
-	web_call(msg);
 }
 
 void gui_ft8bar::SetFilterCall()
 {
 	lv_textarea_set_text(FilterField, call.c_str());
-	web_call(call);
 }
 
 std::string gui_ft8bar::GetFilter()
@@ -570,7 +523,6 @@ void gui_ft8bar::press_part_event_cb_class(lv_event_t *e)
 	ptr = (char *)lv_table_get_cell_value(obj, row, col);
 	SetTxMessage(std::string(ptr));
 	messageToSend = row;
-	web_txmessage();
 }
 
 static void message_part_event_cb(lv_event_t *e)
@@ -878,7 +830,7 @@ void gui_ft8bar::init(lv_obj_t *o_parent, lv_group_t *button_group, lv_group_t *
 	
 	float bandwidth = Settings_file.get_int("wsjtx", "waterfall_bandwidth", 4000);
 	float resampleRate = bandwidth / ft8_rate;
-	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight, resampleRate, down, lowerpart);
+	waterfall = std::make_unique<Waterfall>(o_parent, 0, barHeightft8, w, tunerHeight + micHeight, resampleRate, down, lowerpart);
 
 	EnableButtons(false);
 }
@@ -906,6 +858,7 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 
 	const char *ptr = lv_textarea_get_text(Textfield);
 	message = std::string(ptr);
+	param.QsoTime = gft8.getQsoTime().size() >= 2 ? gft8.getQsoTime().substr(gft8.getQsoTime().size() - 2) : "";
 	if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 	{
 		if (transmitting || message.size() == 0)
@@ -930,7 +883,7 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 		}
 		else
 		{
-			printf("wsjtx message %s\n", message.c_str());
+			printf("wsjtx message %s timeslot %s\n", message.c_str(), param.QsoTime.c_str());
 			transmitting = true;
 			frequency = lv_slider_get_value(tx_slider) * ft8_freq_multiplier;
 			param.tone = audioTone::NoTone;
@@ -983,69 +936,6 @@ void gui_ft8bar::ClearTransmit()
 	send_status();
 }
 
-void gui_ft8bar::web_wsjtxfreq()
-{
-	//std::unique_lock<std::mutex> mlock(mutex_);
-	json result = json::array();
-	json message;
-	std::vector<int> ftx_freq;
-
-	int band = lv_dropdown_get_selected(frequence);
-	int selection = lv_dropdown_get_selected(getwsjtxmode());
-	if (selection == 0)
-	{
-		Settings_file.get_array_int("wsjtx", "freqFT8", ftx_freq);
-		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
-		{
-			char str[80];
-			long khz = *it / 1000;
-			int hhz = (*it - (*it / 1000) * 1000) / 100;
-
-			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));
-			message.emplace("frequency", str);
-			message.emplace("band", std::to_string(band));
-			result.push_back(message);
-			message.clear();
-		}
-	}
-	if (selection == 1)
-	{
-		Settings_file.get_array_int("wsjtx", "freqFT4", ftx_freq);
-		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
-		{
-			char str[80];
-			long khz = *it / 1000;
-			int hhz = (*it - (*it / 1000) * 1000) / 100;
-
-			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));			
-			message.emplace("frequency", str);
-			message.emplace("band", std::to_string(band));
-			result.push_back(message);
-			message.clear();
-		}
-	}
-	if (selection == 2)
-	{
-		Settings_file.get_array_int("wsjtx", "freqWSPR", ftx_freq);
-		for (auto it = begin(ftx_freq); it != end(ftx_freq); ++it)
-		{
-			char str[80];
-			long khz = *it / 1000;
-			int hhz = (*it - (*it / 1000) * 1000) / 100;
-
-			sprintf(str, "%3ld.%01d%02ld Khz", khz, hhz, (long)((*it / 1) % 100));
-			message.emplace("frequency", str);
-			message.emplace("band", std::to_string(band));
-			result.push_back(message);
-			message.clear();
-		}
-	}
-	message.clear();
-	message.emplace("type", "wsjtxfrequencies");
-	message.emplace("data", result);
-	webserver.SendMessage(message);
-}
-
 void gui_ft8bar::get_buttons()
 {
 	json message, data;
@@ -1073,18 +963,6 @@ void gui_ft8bar::get_buttons()
 	data.emplace("clear", s);
 	message.emplace("type", "wsjtxbuttons");
 	message.emplace("data", data);
-	webserver.SendMessage(message);
-}
-
-void gui_ft8bar::web_call(std::string msg)
-{
-	json message, data;
-
-	data.emplace("callsign", msg);
-	data.emplace("operator", call);
-	message.emplace("type", "callfilter");
-	message.emplace("data", data);
-	webserver.SendMessage(message);
 }
 
 void gui_ft8bar::LogButton()
@@ -1092,21 +970,6 @@ void gui_ft8bar::LogButton()
 	Log();
 }
 
-/*
-std::ofstream &operator<<(std::ofstream &of, const qso_logging &qso)
-{
-	// Format decode_time: convert to sys_time, then to std::tm
-	of << "Time: " << qso.decode_time << ','
-	   << "Frequency: " << qso.freq << ','
-	   << "DX Call: " << qso.dxCall << ','
-	   << "Message: " << qso.message << ','
-	   << "Report Received: " << qso.report_received << ','
-	   << "Report Sent: " << qso.report_send << ','
-	   << "Frequency Offset: " << qso.frequency_offset << " Hz" << ','
-	   << "dxGrid: " << qso.dxGrid << '\n';
-	return of;
-}
-*/
 std::ofstream &operator<<(std::ofstream &of, const qso_logging &qso)
 {
 	auto decode_time = date::floor<std::chrono::seconds>(qso.decode_time);

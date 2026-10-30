@@ -10,6 +10,7 @@
 #include <complex>
 #include <complex.h>
 #include "SignalStrength.h"
+#include "remote_view.h"
 
 static std::shared_ptr<AMDemodulator> sp_amdemod;
 std::mutex amdemod_mutex;
@@ -65,7 +66,7 @@ AMDemodulator::AMDemodulator(int mode, double ifrate, DataBuffer<IQSample> *sour
 		if (bandwidth == 0)
 			bandwidth = 500; // CW
 		suppressed_carrier = 1;
-		am_mode = LIQUID_AMPMODEM_LSB;
+		am_mode = LIQUID_AMPMODEM_USB;
 		printf("mode CW LIQUID_AMPMODEM_LSB carrier %d\n", suppressed_carrier);
 		break;
 	case mode_lsb:
@@ -179,6 +180,7 @@ void AMDemodulator::operator()()
 		perform_fft(iqsamples);
 		process(iqsamples, audioSamples);
 		// Set nominal audio volume.
+		rv_audio_push(audioSamples, 1);
 		audioOutputBuffer->adjust_gain(audioSamples);
 		int noaudiosamples = audioSamples.size();
 		noAfSamples += noaudiosamples;

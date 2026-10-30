@@ -78,19 +78,15 @@ class gui_ft8bar
 	void setrxtxmode(int mode) { rxtxmode = mode; }
 	int getrxtxmode() { return rxtxmode; }
 	ft8status_t get_status() { return ft8status; }
-	void web_wsjtxfreq();
 	void CQButton();
 	void TXButton();
 	void ClearButton();
 	void MonitorButton();
 	void LogButton();
-	json get_txmessage();
-	void web_txmessage();
 	void MessageNo(std::string message);
 	void get_buttons();
 	void set_frequency(json message);
 	void Log();
-	void web_call(std::string msg);
 	void send_status(bool decoding = false);
 	void EnableButtons(bool enable);
 

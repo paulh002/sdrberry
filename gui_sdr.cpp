@@ -324,7 +324,7 @@ void gui_sdr::set_samplerate()
 
 	int rate = lv_dropdown_get_selected(d_samplerate);
 	ifrate = (double)get_sample_rate(rate) / pow(2, decimate);
-
+	
 	Settings_file.save_int(default_radio, "samplerate", get_sample_rate(rate) / 1000);
 	Settings_file.write_settings();
 	destroy_demodulators(true, true);
@@ -451,7 +451,6 @@ void gui_sdr::set_span_value(long span)
 	SpectrumGraph.set_cursor_mode(mode);
 	if (secondscreen)
 		secondscreen->set_cursor_mode(mode);
-	gbar.updateweb();
 	Settings_file.save_int(default_radio, "span", span / 1000);
 	Settings_file.write_settings();
 }

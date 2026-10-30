@@ -19,6 +19,7 @@ class gui_sdr
 	lv_obj_t *cal_ppm, *cal_ppm_label, *cal_ppm_inc, *cal_ppm_dec;
 	lv_group_t *button_group{nullptr};
 	std::vector<int> tx_sample_rates;
+	std::atomic<double> ifrate_rx;
 
 	void receivers_button_handler_class(lv_event_t *e);
 	void span_slider_event_cb_class(lv_event_t *e);

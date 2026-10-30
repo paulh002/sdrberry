@@ -27,6 +27,7 @@ std::atomic<int> Demodulator::filter_type = LIQUID_IIRDES_BUTTER;
 std::atomic<int> Demodulator::filter_offset = 0;
 std::atomic<int> Demodulator::filter_order = 6;
 std::atomic<bool> Demodulator::filter_change = true;
+std::atomic<float> Demodulator::Alc_value = 0.0f;
 
 Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 { //  echo constructor
@@ -35,9 +36,7 @@ Demodulator::Demodulator(AudioOutput *audio_output, AudioInput *audio_input)
 	transmitIQBuffer = nullptr;
 	audioInputBuffer = audio_input;
 	audioOutputBuffer = audio_output;
-	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer");
-	if (!audioBufferSize)
-		audioBufferSize = 4096;
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer", 2048);
 	correction = Settings_file.get_int(default_radio, "correction");
 	highfftquadrant = 0;
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
@@ -54,9 +53,7 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	audioSampleRate = audio_input->get_samplerate();
 	transmitIQBuffer = source_buffer;
 	audioInputBuffer = audio_input;
-	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffertx");
-	if (!audioBufferSize)
-		audioBufferSize = 4096;
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffertx", 2048);
 	highfftquadrant = 0;
 	correction = Settings_file.get_int(default_radio, "correction");
 	timeLastFlashGainSlider = std::chrono::high_resolution_clock::now();
@@ -72,11 +69,8 @@ Demodulator::Demodulator(double ifrate, DataBuffer<IQSample> *source_buffer, Aud
 	audioSampleRate = audio_output->get_samplerate();
 	receiveIQBuffer = source_buffer;
 	audioOutputBuffer = audio_output;
-	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer");
+	audioBufferSize = Settings_file.get_int(default_radio, "audiobuffer", 2048);
 	highfftquadrant = 0;
-	if (!audioBufferSize)
-		audioBufferSize = 4096;
-
 	// resampler and band filter assume pcmfrequency on the low side
 	tune_offset(vfo.get_vfo_offset());
 	dcBlockHandle = firfilt_crcf_create_dc_blocker(25, 30);
@@ -833,4 +827,14 @@ bool Demodulator::Squelch()
 void Demodulator::SquelchPrint()
 {
 	AgcProc->print();
+}
+
+void Demodulator::set_alc_value(float value)
+{
+	Alc_value = value;
+}
+
+float Demodulator::get_alc_value()
+{
+	return Alc_value;
 }

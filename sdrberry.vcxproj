@@ -57,17 +57,17 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;/usr/local/lib/SoapySDR/modules0.8-3;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;elf;wayland-client;wayland-cursor;xkbcommon;pulse-simple;pulse;SoapyHPSDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
-      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;PlutoSDRSupport;curl;elf;wayland-client;wayland-cursor;xkbcommon;pulse-simple;pulse;turbojpeg;opus;webp;SoapyHPSDR;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack </AdditionalOptions>
-      <VerboseMode>true</VerboseMode>
+      <VerboseMode>false</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>/usr/include/aarch64-linux-gnu/c++/14.;ft8;/usr/include/boost/predef/os;lvgl/;lib;/usr/include/eigen3;lvgl/src/extra/widgets/chart;./date/;lvgl/src/misc;lvgl/src/widgets/chart;lvgl/src/drivers/wayland;lvgl/src/draw;lvgl/src/drivers/evdev;lvgl/src/indev;lvgl/src/stdlib;lvgl/src/widgets/table;lvgl/src/drivers/wayland/protocols;/usr/local/include/SoapySDR;/usr/include/c++/14;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;__LINUX_PULSE__;NO_SSL=1;USE_WEBSOCKET=1;USE_OS_TZDB=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;__LINUX_ALSA__;__LINUX_PULSE__;USE_WEBSOCKET=1;USE_OS_TZDB=1;OPENSSL_API_3_0;NO_SSL_DL;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Wno-deprecated -Wno-deprecated-declarations -fno-omit-frame-pointer -rdynamic</AdditionalOptions>
       <CLanguageStandard />
       <CPPLanguageStandard>GNUPP23</CPPLanguageStandard>
@@ -83,11 +83,11 @@
     </ClCompile>
     <Link>
       <LibrarySearchDirectories>lib;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
-      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;wayland-client;wayland-cursor;xkbcommon;pulse-simple;pulse;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLibraryNames>SoapySDR;atomic;liquid;asound;pthread;fftw3;bfd;dl;dw;wsjtx_lib;fftw3f;fftw3f_threads;gfortran;curl;wayland-client;wayland-cursor;xkbcommon;pulse-simple;pulse;turbojpeg;opus;webp;ssl;crypto;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <AdditionalLinkerInputs>;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LinkerScript />
       <AdditionalOptions>-z execstack -rdynamic</AdditionalOptions>
-      <VerboseMode>true</VerboseMode>
+      <VerboseMode>false</VerboseMode>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -141,6 +141,7 @@
     <ClCompile Include="gui_i2csetup.cpp" />
     <ClCompile Include="gui_i2c_input.cpp" />
     <ClCompile Include="gui_i2c_output.cpp" />
+    <ClCompile Include="gui_mic.cpp" />
     <ClCompile Include="gui_preset.cpp" />
     <ClCompile Include="gui_recorder.cpp" />
     <ClCompile Include="gui_rx.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="pskreporter.cpp" />
     <ClCompile Include="recorder.cpp" />
+    <ClCompile Include="remote_view.cpp" />
     <ClCompile Include="RtAudio.cpp" />
     <ClCompile Include="RtMidi.cpp" />
     <ClCompile Include="sdrberry.cpp" />
@@ -202,8 +204,6 @@
     <ClCompile Include="wave.cpp" />
     <ClCompile Include="WavReader.cpp" />
     <ClCompile Include="WavWriter.cpp" />
-    <ClCompile Include="WebRestHandler.cpp" />
-    <ClCompile Include="WebServer.cpp" />
     <ClCompile Include="wiringPiI2C.c" />
     <ClCompile Include="wiringSerial.c" />
     <ClCompile Include="WSPRDemodulator.cpp" />
@@ -272,6 +272,7 @@
     <ClInclude Include="gui_i2csetup.h" />
     <ClInclude Include="gui_i2c_input.h" />
     <ClInclude Include="gui_i2c_output.h" />
+    <ClInclude Include="gui_mic.h" />
     <ClInclude Include="gui_preset.h" />
     <ClInclude Include="gui_recorder.h" />
     <ClInclude Include="gui_rx.h" />
@@ -317,6 +318,7 @@
     <ClInclude Include="pskreporter.h" />
     <ClInclude Include="quick_arg_parser.hpp" />
     <ClInclude Include="recorder.h" />
+    <ClInclude Include="remote_view.h" />
     <ClInclude Include="RtAudio.h" />
     <ClInclude Include="RtMidi.h" />
     <ClInclude Include="scancodes_linux.h" />
@@ -363,8 +365,6 @@
     <ClInclude Include="wave.h" />
     <ClInclude Include="WavReader.h" />
     <ClInclude Include="WavWriter.h" />
-    <ClInclude Include="WebRestHandler.h" />
-    <ClInclude Include="WebServer.h" />
     <ClInclude Include="whitenoise.h" />
     <ClInclude Include="wiringPiI2C.h" />
     <ClInclude Include="wiringSerial.h" />

@@ -1417,12 +1417,6 @@
     <ClCompile Include="civetweb.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="WebServer.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="WebRestHandler.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="gui_sdr.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -4963,6 +4957,12 @@
     <ClCompile Include="ButtonBar.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_mic.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="remote_view.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sdrberry-Debug.vgdbsettings">
@@ -5312,12 +5312,6 @@
     <ClInclude Include="civetweb.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="WebServer.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="WebRestHandler.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="SpectrumConstants.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -5478,6 +5472,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="whitenoise.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_mic.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_view.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

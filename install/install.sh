@@ -109,13 +109,17 @@ binutils-dev libdw-dev gfortran g++ swig hackrf libhackrf-dev libfftw3-dev \
 ninja-build libiio-dev libiio-dev libiio-utils libasound-dev \
 libboost-all-dev python3 libfftw3-dev python3-yaml libtinyxml2-dev \
 libglfw3-dev vim libxkbcommon-dev libusb-1.0-0-dev libxml2-dev flex bison libavahi-client-dev libaio-dev \
-libcurl4-openssl-dev foot libpulse-dev
+libcurl4-openssl-dev foot libpulse-dev opus-tools libopus0 libopus-dev libturbojpeg0-dev libssl-dev webp libwebp-dev
 echo "set mouse-=a" >> ~/.vimrc
 sudo ldconfig
 
 echo "pi ALL=(ALL) NOPASSWD: ALL" >> 010_pi-nopasswd
 sudo cp  010_pi-nopasswd /etc/sudoers.d/.
 sudo chmod 0440 /etc/sudoers.d/010_pi-nopasswd
+
+sudo mkdir -p /opt/sdr/www
+sudo chown pi /opt/sdr
+sudo chown pi /opt/sdr/www
 
 cd $wrkdir || exit
 git clone https://github.com/pothosware/SoapySDR.git
@@ -438,7 +442,23 @@ if [[ $Display == 4 ]];	then
 	echo "configure HDMI-A-2"
 	sed -i 's/Display[[:space:]]*=[[:space:]]*"DSI-1"/Display="HDMI-A-2"/g' $usrdir/sdrberry_settings.cfg
 fi
+set -euo pipefail
+HOST="$(hostname)"                          # short name, e.g. pi5b
+FQDN="$(hostname -f 2>/dev/null || echo "$HOST")"
+IP="$(hostname -I | awk '{print $1}')"      # first non-loopback IPv4
 
+# Build the SAN list: always include .local and the IP
+SAN="DNS:${HOST}.local,DNS:${HOST},IP:${IP}"
+[ "$FQDN" != "$HOST" ] && SAN="${SAN},DNS:${FQDN}"
+
+openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+  -keyout key.pem -out cert.crt \
+  -subj "/CN=${HOST}.local" \
+  -addext "subjectAltName=${SAN}"
+sudo mkdir -p /etc/sdr
+cat cert.crt key.pem | sudo tee /etc/sdr/cert.pem > /dev/null
+sudo chmod 600 /etc/sdr/cert.pem
+sudo chown pi /etc/sdr/cert.pem
 #Do Cleanup
 #rm -rf sdrberry rtaudio liquid-dsp SoapyHifiBerry SoapyHackRF SoapySDR sdrberry_settings_*
 sudo setcap cap_sys_boot+ep /usr/local/bin/sdrberry

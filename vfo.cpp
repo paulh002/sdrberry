@@ -8,7 +8,6 @@
 #include "gui_bar.h"
 #include "gui_tx.h"
 #include "Gui_band.h"
-#include "WebServer.h"
 #include "gui_top_bar.h"
 #include "SecondScreen.h"
 #include "debug_print.h"
@@ -135,8 +134,6 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	{
 		vfo_setting.vfo_freq[1] = vfo_setting.vfo_low;
 	}
-	vfo_setting.mode[1] = Settings_file.convert_mode(Settings_file.get_string("VFO2", "Mode"));
-	
 	span_offset_frequency = 0;
 	vfo_setting.span = span;
 	vfo_setting.pcmrate = pcmrate;
@@ -145,6 +142,12 @@ void CVfo::vfo_init(long ifrate, long pcmrate, long span, SdrDeviceVector *fSdrD
 	set_span(span);
 	get_band(0);
 	get_band(1);
+	
+	int index = getBandIndex(vfo_setting.band[0]);
+	vfo_setting.mode[0] = vfo_setting.bands[index].f_mode;
+	index = getBandIndex(vfo_setting.band[1]);
+	vfo_setting.mode[1] = vfo_setting.bands[index].f_mode;
+	
 	gui_band_instance.set_gui(vfo_setting.band[vfo_setting.active_vfo]);
 	rx_set_sdr_freq();
 	//tx_set_sdr_freq();	
@@ -427,7 +430,6 @@ int CVfo::set_vfo(long freq, vfo_activevfo ActiveVfo)
 	if (vfo.vfo_setting.active_vfo == vfo_activevfo::Two)
 		catinterface->SetFB(vfo_setting.vfo_freq[1]);
 	catinterface.InitVfo(vfo_setting.vfo_freq[0], vfo_setting.vfo_freq[1]);
-	updateweb();
 	return retval;
 }
 
@@ -844,35 +846,6 @@ std::vector<int16_t> CVfo::Legend()
 		f = f + ii;
 	}
 	return spectrumLedgend;
-}
-
-void CVfo::updateweb()
-{
-	if (webserver.isEnabled())
-	{
-		json message, data;
-
-		std::string freq = get_vfo_str(get_active_vfo());
-		std::string mode = getMode(vfo.get_active_vfo());
-		std::string band = get_band_in_text();
-		std::string call = Settings_file.get_string("wsjtx", "call");
-
-		message.clear();
-		data.clear();
-		data.emplace("frequency", freq);
-		data.emplace("mode", mode);
-		data.emplace("band", band);
-		data.emplace("call", call);
-		data.emplace("label", GuiTopBar.getLabel());
-		message.emplace("type", "vfo");
-		message.emplace("data",data);
-		webserver.SendMessage(message);
-		
-		message.clear();
-		message.emplace("type","ledgend");
-		message.emplace("data",Legend());
-		webserver.SendMessage(message);
-	}
 }
 
 bool CVfo::checkVfoBandRange(long freq)

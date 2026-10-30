@@ -103,19 +103,13 @@ void AudioProcessor::prepareToPlay(double sampleRate)
 	{
 		LevelDetector = std::make_unique<PeakLevelDetector>(sampleRate);
 	}
-	else
-	{
-		LevelDetector->setDetector(sampleRate);
-	}
-
+	LevelDetector->setDetector(sampleRate);
+	
 	if (gainDymanics == nullptr)
 	{
 		gainDymanics = std::make_unique<GainDynamics>(sampleRate, attackTime, releaseTime);
 	}
-	else
-	{
-		gainDymanics->setDetector(sampleRate);
-	}
+	gainDymanics->setDetector(sampleRate);
 }
 
 void AudioProcessor::processBlock(std::span<Sample> &buffer)
@@ -150,4 +144,5 @@ void AudioProcessor::processBlock(std::span<Sample> &buffer)
 		// Apply gain
 		buffer[i] *= gain;
 	}
+	gainDb_share.store(gainDb, std::memory_order::relaxed);
 }

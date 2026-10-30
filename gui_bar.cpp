@@ -9,7 +9,6 @@
 #include "Spectrum.h"
 #include <memory>
 #include "screen.h"
-#include "WebServer.h"
 #include "gui_gain.h"
 #include "vfo.h"
 #include "SecondScreen.h"
@@ -71,49 +70,6 @@ void gui_bar::change_step(int i)
 	if (steps_value > 0)
 		steps_value--;
 	update_step_button(steps_value);
-}
-
-
-void gui_bar::web_filterfreq()
-{
-	json result = json::array();
-	json message;
-
-	message.emplace("frequency", "0.1 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "0.25 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "0.5 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "1.0 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "1.5 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "2.0 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "2.5 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "3.0 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "3.5 Khz");
-	result.push_back(message);
-	message.clear();
-	message.emplace("frequency", "4.0 Khz");
-	result.push_back(message);
-	message.clear();
-
-	message.clear();
-	message.emplace("type", "filterfrq");
-	message.emplace("data", result);
-	webserver.SendMessage(message);
 }
 
 void gui_bar::set_tx(bool tx)
@@ -480,7 +436,6 @@ void gui_bar::vol_slider_event_class(lv_event_t *e)
 	audio_output->set_volume(lv_slider_get_value(slider));
 	catinterface->SetAG(lv_slider_get_value(slider));
 	Settings_file.save_vol(lv_slider_get_value(slider));
-	updateweb();
 }
 
 void gui_bar::if_slider_event_class(lv_event_t *e)
@@ -493,7 +448,6 @@ void gui_bar::if_slider_event_class(lv_event_t *e)
 	if_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = lv_slider_get_value(slider);
 	Settings_file.set_map_string(default_radio, "if-gain-map", if_gain);
 	guift8bar.set_if(sl);
-	updateweb();
 }
 
 void gui_bar::gain_slider_event_class(lv_event_t *e)
@@ -506,7 +460,6 @@ void gui_bar::gain_slider_event_class(lv_event_t *e)
 	rf_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = lv_slider_get_value(slider);
 	Settings_file.set_map_string(default_radio, "rf-gain-map", rf_gain);
 	guigain.clear_store_class();
-	updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), lv_slider_get_value(slider));
@@ -569,8 +522,6 @@ void gui_bar::set_gain_slider(int gain, bool web)
 	Settings_file.set_map_string(default_radio, "rf-gain-map", rf_gain);
 	guigain.set_gains();
 	catinterface->SetRG(gain);
-	if (web)
-		updateweb();
 	try
 	{
 		SdrDevices.SdrDevices.at(default_radio)->setGain(SOAPY_SDR_RX, guisdr.get_current_rx_channel(), (double)gain);
@@ -607,7 +558,6 @@ void gui_bar::filter_slider_and_button_event_class(lv_event_t *e)
 				secondscreen->set_cursor_mode(mode);
 			catinterface.SetNA(sel);
 			cattcpserver.SetNA(sel);
-			updateweb();
 		}
 		else
 		{
@@ -977,8 +927,6 @@ void gui_bar::set_vol_slider(int volume, bool web)
 	catinterface->SetAG(volume);
 	Settings_file.write_settings();
 	Settings_file.save_vol(volume);
-	if (web)
-		updateweb();
 }
 
 bool gui_bar::get_noise()
@@ -1014,8 +962,6 @@ void gui_bar::set_if(int ifg, bool web)
 	if_gain[std::to_string(vfo.get_band_in_meters()) + "m"] = ifg;
 	Settings_file.set_map_string(default_radio, "if-gain-map", if_gain);
 	guift8bar.set_if(ifg);
-	if (web)
-		updateweb();
 }
 
 void gui_bar::get_filter_range(std::vector<std::string> &filters)
@@ -1133,7 +1079,6 @@ void gui_bar::set_filter_dropdown(int ifilter)
 	SpectrumGraph.set_cursor_mode(mode);
 	if (secondscreen)
 		secondscreen->set_cursor_mode(mode);
-	updateweb();
 }
 
 int gui_bar::get_filter_frequency()
@@ -1178,46 +1123,6 @@ void gui_bar::hidetx()
 		lv_obj_clear_flag(button[buttontune], LV_OBJ_FLAG_HIDDEN);
 	}
 	return;
-}
-
-void gui_bar::updateweb()
-{
-	json message, data;
-
-	if (webserver.isEnabled())
-	{
-		int max_gain, min_gain;
-
-		get_gain_range(max_gain, min_gain);
-		data.clear();
-		data.emplace("volume", get_volume());
-		data.emplace("ifvalue", get_if_slider());
-		data.emplace("rfvalue", get_rf_gain() - min_gain);
-		data.emplace("filter", FilterTypes.at(lv_dropdown_get_selected(button[filter])));
-		data.emplace("ifilter", FilterValues.at(lv_dropdown_get_selected(button[filter])));
-		message.emplace("type", "sliders");
-		message.emplace("data", data);
-		webserver.SendMessage(message);
-	}
-}
-
-void gui_bar::websetfilter(std::string message)
-{
-	int filter = 0;
-	for (auto col : FilterTypes)
-	{
-		if (col == message)
-		{
-			lv_dropdown_set_selected(button[button_filter], filter);
-			update_filter(ifilters[filter]);
-			SpectrumGraph.set_cursor_mode(mode);
-			if (secondscreen)
-				secondscreen->set_cursor_mode(mode);
-			catinterface->SetNA(filter);
-			cattcpserver.SetNA(filter);
-		}
-		filter++;
-	}
 }
 
 void gui_bar::setTxButtons()

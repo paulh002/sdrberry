@@ -646,7 +646,24 @@ std::map<std::string, int> Settings::get_map_string(std::string section, std::st
 	while (i < val_array.size())
 	{
 		std::string band = val_array[i++];
-		result[band] = std::stoi(val_array[i++]);
+		try
+		{
+			result[band] = std::stoi(val_array[i++]);
+		}
+		catch (const std::invalid_argument& e) {
+			std::cout << "Error Settings get_map_string: Invalid argument. No conversion could be performed.\n";
+			std::cout << "Details: " << e.what() << "\n";
+		} 
+		// Catch block for numbers that exceed the limits of an 'int'
+		catch(const std::out_of_range& e) {
+			std::cout << "Error Settings get_map_string: Out of range. The value is too large or small for an int.\n";
+			std::cout << "Details: " << e.what() << "\n";
+		} 
+		catch (const std::exception& e)
+		{
+			std::cout << "Error Settings get_map_string: An unexpected standard exception occurred.\n";
+			std::cout << "Details: " << e.what() << "\n";
+		}
 	}
 	return result;
 }

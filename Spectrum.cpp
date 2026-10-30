@@ -86,7 +86,6 @@ void Spectrum::pressing_event_cb_class(lv_event_t *e)
 		vfo.set_frequency_to_left(newspanstartfreq, vfo.get_active_vfo(), true);
 		vfo.set_vfo(vfo.get_frequency());
 		//SpectrumGraph.SetFftParts();
-		gbar.updateweb();
 	}
 	
 	if (indev_type == LV_INDEV_TYPE_POINTER && code == LV_EVENT_PRESSING && (indev->pointer.btn_id == LV_INDEV_BTN_LEFT || indev->pointer.btn_id == LV_INDEV_BTN_NONE) && drag_marker_rightbutton == 0)
@@ -232,7 +231,7 @@ void Spectrum::draw_event_cb_class(lv_event_t *e)
 			lv_area_t rect_area;
 			rect_area.x1 = (int32_t)draw_line_dsc->p1.x;
 			rect_area.x2 = (int32_t)draw_line_dsc->p2.x - 1;
-			rect_area.y1 = LV_MIN(draw_line_dsc->p1.y, draw_line_dsc->p2.y);
+			rect_area.y1 = LV_MAX(draw_line_dsc->p1.y, draw_line_dsc->p2.y);
 			rect_area.y2 = (int32_t)coords.y2;
 			lv_draw_rect(base_dsc->layer, &rect_dsc, &rect_area);
 		}

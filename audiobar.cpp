@@ -44,6 +44,26 @@ void audiobar::align(lv_obj_t *parent, lv_align_t align, lv_coord_t x_ofs, lv_co
 	lv_obj_align_to(bar, parent, align, x_ofs, y_ofs);
 }
 
+void audiobar::set_size(int width, int height)
+{
+	if (!width)
+	{
+		lv_obj_set_width(bar, VU_BAR_WIDTH);
+	}
+	else
+	{
+		lv_obj_set_width(bar, width);			
+	}
+	if (!height)
+	{
+		lv_obj_set_height(bar, VU_BAR_HEIGHT); 
+	}
+	else
+	{
+		lv_obj_set_height(bar, height); 	
+	}
+}
+
 void audiobar::value(int value)
 {
 	if (value > maxvalue)

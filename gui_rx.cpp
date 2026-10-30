@@ -17,20 +17,7 @@ void gui_rx::event_handler_morse_class(lv_event_t *e)
 	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
 	if (code == LV_EVENT_VALUE_CHANGED)
 	{
-		if (lv_obj_get_state(obj) & LV_STATE_CHECKED)
-		{
-			gbar.hide_cw(false);
-			lv_obj_set_height(bar_view, barHeight + MorseHeight);
-			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight + MorseHeight);
-			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight - MorseHeight);
-		}
-		else
-		{
-			gbar.hide_cw(true);
-			lv_obj_set_height(bar_view, barHeight);
-			lv_obj_set_pos(tabview_mid, 0, topHeight + tunerHeight + barHeight);
-			lv_obj_set_height(tabview_mid, screenHeight - topHeight - tunerHeight - barHeight);
-		}
+		SetTabView_morse(lv_obj_get_state(obj) & LV_STATE_CHECKED);
 	}
 }
 
@@ -582,8 +569,7 @@ void gui_rx::init(lv_obj_t *o_tab, lv_coord_t w)
 	lv_checkbox_set_text(spectrum_hold, "Spectrum hold");
 	lv_obj_add_event_cb(spectrum_hold, event_handler_hold, LV_EVENT_VALUE_CHANGED, (void *)this);
 	lv_obj_add_flag(spectrum_hold, LV_OBJ_FLAG_CHECKABLE);
-	ibutton_y++;
-	lv_obj_align(spectrum_hold, LV_ALIGN_TOP_LEFT, x_margin, y_margin + ibutton_y * button_height_margin);
+	lv_obj_align_to(spectrum_hold, spectrum_slider, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 30);
 	lv_group_add_obj(button_group, spectrum_hold);
 
 	spectrum_color = lv_checkbox_create(settings_tile);

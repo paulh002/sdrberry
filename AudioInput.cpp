@@ -65,7 +65,7 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 		audio_in_buffer.push_block(nBufferFrames, [&](std::span<float> buffer) {
 			for (int i = 0; i < nBufferFrames; i++)
 			{
-				Sample f = ((float *)inputBuffer)[i];
+				Sample f = ((float *)inputBuffer)[i] * volume.load(std::memory_order::relaxed);
 				buffer[i] = f;
 			}
 			float mic_vol = 0;
@@ -222,23 +222,22 @@ void AudioInput::set_playback_volume(int vol)
 
 void AudioInput::adjust_gain(std::span<Sample> samples)
 {
-	for (auto &con : samples) 
+	if (digitalmode || get_tone())
 	{
-		if (digitalmode)
+		for (auto &con : samples) 
 		{
-			con *= digitalvolume;
-		}
-		else if (get_tone())
-		{
-			con *= tone_volume;
-		}
-		else if (playbackmode)
-		{
-			con *= playback_volume;
-		}
-		else
-		{
-			con *= volume;
+			if (digitalmode)
+			{
+				con *= digitalvolume;
+			}
+			else if (get_tone())
+			{
+				con *= tone_volume;
+			}
+			else if (playbackmode)
+			{
+				con *= playback_volume;
+			}
 		}
 	}
 }

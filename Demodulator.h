@@ -43,6 +43,8 @@ class Demodulator
 	static void set_filter_type(int type);
 	static void set_filter_offset(int offset);
 	static void set_filter_order(int order);
+	static void set_alc_value(float value);
+	static float get_alc_value();
 
 	void setLowPassAudioFilterCutOffFrequency(int band_width);
 
@@ -153,7 +155,9 @@ class Demodulator
 	static std::atomic<bool> filter_change;
 	static std::atomic<float> noiseThresshold;
 	std::chrono::high_resolution_clock::time_point timeLastFlashGainSlider;
-
+	
+	static std::atomic<float> Alc_value;
+	
 	std::unique_ptr<AGCUnifiedProcessor> AgcProc;
 	int threshold = -100;
 	int agc_gain = 0;

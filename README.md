@@ -198,12 +198,10 @@ Sdrberry sends messages to Qlog (or other logging software like NN1MM)
 And can be remote controled by logging software using CAT FT-981 commands.
 ![sdrberry](https://github.com/user-attachments/assets/923a954f-c64e-487f-994d-bfa7133193f7)
 
-# Web Server on port 8081
-First version of sdrberry webserver, goal is to remote control the functions of sdrberry.
+# Web Server on port 8443
+Sdrberry webserver inclusive audio receive support
 This is still an experiment / beta version. To see what is the best way to integrate web with C++ application.
-WEB pages are build with VUE JS 3 and Primevue source code will be shared later in separate github repo.
+Sdrberry sends the GUI changes to the web page using jpeg compression. For audio opus is used.
+It is necessary to install a selfsigned certificate see cert.sh for instructions.
 
-Copy sdrweb directory to pi home dir 
-Open the WSJTX webpage on http://raspberry_pi_ip:8081
-
-![sdrberry](https://github.com/paulh002/sdrberry/blob/0354b16771afa0fb7ccf55b9a41a7d6fa6422540/images/sdrweb.png)
+![sdrberry](https://github.com/paulh002/sdrberry/blob/build/images/sdrweb1.png?raw=true)

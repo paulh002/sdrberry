@@ -35,9 +35,9 @@ target_include_directories(sdrberry PRIVATE build/_deps/lvgl-src/src/stdlib buil
 target_link_libraries(sdrberry PRIVATE lvgl::lvgl ${LIBRARIES_FROM_REFERENCES} ${PULSEAUDIO_LIBRARIES}) 
 target_link_libraries(sdrberry PRIVATE nlohmann_json::nlohmann_json)
 install(TARGETS sdrberry DESTINATION /usr/local/bin)
-add_custom_target(web
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/web /opt/sdr/www
-    COMMENT "Copying web files to /opt/sdr/www"
-    VERBATIM)
-add_dependencies(sdrberry web)
+install(CODE "
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_SOURCE_DIR}/web /opt/sdr/www
+    )
+")

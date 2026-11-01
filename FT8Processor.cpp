@@ -5,7 +5,6 @@
 #include <map>
 #include <regex>
 #include <string>
-#include "tz.h"
 
 std::mutex cycle_mu;
 int cycle_count;

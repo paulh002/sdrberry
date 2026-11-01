@@ -9,7 +9,6 @@
 #include <ctime>
 #include <string>
 #include <chrono>
-#include <tz.h>
 #include "lvgl.h"
 #include "gui_top_bar.h"
 #include "screen.h"
@@ -47,17 +46,18 @@ void gui_top_bar::set_time_label()
 {
 	std::stringstream ss;
 	std::string timezone = Settings_file.get_string("Radio", "timezone");
-	auto t = make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+	auto now_sec = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+	auto t = std::chrono::zoned_time(std::chrono::current_zone(), now_sec);
 	if (timezone.size())
 	{
 		try
 		{
-			auto zone = date::locate_zone(timezone);
-			t = make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+			auto zone = std::chrono::locate_zone(timezone);
+			t = std::chrono::zoned_time(zone, now_sec);
 		}
-		catch (const date::nonexistent_local_time &e)
+		catch (const std::chrono::nonexistent_local_time &e)
 		{
-			std::cout << e.what() << '\n';
+			std::cout << "Invalid timezone: " << e.what() << '\n';
 		}
 	}
 	ss << t;

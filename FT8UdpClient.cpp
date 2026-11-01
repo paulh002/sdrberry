@@ -1,12 +1,11 @@
 #include "FT8UdpClient.h"
 #include "Modes.h"
 #include "Settings.h"
-#include "date.h"
 #include "gui_ft8.h"
-#include "julian.h"
 #include <bits/stdc++.h>
 #include <iostream>
 #include <memory>
+#include "date/julian.h"
 
 // Helper function to append data to a vector of chars
 template <typename T>
@@ -350,9 +349,9 @@ void FT8UdpClient::SendQso(std::chrono::time_point<std::chrono::system_clock> qs
 		// const auto now = std::chrono::system_clock::now();
 		// const auto today = date::floor<date::days>(now);
 
-		const auto qso_day = date::floor<date::days>(qso_time);
+		const auto qso_day = std::chrono::floor<std::chrono::days>(qso_time);
 		const julian::year_month_day j_today{qso_day};
-		const date::year_month_day g_today{qso_day};
+		const std::chrono::year_month_day g_today{qso_day};
 
 		std::cout << "The current Gregorian calendar date is: "
 				  << g_today.year() << '-'

@@ -34,7 +34,7 @@
       <UserName>pi</UserName>
     </BuildHost>
     <DeploymentHost>
-      <HostName>192.168.88.17</HostName>
+      <HostName>192.168.88.31</HostName>
       <Transport>SSH</Transport>
       <UserName>pi</UserName>
     </DeploymentHost>
@@ -93,6 +93,7 @@
     <ProjectFile>sdrberry.vcxproj</ProjectFile>
     <RemoteBuildEnvironment>
       <Records />
+      <EnvironmentSetupFiles />
     </RemoteBuildEnvironment>
     <ParallelJobCount>4</ParallelJobCount>
     <SuppressDirectoryChangeMessages>true</SuppressDirectoryChangeMessages>

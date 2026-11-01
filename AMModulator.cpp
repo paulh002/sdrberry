@@ -131,6 +131,7 @@ AMModulator::AMModulator(ModulatorParameters &param, DataBuffer<IQSample> *sourc
 		ifrate_rxtx_notequal = true;
 	}
 	AMmodulatorHandle = ampmodem_create(mod_index, am_mode, suppressed_carrier); 
+	ampmodem_set_delay(AMmodulatorHandle, 27); 
 	source_buffer->restart_queue();
 }
 

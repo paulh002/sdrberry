@@ -29,6 +29,8 @@ void destroy_demodulators(bool all = false, bool close_stream = false);
 void update_filter(int bandwidth);
 bool IsDigtalMode(int mode);
 int IsScreenRotated();
+bool IsScreenLowResolution();
+int number_off_x_buttons();
 void set_tx_buttons();
 void create_spectrum_page_time();
 void print_stack_trace();

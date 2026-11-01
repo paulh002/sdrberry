@@ -18,6 +18,7 @@ struct ModulatorParameters
 	int rxChannel, txChannel;
 	std::string play_prerecorded_file;
 	std::string QsoTime;
+	bool cq;
 };
 
 class DigitalTransmission

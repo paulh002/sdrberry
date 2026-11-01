@@ -51,7 +51,6 @@
 #include "sdrberry.h"
 #include "sdrstream.h"
 #include "strlib.h"
-#include "tz.h"
 #include "wsjtx_lib.h"
 #include <nlohmann/json.hpp>
 #include <sys/file.h>
@@ -345,6 +344,18 @@ int screenfontthresshold_2;
 int screenfontthresshold_3;
 bool debug_print = false;
 
+bool IsScreenLowResolution()
+{
+	return (screenWidth < screenfontthresshold_2);
+}
+
+int number_off_x_buttons()
+{
+	int x_number_buttons = 5;
+	if (screenWidth > screenfontthresshold_1)
+		x_number_buttons = 8;
+	return x_number_buttons;
+}
 // const int hidespeech{5};
 
 std::mutex gui_mutex;
@@ -613,15 +624,15 @@ int main(int argc, char *argv[])
 	Settings_file.read_settings(std::string("sdrberry_settings.cfg"));
 	debug_print = Settings_file.get_int("Radio", "debug", 0);
 	std::string timezone = Settings_file.get_string("Radio", "timezone");
-	auto t = make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+	auto t = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
 	if (timezone.size())
 	{
 		try
 		{
-			auto zone = date::locate_zone(timezone);
-			t = make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+			auto zone = std::chrono::locate_zone(timezone);
+			t = std::chrono::zoned_time(zone, std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
 		}
-		catch (const date::nonexistent_local_time &e)
+		catch (const std::chrono::nonexistent_local_time &e)
 		{
 			std::cout << e.what() << '\n';
 		}

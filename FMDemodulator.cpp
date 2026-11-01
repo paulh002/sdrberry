@@ -6,6 +6,7 @@
 #include "sdrberry.h"
 #include <thread>
 #include "SignalStrength.h"
+#include "remote_view.h"
 
 FMDemodulator::FMDemodulator(double ifrate, DataBuffer<IQSample> *source_buffer, AudioOutput *audio_output)
 	: Demodulator(ifrate, source_buffer, audio_output)
@@ -74,8 +75,9 @@ void FMDemodulator::operator()()
 		limiter.Process(iqsamples);
 		perform_fft(iqsamples);
 		process(iqsamples, audiosamples);
-
+		
 		// Set nominal audio volume.
+		rv_audio_push(audiosamples, 1);
 		audio_output->adjust_gain(audiosamples);
 		int noaudiosamples = audiosamples.size();
 		for (auto &col : audiosamples)

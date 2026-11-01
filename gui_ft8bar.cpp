@@ -10,7 +10,6 @@
 #include <fstream>
 #include <regex>
 #include "wave.h"
-#include "date.h"
 #include "strlib.h"
 #include "screen.h"
 #include "gui_rx.h"
@@ -364,7 +363,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 			//CQ
 			SetTxMessage();
 			//guift8bar.SetFilterCall();
-			if (Transmit(obj))
+			if (Transmit(obj, true))
 				ft8status = ft8status_t::monitor;
 			else
 				ft8status = ft8status_t::cq;
@@ -381,8 +380,7 @@ void gui_ft8bar::ft8bar_button_handler_class(lv_event_t *e)
 void gui_ft8bar::CQButton()
 {
 	SetTxMessage();
-	// guift8bar.SetFilterCall();
-	if (Transmit(button[buttoncq]))
+	if (Transmit(button[buttoncq]), true)
 	{
 		ft8status = ft8status_t::monitor;
 		lv_obj_clear_state(button[buttoncq], LV_STATE_CHECKED);
@@ -521,6 +519,7 @@ void gui_ft8bar::press_part_event_cb_class(lv_event_t *e)
 	if (row == 0)
 		return;
 	ptr = (char *)lv_table_get_cell_value(obj, row, col);
+
 	SetTxMessage(std::string(ptr));
 	messageToSend = row;
 }
@@ -848,7 +847,7 @@ void gui_ft8bar::hide(bool hide)
 	}
 }
 
-int gui_ft8bar::Transmit(lv_obj_t *obj)
+int gui_ft8bar::Transmit(lv_obj_t *obj, bool cq)
 {
 	wsjtxMode wstx_mode;
 	ModulatorParameters param{};
@@ -858,7 +857,6 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 
 	const char *ptr = lv_textarea_get_text(Textfield);
 	message = std::string(ptr);
-	param.QsoTime = gft8.getQsoTime().size() >= 2 ? gft8.getQsoTime().substr(gft8.getQsoTime().size() - 2) : "";
 	if (mode == mode_ft8 || mode == mode_ft4 || mode == mode_wspr)
 	{
 		if (transmitting || message.size() == 0)
@@ -886,6 +884,11 @@ int gui_ft8bar::Transmit(lv_obj_t *obj)
 			printf("wsjtx message %s timeslot %s\n", message.c_str(), param.QsoTime.c_str());
 			transmitting = true;
 			frequency = lv_slider_get_value(tx_slider) * ft8_freq_multiplier;
+			param.cq = cq;
+			if (!cq)
+				param.QsoTime = gft8.getQsoTime().size() >= 2 ? gft8.getQsoTime().substr(gft8.getQsoTime().size() - 2) : "";
+			else
+				param.QsoTime = "0";
 			param.tone = audioTone::NoTone;
 			param.ifrate = ifrate_tx;
 			param.even = true;
@@ -972,24 +975,24 @@ void gui_ft8bar::LogButton()
 
 std::ofstream &operator<<(std::ofstream &of, const qso_logging &qso)
 {
-	auto decode_time = date::floor<std::chrono::seconds>(qso.decode_time);
-	auto zoned_time = make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(decode_time));
+	auto decode_time = std::chrono::floor<std::chrono::seconds>(qso.decode_time);
+	auto zt = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(decode_time));
 	std::string timezone = Settings_file.get_string("Radio", "timezone");
 	if (timezone.size())
 	{
 		try
 		{
-			auto zone = date::locate_zone(timezone);
-			zoned_time = make_zoned(zone, date::floor<std::chrono::seconds>(decode_time));
+			auto zone = std::chrono::locate_zone(timezone);
+			zt = std::chrono::zoned_time(zone, std::chrono::floor<std::chrono::seconds>(decode_time));
 		}
-		catch (const date::nonexistent_local_time &e)
+		catch (const std::chrono::nonexistent_local_time &e)
 		{
 			std::cout << e.what() << '\n';
 		}
 	}
 	
 	// Format decode_time: convert to sys_time, then to std::tm
-	of << zoned_time << ',' // date::format("%F %H:%M:%S", decode_time)
+	of << zt << ',' // date::format("%F %H:%M:%S", decode_time)
 	   << qso.freq << ','
 	   << qso.dxCall << ','
 	   << qso.message << ','

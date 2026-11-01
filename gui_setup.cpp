@@ -383,6 +383,59 @@ void gui_setup::update_button_handler_class(lv_event_t *e)
 	}
 }
 
+void gui_setup::init_cal(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w, lv_coord_t h)
+{
+	const lv_coord_t x_page_margin = 5;
+	const lv_coord_t x_margin  = 10;
+	const lv_coord_t y_margin  = 5;
+	const int y_number_buttons = 4;
+	const lv_coord_t tab_margin  = 20;
+	
+	int x_number_buttons = number_off_x_buttons();
+	int button_width_margin = ((w - tab_margin) / x_number_buttons);
+	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
+	int button_height = 50;
+	int button_height_margin = button_height + y_margin;
+	int	ibutton_x = 0, ibutton_y = 0;
+	int y_cal = y_margin ;
+
+	int x_cal = x_margin;
+	
+	cal_label = lv_label_create(settings_cal);
+	lv_label_set_text(cal_label, "calibration");
+	lv_obj_align(cal_label, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
+	calibration_dropdown = lv_dropdown_create(settings_cal);
+	lv_group_add_obj(button_group, calibration_dropdown);
+	lv_obj_align_to(calibration_dropdown, cal_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+	lv_obj_set_width(calibration_dropdown, button_width); // 2*
+	lv_dropdown_clear_options(calibration_dropdown);
+	lv_obj_add_event_cb(calibration_dropdown, cal_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
+	lv_dropdown_set_options_static(calibration_dropdown, cal_opts);
+	
+	lv_dropdown_set_selected(calibration_dropdown, Settings_file.get_int(default_radio, "correction", 0));
+	Demodulator::set_autocorrection(Settings_file.get_int(default_radio, "correction", 0));
+	
+	x_cal = w / 2 + w / 4 + w / 16;
+	calbox = lv_checkbox_create(settings_cal);
+	lv_obj_align_to(calbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
+	lv_checkbox_set_text(calbox, "cal");
+	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+
+	dcbox = lv_checkbox_create(settings_cal);
+	lv_obj_align_to(dcbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal + 50);
+	lv_checkbox_set_text(dcbox, "dc filter");
+	lv_obj_add_event_cb(dcbox, dcbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	if (Settings_file.get_int(default_radio, "dc"))
+	{
+		lv_obj_add_state(dcbox, LV_STATE_CHECKED);
+		Demodulator::set_dc_filter(true);
+	}
+	else
+	{
+		Demodulator::set_dc_filter(false);
+	}
+}
+
 void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w, lv_coord_t h)
 {
 
@@ -392,10 +445,7 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	const int y_number_buttons = 4;
 	const lv_coord_t tab_margin  = 20;
 
-	int x_number_buttons = 5;
-	if (w > 800)
-		x_number_buttons = 8;
-
+	int x_number_buttons = number_off_x_buttons();
 	int button_width_margin = ((w - tab_margin) / x_number_buttons);
 	int button_width = ((w - tab_margin) / x_number_buttons) - x_margin;
 	int button_height = 50;
@@ -416,11 +466,9 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 
 	settings_main = lv_tileview_add_tile(tileview, 0, 0, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 
-	if (screenWidth <= small_res)
-		settings_cal = lv_tileview_add_tile(tileview, 0, 5, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
-	else
-		settings_cal = settings_main;
-
+	settings_cal = lv_tileview_add_tile(tileview, 0, 5, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
+	init_cal(settings_cal, keyboard_group, w, h)
+;		
 	settings_i2c = lv_tileview_add_tile(tileview, 0, 2, (lv_dir_t)(LV_DIR_BOTTOM | LV_DIR_TOP));
 	i2csetup.init(settings_i2c, w, h, button_group);
 
@@ -477,71 +525,18 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	lv_label_set_text(audio_label, "Audio device");
 	lv_obj_align_to(audio_label, d_audio, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
 
-	int y_cal;
-	if (screenWidth <= small_res)
-		y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
-	else
-		y_cal = y_margin + (ibutton_y + 2) * button_height_margin + button_height_margin / 2;
-
-	int x_cal = x_margin;
-	calibration_dropdown = lv_dropdown_create(settings_cal);
-	lv_group_add_obj(button_group, calibration_dropdown);
-	// lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, w / 2 + w / 4, y_cal);
-	lv_obj_align(calibration_dropdown, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
-	lv_obj_set_width(calibration_dropdown, button_width); // 2*
-	lv_dropdown_clear_options(calibration_dropdown);
-	lv_obj_add_event_cb(calibration_dropdown, cal_button_handler, LV_EVENT_VALUE_CHANGED, (void *)this);
-	lv_dropdown_set_options_static(calibration_dropdown, cal_opts);
-	cal_label = lv_label_create(settings_cal);
-	lv_label_set_text(cal_label, "calibration");
-	lv_obj_align_to(cal_label, calibration_dropdown, LV_ALIGN_OUT_TOP_LEFT, 0, -10);
-	lv_dropdown_set_selected(calibration_dropdown, Settings_file.get_int(default_radio, "correction", 0));
-	Demodulator::set_autocorrection(Settings_file.get_int(default_radio, "correction", 0));
-
 	//shutdown button
 	shutdownbutton = lv_btn_create(settings_main);
 	//lv_group_add_obj(m_button_group, shutdownbutton);
 	lv_obj_add_style(shutdownbutton, &style_btn, 0);
 	lv_obj_set_size(shutdownbutton, button_width * 0.8, button_height * 0.8);
 	lv_obj_add_event_cb(shutdownbutton, shutdown_button_handler, LV_EVENT_CLICKED, (void *)this);
-	x_cal = xpos + 4 * (button_width + x_margin);
-	y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
+	int x_cal = xpos + 4 * (button_width + x_margin);
+	int y_cal = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
 	lv_obj_align(shutdownbutton, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
 	lv_obj_t *lv_label = lv_label_create(shutdownbutton);
 	lv_label_set_text(lv_label, "Exit");
 	lv_obj_center(lv_label);
-
-	y_cal = y_margin + button_height_margin / 2;
-	x_cal = w / 2 + w / 4 + w / 16;
-	webbox = lv_checkbox_create(settings_cal);
-	lv_obj_align_to(webbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
-	lv_checkbox_set_text(webbox, "web");
-	lv_obj_add_event_cb(webbox, webbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	if (Settings_file.get_int("web", "enabled"))
-	{
-		lv_obj_add_state(webbox, LV_STATE_CHECKED);
-	}
-
-	y_cal += button_height_margin ;
-	x_cal = w / 2 + w / 4 + w / 16;
-	calbox = lv_checkbox_create(settings_cal);
-	lv_obj_align_to(calbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal);
-	lv_checkbox_set_text(calbox, "cal");
-	lv_obj_add_event_cb(calbox, calbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-
-	dcbox = lv_checkbox_create(settings_cal);
-	lv_obj_align_to(dcbox, settings_cal, LV_ALIGN_TOP_LEFT, x_cal, y_cal + 50);
-	lv_checkbox_set_text(dcbox, "dc filter");
-	lv_obj_add_event_cb(dcbox, dcbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
-	if (Settings_file.get_int(default_radio, "dc"))
-	{
-		lv_obj_add_state(dcbox, LV_STATE_CHECKED);
-		Demodulator::set_dc_filter(true);
-	}
-	else
-	{
-		Demodulator::set_dc_filter(false);
-	}
 
 	// Main Display
 	int y_disp = y_margin + ibutton_y * button_height_margin + button_height_margin / 2;
@@ -632,6 +627,15 @@ void gui_setup::init(lv_obj_t *o_tab, lv_group_t *keyboard_group_, lv_coord_t w,
 	std::string v_string = "Version " + version_string;
 	lv_label_set_text(version_label, v_string.c_str());
 	lv_obj_align_to(version_label, update_button, LV_ALIGN_BOTTOM_MID, 0, 3 * y_margin + font_size.y);
+	
+	webbox = lv_checkbox_create(settings_main);
+	lv_obj_align_to(webbox, brightness_slider, LV_ALIGN_BOTTOM_LEFT, 0, 40);
+	lv_checkbox_set_text(webbox, "web");
+	lv_obj_add_event_cb(webbox, webbox_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	if (Settings_file.get_int("web", "enabled"))
+	{
+		lv_obj_add_state(webbox, LV_STATE_CHECKED);
+	}
 }
 
 

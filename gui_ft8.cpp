@@ -24,10 +24,10 @@ std::ostream &operator<<(std::ostream &os, const struct StatusMessage &statusmes
 
 std::ostream &operator<<(std::ostream &os, const qso_logging &qso)
 {
-	auto decode_time = date::floor<std::chrono::seconds>(qso.decode_time);
+	auto decode_time = std::chrono::floor<std::chrono::seconds>(qso.decode_time);
 
 	// Format decode_time: convert to sys_time, then to std::tm
-	os << "Time: " << date::format("%F %H:%M:%S", decode_time) << '\n'
+	os << "Time: " << std::format("%F %H:%M:%S", decode_time) << '\n'
 	   << "Frequency: " << qso.freq << '\n'
 	   << "DX Call: " << qso.dxCall << '\n'
 	   << "Message: " << qso.message << '\n'
@@ -117,6 +117,30 @@ bool is_dxGrid(const std::string &word)
 
 void gui_ft8::qso_press_part_event_class(lv_event_t *e)
 {
+	lv_obj_t *obj = (lv_obj_t *)lv_event_get_target(e);
+	lv_table_t *table = (lv_table_t *)obj;
+	uint32_t row, col;
+	int db, length;
+	
+	lv_table_get_selected_cell(obj, &row, &col);
+	if (lv_table_get_row_cnt(obj) < row + 1)
+		return;
+	if (lv_table_get_cell_value(obj, row, 1) != nullptr)
+		db = atoi(lv_table_get_cell_value(obj, row, 1));
+	std::string str(lv_table_get_cell_value(obj, row, 3));
+	size_t i = str.find(' ');
+	size_t q = str.rfind(' ');
+	if (i != std::string::npos && q != std::string::npos && (q - i - 1) > 0)
+	{
+		std::string dxGrid;
+		int start_pos_report = str.find_last_of(' ') + 1;
+		std::string s = str.substr(start_pos_report, str.size());
+		if (is_dxGrid(s))
+		{
+			dxGrid = s;
+		}
+		guift8bar.setMessage(str.substr(i + 1, q - i - 1), db, which_report(str), dxGrid);
+	}	
 }
 
 void gui_ft8::cq_press_part_event_class(lv_event_t *e)
@@ -471,10 +495,10 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	lv_obj_add_event_cb(wspr_table, wspr_draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, (void *)this);
 	wspr_enable(false);
 	// Test code
-	/*
+	
 	std::vector<decoder_results> results;
 	decoder_results result;
-
+/*
 	strcpy(result.call, "ND6P");
 	strcpy(result.message, "ND6P DM04 30");
 	result.drift = 0.01;
@@ -486,22 +510,22 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 	add_wspr(results);
 
 	std::string timezone = Settings_file.get_string("Radio", "timezone");
-	set_decode_start_time(make_zoned(date::current_zone(), date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
+	set_decode_start_time(std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
 	if (timezone.size())
 	{
 		try
 		{
-			auto zone = date::locate_zone(timezone);
-			set_decode_start_time(make_zoned(zone, date::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
+			auto zone = std::chrono::locate_zone(timezone);
+			set_decode_start_time(std::chrono::zoned_time(zone, std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
 		}
-		catch (const date::nonexistent_local_time &e)
+		catch (const std::chrono::nonexistent_local_time &e)
 		{
 			std::cout << e.what() << '\n';
 		}
 	}
 	*/
-
-	/*
+/*
+	
 		// DK7ZT
 		message m{12, 1, 1, 1, 1, 1, 1000, "PA0PHH PB23AMF JO22"};
 		add_cq(m);
@@ -528,7 +552,7 @@ void gui_ft8::init(lv_obj_t *o_tab, lv_group_t *keyboard_group, lv_coord_t x, lv
 			add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
 		}
 	add_line(12, 1, 1, 1, 1, 1.0, 1000, std::string("PA0XXX M0ZMF KO21"));
-	*/
+*/
 }
 
 void gui_ft8::wspr_enable(bool enable)

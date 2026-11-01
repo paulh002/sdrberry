@@ -5,7 +5,6 @@
 #include <map>
 #include <regex>
 #include <string>
-#include "tz.h"
 #include "vfo.h"
 
 //std::mutex cycle_mu;

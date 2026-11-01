@@ -4,7 +4,6 @@
 #include "Settings.h"
 #include "sdrberry.h"
 #include <nlohmann/json.hpp>
-#include "tz.h"
 #include <wsjtx_lib.h>
 #include "FT8UdpClient.h"
 

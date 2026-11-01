@@ -1,6 +1,5 @@
 #include "FT8Demodulator.h"
 #include "Spectrum.h"
-#include "date.h"
 #include "gui_ft8bar.h"
 #include "gui_bar.h"
 #include "sdrberry.h"
@@ -90,7 +89,7 @@ void FT8Demodulator::operator()()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
 	auto timeLastPrint = std::chrono::high_resolution_clock::now();
-	auto today = date::floor<date::days>(startTime);
+	auto today = std::chrono::floor<std::chrono::days>(startTime);
 
 	int ifilter{-1}, rcount{0}, dropped_frames{0};
 	long span;
@@ -143,7 +142,7 @@ void FT8Demodulator::operator()()
 		{
 			capture = true;
 			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-			std::cout << "start cycle " << date::make_time(now - today) << "\n";
+			std::cout << "start cycle " << std::chrono::hh_mm_ss(now - today) << "\n";
 			audiosamples.clear();
 			// drop all captured data
 			startTime = std::chrono::high_resolution_clock::now();

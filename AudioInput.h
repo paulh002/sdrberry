@@ -26,7 +26,7 @@ class AudioInput : public RtAudio
 	unsigned int sampleRate;
 	unsigned int bufferFrames;
 	float  digitalvolume, tone_volume, playback_volume;
-	std::atomic<float> volume;
+	std::atomic<float> volume, web_volume;
 	std::string error;
 	long asteps, asteps2;
 	bool stereo;
@@ -63,6 +63,7 @@ class AudioInput : public RtAudio
 	void set_digital_volume(int vol);
 	void set_tone_volume(int vol);
 	void set_playback_volume(int vol);
+	void set_web_volume(int vol);
 	bool get_stereo() { return stereo; };
 	int queued_samples();
 	int getAudioDevice(std::string device);

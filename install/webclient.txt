@@ -1,0 +1,10 @@
+Installing the certificate on clients
+
+Use cert.crt for the quick version or ca.crt for the CA version.
+
+Windows: double-click the file, choose Install Certificate, select Local Machine, and put it in Trusted Root Certification Authorities. Chrome and Edge pick it up.
+macOS: add it to Keychain Access, open it, and set Trust to Always Trust.
+Linux (Chrome): certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n sdr -i ca.crt
+Firefox: it has its own store. Go to Settings, Privacy & Security, Certificates, View Certificates, Authorities, Import.
+Android: Settings, Security, Install a certificate, CA certificate.
+iOS: open the file, install the profile, then enable it under Settings, General, About, Certificate Trust Settings.

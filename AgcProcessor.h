@@ -99,8 +99,23 @@ class AgcProcessor
 
 		if constexpr (std::is_same_v<T, float>)
 		{
-			agc_rrrf_execute_block(static_cast<agc_rrrf>(handle_),
-								   samples.data(), n, samples.data());
+			constexpr unsigned SUB = 240; // 5 ms at 48 kHz: longer than one cycle of a ~200 Hz tone
+			constexpr float THRESH = 4.0f; // ~+6 dB over target triggers a gain jump
+
+			for (unsigned i = 0; i < n; i += SUB) {
+				unsigned m = std::min(SUB, n - i);
+				float e = 0.f;
+				for (unsigned j = 0; j < m; ++j) e += samples.data()[i + j] * samples.data()[i + j];
+				float rms = std::sqrt(e / m);
+
+				if (rms > 1e-6f && rms * agc_rrrf_get_gain(static_cast<agc_rrrf>(handle_)) > THRESH)
+					agc_rrrf_set_signal_level(static_cast<agc_rrrf>(handle_), rms); // g = 1/rms and y2_prime reset
+
+				agc_rrrf_execute_block(static_cast<agc_rrrf>(handle_), samples.data() + i, m, samples.data() + i);
+			}
+			
+			//agc_rrrf_execute_block(static_cast<agc_rrrf>(handle_),
+			//					   samples.data(), n, samples.data());
 		}
 		else
 		{
@@ -217,6 +232,7 @@ class AgcProcessor
 
 	void set_bandwidth(float bt)
 	{
+		printf("bandwidth %f\n", bt);
 		if (bt <= 1.0 && bt > 0.0)
 		{
 			if constexpr (std::is_same_v<T, float>)
@@ -286,12 +302,8 @@ class AGCUnifiedProcessor
 	{
 		std::visit([&buffer, num_samples](auto &d) {
 			using T = typename std::decay_t<decltype(d)>::sample_type;
-			std::span<T> samples(
-				reinterpret_cast<T *>(buffer.data()),
-				num_samples);
-			d.process(samples);
-		},
-				   demod_);
+			std::span<T> samples(reinterpret_cast<T *>(buffer.data()),num_samples);
+			d.process(samples);},demod_);
 	}
 
 	void set_scale(int scale)

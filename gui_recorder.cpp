@@ -205,6 +205,8 @@ void gui_recorder::init(lv_obj_t *parent, lv_coord_t w)
 
 void gui_recorder::set_value(float value)
 {
+	if (value < -1000.0)
+		value = -1000.0;
 	float smoothed = smeter_filter->process(value + 350.0f);
 	audiobar_recording.value(smoothed);
 }

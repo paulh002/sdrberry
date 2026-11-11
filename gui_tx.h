@@ -12,10 +12,11 @@ class gui_tx
 	lv_obj_t *digital_slider, *digital_slider_label, *tune_slider, *tune_slider_label, *playback_slider, *playback_slider_label;
 	lv_obj_t *tileview, *speech_tile, *tx_tile, *recorder_tile;
 	lv_obj_t *temp_meter;
+	lv_obj_t *web_mic_slider, *web_mic_slider_label;
 
 	tempMeter tempmeter;
 	std::unique_ptr<tempSensor> tempsensor;
-	std::map<std::string, int> mic_gain_map;
+	std::map<std::string, int> mic_gain_map, web_mic_gain_map;
 	std::map<std::string, int> digital_gain_map;
 	std::map<std::string, int> tune_map;
 	std::map<std::string, int> drive_map;
@@ -38,10 +39,12 @@ class gui_tx
 	void digital_slider_event_cb_class(lv_event_t *e);
 	void tune_slider_event_cb_class(lv_event_t *e);
 	void playback_slider_event_cb_class(lv_event_t *e);
-
+	void web_mic_slider_event_cb_class(lv_event_t *e);
+	
   public:
 	void gui_tx_init(lv_obj_t *o_tab, lv_coord_t w, bool disable);
 	void set_mic_slider(int volume);
+	void set_web_mic_slider(int volume);
 	void set_tune_slider(int volume);
 	void set_digital_slider(int volume);
 	void set_drv_slider(int drive);
@@ -64,6 +67,8 @@ class gui_tx
 	static constexpr auto digital_slider_event_cb = EventHandler<gui_tx, &gui_tx::digital_slider_event_cb_class>::staticHandler;
 	static constexpr auto tune_slider_event_cb = EventHandler<gui_tx, &gui_tx::tune_slider_event_cb_class>::staticHandler;
 	static constexpr auto playback_slider_event_cb = EventHandler<gui_tx, &gui_tx::playback_slider_event_cb_class>::staticHandler;
+	static constexpr auto web_mic_slider_event_cb = EventHandler<gui_tx, &gui_tx::web_mic_slider_event_cb_class>::staticHandler;
+	
 };
 
 extern gui_tx	Gui_tx;

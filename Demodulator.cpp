@@ -800,6 +800,7 @@ int Demodulator::SquelchReadMode()
 		{
 			AgcProc->set_bandwidth((float)a / squelch_delay_div);
 			attack_release = a;
+			printf("bandwidth %f\n", (float)a / squelch_delay_div);
 		}
 
 		int d = guisquelch.get_agc_delay();

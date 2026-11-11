@@ -30,3 +30,31 @@ class PCM extends AudioWorkletProcessor {
   }
 }
 registerProcessor('pcm', PCM);
+
+// Microphone capture: collects the 128-sample render blocks into 960-sample (20 ms) frames and posts
+// them to the main thread, where they are Opus-encoded and sent to the Pi.
+class Capture extends AudioWorkletProcessor {
+  constructor(options) {
+    super();
+    const po = options && options.processorOptions;
+    this.n = (po && po.frame) || 960;
+    this.buf = new Float32Array(this.n);
+    this.i = 0;
+  }
+  process(inputs) {
+    const ch = inputs[0] && inputs[0][0];        // first channel of the first input
+    if (ch) {
+      for (let k = 0; k < ch.length; k++) {
+        this.buf[this.i++] = ch[k];
+        if (this.i === this.n) {
+          const out = this.buf;
+          this.port.postMessage(out, [out.buffer]);
+          this.buf = new Float32Array(this.n);
+          this.i = 0;
+        }
+      }
+    }
+    return true;
+  }
+}
+registerProcessor('capture', Capture);

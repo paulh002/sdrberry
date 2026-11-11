@@ -1,6 +1,7 @@
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "whitenoise.h"
+#include "remote_view.h"
 
 AudioInput *audio_input;
 
@@ -59,6 +60,30 @@ int AudioInput::AudioIn_class(void *outputBuffer, void *inputBuffer, unsigned in
 	{
 		doPlayRecording();
 		return 0;
+	}
+	else if (rv_tx_active())
+	{
+		audio_in_buffer.push_block(nBufferFrames,
+			[&](std::span<float> buffer) {
+				SampleVector webbuffer(nBufferFrames);
+				
+				int s = rv_tx_read(webbuffer);
+				for (int i = 0; i < nBufferFrames; i++)
+				{
+					Sample f = webbuffer[i] * web_volume.load(std::memory_order::relaxed);
+					if (s == nBufferFrames)
+						buffer[i] = f;
+					else
+						buffer[i] = 0;						
+				}
+				float mic_vol = 0;
+				for (auto con : buffer)
+				{
+					mic_vol += con * con;
+				}
+				mic_volume.store(mic_vol / buffer.size());
+			});
+			return 0;
 	}
 	else
 	{
@@ -146,6 +171,7 @@ AudioInput::AudioInput(unsigned int pcmrate, unsigned int bufferFrames_, bool st
 	tone_volume = 1.0;
 	digitalvolume = 1.0;
 	playback_volume = 1.0;
+	web_volume = 1.0;
 	audio_in_buffer.reserve(bufferFrames);
 	gain_buffer.reserve(bufferFrames);
 	asteps = asteps2 = 0;
@@ -211,7 +237,13 @@ void AudioInput::set_tone_volume(int vol)
 {
 	// log volume
 	tone_volume = expf(((float)vol * 6.908) / 100.0) / 100.0;
+}
 
+void AudioInput::set_web_volume(int vol)
+{
+	// log volume
+	web_volume = expf(((float)vol * 6.908) / 100.0) / 100.0;
+	//printf("mic vol %f\n", (float)volume);
 }
 
 void AudioInput::set_playback_volume(int vol)

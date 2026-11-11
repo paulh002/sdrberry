@@ -1,7 +1,7 @@
 openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
   -keyout key.pem -out cert.crt \
-  -subj "/CN=sdr.local" \
-  -addext "subjectAltName=DNS:sdr.local,DNS:pi5b.local,IP:192.168.88.17"
+  -subj "/CN=pi1.local" \
+  -addext "subjectAltName=DNS:pi1.local,DNS:pi1.local,IP:192.168.88.31"
   
   
 sudo mkdir -p /etc/sdr

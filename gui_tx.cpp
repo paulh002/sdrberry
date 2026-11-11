@@ -206,16 +206,25 @@ void gui_tx::gui_tx_init(lv_obj_t* tx_tile, lv_coord_t w, bool disable)
 	playback_slider_label = lv_label_create(tx_tile);
 	lv_obj_align_to(playback_slider_label, playback_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
 	lv_group_add_obj(m_button_group, playback_slider);
-						  
+	
+	web_mic_slider = lv_slider_create(tx_tile);
+	lv_obj_set_width(web_mic_slider, w / 2 - 50);
+	lv_slider_set_range(web_mic_slider, 0, 100);
+	lv_obj_align_to(web_mic_slider, drv_slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 30);
+	lv_obj_add_event_cb(web_mic_slider, web_mic_slider_event_cb, LV_EVENT_VALUE_CHANGED, (void *)this);
+	web_mic_slider_label = lv_label_create(tx_tile);
+	lv_obj_align_to(web_mic_slider_label, web_mic_slider, LV_ALIGN_OUT_TOP_MID, 0, -10);
+	lv_group_add_obj(m_button_group, web_mic_slider_label);
+				  
 	lv_obj_set_tile_id(tileview, 0, 0, LV_ANIM_OFF);
 	ibutton_y++;
-	tempSensor::start_read_out();
+	/*tempSensor::start_read_out();
 	temp_meter = tempmeter.init(tx_tile, 100, 100);
 	tempmeter.set_pos(x_margin, button_height_margin + y_margin);
 	if (tempSensor::count_tempsensors() == 0)
 	{
 		tempmeter.hide(true);
-	}
+	}*/
 }
 
 void gui_tx::set_group()
@@ -226,7 +235,7 @@ void gui_tx::set_group()
 
 void gui_tx::get_measurements()
 {
-	tempmeter.set_indicator(tempSensor::get_temperature(0));
+	//tempmeter.set_indicator(tempSensor::get_temperature(0));
 }
 
 void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
@@ -237,6 +246,16 @@ void gui_tx::mic_slider_event_cb_class(lv_event_t * e)
 
 	mic_gain_map[vfo.get_active_band_meters()] = lv_slider_get_value(slider);
 	Settings_file.set_map_string("TX", "micgain", mic_gain_map);
+}
+
+void gui_tx::web_mic_slider_event_cb_class(lv_event_t * e)
+{
+	lv_obj_t *slider = (lv_obj_t *)lv_event_get_target(e);
+
+	set_web_mic_slider(lv_slider_get_value(slider));
+
+	web_mic_gain_map[vfo.get_active_band_meters()] = lv_slider_get_value(slider);
+	Settings_file.set_map_string("TX", "webmicgain", web_mic_gain_map);
 }
 
 void gui_tx::digital_slider_event_cb_class(lv_event_t *e)
@@ -257,6 +276,10 @@ void gui_tx::set_gain_sliders_band_from_config()
 	mic_gain_map = Settings_file.get_map_string("TX", "micgain");
 	volume = mic_gain_map[vfo.get_active_band_meters()];
 	set_mic_slider(volume);
+
+	web_mic_gain_map = Settings_file.get_map_string("TX", "webmicgain");
+	volume = web_mic_gain_map[vfo.get_active_band_meters()];
+	set_web_mic_slider(volume);
 
 	tune_map = Settings_file.get_map_string("TX", "tunegain");
 	volume = tune_map[vfo.get_active_band_meters()];
@@ -303,6 +326,21 @@ void gui_tx::set_mic_slider(int volume)
 	lv_label_set_text(mic_slider_label, buf);
 	if (audio_input != nullptr)
 		audio_input->set_volume(volume);
+}
+
+void gui_tx::set_web_mic_slider(int volume)
+{
+	if (volume < 0)
+		volume = 0;
+	if (volume > micgain)
+		volume = micgain;
+	lv_slider_set_value(web_mic_slider, volume, LV_ANIM_ON);
+	char buf[20];
+	
+	sprintf(buf, "web mic gain %d db", volume);
+	lv_label_set_text(web_mic_slider_label, buf);
+	if (audio_input != nullptr)
+		audio_input->set_web_volume(volume);
 }
 
 void gui_tx::set_playback_slider(int volume)
@@ -534,3 +572,4 @@ void gui_tx::enable_tx(bool enable)
 	else
 		disabled = true;
 }
+

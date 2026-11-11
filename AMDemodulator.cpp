@@ -294,7 +294,6 @@ void AMDemodulator::process(IQSampleVector&	samples_in, SampleVector& audio)
 	mix_down(samples_in);
 	Resample(samples_in, filter1);
 	lowPassAudioFilter(filter1);
-	
 	if (guirx.get_cw())
 		pMDecoder->decode(filter1);
 	for (auto col : filter1)

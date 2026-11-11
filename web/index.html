@@ -45,6 +45,7 @@
     text-overflow: ellipsis; white-space: nowrap; }
   .msg.err { color: var(--bad); }
   .msg:empty { display: none; }
+  button.warn { border-color: var(--bad); color: var(--bad); }
 
   #stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
     background: #000; overflow: hidden; }
@@ -61,6 +62,10 @@
   <span id="sinkMsg" class="msg" role="status" aria-live="polite"></span>
   <label class="vol">Volume <input id="vol" type="range" min="0" max="100" value="80" aria-label="Volume"></label>
   <button id="audioBtn" class="primary" type="button">Start audio</button>
+  <span id="audioMsg" class="msg" role="status" aria-live="polite"></span>
+  <label class="vol" id="micWrap">Mic <select id="mic" aria-label="Microphone input device"></select></label>
+  <button id="micBtn" class="primary" type="button">Start mic</button>
+  <span id="micMsg" class="msg" role="status" aria-live="polite"></span>
   <button id="rotBtn" type="button" title="Rotate the view by 90 degrees">Rotate</button>
   <button id="fsBtn" type="button">Full screen</button>
 </header>
@@ -137,6 +142,7 @@
           break;
         }
         case 2: {                                  // audio: [2][u32 seq][opus]
+          rxPackets++;
           if (decoder && decoder.state === 'configured' && decoder.decodeQueueSize < 10) {
             decoder.decode(new EncodedAudioChunk({
               type: 'key',
@@ -152,6 +158,7 @@
 
   // ---------- audio ----------
   let ac = null, node = null, gain = null, decoder = null, audioState = 'off';
+  let rxPackets = 0, rxPeak = 0;                 // per-second receive statistics for the status message
 
   // ---------- output device selection (Chromium: AudioContext.setSinkId) ----------
   const sinkSel  = document.getElementById('sink');
@@ -236,6 +243,7 @@
     try {
       const s = await navigator.mediaDevices.getUserMedia({ audio: true });
       s.getTracks().forEach(t => t.stop());
+      loadMics().catch(() => {});                 // microphone names are unlocked by the same permission
     } catch (err) { console.warn('getUserMedia failed', err); micDenied = true; }
 
     try { named = (await loadSinks()) || 0; } catch (_) {}
@@ -273,6 +281,7 @@
       output: (ad) => {
         const f = new Float32Array(ad.numberOfFrames);
         ad.copyTo(f, { planeIndex: 0, format: 'f32-planar' });
+        for (let i = 0; i < f.length; i++) { const a = Math.abs(f[i]); if (a > rxPeak) rxPeak = a; }
         node.port.postMessage(f, [f.buffer]);
         ad.close();
       },
@@ -283,16 +292,189 @@
     if (!sup.supported) { setStatus('This browser cannot decode Opus', 'bad'); return; }
     decoder.configure(cfg);
     audioState = 'on';
+    const audioMsgEl = document.getElementById('audioMsg');
+    setInterval(() => {                           // tells you where the audio stops
+      if (audioState === 'muted') { audioMsgEl.textContent = ''; rxPackets = 0; rxPeak = 0; return; }
+      let text, err = true;
+      if (!ws || ws.readyState !== 1)  text = 'Audio: not connected';
+      else if (rxPackets === 0)        text = 'Audio: no packets from the Pi';
+      else if (rxPeak < 0.0005)        text = 'Audio: packets arrive but the sound is silent';
+      else { text = `Audio: ${rxPackets} packets/s, level ${rxPeak.toFixed(2)}`; err = false; }
+      audioMsgEl.textContent = text;
+      audioMsgEl.classList.toggle('err', err);
+      rxPackets = 0; rxPeak = 0;
+    }, 1000);
     audioBtn.textContent = 'Mute';
     audioBtn.classList.remove('primary');
   }
 
   audioBtn.addEventListener('click', async () => {
-    if (audioState === 'off') { await startAudio(); return; }          // needs this user gesture
+    if (audioState === 'off') {
+      try { await startAudio(); }
+      catch (err) {
+        console.warn('startAudio failed', err);
+        if (ac) { try { ac.close(); } catch (_) {} ac = null; }
+        const m = document.getElementById('audioMsg');
+        m.textContent = 'Audio failed to start: ' + ((err && err.message) || err);
+        m.classList.add('err');
+      }
+      return;
+    }          // needs this user gesture
     if (audioState === 'on')  { await ac.suspend(); audioState = 'muted'; audioBtn.textContent = 'Unmute'; return; }
     await ac.resume(); audioState = 'on'; audioBtn.textContent = 'Mute';
   });
   volEl.addEventListener('input', () => { if (gain) gain.gain.value = volEl.value / 100; });
+
+  // ---------- TX audio: microphone -> Opus -> WebSocket ----------
+  const micSel   = document.getElementById('mic');
+  const micBtn   = document.getElementById('micBtn');
+  const micMsgEl = document.getElementById('micMsg');
+  // Raw microphone by default: for SSB you normally set the level on the radio, not in the browser.
+  const MIC_CONSTRAINTS = { channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+  const TX_CFG = { codec: 'opus', sampleRate: 48000, numberOfChannels: 1, bitrate: 32000,
+                   opus: { application: 'voip', signal: 'voice', frameDuration: 20000 } };
+  let txActive = false, txMuted = false, txStream = null, txCtx = null, txEnc = null, txSeq = 0, txFrames = 0;
+  let txSent = 0, txTimer = 0;                          // packets per second shown next to the mic button
+
+  function micMsg(text, isErr) { micMsgEl.textContent = text; micMsgEl.classList.toggle('err', !!isErr); }
+
+  function micUi() {
+    micBtn.classList.toggle('primary', !txActive);
+    micBtn.classList.toggle('warn', txActive && txMuted);
+    micBtn.textContent = !txActive ? 'Start mic' : txMuted ? 'Unmute mic' : 'Mute mic';
+    micBtn.setAttribute('aria-pressed', String(txActive && txMuted));
+    if (txActive) micMsg(txMuted ? 'Mic muted' : 'Mic live');
+  }
+
+  async function loadMics() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+    const devs = (await navigator.mediaDevices.enumerateDevices())
+      .filter(d => d.kind === 'audioinput' && d.deviceId !== 'default' && d.deviceId !== 'communications');
+    let want = '';
+    try { want = localStorage.getItem('mic') || ''; } catch (_) {}
+    micSel.replaceChildren(new Option('System default', ''));
+    devs.forEach((d, i) => micSel.add(new Option(d.label || `Microphone ${i + 1}`, d.deviceId)));
+    micSel.value = [...micSel.options].some(o => o.value === want) ? want : '';
+  }
+
+  function sendTxChunk(chunk) {
+    if (txMuted || !ws || ws.readyState !== 1) return;
+    if (ws.bufferedAmount > 64 * 1024) return;          // network stalled: drop instead of building latency
+    const m = new Uint8Array(5 + chunk.byteLength);
+    m[0] = 0x13;
+    new DataView(m.buffer).setUint32(1, txSeq++ >>> 0, true);
+    chunk.copyTo(m.subarray(5));
+    ws.send(m);
+    txSent++;
+  }
+
+  async function startTx() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('needs https');
+    if (!('AudioEncoder' in window)) throw new Error('no AudioEncoder');
+    const sup = await AudioEncoder.isConfigSupported(TX_CFG);
+    if (!sup.supported) throw new Error('no Opus encoder');
+
+    const id = micSel.value;                            // '' = system default
+    try {
+      txStream = await navigator.mediaDevices.getUserMedia(
+        { audio: { ...MIC_CONSTRAINTS, ...(id ? { deviceId: { exact: id } } : {}) } });
+    } catch (err) {
+      if (err.name === 'OverconstrainedError' && id) {  // the saved device is gone: use the default
+        micSel.value = '';
+        txStream = await navigator.mediaDevices.getUserMedia({ audio: MIC_CONSTRAINTS });
+      } else throw err;
+    }
+    txStream.getAudioTracks().forEach(t => { t.enabled = !txMuted; });
+
+    txEnc = new AudioEncoder({ output: sendTxChunk, error: (e) => console.warn('AudioEncoder', e) });
+    txEnc.configure(TX_CFG);
+
+    // Own AudioContext, so muting or suspending the receive audio never affects the microphone.
+    txCtx = new AudioContext({ sampleRate: 48000, latencyHint: 'interactive' });
+    await txCtx.audioWorklet.addModule('worklet.js');
+    if (txCtx.state === 'suspended') await txCtx.resume();
+    const src = txCtx.createMediaStreamSource(txStream);
+    const cap = new AudioWorkletNode(txCtx, 'capture', { numberOfInputs: 1, numberOfOutputs: 1,
+                                                          outputChannelCount: [1], processorOptions: { frame: 960 } });
+    const silent = txCtx.createGain();                  // silent sink: keeps the worklet running, nothing is heard
+    silent.gain.value = 0;
+    src.connect(cap);
+    cap.connect(silent).connect(txCtx.destination);
+
+    cap.port.onmessage = (e) => {
+      if (txMuted || !txEnc || txEnc.state !== 'configured' || txEnc.encodeQueueSize > 4) return;
+      const f = e.data;                                 // Float32Array, 960 samples = 20 ms
+      const ad = new AudioData({ format: 'f32', sampleRate: 48000, numberOfFrames: f.length,
+                                  numberOfChannels: 1, timestamp: txFrames++ * 20000, data: f });
+      txEnc.encode(ad);
+      ad.close();
+    };
+
+    txActive = true;
+    clearInterval(txTimer);
+    txTimer = setInterval(() => {                       // shows whether packets really leave the browser
+      if (!txActive || txMuted) { txSent = 0; return; }
+      micMsg(txSent > 0 ? `Mic live, ${txSent} packets/s` : 'Mic live, but no packets are leaving the browser', txSent === 0);
+      txSent = 0;
+    }, 1000);
+    loadMics().catch(() => {});                         // device names are available now
+  }
+
+  async function stopTx() {
+    txActive = false;
+    clearInterval(txTimer);
+    if (txStream) txStream.getTracks().forEach(t => t.stop());
+    txStream = null;
+    if (txEnc && txEnc.state !== 'closed') { try { txEnc.close(); } catch (_) {} }
+    txEnc = null;
+    if (txCtx) { try { await txCtx.close(); } catch (_) {} }
+    txCtx = null;
+  }
+
+  function txErrorText(err) {
+    switch (err && err.name) {
+      case 'NotAllowedError':  return 'Microphone permission denied';
+      case 'NotFoundError':    return 'No microphone found';
+      case 'NotReadableError': return 'Microphone is in use by another program';
+    }
+    const m = String((err && err.message) || err);
+    if (m === 'needs https') return 'Microphone needs https';
+    if (m === 'no AudioEncoder' || m === 'no Opus encoder') return 'This browser cannot encode Opus (use Chrome or Edge)';
+    return 'Microphone error: ' + m;
+  }
+
+  async function startTxReporting() {
+    try { await startTx(); micUi(); }
+    catch (err) {
+      console.warn('TX start failed', err);
+      await stopTx();
+      micMsg(txErrorText(err), true);
+      micUi();
+    }
+  }
+
+  micBtn.addEventListener('click', async () => {
+    if (txActive) {                                     // running: the button is now the mute toggle
+      txMuted = !txMuted;
+      if (txStream) txStream.getAudioTracks().forEach(t => { t.enabled = !txMuted; });
+      micUi();
+      return;
+    }
+    micBtn.disabled = true;
+    micMsg('Starting microphone');
+    await startTxReporting();
+    micBtn.disabled = false;
+  });
+
+  micSel.addEventListener('change', async () => {
+    try { localStorage.setItem('mic', micSel.value); } catch (_) {}
+    if (!txActive) return;                              // takes effect at the next start
+    await stopTx();
+    await startTxReporting();
+  });
+
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener)
+    navigator.mediaDevices.addEventListener('devicechange', () => loadMics().catch(() => {}));
 
   // ---------- input ----------
   const send = (buf) => { if (ws && ws.readyState === 1) ws.send(buf); };
@@ -376,6 +558,8 @@
   rot = saved !== null ? (parseInt(saved, 10) || 0) : (innerHeight > innerWidth ? 90 : 0);
 
   if (canSink) { sinkWrap.hidden = false; loadSinks().catch(() => {}); }   // hidden in browsers without setSinkId
+  loadMics().catch(() => {});
+  micUi();
 
   fit();
   connect();

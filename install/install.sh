@@ -137,8 +137,8 @@ cd $wrkdir || exit
 git clone https://github.com/jgaeddert/liquid-dsp
 sudo apt-get install -y automake autoconf
 cd liquid-dsp || exit
-git checkout v1.8.0
-sed -i 's/\(q->m[[:space:]]*=[[:space:]]*\)25;/\1127;/' ./src/modem/src/ampmodem.c
+git switch ampmodem-dev
+#sed -i 's/\(q->m[[:space:]]*=[[:space:]]*\)25;/\1127;/' ./src/modem/src/ampmodem.c
 mkdir build
 cd build
 cmake -DBUILD_EXAMPLES=OFF -DBUILD_AUTOTESTS=OFF -DBUILD_BENCHMARKS=OFF -DENABLE_LOGGING=OFF ..

@@ -82,6 +82,8 @@ void gui_mic::set_value_mic(float value)
 {
 	if (mic_filter)
 	{
+		if (value < -1000.0)
+			value = -1000.0;
 		float smoothed = mic_filter->process(value + 350.0f);
 		audiobar_mic.value(smoothed);
 	}
@@ -90,8 +92,7 @@ void gui_mic::set_value_mic(float value)
 void gui_mic::set_value_alc(float value)
 {
 	if (alc_filter)
-	{
-		value = value * -1.0;
+	{	value = value * -1.0;
 		float smoothed = alc_filter->process(value);
 		audiobar_alc.value(smoothed);
 	}
